@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-1) extract vocab from tokenized text
+1) extract word count from tokenized text
 	python helper.py -i <input_dir> -o <output_path>
+	python helper.py -i sentences -o word_count.txt
 
 2) split files of a dir into sub_dirs
 	python helper.py -i <input_dir> -o <output_dir> -j cp_3_100	#cp input_dir to sentences/sentences_3, 4, .. with 100 each
@@ -34,7 +35,7 @@ from get_files_multi import get_files
 default_model_path = "/shared/data/PMC/w2v_models/1300000d300_model/d300_model.model"
 default_text = "he questions about the subjects' self-reported oral health status,"
 
-#1)save vocab
+#1)save word count
 def merge_token_count(token_count_lst):
 	token_count = []
 	for t_cs in token_count_lst:
@@ -64,7 +65,7 @@ def count_work(idx_fs_lst):
 	return merge_token_count(token_count_lst)
 		
 
-def save_vocab(input_dir, output_path):
+def save_word_count(input_dir, output_path):
 
 	idx_fs = [(i, f) for i, f in enumerate(get_files(input_dir, 'txt'))]
 
@@ -81,7 +82,7 @@ def save_vocab(input_dir, output_path):
 	with open(output_path, 'w') as fd:
 		fd.write('\n'.join(merged))
 
-	return "vocabs saved to:" + output_path
+	return "word_count saved to:" + output_path
 
 
 #2) split files of a dir into sub_dirs
@@ -216,7 +217,7 @@ if __name__ == '__main__':
 
 	#1) extract vocab from tokenized text
 	if os.path.isfile(output_path):
-		print (save_vocab(input_path, output_path))
+		print (save_word_count(input_path, output_path))
 		sys.exit(0)
 
 	#2) split files of a dir to more sub_dir. eg. sentences -> sentences/sentences_1, sentences_2, ...
