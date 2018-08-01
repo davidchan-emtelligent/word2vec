@@ -77,7 +77,7 @@ def save_word_count(input_dir, output_path):
 
 	batches = [idx_fs[s:e] for (s, e) in batch_span]
 	print ("total files:", n_files)
-	print ("n_batches  :", len(batches), " last batch :",batches[-1])
+	print ("n_batches  :", len(batches), " last batch :",batch_span[-1])
 
 	#token_count = [count_work(batch) for batch in batches]
 	token_count = list(multiprocessing.Pool().imap_unordered(count_work, batches))
@@ -236,8 +236,9 @@ if __name__ == '__main__':
 		print ("\n".join(split_dir(input_path, output_path, op=op, idx_start=idx_start, step=step, limit=args.limit)))
 		sys.exit(0)
 
-	if not os.path.exists(output_path):
-		print ("WARNING: %s is not existing"%output_path)
+	if output_path != None and not os.path.exists(output_path):
+		print ("ERROR: %s is not existing"%output_path)
+		sys.exit(0)
 
 	if model_path != None:
 		print ("loading model:", model_path, " .....")
