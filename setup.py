@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(
-    name='embedding',
+    name='word2vec',
     version='0.0.0',
     python_requires='>=2.7',
 
