@@ -40,12 +40,15 @@ if __name__ == '__main__':
 	argparser.add_argument("-o", "--output_dir", dest="output_dir", type=str, default=default_out_dir, \
 		help="output_dir (default={})".format(None))
 
+	argparser.add_argument("-l", "--limit", dest="limit", type=int, default=2000000, \
+		help="limit (default={})".format(2000000))
+
 	args = argparser.parse_args()
 
 	in_dir = args.input_dir
 	out_dir = args.output_dir
 
-	idx_fs = [ (i, in_dir, out_dir, f) for i, f in enumerate(os.listdir(in_dir))]
+	idx_fs = [ (i, in_dir, out_dir, f) for i, f in enumerate(os.listdir(in_dir)[:args.limit])]
 	#ret_lst = [func(x) for x in idx_fs]
 	ret_lst = multiprocess.Pool().imap_unordered(func, idx_fs)
 	ret_lst = [r for r in ret_lst if r != None]

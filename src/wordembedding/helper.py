@@ -224,7 +224,8 @@ if __name__ == '__main__':
 		if len(lst) > 1:
 			(op, idx_start,step) = tuple(lst)
 			idx_start, step = int(idx_start), int(step)
-		print ("\n".join(split_dir(input_path, output_path, op=op, idx_start=idx_start, step=step, limit=500)))
+
+		print ("\n".join(split_dir(input_path, output_path, op=op, idx_start=idx_start, step=step, limit=2000000)))
 		sys.exit(0)
 
 	if not os.path.exists(output_path):
