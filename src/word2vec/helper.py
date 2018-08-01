@@ -179,7 +179,7 @@ def save_vec(model, ws, output_path):
 	with open(output_path, 'w') as fd:
 		fd.write('\n'.join(lines))
 
-	return "vec saved to:" + output_path
+	return "vec saved to: " + output_path
 
 
 #4) test model
