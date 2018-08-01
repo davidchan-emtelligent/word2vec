@@ -220,7 +220,7 @@ if __name__ == '__main__':
 	job = args.job
 
 	#1) extract vocab from tokenized text
-	if os.path.isfile(output_path):
+	if os.path.isdir(input_path) and os.path.isfile(output_path):
 		print (save_word_count(input_path, output_path))
 		sys.exit(0)
 
@@ -236,10 +236,6 @@ if __name__ == '__main__':
 		print ("\n".join(split_dir(input_path, output_path, op=op, idx_start=idx_start, step=step, limit=args.limit)))
 		sys.exit(0)
 
-	if output_path != None and not os.path.exists(output_path):
-		print ("ERROR: %s is not existing"%output_path)
-		sys.exit(0)
-
 	if model_path != None:
 		print ("loading model:", model_path, " .....")
 		model = gensim.models.Word2Vec.load(model_path)
@@ -247,7 +243,7 @@ if __name__ == '__main__':
 
 	#3) extract vec from model
 	if output_path != None:
-		if input_path != None:
+		if input_path != None and os.path.isfile(output_path):
 			with open(input_path, 'r') as fd:
 				vocab_lst = fd.read().split('\n')
 		print (save_vec(model, vocab_lst, output_path))
