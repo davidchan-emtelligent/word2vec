@@ -1,7 +1,7 @@
 from __future__ import print_function
 import sys
 import os
-import multiprocessing as multiprocess
+import multiprocessing
 
 default_in_dir = "../../cas-reader/output_dir -o tokenized_sentences"
 default_in_dir = "/shared/dropbox/ctakes_conll/output/clinical/dc_summaries"
