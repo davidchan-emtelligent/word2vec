@@ -140,10 +140,8 @@ def vec_work(w):
 			vec = model.wv["<s>"]
 		elif w == "<stop>":
 			vec = model.wv["<e>"]
-		elif w == "<UNK>":
-			vec = model.wv["<unk>"]
 		else:
-			vec = model.wv[w]
+			vec = model.wv[w.lower()]
 	except Exception as e:
 		print ("WARNING:",[w], str(e))
 		vec = model.wv["<unk>"]		
