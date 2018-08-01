@@ -70,7 +70,7 @@ def save_word_count(input_dir, output_path):
 	idx_fs = [(i, f) for i, f in enumerate(get_files(input_dir, 'txt'))]
 
 	n_files = len(idx_fs)
-	batch_size = n_files/100
+	batch_size = int(n_files/100)
 	batch_span = [(s, s+batch_size) for s in list(range(0, batch_size, n_files))]
 	if batch_span[-1][1] < n_files:
 		batch_span += [(batch_span[-1][1], n_files)]
