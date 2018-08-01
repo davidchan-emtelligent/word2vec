@@ -25,6 +25,7 @@ import string
 import gensim
 import multiprocessing
 from itertools import groupby
+from random import shuffle
 
 current_dir = os.path.dirname(os.path.realpath(__file__))
 sys.path.append(current_dir)
@@ -110,9 +111,10 @@ def work(data):
 def split_dir(one_level_dir, split_dir, op='cp', idx_start=0, step=10000, limit=2000000):
 	counter = multiprocessing.Value('i', 0)
 	fs = os.listdir(one_level_dir)[:limit]
+	shuffle(fs)
 	spans = [ (s, s+step) for s in range(0, len(fs), step)]
 	n_batch = len(spans)
-	print ("files:", len(fs), " sub_folers:", len(spans), " output_path:", split_dir)
+	print ("files:", len(fs), " sub_folders:", len(spans), " output_path:", split_dir)
 	dir_name = split_dir.split('/')[-1]
 	out_dir = [os.path.join(split_dir, dir_name+"_%d"%(i+idx_start)) for i in range(n_batch)]
 	for dir_name in out_dir:
