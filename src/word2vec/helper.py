@@ -2,20 +2,20 @@
 # -*- coding: utf-8 -*-
 """
 1) extract word count from tokenized text
-	python helper.py -i <input_dir> -o <output_path>
-	python helper.py -i sentences -o word_count.txt
+	python src/word2vec/helper.py -i <input_dir> -o <output_path>
+	python src/word2vec/helper.py -i sentences -o word_count.txt
 
 2) split files of a dir into sub_dirs
-	python helper.py -i <input_dir> -o <output_dir> -j cp_3_100	#cp input_dir to sentences/sentences_3, 4, .. with 100 each
-	python helper.py -i pmc_preprocessed/sentences_1 -o /shared2/data/PMC/sentences -j mv_0_10000
+	python src/word2vec/helper.py -i <input_dir> -o <output_dir> -j cp_3_100	#cp input_dir to sentences/sentences_3, 4, .. with 100 each
+	python src/word2vec/helper.py -i tokenized_text -o ds_sentences -j mv_0_10000
 
 3) extract vec from model
-	python helper.py -m <input_model> -i <input_vocab_path> -o <save_vec_file> 
-	python helper.py -m <input_model> -o <save_vec_file> 	#vocab from model
+	python src/word2vec/helper.py -m <input_model> -i <input_vocab_path> -o <save_vec_file> 
+	python src/word2vec/helper.py -m <input_model> -o <save_vec_file> 	#vocab from model
 
 4) test w2v models:
-	python helper.py -m <input_model> -t "he questions about the subjects' self-reported oral health status,"
-	python helper.py -m <input_model> -t "self-reorted"
+	python src/word2vec/helper.py -m <input_model> -t "he questions about the subjects' self-reported oral health status,"
+	python src/word2vec/helper.py -m <input_model> -t "self-reorted"
 
 """
 from __future__ import print_function
