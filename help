@@ -64,12 +64,16 @@ echo "" > ctakes_wc.txt
 python word2vec/src/word2vec/helper.py -i ctakes_tokenized -o ctakes_wc.txt
 
 
-with open("ctakes_wc.txt", 'r') as fd:
-	lines = fd.read().split('\n')
-words = [ line.split()[0] for line in lines]
-words = ["<stop>", "<start>", "<unk>", "<UNK>"] + [ w for w in words if w != ""]
-with open("ctakes_vocabs.txt", 'w') as fd:
-	fd.write("\n".join(words))
+#create ctakes_vocabs.txt
+with open("ctakes_wc.txt", 'r') as fd:	lines = fd.read().split('\n')
+
+words = [ tuple(line.split()) for line in lines]; print (len(words), words[-10:])
+words = [ w for (w, c) in words if w != ""]   #and int(c) > 1] ; print (len(words), words[-10:])
+words = ["<stop>", "<start>", "<unk>", "<UNK>"] + [ w for w in words if w != ""] 
+
+with open("ctakes_vocabs.txt", 'w') as fd:	fd.write("\n".join(words))
 
 python word2vec/src/word2vec/helper.py -m /shared/data/PMC/w2v_models/1300000d300_model/d300_model.model -i ctakes_vocabs.txt -o ctakes_d300.txt
+python word2vec/src/word2vec/helper.py -m /shared/data/PMC/w2v_models/1250000d200_model/d200_model.model -i ctakes_vocabs.txt -o ctakes_d200.txt
+python word2vec/src/word2vec/helper.py -m /shared/data/PMC/w2v_models/1250000d100_model/d100_model.model -i ctakes_vocabs.txt -o ctakes_d100.txt
 

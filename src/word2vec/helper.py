@@ -114,7 +114,7 @@ def work(data):
 	
 #def split_dir(one_level_dir, split_dir, op='cp', idx_start=0, step=100, limit=650):
 def split_dir(one_level_dir, split_dir, op='cp', idx_start=0, step=10000, limit=2000000):
-	counter = multiprocessing.Value('i', 0)
+
 	fs = os.listdir(one_level_dir)[:limit]
 	shuffle(fs)
 	spans = [ (s, s+step) for s in range(0, len(fs), step)]
@@ -126,7 +126,8 @@ def split_dir(one_level_dir, split_dir, op='cp', idx_start=0, step=10000, limit=
 		ret = os.system("mkdir -p %s"%(dir_name)	)
 
 	fpath_fs = [(one_level_dir, out_dir[i], op, fs[s:e]) for i, (s,e) in enumerate(spans)]
-	
+
+	counter = multiprocessing.Value('i', 0)	
 	pool = multiprocessing.Pool(initializer=init, initargs=(counter,) )
 	ret_lst = pool.map(work, fpath_fs)
 	
@@ -135,6 +136,8 @@ def split_dir(one_level_dir, split_dir, op='cp', idx_start=0, step=10000, limit=
 
 #3) extract vec from model
 def vec_work(w):
+	global counter
+
 	try:
 		if w == "<start>":
 			vec = model.wv["<s>"]
@@ -154,13 +157,24 @@ def vec_work(w):
 	ret = ''
 	for i in range(vec.shape[0]):
 		ret += " %.5f"%(vec[i])
+
+	if counter.value % 100 == 0:
+		print ("\rwords: %3d"%(counter.value), end='    ')
+		sys.stdout.flush()
+
+	with counter.get_lock():
+		counter.value += 1
+
 	return "%s%s"%(w, ret)
 
 
 def save_vec(model, ws, output_path):
 
+	counter = multiprocessing.Value('i', 0)
+	pool = multiprocessing.Pool(initializer=init, initargs=(counter,) )
+
 	#lines = [vec_work(w) for w in ws]
-	lines = list(multiprocessing.Pool().imap_unordered(vec_work, ws))
+	lines = list(pool.imap_unordered(vec_work, ws))
 	
 	with open(output_path, 'w') as fd:
 		fd.write('\n'.join(lines))
@@ -258,6 +272,7 @@ if __name__ == '__main__':
 				sys.exit(0)
 			with open(input_path, 'r') as fd:
 				vocab_lst = fd.read().strip().split('\n')
+		print ("")
 		print (save_vec(model, vocab_lst, output_path))
 
 	#4) test model with similarity words
