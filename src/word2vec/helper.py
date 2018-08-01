@@ -130,7 +130,8 @@ def split_dir(one_level_dir, split_dir, op='cp', idx_start=0, step=10000, limit=
 	counter = multiprocessing.Value('i', 0)	
 	pool = multiprocessing.Pool(initializer=init, initargs=(counter,) )
 	ret_lst = pool.map(work, fpath_fs)
-	
+
+	print ("")	
 	return ret_lst
 
 
@@ -179,7 +180,7 @@ def save_vec(model, ws, output_path):
 	with open(output_path, 'w') as fd:
 		fd.write('\n'.join(lines))
 
-	return "vec saved to: " + output_path
+	return "\nvec saved to: " + output_path
 
 
 #4) test model
@@ -255,7 +256,7 @@ if __name__ == '__main__':
 		if len(lst) > 1:
 			(op, idx_start,step) = tuple(lst)
 			idx_start, step = int(idx_start), int(step)
-		print ("")
+
 		print ("\n".join(split_dir(input_path, output_path, op=op, idx_start=idx_start, step=step, limit=args.limit)))
 		sys.exit(0)
 
@@ -272,7 +273,7 @@ if __name__ == '__main__':
 				sys.exit(0)
 			with open(input_path, 'r') as fd:
 				vocab_lst = fd.read().strip().split('\n')
-		print ("")
+
 		print (save_vec(model, vocab_lst, output_path))
 
 	#4) test model with similarity words
