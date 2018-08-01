@@ -135,17 +135,21 @@ def split_dir(one_level_dir, split_dir, op='cp', idx_start=0, step=10000, limit=
 
 #3) extract vec from model
 def vec_work(w):
-	if w == "<start>":
-		vec = model.wv["<s>"]
-	elif w == "<stop>":
-		vec = model.wv["<e>"]
-	elif w == "<UNK>":
-		vec = model.wv["<unk>"]
-	else:
-		vec = model.wv[w]
+	try:
+		if w == "<start>":
+			vec = model.wv["<s>"]
+		elif w == "<stop>":
+			vec = model.wv["<e>"]
+		elif w == "<UNK>":
+			vec = model.wv["<unk>"]
+		else:
+			vec = model.wv[w]
+	except Exception as e:
+		print ("WARNING:",[w], str(e))
+		vec = model.wv["<unk>"]		
 
 	try:
-		w = w.encode('utf-8')
+		w = w.decode('utf-8')
 	except:
 		pass
 
@@ -255,7 +259,7 @@ if __name__ == '__main__':
 				print ("ERROR: not exists!", input_path)
 				sys.exit(0)
 			with open(input_path, 'r') as fd:
-				vocab_lst = fd.read().split('\n')
+				vocab_lst = fd.read().strip().split('\n')
 		print (save_vec(model, vocab_lst, output_path))
 
 	#4) test model with similarity words
