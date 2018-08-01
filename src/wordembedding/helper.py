@@ -192,6 +192,9 @@ if __name__ == '__main__':
 	argparser.add_argument("-o", "--output_path", dest="output_path", type=str, default=None, \
 		help="output_path (default={})".format(None))
 
+	argparser.add_argument("-l", "--limit", dest="limit", type=int, default=2000000, \
+		help="limit (default={})".format(2000000))
+
 	argparser.add_argument("-m", "--model_path", dest="model_path", type=str, default=default_model_path, \
 		help="model_path (default={})".format(default_model_path))
 
@@ -225,7 +228,7 @@ if __name__ == '__main__':
 			(op, idx_start,step) = tuple(lst)
 			idx_start, step = int(idx_start), int(step)
 
-		print ("\n".join(split_dir(input_path, output_path, op=op, idx_start=idx_start, step=step, limit=2000000)))
+		print ("\n".join(split_dir(input_path, output_path, op=op, idx_start=idx_start, step=step, limit=args.limit)))
 		sys.exit(0)
 
 	if not os.path.exists(output_path):
