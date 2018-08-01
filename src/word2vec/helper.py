@@ -148,7 +148,7 @@ def vec_work(w):
 			vec = model.wv[w.lower()]
 	except Exception as e:
 		print ("WARNING:",[w], str(e))
-		vec = model.wv["<unk>"]		
+		return None		
 
 	try:
 		w = w.decode('utf-8')
@@ -174,11 +174,12 @@ def save_vec(model, ws, output_path):
 	counter = multiprocessing.Value('i', 0)
 	pool = multiprocessing.Pool(initializer=init, initargs=(counter,) )
 
-	#lines = [vec_work(w) for w in ws]
-	lines = list(pool.imap_unordered(vec_work, ws))
+	#vecs = [vec_work(w) for w in ws]
+	vecs = pool.imap_unordered(vec_work, ws)
+	vecs = [ v for v in vecs if v != None ]
 	
 	with open(output_path, 'w') as fd:
-		fd.write('\n'.join(lines))
+		fd.write('\n'.join(vecs))
 
 	return "\nvec saved to: " + output_path
 
