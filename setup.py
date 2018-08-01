@@ -9,7 +9,7 @@ setup(
     package_dir={'': 'src'},
 
     install_requires=[
-        'segtok',
-        'gensim'
+        'segtok==1.5.2',
+        'gensim==3.5.0'
     ],
 )
