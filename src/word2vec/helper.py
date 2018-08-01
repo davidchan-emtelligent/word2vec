@@ -55,7 +55,7 @@ def count_work(idx_fs_lst):
 	token_count_lst = []
 	for (i, f) in idx_fs_lst:
 		with open(f, 'r') as fd:
-			tokens = fd.read().split()
+			tokens = fd.read().lower().split()
 		token_count = []
 		for k, g in groupby(sorted(tokens)):
 		    token_count += [(k, len(list(g)))]
@@ -82,7 +82,7 @@ def save_word_count(input_dir, output_path):
 	with open(output_path, 'w') as fd:
 		fd.write('\n'.join(merged))
 
-	return "word_count saved to:" + output_path
+	return "word_count saved to: " + output_path
 
 
 #2) split files of a dir into sub_dirs
