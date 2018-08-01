@@ -21,10 +21,44 @@ python src/embedding/helper.py -m models1/1000d100_model/d100_model.model -t "se
 
 #create sentences and vocabs.txt
 mkdir tokenized_sentences
-python wordembedding/src/wordembedding/conll2tokens.py -i /shared/dropbox/ctakes_conll/output/clinical/dc_summaries -o tokenized_sentences
+python word2vec/src/word2vec/conll2tokens.py -i /shared/dropbox/ctakes_conll/output/clinical/dc_summaries -o tokenized_sentences
+mkdir ds_sentences     ds cr  ct  mg  mr  nm  us
+python word2vec/src/word2vec/helper.py -i tokenized_sentences -o ds_sentences -j mv_0_10000             #cp_0_100 -l 500
 
-mkdir sentences
-python wordembedding/src/wordembedding/helper.py -i tokenized_sentences -o sentences -j cp_0_100 -l 500
+python word2vec/src/word2vec/conll2tokens.py -i /shared/dropbox/ctakes_conll/output/radiology/cr -o tokenized_sentences
+mkdir cr_sentences
+python word2vec/src/word2vec/helper.py -i tokenized_sentences -o cr_sentences -j mv_6_10000
 
-cat "" > vocabs.txt
-python wordembedding/src/wordembedding/helper.py -i sentences -o vocabs.txt
+python word2vec/src/word2vec/conll2tokens.py -i /shared/dropbox/ctakes_conll/output/radiology/ct -o tokenized_sentences
+mkdir ct_sentences
+python word2vec/src/word2vec/helper.py -i tokenized_sentences -o ct_sentences -j mv_36_10000
+
+python word2vec/src/word2vec/conll2tokens.py -i /shared/dropbox/ctakes_conll/output/radiology/mg -o tokenized_sentences
+mkdir mg_sentences
+python word2vec/src/word2vec/helper.py -i tokenized_sentences -o mg_sentences -j mv_46_10000
+
+python word2vec/src/word2vec/conll2tokens.py -i /shared/dropbox/ctakes_conll/output/radiology/mr -o tokenized_sentences
+mkdir mr_sentences
+python word2vec/src/word2vec/helper.py -i tokenized_sentences -o mr_sentences -j mv_47_10000
+
+python word2vec/src/word2vec/conll2tokens.py -i /shared/dropbox/ctakes_conll/output/radiology/nm -o tokenized_sentences
+mkdir nm_sentences
+python word2vec/src/word2vec/helper.py -i tokenized_sentences -o nm_sentences -j mv_50_10000
+
+python word2vec/src/word2vec/conll2tokens.py -i /shared/dropbox/ctakes_conll/output/radiology/us -o tokenized_sentences
+mkdir us_sentences
+python word2vec/src/word2vec/helper.py -i tokenized_sentences -o us_sentences -j mv_51_10000
+
+mkdir ctakes_tokenized
+mv -v ds_sentences/* ctakes_tokenised/
+mv -v cr_sentences/* ctakes_tokenised/
+mv -v ct_sentences/* ctakes_tokenised/
+mv -v mg_sentences/* ctakes_tokenised/
+mv -v mr_sentences/* ctakes_tokenised/
+mv -v nm_sentences/* ctakes_tokenised/
+mv -v us_sentences/* ctakes_tokenised/
+
+rm -r *_sentences
+
+echo "" > ctakes_wc.txt
+python word2vec/src/word2vec/helper.py -i ctakes_tokenized -o ctakes_wc.txt

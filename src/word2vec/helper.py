@@ -74,9 +74,13 @@ def save_word_count(input_dir, output_path):
 	batch_span = [(s, s+batch_size) for s in list(range(0, batch_size, n_files))]
 	if batch_span[-1][1] < n_files:
 		batch_span += [(batch_span[-1][1], n_files)]
-	
-	token_count = [count_work(idx_fs[s:e]) for (s, e) in batch_span]
-	#lines = list(multiprocessing.Pool().imap_unordered(vec_work, ws))
+
+	batches = [idx_fs[s:e] for (s, e) in batch_span]
+	print ("total files:", n_files)
+	print ("n_batches  :", len(batches), " last batch :",batches[-1])
+
+	#token_count = [count_work(batch) for batch in batches]
+	token_count = list(multiprocessing.Pool().imap_unordered(count_work, batches))
 	merged = ["%s %d"%(w, c) for (w, c) in sorted(merge_token_count(token_count), key=lambda x: x[1], reverse=True)]
 	
 	with open(output_path, 'w') as fd:
@@ -228,7 +232,7 @@ if __name__ == '__main__':
 		if len(lst) > 1:
 			(op, idx_start,step) = tuple(lst)
 			idx_start, step = int(idx_start), int(step)
-
+		print ("")
 		print ("\n".join(split_dir(input_path, output_path, op=op, idx_start=idx_start, step=step, limit=args.limit)))
 		sys.exit(0)
 
