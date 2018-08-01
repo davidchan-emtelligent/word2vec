@@ -245,9 +245,10 @@ if __name__ == '__main__':
 	job = args.job
 
 	#1) extract vocab from tokenized text
-	if os.path.isdir(input_path) and os.path.isfile(output_path):
-		print (save_word_count(input_path, output_path))
-		sys.exit(0)
+	if output_path != None and input_path !=None:
+		if os.path.isdir(input_path) and os.path.isfile(output_path):
+			print (save_word_count(input_path, output_path))
+			sys.exit(0)
 
 	#2) split files of a dir to more sub_dir. eg. sentences -> sentences/sentences_1, sentences_2, ...
 	if output_path != None and input_path !=None and job != "":
