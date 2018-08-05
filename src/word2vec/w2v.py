@@ -99,7 +99,7 @@ def init(args):
 
 
 def read_and_preprocess(input_path, save_dir="", input_span=(0, 10000000), \
-		verbose=False):
+		preprocessing_func, verbose=False):
 
 	counter = Value('i', 0)
 
@@ -120,15 +120,6 @@ def read_and_preprocess(input_path, save_dir="", input_span=(0, 10000000), \
 			doc = fr.read()
 			b += len(doc)
 			docs += [(save_dir, f.split('/')[-1], doc)]
-
-	preprocessing_func = split_hyphen_segtok
-	try:
-		dir_name = text_files.split('/')[-2]
-		(sentences, digit) = tuple(dir_name.split('_')[0])
-		if sentences == "sentences" and digit.isdigit():
-			preprocessing_func = simple_digit
-	except:
-		pass
 
 	if verbose:
 		logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
@@ -281,6 +272,9 @@ if __name__ == '__main__':
 	argparser.add_argument("-m", "--model_root", dest="model_root", type=str, default=None, \
 		help="save model root (default={})".format(None))
 
+	argparser.add_argument("-t", "--tokenizer", dest="tokenizer", type=str, default="", \
+		help="save model root (default={})".format(None))
+
 	argparser.add_argument("-e", "--epochs", dest="epochs", type=int, default=None, \
 		help="epochs (default={})".format(None))
 
@@ -328,7 +322,11 @@ if __name__ == '__main__':
 	if retrain != None:
 		retrain=os.path.join(model_root, retrain, '%s.model'%('d'+'d'.join(retrain.split('d')[1:])))
 
-	docs = read_and_preprocess(input_path, args.save_dir, input_span=input_span, verbose=verbose)
+	preprocessing_func = split_hyphen_segtok
+	if args.tokenizer == "simple:
+		preprocessing_func = simple_split
+
+	docs = read_and_preprocess(input_path, args.save_dir, preprocessing_func, input_span=input_span, verbose=verbose)
 	if docs["n_docs"] == 0:
 		print ("ERROR: Empty dataset! input_span:", str(input_span))
 		sys.exit(0)
