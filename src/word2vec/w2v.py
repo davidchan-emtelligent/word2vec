@@ -98,8 +98,8 @@ def init(args):
 	counter = args
 
 
-def read_and_preprocess(input_path, save_dir="", input_span=(0, 10000000), \
-		preprocessing_func, verbose=False):
+def read_and_preprocess(input_path, preprocessing_func, save_dir="", \
+	input_span=(0, 10000000), verbose=False):
 
 	counter = Value('i', 0)
 
@@ -156,7 +156,7 @@ def read_and_preprocess(input_path, save_dir="", input_span=(0, 10000000), \
 def train(documents, save_model=None, retrain=None, \
 		  size=300,
 		  window=5,
-		  min_count=5,
+		  min_count=1,
 		  epochs=5,
 		  workers=multiprocessing.cpu_count(), verbose=False):
 
@@ -272,8 +272,8 @@ if __name__ == '__main__':
 	argparser.add_argument("-m", "--model_root", dest="model_root", type=str, default=None, \
 		help="save model root (default={})".format(None))
 
-	argparser.add_argument("-t", "--tokenizer", dest="tokenizer", type=str, default="", \
-		help="save model root (default={})".format(None))
+	argparser.add_argument("--tokenizer", dest="tokenizer", type=str, default="", \
+		help="tokenizer (default={})".format("segtok"))
 
 	argparser.add_argument("-e", "--epochs", dest="epochs", type=int, default=None, \
 		help="epochs (default={})".format(None))
@@ -322,11 +322,11 @@ if __name__ == '__main__':
 	if retrain != None:
 		retrain=os.path.join(model_root, retrain, '%s.model'%('d'+'d'.join(retrain.split('d')[1:])))
 
-	preprocessing_func = split_hyphen_segtok
-	if args.tokenizer == "simple:
-		preprocessing_func = simple_split
+	preprocessing_func = split_hyphen_segtok;print (args.tokenizer)
+	if args.tokenizer == "simple":
+		preprocessing_func = simply_split
 
-	docs = read_and_preprocess(input_path, args.save_dir, preprocessing_func, input_span=input_span, verbose=verbose)
+	docs = read_and_preprocess(input_path, preprocessing_func, args.save_dir, input_span=input_span, verbose=verbose)
 	if docs["n_docs"] == 0:
 		print ("ERROR: Empty dataset! input_span:", str(input_span))
 		sys.exit(0)
