@@ -10,7 +10,7 @@
 	python src/word2vec/helper.py -i tokenized_text -o ds_sentences -j mv_0_10000
 
 3) extract vec from model
-	python src/word2vec/helper.py -m <input_model> -i <input_vocab_path> -o <save_vec_file> 
+	python src/word2vec/helper.py -m <input_model> -i <input_vocab_path> -o <save_vec_file>
 	python src/word2vec/helper.py -m <input_model> -o <save_vec_file> 	#vocab from model
 
 4) test w2v models:
@@ -63,7 +63,7 @@ def count_work(idx_fs_lst):
 		token_count_lst += [token_count]
 
 	return merge_token_count(token_count_lst)
-		
+
 
 def save_word_count(input_dir, output_path):
 
@@ -82,7 +82,7 @@ def save_word_count(input_dir, output_path):
 	#token_count = [count_work(batch) for batch in batches]
 	token_count = list(multiprocessing.Pool().imap_unordered(count_work, batches))
 	merged = ["%s %d"%(w, c) for (w, c) in sorted(merge_token_count(token_count), key=lambda x: x[1], reverse=True)]
-	
+
 	with open(output_path, 'w') as fd:
 		fd.write('\n'.join(merged))
 
@@ -111,7 +111,7 @@ def work(data):
 
 	return out_dir
 
-	
+
 #def split_dir(one_level_dir, split_dir, op='cp', idx_start=0, step=100, limit=650):
 def split_dir(one_level_dir, split_dir, op='cp', idx_start=0, step=10000, limit=2000000):
 
@@ -127,11 +127,11 @@ def split_dir(one_level_dir, split_dir, op='cp', idx_start=0, step=10000, limit=
 
 	fpath_fs = [(one_level_dir, out_dir[i], op, fs[s:e]) for i, (s,e) in enumerate(spans)]
 
-	counter = multiprocessing.Value('i', 0)	
+	counter = multiprocessing.Value('i', 0)
 	pool = multiprocessing.Pool(initializer=init, initargs=(counter,) )
 	ret_lst = pool.map(work, fpath_fs)
 
-	print ("")	
+	print ("")
 	return ret_lst
 
 
@@ -148,7 +148,7 @@ def vec_work(w):
 			vec = model.wv[w.lower()]
 	except Exception as e:
 		print ("WARNING:",[w], str(e))
-		return None		
+		return None
 
 	try:
 		w = w.decode('utf-8')
@@ -175,9 +175,9 @@ def save_vec(model, ws, output_path):
 	pool = multiprocessing.Pool(initializer=init, initargs=(counter,) )
 
 	#vecs = [vec_work(w) for w in ws]
-	vecs = pool.imap_unordered(vec_work, ws)
+	vecs = pool.map(vec_work, ws)
 	vecs = [ v for v in vecs if v != None ]
-	
+
 	with open(output_path, 'w') as fd:
 		fd.write('\n'.join(vecs))
 
