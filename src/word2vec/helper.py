@@ -2,20 +2,20 @@
 # -*- coding: utf-8 -*-
 """
 1) extract word count from tokenized text
-	python src/word2vec/helper.py -i <input_dir> -o <output_path>
-	python src/word2vec/helper.py -i sentences -o word_count.txt
+	python src/word2vec/helper.py -i <input_dir> -o <output_path> -j <job>
+	python src/word2vec/helper.py -i sentences -o word_count.txt -j wc
 
 2) split files of a dir into sub_dirs
-	python src/word2vec/helper.py -i <input_dir> -o <output_dir> -j cp_3_100	#cp input_dir to sentences/sentences_3, 4, .. with 100 each
-	python src/word2vec/helper.py -i tokenized_text -o ds_sentences -j mv_0_10000
+	python src/word2vec/helper.py -i <input_dir> -o <output_dir> -j <op_start_steps>
+	python src/word2vec/helper.py -i tokenized_text -o ds_sentences -j cp_0_10000
 
-3) extract vec from model
-	python src/word2vec/helper.py -m <input_model> -i <input_vocab_path> -o <save_vec_file>
-	python src/word2vec/helper.py -m <input_model> -o <save_vec_file> 	#vocab from model
+3) extract w2v from model
+	python src/word2vec/helper.py -m <input_model> -i <input_vocab_path> -o <save_w2v_file> -j <job>
+	python src/word2vec/helper.py -m <input_model> -o <save_w2v_file> -j w2v
 
-4) test w2v models:
+4) test model: get vectors or most similar:
 	python src/word2vec/helper.py -m <input_model> -t "he questions about the subjects' self-reported oral health status,"
-	python src/word2vec/helper.py -m <input_model> -t "self-reorted"
+	python src/word2vec/helper.py -m <input_model> -t "self-reorted" -j vec
 
 """
 from __future__ import print_function
@@ -35,7 +35,7 @@ from get_files_multi import get_files
 default_model_path = "/shared/data/PMC/w2v_models/1300000d300_model/d300_model.model"
 default_text = "he questions about the subjects' self-reported oral health status,"
 
-#1)save word count
+#1)save word count, wc
 def merge_token_count(token_count_lst):
 	token_count = []
 	for t_cs in token_count_lst:
@@ -89,7 +89,7 @@ def save_word_count(input_dir, output_path):
 	return "word_count saved to: " + output_path
 
 
-#2) split files of a dir into sub_dirs
+#2) split files of a dir into sub_dirs: cp_2_1000
 def init(args):
 	global counter
 	counter = args
@@ -135,48 +135,65 @@ def split_dir(one_level_dir, split_dir, op='cp', idx_start=0, step=10000, limit=
 	return ret_lst
 
 
-#3) extract vec from model
-def vec_work(w):
+#3) extract w2v from model: w2v
+def vec_work(b_m):
 	global counter
+	(batch, model) = b_m
 
-	try:
-		if w == "<start>":
-			vec = model.wv["<s>"]
-		elif w == "<stop>":
-			vec = model.wv["<e>"]
-		else:
-			vec = model.wv[w.lower()]
-	except Exception as e:
-		print ("WARNING:",[w], str(e))
-		return None
+	def get_row(w):
+		try:
+			if w == "<start>":
+				vec = model.wv["<s>"]
+			elif w == "<stop>":
+				vec = model.wv["<e>"]
+			else:
+				vec = model.wv[w.lower()]
+		except Exception as e:
+			print ("WARNING:",[w], str(e))
+			return None
 
-	try:
-		w = w.decode('utf-8')
-	except:
-		pass
+		try:
+			w = w.decode('utf-8')
+		except:
+			pass
 
-	ret = ''
-	for i in range(vec.shape[0]):
-		ret += " %.5f"%(vec[i])
+		ret = ''
+		for i in range(vec.shape[0]):
+			ret += " %.5f"%(vec[i])
 
-	if counter.value % 100 == 0:
-		print ("\rwords: %3d"%(counter.value), end='    ')
-		sys.stdout.flush()
+		if counter.value % 100 == 0:
+			print ("\rwords: %3d"%(counter.value), end='    ')
+			sys.stdout.flush()
 
-	with counter.get_lock():
-		counter.value += 1
+		with counter.get_lock():
+			counter.value += 1
 
-	return "%s%s"%(w, ret)
+		return "%s%s"%(w, ret)
+	
+	ret_lst = []
+	for w in batch:
+		row = get_row(w)
+		if row != None:
+			ret_lst += [row]
+
+	return ret_lst
 
 
-def save_vec(model, ws, output_path):
+def save_w2v(model, ws, output_path):
 
 	counter = multiprocessing.Value('i', 0)
 	pool = multiprocessing.Pool(initializer=init, initargs=(counter,) )
 
+	len_1 = len(ws);print (len_1)
+	batch_size = len_1/7
+	spans = [(s, s+batch_size) for s in range(0, len_1, batch_size)]
+	data_lst = [(ws[s:e], model) for (s, e) in spans];print (spans[-1])
+
 	#vecs = [vec_work(w) for w in ws]
-	vecs = pool.map(vec_work, ws)
-	vecs = [ v for v in vecs if v != None ]
+	vecs_lst = pool.map(vec_work, data_lst)
+	vecs = []
+	for vec in vecs_lst:
+		vecs += vec
 
 	with open(output_path, 'w') as fd:
 		fd.write('\n'.join(vecs))
@@ -185,7 +202,7 @@ def save_vec(model, ws, output_path):
 
 
 #4) test model
-def get_similar(model, text):
+def get_text_similar(model, text):
 	for p in string.punctuation:
 		text = text.replace(p, " "+p+" ")
 	text = text.replace("  ", " ").replace("  ", " ")
@@ -203,6 +220,7 @@ def get_similar(model, text):
 	return ret_str
 
 
+#5) get vec for a token
 def get_vec(model, token, verbose=False):
 	if verbose:
 		if token not in list(model.wv.vocab):
@@ -229,7 +247,7 @@ if __name__ == '__main__':
 		help="model_path (default={})".format(default_model_path))
 
 	argparser.add_argument("-j", "--job", dest="job", type=str, default="", \
-		help='job (default="{}")'.format(""))
+		help='job: cp_3_100/wc/w2v/vec/smiliar (default="{}")'.format(""))
 
 	argparser.add_argument("-t", "--text", dest="text", type=str, default=default_text, \
 		help='similar 5 words (default="{}")'.format(default_text))
@@ -245,19 +263,30 @@ if __name__ == '__main__':
 	job = args.job
 
 	#1) extract vocab from tokenized text
-	if output_path != None and input_path !=None:
-		if os.path.isdir(input_path) and os.path.isfile(output_path):
-			print (save_word_count(input_path, output_path))
+	if job == "wc":
+		if not os.path.isdir(input_path):
+			print("ERRROR: no input_root for tokenized files")
 			sys.exit(0)
+		if output_path ==None:
+			print("ERRROR: no output_file_path")
+			sys.exit(0)
+		print (save_word_count(input_path, output_path))
+		sys.exit(0)
 
 	#2) split files of a dir to more sub_dir. eg. sentences -> sentences/sentences_1, sentences_2, ...
-	if output_path != None and input_path !=None and job != "":
+	elif len(job.split("_")) > 1:
+		if not os.path.isdir(input_path):
+			print("ERRROR: no input_dir files")
+			sys.exit(0)
+		if output_path ==None:
+			print("ERRROR: no output_dir")
+		if not os.path.isdir(output_path):
+			os.system("mkdir %s"%output_path)
 		op = 'cp'
 		idx_start = 0
 		lst = job.split('_')
-		if len(lst) > 1:
-			(op, idx_start,step) = tuple(lst)
-			idx_start, step = int(idx_start), int(step)
+		(op, idx_start,step) = tuple(lst)
+		idx_start, step = int(idx_start), int(step)
 
 		print ("\n".join(split_dir(input_path, output_path, op=op, idx_start=idx_start, step=step, limit=args.limit)))
 		sys.exit(0)
@@ -266,9 +295,14 @@ if __name__ == '__main__':
 		print ("loading model:", model_path, " .....")
 		model = gensim.models.Word2Vec.load(model_path)
 		vocab_lst = list(model.wv.vocab)
+	else:
+		print("ERRROR: no model file")
+		sys.exit(0)
 
-	#3) extract vec from model
-	if output_path != None:
+	#3) extract w2v from model
+	if job == "w2v":
+		if output_path == None:
+			output_path = model_path.split("/") + "_w2v.txt"
 		if input_path != None:
 			if not os.path.isfile(input_path):
 				print ("ERROR: not exists!", input_path)
@@ -276,16 +310,17 @@ if __name__ == '__main__':
 			with open(input_path, 'r') as fd:
 				vocab_lst = fd.read().strip().split('\n')
 
-		print (save_vec(model, vocab_lst, output_path))
+		print (save_w2v(model, vocab_lst, output_path))
 
 	#4) test model with similarity words
-	else:
+	elif job == "vec":
 		tokens = args.text.split()
-		if len(tokens) == 1:
-			vec = " ".join(["%.6f"%(v) for v in get_vec(model, tokens[0], args.verbose)[:5]])
+		for tok in tokens:
+			vec = " ".join(["%.6f"%(v) for v in get_vec(model, tok, args.verbose)[:5]])
 			print (vec+" .....")
-		elif len(tokens) > 0:
-			print (get_similar(model, args.text))
+	else:
+		print (get_text_similar(model, args.text))
+
 
 
 

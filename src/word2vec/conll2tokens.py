@@ -37,6 +37,15 @@ def func(x):
 
 	return  out_dir
 
+def tokenized_text_from_conll(in_dir, out_dir, limit):
+
+	idx_fs = [ (i, in_dir, out_dir, f) for i, f in enumerate(os.listdir(in_dir)[:limit])]
+	#ret_lst = [func(x) for x in idx_fs]
+	counter = multiprocessing.Value('i', 0)
+	ret_lst = multiprocessing.Pool(initializer=init, initargs=(counter,) ).imap_unordered(func, idx_fs)
+
+	return [r for r in ret_lst if r != None]
+
 
 if __name__ == '__main__':
 	import argparse
@@ -54,12 +63,6 @@ if __name__ == '__main__':
 
 	args = argparser.parse_args()
 
-	in_dir = args.input_dir
-	out_dir = args.output_dir
+	ret_lst = tokenized_text_from_conll(args.in_dir, args.out_dir, args.limit)
+	print ("\ntotal files:", len(ret_lst), "\nsave to:", args.out_dir)
 
-	idx_fs = [ (i, in_dir, out_dir, f) for i, f in enumerate(os.listdir(in_dir)[:args.limit])]
-	#ret_lst = [func(x) for x in idx_fs]
-	counter = multiprocessing.Value('i', 0)
-	ret_lst = multiprocessing.Pool(initializer=init, initargs=(counter,) ).imap_unordered(func, idx_fs)
-	ret_lst = [r for r in ret_lst if r != None]
-	print ("\ntotal files:", len(ret_lst), "\nsave to:", out_dir)

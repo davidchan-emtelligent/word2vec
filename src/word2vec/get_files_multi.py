@@ -19,7 +19,7 @@ def func(child):
 			files += [os.path.join(root,filename) ]
 	return files
 
-def get_files(multi_dir, ext):
+def get_files(multi_dir, ext='txt'):
 	try:
 		children = [ (os.path.join(multi_dir, c), ext) for c in next(os.walk(multi_dir))[1]]
 	except StopIteration as e:
