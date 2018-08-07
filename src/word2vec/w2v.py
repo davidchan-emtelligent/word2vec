@@ -4,7 +4,7 @@
 w2v.py
 
 #using document text data set
-python w2v.py -m models -i txt_exist.paths --save_dir preprocessed_sentences
+python w2v.py -m checkpoint -i txt_exist.paths 
 
 #using tokenized sentences data set
 python w2v.py -m models -i preprocessed_sentences.paths 
@@ -37,17 +37,19 @@ except AttributeError:
     # We're in Python 3
     pass
 
-def get_latest(model_root, size):
-    end_size_lastest = []
-    for x in os.listdir(model_root):
-        (e, d) = tuple(x.split('_')[0].split('d') )
-        end_size_lastest += [(int(e), int(d), x)]
-
-    if end_size_lastest == []:
-        return (0, size, None)
-
-    return sorted(end_size_lastest)[-1]
-
+def get_check_pt(checkpoint_dir, chunk_size):
+    if not os.path.isdir(checkpoint_dir):
+        os.system("mkdir -p %s"%checkpoint_dir)
+    checkpt_file = os.path.join(checkpoint_dir, "checkpoint")
+    if not os.path.isfile(checkpt_file):
+        return None, os.path.join(checkpoint_dir, '%s.model'%("ckpt-"+str(chunk_size)))
+    else:
+        with open(checkpt_file, "r") as fd:
+            line = fd.read().split('\n')[0]
+        old_name = line.split('"')[1]
+        old_ckpt = os.path.join(checkpoint_dir, '%s.model'%old_name)
+        ckpt_idx = int(old_name.split('-')[-1]) + chunk_size
+        return old_ckpt, os.path.join(checkpoint_dir, '%s.model'%("ckpt-"+str(ckpt_idx)))
 
 from segtok.segmenter import split_multi
 from segtok.tokenizer import word_tokenizer, split_contractions
@@ -56,7 +58,7 @@ counter = None
 def split_hyphen_segtok(doc):
     global counter
 
-    (save_dir, f_name, text) = doc    
+    (output_dir, f_name, text) = doc    
     def run(text):
         text = text.replace("-", " - ").replace("  ", " ")
         for sentence in split_multi(text.lower()):
@@ -73,9 +75,9 @@ def split_hyphen_segtok(doc):
         counter.value += 1
 
     tokens = list(run(text))
-    if save_dir != "":
+    if output_dir != "":
         sentences = " ".join(tokens).replace(' <e> <s> ', '\n').replace('<s> ', '').replace(' <e>', '')
-        with open(os.path.join(save_dir, f_name[:-9] + ".tokenized.txt"), "w") as fd:
+        with open(os.path.join(output_dir, f_name[:-9] + ".tokenized.txt"), "w") as fd:
             fd.write(sentences)
     return tokens
 
@@ -83,7 +85,7 @@ def split_hyphen_segtok(doc):
 def simply_split(doc):
     global counter
 
-    (save_dir, f_name, text) = doc    
+    (output_dir, f_name, text) = doc    
     def run(text):
         for sentence in text.split('\n'):
             yield "<s>"
@@ -106,7 +108,7 @@ def init(args):
     counter = args
 
 
-def read_and_preprocess(input_path, preprocessing_func, save_dir="", \
+def read_and_preprocess(input_path, preprocessing_func, output_dir="", \
     input_span=(0, 10000000), verbose=False):
 
     counter = Value('i', 0)
@@ -127,7 +129,7 @@ def read_and_preprocess(input_path, preprocessing_func, save_dir="", \
         with open(f, 'r') as fr:
             doc = fr.read().lower()
             b += len(doc)
-            docs += [(save_dir, f.split('/')[-1], doc)]
+            docs += [(output_dir, f.split('/')[-1], doc)]
 
     if verbose:
         logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
@@ -144,7 +146,7 @@ def read_and_preprocess(input_path, preprocessing_func, save_dir="", \
         if tokenized == "tokenized":
             print ("Using tokenized docs!")
             document_lst = []
-            for (save_dir, f, doc) in docs:
+            for (output_dir, f, doc) in docs:
                 tokens = []
                 for sent in doc.split('\n'):
                     tokens += ['<s>'] + sent.split() + ['<e>']
@@ -161,12 +163,12 @@ def read_and_preprocess(input_path, preprocessing_func, save_dir="", \
         "input_files_and_span": (input_path, s, e), "bytes": b}
 
 
-def train(documents, save_model=None, retrain=None, \
-          size=300,
-          window=5,
-          min_count=1,
-          epochs=5,
-          workers=multiprocessing.cpu_count(), verbose=False):
+def train(documents, old_ckpt=None, new_ckpt=None, \
+    size=300,
+    window=5,
+    min_count=1,
+    epochs=5,
+    workers=multiprocessing.cpu_count(), verbose=False):
 
     if verbose:
         logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
@@ -181,11 +183,11 @@ def train(documents, save_model=None, retrain=None, \
     
     # build the vocabulary
     t0 = time.time()   
-    if retrain == None:
+    if old_ckpt == None:
         model = FastText(sg=1, size=size, min_count=min_count, window=window, workers=workers)
         model.build_vocab(docs_vocab)
     else:
-        model = gensim.models.Word2Vec.load(retrain)
+        model = gensim.models.Word2Vec.load(old_ckpt)
         model.build_vocab(docs_vocab, update=True)
     logging.info('build vocab time: %.2f'%(time.time() - t0))
 
@@ -195,7 +197,7 @@ def train(documents, save_model=None, retrain=None, \
     print("min count       :", min_count)
     print("workers         :", workers)
     print("vocab size      :", len(model.wv.vocab))
-    print("retrain         :", retrain)
+    print("new_ckpt        :", new_ckpt)
     print('build vocab time: %.2f'%(time.time() - t0))
     print('training ........')
 
@@ -204,18 +206,21 @@ def train(documents, save_model=None, retrain=None, \
     logging.info('training time  : %.2f'%(time.time() - t0))
     print('training time   : %.2f'%(time.time() - t0))
 
-    if save_model != None:
-        model.save(save_model)
-        paths = save_model.split('/')
-        txt_path = '/'.join(paths[:-1] + [paths[-1].split('.')[0] + '.doc_span'])
-        (input_path, s,e) = documents["input_files_and_span"]
-        with open(txt_path, 'w') as fw:
-            fw.write("%s %d:%d"%(input_path, s, e))
-        print('save_model to   :', save_model)
-        if retrain != None:
-            retrain_dir = '/'.join(retrain.split('/')[:-1])
-            os.system("rm -r %s"%retrain_dir)
-            print("rm -r %s"%retrain_dir)        
+    model.save(new_ckpt)
+
+    paths = new_ckpt.split('/')
+    checkpoint_dir = '/'.join(paths[:-1])
+    checkpoint_file_path = os.path.join(checkpoint_dir, "checkpoint")
+    checkpoint_name = '.'.join(paths[-1].split('.')[:-1])
+    with open(checkpoint_file_path, 'w') as fw:
+        fw.write('model_checkpoint_path: "%s"'%(checkpoint_name))
+    print('save_model to   :', new_ckpt)
+
+    if old_ckpt != None:
+        paths = old_ckpt.split('/')
+        old_checkpoint = paths[-1].split('.')[-2]
+        os.system("rm %s/*%s*"%(checkpoint_dir, old_checkpoint))
+        print("rm %s/*%s*"%(checkpoint_dir, old_checkpoint))        
 
     return model
 
@@ -258,8 +263,8 @@ def get_similar(text, model_str, size): #gensim.utils.simple_preprocess):
     if model_str.endswith(".model"):
         model_path = model_str
     else:
-        (e, size, retrain) = get_latest(model_root, size)
-        model_path =os.path.join(model_root, retrain, '%s.model'%('d' + 'd'.join(retrain.split('d')[1:])))
+        (e, size, new_ckpt) = get_latest(checkpoint_dir, size)
+        model_path =os.path.join(checkpoint_dir, new_ckpt, '%s.model'%('d' + 'd'.join(new_ckpt.split('d')[1:])))
     model = gensim.models.Word2Vec.load(model_path)
 
     ret_str = ''
@@ -276,29 +281,26 @@ if __name__ == '__main__':
 
     argparser = argparse.ArgumentParser()
 
-    argparser.add_argument("-s", "--save_dir", dest="save_dir", type=str, default="", \
+    argparser.add_argument("-o", "--output_dir", dest="output_dir", type=str, default="", \
         help="save tokenized text path (default={})".format(""))
 
-    argparser.add_argument("-i", "--input_path", dest="input_path", type=str, default=None, \
+    argparser.add_argument("-i", "--input_path", dest="input_path", type=str, default="", \
         help="input_path (default={})".format(None))
 
-    argparser.add_argument("-m", "--model_root", dest="model_root", type=str, default=None, \
-        help="save model root (default={})".format(None))
+    argparser.add_argument("-m", "--checkpoint_dir", dest="checkpoint_dir", type=str, default="", \
+        help="save checkpoint (default={})".format(None))
+
+    argparser.add_argument("-s", "--span", dest="input_span", type=str, default="", \
+        help="span of files list (default={})".format(""))
 
     argparser.add_argument("--tokenizer", dest="tokenizer", type=str, default="", \
-        help="tokenizer (default={})".format("segtok"))
-
-    argparser.add_argument("-e", "--epochs", dest="epochs", type=int, default=None, \
-        help="epochs (default={})".format(None))
+        help="tokenizer segtok/simple (default={})".format(""))
 
     argparser.add_argument("-c", "--config", dest="config_path", default="config.json", \
         help="config.json (default={})".format("config.json"))
 
     argparser.add_argument("-v", "--verbose", dest="verbose", default=False, action='store_true',\
         help="verbose")
-
-    argparser.add_argument("-r", "--resume", dest="resume", default=False, action='store_true',\
-        help="retrain")
 
     argparser.add_argument("-t", "--text", dest="text_str", type=str, default="", \
         help="similar 5 words (default={})".format("abc efg"))
@@ -308,53 +310,47 @@ if __name__ == '__main__':
     with open(args.config_path) as fj:
         config = json.load(fj)
 
-    verbose = args.verbose; print (config)
+    verbose = args.verbose
 
-    input_path, model_root, chunk_size, epochs, resume, size, min_count, verbose = \
-        config['input_path'], config['model_root'], config['chunk_size'], \
-        config['epochs'], config['resume'], config['size'], config['min_count'], config['verbose']
+    input_path, checkpoint_dir, chunk_size, epochs, size, min_count, tokenizer, verbose = \
+        config['input_path'], config['checkpoint_dir'], config['chunk_size'], \
+        config['epochs'], config['size'], config['min_count'], config['tokenizer'], config['verbose']
 
-    if args.input_path != None:
+    if args.input_path != "":
         input_path = args.input_path
-    if args.model_root != None:
-        model_root = args.model_root
-    if args.epochs != None:
-        epochs = args.epochs
-    if args.resume != False:
-        resume = args.resum
+    if args.checkpoint_dir != "":
+        checkpoint_dir = args.checkpoint_dir
+    if args.tokenizer != "":
+	tokenizer = args.tokenizer
     if args.text_str != "":
-        print ("model_root", model_root, file=sys.stdout)
-        print (get_similar(args.text_str, model_root, size), file=sys.stdout)
+        print ("checkpoint_dir", checkpoint_dir, file=sys.stdout)
+        print (get_similar(args.text_str, checkpoint_dir), file=sys.stdout)
         sys.exit(0)
-
+	
     input_span = (0, chunk_size)
-    retrain = None
-    if resume:
-        (e, size, retrain) = get_latest(model_root, size)
-        input_span = (e, e+chunk_size)
-    if retrain != None:
-        retrain=os.path.join(model_root, retrain, '%s.model'%('d'+'d'.join(retrain.split('d')[1:])))
+    if args.input_span != "":
+        (s, e) = tuple(args.input_span.split(":"))
+        input_span = (int(s), int(e))
+	chunk_size = input_span[1] - input_span[0]
+
+    old_ckpt, new_ckpt = get_check_pt(checkpoint_dir, chunk_size)
 
     preprocessing_func = split_hyphen_segtok
-    if args.tokenizer == "simple":
+    if args.tokenizer == "":
         preprocessing_func = simply_split
 
-    docs = read_and_preprocess(input_path, preprocessing_func, args.save_dir, input_span=input_span, verbose=verbose)
+    docs = read_and_preprocess(input_path, preprocessing_func, args.output_dir, input_span=input_span, verbose=verbose)
     if docs["n_docs"] == 0:
         print ("ERROR: Empty dataset! input_span:", str(input_span))
         sys.exit(0)
-        
-    model_name = "d%d"%(size)
-    save_model_dir = os.path.join(model_root, str(input_span[1])+model_name)
-    if not os.path.isdir(save_model_dir):
-        os.system("mkdir %s"%save_model_dir)
+
 
     #print (type(docs["documents"]), docs["n_docs"], docs["input_files_and_span"], docs["bytes"])
-    #print (save_model_dir, model_name, retrain, verbose); sys.exit(0)
+    print (old_ckpt, new_ckpt, input_span, chunk_size, verbose)
 
     model = train(docs, size=size, min_count=min_count, \
-        save_model=os.path.join(save_model_dir, '%s.model'%(model_name)), \
-        retrain=retrain, \
+        old_ckpt=old_ckpt, \
+        new_ckpt=new_ckpt, \
         epochs=epochs, verbose=verbose)
 
     print (model)
