@@ -174,6 +174,10 @@ def vec_work(b_m):
 	
 	ret_lst = []
 	for w in batch:
+		if w == "":
+			continue
+		w = w.split()[0]  #in case is wc
+
 		row = get_row(w)
 		if row != None:
 			ret_lst += [row]
@@ -186,10 +190,12 @@ def save_w2v(model, ws, output_path):
 	counter = multiprocessing.Value('i', 0)
 	pool = multiprocessing.Pool(initializer=init, initargs=(counter,) )
 
-	len_1 = len(ws);print (len_1)
+	if ws[0][0] != "<":
+		ws = ["<start>", "<stop>", "<unk>", "<UNK>"] + ws
+	len_1 = len(ws)
 	batch_size = len_1/7
 	spans = [(s, s+batch_size) for s in range(0, len_1, batch_size)]
-	data_lst = [(ws[s:e], model) for (s, e) in spans];print (spans[-1])
+	data_lst = [(ws[s:e], model) for (s, e) in spans]
 
 	#vecs = [vec_work(w) for w in ws]
 	vecs_lst = pool.map(vec_work, data_lst)
@@ -263,6 +269,8 @@ if __name__ == '__main__':
 	output_path = args.output_path
 	model_path = args.model_path
 	job = args.job
+	if job == "":
+		print("ERRROR: no job")
 
 	#1) extract vocab from tokenized text
 	if job == "wc":
