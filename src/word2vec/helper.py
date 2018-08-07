@@ -190,8 +190,13 @@ def save_w2v(model, ws, output_path):
 	counter = multiprocessing.Value('i', 0)
 	pool = multiprocessing.Pool(initializer=init, initargs=(counter,) )
 
+	ws = [w.split()[0] for w in ws]
 	if ws[0][0] != "<":
 		ws = ["<start>", "<stop>", "<unk>", "<UNK>"] + ws
+
+	with open('.'.join(output_path.split('.')[:-1]) + "_vocab.txt", 'w') as fd:
+		fd.write('\n'.join(ws))
+	
 	len_1 = len(ws)
 	batch_size = len_1/7
 	spans = [(s, s+batch_size) for s in range(0, len_1, batch_size)]
