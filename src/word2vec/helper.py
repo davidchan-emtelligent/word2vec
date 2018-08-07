@@ -203,7 +203,7 @@ def save_w2v(model, ws, output_path):
 
 	counter = multiprocessing.Value('i', 0)
 	n_vocab = multiprocessing.Value('i', len_1)
-	pool = multiprocessing.Pool(initializer=init, initargs=(counter,) )
+	pool = multiprocessing.Pool(initializer=init, initargs=(counter, n_vocab,) )
 
 	#vecs = [vec_work(w) for w in ws]
 	vecs_lst = pool.map(vec_work, data_lst)
