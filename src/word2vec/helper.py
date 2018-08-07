@@ -217,7 +217,7 @@ def save_w2v(model, ws, output_path):
 	with open(output_path, 'w') as fd:
 		fd.write('\n'.join(vecs))
 
-	return "\nvocabs saved to: %s\nw2v saved to   :%s"%(output_vocab, output_path)
+	return "\nvocabs saved to: %s\nw2v saved to   : %s"%(output_vocab, output_path)
 
 
 #4) test model
