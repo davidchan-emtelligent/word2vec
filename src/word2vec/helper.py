@@ -50,10 +50,10 @@ def merge_token_count(token_count_lst):
 	return merged
 
 
-def count_work(idx_fs_lst):
+def count_work(fs_lst):
 
 	token_count_lst = []
-	for (i, f) in idx_fs_lst:
+	for f in fs_lst:
 		with open(f, 'r') as fd:
 			tokens = fd.read().lower().split()
 		token_count = []
@@ -65,17 +65,19 @@ def count_work(idx_fs_lst):
 	return merge_token_count(token_count_lst)
 
 
-def save_word_count(input_dir, output_path):
+def save_word_count(input_tokenized_text_paths, output_path):
 
-	idx_fs = [(i, f) for i, f in enumerate(get_files(input_dir, 'txt'))]
+	with open(input_tokenized_text_paths, "r") as fd:
+		lines = fd.read().split('\n')
+	fs = [line for line in lines if lines != ""]
 
-	n_files = len(idx_fs)
-	batch_size = int(n_files/100)
+	n_files = len(fs)
+	batch_size = int(n_files/99)
 	batch_span = [(s, s+batch_size) for s in list(range(0, n_files, batch_size))]
 	if batch_span[-1][1] < n_files:
 		batch_span += [(batch_span[-1][1], n_files)]
 
-	batches = [idx_fs[s:e] for (s, e) in batch_span]
+	batches = [fs[s:e] for (s, e) in batch_span]
 	print ("total files:", n_files)
 	print ("n_batches  :", len(batches), " last batch :",batch_span[-1])
 
@@ -264,11 +266,11 @@ if __name__ == '__main__':
 
 	#1) extract vocab from tokenized text
 	if job == "wc":
-		if not os.path.isdir(input_path):
-			print("ERRROR: no input_root for tokenized files")
+		if not os.path.isfile(input_path):
+			print("ERRROR: no input_tokenized_text.paths for tokenized files")
 			sys.exit(0)
 		if output_path ==None:
-			print("ERRROR: no output_file_path")
+			print("ERRROR: no output_wc_file")
 			sys.exit(0)
 		print (save_word_count(input_path, output_path))
 		sys.exit(0)
