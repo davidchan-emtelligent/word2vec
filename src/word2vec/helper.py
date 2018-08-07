@@ -92,7 +92,7 @@ def save_word_count(input_tokenized_text_paths, output_path):
 
 
 #2) split files of a dir into sub_dirs: cp_2_1000
-def init(arg1, args2):
+def init(arg1, arg2):
 	global counter, n_total
 	counter = arg1
 	n_total = arg2
