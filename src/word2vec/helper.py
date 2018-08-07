@@ -92,9 +92,10 @@ def save_word_count(input_tokenized_text_paths, output_path):
 
 
 #2) split files of a dir into sub_dirs: cp_2_1000
-def init(args):
-	global counter
-	counter = args
+def init(arg1, args2):
+	global counter, n_total
+	counter = arg1
+	n_total = arg2
 
 def work(data):
 	global counter
@@ -130,7 +131,8 @@ def split_dir(one_level_dir, split_dir, op='cp', idx_start=0, step=10000, limit=
 	fpath_fs = [(one_level_dir, out_dir[i], op, fs[s:e]) for i, (s,e) in enumerate(spans)]
 
 	counter = multiprocessing.Value('i', 0)
-	pool = multiprocessing.Pool(initializer=init, initargs=(counter,) )
+	n_total = multiprocessing.Value('i', 0)
+	pool = multiprocessing.Pool(initializer=init, initargs=(counter, n_total))
 	ret_lst = pool.map(work, fpath_fs)
 
 	print ("")
@@ -140,7 +142,8 @@ def split_dir(one_level_dir, split_dir, op='cp', idx_start=0, step=10000, limit=
 #3) extract w2v from model: w2v
 def vec_work(b_m):
 	global counter
-	global n_vocab
+	global n_total
+
 	(batch, model) = b_m
 
 	def get_row(w):
@@ -165,7 +168,7 @@ def vec_work(b_m):
 			ret += " %.5f"%(vec[i])
 
 		if counter.value % 100 == 0:
-			print ("\rwords: %3d/%d"%(counter.value, n_vocab.value), end='    ')
+			print ("\rwords: %3d/%d"%(counter.value, n_total.value), end='    ')
 			sys.stdout.flush()
 
 		with counter.get_lock():
@@ -202,8 +205,8 @@ def save_w2v(model, ws, output_path):
 	data_lst = [(ws[s:e], model) for (s, e) in spans]
 
 	counter = multiprocessing.Value('i', 0)
-	n_vocab = multiprocessing.Value('i', len_1)
-	pool = multiprocessing.Pool(initializer=init, initargs=(counter, n_vocab) )
+	n_total = multiprocessing.Value('i', len_1)
+	pool = multiprocessing.Pool(initializer=init, initargs=(counter, n_total) )
 
 	#vecs = [vec_work(w) for w in ws]
 	vecs_lst = pool.map(vec_work, data_lst)
