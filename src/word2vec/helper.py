@@ -140,6 +140,7 @@ def split_dir(one_level_dir, split_dir, op='cp', idx_start=0, step=10000, limit=
 #3) extract w2v from model: w2v
 def vec_work(b_m):
 	global counter
+	global n_vocab
 	(batch, model) = b_m
 
 	def get_row(w):
@@ -164,7 +165,7 @@ def vec_work(b_m):
 			ret += " %.5f"%(vec[i])
 
 		if counter.value % 100 == 0:
-			print ("\rwords: %3d"%(counter.value), end='    ')
+			print ("\rwords: %3d/%d"%(counter.value, n_vocab.value), end='    ')
 			sys.stdout.flush()
 
 		with counter.get_lock():
@@ -187,20 +188,22 @@ def vec_work(b_m):
 
 def save_w2v(model, ws, output_path):
 
-	counter = multiprocessing.Value('i', 0)
-	pool = multiprocessing.Pool(initializer=init, initargs=(counter,) )
-
 	ws = [w.split()[0] for w in ws]
 	if ws[0][0] != "<":
 		ws = ["<start>", "<stop>", "<unk>", "<UNK>"] + ws
 
-	with open('.'.join(output_path.split('.')[:-1]) + "_vocab.txt", 'w') as fd:
+	output_vocab = '.'.join(output_path.split('.')[:-1]) + "_vocab.txt"
+	with open(output_vocab, 'w') as fd:
 		fd.write('\n'.join(ws))
 	
 	len_1 = len(ws)
 	batch_size = len_1/7
 	spans = [(s, s+batch_size) for s in range(0, len_1, batch_size)]
 	data_lst = [(ws[s:e], model) for (s, e) in spans]
+
+	counter = multiprocessing.Value('i', 0)
+	n_vocab = multiprocessing.Value('i', len_1)
+	pool = multiprocessing.Pool(initializer=init, initargs=(counter,) )
 
 	#vecs = [vec_work(w) for w in ws]
 	vecs_lst = pool.map(vec_work, data_lst)
@@ -211,7 +214,7 @@ def save_w2v(model, ws, output_path):
 	with open(output_path, 'w') as fd:
 		fd.write('\n'.join(vecs))
 
-	return "\nvec saved to: " + output_path
+	return "\nvocabs saved to: %d\nw2v saved to   :%d"%(output_vocab, output_path)
 
 
 #4) test model
