@@ -10,7 +10,7 @@ python w2v.py -m checkpoint -i txt_exist.paths
 python w2v.py -m models -i preprocessed_sentences.paths 
 
 #testing similary
-python w2v.py -m models -t "he questions about the subjects' self-reported oral health status,"
+python src/word2vec/w2v.py -m ../models/ckpt-200.model -c ../config.json -t "he questions about the subjects' self-reported oral health status,"
 
 """
 from __future__ import print_function
@@ -258,13 +258,12 @@ def getsize(obj_0):
     return inner(obj_0)
 
 
-def get_similar(text, model_str, size): #gensim.utils.simple_preprocess):
-    tokens = preprocessing_func(text)
+def get_similar(text, model_str): #gensim.utils.simple_preprocess):
+    tokens = word_tokenizer(text.lower())
     if model_str.endswith(".model"):
         model_path = model_str
     else:
-        (e, size, new_ckpt) = get_latest(checkpoint_dir, size)
-        model_path =os.path.join(checkpoint_dir, new_ckpt, '%s.model'%('d' + 'd'.join(new_ckpt.split('d')[1:])))
+        print("ERROR: invalid model path (w2v.model)", model_str)
     model = gensim.models.Word2Vec.load(model_path)
 
     ret_str = ''
