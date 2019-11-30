@@ -30,12 +30,6 @@ current_path = os.path.dirname(os.path.realpath(__file__))
 sys.path.append(current_path)
 from get_files_multi import get_files
 
-try:
-    reload(sys)
-    sys.setdefaultencoding("utf-8")
-except AttributeError:
-    # We're in Python 3
-    pass
 
 def get_check_pt(checkpoint_dir, chunk_size):
     if not os.path.isdir(checkpoint_dir):
@@ -320,17 +314,17 @@ if __name__ == '__main__':
     if args.checkpoint_dir != "":
         checkpoint_dir = args.checkpoint_dir
     if args.tokenizer != "":
-	tokenizer = args.tokenizer
+        tokenizer = args.tokenizer
     if args.text_str != "":
         print ("checkpoint_dir", checkpoint_dir, file=sys.stdout)
         print (get_similar(args.text_str, checkpoint_dir), file=sys.stdout)
         sys.exit(0)
-	
+    
     input_span = (0, chunk_size)
     if args.input_span != "":
         (s, e) = tuple(args.input_span.split(":"))
         input_span = (int(s), int(e))
-	chunk_size = input_span[1] - input_span[0]
+    chunk_size = input_span[1] - input_span[0]
 
     old_ckpt, new_ckpt = get_check_pt(checkpoint_dir, chunk_size)
 
@@ -344,7 +338,7 @@ if __name__ == '__main__':
         sys.exit(0)
 
 
-    #print (type(docs["documents"]), docs["n_docs"], docs["input_files_and_span"], docs["bytes"])
+    print (type(docs["documents"]), docs["n_docs"], docs["input_files_and_span"], docs["bytes"])
     print (old_ckpt, new_ckpt, input_span, chunk_size, verbose)
 
     model = train(docs, size=size, min_count=min_count, \
