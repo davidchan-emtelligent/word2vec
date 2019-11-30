@@ -1,0 +1,327 @@
+bmc bioinformatics bmc bioinformatics bmc bioinformatics 1471 - 2105 biomed central 24564714 4015528 1471 - 2105 - 15 - s1 - s10 10.1186 / 1471 - 2105 - 15 - s1 - s10 research a tool for mapping single nucleotide polymorphisms using graphics processing units manconi andrea 1 andrea.manconi @ itb.cnr.it orro alessandro 1 alessandro.orro @ itb.cnr.it manca emanuele 2 emanuele.manca @ diee.unica.it armano giuliano 2 giuliano.armano @ diee.unica.it milanesi luciano 1 luciano.milanesi @ itb.cnr.it 1 national research council , institute for biomedical technologies , segrate ( mi ) , 20090 , italy 2 department of electrical and electronic engineering , university of cagliari , cagliari ( ca ) , 09123 , italy 2014 10 1 2014 15 suppl 1 integrated bio - search : selected works from the 12th international workshop on network tools and applications in biology ( nettab 2012 ) paolo romano and marco masserolipublication of this supplement has not been supported by sponsorship .
+the source of funding used to cover the open access charges is declared by the authors in each article .
+articles have undergone the journal 's standard peer - review process for supplements .
+the supplement editors declare that they have no competing interests .
+s10 s10 copyright ( c ) 2014 manconi et al. ; licensee biomed central ltd .
+2014 manconi et al. ; licensee biomed central ltd.this is an open access article distributed under the terms of the creative commons attribution license ( http :// creativecommons.org / licenses / by / 2.0 ) , which permits unrestricted use , distribution , and reproduction in any medium , provided the original work is properly cited .
+the creative commons public domain dedication waiver ( http :// creativecommons.org / publicdomain / zero / 1.0 /) applies to the data made available in this article , unless otherwise stated .
+background single nucleotide polymorphism ( snp ) genotyping analysis is very susceptible to snps chromosomal position errors .
+as it is known , snps mapping data are provided along the snp arrays without any necessary information to assess in advance their accuracy .
+moreover , these mapping data are related to a given build of a genome and need to be updated when a new build is available .
+as a consequence , researchers often plan to remap snps with the aim to obtain more up - to - date snps chromosomal positions .
+in this work , we present g - snpm a gpu ( graphics processing unit ) based tool to map snps on a genome .
+methods g - snpm is a tool that maps a short sequence representative of a snp against a reference dna sequence in order to find the physical position of the snp in that sequence .
+in g - snpm each snp is mapped on its related chromosome by means of an automatic three - stage pipeline .
+in the first stage , g - snpm uses the gpu - based short - read mapping tool soap3 - dp to parallel align on a reference chromosome its related sequences representative of a snp .
+in the second stage g - snpm uses another short - read mapping tool to remap the sequences unaligned or ambiguously aligned by soap3 - dp ( in this stage shrimp2 is used , which exploits specialized vector computing hardware to speed - up the dynamic programming algorithm of smith - waterman ) .
+in the last stage , g - snpm analyzes the alignments obtained by soap3 - dp and shrimp2 to identify the absolute position of each snp .
+results and conclusions to assess g - snpm , we used it to remap the snps of some commercial chips .
+experimental results shown that g - snpm has been able to remap without ambiguity almost all snps .
+based on modern gpus , g - snpm provides fast mappings without worsening the accuracy of the results .
+g - snpm can be used to deal with specialized genome wide association studies ( gwas ) , as well as in annotation tasks that require to update the snp mapping probes .
+14 - 16 november 2012integrated bio - search : 12th international workshop on network tools and applications in biology ( nettab 2012 ) como , italy background gwas have shown that genetic variants are often responsible of traits expressed in phenotypes .
+genetic variants may be associated with the cause ( e.g. , [ 1 ]) or with the predisposition ( e.g. , [ 2 ]) of a disease , and may determine individual drug responses ( e.g. , [ 3 ]) .
+snps are the most common type of genetic variant in human genome .
+more than 10 million snps are estimated to be in the human genome [ 4 ] .
+the scientific community has placed a great interest in the analysis of snps , widely exploiting their knowledge in gwas [ 5 - 7 ] .
+hence , different public resources have been devised to share their knowledge ( e.g. , dbsnp [ 8 ] , the international hapmap project [ 9 ] , the 1000 genomes project [ 10 ]) , as well as specialized tools for snp calling ( e.g. maq [ 11 ] , soapsnp [ 12 ] , snvmix [ 13 ]) and snp analysis ( e.g. , fast - snp [ 14 ] , snplims [ 15 ] , snpinfo [ 16 ] , snpranker 2.0 [ 17 ]) .
+in this context , snp genotyping arrays represent an important tool for genetic analysis .
+it should be pointed out that the reliability of the genotype - phenotype associations that may be discovered analyzing snps is strongly related to the accuracy of the data that describe them .
+in particular , snp genotyping analysis is very susceptible to snps chromosomal position annotation errors .
+in fact , wrongly mapped snps may in some cases affect data analysis and lead to erroneous conclusions .
+an interesting study about wrongly mapped snps in commercial snp chips , and on their possible functional consequences , has been presented in [ 18 ] .
+in this work , snps of various chips have been remapped using highly sensitive alignment parameters against their reference genomes , with the goal to highlight discrepancies between the found genomic positions and those provided by the chip vendors .
+these discrepancies highlighted that more sensitive aligner parameters should be used to achieve an accurate alignment instead of retrieving a partial best alignment with extra snps , indels or less snp flanking sequence aligned .
+this suggests that researchers should closely examine how mapping data have been obtained , with the goal of analyzing their accuracy and if necessary taking into account the opportunity to update them .
+however , mapping data are provided to the users along the snp chips , omitting any information about the algorithm and the parameter settings used to obtain them .
+then , meticulous researchers often plan to remap the snps to obtain more accurate chromosomal positions before performing association studies .
+in general , when a new build of a genome is available it might be productive to re - analyze the data of old genotyping experiments while exploiting the new reference sequences .
+in this case , as the mapping data of snp chips are related to a given build of the genome under consideration ( irrespective of their original accuracy ) , chromosomal positions need to be updated according to the newest build .
+moreover , in genotyping analysis often researchers need to merge genetic datasets coming from different genotyping platforms , which in turn use different sets of snps to represent genetic polymorphisms .
+to this end , it is necessary to know the exact position of a snp in a chromosome and update this information when new builds of the reference genome are available .
+specialized tools as liftover [ 19 ] , assemblyconverter [ 20 ] , and the ncbi genome remapping service [ 21 ] have been devised to project the coordinates of genomic regions from a given build to another build of a genome .
+these tools are very useful to update chromosomal coordinates between different reference sequences ; however they might be unable to perform a given conversion between different assemblies .
+in fact , these tools typically allow only a limited set of assembly - assembly conversion combinations .
+then , it might be impossible to use them to update snps positions on a given build of a genome .
+moreover , new positions obtained using these tools are strongly related to the initial positions provided by the vendor .
+unfortunately , if a snp has been previously wrongly mapped by the vendor , the error will be spread to the updated position .
+finally , these tools are specialized to convert coordinates from a build to another and do not permit to remap a snp against the same reference build to look for discrepancies with the vendor positions .
+researchers use tools as blast [ 22 ] or blat [ 23 ] to analyze the snp probes positions and / or to update them to the genome or to the transcriptome .
+for instance , some researchers highlighted that many of the illumina probes have unreliable original annotations and defined a pipeline that exploits both blast and blat to perform complete genomic and transcriptomic re - annotation of the probe sequences [ 24 ] .
+affyprobeminer [ 25 ] is a platform - independent tool that uses all refseq mature rna protein coding transcripts and validated complete coding sequences in genbank [ 26 ] to regroup the individual probes into consistent probe sets to remap them to the correct sets of mrna transcripts exploiting a local implementation of the blat server .
+the bioconductor [ 27 ] package named altcdfenvs has been used to investigate how probes found on affymetrix microarrays were matching on more recent curated collections of human transcripts .
+experiments showed that not all the probes matching a reference sequence were consistent with the grouping of probes by the manufacturer of the chips [ 28 ] .
+however , using tools as blast or blat to update thousands or millions of snps is a very expensive task in terms of computing time .
+in this work , we present an improved version of g - snpm ( standing for gpu - snp mapping ) [ 29 ] , an accurate and very fast tool devised to cope with the problem of updating snps chromosomal positions .
+written in python , g - snpm is mainly based on the soap3 - dp [ 30 ] short - read mapping tool to exploit the computation power of modern gpus .
+g - snpm is available at the following address http :// www.interomics.eu / sp1 - wp2 .
+methods g - snpm is a tool that maps a sequence representative of a snp against a reference sequence in order to find the absolute position of the snp in that sequence .
+for genotyping analysis a snp is represented by a oligonucleotide probe for each possible allele .
+in turn , these probes can be synthetically described by a regular expression obtained by combining the flanking sequences of a snp with a grouping construct that represents its possible alleles ( e.g. , gcactctcacatggattagggaatta [ cg ] atgcagacctcctgcacaactgccc ) .
+since public repositories as dbsnp provide short and fixed length flanking sequences , we assume that typically the probes used to design a snp chip are represented by short sequences .
+starting from this consideration , a short - read mapping tool could be successfully used to cope with the snp mapping task .
+in the following of this section , we first introduce existing state - of - the - art short - read mapping tools .
+then , we propose our strategy , devised to deal with snp mapping problems .
+successively , we discuss about the adopted alignment constraints .
+finally , we briefly resume the minimal hardware and software equipment required to use g - snpm .
+short - read mapping tools several tools have been devised to perform short - read mappings .
+without aiming to be exhaustive , let us cite some of the most popular solutions , as maq [ 31 ] , rmap [ 32,33 ] , bowtie [ 34 ] , bwa [ 35 ] , cloudburst [ 36 ] , and shrimp2 [ 37,38 ] .
+maq maps short sequence reads to a reference genome by calculating the probability of a read alignment to be correct , and consensus genotype calling with a model that incorporates correlated errors and diploid sampling .
+it supports gapped alignment and can align reads up to 128 bp. rmap uses quality scores to provide accurate ungapped alignments .
+in so doing , it exploits two different mapping criteria .
+a first criterion is based on a simple count of mismatches between a read and the aligned genomic region , while a second criterion makes use of the base - call quality scores. by manipulating the quality - score cutoff , the second criterion provides another means of adjusting sensitivity and specificity .
+in particular , it allows positions to contribute when they are of high - quality , but not be penalizing if they are low - quality .
+bowtie is a memory - efficient short - read aligner that exploits the burrows - wheeler transform ( bwt ) to index the genome allowing only ungapped alignments .
+bwa is another tool that exploits the bwt to index the reference sequences .
+it can also provide gapped alignments , while bowtie cannot .
+it consists of three algorithms ( i.e. , bwa - backtrack , bwa - sw and bwa - mem ) , devised to perform both short and long read alignments .
+cloudburst is a parallel seed - and - extend read - mapping tool able to align reads with a specified number of differences , including both mismatches and indels ( insertions / deletions ) .
+it exploits the open - source hadoop [ 39 ] implementation of mapreduce [ 40 ] to parallelize the execution using multiple computing nodes .
+shrimp2 exploits specialized vector computing hardware to speed - up the smith - waterman [ 41 ] dynamic programming algorithm .
+it is a multi - core short - read mapping tool that enables the alignment of reads with extensive polymorphism and sequencing errors .
+a comparative study aimed at assessing the accuracy and the runtime performance of different state - of - the - art next - generation sequencing ( ngs ) read alignment tools highlighted that among all soap2 [ 42 ] is the one that showed the higher accuracy [ 43 ] .
+exhaustive reviews of the tools cited above can be found in the literature ( e.g. , [ 44 ]) .
+in general , the mentioned solutions exploit some heuristics to find a good compromise between accuracy and running time .
+recently , gpu - based solutions have been proposed to cope with different bioinformatics problems [ 45 - 48 ] .
+gpus have also been exploited to cope with the exponentially increasing throughput of ngs .
+in particular , the computational power of these hardware accelerators is helping researchers to speed the short - read mapping process without compromising accuracy and sensitivity .
+lately , the gpu - based short - read mapping tools barracuda [ 49 ] , cushaw [ 50 ] , soap3 [ 51 ] and soap3 - dp have been proposed to the scientific community .
+experimental results show that soap3 , which is the gpu evolution of soap2 , outperforms the popular tools bwa and bowtie .
+when tested to align millions of 100 - bp read pairs to the human genome , it resulted at least 7.5 times faster than bwa , and 20 times faster than bowtie .
+moreover , soap3 does not exploit heuristics and it is able to align correctly slightly more reads than bwa and bowtie .
+soap3 is able to align a read to a reference sequence with up to four mismatches while it does not support gapped alignments .
+lately , the soap3 research team released soap3 - dp , a new version of the aligner that exploits dynamic programming to support gapped alignments .
+compared with bwa , bowtie2 [ 52 ] , seqalto [ 53 ] , gem [ 54 ] , and the previously mentioned gpu - based aligners , soap3 - dp is two to tens of times faster , while maintaining the highest sensitivity and lowest false discovery rate on illumina reads with different lengths .
+table 1 summarizes the described tools .
+table 1 short - read mapping tools name mapping strategy indels support quality evalutation gpu - based barracuda bwt - based indexing of the reference yes yes yes bwa bwt - based indexing of the reference yes yes no bowtie bwt - based indexing of the reference no yes no cuhshaw2 bwt - based indexing of the reference yes yes yes cloudburst hash the reads yes no no maq hash the reads no yes no rmap hash the reads yes yes no shrimp2 hash the reads yes yes no soap2 bwt - based indexing of the reference yes yes no soap3 bwt - based indexing of the reference no no yes soap3 - dp bwt - based indexing of the reference yes no yes a summary of some of the most popular short - read mapping tools .
+the implemented strategy as previously seen , a snp can be synthetically represented by means of a regular expression r that uses a single grouping construct to describe the possible alleles .
+however , short - read mapping tools are not designed to work with sequences described by a regular expression with specialized constructs .
+then , two trivial approaches could be used to map a snp with a short - read mapping tool .
+as for the former approach ( see figure 1 ) , the probe sequences related to the alleles of a given snp are dealt with separately in the alignment process .
+in other words , each probe sequence is aligned against a reference sequence independently from the others using the same mapping tool and identical setting parameters .
+after that sequences have been aligned , results are merged and analyzed to detect and eventually update the snps mapping positions .
+as for the second approach ( see figure 2 ) , the probe sequences related to the alleles of a given snp are dealt with simultaneously in the alignment process .
+to this end , a single sequence must be used to represent the probes related to a snp .
+this sequence can be obtained by substituting the grouping construct in r that describes the possible alleles with a any symbol that represents any possible nucleotide .
+in so doing , the expressiveness of the new sequence increases with respect to that of the starting one , while its information content decreases .
+in this case , results obtained by aligning the new sequence against a reference sequence must be analyzed to filter out false positive alignments : i.e. , those alignments for which the any symbol that represents the snp does not match with one of the possible alleles for that snp .
+only after this step alignments can be analyzed to update snps mapping positions .
+this approach can significantly reduce the computational load needed to perform the alignment task .
+for instance , for biallelic snps it will be almost halved with respect to the first approach .
+basically , g - snpm uses this approach to align a sequence representative of a snp by means an automatic three stage pipeline ( see figure 3 ) .
+figure 1 using two sequences to represent a snp .
+two sequences are separately aligned for a snp .
+after the alignment , results are analyzed to calculate the absolute position of the snp .
+figure 2 using a sequence to represent a snp .
+only a sequence is aligned for a snp .
+after the alignment results are analyzed to remove those false positives and to calculate the absolute position of the snp .
+figure 3 g - snpm mapping strategy .
+g - snpm exploits a three - stage pipeline to update the chromosomal position of a snp .
+in the first stage , soap3 - dp is used to unambiguously map a snp against a reference sequence .
+unmapped or ambiguously mapped snps are remapped at the second stage by exploiting shrimp2 .
+at the third stage , mapped snp sequences are analyzed to identify the snp chromosomal position .
+first stage of the pipeline g - snpm uses the gpu - based soap3 - dp short - read mapping tool to align a sequence related to a snp against its related chromosomal sequence .
+typically , a short - read mapping tool is used to map a read against the overall genome .
+in fact , the genome region from which the read has been generated from the sequencer is unknown .
+to reduce the running time g - snpm uniquely aligns each snp against the reference chromosomal sequence shown in the mapping data of the chip .
+in fact , it is very unlikely that a snp has been mapped to a wrong chromosome .
+then , since soap3 - dp exploits the bwt to index a reference sequence , it is necessary to index separately each chromosomal sequence involved in the mapping task .
+in general , the alignment process can generate one of three possible results .
+in particular , also depending on the setting parameters , soap3 - dp : i. provides a unique alignment ; ii. provides multiple alignments ; iii. is unable to find an alignment with respect to the given constraints .
+as previously explained , the adopted mapping strategy requires that g - snpm analyzes the resulting alignments to filter out false positives .
+during the alignment , soap3 - dp aligns each any symbol in a sequence as a mismatch against any possible nucleotide in the reference sequence .
+therefore , g - snpm i ) analyzes each alignment to look for false positives , ii ) removes them , and then iii ) updates the edit distance of those alignments classified as true positives .
+to detect a unique snp chromosomal position , a unique alignment must be considered valid .
+to this end , g - snpm analyzes all valid alignments of each snp sequence to detect the best hit and discard the others .
+basically , the best hit might be detected by calculating the score alignment of each hit and selecting the best .
+however , g - snpm analyzes a more complex score .
+in particular , it detects the best hit by analyzing the bwa - like mapq score provided with the last releases of soap3 - dp that is intended to indicate confidence of read placement accuracy .
+this score assigns a phred - like mapping quality score to each read based on match uniqueness , sequence identity , end - pairing , and inferred insert size .
+second stage of the pipeline it is aimed at refining the mapping process .
+at this stage , g - snpm tries to remap those snps ( if any ) that have not been mapped at the first stage of the pipeline ; in other words , those snps for which soap3 - dp has not been able to provide valid alignments for their representative sequence and / or those snps for which g - snpm has not been able to find unambiguous mapping chromosomal positions ( i.e. , snps for which soap3 - dp found multiple valid alignments with the same mapping quality score ) .
+g - snpm uses the smith - waterman based short - read mapping tool shrimp2 to perform this stage of the pipeline .
+as for the first stage , also in this stage g - snpm adopts an identical policy to detect and discard false positives alignments that might be found by shrimp2 , while exploiting the shrimp2 mapping quality score to detect the best alignment .
+at the end of this stage , g - snpm reports those snps for which shrimp2 has been unable to find a unique valid alignment of their representative sequences or an unambiguous snp chromosomal position .
+third stage of the pipeline g - snpm analyzes unique valid alignments of each successful mapped snp to calculate the absolute position of each snp .
+an output file is generated , containing for each snp , its name , the related chromosome , the original snp position , and the mapped snp position .
+moreover , information about the alignment as the strand , and the cigar string are also provided .
+then , the pipeline is re - executed to map against the overall genome i ) those snps that g - snpm has been unable to map against a unique chromosomal sequence and ii ) those snps unmapped by the chip vendor .
+in g - snpm reference dna sequences are accepted in standard fasta format , whereas snps must be represented by using two files : a fasta file with the representative reads of the snps , and another flat file with information about the snp , in particular the original absolute snp position and its alleles .
+currently , automatic generation of these files is provided for snp probes of the illumina chip .
+g - snpm analyzes illumina files to automatically generate the previously described files for each chromosome .
+alignment constraints g - snpm defines different mapping constraints at the first and second stage of its pipeline , according to the different two mapping tools exploited .
+first stage typically , due the time required to find an alignment , short - read mapping tools allow to set some parameters to limit the maximum alignments allowed for read sequence .
+for instance , by default bowtie allows only one alignment for read sequence .
+in general , this limitation might affect the quality of the final results , especially when no sensitive alignment parameters are imposed .
+short - read mapping tools that exploit modern gpus allow to easily by - pass the limitations of this constraint. by default , soap3 - dp generates up to 1000 alignments for read .
+we deem that this is a good constraint and did not modified it in g - snpm .
+however , users can easily modify it to decrease , increase , or avoid the upper limit to the alignments that may be found for each sequence .
+as already pointed out , soap3 - dp is the evolution of soap3 that exploits dynamic programming to support indels in alignments .
+depending on whether dynamic programming is enabled or not , soap3 - dp will generate gapped or ungapped alignments .
+when dynamic programming is enabled , soap3 - dp performs the alignment in two steps .
+in the first step it looks for ungapped alignments that meet a given constraint on the allowed number of mismatches .
+up to 4 mismatches are allowed for this step .
+in the second step , it exploits dynamic programming to look for gapped alignments. by default , in the first step soap3 - dp allows up to 2 mismatches to speed - up the overall alignment process .
+however , g - snpm modifies this constraint to allow alignments with up 4 mismatches .
+users can decreases this value in g - snpm .
+second stage shrimp2 is an accurate short - read mapping tool that has been designed to parallelize the alignment process on multi - core cpus. by default shrimp2 uses only a cpu - core .
+then , to speed - up the analysis performed at this stage , g - snpm assigns all available cpu - cores to shrimp2 .
+in particular , it automatically detects the number n of available cpu - cores , and then runs shrimp2 on n - 1 cores ; a cpu - core is reserved to the operating system .
+however , it is possible to set manually how many cpu - cores must be assigned to shrimp2 .
+depending on the number of available cpu cores , it might be useful to limit the maximum number of alignments for sequence , with the aim to reduce the overall mapping time .
+however , it should be noted that most snps are successfully mapped at the first stage of the pipeline .
+so , the activation of the second stage is sporadic and involves only some snp sequences .
+we deemed useful not imposing any limitation on the number of alignments at this stage , to prevent any worsening of the overall accuracy of g - snpm .
+at this stage , shrimp2 is enabled to allow ungapped alignments .
+alignment score and penalties are those of default of shrimp2 ( i.e. , match score = 10 ; mismatch penalty = 15 , gap open penalty = 33 , gap extend penalty = 33 ) .
+it is possible to change these values to meet user constraints .
+requirements g - snpm works on linux based systems with a custom installation of python ( release >= 2.7.3 ) and equipped with a cuda ( compute unified device architecture ) enabled gpu - card .
+we tested it on two families of nvidia gpu cards .
+in particular tests have been carried out on the nvidia fermi architecture based gtx 480 card , and on the nvidia kepler architecture based k10 and k20c cards .
+currently , soap3 - dp can be run on cuda - 3.2 and cuda - 4.2 releases , while no support for the cuda 5.0 release has been provided yet .
+we suggest to scientists interested to use g - snpm to install the cuda - 4.2 release .
+results to assess g - snpm , we used it in the task to remap about i ) 1.2 millions of snps of the illumina chip humanomni 1s ( version 1 ) aligned by the chip vendor on the build 37.1 of the human genome , ii ) 370 thousands of snps of the illumina chip cnv370 ( version 3 ) aligned on the build 36.1 of the human genome , and iii ) 318 thousands of snps of the illumina chip hh300 ( version 2 ) also aligned by the chip vendor on the build 36.1 of the human genome .
+experiments have been mainly executed i ) to highlight discrepancies in respect in map positions provided by the chip vendor , and ii ) to assess the capability of g - snpm to deal with the mapping problem .
+in the following of this section , we first briefly summarize both the hardware configuration and the short - read mapping tool releases exploited to carry out experiments .
+then , we describe the way data have been prepared , so that a scientist can easily reproduce experiments .
+finally , we present and discuss results .
+hardware and software configuration experiments described hereinafter have been carried out on a 12 cores intel xeon cpu e5 - 2667 2.90ghz with 128 gb of ram .
+an nvidia kepler architecture based tesla k20c card with 0.71 ghz clock rate and equipped with 4.8 gb of global memory has been exploited to execute soap3 - dp. moreover , we used the following software releases : soap3 - dp rel .
+2.3.116 and shrimp2 rel .
+2.2.3 .
+data preparation we downloaded the . csv file version of the manifest of the analyzed chips from the illumina website .
+then , we used our illumina parser , which is distributed together with g - snpm , to automatically generate the working files used by g - snpm .
+successively , we downloaded the builds 36.1 , 37.1 and 37.3 of the human genome from the ncbi reference sequence database [ 55 ] .
+then , we used g - snpm - builder ( also distributed along g - snpm ) , to build the bwt indexes required in the first stage of the pipeline .
+analysis of mapped snps we used g - snpm to perform two different experiments .
+as for the former , we used it to remap the snps of each chip against the same genome build previously used by the chip vendor .
+this experiment permits to put into evidence and to analyze possible discrepancies between the snps positions obtained with g - snpm and those provided by the chip vendor .
+as for the second experiment , we first used g - snpm to remap the snps against the newest build 37.3 of the human genome and then , we analyzed the reliability of the updated positions .
+table 2 reports some details about the snps of the analyzed chips .
+as for the humanomni 1s chip , we observed that the vendor provided the positions of 1.180.662 snps .
+as the overall number of snps was 1.185.976 no information about the position of 5.314 snps was provided .
+the chip vendor provided the positions of all the 373.397 snps of the cnv370 chip , version 3 , and of all the 318.237 snps of the hh300 chip , version 2 .
+table 2 analyzed chips chip name hg build snps unmapped snps humanomni 1s 37.1 1.185.976 5.314 cnv370 ver 3 36.1 373.397 0 hh300 ver 2 36.1 318.237 0 the first column reports the name of the chips and the second the reference build of the human genome used by the chip vendor to map the snps .
+the third and fourth column report the overall number of snps of the chip and the number of them unmapped by the chip vendor , respectively .
+remapping snps against the same reference sequence used by the chip vendor table 3 summarizes results obtained remapping snps with g - snpm against the same reference sequences used by the chip vendor .
+in the table are reported : i ) the overall number of snps mapped using g - snpm , ii ) the number of those uniquely mapped , iii ) the number of snps for which g - snpm has been unable to find any alignment , and iv ) the number of snps for which our tool found positions that differ from those provided by the chip vendor .
+as for the chip humanomni 1s , g - snpm has been able to remap 4.460 of the 5.314 snps for which the chip vendor did not provide any mapping position .
+most of these snps have been mapped at the first stage of g - snpm .
+in particular , they have been mapped by soap3 - dp looking for ungapped alignments and without exploit any heuristic .
+only 35 of these snps have been mapped looking for gapped snps .
+in the last column of table 3 is reported that 4.626 snps have been differently mapped with g - snpm .
+it should be observed that this value includes also the 4.460 snps mapped only by g - snpm .
+analyzing the snps mapped by the chip vendor , only 166 of them have been mapped differently with g - snpm , one on a different chromosome .
+as for the other chips , g - snpm mapped uniquely against their related reference build almost all snps .
+experimental results shown that g - snpm mapped differently 14.391 snps ( 7 on a different chromosome ) of the chip cnv370 , version 3 , and 1.822 snps ( none on a different chromosome ) of the chip hh300 , version 2 .
+also for these chips g - snpm mapped almost all snps without considering gapped alignments .
+in our opinion , the differences between the snps mapped by g - snpm with respect those mapped by the chip vendor can be attributed to differences in the alignment algorithms and settings .
+as reported in the background section , different works have proved that often unreliable positions are provided along the chip , typically due to the fact that not very accurate alignment were obtained .
+we do not known which algorithm and alignment settings used the vendor .
+then , it was difficult to compare the accuracy of our tool with the one of the vendor .
+in any case we claim that g - snpm is very accurate .
+being based on soap3 - dp , it looks for ungapped alignments with up to four mismatches without exploiting any heuristics .
+it is worth pointing out that only a very low percentage of snps positions have been calculated starting from gapped alignments and that almost all sequences representative of the snps have been uniquely mapped .
+as for the snps of the humanomni 1s mapped by g - snpm and for which the chip vendor did not provide any position , we can suppose that either no valid alignment have been found for them or , conversely , that multiple valid alignments have been found making impossible to unambiguously map these snps .
+as for the 854 snps unmapped also by our tool , we assume that g - snpm tried to map them using some heuristics that did not permitted to find valid alignments .
+table 3 results obtained using g - snpm to remap the snps against the same reference build used by the chip vendor snps chip name hg build mapped uniquely mapped unmapped differently mapped humanomni 1s 37.1 1.185.122 1.185.118 854 4.626 cnv370 ver 3 36.1 373.397 373.382 0 14.391 hh300 ver 2 36.1 318.237 318.237 0 1.822 a summarization of the discrepancies observed remapping the snps with g - snpm against the same reference builds previously used by the chip vendor to detect the snps positions .
+the first and the second column report the name of the chip and its reference build , respectively .
+the third column reports the overall number of snps mapped using g - snpm , whereas the fourth column reports the number of them that are uniquely mapped .
+the fifth column reports the number of snps for which g - snpm did not provide any valid alignment .
+finally , the sixth column reports the number of mapped snps for which g - snpm provided different positions with respect to those detected by the chip vendor .
+remapping snps against the build 37.3 of the human genome table 4 summarizes results obtained remapping snps with g - snpm against the build 37.3 of the human genome .
+it should be observed that results are slightly different from those obtained remapping the snps against the same build used by the chip vendor .
+results show that g - snpm has been unable to remap some snps previously mapped against the oldest builds .
+as for the chip humanomni 1s , almost all snps unmapped by the chip vendor have also been mapped against the newest build of the genome .
+in particular , g - snpm has been unable to find a valid alignment for 868 snps ( i.e. , 14 snps more than in the previous experiment ) .
+for the other snps unmapped by the vendor , g - snpm found that they map to the same positions in both builds .
+as for the other chips , g - snpm has been unable to find a valid alignment for 23 snps of the chip cnv370 , version 3 , and for 20 snps of the chip hh300 , version 2 .
+as for the unmapped snps , it is possible that , i ) due to the refinement of the reference sequence , some snps are no longer present in the latest build or that ii ) the refinement of the reference sequence required complex gapped alignments that g - snpm is unable to find , due to the procedures adopted in the two stages of its pipeline .
+as in the previous experiment , almost all snps have been mapped at the first stage of g - snpm , while looking for ungapped alignments .
+table 4 results obtained using g - snpm to remap the snps against the build 37.3 of the human genome chip name hg build mapped snps uniquely mapped snps unmapped snps humanomni 1s 37.3 1.185.108 1.185.103 868 cnv370 ver 3 37.3 373.374 373.371 23 hh300 ver 2 37.3 318.217 318.216 20 the first and the second columns report the name of the chip and its reference build , respectively .
+the third column reports the overall number of snps mapped using g - snpm , whereas the fourth column reports the number of them uniquely mapped .
+the fifth column reports the number of snps for which g - snpm did not provide a valid alignment .
+to analyze the reliability of our tool , we compared the snps positions on the build 37.3 obtained with g - snpm with i ) those obtained using a genome remapping tool , and with ii ) those retrieved by dbsnp .
+as for the first comparison , we used the ncbi genome remapping service because at the time of writing of the manuscript it is the only assembly - assembly converter tool able to project features from the build 36.1 to the build 37.3 , whereas neither the ncbi genome remapping service nor the ucsc liftover and ensembl assemblyconverter services are currently able to project features from the build 37.1 to the build 37.3 .
+therefore , this experiment has not been performed for the chip humanomni 1s .
+the ncbi genome remapping service projects the coordinates of a chromosomal region between two different builds of a genome .
+in this case , we are interested to project against the build 37.3 the coordinates of those regions that contain the snps in the build 36.1 .
+assuming that the snps positions provided by the chip vendors are correct , we can identify these regions retrieving the sequences representative of the snps , their relative positions within these sequences , and their absolute positions within the chromosome sequence .
+this information is present in . csv files of the manifest of the chips analyzed for this study .
+table 5 summarizes results obtained with the ncbi service .
+it should be observed that it has been unable to convert the coordinates of several regions if compared with the number of snps unmapped by g - snpm .
+in particular , it has been unable to project the coordinates of 212 snps of the cnv370 chip , version 3 , and the coordinates of 28 snps of the hh300 chip , version 2 .
+typically , regions are unmapped either as they are deleted in the new reference or as intersects multiple chains .
+moreover , we analyzed if the snps mapped with g - snpm fall in the regions that have been projected with the ncbi service .
+results reported in table 6 , show that g - snpm mapped 7.296 snps of the chip cnv370 , version 3 , in different regions of those obtained with the ncbi service , as well as 454 snps of the chip hh300 , version 2 .
+differences might be related to the fact that g - snpm looks for the nucleotide present in the snp position and discard those alignments that do not match with one of the possible alleles for the snp .
+as the ncbi service does not perform this check , it can report also wrong regions .
+as for the second comparison , we differently analyzed the snps of the humanomni 1s chip from those of the chips cnv370 and hh300 .
+in particular , we retrieved from dbsnp the snps of the humanomni 1s chip unmapped by the vendor .
+only 47 of them have a rsid whereas the others have been derived from the 1000 genomes project ( kgp identifiers ) .
+we converted the snps with kgp identifiers to rsids in dbsnp132 using megablast [ 56 ] to align against the database the sequences representative of the snps .
+we observed that only 859 of 5.314 snps were present in dbsnp132 and all of them with multiple positions .
+only a little percentage of them validated .
+for about half of these kgp snps , and for all snps in the chips with rsid we found in dbsnp the same positions obtained with our tool .
+as for the other chips , we looked for all snps mapped by g - snpm on dbsnp .
+about 281 thousands snps of the cnv370 chip and about 238 thousands snps of the hh300 chip were present in dbsnp .
+we observed that g - snpm did not provide identical snps positions for 1.447 snps of the cnv370 chip and for 1.281 snps of the hh300 chip .
+as for the snps for which g - snpm provided different positions , we observed that dbsnp reports longer flanking sequences that those reported by the vendor .
+this can be related to the different mappings of g - snpm as well as the regions unprojected by the ncbi genome remapping service .
+table 5 snps chromosomal regions projected with the ncbi genome remapping service against the build 37.3 of the human genome chip name projected regions unprojected regions cnv370 v .
+3.0 373.185 212 hh300 v .
+2.0 318.209 28 a summarization of the results observed converting from the build 36.1 to the build 37.3 of the human genome the coordinates of the regions containing the snps detected by the chip vendor .
+the first column reports the name of the chip , whereas the second and the third report the number of regions successfully projected against the build 37.3 and the number of regions for which the ncbi service has been unable to provide any conversion , respectively .
+table 6 comparison between g - snpm and the ncbi genome remapping service chip name regions differently remapped cnv370 ver 3 7.296 hh300 ver 2 454 the table shows for each analyzed chip the number of snps remapped with g - snpm against the build 37.3 of the human genome whose positions did not fall inside the regions obtained with the ncbi genome remapping service .
+performance analysis table 7 summarizes the performance of g - snpm in terms of overall mapped snps and running time .
+results are reported for all experiments we performed and are distinct according to the mapping option .
+as previously explained , g - snpm tries to remap against the overall genome sequence those snps that have been unmapped against the same chromosomal sequence detected by the chip vendor .
+in these cases , analysis at the second stage of g - snpm can require a very long running time .
+g - snpm by default tries to align these snps only at the first stage .
+to force the second stage alignment , users must specify the " d " option .
+in the table , results are summarized for both cases .
+it should be observed that the running time greatly increases when the " d " option is used .
+only a small percentage of snps is further mapped against the overall genome sequence at the second stage of g - snpm .
+the time for mapping the snps of chip hh300 , version 2 , do not change after activating this option " d " , as all snps are in fact mapped at the first stage .
+moreover , the table shows that g - snpm aligns almost 1.2 million of snps of the humanomni 1s chip faster than the almost 370 thousands snps of the cnv370 chip , version 3 , and the almost 318 thousands snps of the hh300 chip , version 2 .
+justification must be sought in the fact that in the humanomni 1s chip almost all snps are mapped at the first stage of g - snpm .
+as for the others , g - snpm required more time to try to map snps at the second stage .
+table 8 , summarizes the number of sequences that g - snpm tried to align at the second stage of the pipeline and its related processing time .
+results shown in table 8 highlight the presence of a considerable imbalance with respect to the number of sequences processed at the first stage ( for instance considering the humanomni 1s chip , g - snpm processed about 1.2 millions of snps against the build 37.1 in 20 minutes , of which 13 minutes to process 17 sequences at the second stage ) .
+table 7 overall analysis of mapped snps and running time option d disabled option d enabled chip name reference build mapped snps global time mapped snps global time humanomni 1s 37.1 1.184.688 20 m 1.185.118 1 h 34 m humanomni 1s 37.3 1.185.031 19 m 1.185.103 1 h 30 m cnv370 v .
+3.0 36.1 373.382 56 m 373.382 2 h 5 m cnv370 v .
+3.0 37.3 373.367 52 m 373.371 2 h 2 m hh300 v .
+2.0 36.1 318.237 29 m 318.237 29 m hh300 v .
+2.0 37.3 318.216 37 m 318.216 37 m the table is divided in two parts .
+the first summarizes the performance of g - snpm when only its first stage has been used to remap against the overall genome sequence those snps previously unmapped against the same chromosomal sequence detected by the chip vendor ( option " d " disabled ) .
+the second part of the table summarizes the performance of g - snpm when both stages have been used to remap against the overall genome sequence those snps previously unmapped against the same chromosomal sequence detected by the chip vendor ( option " d " enabled ) .
+table 8 analysis of the performance at the second stage of g - snpm chip name reference build sequences analyzed time humanomni 1s 37.1 17 13 m humanomni 1s 37.3 17 12 m cnv370 v .
+3.0 36.1 56 41 m cnv370 v .
+3.0 37.3 81 49 m hh300 v .
+2.0 36.1 10 22 m hh300 v .
+2.0 37.3 36 27 m a summarization of the performance in terms of running time at the second stage of the g - snpm .
+the table shows the number of sequences that g - snpm tried to align at the second stage and the time required to align them .
+it is evident a considerable imbalance of the processing time between the first and the second level .
+the table summarizes the performance with option " d " disabled .
+conclusions g - s npm is a useful and powerful tool that can simplify the work of researchers that plan to remap the snps chromosomal positions before to perform any gwas .
+typically , researchers use sequence alignment tools as blast or blat to update the mapping position of a snp to a genome or a transcriptome .
+however , no generalized and / or computationally efficient solutions have been proposed to address this problem .
+g - snpm is the only general - purpose tool devised to deal with the mapping of snps .
+being based on modern gpus , it exploits the computational power of these hardware accelerators to guarantee a very fast mapping without compromising the accuracy .
+g - snpm can be easily integrated in specialized pipelines and workflows devised to cope with specialized gwas , as well as annotation tasks that requires to remap the snp probes .
+list of abbreviations used bwt : burrows - wheeler transform ; cuda : compute unified device architecture ; gpu : graphics processing unit ; gwas : genome wide association studies ; ngs : next - generation sequencing ; snp : single nucleotide polymorphism .
+competing interests the authors declare that they have no competing interests .
+authors' contributions am and ao conceived the tool .
+am designed and implemented the tool , and drafted the manuscript .
+am , ao and ga defined experiments .
+em tested the tool during its development .
+am , ao and em analyzed experimental results .
+am and ga revised the manuscript .
+lm coordinated the project , granted access to the computational facilities and maintained the bioinformatics resources .
+all authors read and approved the final manuscript .
+acknowledgements this work was supported by the miur ( pb05 ) " interomics " ; miur hirma ( rbap11ys7k ) ; eu fp7 " mimomics " and the sardinia region " pain " projects .
+declarations the publication costs for this article were funded by the italian ministry of education and research ( miur ) through the flagship ( pb05 ) " interomics " project .
+this article has been published as part of bmc bioinformatics volume 15 supplement 1 , 2014 : integrated bio - search : selected works from the 12th international workshop on network tools and applications in biology ( nettab 2012 ) .
+the full contents of the supplement are available online at http :// www.biomedcentral.com / bmcbioinformatics / supplements / 15 / s1 .
+mcpherson r pertsemlidis a kavaslar n stewart a roberts r cox dr hinds da pennacchio la tybjaerg - hansen a folsom ar boerwinkle e hobbs hh cohen jc a common allele on chromosome 9 associated with coronary heart disease science 2007 316 5830 1488 1491 17478681 tuupanen s turunen m lehtonen r hallikas o vanharanta s kivioja t bjorklund m wei g yan j niittymaki i mecklin jp jarvinen h ristimaki a di - bernardo m east p carvajal - carmona l houlston rs tomlinson i palin k ukkonen e karhu a taipale j aaltonen la the common colorectal cancer predisposition snp rs6983267 at chromosome 8q24 confers potential to enhanced wnt signaling nature genet 2009 41 885 890 19561604 fellay j thompson aj ge d gumbs ce urban tj shianna kv little ld qiu p bertelsen ah watson m warner a muir aj brass c albrecht j sulkowski m mchutchison jg goldstein db itpa gene variants protect against anaemia in patients treated for chronic hepatitis c nature 2010 464 7287 405 408 20173735 botstein d risch n discovering genotypes underlying human phenotypes : past successes for mendelian disease , future approaches for complex disease nature genet 2003 33 228 237 12610532 wang wys barratt bj clayton dg todd ja genome - wide association studies : theoretical and practical concerns nature rev genet 2005 6 2 109 118 15716907 schork nj fallin d lanchbury js single nucleotide polymorphisms and the future of genetic epidemiology clin genet 2000 58 4 250 264 11076050 hirschhorn jn daly mj genome - wide association studies for common diseases and complex traits nature rev genet 2005 6 2 95 108 15716906 sherry st ward mh kholodov m baker j phan l smigielski em sirotkin k dbsnp : the ncbi database of genetic variation nucl acids res 2001 29 308 311 11125122 consortium tih the international hapmap project nature 2003 426 789 796 14685227 consortium tgp a map of human genome variation from population - scale sequencing nature 2010 467 1061 1073 20981092 li h ruan j durbin r mapping short dna sequencing reads and calling variants using mapping quality scores genome res 2008 18 11 1851 1858 18714091 li r li y kristiansen k wang j soap : short oligonucleotide alignment program bioinformatics 2008 24 5 713 714 18227114 goya r sun mg morin rd leung g ha g wiegand kc senz j crisan a marra ma hirst m huntsman d murphy kp aparicio s shah sp snvmix : predicting single nucleotide variants from next - generation sequencing of tumors bioinformatics 2010 6 26 730 736 20130035 yuan hy chiou jj tseng wh liu ch liu ck lin yj wang hh yao a chen yt hsu cn fastsnp : an always up - to - date and extendable service for snp function analysis and prioritization nucl acids res 2006 34 suppl 2 w635 w641 16845089 orro a guffanti g salvi e macciardi f milanesi l snplims : a data management system for genome wide association studies bmc bioinformatics 2008 9 suppl 2 s13 18387201 xu z taylor ja snpinfo : integrating gwas and candidate gene information into functional snp selection for genetic association studies nucl acids res 2009 37 suppl 2 w600 w605 19417063 merelli i calabria a cozzi p viti f mosca e milanesi l snpranker 2.0 : a gene - centric data mining tool for diseases associated snp prioritization in gwas bmc bioinformatics 2013 14 supp 1 s9 23369106 fadista j bendixen c genomic position mapping discrepancies of commercial snp chips plos one 2012 7 2 e31025 22363540 liftover http :// genome.ucsc.edu / cgi - bin / hgliftover ? hgsid = 333041007 assemblyconverter http :// www.ensembl.org / tools.html ncbi genome remapping service http :// www.ncbi.nlm.nih.gov / genome / tools / remap altschul sf gish w miller w myers ew lipman dj basic local alignment search tool j mol biol 1990 215 3 403 410 2231712 kent wj blat - - the blast - like alignment tool genome res 2002 12 4 656 664 11932250 barbosa - morais nl dunning mj samarajiwa sa darot jfj ritchie me lynch ag tavare s a re - annotation pipeline for illumina beadarrays : improving the interpretation of gene expression data nucl acids res 2010 38 3 e17 19923232 liu h zeeberg br qu g koru ag ferrucci a kahn a ryan mc nuhanovic a munson pj reinhold wc kane dw weinstein jn affyprobeminer : a web resource for computing or retrieving accurately redefined affymetrix probe sets bioinformatics 2007 23 18 2385 2390 17660211 benson da cavanaugh m clark k karsch - mizrachi i lipman dj ostell j sayers ew genbank nucl acids res 2013 41 d36 d42 23193287 gentleman rc carey vj bates dm bolstad b dettling m dudoit s ellis b gautier l ge y gentry j hornik k hothorn t huber w iacus s irizarry r leisch f li c maechler m rossini aj sawitzki g smith c smyth g tierney l yang jyh zhang j bioconductor : open software development for computational biology and bioinformatics genome biol 2004 5 10 r80 15461798 gautier l moller m friis - hansen l knudsen s alternative mapping of probes to genes for affymetrix chips bmc bioinformatics 2004 5 111 15310390 orro a manconi a manca e armano g milanesi l g - snpm - a gpu - based snp mapping tool embnet .
+journal 2012 18 b 138 139 luo r wong t zhu j liu cm zhu x wu e lee lk lin h zhu w cheung dw ting hf yiu sm peng s yu c li y li r lam tw soap3 - dp : fast , accurate and sensitive gpu - based short read aligner plos one 2013 8 5 e65632 23741504 li h ruan j durbin r mapping short dna sequencing reads and calling variants using mapping quality scores genome res 2008 18 11 1851 1858 18714091 smith ad xuan z zhang mq using quality scores and longer reads improves accuracy of solexa read mapping bmc bioinformatics 2008 9 128 18307793 smith ad chung wy hodges e kendall j hannon g hicks j xuan z zhang mq updates to the rmap short - read mapping software bioinformatics 2009 25 21 2841 2842 19736251 langmead b trapnell c pop m salzberg sl ultrafast and memory - efficient alignment of short dna sequences to the human genome genome biol 2009 10 3 r25 19261174 li h durbin r fast and accurate short read alignment with burrows - wheeler transform bioinformatics 2009 25 14 1754 1760 19451168 schatz mc cloudburst : highly sensitive read mapping with mapreduce bioinformatics 2009 25 11 1363 1369 19357099 rumble sm lacroute p dalca av fiume m sidow a brudno m shrimp : accurate mapping of short color - space reads plos comput biol 2009 5 5 e1000386 19461883 david m dzamba m lister d ilie l brudno m shrimp2 : sensitive yet practical short read mapping bioinformatics 2011 27 7 1011 1012 21278192 white t hadoop : the definitive guide 2012 sebastopol : o'reilly media dean j ghemawat s mapreduce : simplified data processing on large clusters communications of the acm 2008 51 107 113 smith tf waterman ms identification of common molecular subsequences j mol biol 1981 147 195 97 7265238 li r yu c li y lam tw yiu sm kristiansen k wang j soap2 : an improved ultrafast tool for short read alignment bioinformatics 2009 25 15 1966 1967 19497933 ruffalo m laframboise t koyuturk m comparative analysis of algorithms for next - generation sequencing read alignment bioinformatics 2011 27 20 2790 2796 21856737 bao s jiang r kwan w wang b ma x song yq evaluation of next - generation sequencing software in mapping and assembly j hum genet 2011 56 6 406 414 21525877 manavski sa valle g cuda compatible gpu cards as efficient hardware accelerators for smith - waterman sequence alignment bmc bioinformatics 2008 9 suppl 2 s10 18387198 yung ls yang c wan x yu w gboost : a gpu - based tool for detecting gene - gene interactions in genome - wide case control studies bioinformatics 2011 27 9 1309 1310 21372087 liu y schmidt b maskell dl cudasw ++ 2.0 : enhanced smith - waterman protein database search on cuda - enabled gpus based on simt and virtualized simd abstractions bmc res notes 2010 3 93 20370891 shi h schmidt b liu w muller - wittig w quality - score guided error correction for short - read sequencing data using cuda procedia computer science 2010 1 1129 1138 klus p lam s lyberg d cheung ms pullan g mcfarlane i yeo gsh lam byh barracuda - a fast short read sequence aligner using graphics processing units bmc res notes 2012 5 27 22244497 liu y schmidt b maskell dl cushaw : a cuda compatible short read aligner to large genomes based on the burrows - wheeler transform bioinformatics 2012 28 14 1830 1837 22576173 liu cm wong t wu e luo r yiu sm li y wang b yu c chu x zhao k li r lam tw soap3 : ultra - fast gpu - based parallel alignment tool for short reads bioinformatics 2012 28 6 878 879 22285832 langmead b salzberg sl fast gapped - read alignment with bowtie 2 nature methods 2012 9 4 357 359 22388286 mu jc jiang h kiani a mohiyuddin m asadi nb wong wh fast and accurate read alignment for resequencing bioinformatics 2012 28 18 2366 2373 22811546 marco - sola s sammeth m guigo r ribeca p the gem mapper : fast , accurate and versatile alignment by filtration nature methods 2012 9 12 1185 1188 23103880 pruitt kd tatusova t maglott dr ncbi reference sequences ( refseq ) : a curated non - redundant sequence database of genomes , transcripts and proteins nucl acids res 2007 35 suppl 1 d61 d65 17130148 zhang z schwartz s wagner l miller w a greedy algorithm for aligning dna sequences j comput biol 2000 7 1 - 2 203 214 10890397

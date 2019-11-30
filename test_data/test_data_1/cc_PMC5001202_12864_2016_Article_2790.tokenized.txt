@@ -1,0 +1,322 @@
+bmc genomics bmc genomics bmc genomics 1471 - 2164 biomed central london 27556159 5001202 2790 10.1186 / s12864 - 016 - 2790 - 3 research structure - guided selection of specificity determining positions in the human kinome moll mark mmoll @ rice.edu 1 finn paul w .
+2 kavraki lydia e .
+1 1 department of computer science , rice university , po box 1892 , houston , 77251 tx usa 2 university of buckingham , hunter st , buckingham , uk 18 8 2016 18 8 2016 2016 17 suppl 4 publication of this supplement has not been supported by sponsorship .
+information about the source of funding for publication charges can be found in the individual articles .
+the articles have undergone the journal 's standard peer review process for supplements .
+the supplement editor declares that they have no competing interests.431 ( c ) moll et al .
+2016 open access this article is distributed under the terms of the creative commons attribution 4.0 international license ( http :// creativecommons.org / licenses / by / 4.0 /) , which permits unrestricted use , distribution , and reproduction in any medium , provided you give appropriate credit to the original author ( s ) and the source , provide a link to the creative commons license , and indicate if changes were made .
+the creative commons public domain dedication waiver ( http :// creativecommons.org / publicdomain / zero / 1.0 /) applies to the data made available in this article , unless otherwise stated .
+background the human kinome contains many important drug targets .
+it is well - known that inhibitors of protein kinases bind with very different selectivity profiles .
+this is also the case for inhibitors of many other protein families .
+the increased availability of protein 3d structures has provided much information on the structural variation within a given protein family .
+however , the relationship between structural variations and binding specificity is complex and incompletely understood .
+we have developed a structural bioinformatics approach which provides an analysis of key determinants of binding selectivity as a tool to enhance the rational design of drugs with a specific selectivity profile .
+results we propose a greedy algorithm that computes a subset of residue positions in a multiple sequence alignment such that structural and chemical variation in those positions helps explain known binding affinities. by providing this information , the main purpose of the algorithm is to provide experimentalists with possible insights into how the selectivity profile of certain inhibitors is achieved , which is useful for lead optimization .
+in addition , the algorithm can also be used to predict binding affinities for structures whose affinity for a given inhibitor is unknown .
+the algorithm 's performance is demonstrated using an extensive dataset for the human kinome .
+conclusion we show that the binding affinity of 38 different kinase inhibitors can be explained with consistently high precision and accuracy using the variation of at most six residue positions in the kinome binding site .
+we show for several inhibitors that we are able to identify residues that are known to be functionally important .
+keywords protein kinases specificity determining positions binding affinity ieee international conference on bioinformatics and biomedicine 2015washington , dc , usa9 - 12 november 2015http :// cci.drexel.edu / ieeebibm / bibm2015 / issue - copyright - statement ( c ) the author ( s ) 2016 background predicting affinity profiles remains a challenging task for computational and medicinal chemists .
+this is particularly true of the kinase family of enzymes because of their large number and structural similarity .
+despite their structural similarity , the kinases exhibit large phylogenetic diversity .
+as a result , binding site sequence dissimilarity alone cannot explain the differences in binding affinity [ 1 ] .
+selectivity patterns obtained by experimental screening in enzyme assays are often difficult to rationalize in structural terms .
+additional tools are needed to improve our capabilities to design inhibitors that selectively bind to only a small subset of the kinases .
+the rapidly increasing number of kinase structures has made it possible to study how structural differences affect binding affinity .
+for instance , different inhibitors have been designed to target the inactive , dfg - out conformation and active , dfg - in conformation [ 2 - 5 ] .
+in general , determining exactly how functional changes relate to structural ones remains an important open challenge [ 6 , 7 ] .
+this is caused in part by the fact that not all structural changes cause a functional change .
+additionally , the available structures are non - uniformly distributed over the known kinase sequences : for many kinases there is no structural information , while other kinases are overrepresented , which can lead to overfitting .
+in previous work [ 1 ] , we introduced the combinatorial clustering of residue position subsets ( ccorps ) method and demonstrated that it could be used to predict binding affinity of kinases .
+ccorps considers structural and chemical variation among all triplets of binding site residues and identifies patterns that are predictive for some externally provided labeling .
+the labeling can correspond to , e.g. , binding affinity , enzyme commission classification , or gene ontology terms , and only needs to be defined for some of the structures .
+ccorps corrects for the non - uniform distribution of structures. from the patterns ccorps identifies , multiple predictions are combined into a single consensus prediction by training a support vector machine .
+a limitation of this work is that it is difficult to identify the most important specificity determining positions ( sdps ) .
+in this paper , we are not trying to construct a better predictor , but , rather , a better explanation for some labeling .
+the explanation is better in the sense that it provides a simple explanation of a labeling in terms of the dominant sdps .
+rather than using all patterns discovered by ccorps , it uses a small number of patterns that involve only a small number of residues yet is able to accurately recover binding affinity .
+the main contribution of this paper is an algorithm that computes the specificity determining positions that best explain binding affinity in terms of structural and chemical variation .
+more generally , the algorithm can identify a sparse pattern of structural and chemical variation that corresponds to an externally provided labeling of structures .
+this work extends our prior work on ccorps , but shifts the focus from optimal predictions to concise , biologically meaningful , explanations of functional variation .
+there has been much work on the identification and characterization of functional sites .
+most of the techniques are broadly applicable to many protein families , but we will focus in particular on their application to kinases , when possible .
+much of the work on computing sdps is based on evolutionary conservation in multiple sequence alignments ( see , e.g. , [ 8 - 10 ]) .
+there has also been work on relating mutations to an externally provided functional classification in a phylogeny - independent way [ 11 , 12 ] .
+this work is similar in spirit to what ccorps does , but based on sequence alone .
+while sequence alignment techniques can reveal functionally important residues in kinases [ 13 ] , structural information can provide additional insights .
+this is especially true for large , phylogenetically diverse families such as the kinases .
+the feature framework [ 14 , 15 ] represents a radically different way of identifying functional sites .
+instead of alignment , feature builds up a statistical model of the spatial distribution of physicochemical features around a site .
+another approach to modeling functional sites has been the comparison of binding site cavities [ 3 , 16 ] .
+in [ 17 ] a functional classification of kinase binding sites is proposed based on a combination of geometric hashing and clustering .
+this approach is similar in spirit to our prior work [ 1 ] , but our work considers variations in a small sets of binding site residues , which makes it possible to separate non - functional structural changes from functional ones .
+in [ 18 ] a method called flora is proposed for analysis of structural conservation across whole domains ( rather than binding sites ) .
+flora was shown to be able to identify functional subfamilies ( defined by enzyme commission classifications ) within large protein superfamilies .
+it relies on the construction of structural feature vectors , which shares some similarities with our approach .
+however , flora is completely unsupervised and it is not clear how it could be extended to explain patterns of kinase binding affinity .
+in [ 19 ] many of the ideas above are combined into one framework .
+given sequences from a pfam alignment [ 20 ] and some reference structures , homology models are constructed for all sequences .
+next , cavities are extracted , aligned , and clustered .
+unlike our work , the approach in [ 19 ] is completely unsupervised and does not aim to provide an explanation for an externally provided classification ( such as kinase binding affinity ) .
+methods ccorps overview our algorithm builds on the existing ccorps framework [ 1 ] .
+ccorps is a semi - supervised technique that takes as input a set of partially labeled structures and produces as output the predicted labels for the unlabeled structures. of course , this is only possible if the labels can be related to variations in the structures .
+in previous work [ 1 ] we have shown this to be the case for labelings based on binding affinity and functional categorization ( enzyme commission classification ) .
+ccorps [ 1 ] consists of several steps .
+first , a one - to - one correspondence needs to be established between relevant residues ( e.g. , binding site residues ) among all structures .
+this correspondence can be computed using a multiple sequence alignment or using sequence independent methods [ 21 - 24 ] .
+second , we consider the structural and physicochemical variation among all structures and all triplets of residues .
+the triplets are not necessarily consecutive in the protein sequence and can be anywhere in the binding site .
+each triplet of residues constitutes a substructure : a spatial arrangement of residues .
+for each triplet , we compute a distance matrix of all pairwise distances between substructures .
+the distance measure used is a combination of structural distance and chemical dissimilarity introduced in [ 22 ] .
+in particular , the distance between any two substructures s1 and s2 is defined as : \ documentclass [ 12pt ]{ minimal } \ usepackage { amsmath } \ usepackage { wasysym } \ usepackage { amsfonts } \ usepackage { amssymb } \ usepackage { amsbsy } \ usepackage { mathrsfs } \ usepackage { upgreek } \ setlength {\ oddsidemargin }{ - 69pt } \ begin { document } $${\ begin { aligned } d ( s _{ 1 } , s _{ 2 }) =& \ d _{\ text { side chain centroid }}( s _{ 1 } , s _{ 2 }) + d _{\ text { size }}( s _{ 1 } , s _{ 2 })\\ &+ d _{\ text { aliphaticity }}( s _{ 1 } , s _{ 2 }) + d _{\ text { aromaticity }}( s _{ 1 } , s _{ 2 })\\ &+ d _{\ text { hydrophobicity }}( s _{ 1 } , s _{ 2 }) + d _{\ text { hbond acceptor }}( s _{ 1 } , s _{ 2 })\\ &+ d _{\ text { hbond donor }}( s _{ 1 } , s _{ 2 }) .
+\ end { aligned }} $$ \ end { document } d ( s1,s2 )= dside chain centroid ( s1,s2 )+ dsize ( s1,s2 )+ daliphaticity ( s1,s2 )+ daromaticity ( s1,s2 )+ dhydrophobicity ( s1,s2 )+ dhbond acceptor ( s1,s2 )+ dhbond donor ( s1,s2 ) .
+the dside chain centroid ( s1,s2 ) term is the least root - mean - square deviation of the pairwise - aligned side chain centroids of the substructures .
+the remaining terms account for differences in the amino acid properties between the substructures s1 and s2 as quantified by the pharmacophore feature dissimilarity matrix as defined in [ 22 ] .
+each row in the distance matrix can be thought of as a " feature vector " that describes how a structure differs from all others with respect to a particular substructure .
+the nxn distance matrix for n structures is highly redundant and we have shown that the same information can be preserved in a 2 - dimensional embedding computed using principal component analysis [ 25 ] .
+each 2d point is then a reduced feature vector .
+the set of n 2 - dimensional points is clustered using gaussian mixture models in order to identify patterns of structural variation .
+not all structural variation is relevant ; we focus on patterns of structural variation that align with the classification provided by the labeling .
+the final stage of ccorps is the prediction of labels for the unlabeled structures .
+suppose a cluster for one of the residue triplets contains structures with only one type of label as well as some unlabeled structures .
+this would suggest that the predicted label for the unlabeled structures should be the same as for the other cluster members .
+we call such a cluster a highly predictive cluster ( hpc ) .
+these hpc are a critical component of the algorithm presented in the next section .
+there are many clusterings and each clustering can contain several hpcs ( or none at all ) .
+for example , in the human kinome the binding site consists of 27 residues , leading to \ documentclass [ 12pt ]{ minimal } \ usepackage { amsmath } \ usepackage { wasysym } \ usepackage { amsfonts } \ usepackage { amssymb } \ usepackage { amsbsy } \ usepackage { mathrsfs } \ usepackage { upgreek } \ setlength {\ oddsidemargin }{ - 69pt } \ begin { document }${ 27 \ choose 3 } = 2,925 $\ end { document } 273 = 2,925 clusterings .
+typically , an unlabeled structure belongs to several hpcs and we thus obtain multiple predictions .
+these predictions might not agree with each other .
+in our prior work we trained a support vector machine [ 26 ] to obtain the best consensus prediction from the multiple predictions .
+structure - guided selection of specificity determining positions while ccorps has been demonstrated to make accurate predictions , it has been difficult to interpret the structural basis for these predictions .
+this has motivated us to look at alternative ways to interpret the clusterings produced by ccorps .
+rather than trying to build a better predictor , we have developed an algorithm that constructs a concise structural explanation of a labeling .
+it determines a set of specificity determining positions ( sdps ) .
+an algorithm that would predict that almost every residue position is important would not be very helpful .
+we therefore wish to enforce a sparsity constraint : for a set of labeled structures s we want to find the smallest possible number of hpcs that cover the largest possible subset of s and involve at most lambda residues .
+the problem of finding sdps can be formulated as a variant of the set cover problem .
+the set cover problem is defined as follows : given a set s and subsets \ documentclass [ 12pt ]{ minimal } \ usepackage { amsmath } \ usepackage { wasysym } \ usepackage { amsfonts } \ usepackage { amssymb } \ usepackage { amsbsy } \ usepackage { mathrsfs } \ usepackage { upgreek } \ setlength {\ oddsidemargin }{ - 69pt } \ begin { document }$ s _{ i }\ subseteq s , i = 1 ,\ ldots,n $\ end { document } sisubset / equals,i = 1 ,... , n , what is the smallest number of subsets such that their union covers s ?
+this is a well - known np - complete problem , but the greedy algorithm that iteratively selects the subset that expands coverage the most can efficiently find a solution with an approximation factor of \ documentclass [ 12pt ]{ minimal } \ usepackage { amsmath } \ usepackage { wasysym } \ usepackage { amsfonts } \ usepackage { amssymb } \ usepackage { amsbsy } \ usepackage { mathrsfs } \ usepackage { upgreek } \ setlength {\ oddsidemargin }{ - 69pt } \ begin { document }$\ ln | s |$\ end { document } ln | s | .
+as mentioned above , in our case , s is the set of labeled structures .
+we keep track of the residues involved in the selected hpcs and mark them as sdps .
+solving this as a set cover problem would likely still select most residues .
+the intuition for this can be understood as follows .
+the number of clusterings each residue is involved in is quadratic in the number of residues in the alignment .
+each of those clusterings could contain a hpc that covers at least one structure that is not covered yet by other hpcs .
+even in completely random data some patterns will appear , which could in turn be classified as hpcs .
+we measure sparsity of the cover in terms of the number of residues and not the number of hpcs , since this facilitates an easier interpretation of the results shown later on. as noted before , there can be several hpcs per clustering .
+this means that once we have selected an hpc , we might as well include all other hpcs from that same clustering ( we have already " paid " for using the corresponding residues ) .
+as an algorithmic refinement , we may also wish to limit the degree at which we are fitting the data to avoid overfitting and get a simpler description of the most significant residues positions whose variation can be used to explain the labeling .
+the algorithm for computing sdps is shown in algorithm 1 .
+it is similar to the greedy set cover algorithm .
+the input to the algorithm consists of a list of labeled structures , a list of all 3 - residue subsets of the binding site , and a list of sets of structures that belong to hpcs .
+after initializing the set of sdps and the set of selected subset indices in s , the main loop performs the following steps .
+first , the indices of all subsets are computed that will not grow the set of sdps beyond a size limit lambda ( line 5 ) .
+second , the subset index is computed that will increase the cover of the known labels with hpc structures the most ( line 9 ) .
+next , the algorithm checks whether the increase is " large enough ," i.e. , greater than or equal to delta ( line 11 ) .
+if so , the set of sdps and the sets of not - yet - covered structures are updated ( line 13 - 14 ) .
+if not , the algorithm terminates and returns the set of sdps .
+the final output of algorithm 1 provides a concise explanation of which structural and chemical variations correlate highly with a given labeling .
+in the context of the kinases , it can identify triplets of residues whose combined structural and chemical variation give rise to patterns that allow one to separate binding from non - binding kinases .
+as we will see in the next section , often only a very small set of residues is sufficient to obtain hpcs that cover most of the structures with known binding affinity .
+results in [ 27 ] a quantitative analysis is presented of 317 different kinases and 38 kinase inhibitors .
+for every combination of a kinase and an inhibitor , the binding affinity was experimentally determined .
+this dataset also formed the basis for the evaluation of ccorps [ 1 ] .
+the kinase inhibitors vary widely in their selectivity .
+inhibitors like staurosporine bind to almost every kinase , while others like lapatnib bind to a very specific subtree in the human kinase dendrogram .
+the structure dataset was obtained by selecting all structures from the pkinase and pkinase _ tyr pfam alignments [ 20 ] .
+the binding site , as defined in [ 1 ] , consists of 27 residues .
+after filtering out structures that had gaps in the binding site alignment , 1,958 structures remained .
+the binding affinity values were divided into two categories ( i.e. , labels ) : " binds " and " does not bind. " this gives rise to two different types of hpcs : clusters predictive for binding ( which we call true - hpcs below ) and clusters predictive for not binding ( which we call false - hpcs below ) .
+all other structures corresponding to kinases that were not part of the karaman et al. study [ 27 ] do not have a label .
+ccorps was run on this dataset , consisting of all 1,958 structures along with the binding affinity data .
+this resulted in \ documentclass [ 12pt ]{ minimal } \ usepackage { amsmath } \ usepackage { wasysym } \ usepackage { amsfonts } \ usepackage { amssymb } \ usepackage { amsbsy } \ usepackage { mathrsfs } \ usepackage { upgreek } \ setlength {\ oddsidemargin }{ - 69pt } \ begin { document }${ 27 \ choose 3 }= 2,925 $\ end { document } 273 = 2,925 clusterings , one for every triplet of residues .
+the median number of true - hpcs per inhibitor was 591 , while the median number of false - hpcs per inhibitor was 13,632 .
+in the next subsection we look in detail at results of our algorithm with one parameter setting to get a sense of what kind of output is produced .
+in the subsequent subsection we will describe different ways to measure coverage of the sdps as well as their predictive potential .
+we then evaluate these measures on all inhibitors with different parameter settings .
+specificity - determining positions while in our prior work [ 1 ] the emphasis was on predicting the affinity of kinases , here we are focused on creating a concise explanation of the affinity .
+thus , here we are not performing cross validation experiments .
+we have run algorithm 1 on the kinome dataset with lambda = 6 residues and delta = 16 ( statistics for different values of lambda and delta are reported in the next subsection ). with lambda = 6 , the algorithm can select at most two non - overlapping triplets .
+we computed the sdps for all inhibitors ( see fig. 1 ). with some additional bookkeeping we can keep track of which residue was involved in which selected subsets .
+the bar chart for each inhibitor can be interpreted as follows .
+along the x - axis is the residue position in the multiple sequence alignment of the 27 binding site residues .
+the relative height of each bar indicates how often a residue position was part of a selected 3 - residue subset .
+blocks with the same color correspond to residues belonging to the same residue subset .
+this can provide important contextual information .
+it shows not only which residues are important to help explain binding affinity , but also the context in which its variation should be seen .
+it could , e.g. , indicate that one residue 's variation relative to some other residue ( s ) is important .
+the contextual residues themselves may not always vary much and are perhaps not of as much functional importance in the traditional sense .
+as lambda is increased , more bars would be added to each profile as long as they improve coverage by at least delta structures .
+similarly , as delta is decreased , more bars would be added to each profile as long as no more than lambda residues are involved. fig. 1 the sdp profiles computed for every inhibitor in the kinome dataset .
+the x - axis represents the residue position in the 27 - residue multiple sequence alignment of the binding site .
+each row shows the sdps for one inhibitor whose name is shown on the y - axis .
+for each inhibitor , blocks with the same color correspond to one of the 3 - residue subsets .
+if there are multiple colors in a given position , then the same residue was part of several selected subsets .
+this means that the same residue in different structural contexts can help explain the binding affinity of different kinases figure 2 shows some examples of the clusterings that have been selected by algorithm 1 .
+these clusterings contain a large number of structures belonging to hpcs .
+the distance between points represents how different the corresponding structures are , structurally and chemically .
+the examples show that we can identify very strong spatial cohesion among the structures that bind when looking at the right residues ( i.e. , the sdps ) .
+not all clusterings selected by algorithm 1 show such a strong relationship between structure and function .
+especially for inhibitors that bind more broadly to kinases this relationship is harder to untangle. fig. 2 examples of the kind of clusterings selected by our algorithm .
+the axes correspond to the 2d , pca - reduced feature vector representation of the pairwise distances between structures as described in the methods section .
+each point represents one structure .
+red : known to bind , black : known to not bind , gray : binding affinity unknown .
+discs : structures belonging to hpcs , circles : all other structures there is significant variation among the sdp profiles .
+for a very selective inhibitor like sb - 431542 the variation of only three positions is sufficient to explain the binding affinity ( see also the next subsection ) , while for abt - 869 many combinations of 3 residues out of the 6 selected residues seem to be helpful in explaining the binding affinity .
+figure 3 shows a visualization of the sdps for the inhibitor imatinib .
+figure 3a shows the structural variation ( or lack thereof ) in the selected residue positions for all structures that bind imatinib .
+in contrast , if the same positions in all structures that do not bind imatinib are superimposed , the structural variation is very high as is shown in fig. 3b. fig. 3 structural visualization of sdps .
+p38 ( pdb id 3hec ) is shown in ribbon representation along with the superimposed ( a ) sdps for all the structures that bind imatinib and ( b ) the same residue positions for all structures that do not bind to imatinib coverage and predictive power of sdps based on the set of sdps we can ( a ) try to " recover " the labels of labeled structures that were not part of the selected hpcs and ( b ) predict labels for the unlabeled structures .
+there are at least four simple strategies to do this : we could assume that the union of all true - hpcs contains all the structures that bind and that all others do not bind .
+we could assume that the union of all false - hpcs contains all the structures that do not bind and all others do bind .
+we could omit the false - hpcs altogether from the input h to algorithm 1 and select residue subsets based on large true - hpcs only .
+the labels are then recovered as in ( 1 ) .
+we could omit the true - hpcs altogether from the input h to algorithm 1 and select residue subsets based on large false - hpcs only .
+the labels are then recovered as in ( 2 ) .
+note that the sdps computed with algorithm 1 are the same in the first two strategies , but will generally look different when using strategies 3 and 4 .
+we have evaluated each of these strategies on all 38 ligands .
+for each we can evaluate the coverage : the percentage of known labels that are included in the hpcs .
+we can also count the number of unlabeled structures included in hpcs , which can be interpreted as the number of new binding affinities we can predict .
+for the first two strategies we get predictions for both binding and not - binding , while for the latter two we only get predictions for one type of affinity .
+finally , we can calculate the usual statistical performance measures ( sensitivity , specificity , precision , and accuracy ) to measure how well the selected hpcs can predict binding affinity for all labeled structures .
+the results were computed with lambda = 6 and delta = 16 and are summarized in table 1 .
+note that specificity is equal to 1 in strategies 1 and 3 by construction .
+similarly , sensitivity is equal to 1 in strategies 2 and 4 by construction .
+in general , assuming that the union of all true - hpcs contains all the structures that bind ( as is done in strategies 1 and 3 ) results in poor sensitivity .
+strategy 2 seems to strike a good balance between sensitivity and specificity as well as between precision and accuracy .
+strategy 4 performs even better than strategy 2 , but provides poorer coverage .
+table 1 coverage of labeled structures , number of predicted affinities for unlabeled structures , as well as sensitivity , specificity , precision , and accuracy for hpc - based prediction of binding affinity strategy cov .
+# pred. sens. spec. prec. acc .
+1 83 % 215 0.486 1.000 0.921 0.904 2 83 % 520 1.000 0.887 0.783 0.929 3 15 % 1,084 0.617 1.000 0.921 0.932 4 71 % 364 1.000 0.900 0.806 0.937 each row summarizes the average over all 38 ligands for the corresponding strategy the results in table 2 show more detailed results for each ligand with strategy 2 .
+while there is some variation among the inhibitors , the coverage is almost always very high .
+in cases where it is not , such as ast - 487 , jnj - 7706621 and sunitinib , it is usually a inhibitor that binds to many different parts of the kinome tree ( see kinome interaction maps in [ 27 ]) .
+finally , we analyzed the sensitivity to the parameter delta and lambda .
+as is shown in tables 3 and 4 , performance varies significantly with both lambda and delta ( as is expected ) .
+however , even with very large values of delta , the algorithm is still able to cover the vast majority of known binding affinities .
+even more surprisingly , even when restricting sdps to only lambda = 3 residues ( corresponding to a single clustering ) , over 60 % of the structures with known binding affinity are covered .
+table 2 coverage of labeled structures , number of predicted affinities for unlabeled structures , as well as specificity , precision , and accuracy for hpc - based prediction of binding affinity as recovered from sdps computed using our algorithm ( with lambda = 6 and delta = 16 ) .
+sensitivity is equal to 1 in all cases inhibitor cov .
+# pred. spec. prec. acc .
+abt - 869 86 % 557 0.922 0.633 0.931 amg - 706 83 % 558 0.928 0.707 0.938 ast - 487 65 % 426 0.661 0.806 0.859 azd - 1152hqpa 85 % 568 0.914 0.668 0.927 birb - 796 67 % 391 0.766 0.653 0.838 bms - 387032 / sns - 032 96 % 670 0.984 0.959 0.988 chir - 258 / tki - 258 81 % 420 0.947 0.861 0.960 chir - 265 / raf265 87 % 473 0.960 0.801 0.966 ci - 1033 77 % 475 0.882 0.710 0.909 cp - 690550 96 % 629 0.989 0.736 0.989 cp - 724714 99 % 684 0.999 0.982 0.999 dasatinib 83 % 500 0.897 0.837 0.933 ekb - 569 70 % 474 0.876 0.688 0.902 erlotinib 80 % 532 0.902 0.693 0.920 flavopiridol 80 % 515 0.844 0.754 0.895 gw - 2580 99 % 677 1.000 1.000 1.000 gw - 786034 79 % 485 0.920 0.737 0.934 gefitinib 81 % 470 0.906 0.561 0.916 imatinib 86 % 587 0.936 0.590 0.941 jnj - 7706621 59 % 356 0.580 0.704 0.790 ly - 333531 83 % 413 0.912 0.652 0.924 lapatinib 99 % 684 0.999 0.982 0.999 mln - 518 94 % 659 0.989 0.808 0.989 mln - 8054 87 % 493 0.948 0.766 0.956 pi - 103 99 % 654 0.999 0.988 0.999 pkc - 412 54 % 217 0.621 0.687 0.793 ptk - 787 97 % 664 0.999 0.974 0.999 roscovitine / cyc202 98 % 650 1.000 1.000 1.000 sb - 202190 84 % 500 0.929 0.815 0.946 sb - 203580 69 % 349 0.792 0.641 0.849 sb - 431542 100 % 670 1.000 1.000 1.000 su - 14813 71 % 343 0.761 0.667 0.838 sorafenib 70 % 509 0.919 0.801 0.939 staurosporine 91 % 646 0.681 0.956 0.959 sunitinib 61 % 343 0.652 0.654 0.790 vx - 680 / mk - 0457 78 % 410 0.844 0.767 0.897 vx - 745 85 % 583 0.912 0.680 0.926 zd - 6474 87 % 511 0.939 0.823 0.952 average 83 % 520 0.887 0.783 0.929 the last row lists the average performance over all inhibitors table 3 sensitivity to the value of lambda with delta = 16 lambda cov .
+# pred. spec. prec. acc .
+3 62 % 312 0.669 0.493 0.778 4 73 % 419 0.781 0.661 0.864 5 79 % 482 0.844 0.729 0.907 6 83 % 520 0.887 0.783 0.929 7 86 % 537 0.909 0.810 0.943 8 88 % 554 0.921 0.838 0.951 9 89 % 565 0.930 0.858 0.958 each row represents an average over all 38 inhibitors table 4 sensitivity to the value of delta with lambda = 6 delta cov .
+# pred. spec. prec. acc .
+1 85 % 587 0.904 0.820 0.941 2 85 % 580 0.903 0.817 0.940 4 85 % 565 0.900 0.812 0.938 8 84 % 547 0.895 0.800 0.935 16 83 % 520 0.887 0.783 0.929 32 81 % 490 0.871 0.723 0.916 64 78 % 456 0.848 0.658 0.898 128 74 % 413 0.817 0.612 0.876 each row represents an average over all 38 inhibitors discussion frequency analysis of sdp positions the 27 residues that make up the binding site ( see fig. 4 ) are not equally represented in the sdp profiles .
+for example , position 2 does not occur in any of the sdp profiles , whereas position 12 occurs in 31 out of the 38 ( see fig. 5 ) .
+the residues occurring most frequently in sdp profiles are often residues that have been observed to be important for inhibitor selectivity. fig. 4 the kinase binding site .
+selected residues of p38 alpha are shown in complex with imatinib ( pdb id 3hec ) fig. 5 frequency of each residue position occurring in sdps across all inhibitors .
+the x - axis represents the residue position in the 27 - residue multiple sequence alignment of the binding site sdp position 8 , which occurs in 22 of the sdp profiles , corresponds to the well - known " gatekeeper " residue [ 28 ] .
+the size of this residue controls access to the hydrophobic binding pocket accessed by type ii inhibitors .
+most kinase inhibitors are atp - competitive and mimic to a greater or lesser extent the hydrogen bonding interactions that the adenine aromatic moiety of atp makes with the hinge region of the protein .
+the hinge region corresponds to positions 9 - 11 and each of these positions occurs frequently in the sdp profiles , particularly at positions 9 and 10 .
+note that the interactions of inhibitors with the hinge are through hydrogen bonds to the protein backbone and are thus , in this sense , not sequence specific .
+also , position 10 is rarely involved in hydrogen bonding because the canonical orientation of the backbone orients the nh and co backbone groups away from the binding site .
+a recent analysis has shown that the potency of kinase inhibitors is not correlated with the number of hinge hydrogen bonds , but that there is a trend , albeit not pronounced , for compounds that make more hydrogen bonds to be less selective [ 29 ] .
+large conformational changes that alter the canonical binding pattern have been observed when the conformationally less constrained glycine residue occurs in hinge positions .
+the sdp analysis indicates that subtler alterations in geometry and sequence in this region play an important role in modulating selectivity .
+it is not inevitable that frequently observed interactions automatically translate into modulators of binding profile .
+position 20 of the sdp profile corresponds to a conserved glutamic acid residue in the middle of the c - helix that forms a salt bridge with a conserved lysine and is often involved in hydrogen bonds to amides or ureas of type ii kinase inhibitors .
+however , this position occurs in only one sdp ( sb - 431542 ) .
+the most frequently selected position in sdp profiles is number 12 , occurring in 31 out of the 38 profiles .
+this residue occurs in the " selectivity surface " , a relatively solvent exposed region with significant structural variation .
+for many inhibitors , this position contributes information from multiple 3 - residue subsets , enabling the geometric and sequence variability of this region of the protein relative to the rest of the structure to be captured .
+positions 16 and 17 correspond to the asp and phe residues of the dfg motif .
+this motif occurs in " dfg - in " or " dfg - out " conformations , with dfg - in being the active conformation of the enzyme and dfg - out a catalytically inactive form that is stabilized by type - ii inhibitors such as imatinib .
+despite this geometrical variability , these positions occur rarely in sdp profiles .
+only a small percentage of kinases have been observed in the dfg - out state crystallographically .
+interestingly , the ability of a kinase to adopt this inactive conformation has been postulated to be controlled by two other residues , the gatekeeper and the residue immediately n - terminal to the dfg sequence [ 30 ] .
+this later residue is at position 15 and occurs in the sdps with moderate frequency .
+the number of 3 - position subsets that contribute to the sdp profile is related to inhibitor selectivity .
+the histograms in fig. 6 show the number of contributing 3 - position subsets ( x - axis ) plotted against the various selectivity metrics calculated by karaman et al .
+[ 27 ] ( y - axis ) .
+the selectivity values are the average of the compound values with sdp profiles derived from that number of 3 - position subsets .
+note that the selectivity value can be zero .
+for all metrics other than the kd ratio measure , the most selective inhibitors have sdp profiles derived from one to three 3 - position subsets .
+the pattern is similar whether the kinases are considered as a whole ( s ( 3 mum ) , s ( 100nm )) or the tyrosine kinases ( stk ( 3 mum ) , stk ( 100nm )) or serine / threonine kinases ( sstk ( 3 mum ) , sstk ( 100nm )) are considered separately .
+a very similar result is obtained by calculating s ( 10 mum ) from the karaman et al. data [ 27 ] , in order to match the activity cutoff threshold used in the ccorps analysis ( data not shown ) .
+the kd ratio measure differs from the others by focusing on off - targets with affinity within 10 - fold of the primary target .
+such compounds are considered active by the 10 mum ic50 cutoff value used to generate the sdps and thus the lack of correlation with the kd ratio measure is expected .
+a similar trend is observed in specificity of the sdp profiles .
+in table 5 we see that sdp profiles derived from a small number of 3 - position subsets tend to a higher specificity. fig. 6 different measures of selectivity as a function of the number of 3 - position subsets that contribute to the sdp profile table 5 average specificity over all inhibitors as a function of the number of 3 - position subsets that determine the sdps # 3 - pos .
+subsets 1 2 3 4 5 6 7 specificity 1.00 0.99 0.97 0.83 0.86 0.86 0.83 frequency 1 6 4 10 7 6 4 the last row shows the number of inhibitors whose sdps are determined by a given number of 3 - position subsets comments on specific compounds cp - 690550 ( tofacitinib ) tofacitinib is a clinically used selective janus kinase inhibitor .
+an sdp word logo is shown in fig. 7a. fig. 7 sequence logos ( created by weblogo [ 38 ]) for the sdps of structures known to bind to different inhibitors as well as a logo for all structures there are pdb structures for 5 kinases , for each of which tofacitinib is a potent inhibitor ( jak1 , jak3 , jak3 , tyk2 and pkn1 ) .
+in the x - ray structure 3lxk ( jak3 ) elements 9 , 10 and 19 are close to the inhibitor , but elements 24 - 26 are distant .
+figure 1 shows that this arises from two 3 - position subsets ( 9 , 10 , 26 and 19 , 24 , 25 ) [ this being the case , i 'm not sure why there is variability at positions 24 and 25 ] .
+the tofacitinib complexes with jak1 , jak2 , jak3 and tyk2 are very similar to each other .
+the structure 4oti is the pkn1 - tofacitinib complex , for which tofacitinib is a medium potency inhibitor .
+superposition of the ligand between 3lxk and 4oti shows an essentially identical conformation .
+this aligns the residues of the n - lobe quite well , but the c - lobe is displaced .
+the 3 - position subsets that span the n - and c - lobes could capture this range of possibilities in hpcs and thus enable the binding to pkn1 to be accounted for .
+positions 24 - 26 occur quite frequently as sdps , even for inhibitors that are not in contact with these residues .
+the p38 alpha structure ( e.g. , 3hec ) is not inhibited by tofacitinib .
+the superposition ( based on the 27 alpha - carbon positions of the binding site residues used by ccorps ) shows a broadly similar disposition of the n - and c - lobes .
+in this case there are sequence differences at five of the six sdp positions .
+the cdk8 structure ( 3rdf ) has more subtle differences that are hard to distinguish from the active examples based on visual inspection .
+weigert et al .
+[ 31 ] generated resistance mutants to jak2. of the three mutants identified , one e864k ( jak2 numbering ) is not within our 27 residue active site definition .
+however , y931c ( position 10 in the logo ) conferred resistance to all of the jak inhibitors studied , including tofacitinib , in agreement with the sdp result .
+g935r ( position 12 in the logo ) conferred resistance to all inhibitors except tofacitinib , also in agreement with the sdp .
+lapatinib lapatinib is a selective inhibitor of erbb2 and egfr .
+an sdp word logo is shown in fig. 7b .
+the general pattern is fairly typical , with the gatekeeper , hinge and selectivity surface represented .
+kancha et al .
+[ 32 ] reports several mutations observed in erbb2 in various solid tumors .
+most of these are distant from the binding site , but one t862a corresponds to position 15 in the logo and is associated with modest lapatinib resistance .
+an analogous mutation is also found in egfr .
+trowe et al .
+[ 33 ] report that t798 is the most frequently mutated erbb2 residue in an in vitro screen using a randomly mutagenized erbb2 expression library and shows the greatest lapatinib resistance .
+this corresponds to position 8 in the logo ( gatekeeper ) .
+a less frequently observed mutation l726 is not found in the logo ( position 1 ) .
+other mutated residues are not in the binding site set .
+the gatekeeper residue is also mutated in egfr , but other egfr resistance - inducing mutations do not map to the corresponding logo positions .
+imatinib ( gleevec ) imatinib is an abl / kit / vegfr inhibitor .
+an sdp word logo is shown in fig. 7c .
+the profile is similar to that of lapatinib to the extent that gatekeeper , hinge and selectivity surface residues are represented .
+mutation at positions 8 or 10 is a common cause of imatinib resistance .
+note that the presence of the gatekeeper in the profile of a type ii inhibitor is not unexpected , but that not all type - ii logos have this .
+as noted above , type ii inhibitors such as imatinib bind to a dfg - out enzyme conformation , but these residues are not in the profile and thus do not provide the strongest selectivity signal .
+position 19 , which is in the hydrophobic pocket , is also of interest .
+mutation at this position in bcr / abl has been reported to confer moderate imatinib resistance [ 34 ] .
+this position was also the most frequently mutated residue found in imatinib - resistant kit mutants from analysis of tumor samples obtained from patients enrolled in a phase ii clinical study of imatinib [ 35 ] .
+the gatekeeper residue was also frequently mutated in this population .
+sunitinib ( sutent ( tm )) is approved for the treatment of advanced gist after failure of imatinib due to resistance or intolerance .
+it is effective against the imatinib - resistant v654a ( position 19 ) mutant , a position which does not occur in the sunitinib sdps .
+if false - hpcs are omitted ( i.e. , strategy 3 in the subsection coverage and predictive power ofsdps ) , the sdps also include position 24 .
+this position is frequently mutated in resistant tumors , with positions 10 and 24 together accounting for 14 % of bcr / abl mutations .
+the sdps of the more selective kit / vegfr inhibitor ptk - 787 also includes position 24 .
+the occurrence of other positions in the imatinib logo is harder to rationalize .
+in the structures , the side chain at position 4 points away from the inhibitor and is not in direct contact with it. this may point to an indirect role in modulating the conformation of the protein in this region .
+position 4 is actually selected quite frequently ( 9 times ) .
+as part of the hydrophobic core of the n - lobe , it may act as a marker for the relative disposition of the two domains of the enzyme .
+differential flexibility of the kinases is often discussed in the literature as playing a role in selectivity , see for example [ 36 ] .
+conclusion we have described a general method for identifying specificity determining positions in families of related proteins .
+the method was shown to be very effective in identifying sdps within the human kinome that help explain the binding affinity of 38 different inhibitors .
+consistent with prior studies , we were able to identify the gatekeeper residue and the hinge region as generally very important for the binding specificity of kinases .
+it has also highlighted the selectivity surface as a region that is key in determining selectivity profiles .
+an in - depth analysis of the sdps for three specific kinase inhibitors provides further evidence that we can identify other residues that are known to be important in each case , including positions that are mutated in drug - resistant tumors. of particularly interest are these that are not in direct contact with the inhibitor ( some examples of which were discussed above ) but which may be involved indirectly through , for example , influencing the conformation or flexibility of the protein .
+this would be a significant benefit , as such residues are difficult to identify by other means .
+not only could this potentially provide a new insight into the structural biology of kinases , but such knowledge may be helpful in the design of inhibitors with novel , or improved , selectivity profiles .
+in this regard , it would be interesting to explore expanding the approach to include additional , non - binding site residues , that have been implicated in resistance through modulation of conformational plasticity and investigated by molecular dynamics .
+in prior work [ 37 ] we have demonstrated that the addition of homology models leads to an improvement in the prediction of binding affinity .
+homology models can fill in gaps in structural coverage , thereby potentially eliminating " accidental " hpcs and create new ones .
+in future work we plan to investigate whether homology models can provide similar benefits in the identifications of sdps .
+abbreviations ccorps , combinatorial clustering of residue position subsets ; hpc , highly - predictive cluster ; sdp , specificity - determining position. from ieee international conference on bioinformatics and biomedicine 2015 washington , dc , usa .
+9 - 12 november 2015 declarations this article has been published as part of bmc genomics vol 17 suppl 4 2016 : selected articles from the ieee international conference on bioinformatics and biomedicine 2015 : genomics .
+the full contents of the supplement are available online at http :// bmcgenomics.biomedcentral.com / articles / supplements / volume - 17 - supplement - 4 ; funding work on this paper by mark moll and lydia e. kavraki has been supported in part by nsf abi 0960612 , nsf ccf 1423304 , and rice university funds .
+authors' contributions mm , pwf , and lek conceptualized and conceived the project and its components .
+mm carried out the experiments .
+mm , pwf , and lek analyzed the data .
+mm and pwf wrote the manuscript and lek edited it. all authors read and approved the final manuscript .
+competing interests the authors declare that they have no competing interests .
+the authors wish to thank drew bryant .
+without his work on creating the ccorps software infrastructure and preparing the human kinase dataset for processing with ccorps the results presented here would not have been possible .
+references 1 bryant dh moll m finn pw kavraki le combinatorial clustering of residue position subsets predicts inhibitor affinity across the human kinome plos comput biol 2013 9 6 1003087 10.1371 / journal.pcbi.1003087 2 liu y gray ns rational design of inhibitors that bind to inactive kinase conformations nat chem biol 2006 2 7 358 64 10.1038 / nchembio799 16783341 3 kuhn d weskamp n hullermeier e klebe g functional classification of protein kinase binding sites using cavbase chemmedchem 2007 2 10 1432 47 10.1002 / cmdc.200700075 17694525 4 bikker ja brooijmans n wissner a mansour ts kinase domain mutations in cancer : implications for small molecule drug design strategies j med chem 2009 52 6 1493 509 10.1021 / jm8010542 19239229 5 milletti f hermann jc targeted kinase selectivity from kinase profiling data acs med chem lett 2012 3 5 383 6 10.1021 / ml300012r 24900482 6 gani oa , thakkar b , narayanan d , alam ka , kyomuhendo p , rothweiler u , tello - franco v , engh ra. assessing protein kinase target similarity : comparing sequence , structure , and cheminformatics approaches .
+biochim biophys acta .
+2015. doi : 10.1016 / j.bbapap.2015.05.004 .
+7 finn pw kavraki le computational approaches to drug design algorithmica 1999 25 2 347 71 10.1007 / pl00008282 8 kalinina ov mironov aa gelfand ms rakhmaninova ab automated selection of positions determining functional specificity of proteins by comparative analysis of orthologous groups in protein families protein sci 2004 13 2 443 56 10.1110 / ps.03191704 14739328 9 chakrabarti s lanczycki cj analysis and prediction of functionally important sites in proteins protein sci 2007 16 1 4 10.1110 / ps.062506407 17192586 10 capra ja singh m characterization and prediction of residues determining protein functional specificity bioinformatics 2008 24 13 1473 80 10.1093 / bioinformatics / btn214 18450811 11 pazos f rausell a valencia a phylogeny - independent detection of functional residues bioinformatics 2006 22 12 1440 8 10.1093 / bioinformatics / btl104 16551661 12 rausell a juan d pazos f valencia a protein interactions and ligand binding : from protein subfamilies to functional specificity proc natl acad sci u s a 2010 107 5 1995 2000 10.1073 / pnas.0908044107 20133844 13 mok j kim pm lam hyk piccirillo s zhou x jeschke gr sheridan dl parker sa desai v jwa m cameroni e niu h good m remenyi a ma j - ln sheu yj sassi he sopko r chan csm de virgilio c hollingsworth nm lim wa stern df stillman b andrews bj gerstein mb snyder m turk be deciphering protein kinase specificity through large - scale analysis of yeast phosphorylation site motifs sci signal 2010 3 109 12 10.1126 / scisignal.2000482 14 halperin i glazer ds wu s altman rb the feature framework for protein function annotation : modeling new functions , improving performance , and extending to novel applications bmc genomics 2008 9 suppl 2 2 10.1186 / 1471 - 2164 - 9 - s2 - s2 18173843 15 liu t altman rb using multiple microenvironments to find similar ligand - binding sites : application to kinase inhibitor binding plos comput biol 2011 7 12 1002326 10.1371 / journal.pcbi.1002326 16 chen by honig b vasp : a volumetric analysis of surface properties yields insights into protein - ligand binding specificity plos comput biol 2010 6 8 1000881 10.1371 / journal.pcbi.1000881 17 kinnings sl jackson rm binding site similarity analysis for the functional classification of the protein kinase family j chem inf model 2009 49 2 318 29 10.1021 / ci800289y 19434833 18 redfern oc dessailly bh dallman tj sillitoe i orengo ca flora : a novel method to predict protein function from structure in diverse superfamilies plos comput biol 2009 5 8 1000485 10.1371 / journal.pcbi.1000485 19 de melo - minardi rc bastard k artiguenave f identification of subfamily - specific sites based on active sites modeling and clustering bioinformatics 2010 26 24 3075 082 10.1093 / bioinformatics / btq595 20980272 20 finn rd tate j mistry j coggill pc sammut sj hotz hr ceric g forslund k eddy sr sonnhammer ell bateman a the pfam protein families database nucleic acids res 2008 36 database issue 281 8 21 menke m berger b cowen l matt : local flexibility aids protein multiple structure alignment plos comput biol 2008 4 1 10 10.1371 / journal.pcbi.0040010 22 schalon c surgand js kellenberger e rognan d a simple and fuzzy method to align and compare druggable ligand - binding sites proteins 2008 71 4 1755 1778 10.1002 / prot.21858 18175308 23 xie l bourne pe detecting evolutionary relationships across existing fold space , using sequence order - independent profile - profile alignments proc natl acad sci u s a 2008 105 14 5441 446 10.1073 / pnas.0704422105 18385384 24 moll m bryant dh kavraki le the labelhash algorithm for substructure matching bmc bioinforma 2010 11 555 1 15 25 jolliffe it principal components analysis 1986 new york springer 26 steinwart i christmann a support vector machines 2008 verlag new york springer 27 karaman mw herrgard s treiber dk gallant p atteridge ce campbell bt chan kw ciceri p davis mi edeen pt faraoni r floyd m hunt jp lockhart dj milanov zv morrison mj pallares g patel hk pritchard s wodicka lm zarrinkar pp a quantitative analysis of kinase inhibitor selectivity nat biotechnol 2008 26 1 127 32 10.1038 / nbt1358 18183025 28 huang d zhou t lafleur k nevado c caflisch a kinase selectivity potential for inhibitors targeting the atp binding site : a network analysis bioinformatics 2010 26 2 198 204 10.1093 / bioinformatics / btp650 19942586 29 xing l klug - mcleod j rai b lunney ea kinase hinge binding scaffolds and their hydrogen bond patterns bioorg med chem 2015 23 19 6520 527 10.1016 / j.bmc.2015.08.006 26358279 30 hari sb merritt ea maly dj sequence determinants of a specific inactive protein kinase conformation chem biol 2013 20 6 806 15 10.1016 / j.chembiol.2013.05.005 23790491 31 weigert o lane aa bird l kopp n chapuy b van bodegom d toms av marubayashi s christie al mckeown m paranal rm bradner je yoda a gaul c vangrevelinghe e romanet v murakami m tiedt r ebel n evrot e de pover a regnier ch erdmann d hofmann f eck mj sallan se levine rl kung al baffert f radimerski t weinstock dm genetic resistance to jak2 enzymatic inhibitors is overcome by hsp90 inhibition j exp med 2012 209 2 259 73 10.1084 / jem.20111694 22271575 32 kancha rk von bubnoff n bartosch n peschel c engh ra duyster j differential sensitivity of erbb2 kinase domain mutations towards lapatinib plos one 2011 6 10 26760 10.1371 / journal.pone.0026760 33 trowe t boukouvala s calkins k cutler jr re fong r funke r gendreau sb kim yd miller n woolfrey jr vysotskaia v yang jp gerritsen me matthews dj lamb p heuer ts exel - 7647 inhibits mutant forms of erbb2 associated with lapatinib resistance and neoplastic transformation clin cancer res 2008 14 8 2465 75 10.1158 / 1078 - 0432.ccr - 07 - 4367 18413839 34 redaelli s piazza r rostagno r magistroni v perini p marega m gambacorti - passerini c boschelli f activity of bosutinib , dasatinib , and nilotinib against 18 imatinib - resistant bcr / abl mutants j clin oncol 2009 27 3 469 71 10.1200 / jco.2008.19.8853 19075254 35 heinrich mc corless cl blanke cd demetri gd joensuu h roberts pj eisenberg bl von mehren m fletcher cdm sandau k mcdougall k ou w - b chen cj fletcher ja molecular correlates of imatinib resistance in gastrointestinal stromal tumors j clin oncol 2006 24 29 4764 74 10.1200 / jco.2006.06.2265 16954519 36 blanc j geney r menet c type ii kinase inhibitors : an opportunity in cancer for rational design anticancer agents med chem 2013 13 5 731 47 10.2174 / 1871520611313050008 23094911 37 chyan j , moll m , kavraki le. improving the prediction of kinase binding affinity using homology models .
+in : computational structural bioinformatics workshop at the acm conf .
+on bioinf. , comp. bio. and biomedical informatics .
+washington : 2013. p. 741 - 8 , doi : 10.1145 / 2506583.2506704 .
+38 crooks ge hon g chandonia jm brenner se weblogo : a sequence logo generator genome res 2004 14 6 1188 1190 10.1101 / gr.849004 15173120

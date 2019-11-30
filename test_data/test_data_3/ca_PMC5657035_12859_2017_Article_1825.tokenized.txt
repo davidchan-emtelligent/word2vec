@@ -1,0 +1,243 @@
+bmc bioinformatics bmc bioinformatics bmc bioinformatics 1471 - 2105 biomed central london 29072142 5657035 1825 10.1186 / s12859 - 017 - 1825 - 3 software megagta : a sensitive and accurate metagenomic gene - targeted assembler using iterative de bruijn graphs li dinghua 1 huang yukun 1 leung chi - ming 12 luo ruibang 12 ting hing - fung 1 lam tak - wah twlam @ cs.hku.hk 12 1 0000000121742757grid.194645.bdepartment of computer science , university of hong kong , pokfulam , hong kong 2 l3 bioinformatics limited , western district , hong kong 16 10 2017 16 10 2017 2017 18 suppl 12 publication of this supplement has not been supported by sponsorship .
+information about the source of funding for publication charges can be found in the individual articles .
+the articles have undergone the journal 's standard peer review process for supplements .
+the supplement editors declare that they have no competing interests.408 ( c ) the author ( s ) .
+2017 open accessthis article is distributed under the terms of the creative commons attribution 4.0 international license ( http :// creativecommons.org / licenses / by / 4.0 /) , which permits unrestricted use , distribution , and reproduction in any medium , provided you give appropriate credit to the original author ( s ) and the source , provide a link to the creative commons license , and indicate if changes were made .
+the creative commons public domain dedication waiver ( http :// creativecommons.org / publicdomain / zero / 1.0 /) applies to the data made available in this article , unless otherwise stated .
+background the recent release of the gene - targeted metagenomics assembler xander has demonstrated that using the trained hidden markov model ( hmm ) to guide the traversal of de bruijn graph gives obvious advantage over other assembly methods .
+xander , as a pilot study , indeed has a lot of room for improvement .
+apart from its slow speed , xander uses only 1 k - mer size for graph construction and whatever choice of k will compromise either sensitivity or accuracy .
+xander uses a bloom - filter representation of de bruijn graph to achieve a lower memory footprint .
+bloom filters bring in false positives , and it is not clear how this would impact the quality of assembly .
+xander does not keep track of the multiplicity of k - mers , which would have been an effective way to differentiate between erroneous k - mers and correct k - mers .
+results in this paper , we present a new gene - targeted assembler megagta , which attempts to improve xander in different aspects .
+quality - wise , it utilizes iterative de bruijn graphs to take full advantage of multiple k - mer sizes to make the best of both sensitivity and accuracy .
+computation - wise , it employs succinct de bruijn graphs ( sdbg ) to achieve low memory footprint and high speed ( the latter is benefited from a highly efficient parallel algorithm for constructing sdbg ) .
+unlike bloom filters , an sdbg is an exact representation of a de bruijn graph .
+it enables megagta to avoid false - positive contigs and to easily incorporate the multiplicity of k - mers for building better hmm model .
+we have compared megagta and xander on an hmp - defined mock metagenomic dataset , and showed that megagta excelled in both sensitivity and accuracy .
+on a large rhizosphere soil metagenomic sample ( 327gbp ) , megagta produced 9.7 - 19.3 % more contigs than xander , and these contigs were assigned to 10 - 25 % more gene references .
+in our experiments , megagta , depending on the number of k - mers used , is two to ten times faster than xander .
+conclusion megagta improves on the algorithm of xander and achieves higher sensitivity , accuracy and speed .
+moreover , it is capable of assembling gene sequences from ultra - large metagenomic datasets .
+its source code is freely available at https :// github.com / hku - bal / megagta . keywords metagenomics assembly de bruijn graph targeted gene 12th international symposium on bioinformatics research and applications ( isbra 2016 ) isbra 2016minsk , belarus5 - 8 june 2016issue - copyright - statement ( c ) the author ( s ) 2017 background next generation sequencing has greatly promoted the study of metagenomics in recent years .
+these studies often involve de novo assembling of millions to billions of reads into contigs for gene annotation .
+this has triggered the study of advanced algorithms to significantly enhance the computational efficiency for metagenome assembly [ 1 - 3 ] .
+on the other hand , due to the prevalence of uneven coverage and cross - genome repeats [ 4 ] , it is common to get fragmented gene sequences .
+to overcome these drawbacks , several gene - targeted assembly methods , including emirge [ 5 ] , reago [ 6 ] , sat - assembler [ 7 ] , and xander [ 8 ] , have been published .
+unlike the first three methods which attempt to sort out the reads that might have originated from targeted genes before assembly , xander constructs a de bruijn graph ( dbg ) whose nodes are the k - mers of all reads and searches the genes by a guided traversal through the k - mers on - the - fly .
+the assembly of a specific gene is guided by a profile hidden markov model ( hmm ) [ 9 ] , which is built using the results of multiple sequence alignment of the underlying gene family .
+starting from a node , xander makes decisions at the branches in graph and outputs a unique path that results in the highest probability of the hmm .
+this overcomes the problem of de novo assembly that intrinsically stops at branches .
+more specifically , the xander algorithm is operated on a combined graph of dbg and hmm .
+its workflow is shown in fig. 1 and will be explained in detail in the next section. fig. 1 the workflow of xander ( left ) and megagta ( right ) .
+their differences are highlighted in bold although xander produces longer and higher - quality gene specific contigs than previous methods , there is still a lot of room for improvement .
+the followings are three improvements we considered in this paper : a. use multiple k - mer sizes .
+xander uses a fixed k to build a de bruijn graph of k - mers .
+this leads to a classic dilemma , in which a large k results in gaps among low - coverage genomic regions , and genes coming from these regions are unlikely to be assembled [ 10 ] ; and a small k may collapse short repetitive regions and result in excessive branches in the de bruijn graph .
+though hmm - guided assembly targets to resolve a repeat by choosing a best path that " suggested " by hmm , it is not impossible for two parts of different genes be combined into a chimeric contig via a repeat .
+in this regard , a small k tends to produce more misassemblies .
+iterative de bruijn graph [ 10 ] , which leverages k - mers with multiple sizes , has showed its advantages in several de novo assemblers [ 3 , 11 - 13 ] .
+benchmarks hereinafter show that hmm - guided assembly can benefit from iterative de bruijn graphs. b. filter erroneous k - mers in de bruijn graph .
+k - mers that appear only once in a given set of reads are error prone .
+in order to achieve a higher sensitivity of low coverage genes , xander opted not to filter k - mers with low multiplicity .
+instead , xander relies on the hmm to avoid erroneous k - mers .
+but it still results in many contigs with either structural errors or incorrect bases , especially when a small size of k - mer is used .
+to avoid this defect , we penalize k - mers that occur only once during the hmm - guided searching ( equivalent to set a prior erroneous probability to these k - mers ). c. avoid false positive k - mers caused by probabilistic data structure .
+to achieve better memory efficiency , xander represents de bruijn graph using a bloom filter [ 14 ] , a probabilistic data structure that contains a certain rate of false positive ( but free of false negative ) members .
+in our solution , we replace bloom filter with succinct de bruijn graph [ 3 , 15 ] , a state - of - the - art memory - efficient data structure free from both false positives and false negatives .
+to study the improvement , we identified and benchmarked the xander 's misassembled contigs due to k - mers , by querying the exact representation of a de bruijn graph .
+the three aforementioned improvements have been implemented and integrated into a new gene - targeted assembler called megagta ( workflow and the differences to xander also shown in fig. 1 ) .
+we demonstrate the effectiveness of megagta with two datasets , first on an hmp - defined mock community , and second on a large rhizosphere soil metagenomic sample [ 8 ]. with iterative de bruijn graphs , megagta achieved higher sensitivity and accuracy than xander ( even with well - tuned parameters ) .
+more interestingly , megagta , even with more calculations due to multiple k - mer sizes , was still about two to four times faster than xander when tested on a 24 - core server , while using a similar amount of peak memory .
+if one runs xander repeatedly with different k - mer sizes in a way similar to megagta , then the relative speed - up of megagta is even more significant. with respect to the rhizosphere soil dataset , we found that 0.02 , 0.39 and 10.52 % of contigs generated by xander contain false positive k - mers , when using a bloom filter size of 256gb , 128gb and 64gb , respectively .
+apparently bloom filter causes accuracy issues when memory is constrained .
+succinct de bruijn graph overcomes the inexactness of bloom filter , while allows faster graph construction .
+implementations hmm - guided assembly on combined weighted assembly graphs a combined weighted assembly graph ( cag ) is the key structure of the hmm - guided algorithm exploited by xander , as well as our implementation megagta .
+a cag is a combination of a de bruijn graph and a profile hmm .
+de bruijn graphs ( dbg ) are used in most short - read assemblers .
+in the context of genome assembly , each node in a de bruijn graph is a k - mer , a length - k string in nucleotide or peptide alphabet .
+if the ( k - 1 ) - long suffix of a node u is the same as the ( k - 1 ) - long prefix of a node v , there is a directed edge from u to v. the k - mers typically comes from a set of unassembled reads .
+a profile hmm [ 7 ] is a directed graph that represents a set of aligned sequences .
+a node of hmm corresponds to a column ( or position ) of the alignment , and there are three kinds of states , namely match , insertion and deletion for each node .
+each edge is associated with a transition probability ( p transition ) , modelling the likelihood of the transition from a position with a certain state to another with the same or another state .
+for nodes of match states only , emission probability ( p emission ) is a property denotes how likely a base ( nucleotide or peptide ) would appear at that position .
+let v ( g ) and e ( g ) be the vertex set and edge set of a graph g , respectively .
+conceptually , given a de bruijn graph d , and an hmm h , the vertices of the cag c of d and h is the cartesian product of v ( d ) and v ( h ) .
+for a vertex w of c , we denote w . u in v ( d ) and w . v in v ( h ) the de bruijn graph component and hmm component of w , respectively .
+an edge ( w , w ') exists in e ( c ) if and only if it satisfies one of the following conditions : ( w . u , w ' . u ) in e ( d ) and ( w . v , w ' . v ) in e ( d ) , and w ' . v is a match or insertion state of hmm ; w . u = w ' . u and ( w . v , w ' . v ) in e ( d ) , and w ' . v is a deletion state of hmm .
+every edge in a cag is assigned a weight : weight ( w , w ') = log [ p transition ( w . v , w ' . v )] + log [ p emission ( v j , c )] , where c is the last character w ' . u , if w ' . v is a match state ; weight ( w , w ') = log [ p transition ( w . v , w ' . v )] , if w ' . v is an insertion or deletion state .
+given a de bruijn graph d and an hmm h , the algorithm of xander searches for a path from a starting vertex to a terminating vertex , with the highest sum of edge weights on the cag of d and h using the a * algorithm [ 16 ] .
+a starting vertex is identified by a k - mer appearing in the reads and exactly matching a set of aligned reference sequences .
+such a k - mer and the hmm state implied by the matched position in the reference sequences form a starting vertex of the cag .
+a terminating vertex here means a vertex in the cag whose hmm component is an ending vertex of the hmm .
+a reverse search guided by a reverse hmm h ' is also needed , and the two sequences spelled from the de bruijn graph component of the two best paths are merged to create a contig .
+adding low coverage penalty to a cag in megagta , we introduce a penalty for the vertices with low multiplicity , i.e. k - mers that appear only once in the set of reads ( multiplicity = 1 ) .
+more precisely , for an edge ( w , w ') of a cag , if w ' . u appears only once in the set of reads , the weight of weight ( w , w ') becomes : weight ( w , w ') = log [ p transition ( w . v , w ' . v )] + log [ p emission ( v j , c )] + log ( alpha ) , where c is the last character w ' . u , or weight ( w , w ') = log [ p transition ( w . v , w ' . v )] + log ( alpha ) , if w ' . v is an insertion state , where alpha is a user - defined threshold ( 0.5 by default in megagta , which means that we assume the prior probability of a k - mer with multiplicity = 1 being an erroneous k - mer is 0.5 ) .
+intuitively , we reduce the probability of entering a cag vertex with count - 1 k - mer by a factor alpha .
+this leads the search onto high - coverage paths that are more likely to be correct .
+iterative de bruijn graphs the selection of k - mer size affects the character of a de bruijn graph , and further affects the result of an hmm - guided assembly .
+basically , a large k makes the graph more fragmented , especially for low - coverage regions , due to the absence of overlapping k - mers .
+a fragmented graph is less sensitive for both de novo assembly and gene - targeted assembly .
+a small k makes the graph collapse at short repeats , and though ideally an hmm could resolve the repeats , it is still possible for different genes to be incorrectly fused via a repetitive segment. with a less stringent overlapping requirement , a small k also results in a graph with more simple bubbles or complex grids .
+this expands the number of paths to be examined by the hmm - guided graph traversal and makes it likely to result in a path with more mismatches .
+to benefit from both small and large k - mer sizes , we adopt the hmm - guided algorithm on iterative de bruijn graphs .
+let dbg ( r , k ) be the de bruijn graph whose k - mer size is k and constructed form a set of reads r. given a set of n integers k 1 < k 2 < ...
+< k n and a set of reads r , an iterative de bruijn graph of r up to k i g ( r , k i ) is defined recursively as follows :\ documentclass [ 12pt ]{ minimal } \ usepackage { amsmath } \ usepackage { wasysym } \ usepackage { amsfonts } \ usepackage { amssymb } \ usepackage { amsbsy } \ usepackage { mathrsfs } \ usepackage { upgreek } \ setlength {\ oddsidemargin }{ - 69pt } \ begin { document }$$ \ mathrm { g }\ left ( r ,{ k }_ 1 \ right )=\ mathrm { dbg }\ left ( r ,{ k }_ 1 \ right ) ; $$\ end { document } grk1 = dbgrk1 ; \ documentclass [ 12pt ]{ minimal } \ usepackage { amsmath } \ usepackage { wasysym } \ usepackage { amsfonts } \ usepackage { amssymb } \ usepackage { amsbsy } \ usepackage { mathrsfs } \ usepackage { upgreek } \ setlength {\ oddsidemargin }{ - 69pt } \ begin { document }$$ \ mathrm { c }\ left ({ k }_ i \ right )=\ mathrm { the }\ \ mathrm { set }\ \ mathrm { of }\ de \ novo \ \ mathrm { assembled }\ \ mathrm { contigs }\ \ mathrm { from }\ \ mathrm { g }\ left ( r ,{ k }_ i \ right ) ; $$\ end { document } cki = thesetofdenovoassembled contigs fromgrki ; g ( r , k i + 1 ) = dbg ( r union c ( k i ) , k i + 1 ) .
+for simplicity , we call g ( r ) = g ( r , k n ) the iterative de bruijn graph of r. intuitively , for each i , some k i + 1 - mers absent from r ( due to insufficient read coverage ) could be de novo assembled from g ( r , k i ) .
+the intermediate contigs c ( k i ) are dependent on the de novo assembly algorithm used .
+in our implementation , tip removal and bubble merging [ 17 ] are done prior to output the sequences of maximum paths without branches as contigs .
+the hmm - guided algorithm is applied on g ( r ) to search for targeted gene sequences .
+in gene - targeted assembly , it is possible to replace intermediate contigs c ( k i ) with a set of hmm - guided assembled contigs .
+however , we only applied traditional assembly graph pruning tactics due to the reason that hmm - guided contigs at a smaller k - mer size are error - prone in practice ; the errors would be accumulated into the final graph g ( r ) .
+traditional de novo assembly graph pruning methods , such as tips removal , bubbles merging , et cetera are empirically more accurate .
+succinct de bruijn graphs in our implementation , we represent a de bruijn graph with a compressed data structure , namely succinct de bruijn graph ( sdbg ) [ 3 , 15 ] .
+unlike xander that uses a bloom filter to represent a de bruijn graph , which may incur false positive k - mers , we choose an sdbg for the following reasons : first , it is not only memory - efficient but also an exact representation of a de bruijn graph .
+second , there is a highly parallelized algorithm to construct an sdbg rapidly , which is essential since we need to build multiple intermediate graphs until the final iterative de bruijn graph is obtained .
+third , de novo assembly , as required by building an iterative de bruijn graph , is an uneasy job with a bloom filter .
+the inexactness of bloom filter could be solved by marking false k - mers in a bloom filter with extra memory , but by using a disk - based algorithm [ 18 ] , which is time - consuming .
+in contrast , it is easy to do in - memory , multi - threaded de novo assembly with an sdbg .
+results and discussion we conducted five experiments using two metagenomic ngs datasets .
+the first three experiments were carried out on a mock metagenomic community dataset with known reference gene sequences .
+thus , we can evaluate the sensitivity and accuracy of assembling results by megagta and xander directly .
+we evaluated the trade - off between sensitivity and accuracy in k - mer size selection ( section 3.1 ) , the effectiveness of low - coverage penalty strategy on accuracy ( section 3.2 ) , and the improvements in sensitivity and accuracy brought by iterative de brujin graphs ( section 3.3 ) .
+the other two experiments were conducted using a real , large and complex soil metagenomic sample .
+we showed that the megagta not only assembled more contigs as well as genes than xander on real dataset , but also achieve a higher speed , which is essential to large metagenomic samples ( section 3.4 ) .
+the false positive effect of bloom filters was also evaluated using this dataset ( section 3.5 ) .
+all experiments were run on a server equipped with 24 2.6ghz intel cpu cores and 1 t ddr3 ram .
+both megagta and xander were configured with 24 threads though xander only supported multi - threading for its starting k - mer finding component .
+trade - off in k - mer size selection we ran megagta ( using single k ) and xander on an hmp - defined mock community dataset ( srr172902 and srr172903 ) , that contains 22 known microorganisms , to observe the differences in gene sensitivity and accuracy with different k - mer sizes .
+we assembled the rplb genes from the sequencing data , using the protein / nucleotide reference sequences and the hmm used in the xander paper .
+the reads were firstly preprocessed by trimmomatic [ 19 ] to remove adaptor sequences and trim low quality bases ( at a quality score of 2 to both ends of a read ) .
+raw contigs of length at least 450 nucleotides ( or 150 amino acid ) were passed through a series of post - processing steps as suggested by xander , including clustering at 99 % amino acid identity and choosing the longest one as a representative .
+then uchime [ 20 ] was used for chimeric removal against a set of reference dna sequences .
+the contigs after the post - processing steps were then aligned to the know rplb gene sequences for analysis .
+among the 22 microorganisms in the mock community , only 20 known rplb gene sequences could be downloaded from the ncbi as of jan 2016 .
+we evaluated the sensitivity ( number of genes recovered and their gene fractions ) , accuracy ( number of misassemblies and mismatches ) , and duplication ratio for each assembly using metaquast [ 21 ] on these 20 known gene sequences .
+we chose three k - mer sizes , 30 , 36 and 45 , for both megagta and xander .
+the evaluation results given by metaquast are shown in table 1 .
+in total , 10 rplb genes were recovered by either megagta or xander .
+both megagta and xander recovered more genes with a k - mer size of 30 .
+both reported fewer misassemblies , partially unaligned contigs and mismatches as the k - mer size went larger .
+the duplication ratio was also higher with a smaller k - mer size , except for the assembly of xander with k = 36. by checking the 36 - mers or 45 - mers in the contigs assembled by k = 30 , we found that some of them were unrecovered because they were missing in low coverage regions .
+it is interesting that some genes ( for example , the rplb gene of staphylococcus epidermidis ) were only assembled by k = 45 .
+when looking at the contigs before chimeric removal , we found that the missing genes were actually " assembled " , but contained too many mismatches and hence been removed by uchime .
+this again indicates that a small k - mer size is prone to produce chimeric or erroneous contigs .
+regarding time efficiency , using small k required more time than large k , due to excessive number of branches in the correponding de bruijn graphs .
+megagta was 8.8 to 14.9 times faster than xander depending on the k - mer size used .
+table 1 assembly statistics of different k - mer sizes megagta xander k - mer size 30 36 45 30 36 45 # of contigs 16 7 4 14 7 4 # of gene recoverd 9 5 4 8 4 4 duplication ratio 1.82 1.46 1.00 1.75 1.82 1.00 # misassembled contigs 1 0 0 1 0 0 # partially unaligned contigs 2 0 0 2 0 0 # mismatches per 100kbp 148 150 96 534 278 64 wall time ( second ) 101 73 65 1264 1090 573 the gene fraction of each recovered rplb genes (%) acinetobacter baumannii 84.8 - - 84.8 - - bacteroides vulgatus 82.5 82.5 - 82.5 82.5 - deinococcus radiodurans 99.6 99.6 81.5 99.6 99.6 81.5 escherichia coli 81.4 - - 81.4 - - propionibacterium acnes 78.1 - - 78.1 - - rhodobacter sphaeroides 98.2 64.3 - 98.2 64.3 - staphylococcus aureus 99.6 99.6 99.6 99.6 99.6 99.6 staphylococcus epidermidis - - 99.6 - - 99.6 streptococcus mutans 55.0 55.0 93.2 - - 93.9 streptococcus pneumoniae 62.2 - - 62.2 - - in conclusion , small k - mer size is more sensitive , but tends to yield erroneous contigs .
+large k - mer size could assemble genes accurately , at the expense of losing low coverage genes .
+low coverage penalty improves the accuracy of gene - targeted assembly it is shown in table 1 that megagta and xander generated slightly different results for each k - mer size .
+this is attribute to the low coverage penalty of megagta .
+we picked k = 36 as an example to evaluate its effectiveness .
+in addition , we evaluated how much the low coverage penalty could substitute the chimeric removal using uchime .
+as shown in table 2 , without low coverage penalty , megagta had almost the same results ( after uchime ) as xander ( as shown in table 1 ). with low coverage penalty enabled , the number of mismatches decreased significantly .
+the effectiveness of the penalty was more salient before chimeric removal .
+it also reduced the number of partially unaligned contigs .
+table 2 assembly result with or without low coverage penalty before uchime after uchime with penalty without penalty with penalty without penalty # of gene contigs 13 14 7 7 # of gene recoverd 6 6 5 4 # misassembled contigs 0 0 0 0 # partially unaligned contigs 2 3 0 0 # mismatches per 100kbp 543.9 997.1 149.9 208.8 the gene fraction of each recovered rplb genes (%) bacteroides vulgatus 82.5 82.5 82.5 82.5 deinococcus radiodurans 99.6 99.6 99.6 99.6 rhodobacter _ sphaeroides 64.3 64.3 64.3 64.3 staphylococcus _ aureus 99.6 99.6 99.6 99.6 staphylococcus _ epidermidis 99.6 99.6 - - streptococcus _ mutans 84.3 84.3 55.0 - with low coverage penalty , megagta produced one extra contig corresponding to streptococcus mutans , and it covered 55 % of the gene after chimeric removal. by manual inspection , we found that the contig was also assembled by megagta without the penalty , but had been merged into a longer contig ( which has three more mismatches than that of low coverage penalty ) at 99 % amino acid clustering similarity and then removed by uchime .
+thus , although uchime can remove erroneous contigs , the accuracy of the raw contigs , which may affect the clustering result , is still important .
+in this regard , the low coverage penalty is really helpful .
+iterative de bruijn graph outperforms merging contigs of individual k - mers we evaluated the effectiveness of iterative de bruijn graph approach of megagta on the hmp - defined dataset .
+we iterate the de bruijn graph on 3 k - mer sizes 30 , 36 and 45 .
+in order to conduct a fair comparison with xander that ran with a single k only , we manually combined the raw contigs outputted by xander with the 3 k - mer sizes , to maximize its sensitivity .
+the same post - processing procedures as xander were applied to the combined contigs .
+evaluation results given by metaquast are presented in table 3 .
+megagta achieved the same or higher fraction for every microorganism , and much fewer misassemblies and mismatches. by combining the contigs of different k - mer sizes , xander gained higher gene sensitivity , but many misassembled or erroneous contigs assembled by k = 30 were also included .
+moreover , the duplication ratio went higher after the combination , and the running time of xander was ten times greater than that of megagta .
+table 3 assembly results of megagta ( using iterative de bruijn graph ) and xander ( merging contigs of three k - mer sizes ) megagta ( iterates on k = 30,36,45 ) xander ( union of k = 30,36,45 ) # of gene contigs 10 19 # of genes recovered 10 10 duplication ratio 1 1.79 # misassembled contigs 0 1 # partially unaligned contigs 1 2 # mismatches per 100kbp 13.52 453.05 time ( second ) 277 2927 the gene fraction of each recovered rplb genes (%) acinetobacter _ baumannii 98.77 84.77 bacteroides _ vulgatus 82.48 82.48 deinococcus _ radiodurans 99.64 99.64 escherichia _ coli 81.39 81.39 propionibacterium _ acnes 78.14 78.14 rhodobacter _ sphaeroides 98.21 98.21 staphylococcus _ aureus 99.64 99.64 staphylococcus _ epidermidis 99.64 99.64 streptococcus _ mutans 99.29 99.29 streptococcus _ pneumoniae 63.31 62.23 in streptococcus mutans , although metaquast reported a fraction of 99.29 % for its rplb gene assembled by xander , we found that the gene ( 840 bp ) was covered by two shorter contigs of length 783 bp and 468 bp , respectively .
+in contrast , megagta assembled one contig of length 828 bp that covered the almost full length of the gene .
+therefore , for some genes , a small k or a large k alone could only assemble part of their sequence accurately .
+however , a longer path that correctly encodes the target gene and is detectable by the hmm - guided search could exist in an iterative graph .
+arguably , an iterative de bruijn graph provides a better solution to assemble such genes .
+megagta achieves higher sensitivity on real dataset to test the performance of megagta on real dataset , we compare the performance of megagta with the gene - targeted assembler xander and the de novo metagenome assembler megahit [ 3 ] ( v1.0.5 ) on assembling one phylogenetic marker gene ( rplb ) and two functional marker genes ( nifh and nirk ) from a corn rhizosphere soil metagenomic sample [ 8 ] .
+the reads were trimmed at the first bases with the quality score of 2 .
+327gbp remained after the quality trimming .
+we ran megagta in its default iterative mode ( k = 30 , 36 and 45 ) , and ran xander with k = 45 and a bloom filter size of 128g ( allocating 200gb java virtual machine memory ) as suggested in its paper .
+we also tried to run xander with k = 30 and 784gb java virtual machine memory , but the process did not finish after 2 weeks .
+we ran megahit with " meta - large " preset and used fraggenescan [ 22 ] ( v1.30 ) to predict genes from the assembled contigs .
+hmmer [ 23 ] was then applied ( v3.1b2 ) to identify the genes of rplb , nifh and nirk .
+only gene sequence with bit - score > = 50 against the profile - hmms were retained as gene contigs assembled by megahit .
+all raw gene contigs constructed by the above assemblers with length longer than 450 bp were clustered at 99 % amino acid identity , and chimeras were removed using uchime against a set of reference sequences .
+we also lowered the clustering identity threshold to 95 % , as this value was also used in [ 8 ] for analysis .
+similar to the experiments described in [ 8 ] , we used framebot [ 24 ] to find the closest matches to a set of reference sequences .
+we found that all contigs of megagta and xander were matched by framebot , while quite a few megahit contigs were not ( 1.3 , 10 and 66.6 % of rplb , nifh and nirk , respectively ) .
+these unmatched contigs were discarded .
+table 4 summarizes the assembly result .
+at a threshold of 99 % amino acid clustering identity , megagta assembled 6.5 - 16.6 % more contigs than xander in total length , and this number became 9.7 - 19.3 % at 95 % clustering identity .
+megagta also matched 7.7 - 10 % and 10.9 - 25 % more genes by framebot at these two clustering thresholds , while retained a similar level of median identity .
+this indicates that megagta , by using iterative de bruijn graph , achieves higher sensitivity for the real dataset , and the improvement is more significant at lower clustering identity threshold ( indicating higher taxonomy level ) .
+table 4 performance of megagta , xander and megahit on the rhizosphere soil metagenomic sample megagta xander megahit gene rplb cluster identity 99 % 95 % 99 % 95 % 99 % 95 % # of gene contigs aligned by framebot 17,668 5079 15,933 4237 578 465 total length ( bp ) 13.9 m 3.96 m 12.5 m 3.32 m 378 k 311 k median length ( bp ) 822 822 822 822 639 660 # of matched reference genes 491 427 456 385 208 193 median % aa identity 76.73 76.00 77.46 76.90 77.50 77.07 gene nifh cluster identity 99 % 95 % 99 % 95 % 99 % 95 % # of gene contigs aligned by framebot 33 11 31 10 9 5 total length ( bp ) 27.8 k 9225 25.3 k 8412 7368 4464 median length ( bp ) 888 888 882 883.5 930 930 # of matched reference genes 13 10 12 8 8 5 median % aa identity 91.55 90.54 92.96 91.19 85.14 83.99 gene nirk cluster identity 99 % 95 % 99 % 95 % 99 % 95 % # of gene contigs aligned by framebot 1336 392 1242 336 203 179 total length ( bp ) 1.09 m 321 k 1.02 m 277 k 170 k 153 k median length ( bp ) 687 787.5 690 748.5 735 750 # of matched reference genes 55 53 50 47 71 66 median % aa identity 89.29 86.61 89.06 87.30 66.41 65.97 it is not surprising that gene - targeted assembler megagta and xander assembled much more gene sequences than de novo assembler megahit .
+moreover , the median aa identity of nifh and nirk contigs assembled by megagta and xander were significantly higher than megahit's. for nirk , although megahit 's contig matched more reference genes , megagta and xander found more genes with high identity ( fig. 2 ) .
+all nirk contigs of megagta were matched with > 55 % identity by framebot to 55 and 53 nirk genes at 99 and 95 % clustering identity respectively. with the same cutoff , only 73.4 and 73.2 % of megahit 's contigs were matched by framebot against 52 and 50 nirk genes respectively. fig. 2 number of matched nirk reference genes ( clustered at 99 % identity ) v.s. minimum aa identity reported by framebot by using a similar amount of ram , megagta was twice as fast as xander , even though it had to build multiple de bruijn graphs .
+the speed - up ratio is consistent with the experiment on the mock community ( see table 1 and table 2 ) .
+megagta was highly parallelized and got the whole gene assembly process done in 4.4 days , which is reasonably fast enough for such a large and complex dataset .
+megahit is faster than xander , but a bit slower than megagta .
+false positive effects of bloom filters to evaluate how false k - mers in bloom filters affect the assembly , we queried the rplb contigs of the rhizosphere metagenomic dataset assembled by xander , with bloom filter sizes of 256gb , 128gb and 64gb , respectively .
+as shown in table 5 , the number of contigs containing false k - mers increased as the bloom filter size decreased , but was still acceptably small with a bloom filter size of 256gb or 128gb ( only 0.02 and 0.39 %) .
+recall that megagta , based on succinct de bruijn graphs , required 242gb to assemble this dataset ; bloom filters , when using a similar amount of memory , performed well .
+however , when the bloom filter size decreased to 64gb , more than 10 % of the contigs contained false k - mers , and even worst , most of the false k - mers located amid a contig .
+note that an internal false k - mer may lead to a chimeric contig .
+therefore , one should be careful with the size of the bloom filter .
+table 5 number of contigs with false k - mers v.s. different bloom filter sizes bloom filter size ( gb ) 256 128 64 # contigs 15,929 15,933 16,107 # contigs with false k - mers 3 62 1694 # contigs with internal false k - mers 1 46 1523 conclusion by utilizing information of known genes , gene - targeted assembly is a higher resolution manner to assemble and annotated genes of interests .
+our work is an improvement of xander , a gene - targeted assembler that combines de bruijn graphs and profile - hmms .
+we observed that a single k - mer size has a trade - off in hmm - guided metagenomic assembly : a small k tends to produce more erroneous contigs , and a large k leads to missing low - coverage genes .
+we applied iterative de bruijn graph approach to tackle this challenge .
+this idea , along with low coverage penalty and succinct de bruijn graph representation , have been implemented in a new gene - targeted assembler , megagta .
+we used megagta and xander to assemble rplb gene from the hmp mock community sequencing data , and found megagta demonstrated higher sensitivity and accuracy than xander .
+megagta scales up easily to assemble very large and complex metagenomic dataset in an acceptable amount of time .
+it had been used to assemble a much larger and more challenging metagenomic sequencing dataset of rhizosphere corn soil , and produced more rplb , nifh and nirk genes than both xander and megahit .
+as a side note , the advantage of megagta is more substantial at higher taxonomy level .
+it is of practical interests whether bloom filters , the probabilistic data structure used by xander , will introduce many false contigs .
+we confirmed that when being configured to use a substantial amount of memory , bloom filters result in a low proportion of false contigs , and are suitable for hmm - guided assembly .
+megagta still has a lot of room for improvement .
+a more versatile de bruijn graph , for example , annotated with read threading and paired - end information , could possibly be used to design a better hmm - guided algorithm .
+how to construct and make use of a more versatile graph is an interesting future direction .
+abbreviations bp base pair dbg de bruijn graph gbp giga base pairs hmm hidden markov model kbp thousand base pairs k - mer length - k substring nifh nitrogenase reductase gene nirk nitrite reductase gene rplb ribosomal protein l2 gene sdbg succinct de bruijn graph acknowledgements a 2 - page abstract of this article has been published in lecture notes in computer science : bioinformatics research and applications .
+we thank tewei luo for improving the readability of this article .
+funding this research was partially supported by itf grant its / 155 / 15fp .
+the publication costs for this work were funded by the same grant .
+the funders had no role in study design , data collection and analysis , decision to publish , or preparation of the manuscript .
+availability of data and materials the source code of megagta is freely available at https :// github.com / hku - bal / megagta under the gplv3 license .
+about this supplement this article has been published as part of bmc bioinformatics volume 18 supplement 12 , 2017 : selected articles from the 12th international symposium on bioinformatics research and applications ( isbra - 16 ) : bioinformatics .
+the full contents of the supplement are available online at https :// bmcbioinformatics.biomedcentral.com / articles / supplements / volume - 18 - supplement - 12 .
+authors' contributions tl and dl initiated this project .
+dl , yh , cl , tl and ht contributed to the algorithm design .
+dl and yh implemented megagta and carried out the experiments .
+dl , tl , cl and rl wrote the manuscript .
+all authors read and approved the final manuscript .
+ethics approval and consent to participate not applicable .
+consent for publication not applicable .
+competing interests none declared .
+publisher 's note springer nature remains neutral with regard to jurisdictional claims in published maps and institutional affiliations .
+references 1 .
+brown , c.t. , et al. , a reference - free algorithm for computational normalization of shotgun sequencing data .
+arxiv : 1203.4802 , 2012 .
+2. pell j scaling metagenome sequence assembly with probabilistic de bruijn graphs proc natl acad sci 2012 109 33 13272 13277 10.1073 / pnas.1121464109 22847406 3 .
+li , d. , et al. , megahit : an ultra - fast single - node solution for large and complex metagenomics assembly via succinct de bruijn graph .
+bioinformatics , 2015 .
+4. nagarajan n pop m sequence assembly demystified nat rev genet 2013 14 3 157 167 10.1038 / nrg3367 23358380 5 .
+miller c emirge : reconstruction of full - length ribosomal genes from microbial community short read sequencing data genome biol 2011 12 5 r44 10.1186 / gb - 2011 - 12 - 5 - r44 21595876 6 .
+yuan c reconstructing 16s rrna genes in metagenomic data bioinformatics 2015 31 12 i35 i43 10.1093 / bioinformatics / btv231 26072503 7 .
+zhang y sun y cole jr a scalable and accurate targeted gene assembly tool ( sat - assembler ) for next - generation sequencing data plos comput biol 2014 10 8 e1003737 10.1371 / journal.pcbi.1003737 25122209 8 .
+wang q xander : employing a novel method for efficient gene - targeted metagenomic assembly microbiome 2015 3 1 1 13 10.1186 / s40168 - 015 - 0093 - 6 25621171 9 .
+eddy sr what is a hidden markov model ?
+nat biotechnol 2004 22 10 1315 1316 10.1038 / nbt1004 - 1315 15470472 10 .
+peng y , et al. idba - a practical iterative de bruijn graph de novo assembler , in research in computational molecular biology , b. in : berger : springer berlin heidelberg ; 2010. p. 426 - 40 .
+11. bankevich a spades : a new genome assembly algorithm and its applications to single - cell sequencing j comput biol 2012 19 5 455 477 10.1089 / cmb.2012.0021 22506599 12 .
+luo r soapdenovo2 : an empirically improved memory - efficient short - read de novo assembler gigascience 2012 1 1 18 10.1186 / 2047 - 217x - 1 - 18 23587118 13 .
+peng y idba - ud : a de novo assembler for single - cell and metagenomic sequencing data with highly uneven depth bioinformatics 2012 28 11 1420 1428 10.1093 / bioinformatics / bts174 22495754 14 .
+bloom bh space / time trade - offs in hash coding with allowable errors commun acm 1970 13 7 422 426 10.1145 / 362686.362692 15 .
+bowe , a. , et al. , succinct de bruijn graphs , in algorithms in bioinformatics , b. raphael and j. tang , editors .
+2012 , springer berlin heidelberg. p. 225 - 235 .
+16. hart pe nilsson nj raphael b a formal basis for the heuristic determination of minimum cost paths ieee trans syst man cybern 1968 4 2 100 107 17 .
+zerbino dr birney e velvet : algorithms for de novo short read assembly using de bruijn graphs genome res 2008 18 5 821 829 10.1101 / gr.074492.107 18349386 18 .
+chikhi r rizk g space - efficient and exact de bruijn graph representation based on a bloom filter algorithms mol biol 2013 8 1 22 10.1186 / 1748 - 7188 - 8 - 22 24040893 19 .
+bolger am lohse m usadel b trimmomatic : a flexible trimmer for illumina sequence data bioinformatics 2014 30 15 2114 2120 10.1093 / bioinformatics / btu170 24695404 20 .
+edgar rc uchime improves sensitivity and speed of chimera detection bioinformatics 2011 27 16 2194 2200 10.1093 / bioinformatics / btr381 21700674 21 .
+mikheenko a , saveliev v , gurevich a. metaquast : evaluation of metagenome assemblies. bioinformatics .
+2016 ; 32 ( 7 ) : 1088 - 90 .
+22. rho m tang h ye y fraggenescan : predicting genes in short and error - prone reads nucleic acids res 2010 38 20 e191 10.1093 / nar / gkq747 20805240 23 .
+mistry j , et al. challenges in homology search : hmmer3 and convergent evolution of coiled - coil regions .
+nucleic acids res .
+2013 ; 41 ( 12 ) : e121 .
+24. wang q ecological patterns of nifh genes in four terrestrial climatic zones explored with targeted metagenomics using framebot , a new informatics tool mbio 2013 4 5 e00592 e00513 10.1128 / mbio.00592 - 13 24045641

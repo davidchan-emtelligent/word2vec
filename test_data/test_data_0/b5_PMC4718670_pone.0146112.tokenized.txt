@@ -1,0 +1,337 @@
+plos one plos one plos plosone plos one 1932 - 6203 public library of science san francisco , ca usa 26784691 4718670 10.1371 / journal.pone.0146112 pone - d - 15 - 32483 research article imet - q : a user - friendly tool for label - free metabolomics quantitation using dynamic peak - width determination imet - q : a user - friendly tool for label - free metabolomics quantitation chang hui - yin 123 chen ching - tai 3 lih t. mamie 123 lynn ke - shiuan 4 juo chiun - gung 5 hsu wen - lian 3 sung ting - yi 3 * 1 bioinformatics program , taiwan international graduate program , academia sinica , taipei 11529 , taiwan 2 institute of biomedical informatics , national yang - ming university , taipei 11221 , taiwan 3 institute of information science , academia sinica , taipei 11529 , taiwan 4 department of mathematics , fu jen catholic university , new taipei city 24205 , taiwan 5 molecular medicine research center , chang gung university , taoyuan 33302 , taiwan bundy jacob guy editor imperial college london , united kingdom competing interests : the authors have declared that no competing interests exist .
+conceived and designed the experiments : h - yc t - ys. performed the experiments : c - gj. analyzed the data : h - yc c - tc k - sl tml .
+contributed reagents / materials / analysis tools : h - yc c - tc c - gj. wrote the paper : h - yc t - ys. helped revise the manuscript : tml w - lh .
+* e - mail : tsung @ iis.sinica.edu.tw 19 1 2016 2016 11 1 e0146112 24 7 2015 14 12 2015 ( c ) 2016 chang et al 2016 chang et althis is an open access article distributed under the terms of the creative commons attribution license , which permits unrestricted use , distribution , and reproduction in any medium , provided the original author and source are credited .
+efficient and accurate quantitation of metabolites from lc - ms data has become an important topic .
+here we present an automated tool , called imet - q ( intelligent metabolomic quantitation ) , for label - free metabolomics quantitation from high - throughput ms1 data. by performing peak detection and peak alignment , imet - q provides a summary of quantitation results and reports ion abundance at both replicate level and sample level .
+furthermore , it gives the charge states and isotope ratios of detected metabolite peaks to facilitate metabolite identification .
+an in - house standard mixture and a public arabidopsis metabolome data set were analyzed by imet - q. three public quantitation tools , including xcms , metalign , and mzmine 2 , were used for performance comparison. from the mixture data set , seven standard metabolites were detected by the four quantitation tools , for which imet - q had a smaller quantitation error of 12 % in both profile and centroid data sets .
+our tool also correctly determined the charge states of seven standard metabolites. by searching the mass values for those standard metabolites against human metabolome database , we obtained a total of 183 metabolite candidates. with the isotope ratios calculated by imet - q , 49 % ( 89 out of 183 ) metabolite candidates were filtered out. from the public arabidopsis data set reported with two internal standards and 167 elucidated metabolites , imet - q detected all of the peaks corresponding to the internal standards and 167 metabolites .
+meanwhile , our tool had small abundance variation (<= 0.19 ) when quantifying the two internal standards and had higher abundance correlation (>= 0.92 ) when quantifying the 167 metabolites .
+imet - q provides user - friendly interfaces and is publicly available for download at http :// ms.iis.sinica.edu.tw / comics / software _ imet - q.html .
+this work was supported by academia sinica , ministry of science and technology of taiwan ( most103 - 2221 - e - 001 - 037 ) , and taiwan international graduate program.data availabilitytwo datasets , including a standard metabolite mixture and a public arabidopsis dataset , were used in our study .
+the public arabidopsis dataset is a third - party open data ( not owned by the authors ) , and thus we provided a website link to the public data ( prime , http :// prime.psc.riken.jp /) .
+the standard metabolite mixture owned by the authors is now available under the doi : https :// dx.doi.org / 10.6084 / m9.figshare.2058702.v1 .
+data availability two datasets , including a standard metabolite mixture and a public arabidopsis dataset , were used in our study .
+the public arabidopsis dataset is a third - party open data ( not owned by the authors ) , and thus we provided a website link to the public data ( prime , http :// prime.psc.riken.jp /) .
+the standard metabolite mixture owned by the authors is now available under the doi : https :// dx.doi.org / 10.6084 / m9.figshare.2058702.v1 .
+introduction unbiased quantitation and identification of small - molecule metabolites in a biological system is important because metabolites serve as direct signatures of biochemical activity , making them relatively easier to correlate with disease phenotype and more suitable for clinical diagnostics [ 1 - 8 ] .
+liquid chromatography coupled with mass spectrometry ( lc - ms ) has become a conventional platform for analyzing metabolites across a large number of biological samples because of its ability to measure thousands of metabolites in a short period of time [ 2 , 5 , 9 - 13 ] .
+however , it is a time - consuming process to manually calculate the abundances of thousands of metabolites from large - scale lc - ms data , and thus developing a software package to automatically quantify lc - ms metabolomics data becomes essential .
+many commercial software programs have been developed by instrument vendors , such as progenesis qi ( waters ) , masshunter ( agilent ) , multiquant ( sciex ) , and xcalibur ( thermo ) .
+but they usually accept data formats specific to their own instruments , and thus limit the possibility of integrating metabolite analyses across different analytical platforms [ 14 - 17 ] .
+additionally , data processing algorithms implemented in these programs are mostly unavailable .
+publicly available quantitation tools , on the other hand , accept multiple input data formats and provide description of their computational algorithms .
+for example , xcms [ 18 ] , metalign [ 19 ] and mzmine 2 [ 20 ] accept input formats such as mzxml , mzdata , and netcdf .
+xcms , implemented in r , c , and c ++ programming language , provides format conversion , noise filtering , peak detection , non - linear spectral alignment algorithms , and statistical analysis of lc - ms data .
+metalign , an open interface - driven tool implemented in c ++ programming language , provides format conversion , mass calculation , baseline correction , peak - picking , saturation and mass peak artifact filtering , as well as data set alignment .
+mzmine 2 , a modular - based tool implemented in java programming language , provides raw data import , raw data processing , peak detection , peak list alignment , normalization , visualization , peak identification , and statistical analysis .
+however , some concerns of these public tools have been reported .
+for instance , some tools combine binning with model fitting or use slope calculation approaches to perform peak detection , but these approaches may have low sensitivity on peak picking because the peak shapes vary greatly from one to another [ 21 , 22 ] .
+due to different peak detection and peak alignment algorithms provided in each tool , it is difficult for users to optimize the algorithm - related parameters , which very likely affect the quantitation results [ 23 , 24 ] .
+on the other hand , most of the tools do not provide deisotoping , and thus users have to apply additional packages , such as camera [ 25 ] , to perform isotope pattern assembly [ 21 ] .
+to rectify the above concerns , we develop a quantitation tool , called imet - q ( intelligent metabolomic quantitation ) , written in c # programming language , which provides highly accurate quantitation and user - friendly graphical interfaces .
+for peak detection , imet - q requires one input parameter , i.e. , mzwidth ( defined as the width of a peak in m / z dimension ) , and calculates the full width at half maximum ( fwhm ) of a peak to dynamically determine its chromatographic width so that the peak boundary can be automatically determined ( i.e. , without requiring parameter input ) .
+in addition , our tool determines the charge state of a peak by calculating the similarity between the peak shape of monoisotope and the peak shape of the second isotope peak .
+once the charge state is determined , imet - q calculates its isotope ratio ( i.e. , the ratio of the second isotope abundance to the monoisotope abundance ) to facilitate metabolite identification .
+since metabolites usually have smaller retention time drifts across lc - ms technical replicates , imet - q first aligns peaks across different lc - ms replicates of a sample and then across different samples .
+in each alignment , loess regression algorithm [ 26 , 27 ] is applied to adjust peak retention time so that peaks in different lc - ms replicates / samples can be aligned according to their m / z and adjusted retention time values .
+we used two metabolite data sets , an in - house standard mixture and a public arabidopsis metabolome data set [ 28 ] , to evaluate the performance of imet - q and compare it with three public quantitation tools , including xcms , metalign , and mzmine2 .
+since the standard mixture was acquired in profile mode , we evaluated the performance of the four tools in both profile and centroid data sets , in which the centroid data set was converted from the profile data set by the centroiding function of proteowizard [ 29 ] .
+as a result , imet - q had small quantitation error of 12 % in both profile and centroid data sets .
+in addition , our tool correctly determined the charge state of seven standard metabolites , removed their isotope peaks , and calculated their isotope ratios. with the isotope ratios , we successfully filtered out 49 % ( 89 out of 183 ) metabolite candidates when using mass values of these standard metabolites to search in human metabolome database ( hmdb ) [ 30 ] .
+for the public arabidopsis metabolome data set reported with two internal standards and 167 elucidated metabolites , imet - q detected the internal standards from all replicates and samples .
+in addition , all of the 167 metabolites were also detected by imet - q , whereas 103 ( 62 %) , 145 ( 87 %) , and 129 ( 77 %) elucidated metabolites were detected by xcms , metalign , and mzmine 2 , respectively .
+comparing with the three quantitation tools , imet - q had relatively small abundance variations (<= 0.19 ) when quantifying the internal standards , and had higher abundance correlation (>= 0.92 ) when quantifying the 167 metabolites across replicates .
+all data underlying the manuscript are fully available without restriction .
+the source code of imet - q is freely available on sourceforge ( http :// sourceforge.net / projects / imet - q /? source = navbar ) under the license of gpl2 .
+materials and methods experiment on standard metabolite mixture chemicals all chemicals and solvents were purchased from sigma aldrich ( st. louis , mo , usa ) .
+the chemicals were all of analytical grade .
+water containing 0.1 % formic acid ( solvent a ) , and acetonitrile containing 0.1 % formic acid ( solvent b ) were of chromasolv grade .
+sample preparation stoke solution of metabolites was prepared as 1 mg / ml of 80 % meoh solution with 0.1 % formic acid .
+two metabolite mixtures , sample 1 and sample 2 , were prepared by adding seven standard metabolites with different amount into two 1.7 ml vials .
+these standard metabolites were l - histidine ( 3 mul in sample 1 , 6mul in sample 2 ) , l - carnosine ( 50mul in sample 1 , 50mul in sample 2 ) , creatine ( 6mul in sample 1 , 6mul in sample 2 ) , caffeine ( 6mul in sample 1 , 6mul in sample 2 ) , hippuric acid ( 5mul in sample 1 , 25mul in sample 2 ) , glycocholic acid ( 2mul in sample 1 , 10mul in sample 2 ) , and cholic acid ( 2mul in sample 1 , 6mul in sample 2 ) .
+the solutions were dried with speedvac and re - dissolved by 100 l of meoh and water ( 2:1 , v / v ) with 0.1 % formic acid .
+uplc / ltq - orbitrap ms a uplc system ( acquity , waters , milford , ma , usa ) equipped with a c18 reversed - phase column ( 2.1 x 100 mm , 1.8 m , hss - t3 ; waters , milford , ma , usa ) was coupled with a ltq - orbitrap mass spectrometer ( thermo scientific , san jose , ca , usa ) with an orthogonal electrospray ionization ( esi ) source .
+the initial flow rate was 0.1 ml / min of 99 % solvent a ( 0.1 % formic acid ) and 1 % solvent b ( acetonitrile with 0.1 % formic acid ) .
+a volume of 1mul of sample 1 and sample 2 were sequentially injected , and 6 technical replicates were conducted in profile mode on each standard mixture .
+after injection , solvent b was maintained at 1 % for 5 min , then increased to 50 % during a time span of 9 min , then to 90 % over 6 min , and finally to 99 % over a period of 12 min after which this percent composition was held for 1 min .
+the flow rate was changed to 0.5 ml / min , and after 5 min reduced to 0.1ml / min .
+after 0.1 min , solvent b was reduced back to 1 % and held at this percentage for 7 min .
+the mass spectrometer was controlled by using xcalibur 2.0.7 software ( thermo scientific ) and operated in positive ion mode on the m / z range from 120 to 1,000 with 60,000 resolution at m / z 400 .
+the source and capillary voltages were set to 4500 and 35 v , and the temperatures of the capillary and the apci vaporizer were set to 275degreesc and 150degreesc .
+internal calibration was performed using the ion signal of dioctyl phthalate at m / z 391.28 as a lock mass .
+public arabidopsis metabolome data set a public arabidopsis metabolome data set of 36 samples acquired by lc - esi - q - tof / ms ( hplc : waters acquity uplc system ; ms : waters q - tof premier ) in positive - and negative - ion modes , with four technical replicates on each sample , was downloaded from the website of prime ( http :// prime.psc.riken.jp /) .
+all replicates of the arabidopsis metabolome data set were acquired in centroid mode .
+two internal standards , lidocaine ( m / z = 235 [ m + h ]+ , eluted at 4.19 min in the positive - ion mode data ) and camphor - 10 - sulfonic acid ( m / z = 231 [ m - h ] - , eluted at 3.84min in the negative - ion mode data ) were spiked in each sample with the same amount of 0.5 mg / l for abundance normalization and 167 metabolites were elucidated from this data set [ 31 , 32 ] .
+data processing and software parameter settings data processing was performed on a microsoft windows 7 computer ( x64 edition service pack 1 with an intel xeon e5 - 2630 processor , 16 gb ram and 500gb hard disk drive ) .
+all raw data files of the standard mixture experiment and the public data set were converted into mzxml format using proteowizard .
+the acquired profile - mode data of standard mixture experiment was converted into two data sets , where one data set was directly converted to mzxml files ( called profile data set for convenience ) and the other was converted to mzxml files with an additional centroiding procedure in proteowizard ( called centroid data set for convenience ) .
+since the public data was acquired in centroid mode , no additional centroiding procedure in proteowizard was performed .
+both profile and centroid data sets of standard mixture were processed by four tools .
+imet - q automatically skipped centroiding step when processing the centroid data set and used the following parameter setting : mzwidth = 0.02 , mztol = 0.02 , and rttol = 0.2 for both data sets .
+for xcms , peaks in the profile and centroid data sets were first detected using matchedfilter and centwave function , respectively .
+then the rector.loess and group.density functions were then applied to align the detected peaks across samples .
+an additional fillpeaks fuction was performed for the recovery of missing peaks as suggested by the package vignette of xcms .
+to optimize the xcms parameters , 42 parameter combinations were examined using the standard metabolites in the standard mixture as benchmarks .
+the examination results of the 42 parameter combinations are listed in s1 and s2 tables , and the quantitation results generated using those parameter combinations are provided in s1 and s2 files .
+the optimized xcms parameters on peak picking are : method = matchedfilter , fwhm = 30 , snthresh = 10 for profile dataset ; and method = centwave , ppm = 45 , snthresh = 10 , peakwidth = ( 5,20 ) for centroid dataset .
+the optimized xcms parameters for both profile and centroid data sets on retention time correction and peak grouping are : method = loess , span = . 67 ; and method = " density " , mzwid = 0.03 , bw = 3 , minfrac = 0 , minsamp = 0 .
+metalign only accepts and processes the centroid data set .
+to run metalign , we selected the data type of accurate mass data with mass resolution of 10,000 and applied the default settings for the remaining parameters .
+in mzmine 2 , the exact mass detector function and the centroid mass detector function were first applied to process the profile and centroid data sets , respectively , both with a noise level of 1,000,000 .
+then the following functions were applied using the same parameters to process both data sets .
+the chromatogram builder was used with the minimum time span , minimum height , and m / z tolerance set to be 0 , 0 and 0.02 , respectively .
+for chromatogram deconvolution , baseline cut - off algorithm was used to detect peaks , where the minimum peak height , peak duration length , and baseline level were 1,000,000 , 0 - 2 min , and 1,000,000 , respectively .
+the m / z and retention time tolerances in both isotopic peaks grouper and peak alignment were 0.02 and 0.2 min , respectively .
+public arabidopsis data set was processed by imet - q with mzwidth , mztol , and rttol of 0.03 , 0.03 , and 0.16 min , respectively .
+we used the xcms centwave function for peak detection , rector.loess and group.density functions for peak alignment , and fillpeaks function for the recovery of missing peaks .
+to optimize xcms parameters on the public arabidopsis positive - and negative - mode data sets , 37 parameter combinations were examined on each set and the parameter combination achieving the best quantitation performance was selected .
+the examination results of the parameter combinations are listed in s3 and s4 tables , and the quantitation results generated using those parameter combinations are provided in s3 and s4 files .
+both data sets used centwave method in peak picking and the optimized xcms parameters for arabidopsis positive - and negative - mode datasets are : ppm = 30 , snthresh = 10 , peakwidth = ( 25 , 40 ) ; and ppm = 20 , snthresh = 10 , peakwidth = ( 5 , 20 ) , respectively .
+next , in retention time correction and peak grouping , the optimized xcms parameters for both profile and centroid data sets are : method = loess , span = . 67 ; and method = " density " , mzwid = 0.03 , bw = 3 , minfrac = 0 , minsamp = 0 .
+for metalign , we selected the data type of accurate mass data with mass resolution of 9,000 and applied the following parameter settings for data processing : maximum amplitude = 10,000 , peak slope factor = 1 , peak threshold factor = 6 , average peak width at half weight = 8 , maximum shift per scan = 35 , select min nr per peak set = 4 , and scaling options = none .
+in mzmine 2 , we used the centroid mass detector with a noise level of 6 .
+the minimum time span , minimum height , and m / z tolerance in the chromatogram builder were set to be 0.1 min , 6 and 0.03 , respectively .
+for chromatogram deconvolution , baseline cut - off algorithm was used to detect peaks , where the minimum peak height , peak duration length , and baseline level were 6 , 0 - 1.6 ( min ) , and 6 , respectively .
+the m / z and retention time tolerances in both isotopic peaks grouper and peak alignment were 0.03 and 0.16 min , respectively .
+detected peaks by each tool were retained in the quantitation results if their retention time values were within the effective retention time range ( i.e. , 0.85 to 12 min ) and the peaks were detected in at least one sample .
+robust algorithms for metabolite quantitation in order to process data from various mass spectrometers , imet - q accepts input files in netcdf , mzxml , and mzml formats , which can be conveniently converted from raw data by existing converters .
+also , it accepts profile - mode and centroid - mode data .
+the workflow of imet - q contains two main tasks , peak detection and peak alignment , as depicted in fig 1 .
+performing peak detection on each input file generates a peak list that reports the m / z , retention time , charge state , isotope ratio , and abundance of detected peaks .
+to compare compounds across different samples , imet - q aligns the detected peaks in the peak lists according to their m / z and retention time .
+the detailed procedures of peak detection , peak alignment and quantitation result generation are described below .
+10.1371 / journal.pone.0146112.g001 fig 1 schematic depiction of imet - q workflow for peak detection and peak alignment .
+peak detection centroiding signals in each scan centroiding , which can be performed during or after data acquisition , is a common first step for processing metabolomics data so that the data size can be greatly reduced .
+it aims at combining multiple signals from the same compound into a single one with an m / z and intensity value [ 32 ] .
+if the input files have already been centroided , imet - q automatically skips this step .
+the detailed algorithm description is listed in s1 section .
+removing noises from each scan due to nonspecific nature of esi , a great portion of signals in the spectra could be noise [ 33 ] .
+it is essential to remove these noises to increase the effectiveness of peak detection .
+instead of determining a fixed baseline for each spectrum , imet - q equally divides a scan into s segments ( s = 10 by default ) with an overlap of 20 % to avoid borderline issues and defines the average intensity in a segment as its noise level .
+then , for each segment , signals with s / n less than a specific threshold ( 3 by default ) are removed from the scan , where s is the signal intensity and n is the noise level in the segment .
+the number of segments and the s / n threshold are user - adjustable .
+constructing extracted ion chromatograms ( eic ) with dynamically determining peak width after processing signals in each scan , imet - q uses a two - stage algorithm to construct the extracted ion chromatogram ( eic ) of a compound .
+the two - stage algorithm includes signal clustering and eic boundary determination .
+let s ={{ s11,s21 ,... , sn11 },{ s12,s22 ,... , sn22 },...,{ s1m,s2m ,... , snkm }} be the list of signals in all scans , where m is the total number of scans and nk is the number of signals in the kth scan .
+in signal clustering , starting from the most intensive signal , say sij , among all scans in s , imet - q clusters signals in s with sij if the m / z differences between the signals and sij are within the given tolerance d , i.e. , mzwidth in imet - q. a cluster with at least three signals is further processed .
+in the step of eic boundary determination , imet - q automatically calculates fwhm and then dynamically determines the boundaries using fwhm .
+to be specific , for the most intensive signal in a cluster , say sij , with retention time t , the boundaries of the eic are initially determined as t +/ - w , where w is the fwhm .
+to adapt to possible tailing effect of an eic , the boundaries are further extended by a tolerance at most 0.5w and are set to the farthest signal or a signal with local - minimum intensity in this range ( as shown in fig 2 ) .
+then the trapezoid areas between any two adjacent signals of the eic are summed up as the abundance .
+the two - stage algorithm is iteratively performed on the remaining unclustered signals to construct eics until all signals in s are processed .
+in the following subsections , we term the constructed eics as peaks for convenience .
+furthermore , each peak is represented by its apex , i.e. , using the m / z , retention time of the apex signal , and the associated abundance is recorded .
+10.1371 / journal.pone.0146112.g002 fig 2 a cartoon for the illustration of constructing extracted ion chromatograms .
+the blue straight lines represent the clustered signals , w and t are the fwhm and retention time of sij , respectively .
+signal a and b are determined as the boundaries of the eic , and the area in light blue color is the abundance .
+determining the charge state and isotope ratio of peaks in order to determine the charge state and isotope ratio , imet - q first constructs an isotope envelope for a peak .
+starting from the most intensive peak , p1 , in the current peak list , our tool groups it with all of its neighboring peaks having larger m / z values and decreasing intensities , i.e. , forming an isotope group .
+if the m / z distance between the apex of any two peaks in the isotope group equals to 1 / z ( z can be 1 ~ 4 ) , the group is considered as a possible isotope envelope , where p1 and the peak adjacent to p1 are considered as the monoisotope peak and the second isotope peak , respectively .
+then , to validate the correctness of the isotope envelope , imet - q calculates the peak shape similarity between the monoisotope peak and the second isotope peak by using the dot product as shown below : similarity = sumi = 1nxiyisumi = 1nxi2sumi = 1nyi2 ( 1 ) where n is the number of scans that both the monoisotope peak and the second isotope peak co - occur , and xi and yi are their respective signal intensities in the ith scan .
+if the peak shape similarity between the two peaks is above a user - defined threshold ( 0.8 by default ) , we consider that all of the peaks in the isotope group form an isotope envelope and the charge state of p1 is determined as z. moreover , the isotope ratio of p1 is calculated as the abundance of the second isotope peak divided by the abundance of p1 , and the peaks in the isotope group are removed from further processing .
+otherwise , the peaks do not form an isotope envelope and the charge state and isotope ratio of p1 are denoted as 0 .
+the charge state determination procedure is repeatedly performed until all peaks are processed. by performing the above peak detection procedures , imet - q generates a peak list with charge state and isotope ratio information for each input replicate file .
+note that the isotope peaks except the monoisotope in the confirmed isotope envelopes will not be reported in the peak list .
+peak alignment for an input data set with multiple samples ( each probably with multiple technical replicates ) , imet - q performs the same algorithm for pair - wise alignment within a sample ( i.e. , aligning replicates ) and then across samples .
+the algorithm is described as follows .
+imet - q first selects the peak list that contains the largest number of detected peaks as the reference list and aligns other peak lists to it. for a pair of reference list and aligning peak list , imet - q uses peaks detected in both lists with their m / z and retention time differences within user - defined tolerances ( i.e. , mztol and rttol in imet - q ) as landmarks [ 34 ] .
+given the retention time of landmarks in the reference list and in the aligning peak list as vectors a and b , respectively , imet - q uses loess regression [ 26 , 27 ] to generate a mapping between a and b with span of 20 % and weight of 1 since loess regression combines multiple linear least square regression models which fit localized subsets of the data .
+the retention time of peaks , which are not landmarks , in either peak list are adjusted according to the loess regression model .
+imet - q then aligns the peaks in both peak lists that satisfy user - defined m / z tolerance and retention time tolerance based on adjusted retention time .
+repeating the above process for all peak lists , peaks can be aligned across replicates .
+since peaks aligned from different replicates in a sample may have slightly different values of m / z and retention time , we use the median of their m / z and retention time as the representative peak in each sample .
+then the same algorithm is applied to align all of the representative peaks across samples .
+generating output of quantitation results in addition to viewing quantitation results in the main interface , imet - q reports the medians of m / z , retention time and abundance of the peaks in all replicates of all samples .
+for the charge state of an aligned peak , imet - q displays the charge state that is detected in most replicates .
+for the isotope ratio , imet - q collects the isotope ratios corresponding to the displayed charge state and reports the median as the isotope ratio .
+quantitation results can be exported in.csv and.txt formats by users to conduct further analyses .
+results and discussion we evaluated the performance of imet - q in metabolite quantitation by comparing the accuracy of detecting metabolites and the abundance consistency , calculated by pearson product - moment correlation coefficient ( ppmcc ) , of detected metabolites among replicates with xcms , metalign , and mzmine 2 using samples ranging from a small standard data set ( seven standard metabolites ) to a complex biological data set ( public arabidopsis data set ) .
+we also demonstrated the ability of imet - q on charge state determination and isotope ratio calculation .
+performance evaluation on a standard metabolite mixture data to demonstrate the ability of imet - q , we used a standard metabolite mixture in which seven standard metabolites with different sample concentration in two samples were included for evaluation .
+the sample ratio , defined as the detected abundance of a standard metabolite in sample 1 divided by that in sample 2 , is calculated for each of the seven metabolites in the standard metabolite mixture for the four quantitation tools .
+both profile and centroid data sets generated from the raw data were processed by imet - q , xcms , metalign , and mzmine 2 , respectively .
+algorithms and parameter settings used in these tools were described in the subsection of data processing and software parameter settings .
+table 1 shows the quantitation errors , which is defined as the difference between theoretical and calculated sample ratios divided by the theoretical sample ratios , of the seven standard metabolites calculated by the four quantitation tools .
+detailed abundances and sample ratios calculated by the four tools are listed in s5 table .
+10.1371 / journal.pone.0146112.t001 table 1 the quantitation error (%) of seven standard metabolites calculated by imet - q , xcms , metalign , and mzmine 2 .
+quantitation error (%) a imet - q xcms metalign mzmine 2 standard compound theoretical sample ratio profile centroid profile centroid profile centroid profile centroid l - hisitidine 0.50 14 14 14 2 - 12 14 12 l - carnosine 1.00 9 8 7 50 - 11 8 8 creatine 1.00 12 12 12 18 - 12 12 11 caffine 1.00 15 16 14 2 - 14 15 16 hippuric acid 0.20 10 10 10 105 - 5 15 20 glycocholic acid 0.20 20 20 20 20 - 30 5 5 cholic acid 0.33 6 6 6 24 - 12 24 24 average 12 12 12 32 - 14 13 14 aquantitation error (%) = (| theoretical sample ratio - calculated sample ratio |) x100 / theoretical sample ratio .
+as shown in table 1 , imet - q , xcms , and mzmine 2 had the average quantitation error of 12 % , 12 % and 13 % on the profile data set , and 12 % , 32 % and 14 % on the centroid data set .
+metalign did not process the profile data set and had the average quantitation error of 14 % on the centroid data set .
+the results showed that imet - q achieved the smallest quantitation errors and also had the same average quantitation error of 12 % in both profile and centroid data set , suggesting the robustness of imet - q on processing input files in both data type .
+in addition to accurate quantitation , imet - q determined the charge state and isotope ratio of detected peaks .
+in order to evaluate the charge state determined by imet - q , we used camera to annotate charge states and isotope peaks of the standard metabolites .
+charge states and isotope peaks of the seven standard metabolites in both profile and centroid data sets annotated by imet - q were overall identical with camera 's annotation .
+to demonstrate possible usefulness of isotope ratio information , we searched the mass of seven standard metabolites against hmdb [ 30 ] with mass tolerance of +/ - 5 ppm and adduct type of unknown ( assuming a user has little information on the spectra ) .
+as a result , 183 metabolites candidates were obtained .
+using imet - q 's calculated isotope ratios ( the isotope ratio tolerance is +/ - 0.02 ) to filter out unnecessary metabolite candidates , we reduced 49 % ( 89 out of 183 ) metabolite candidates ( s6 table ) .
+the remaining metabolite candidates could not be filtered out by isotope ratios because they have the same chemical formula ( i.e. , identical theoretical isotope ratios ) .
+performance evaluation on a public arabidopsis metabolome data the public arabidopsis data of 36 distinct samples collected from eight different plant classes ( classified by matsuda et al. ) was used to demonstrate imet - q 's performance on quantifying complex biological samples .
+each sample contained two internal standards , one for positive - and the other for negative - ion modes , and 167 metabolites ( 71 detected only in positive - ion mode , 39 only in negative - ion mode , and 57 in both modes ) were elucidated from the data set [ 28 ] .
+the performance of four tools were evaluated in terms of the accuracy on detecting the two internal standards and 167 elucidated metabolites , and the ability of properly clustering 36 samples into eight plant classes .
+table 2 shows the reproducibility and normalized abundances of two internal standards detected by the four quantitation tools , where imet - q , xcms , and metalign detected all the internal standards from each replicate , achieving 100 % reproducibility , slightly better than mzmine 2 .
+furthermore , imet - q reported normalized abundances of 1 +/ - 0.19 and 1 +/ - 0.18 for the two standard metabolites , comparable to the best 1 +/ - 0.18 reported by xcms and mzmine 2 for lidocaine and the best 1 +/ - 0.17 reported by xcms for camphor - 10 - sulfonic acid .
+10.1371 / journal.pone.0146112.t002 table 2 the reproducibility ( rep. ) and normalized abundance ( abund. ) of two internal standards detected by four quantitation tools .
+lidocaine camphor - 10 - sulfonic acid rep .
+(%) abund. rep .
+(%) abund .
+imet - q 100 1 +/ - 0.19 100 1 +/ - 0.18 xcms 100 1 +/ - 0.18 100 1 +/ - 0.17 metalign 100 1 +/ - 0.20 100 1 +/ - 0.22 mzmine 2 100 1 +/ - 0.18 85 1 +/ - 0.46 for 167 elucidated metabolites , we searched their m / z and retention time values provided in [ 28 ] against the quantitation results of the four tools with m / z and retention time tolerances of 0.05 m / z and 9 seconds .
+as a result , imet - q detected all of the elucidated metabolites , whereas xcms , metalign , and mzmine 2 detected 103 ( 62 %) , 145 ( 87 %) , and 129 ( 77 %) of the elucidated metabolites , respectively .
+we further evaluated the detected abundance of these metabolites .
+since the exact abundance of 167 elucidated metabolites was unknown , we calculated the abundance correlation between any two replicates of a sample by ppmcc .
+as a result , imet - q achieved an average replicate abundance correlation of 0.92 , whereas xcms , metalign , and mzmine 2 achieved average abundance correlations of 0.87 , 0.78 , and 0.81 , respectively ( as shown in fig 3 ) .
+the result revealed that imet - q not only achieved high accuracy on detecting the 167 elucidated metabolites but also provided very consistent quantitation result .
+10.1371 / journal.pone.0146112.g003 fig 3 the box plot of abundance correlation of 167 elucidated metabolites across replicates in the public arabidopsis data detected by the four quantitation tools .
+next , we examined whether replicates of the 36 samples could be properly clustered into eight plant classes using the quantitation results of the four tools .
+we combined the quantitation results from positive - and negative - ion modes , and performed hierarchical clustering using matlab dendrogram function with ppmcc as the abundance correlation measure .
+the combined quantitation results of the four tools are provided in s7 - s10 tables .
+the numbers of detected peaks in the combined quantitation results of imet - q , xcms , metalign , and mzmine 2 were 13079 , 7487 , 37364 , and 19394 , respectively .
+fig 4 shows the hierarchical clustering results of the four tools .
+the average abundance correlations of the eight plant classes using the combined quantitation results of imet - q , xcms , metalign , and mzmine 2 were 0.71 , 0.75 , 0.65 , and 0.59 , respectively .
+the detailed average abundance correlation of each plant class is shown in s11 table .
+note that all the replicates of flower class , the best clustered plant class ( blue color in fig 4 ) , were clustered using imet - q 's combined quantitation result , and the average abundance correlation of the flower class was 0.88 .
+this evaluation implies that , although the numbers of peaks detected by metalign and mzmine 2 were much larger than those detected by imet - q and xcms , peaks detected by imet - q and xcms might be more essential for distinguishing plant classes .
+10.1371 / journal.pone.0146112.g004 fig 4 hierarchical clustering by using the quantitation results of imet - q , xcms , metalign , and mzmine 2 .
+each entry in the tree leaves of a dendrogram represents a replicate .
+for each tool , we first combined its quantitation results of positive - and negative - ion modes .
+colors were assigned to each replicate in the combined quantitation results according to the plant classes which the replicates originated from as follows : orange for cotyledon , red for stem , green for leaf , blue for flower , light blue for shoot apex , yellow for root , pink for seed , and gray for silique .
+next , the figure was produced using matlab dendrogram function with pmmcc as the abundance correlation measure between any two replicates in the combined quantitation results .
+to overcome the bottleneck in metabolite identification based on ms1 data , a method utilizing both isotope ratio and in - source fragment information has been recently proposed , in which the same arabidopsis metabolome data set was also used for identification performance evaluation [ 35 ] .
+according to the study , 19 out of 167 elucidated metabolites have been confirmed that some of their in - source fragments were detected in ms1 scans [ 35 ] , and the abundance correlations between the 19 metabolites and their fragments were above 0.8 .
+we thus used the 19 confirmed metabolites to demonstrate the ability of imet - q. by calculating the abundance correlations between 19 metabolites and their in - source fragments , imet - q reported an abundance correlation of 0.94 , whereas xcms , metalign , and mzmine 2 reported abundance correlations of 0.61 , 0.76 , and 0.66 , respectively ( as shown in fig 5 ) .
+this result revealed that the abundances of the 19 metabolites and their in - source fragments were accurately detected and calculated by imet - q. furthermore , isotope ratios of 89.47 % ( 17 out of 19 ) metabolites were accurately calculated by imet - q , with differences within 0.05 to the theoretical ratio ( s12 table ) .
+10.1371 / journal.pone.0146112.g005 fig 5 the box plot of abundance correlations between 19 verified metabolites and their in - source fragments detected in the public arabidopsis data .
+friendly user interfaces of imet - q we particularly implemented imet - q as a project - oriented quantitation platform , allowing users to conveniently quantify , manage and compare a large number of data sets or quantitation results in microsoft windows series platform ( including windows 7 , 8 , and windows server 2008 , 2012 ) .
+to be specific , imet - q applies a tree structure to organize quantitation results , where each node represents a project and sub - nodes of a project represent the quantitation results ( as shown in fig 6 ) .
+10.1371 / journal.pone.0146112.g006 fig 6 the main graphical user interface of metab - q. the arabidopsis data from positive - ion mode is used as an example .
+after processing the data , metab - q lists the detected peaks in the summary table where the peaks are sorted according to their retention time .
+when users select peaks of interest in the summary table , the abundances of the selected peaks in different samples are plotted in the sample abundance plot and the detailed information of the selected peak in the technical replicates of a sample is listed in the panel below the summary table .
+the left panel is the quantitation parameter explorer that lists the parameters of a quantitation .
+users can use the provided filter function to narrow down the number of peaks in the summary table .
+imet - q provides three wizards to guide users easily executing the program as follows .
+first , a project wizard guides a user to create a project and designate a folder to store the project .
+second , a quantitation wizard guides the user to quantify lc - ms - based data .
+the wizard only requires the user to set up three quantitation parameters , i.e. , mzwidth , mztol , and rttol ; other parameters are optional .
+since multiple technical replicates may be conducted on a sample , imet - q pops up a table to guide users to group technical replicates by the sample .
+during quantitation , imet - q sequentially detects peaks from each replicate and then aligns those detected peaks across replicates / samples .
+third , an export wizard guides the user to export quantitation results in common output formats , including.csv and.txt .
+it also allows users to name the quantitation , designate the file for exporting , and set up criteria for filtering out unwanted peaks in order to focus on peaks of interest. with the conventional output formats , the user can easily import the quantitation results to other available tools , such as microsoft excel and matlab , for further statistical analysis .
+to compare abundances across samples , imet - q hierarchically displays a quantitation result in the main interface , where the quantitation result is summarized in a summary table .
+the summary table lists the m / z , retention time , charge state , isotope ratio , and abundance of all detected peaks in all samples for a quick overview .
+the user can click on a detected peak of interest in the summary table , and the sample abundances of the selected peak will be plotted in the upper panel above the summary table .
+meanwhile , the detailed information of the selected peak in the technical replicates of a sample will be listed in the panel below the summary table .
+the user can double - click a row in the replicate table to view the extracted ion chromatogram of the peak .
+in order to efficiently select peaks of interest in the summary table , imet - q provides a search function using the range of m / z , retention time , charge state , or isotope ratio to narrow down the peaks listed in the summary table .
+conclusions many state - of - the - art quantitation tools have been proposed to allow users automatically quantifying metabolites from large - scale label - free metabolomics data sets .
+the quantitation ability of these tools is beyond doubt .
+however , a major concern of using these tools is the parameter setting for peak detection .
+since peak shapes vary greatly from one to another , it is difficult for users to select an optimized parameter setting for peak detection .
+in addition , most of the tools do not provide deisotoping , and thus users have to apply additional packages for isotope pattern assembly .
+therefore , in this paper , we introduced an intelligent quantitation tool , imet - q , which is capable of dynamically determining the peak widths in liquid chromatogram dimension without input parameter , and automatically performing isotope pattern assembly .
+in our evaluation , imet - q has the quantitation performance better than xcms , metalign , and mzmine 2 on standard and large - scale metabolome data sets .
+besides , imet - q provides both the charge states and isotope ratios of detected peaks. with the charge state information , users can obtain accurate masses of detected peaks .
+meanwhile , the isotope ratio information provides users an opportunity to reduce metabolite candidates .
+although our evaluation demonstrates that the metabolite isotope ratios calculated by imet - q are close to the theoretical values , it is important to note that isotope ratio can be affected by noise interference , saturation effects and different experimental conditions [ 36 , 37 ] .
+in addition to providing accurate quantitation , charge state , and isotope ratios , imet - q is equipped with friendly user interfaces so that quantifying metabolites become an easy task .
+the software program is now publicly available for download at http :// ms.iis.sinica.edu.tw / comics / software _ imet - q.html .
+supporting information s1 file the xcms quantitation results of the standard metabolite mixture ( profile mode ) under five different parameter settings .
+( zip ) click here for additional data file .
+s2 file the xcms quantitation results of the standard metabolite mixture ( centroid mode ) under 37 different parameter settings .
+( zip ) click here for additional data file .
+s3 file the xcms quantitation results of the public arabidopsis dataset ( positive mode ) under 37 different parameter settings .
+( zip ) click here for additional data file .
+s4 file the xcms quantitation results of the public arabidopsis dataset ( negative mode ) under 37 different parameter settings .
+( 7z ) click here for additional data file .
+s1 section the detailed description of centroiding signals in each scan .
+( pdf ) click here for additional data file .
+s1 table the sample ratio of each metabolite under different fwhm ( for standard mixture - profile ) .
+( xlsx ) click here for additional data file .
+s2 table the sample ratio of each metabolite under different centwave parameters ( for standard mixture - centroid ) .
+( xlsx ) click here for additional data file .
+s3 table the reproducibility and abundance consistency of the internal standard ( lidocaine ) in arabidopsis data set ( positive mode ) under different centwave parameters .
+( xlsx ) click here for additional data file .
+s4 table the reproducibility and abundance consistency of the internal standard ( camphor - 10 - sulfonic acid ) in arabidopsis data set ( negative mode ) under different centwave parameters .
+( xlsx ) click here for additional data file .
+s5 table the abundances of seven standard metabolites detected from profile and centroid data set using four quantitation tools .
+( xlsx ) click here for additional data file .
+s6 table the number of metabolite candidates of the seven standard metabolites using ( 1 ) mass match , and ( 2 ) mass and isotope ratio ( ir ) match .
+( xlsx ) click here for additional data file .
+s7 table the combined quantitation result generated using imet - q .
+( xlsx ) click here for additional data file .
+s8 table the combined quantitation result generated using xcms .
+( xlsx ) click here for additional data file .
+s9 table the combined quantitation result generated using metalign .
+( xlsx ) click here for additional data file .
+s10 table the combined quantitation result generated using mzmine 2 .
+( xlsx ) click here for additional data file .
+s11 table the average abundance correlations of the eight plant classes using the quantitation results obtained from imet - q , xcms , metalign , and mzmine 2 .
+( xlsx ) click here for additional data file .
+s12 table the isotope ratio of the 19 identified metabolites in the public arabidopsis data set .
+( xlsx ) click here for additional data file .
+we thank the support from academia sinica , ministry of science and technology of taiwan ( most 103 - 2221 - e - 001 - 037 ) , and taiwan international graduate program .
+we also thank wai - kok choong and thejkiran pitti for fruitful discussion on the manuscript .
+references 1 ellis di , dunn wb , griffin jl , allwood jw , goodacre r . metabolic fingerprinting as a diagnostic tool . pharmacogenomics .
+2007 9 ; 8 ( 9 ) : 1243 - 66 . .
+17924839 2 patti gj , yanes o , siuzdak g . innovation : metabolomics : the apogee of the omics trilogy . nature reviews molecular cell biology .
+2012 4 ; 13 ( 4 ) : 263 - 9 . pubmed central pmcid : 3682684 .
+doi : 10.1038 / nrm3314 22436749 3 weiss rh , kim k . metabolomics in the study of kidney diseases . nature reviews nephrology .
+2012 1 ; 8 ( 1 ) : 22 - 33 . .
+22025087 4 baker m . metabolomics : from small molecules to big ideas . nat methods .
+2011 feb ; 8 ( 2 ) : 117 - 21 . 5 dunn wb , broadhurst di , atherton hj , goodacre r , griffin jl . systems level studies of mammalian metabolomes : the roles of mass spectrometry and nuclear magnetic resonance spectroscopy . chemical society reviews .
+2011 1 ; 40 ( 1 ) : 387 - 426 . doi : 10.1039 / b906712b 20717559 6 madsen r , lundstedt t , trygg j . chemometrics in metabolomics - a review in human disease diagnosis . analytica chimica acta .
+2010 2 5 ; 659 ( 1 - 2 ) : 23 - 33 . doi : 10.1016 / j.aca.2009.11.042 20103103 7 issaq hj , van qn , waybright tj , muschik gm , veenstra td . analytical and statistical approaches to metabolomics research . journal of separation science .
+2009 7 ; 32 ( 13 ) : 2183 - 99 . doi : 10.1002 / jssc.200900152 19569098 8 mamas m , dunn wb , neyses l , goodacre r . the role of metabolites and metabolomics in clinically applicable biomarkers of disease . archives of toxicology .
+2011 1 ; 85 ( 1 ) : 5 - 17 . doi : 10.1007 / s00204 - 010 - 0609 - 6 20953584 9 roux a , lison d , junot c , heilier jf . applications of liquid chromatography coupled to mass spectrometry - based metabolomics in clinical chemistry and toxicology : a review . clinical biochemistry .
+2011 1 ; 44 ( 1 ) : 119 - 35 . doi : 10.1016 / j.clinbiochem.2010.08.016 20800591 10 theodoridis ga , gika hg , want ej , wilson id . liquid chromatography - mass spectrometry based global metabolite profiling : a review . analytica chimica acta .
+2012 1 20 ; 711 : 7 - 16 . doi : 10.1016 / j.aca.2011.09.042 22152789 11 zhou b , xiao jf , tuli l , ressom hw . lc - ms - based metabolomics . molecular biosystems .
+2012 2 ; 8 ( 2 ) : 470 - 81 . pubmed central pmcid : 3699692 .
+doi : 10.1039 / c1mb05350g 22041788 12 bedair m , sumner lw . current and emerging mass - spectrometry technologies for metabolomics . trac - trend anal chem .
+2008 3 ; 27 ( 3 ) : 238 - 50 . 13 dakna m , he z , yu wc , mischak h , kolch w . technical , bioinformatical and statistical aspects of liquid chromatography - mass spectrometry ( lc - ms ) and capillary electrophoresis - mass spectrometry ( ce - ms ) based clinical proteomics : a critical assessment . journal of chromatography b , analytical technologies in the biomedical and life sciences .
+2009 5 1 ; 877 ( 13 ) : 1250 - 8 . doi : 10.1016 / j.jchromb.2008.10.048 19010091 14 blekherman g , laubenbacher r , cortes df , mendes p , torti fm , akman s , et al bioinformatics tools for cancer metabolomics . metabolomics : official journal of the metabolomic society .
+2011 9 ; 7 ( 3 ) : 329 - 43 . .
+pubmed central pmcid : 3155682 .
+21949492 15 jaitly n , mayampurath a , littlefield k , adkins jn , anderson ga , smith rd . decon2ls : an open - source software package for automated processing and visualization of high resolution mass spectrometry data . bmc bioinformatics .
+2009 ; 10 : 87 pubmed central pmcid : 2666663 .
+doi : 10.1186 / 1471 - 2105 - 10 - 87 19292916 16 sugimoto m , hirayama a , ishikawa t , robert m , baran r , uehara k , et al differential metabolomics software for capillary electrophoresis - mass spectrometry data analysis . metabolomics : official journal of the metabolomic society .
+2010 3 ; 6 ( 1 ) : 27 - 41 . 17 scalbert a , brennan l , fiehn o , hankemeier t , kristal bs , van ommen b , et al mass - spectrometry - based metabolomics : limitations and recommendations for future progress with particular focus on nutrition research . metabolomics : official journal of the metabolomic society .
+2009 12 ; 5 ( 4 ) : 435 - 58 . .
+pubmed central pmcid : 2794347 .
+20046865 18 smith ca , want ej , o'maille g , abagyan r , siuzdak g . xcms : processing mass spectrometry data for metabolite profiling using nonlinear peak alignment , matching , and identification . analytical chemistry .
+2006 2 1 ; 78 ( 3 ) : 779 - 87 . .
+16448051 19 lommen a . metalign : interface - driven , versatile metabolomics tool for hyphenated full - scan mass spectrometry data preprocessing . analytical chemistry .
+2009 4 15 ; 81 ( 8 ) : 3079 - 86 . doi : 10.1021 / ac900036d 19301908 20 pluskal t , castillo s , villar - briones a , oresic m . mzmine 2 : modular framework for processing , visualizing , and analyzing mass spectrometry - based molecular profile data . bmc bioinformatics .
+2010 ; 11 : 395 pubmed central pmcid : 2918584 .
+doi : 10.1186 / 1471 - 2105 - 11 - 395 20650010 21 kenar e , franken h , forcisi s , wormann k , haring hu , lehmann r , et al automated label - free quantification of metabolites from liquid chromatography - mass spectrometry data . molecular & cellular proteomics : mcp .
+2014 1 ; 13 ( 1 ) : 348 - 59 . .
+pubmed central pmcid : 3879626 .
+24176773 22 aberg km , torgrip rj , kolmert j , schuppe - koistinen i , lindberg j . feature detection and alignment of hyphenated chromatographic - mass spectrometric data .
+extraction of pure ion chromatograms using kalman tracking . journal of chromatography a .
+2008 5 23 ; 1192 ( 1 ) : 139 - 46 . doi : 10.1016 / j.chroma.2008.03.033 18378252 23 sugimoto m , kawakami m , robert m , soga t , tomita m . bioinformatics tools for mass spectroscopy - based metabolomic data processing and analysis . current bioinformatics .
+2012 3 ; 7 ( 1 ) : 96 - 108 . .
+pubmed central pmcid : 3299976 .
+22438836 24 tautenhahn r , bottcher c , neumann s . highly sensitive feature detection for high resolution lc / ms . bmc bioinformatics .
+2008 ; 9 : 504 pubmed central pmcid : 2639432 .
+doi : 10.1186 / 1471 - 2105 - 9 - 504 19040729 25 kuhl c , tautenhahn r , bottcher c , larson tr , neumann s . camera : an integrated strategy for compound spectra extraction and annotation of liquid chromatography / mass spectrometry data sets . analytical chemistry .
+2012 1 3 ; 84 ( 1 ) : 283 - 9 . pubmed central pmcid : 3658281 .
+doi : 10.1021 / ac202450g 22111785 26 cleveland ws . robust locally weighted regression and smoothing scatterplots . j am stat assoc .
+1979 ; 74 ( 368 ) : 829 - 36 . 27 cleveland ws . lowess - - a program for smoothing scatterplots by robust locally weighted regression . am stat .
+1981 ; 35 ( 1 ) : 54 - . 28 matsuda f , hirai my , sasaki e , akiyama k , yonekura - sakakibara k , provart nj , et al atmetexpress development : a phytochemical atlas of arabidopsis development . plant physiology .
+2010 2 ; 152 ( 2 ) : 566 - 78 . pubmed central pmcid : 2815869 .
+doi : 10.1104 / pp.109.148031 20023150 29 kessner d , chambers m , burke r , agus d , mallick p . proteowizard : open source software for rapid proteomics tools development . bioinformatics .
+2008 11 1 ; 24 ( 21 ) : 2534 - 6 . pubmed central pmcid : 2732273 .
+doi : 10.1093 / bioinformatics / btn323 18606607 30 wishart ds , jewison t , guo ac , wilson m , knox c , liu y , et al hmdb 3.0 - - the human metabolome database in 2013 . nucleic acids research .
+2013 1 ; 41 ( database issue ) : d801 - 7 . doi : 10.1093 / nar / gks1065 .
+pubmed central pmcid : 3531200 .
+23161693 31 matsuda f , yonekura - sakakibara k , niida r , kuromori t , shinozaki k , saito k . ms / ms spectral tag - based annotation of non - targeted profile of plant secondary metabolites . the plant journal : for cell and molecular biology .
+2009 2 ; 57 ( 3 ) : 555 - 77 . .
+pubmed central pmcid : 2667644 .
+18939963 32 katajamaa m , oresic m . data processing for mass spectrometry - based metabolomics . journal of chromatography a .
+2007 7 27 ; 1158 ( 1 - 2 ) : 318 - 28 . .
+17466315 33 keller bo , sui j , young ab , whittal rm . interferences and contaminants encountered in modern mass spectrometry . analytica chimica acta .
+2008 10 3 ; 627 ( 1 ) : 71 - 81 . doi : 10.1016 / j.aca.2008.04.043 18790129 34 tolstikov vv , lommen a , nakanishi k , tanaka n , fiehn o . monolithic silica - based capillary reversed - phase liquid chromatography / electrospray mass spectrometry for plant metabolomics . analytical chemistry .
+2003 12 1 ; 75 ( 23 ) : 6737 - 40 . .
+14640754 35 lynn ks , cheng ml , chen yr , hsu c , chen a , lih tm , et al metabolite identification for mass spectrometry - based metabolomics using multiple types of correlated ion information . analytical chemistry .
+2015 2 17 ; 87 ( 4 ) : 2143 - 51 . doi : 10.1021 / ac503325c 25543920 36 werner e , heilier jf , ducruix c , ezan e , junot c , tabet jc . mass spectrometry for the identification of the discriminating signals from metabolomics : current status and future trends . journal of chromatography b , analytical technologies in the biomedical and life sciences .
+2008 8 15 ; 871 ( 2 ) : 143 - 63 . doi : 10.1016 / j.jchromb.2008.07.004 18672410 37 nagao t , yukihira d , fujimura y , saito k , takahashi k , miura d , et al power of isotopic fine structure for unambiguous determination of metabolite elemental compositions : in silico evaluation and metabolomic application . analytica chimica acta .
+2014 2 27 ; 813 : 70 - 6 . doi : 10.1016 / j.aca.2014.01.032 24528662

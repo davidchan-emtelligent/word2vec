@@ -1,0 +1,290 @@
+j r soc interface j r soc interface rsif royinterface journal of the royal society interface 1742 - 5689 1742 - 5662 the royal society 27655669 5046949 10.1098 / rsif.2016.0502 rsif20160502 100424life sciences - engineering interfaceresearch article using collision cones to assess biological deconfliction methods using collision cones to assess biological deconfliction methods http :// orcid.org / 0000 - 0001 - 7105 - 5445 brace natalie l .
+1 hedrick tyson l .
+4 theriault diane h .
+5 fuller nathan w .
+5 wu zheng 5 betke margrit 5 parrish julia k .
+2 grunbaum daniel 3 morgansen kristi a .
+1 1 william e. boeing department of aeronautics and astronautics , university of washington , seattle , wa , usa 2 school of aquatic and fishery sciences , university of washington , seattle , wa , usa 3 school of oceanography , university of washington , seattle , wa , usa 4 department of biology , university of north carolina , chapel hill , nc , usa 5 department of computer science , boston university , boston , ma , usa e - mail : nbrace @ uw.edu electronic supplementary material is available at http :// dx.doi.org / 10.6084 / m9.figshare.c.3464580 .
+9 2016 9 2016 13 122 20160502 23 6 2016 24 8 2016 ( c ) 2016 the authors .
+2016 published by the royal society under the terms of the creative commons attribution license http :// creativecommons.org / licenses / by / 4.0 / , which permits unrestricted use , provided the original author and source are credited .
+biological systems consistently outperform autonomous systems governed by engineered algorithms in their ability to reactively avoid collisions .
+to better understand this discrepancy , a collision avoidance algorithm was applied to frames of digitized video trajectory data from bats , swallows and fish ( myotis velifer , petrochelidon pyrrhonota and danio aequipinnatus ) .
+information available from visual cues , specifically relative position and velocity , was provided to the algorithm which used this information to define collision cones that allowed the algorithm to find a safe velocity requiring minimal deviation from the original velocity .
+the subset of obstacles provided to the algorithm was determined by the animal 's sensing range in terms of metric and topological distance .
+the algorithmic calculated velocities showed good agreement with observed biological velocities , indicating that the algorithm was an informative basis for comparison with the three species and could potentially be improved for engineered applications with further study .
+collision avoidance algorithm animal behaviour velocity obstacles collision cones nonlinear control multi - species comparison national science foundationhttp :// dx.doi.org / 10.13039 / 10000000103132500910908dge - 1256082air force office of scientific researchhttp :// dx.doi.org / 10.13039 / 100000181fa9550 - 14 - 1 - 0398office of naval researchhttp :// dx.doi.org / 10.13039 / 100000006n00014 - 10 - 1 - 0952cover - dateseptember , 2016 1 .
+introduction an increasingly wide array of unmanned vehicles is becoming available with a range of form factors and ever - expanding capabilities .
+fully using the enhanced control authority and sensing that comes with these improvements in order to effectively and safely navigate the world requires improved control algorithms and estimation strategies capable of real - time path planning through changing conditions and unexpected obstacles .
+many biological systems display a remarkable ability to perform such tasks during natural behaviour [ 1 ] , so we look to their example to gain insight into the principles underlying the highly effective reactive collision avoidance abilities developed through evolution .
+the study of systems theory with respect to biological behaviour , and vice versa , has been a popular topic for many years that has resulted in a number of advances in the understanding of biological systems and capabilities for engineered systems .
+biological models have been developed to describe the emergence of self - organization and other collective behaviour in large groups of animals , including schooling and shoaling fish , flocking birds , swarming insects and herding land animals [ 2 ] .
+a particle model was used to produce realistic flocking animations by basing the behaviour of boids ( bird - oid objects ) upon the requirements of collision avoidance , velocity matching and flock cohesion [ 3 ] .
+consensus decision - making of social groups has been studied to investigate decision - making among a group [ 4,5 ] .
+not limited to studies of collective behaviour , karaman & frazzoli [ 6 ] developed a theoretical framework to investigate the collision avoidance problem solved by birds when navigating a forest at high speed and found a critical speed below which a conflict - free path could be flown indefinitely .
+certain models provide insight into animals' sensing or cognitive limitations , which clearly impact collision avoidance capabilities .
+for example , animals in a large group appear to only take into account some smaller number of nearby animals .
+the membership of , and interactions within , these smaller groups may be dependent on a metric distance , for example , the zonal model of shoaling fish [ 7 ] , or a topological distance , as in the model of flocking starlings [ 8 ] .
+models of perception have also been developed to investigate the use of optic flow in birds [ 9 ] and bats [ 10 ] and even visual tracking to aid collision avoidance in insects [ 11 ] .
+typically , these models begin with extensive observations of the species and develop into theories that explain or reproduce the behaviour - - the study here takes the opposite approach , by starting with an engineered algorithm and determining how well it correlates to observed behaviour .
+dynamic collision avoidance for autonomous vehicles is challenging and is an ongoing topic of research .
+preventing vehicles from coming too close to static objects in a cluttered environment can be done , however , it becomes much more challenging when dynamic obstacles are introduced since offline or global path planning techniques can no longer be used .
+a wide array of methods have been applied to the problem of conflict resolution , i.e. the act of identifying and avoiding future collisions , with varying degrees of centralization and safety and convergence guarantees [ 12 ] .
+centralization refers to the distribution ( or lack thereof ) of information and processing ; a distributed system falls between the extremes of global and local information and processing , with each agent processing global information individually .
+prescribed manoeuvres , e.g. always turn left , and force field methods , in which goals and obstacles are treated as oppositely and similarly charged particles , have been shown to work , but can become prohibitively complex for a large number of vehicles [ 13,14 ] .
+optimization methods seek to find the best collision - free path with respect to some cost function .
+the optimal solution can be found for all cooperative agents using a centralized approach [ 15 ] or for individual agents using a decentralized [ 16 ] or distributed [ 17,18 ] approach .
+parallels in biology can be drawn to some conflict resolution algorithms , including model predictive control , the so - called bug - family algorithms and certain sensor - based techniques .
+a model predictive control strategy plans a safe path based on a goal for a limited time horizon , executes the first step of that plan , collects new information , checks for differences between planned and actual outcomes , and repeats the process [ 19 ] - - not unlike how biological species process information [ 20 ] .
+bug algorithms use a strategy requiring minimal sensing information : head towards the target until an obstacle is detected , then follow its boundary until the path to the target is clear again [ 21 ] .
+sensor - based techniques rely on knowledge of some region of space near the autonomous agent that can be sensed and used for planning ; velocity obstacles fall into this category , using relative position and speed of other agents and obstacles to discriminate safe and unsafe velocity vectors [ 22,23 ] .
+the distributed reactive collision avoidance ( drca ) algorithm uses collision cones , a version of velocity obstacles , to provide safe paths for an arbitrary number of agents [ 18 ] .
+the algorithm detects conflicts ( future collisions ) by checking if the current velocity falls within a collision cone .
+if a conflict is detected , a safe velocity nearest the original velocity is found and implemented in a deconfliction manoeuvre .
+in biological terms , this implementation assumes an animal will continue in one direction until something in its environment forces it to change , and then it will deviate as little as possible from its original path .
+the calculations are performed for each agent individually and require only information that can be obtained from visual cues : velocity , bearing and range of other agents .
+visual input is noted here as it is common to all species under study ; however , for the purposes of the following analysis the relative velocity and / or position information could come from any sensory input .
+the distributed nature , lack of complicated cost function and limited sensing requirements of this algorithm make it a good candidate for comparison with biological species .
+furthermore , both birds and bats are known to use velocity cues in target tracking by applying a version of constant bearing , decreasing range techniques [ 24,25 ] .
+in this work , we compare the collision avoidance trajectories of bats ( myotis velifer ) , birds ( petrochelidon pyrrhonota ) and fish ( danio aequipinnatus ) to those predicted by the drca algorithm .
+this paper presents an extension of the original drca algorithm from two to three dimensions and corrects a previous study done by boardman et al .
+[ 26 ] , which performed a similar analysis by flattening the trajectories to two dimensions and applying the original drca algorithm .
+the three - dimensional analysis provides the algorithm with spatial information that corresponds more closely to the three - dimensional environments of the animals and eliminates ' phantom conflicts' created by two - dimensional conflict checking .
+we hypothesize that all these species will approximately match the drca predictions due to the overlap between drca processing and sensory requirements and those likely available to the animals .
+we further hypothesize that the birds and bats will agree more closely with the drca predictions than the fish because one of the drca assumptions - - the desirability of a future trajectory close to the current trajectory - - is more likely satisfied for fast moving flying animals in a diffuse fluid than for slower animals in a dense fluid .
+2. material and methods 2.1 .
+biological species the species used for comparison in this study were chosen due to their agile manoeuvring capabilities and social nature .
+2.1.1 .
+emerging cave bats myotis velifer are bats that roost in colonies found in caves and tunnels .
+each night they emerge in small groups after sunset [ 27 ] .
+they are insectivores and use echolocation as their primary means of sensing , although vision may also play a role in navigation [ 10 ] .
+an average bat in this species is 0.1 m long with a wingspan of 0.3 m , weighs 12 g , and has a cruising speed of 5.5 - 6.6 m s - 1 [ 27,28 ] .
+trajectory data were collected for 9 s and 79 s at 131.5 frames per second as groups of 20 and 86 bats , respectively , emerged from their cave on the bamberger ranch in texas .
+each bat was in view for approximately 1.7 s with a maximum of 10 bats in view at any one time .
+in addition to other animals , there were also two static objects in their flight path : a pole 1.6 m tall and a vine 0.2 m wide extending from the ground to the forest canopy .
+the bats' trajectories and the static objects are depicted in figure 1 .
+figure 1 .
+trajectories of 20 bats emerging from their cave ( blue - green lines ; data point colour indicates frame number ) and static objects within the frame ( red lines ) .
+trajectories of the same colour were present concurrently .
+data are shown before smoothing was applied .
+the cave bats were filmed in low light using three mid - infrared flir sc8000 cameras at a resolution of 1024 x 1024 pixels [ 26 ] .
+camera calibration was performed for both bats and swallows ( see below ) by passing a 1 m long reference object through the shared field of view and applying a structure - from - motion algorithm [ 29 ] .
+correspondences between the views were made using semi - automated tracking tools , and the three - dimensional trajectories were generated using least - squares reconstruction .
+the bats were filmed by the kunz bat lab , and the pre - experiment planning of the multi - camera recording and the post - processing of the three video streams was done by the image and video computing group , both at boston university .
+2.1.2 .
+manoeuvring swallows cliff swallows ( petrochelidon pyrrhonota ) are colonial passerine birds that tend to nest on cliffs and beneath overhangs .
+they are capable fliers , interacting with the elements of their environment as well as with each other and foraging for insects .
+cliff swallows are typically 0.13 m long with a wingspan of 0.29 m , weigh 24 g and have an average cruising speed of 5.3 m s - 1 [ 30 ] .
+swallow trajectory data were collected near a nesting site at the north carolina highway 751 bridge over jordan lake , chatham county , nc , usa .
+each scene was recorded for 4.75 s at 100 frames per second .
+the scenes examined here include 21 - 51 individual swallow trajectories .
+trajectories of the cliff swallows are shown in figure 2 .
+figure 2 .
+trajectories of 43 cliff swallows from one bridge site recording .
+each colour represents an individual animal 's trajectory .
+the swallows were filmed using three idt n5r cameras outfitted with nikon 20 mm f / 28 af lenses at a resolution of 2336 x 1728 pixels [ 31 ] .
+calibration was performed using the same method as for the bats .
+objects were tracked and triangulated between two and three of the cameras to produce the three - dimensional data [ 32 ] .
+the swallow data were collected by the hedrick lab at the university of north carolina at chapel hill .
+2.1.3 .
+shoaling fish danio aequipinnatus are small freshwater fish found in loose groups in rivers and streams .
+the animals in the trial were around 0.053 m in length with a circumference of approximately 0.15 body lengths ( 8 mm ) and weighed 1.7 g [ 4 ] .
+the fish were filmed in a square tank measuring 1.8 m per side and 1 m deep .
+during each recording , there were 15 fish in the tank , and the schools were some combination of naive fish and fish trained to respond to a food stimulus .
+specifically , during the two weeks prior to the data collection , the trained fish were exposed to red lights when food was delivered to the tank .
+the recordings were captured at 30 frames per second and separated into 1 min segments before , during and after the food cue [ 4 ] .
+to minimize the variables for the current study , only datasets with all untrained or trained fish before and after the food cue were used for analysis ; trajectories are shown in figure 3a,b. figure 3 .
+trajectories of giant danio ( blue - green lines ) depicted within their fish tank ( red surfaces ) ; shown are ( a ) untrained giant danio prior to the food stimulus and ( b ) trained giant danio after the food stimulus .
+each colour and line represents an individual animal 's trajectory ; all animals were present throughout the recording .
+the movements of the fish within the tank were captured by four panasonic x300 digital palmcorder cameras [ 4 ] .
+the video data were processed into three - dimensional trajectories using the software package tracker3d .
+camera calibration was done using a grid placed on the top and bottom of the tank .
+the fish data were collected in the birdfish lab under the direction of julia parrish at the university of washington .
+2.1.4 .
+smoothing all position data were smoothed using a quintic spline and butterworth filter .
+the fourth - order butterworth filter was used to identify higher frequency content associated with noise and wingbeats , with cut - off frequencies of 8 hz for bats and birds and 6 hz for fish .
+this high - frequency content was then used to set the tolerance for a smoothing quintic spline .
+after smoothing , the velocities were calculated using finite differencing .
+2.2 .
+behavioural models the animals may not pay attention to all of the objects around them so two models , based on metric and on topological distance , are presented for selecting an influential subset of objects in each scene to use for the collision avoidance calculations .
+2.2.1 .
+metric distance also called a zonal model , this method uses the radial distance from an animal to classify its interaction with nearby neighbours as repulsive , aligning or attractive [ 7 ] , as depicted in figure 4 .
+the outermost zone within the sensing range of the animal is the zone of attraction .
+the simplest variation of this model , which uses spherical zones , was used for the following analysis .
+the radius of the sphere , the ( constant ) distance of attraction , da , was used to define the maximum sensing range within which potential collisions are , presumably , detected and avoided .
+for this study , da = 3 m for the flying species and da = 3 m for the fish .
+figure 4 .
+in the zonal model , radii around the focus animal ( black ) define the type of interaction with other animals : those within dr ( red ) are repulsive , those between dr and ( blue ) are neutral or aligning , and those between and da ( green ) are attractive .
+animals outside of da ( grey ) are not sensed or are ignored .
+2.2.2 .
+topological distance the topological distance is described by relative proximity of animals to the focus animal - - this distance is measured in bats / birds / fish rather than metres , as depicted in figure 5 .
+the number of animals under consideration remains constant regardless of the radial distance from the focus to nearby animals .
+thus , the cognitive load remains relatively constant for any density of the group , and the animal does not become overwhelmed if a contraction of the group occurs , for instance .
+the number of influential neighbours has been shown to be important in both flocking birds [ 8 ] and schooling fish [ 7 ] .
+in birds , models best match observed data when six to seven influential neighbours are considered , which is consistent with the ability of pigeons to track objects in sets of fewer than seven [ 33 ] .
+for a model of schooling fish , viscido et al .
+[ 7 ] showed a relationship between the number of influential neighbours and group size and that group size is in turn related to population size ; based on the viscido model , the number of influential neighbours for a population of 15 is seven .
+the subsequent analysis considers a range of maximum nearest neighbours , from the single closest animal up to all animals within sensing range .
+figure 5 .
+in the topological distance model , a set of animals nearest the focal animal ( black ) is considered to comprise influential neighbours ( green ) .
+animals outside this inner grouping ( grey ) are not considered by the focal animal .
+2.3 .
+collision avoidance avoiding obstacles is a common goal of mobile systems , both biological and engineered .
+the drca algorithm is based on two layers : a deconfliction manoeuvre that brings vehicles out of conflict by choosing the safe velocity nearest to the current velocity and a deconfliction maintenance manoeuvre that ensures conflicts do not occur in the future [ 18 ] ; here , only the former component is used .
+the algorithm begins by checking to see if a conflict exists .
+if a conflict exists , a deconfliction manoeuvre uses the current velocity and position information of the focus agent and all other agents within sensing distance to find a safe velocity that requires minimum deviation from the original velocity .
+2.3.1 .
+conflict definition and detection impending collisions must first be perceived before they can be avoided , so the first step in avoiding collisions is detecting conflict .
+a collision occurs when two objects , i and j , come within a specified minimum separation distance , . the minimum separation distance , , describes the radius of a sphere around object i ; the minimum separation distance for two objects i and j is then . thus , a collision between objects i and j separated by the relative position vector happens when . a conflict occurs when two objects will eventually enter a collision if their current velocities are maintained .
+the set of velocities that will eventually cause a vehicle to collide with another can be described by a collision cone .
+the collision cone is constructed in velocity space with its vertex at the velocity of the obstacle , , and axis in the direction of the relative position vector , ; objects i and j are in conflict if falls within the collision cone generated by . the half - angle of the collision cone , alpha , is calculated from the minimum separation distance and the current distance between two objects bydefining beta as the angle between the relative position and relative velocity vectors , that is where , the criterion for conflict is simply [ 18 ] .
+the collision cone geometry for objects in and out of conflict is shown figure 6 , and stages of conflict identification and resolution are shown in figure 7 .
+figure 6 .
+the grey cone with dashed borders depicts the anatomy of a collision cone for an agent that is not in a conflict : indicates that falls outside the collision cone .
+the blue cones with solid borders depict collision cones for agents in conflict ; potential optima are shown that are within the maximum velocity constraint ( cyan ) and as well as those that are infeasible ( grey ) at locations 1 and 2 on a single collision cone ( open and closed circles , respectively ) and location 3 on the intersection of collision cones ( square ) .
+figure 7 .
+the sequence of figures ( progressing from left to right ) shows the evolution of an encounter with one agent ( blue , solid arrows ) using the drca algorithm to avoid conflict with another agent ( red , open arrows ) .
+figures ( a - c ) are in velocity space showing the collision cones for the scenarios depicted in position space in figures ( d - f ) .
+the circles shown in velocity space correspond to the momentary speed of the agent following drca ; the green highlighted arcs indicate safe velocities while the regions within the collision cones correspond to unsafe velocities , denoted in position space by the hashed region .
+note that the collision cone geometry also provides a method of intercepting another agent : selecting the velocity at the intersection of the collision cone axis with the circle of constant speed is equivalent to a constant bearing , decreasing range strategy .
+2.3.2 .
+deconfliction algorithm when a conflict is detected , the optimal safe and feasible velocity is found .
+this velocity is selected by the algorithm to be outside of all collision cones ( making it safe ) and to require the smallest deviation from the current velocity ( making it optimal ) while satisfying certain speed constraints dependent on the manoeuvre type ( making it feasible ) .
+the variable speed manoeuvre requires that the velocity remain below some maximum speed , allowing for changes in both speed and direction .
+once the potential optima , , are found , they are put in order from smallest to largest deviation from the original velocity , , and then each is checked for conflicts. by construction of the ordering , the first conflict - free is optimal .
+the potential optima are found at certain locations defined by the geometry of the collision cone ( s ) and velocity constraint , represented by the sphere of maximum velocity including the nearest point to , on ( 1 ) a single collision cone , ( 2 ) the intersection of a collision cone and the spherical shell of maximum speed , ( 3 ) two collision cones or ( 4 ) the intersection of two collision cones and the sphere of maximum speed .
+in figure 6 , locations 1 - 3 are depicted in a two - dimensional version of the algorithm .
+methods for finding all optima , which use a combination of closed - form solutions and optimization equations for numerical methods , can be found in [ 34 ] .
+the evolution of a variable speed deconfliction manoeuvre for a single agent using the drca algorithm is shown in figure 7 .
+the conflict begins with the red agent travelling horizontally moving into the detection range of the blue agent which is travelling vertically .
+the velocity of the blue agent lies within the collision cone generated by the red agent , indicating a conflict ( figure 7a,d ) .
+to avoid collision , the blue agent chooses a new velocity at the edge of the collision cone nearest the original velocity ; in this case , the blue agent both adjusts its heading clockwise and increases its speed ( figure 7b,e ) .
+once the blue agent has passed the red agent , potential conflicts are behind it , and it can return to its original trajectory ( figure 7c,f ) .
+2.4 .
+data analysis 2.4.1 .
+drca with trajectory data to generate the basis for comparison with the trajectory data , each animal was in turn considered as the focus ( agent i ) with the other animals within the sensing range considered as dynamic obstacles .
+for each frame in which the focus animal was present , conflicts were checked for the positions and velocities of all obstacles within sensing range .
+the sensing distance was determined by a combination of metric and topological distances , so only the nearest n animals within da of the focus were considered .
+if a conflict was present , the deconfliction algorithm was used to calculate the optimal velocity , . if animals were already closer than the minimum separation distance and thus considered in a collision , the frame was excluded from consideration .
+also , to exclude any swallows attempting to land , the drca was not applied to frames where swallow velocity was less than 3 m s - 1 .
+the algorithmic parameters and were determined based on the biological characteristics of each species .
+the minimum required separation distance for each of the flying species was approximately half of the wingspan , and , and for the fish it was half of a body length , . the speed for the maximum velocity requirement was set higher than the typical cruising speed found in the literature for the bats and swallows , at 11 and 18 m s - 1 , and based on the maximum used in models of fish behaviour set at 0.6 m s - 1 ( 12 body lengths per second [ 7 ]) .
+the analyses were performed with and without maximum acceleration bounds on the drca velocity .
+acceleration bounds were applied by scaling the difference between the original velocity and drca optimal velocity , that is , to a maximum acceptable change between frames and using the scaled value as the optimal for comparison .
+this scaling was done to provide more interpretable results in cases where drca called for a dramatic acceleration because accelerations in the algorithm are not constrained and have no optimization cost , whereas accelerations by animals are both constrained and costly .
+maximum accelerations for each species were set based on the observed frame - to - frame accelerations .
+for the flying species , this value was equivalent to maximum accelerations of three times gravity , or 0.23 and 0.3 m s - 1 change in speed between frames for the bats and swallows , respectively , and 0.05 m s - 1 change between frames for the fish .
+2.4.2 .
+comparison metric for every conflict , each drca optimal velocity , , was compared to the observed velocity , , defined as the velocity required to get to the focus animals' position 50 ms later ; this time lapse was chosen to approximate the animal 's reaction times , as around half of a locomotor cycle for the flying species [ 35,36 ] and one - sixth of a tail beat cycle for the fish [ 37 ] .
+the metric used was the normed difference between the velocity vectors in three dimensions , , and was calculated for each frame in which the focus animal experienced a conflict .
+the correlation percentage was defined for each animal as the portion of falling below a threshold , , defined as 1 m s - 1 , or half of 1 s.d. of velocities , for the flying species , and 0.4 m s - 1 , or 1 s.d. , for the fish .
+the mean and standard deviation of the correlation percentage for all animals that experienced at least one conflict was calculated for each species .
+interactions between animals typically lasted multiple frames , and each animal involved had a unique ; an example encounter between two swallows is shown in figure 8 .
+figure 8 .
+side and overhead view of two swallow trajectories ( blue markers indicate positions , with colour indicating frame number ) including a series of conflicts ( red circled points ) .
+the drca optimal velocities without acceleration bounds are shown as exaggerated lines for correlated ( black ) and uncorrelated ( grey ) frames .
+3. results in general , avoidance manoeuvres in all three species agreed with the drca optimal velocity .
+following our basic standard for agreement ( see s2.4.2 ) , the swallows were in agreement more than 90 % of the time , fish greater than 80 % of the time and bats greater than 70 % of time ( figure 9 ) .
+figure 9 .
+the per cent correlation for each species with ( darker bar with border on the right ) and without ( lighter bar on the left ) acceleration limits applied to the drca optimal velocity .
+the error bars indicate one standard deviation above and below the mean per cent correlation ( error values above 100 % are not shown ) .
+agreement between drca and observed animal motion was enhanced in all cases by limiting the maximum acceleration used in the avoidance manoeuvre ( figure 9 ) , although in most cases the improvement in agreement between model and animal was slight .
+as expected , increasing the stringency of the standard for agreement between drca and animal motion reduced the overall correlation between the two ( figure 10 ) .
+the swallows showed the highest correlation at all levels ; however , the relative order of the bats and fish changed around a single standard deviation .
+figure 10 .
+the per cent correlation as a function of for bats ( blue dashed ) , birds ( green dashed - dot ) and fish ( red solid ) with ( thin line ) and without ( thick line ) acceleration limits applied to the drca optimal velocity ; markers indicate values that appear in figures 9 and 11 .
+the x - axis is scaled by the standard deviation for each species , which is 2 m s - 1 for the flying species and 0.04 m s - 1 for the fish .
+increasing the topological distance from considering a single animal to all nearby animals does lead to an increase in correlation between drca and the biological data for up to seven nearest neighbours in all species ( figure 11 ) .
+the size of the improvement becomes small after considering five nearest neighbours ; however , there was a dearth of instances of more than three nearest neighbours in the swallow data and a lack of data points for more than five nearest neighbours in the bat data when limited to the 3 m metric range .
+figure 11 .
+the per cent correlation for bats ( blue squares with dashed line ) , birds ( green circles with dashed - dot line ) and fish ( red triangles with solid line ) without acceleration limits applied to the drca optimal velocity for each species for a range of maximum topological distances ranging from one to all possible animals within the metric range ( 3 m for flying species and 0.3 m for fish ) .
+4. discussion our initial hypotheses that animal motion would agree with drca optimal velocity was supported - - we found marked correlation between drca optimal velocity and animal motion in three evolutionarily , physiologically and biomechanically distinct vertebrate species .
+our further hypothesis that drca - like avoidance manoeuvres would be most common in flying species ( birds and bats ) versus swimming species ( fish ) was not supported .
+the birds ( cliff swallows ) did have the highest overall agreement with drca , but bats ( cave bats ) had the lowest .
+the factors that produced the discrepancy are not clear , but it may relate to the different sensory systems employed by birds versus bats ( vision versus vision and sonar ) or the different behavioural contexts represented in the data .
+the swallows were in a mixed flock with birds moving in all directions , whereas the bats were in a directional flock with all animals generally moving in the same direction ; this overall flock direction may add an additional constraint to behaviour that reduces correlation with drca .
+despite the algorithm preventing group alignment or attraction behaviours to meet its primary objective of avoiding collisions , the correlations are still quite good .
+topological distance has been shown to be more important in animal group behaviour , however , metric distance may be important with regard to collision avoidance , and we examined fit to drca over a range of metric distance thresholds ( see the electronic supplementary material , figure ) .
+in general , results parallel the topological analysis because the conditions largely overlap , e.g. a small metric distance threshold is likely to include only one or two topological neighbours , so increases in the metric threshold correspond to increasing agreement with drca in all species .
+one exception lies in bats , which exhibit maximum agreement at a non - maximal metric threshold , suggesting that metric information may play a role in this species or behaviour ; confirmation would require a larger dataset with a greater range of discordant metric and topological thresholds .
+although all three species correlated with drca , we do not suggest that the animals are actually using this algorithm .
+instead , we believe that because drca operates from a single agent perspective using limited sensory information , it naturally matches many of the limitations under which animals operate and therefore produces similar behaviour in many cases .
+thus , investigation of specific cases of agreement or disagreement between drca optimal velocity and actual animal motion is likely to reveal other trade - offs under which animals operate .
+for example , flying animals may prefer avoidance manoeuvres that preserve total ( kinetic and potential ) energy , flying up when slowing and down when speeding up , to avoid having to recreate that energy from metabolic supplies later .
+the drca algorithm could potentially be used to investigate ' higher stakes' cases of collision avoidance , such as chases or predator - prey interactions , by comparing the optimal velocity to that of the fleeing animal ; specifically , increasing the required would simulate a greater desired separation or higher risk scenario and generate larger magnitude changes in velocity correspondingly. from the engineering perspective , a similar , more detailed study of individual conflicts could be used to identify cases where there are smaller or larger deviations between the algorithm and the observed behaviour in order to determine what situations lead to more or less agreement .
+this investigation could then inform an engineered system when to follow the algorithm and when to employ more or less conservative actions based on biological examples .
+supplementary material supplementary figure : correlation rate as a function of metric distance acknowledgements the authors would like to recognize sarah stienessen and steven viscido for collecting and processing the fish data .
+ethics the bat observation protocol was approved by boston university institutional animal care and use committee ( iacuc ) .
+the swallow observation protocol was approved by the university of north carolina at chapel hill iacuc ; no government permits were required for field observation of the bats and birds .
+the fish experimental protocol was approved by the university of washington iacuc protocol no .
+2994 - 06 .
+data accessibility data are available from the dryad digital repository at : http :// dx.doi.org / 10.5061 / dryad.533gf [ 38 ] .
+authors' contributions n.b. developed the three - dimensional algorithm , carried out the data analysis and drafted the manuscript ; t.h. provided the swallow data , helped guide the data analysis and drafted the manuscript ; d.t. , n.f. , z.w. and m.b. provided the bat data and helped with analysis and drafting of the manuscript ; j.p. developed the schooling fish experiments ; d.g. developed the algorithms for tracking the fish from video camera data ; k.m. developed the study , guided the data analysis and drafted the manuscript .
+competing interests we have no competing interests .
+funding this material is based upon work supported by the office of naval research muri grant no .
+n00014 - 10 - 1 - 0952 .
+n.b. and k.m. were also supported by the air force office of scientific research grant no .
+fa9550 - 14 - 1 - 0398 , and n.b. was supported by the national science foundation ( nsf ) graduate research fellowship program ( dge - 1256082 ) .
+d.t. , n.f. , z.w. and m.b. were also supported by nsf grant no .
+0910908 and j.p. and d.g. were supported by nsf grant no .
+0313250. references 1 lin ht , ros ig , biewener aa 2014 through the eyes of a bird : modelling visually guided obstacle flight . j. r. soc .
+interface 11 , 20140239 ( doi : 10.1098 / rsif.2014.0239 ) 24812052 2 giardina i 2008 collective behavior in animal groups : theoretical models and empirical studies . hfsp j .
+2 , 205 - 219 . ( doi : 10.2976 / 1.2961038 ) 19404431 3 reynolds cw 1987 flocks , herds , and schools : a distributed behavioral model . siggraph comput. graph .
+21 , 25 - 34 . ( doi : 10.1145 / 37402.37406 ) 4 stienessen sc , parrish jk 2013 the effect of disparate information on individual fish movements and emergent group behavior . behav. ecol .
+24 , 1150 - 1160 . ( doi : 10.1093 / beheco / art042 ) 5 kao ab , miller n , torney c , hartnett a , cousin id 2014 collective learning and optimal consensus decisions in social animal groups . plos comput. biol .
+10 , e1003762 ( doi : 10.1371 / journal.pcbi.1003762 ) 25101642 6 karaman s , frazzoli e 2012 high - speed flight in an ergodic forest .
+in proc .
+ieee int. conf .
+robot autom .
+saint paul , mn , usa , pp .
+2899 - 2906 .
+piscataway , nj : ieee .
+7 viscido sv , parrish jk , grunbaum d 2005 the effect of population size and number of influential neighbors on the emergent properties of fish schools . ecol .
+modell 183 , 347 - 363 . ( doi : 10.1016 / j.ecolmodel.2004.08.019 ) 8 hildenbrandt h , carere c , hemelrijk ck 2010 self - organized aerial displays of thousands of starlings : a model . behav. ecol .
+21 , 1349 - 1359 . ( doi : 10.1093 / beheco / arq149 ) 9 bhagavatula ps , claudianos c , ibbotson mr , srinivasan mv 2011 optic flow cues guide flight in birds . curr. biol .
+21 , 1794 - 1799 . ( doi : 10.1016 / j.cub.2011.09.009 ) 22036184 10 zhaodan kong mv , ozcimder k , fuller n , greco a , theriault d , zheng wu d , kunz t , betke m , baillieul j 2013 optical flow sensing and the inverse perception problem for flying bats .
+in proc .
+ieee conf .
+decis control , firenze , italy , pp .
+1608 - 1615 .
+piscataway , nj : ieee .
+11 pant v , higgins c 2012 tracking improves performance of biological collision avoidance models . biol. cybern .
+106 , 307 - 322 . ( doi : 10.1007 / s00422 - 012 - 0499 - 1 ) 22744199 12 hoy m , matveev as , savkin av 2015 algorithms for collision - free navigation of mobile robots in complex cluttered environments : a survey . robotica 33 , 463 - 497 . ( doi : 10.1017 / s0263574714000289 ) 13 manathara jg , ghose d 2011 reactive collision avoidance of multiple realistic uavs . aircraft eng .
+aerospace technol .
+83 , 388 - 396 . ( doi : 10.1108 / 00022661111173261 ) 14 panyakeow p , mesbahi m 2014 deconiction algorithms for a pair of constant speed unmanned aerial vehicles . ieee trans. aerosp. electron. syst .
+50 , 456 ( doi : 10.1109 / taes.2013.110766 ) 15 frazzoli e , mao zh , oh jh , feron e 2001 resolution of conflicts involving many aircraft via semidefinite programming . j. guid .
+control dyn .
+24 , 79 - 86 . ( doi : 10.2514 / 2.4678 ) 16 kumar ba , ghose d 2001 radar - assisted collision avoidance / guidance strategy for planar flight . ieee trans. aerosp. electron. syst .
+37 , 77 - 90 . ( doi : 10.1109 / 7.913669 ) 17 guy sj , chhugani j , kim c , satish n , lin m , manocha d , dubey p 2009 clearpath : highly parallel collision avoidance for multi - agent simulation .
+in proc. of the 2009 acm siggraph / eurographics symp .
+on computer animation - sca ' 09 , new orleans , pp .
+177 - 187 .
+new york , ny : acm .
+18 lalish e , morgansen k 2012 distributed reactive collision avoidance . auton. robot .
+32 , 207 - 226 . ( doi : 10.1007 / s10514 - 011 - 9267 - 7 ) 19 park jm , kim dw , yoon ys , kim hj , yi ks 2009 obstacle avoidance of autonomous vehicles based on model predictive control . proc. inst. mech. eng .
+d j automobile eng .
+223 , 1499 - 1516 . ( doi : 10.1243 / 09544070jauto1149 ) 20 ahmadi - pajouh ma , towhidkhah f , gharibzadeh s , mashhadimalek m 2007 path planning in the hippocampo - prefrontal cortex pathway : an adaptive model based receding horizon planner . med. hypotheses 68 , 1411 - 1415 . ( doi : 10.1016 / j.mehy.2006.06.060 ) 17337125 21 mastrogiovanni f , sgorbissa a , zaccaria r 2009 robust navigation in an unknown environment with minimal sensing and representation . ieee trans. syst. man. cybern .
+a syst. hum .
+39 , 212 - 229 . ( doi : 10.1109 / tsmcb.2008.2004505 ) 22 chakravarthy a , ghose d 1998 obstacle avoidance in a dynamic environment : a collision cone approach . ieee trans. syst. man. cybern .
+a syst. hum .
+28 , 562 - 574 . ( doi : 10.1109 / 3468.709600 ) 23 fiorini p , shiller z 1998 motion planning in dynamic environments using velocity obstacles . int. j. rob. res .
+17 , 760 - 772 . ( doi : 10.1177 / 027836499801700706 ) 24 kane sa , zamani m 2014 falcons pursue prey using visual motion cues : new perspectives from animal - borne cameras . j. exp. biol .
+217 , 225 - 234 . ( doi : 10.1242 / jeb.092403 ) 24431144 25 ghose k , horiuchi tk , krishnaprasad ps , moss cf 2006 echolocating bats use a nearly time - optimal strategy to intercept prey . plos biol .
+4 , e108 ( doi : 10.1371 / journal.pbio.0040108 ) 16605303 26 boardman bl , hedrick tl , thierault dm , fuller nw , betke m , morgansen ka 2013 collision avoidance in biological systems using collision cones .
+in proc. of the american control conf. , washington dc , pp .
+2964 - 2971 .
+piscataway , nj : ieee .
+27 fitch jh , shump ka jr , shump au 1981 myotis velifer . mamm .
+species 149 , 1 - 5 . ( doi : 10.2307 / 3504035 ) 28 farney j , fleharty ed 1969 aspect ratio , loading , wing span , and membrane areas of bats . j. mammal .
+50 , 362 - 367 . ( doi : 10.2307 / 1378361 ) 29 theriault dh , fuller nw , jackson be , bluhm e , evangelista d , wu z , betke m , hedrick tl 2014 a protocol and calibration method for accurate multi - camera field videography . j. exp. biol .
+217 , 1843 - 1848 . ( doi : 10.1242 / jeb.100529 ) 24577444 30 pennycuick cj , hedenstrom a , rosen m 2000 horizontal flight of a swallow ( hirundo rustica ) observed in a wind tunnel , with a new method for directly measuring mechanical power . j. exp. biol .
+203 , 1755 - 1765 . see http :// jeb.biologists.org / content / 203 / 11 / 1755 .
+10804165 31 shelton rm , jackson be , hedrick tl 2014 the mechanics and behavior of cliff swallows during tandem flights . j. exp. biol .
+217 , 2717 - 2725 . ( doi : 10.1242 / jeb.101329 ) 24855672 32 hedrick tl 2008 software techniques for two - and three - dimensional kinematic measurements of biological and biomimetic systems . bioinspir. biomim .
+3 , 034001 ( doi : 10.1088 / 1748 - 3182 / 3 / 3 / 034001 ) 18591738 33 ballerini m et al .
+2008 interaction ruling animal collective behavior depends on topological rather than metric distance : evidence from a field study . proc .
+natl acad. sci. usa 105 , 1232 - 1237 . ( doi : 10.1073 / pnas.0711437105 ) 18227508 34 brace nl 2014 using collision cones to assess biological deconiction methods .
+seattle , wa : university of washington ( http :// hdl.handle.net / 1773 / 27385 ) .
+35 park kj , rosen m , hedenstrom a 2001 flight kinematics of the barn swallow ( hirundo rustica ) over a wide range of speeds in a wind tunnel . j. exp. biol .
+204 , 2741 - 2750 . 11533124 36 schnitzler hu 1971 fledermause im windkanal . z. vergl physiol .
+73 , 209 - 221 . ( doi : 10.1007 / bf00304133 ) 37 bartolini t , butail s , porfiri m 2015 temperature influences sociality and activity of freshwater fish . environ. biol .
+fishes 98 , 825 - 832 . ( doi : 10.1007 / s10641 - 014 - 0318 - 8 ) 38 brace nl , hedrick tl , theriault dh , fuller nw , wu z , betke m , parrish jk , grunbaum d , morgansen ka 2016 data from : using collision cones to assess biological deconfliction methods . dryad digital repository ( http :// dx.doi.org / 10.5061 / dryad.533gf )

@@ -1,0 +1,287 @@
+sensors ( basel ) sensors ( basel ) sensors sensors ( basel , switzerland ) 1424 - 8220 mdpi 28796170 5579946 10.3390 / s17081844 sensors - 17 - 01844 article slippage detection with piezoresistive tactile sensors https :// orcid.org / 0000 - 0001 - 5217 - 6663 romeo rocco a .
+1 * https :// orcid.org / 0000 - 0002 - 1489 - 5701 oddo calogero m .
+2 carrozza maria chiara 2 guglielmelli eugenio 1 zollo loredana 1 1 research unit of biomedical robotics and biomicrosystems , universita campus bio - medico di roma , rome 00128 , italy ; e.guglielmelli @ unicampus.it ( e.g. ) ; l.zollo @ unicampus.it ( l.z. ) .
+2 the biorobotics institute , scuola superiore sant'anna , pisa 56127 , italy ; calogero.oddo @ santannapisa.it ( c.m.o. ) ; chiara.carrozza @ santannapisa.it ( m.c.c . )
+* correspondence : r.romeo @ unicampus.it ; tel. : + 39 - 062 - 2541 - 9610 10 8 2017 8 2017 17 8 1844 21 6 2017 07 8 2017 ( c ) 2017 by the authors .
+2017 licensee mdpi , basel , switzerland .
+this article is an open access article distributed under the terms and conditions of the creative commons attribution ( cc by ) license ( http :// creativecommons.org / licenses / by / 4.0 /) .
+one of the crucial actions to be performed during a grasping task is to avoid slippage .
+the human hand can rapidly correct applied forces and prevent a grasped object from falling , thanks to its advanced tactile sensing .
+the same capability is hard to reproduce in artificial systems , such as robotic or prosthetic hands , where sensory motor coordination for force and slippage control is very limited .
+in this paper , a novel algorithm for slippage detection is presented .
+based on fast , easy - to - perform processing , the proposed algorithm generates an on / off signal relating to the presence / absence of slippage .
+the method can be applied either on the raw output of a force sensor or to its calibrated force signal , and yields comparable results if applied to both normal or tangential components .
+a biomimetic fingertip that integrates piezoresistive mems sensors was employed for evaluating the method performance .
+each sensor had four units , thus providing 16 mono - axial signals for the analysis .
+a mechatronic platform was used to produce relative movement between the finger and the test surfaces ( tactile stimuli ) .
+three surfaces with submillimetric periods were adopted for the method evaluation , and 10 experimental trials were performed per each surface .
+results are illustrated in terms of slippage events detection and of latency between the slippage itself and its onset .
+slippage tactile sensor algorithm prosthetics robotics 1 .
+introduction tactile sensing is fundamental for enhancing performance of robotic systems in unstructured environments .
+moreover , in the last years the interaction of robots with the surrounding environment is increasingly moving more and more towards the inclusion of human beings , in addition to inanimate objects [ 1 ] .
+this implies the need of advanced sensing capabilities to effectively interact with people and successfully grasp and manipulate objects .
+in particular , tactile sensing plays a paramount role to : ( a ) gather information about the object properties , e.g. , shape and hardness , and about the interaction forces , and ( b ) properly detect slippage phenomena that may occur during manipulation and grasping tasks .
+robotic end effectors are the devices at the end of robot kinematic chains .
+they can be grippers or also robotic hands .
+they should be able to control slip events in a dexterous manner , and to avoid grasp instability or else damages to the objects .
+while the robotic end effector performs an action or handles an object , unpredictable events might occur , which hinder the success of the action ; the availability of control strategies relying on tactile sensory feedback could greatly increase robot performance when facing such a situation .
+to date , the number of applications using tactile information is limited [ 1 ] .
+depending on the technology , tactile sensors still suffer from certain drawbacks , such as hysteresis , non - linearity and sensitivity to environment ( e.g. , temperature ) .
+the resulting lack of reliability leads robotic end effectors to mainly act within structured environments , without relying on tactile information .
+even when they are endowed with tactile sensory system , the dexterity of the human hand is highly difficult to mimic .
+indeed , tactile sensory systems are not capable of measuring all the tactile properties ( contact forces , slippage , temperature , roughness , texture , hardness , etc. ) as human tactile sensing can do simultaneously .
+further , most tactile sensors can only be used either for static or dynamic sensing , but not both .
+much research was performed in the last decades , yet the biological tactile system is not satisfactorily reproduced .
+for this reason , improving tactile information can predispose the robots towards a more natural behavior , including e.g. , their reactions to unexpected events and situations .
+sensory feedback from tactile sensors would be of great help in many robotic domains , such as robotic manipulation and prosthetics .
+nonetheless , the current state of the art regarding commercial prosthetic hands reports only one case of a device provided with feedback , from tactile or force sensors and employed for slip control [ 2 ] ; this confirms that tactile sensing technologies , including slip detection , are not easily applicable to prosthetic systems yet , despite the considerable efforts of the last years [ 3 ] .
+moreover , it is worth noticing that the number of research groups and activities focused on tactile sensing has traditionally been lower than on other sensing principles ( e.g. , artificial vision ) , thus leading to a slower development of the tactile technology [ 4 ] .
+the literature proposes plenty of tactile sensors and procedures for slippage detection .
+in tactile sensing applications , a critical issue is the integration of static ( force / pressure measurement ) and dynamic ( slip detection ) information .
+the main approach used until the end of last century relied on the calculation of the static friction coefficient from normal and tangential force measurements [ 5,6 ] .
+this requires a multiaxial force sensor in order to measure forces at least along two axes ( including the normal one ) ; as an alternative , tangential forces can be analyzed in the frequency domain [ 7,8 ] by resorting to fast fourier transform ( fft ) , discrete fourier transform ( dft ) and power spectrum density ( psd ) , or else estimated by means of kalman filters [ 9 ] .
+other methods take into account the variations of the center of pressure [ 10,11 ] .
+a tri - axial force sensor featuring a carbon micro - coil ( cmc ) for slippage detection was fabricated in [ 12 ] .
+a widespread solution is to combine more sensing units for static and dynamic information .
+to this purpose , force sensors can be jointly used with piezoelectric ( such as polyvinylidene fluoride ( pvdf ) or lead zirconate titanate ( pzt )) sensors for slip management [ 13,14,15 ] .
+moreover , the employment of accelerometers as slippage sensors was also demonstrated in various scenarios [ 16,17,18 ] .
+in [ 19 ] a slippage sensor based on conductive rubber was proposed , which was able to detect slippage phenomena through the application of the continuous wavelet transform .
+however , the aforementioned sensor was not able to measure forces .
+further methods exploit the derivative function of the normal component of the estimated force [ 20 ] , or else , the vibrations in a fluid sealed into the core of a biomimetic sensor [ 21,22 ] .
+this is the case of the commercial sensor biotac ( by syntouch , montrose , ca , usa ) , which is able to provide slippage information by means of a band - pass filtered signal of a fluid pressure measurement in the 10 - 1040 hz range .
+all the reported works present sensors and / or techniques for the detection of slippage often resorting to force measurement on more axes .
+in this paper , a new method [ 23 ] for the detection of slippage events is proposed ; it provides an on / off slip information thanks to online processing of a force sensor output .
+simple operations such as digital filtering , rectification and envelope of the input signal are cascaded in order to generate the on / off slip signal .
+the method can be applied to every type of piezoresistive sensors , regardless the number of force axes : i.e. , each available axial component might be processed in the same way , though one is sufficient for the generation of the on / off slip signal .
+indeed , the difficulty of measuring slippage events starting only from normal force signal is well known [ 24 ] ; by applying the proposed method to the voltage output of a simple , low cost mono - axial sensor ( i.e. , normal axis ) , it is possible to obtain information about slippage along with the force information itself .
+an application of the method to mono - axial force sensors for force and slippage control of a prosthetic hand is presented in [ 25 ] .
+here , the proposed method will be explained in detail and its experimental validation on a tactile array including microelectromechanical system ( mems ) piezoresistive force sensors will be illustrated .
+each sensor in the array is composed of four sensitive units ; hence , 16 " channels " are taken into account for detecting slippage , considered as mono - axial components .
+the raw voltage from all the channels is employed as input for the algorithm .
+it is possible to convert such an input into a force signal by using calibration matrices [ 26 ] ; nonetheless , the voltage signal contains all the necessary information for applying the proposed slippage detection algorithm .
+this approach is highly convenient for online applications , e.g. , a robotic hand control system .
+indeed , force computation and slip detection from the voltage output can be performed in parallel rather than subsequently , thus speeding up the process .
+during the validation trials , slippage was induced by controlling the sliding velocity of the surface in contact with the sensors , which were embedded into a prosthetic finger ( see section 3 ) .
+a mechatronic platform operated the surface movement , reproducing in this way the slippage event .
+the slippage detection method was tested on three surfaces with sub - millimetric periods ( ranging from 400 microm to 480 microm ) , using a set of experiments composed of 10 trials for each surface .
+such surfaces were chosen for a first rigorous validation as the one shown in the present paper .
+however , the method was also tested with flat surfaces having roughness values up to 0.2 microm [ 23 ] , using different piezoresistive sensors .
+these tests , along with the experiments carried out with common objects in [ 25 ] , indicated a scarce influence of the material properties towards the algorithm output .
+even though periodic surfaces were adopted , this paper does not aim at providing a technique for surface pattern discrimination .
+to this end , literature offers solutions like the one in [ 27 ] ; nevertheless , slippage identification is not concerned , as greater attention is paid to the roughness encoding by means of mems tactile sensors .
+a biomimetic tactile sensor is used in [ 28 ] to understand how human mechanoreceptors code textural information during exploratory tasks .
+very limited speeds ( 0.2 mm / s ) were set , thus not investigating slippage conditions .
+advanced hardware for composite tactile imaging was developed in [ 29 ] , allowing to reconstruct spatial profile of applied pressure .
+although the considerable technological advance , the study neglected the analysis of slippage phenomena .
+the paper is structured as follows : in section 2 the slippage detection procedure is presented in detail , describing the different blocks with the main characteristics .
+section 3 illustrates the experimental setup that was employed for the evaluation of the method , together with the sensors .
+in section 4 experimental data elaboration and results are discussed .
+finally , section 5 points out the conclusions and the future work .
+2. slippage detection procedure 2.1 .
+theoretical description of the method the proposed method consists of three main blocks in cascade between the input signal , which is the raw voltage output of the employed force sensor , and the on / off output , which is the final slippage signal .
+figure 1 shows the blocks .
+although the calibrated force information is not used as input , it should be noticed that the algorithm output somehow depends from the applied pressure level , i.e. , the higher the exerted pressure on the sensor is , the higher the amplitude of the signal available for the on / off signal generation is. however , the applied pressure is directly proportional to the raw voltage , allowing to exploit the latter without loss of information .
+the variation of the voltage signal with respect to the baseline ( which ranges between 4.3 v and 4.35 v , figure 2 ) , due to an applied force , is characterized by high amplitude and low frequencies in absence of slippage .
+when the sensor is slid over a surface ( active touch ) , or vice - versa when the surface is slid on the sensor ( passive touch ) , the voltage signal carries a higher frequency content and has a smaller amplitude .
+such a content can be extracted by means of filtering operations : adequate cut - off frequencies and bandwidth are defined depending on the type of sensor and on its specific structure .
+thus , the low frequencies of the original voltage signal are filtered out , by privileging the faster variations produced by slip .
+at this point , a low amplitude , high frequency signal is generated ; the presence of dense fluctuations indicates that the relative movement between the object and the sensor is occurring .
+the filtering operation is computed together with an opportune amplification ( block 1 ) and is followed by the rectification and exponentiation of the signal ( block 2 ) , which is in turn followed by an enveloping phase ( block 3 ) .
+an on / off signal relative to the onset of a slippage event is then generated .
+the algorithm blocks are described in detail below .
+2.1.1 .
+filter network the filtering operations are responsible for the high frequency extraction from the force ( voltage ) signals .
+thus , it is crucial to accurately design the filter parameters in order to obtain proper performance .
+a band - pass configuration was chosen for controlling the whole bandwidth , though a high - pass filter can also be adopted .
+the most general configuration of the method requires one to fix the low cut - off frequency fcol around 7 - 10 hz , in order to avoid the signal slow variations due to the applied force. by filtering the signal content up to a high cut - off frequency fcoh equal to 50 hz , the vibrations generated by the slippage can be adequately isolated , and relayed to the next elaboration stages .
+nonetheless , the solution implemented in this work is general ; the bandwidth can also be varied , depending on the sensor structure and output .
+for the filters network , infinite impulse response ( iir ) causal filters were designed .
+iir filters are computationally more efficient than the finite impulse response ( fir ) type , while the causality is fundamental for a real - time implementation .
+a 4th - order butterworth filter was employed .
+it can be expressed by means of its transfer function hb ( z ) as : ( 1 ) hb ( z )= gbsumn = 0nbnz - nsumn = 0manz - n , and : ( 2 ) y ( z )= hb ( z ). x ( z ) is the filtered output in the z - domain , with the possibility to control the filtered signal amplitude through a gain gb. in equation ( 1 ) n = m is the filter order while in equation ( 2 ) x ( z ) is the input piezoresistive signal .
+equation ( 1 ) also gives an idea of how the filter order influences the transfer function .
+the polynomials complexity augments with the order ; this adds delay to the system , even though the filter performance is improved .
+additional digital 4th - order stop - band filters , can be cascaded to the butterworth one .
+a flat response in the pass - band region was searched , as well as a quick roll - off transition to the stop - band region .
+in figure 2a , a general example of filtered signal is illustrated together with the original unfiltered piezoresistive signal .
+the choice of high order filters , higher than three , is due to the necessity of achieving fast roll - off .
+in this way , frequency components outside the range of interest might be easily discarded , including frequencies near the bandwidth limits .
+nevertheless , the filter order must be carefully chosen considering equation ( 1 ) , avoiding too much elevate values .
+2.1.2 .
+rectification the filtering stage provides a high frequency signal , yet characterized by a bipolar nature .
+the rectification can improve the subsequent thresholding .
+in figure 2b an example of rectification is provided. by inverting the polarity of the negative spikes , the time window where the signal is on ( i.e. , above threshold ) can be longer than in the case of a bipolar signal .
+a full - wave rectification , or at least a half - wave rectification needs to be performed .
+moreover , to privilege the slip signal content with respect to the peaks due to contact and release phases , the exponentiation of the signal amplitude was computed .
+indeed , these peaks may sometimes be present although the stop - band filters have a great impact on the signal .
+the amplitude of such peaks is commonly smaller than the true positives ; exponentiation helps to increase the amplitude difference between false positives and true ones .
+to this end , the filtered and rectified signal can be raised to the third power , and whole process is described by the following mathematical function hf + r ( z ) : ( 3 ) hf + r ( z )= hf ( z ). hf *( z *) 3 / 2where : ( 4 ) hf ( z )= hb ( z ). he1 ( z ). he2 ( z ) i.e. , hf ( z ) represents the transfer function of the overall filters network , comprised of the filters described in section 2.1.1 .
+the network includes two stop - band filters he1 ( z ) and he2 ( z ) , briefly described in section 3 .
+the filtered and rectified signal y ( z ) becomes : ( 5 ) yf + r ( z )= | hf | 3.x ( z ) 3 = x ( z ) 2.hf ( z ). hf *( z *) 32 2.1.3 .
+envelope finally , the envelope of the signal is calculated by means of root mean square ( rms ) .
+the rms value envrms is obtained as follows : ( 6 ) envrms = 1wsumr = w1w2xr2where w = w2 - w1 corresponds to the temporal width of the selected window , and xr is a single sample included within w. the rectified signal yr + f ( z ) was divided into windows with an equal width h ; every window wi almost totally overlaps the adjacent one wi + 1 , since they are computed as : ( 7 ) wi =[ yr + f ( i ) , yr + f ( i + 1 )... yr + f ( i + h )] ( 8 ) wi + 1 =[ yr + f ( i + 1 ) , yr + f ( i + 2 )... yr + f ( i + h + 1 )] i.e. , the overlap is shifted by one sample from a window to the next one .
+the envelope acts as a low pass filter ; it generates a continuous curve starting from the peaks of the rectified signal .
+figure 2c gives an example of enveloped signal .
+at this point , the on / off slip signal can be obtained with a threshold mechanism ( see section 4 ) .
+more details about the chosen time window will be provided in section 4 .
+3. experimental setup , protocol and algorithm implementation the described algorithm was applied to the raw voltage outputs of a 2 x 2 array of piezoresistive mems sensors that were integrated in a biomimetic fingertip [ 27 ] .
+each sensor had four piezoresistors implanted at the roots of a cross - shape structure that transduced the forces acting on a mesa .
+the sensors were covered by a polymeric packaging material ( dragonskin , smooth - on , macumgie , pa , usa ) , with 10 shore a hardness and about 0.8 mm thickness .
+the area of mechanical contact sensorized by the 16 channels was about 22 mm2 .
+the experiments were carried out under a passive touch protocol : the fingertip was static and a plastic plate was put into contact and then slid by means of a 2 degrees of freedom tactile stimulation platform [ 30 ] .
+it allowed implementing trials with versatile reconfiguration of stimulation conditions .
+briefly , the platform had horizontal and vertical translational degrees of freedom .
+the horizontal axis was operated by means of a linear guide ( ltp 60.180.0804 - 02 , skf multitec , goteborg , sweden ) , actuated with a dc motor ( re35 , maxon motors , sachseln , switzerland ) , with position tracking error lower than 30 microm up to 25 mm / s sliding velocity .
+the vertical axis was operated by means of a voice coil ( ncc05 - 18 - 060 - 2x , h2w tech. , santa clarita , ca , usa ) , with force tracking error lower than 20 mn [ 28 ] .
+the platform was previously shown not to introduce spurious vibrations that could be perceived by humans .
+this was confirmed by a set of experiments involving the recording of neural activity of rapidly adapting ( meissner ) mechanoreceptors [ 30 ] .
+the purpose of the protocol was to evaluate the effectiveness of the proposed algorithm to : ( 1 ) identify the onset of the sliding phase ; ( 2 ) separate the slippage from the loading and unloading phases that were included in the experimental procedure .
+during the contact phases the interaction force was kept at 400 mn , and the plastic plate was moved at 6.7 mm / s for 1.5 s and subsequently at 10 mm / s for 1 s. the trial time t was set at 6.5 s , as the slippage lasted 2.5 s while 2 s elapsed between the finger contact on the platform and the start of the movement ; the same time interval occurred between the end of the slippage and the finger release .
+three plates were tested , with 10 experimental repetitions per plate , for the sake of evaluating the generalization abilities of the proposed algorithm with different surfaces .
+the plates differed for the spatial period deltap ( 400 , 440 and 480 microm ) of the pattern of ridges and grooves that alternated along its surface .
+the height of the ridges of the stimuli was as little as 100 microm to test the capability of the system to identify slippage with a surface having a fine patterning .
+in this work , all experimental data were acquired at a sample rate of 380 hz. more details about the experimental setup ( figure 3b,c ) can be found in [ 27 ] .
+additional tests with different piezoresistive sensors and flat surfaces characterized by roughness up to 0.2 microm can be retrieved in [ 23 ] .
+the algorithm was applied to each channel of the biomimetic fingertip , thus generating 16 on / off signals to identify the occurrence of local slippage events .
+the 16 on / off signals were then grouped taking into account the channels physical orientation ; a single global on / off slippage alerting signal was finally generated .
+four groups of four channels each were created : ( 1 ) transversal proximal ( tp ) orientation ; ( 2 ) transversal distal ( td ) orientation ; ( 3 ) longitudinal ulnar ( lu ) orientation ; ( 4 ) longitudinal radial ( lr ) orientation .
+figure 3a shows the allocation of the sensing units on the biomimetic fingertip , while table 1 groups them with respect to their orientation .
+for all the four groups , the on / off signal obtained from every channel was put into an and operator , resulting in four on / off signals .
+subsequently , the logical or operator was applied to the four on / off signals for the determination of the final on / off signal .
+the basic concept is the following : the presence of local slip phenomena is investigated on every possible direction , both transversal and longitudinal ; the and operator allows reducing the detection of false positives , which mainly occur during the contact and release phases , thus having a robust local slip identification ; the or operator allows detecting the slippage as soon as it is detected on at least one direction , thus converting any identified local slip into a global alert .
+the high cut off frequency fcoh of the band - pass filter was set to twice the highest expected fundamental frequency ( i.e. , 25 hz ) based on the experimented spatial periods of the plates deltap and their sliding velocity v. however , fcoh might be differently chosen without deterioration of the algorithm efficacy , as it will be shown in section 4 .
+the gain gb was set to 100 in order to amplify the small vibrations due to slip .
+two additional digital 4th - order stop - band filters , i.e. , elliptic filters , were cascaded to the butterworth one .
+their transfer functions he1 ( z ) ( low filter ) and he2 ( z ) ( high filter ) were set with unitary gain , while the pass - band ripple ( peak to peak ) and the stop - band attenuation were set to 0.01 db and 40 db respectively .
+they were conceived to inhibit the frequency content below the low limit of the bandpass filter ( low filter ) and above its high limit ( high filter ) .
+rectification ( full - wave ) , exponentiation and enveloping operations were performed as described in section 2 .
+as regards the on / off computation , it is important to focus on the width of the temporal window employed .
+the computational operations described in section 2 , including the final on / off decision , were accomplished by setting the time window width to 40 ms. this value resulted from a trade - off between : ( 1 ) the necessity to achieve a computational time below the physiological time needed to respond to slip events ( i.e. , > 70 ms [ 31,32 ]) ; ( 2 ) the correct detection of the slippage , reducing the detection of false positives .
+figure 4 illustrates the output from one of the tactile units during a trial , and the result of the algorithm ( on / off signal ) calculated with different time windows .
+the enveloped signal is considered to be on if its average value within the time window overcomes an empirically established threshold .
+the threshold can be adjusted according to the employed sensor technology ; it may vary from a kind of sensor to the other .
+in this case , it was set to 0.5 v .
+4. experimental results first , it is crucial to evaluate the delay d between the beginning of the platform movement with respect to the biomimetic finger , and the off to on transition of the slip signal .
+the time instant tst at which the platform starts moving was computed as follows : ( 9 ) tst ={ t1int | dxpl ( t ) dt != 0 } i.e. , the time instant t1 at which the platform position value xpl is different from the previous one , is considered as the start of the relative movement during the trial time interval t. in other words , the minimum measurable displacement ( according to the sampling frequency ) has been regarded as the commencement of the slippage .
+in this way , a rigorous evaluation was carried out , with movements lower than 5 microm considered as the start of the slippage phase .
+as already explained in section 3 , the time window for the algorithm execution was regulated accounting for the physiological response time as well .
+similarly , the delay d has to be lower than 70 ms , possibly not greater than 50 ms as d does not include the efferent response ( i.e. , the reaction to the identified slip ) , but only the afferent one .
+this means that slippage detection has to be followed by an opportune reaction ( either of the robot or the human ) in terms of force adjustment .
+table 2 summarizes the mean values mdi for all the trials carried out for the three deltaps .
+these values were obtained based on the position measured by an optical encoder embedded in the mechatronic platform .
+they were computed with respect to tst as described by equation ( 9 ) .
+all the values in table 2 were calculated as : ( 10 ) mdi,deltapj = sumk = 116chk16where i is the trial number , deltapj is the corresponding deltap and k is the channel number .
+such values resulted to be acceptable (< 50 ms ) in most cases .
+these data can be further synthetized by observing the mean values mddeltap for every deltap , i.e. , the sum of the mdi,deltapj in every column of table 2 divided by the number of trials performed per every deltap ( i.e. , 10 ) .
+they are : md400 = 36.02 +/ - 3.91 ms ; md440 = 41.78 +/ - 10.78 ms ; md480 = 48.90 +/ - 9.91 ms. these results confirm the capability of the proposed slip detection algorithm , in terms of promptness .
+the mddeltap value seems to increase proportionally to the stimulus spacing deltap , coherently with the fact that the output of the sensors shifts towards lower frequencies ( thus requiring higher latencies for being observed ) .
+another crucial feature that should characterize an algorithm for the prevention of slippage events regards the correct avoidance of false positives .
+while grasping an object , false positives might principally occur during the contact and / or release phases .
+in figure 5 some examples of the algorithm performance are shown , extracted from one of the trials relating to the 440 microm stimulus .
+a channel from each of the four groups mentioned previously is displayed in figure 5a,b ; figure 5c shows the result of the and mechanism for all the four groups , whereas figure 5d depicts the final on / off slip signal generated by means of the or operation applied onto the four ands .
+in every plot , a black asterisk indicates the start of the mechatronic platform movement tst ( start of slip ) , calculated according to equation ( 9 ) .
+figure 5c shows how three of the four ands result in an off signal for the entire duration of the trial .
+this condition highlights the capability of the algorithm to detect the occurrence of local slip events , without requiring the activation of the whole set of channels .
+this resembles the biological condition , in which the human finger tactile areas might be involved differently even when performing the same task .
+the robustness of the algorithm always allowed detecting the true positive , as it is sufficient to achieve the on at least on one of the four ands .
+in fact , figure 5d illustrates the on signal , which covers the whole duration of the slip event .
+no false positives were detected in the example shown in figure 5 .
+the same considerations can be extended to figure 6 , which relates to a trial carried out onto the 480 microm stimulus .
+in figure 6 , the mems signals were taken from different channels with respect to figure 5 .
+different shape can be noticed as well : this is due to the various contact conditions that every tactile array unit faces , as already referred .
+most notably , channel 16 is characterized by huge peaks in correspondence of the contact and release instants , with no useful content during the slip event .
+the overall success rate of the algorithm in identifying slippage events was equal to 100 % , as it correctly recognized the slippage event in all 30 trials .
+false positives were rarely detected by the algorithm ; for evaluating their detection , the time lapse tfp when false positives can occur has been considered , which is the trial time t ( i.e. , 6.5 s ) decreased by the actual slippage event duration ( i.e. , 2.5 s ) .
+the mean percentage of false positives , computed with respect to tfp , resulted to be : 1.01 % ( deltap = 400 microm ) , 0.11 % ( deltap = 440 microm ) , and 0.88 % ( deltap = 480 microm ) .
+in order to assess relevance of the proposed method , additional tests were performed with different configurations of the filter network .
+the bandwidth of the bandpass filter has been extended up to 150 hz , close to the nyquist limit ( i.e. , 190 hz ) .
+the reduction of the filters quantity has been tried as well .
+in this way , rising the slippage speed does not compromise the functioning of the algorithm .
+moreover , the possibility to modify the design choices described in section 2 and section 3 can be demonstrated .
+in figure 7 , the algorithm output is shown for a further trial ( 440 microm ) .
+results depicted in figure 7a,b were obtained with a bandwidth [ 10 - 100 ] hz for the bandpass filter , while figure 7c,d offer the same graphs but relating to a bandwidth [ 10 - 150 ] hz. in both configurations , the stopband filter he2 ( z ) was removed from the filter network .
+it is easy to observe that data illustrated in figure 7 do not significantly differ from the ones of figure 5 and figure 6 .
+causal filters introduce an amount of delay in the system : therefore , removing one of them has the advantage of reducing the delay d between the slippage onset ( tst ) and the on signal .
+e.g. , a d of 15.31 ms was achieved for the trial of figure 7 .
+nevertheless , the absence of a stopband filter unavoidably results into a greater probability to detect false positives .
+finally , the effectiveness of the algorithm at higher slippage velocities than the ones used in this work was proved in [ 23 ] ( up to 8 cm / s ) and [ 25 ] ( up to 4 cm / s ) .
+5. conclusions and future work in this paper , a novel method for detection of slippage events was proposed .
+said method was presented through a detailed description of its sub - blocks , which include simple operations such as digital filtering , rectification and envelope of the input signal .
+such sub - blocks are cascaded to generate the on / off slippage identification signals .
+the method was accurately validated on piezoresistive mems sensors ; an ad hoc automated setup was experimented for this purpose .
+a total of four sensors , integrated into a biomimetic fingertip , were employed ; each sensor featured four channels , leading thus to sixteen channels for the slippage detection analysis .
+relative movements lower than 5 mum between the sensor and the contact surface were detectable through the developed algorithm .
+true positives were detected in 100 % of the cases and minimum average delays resulted lower than 50 ms. false positives have been detected in no more than 1.01 % of the cases .
+remarkably , it is not necessary to employ the force value to apply the method : the raw voltages of sensor outputs ( relating to the force ) can be used as input .
+in this manner the force estimation and the on / off slip signal generation can be performed as parallel operations rather than consecutive .
+future works will focus on the use of additional sensors for the algorithm validation , with the aim of extending the algorithm validity beyond the piezoresistive domain .
+surfaces with more naturalistic texture , in place of regular gratings , will be employed to hopefully confirm the possibility to apply the algorithm regardless the surface characteristics .
+the method was already tested in a prosthetic control with common objects [ 25 ] and with surfaces whose roughness was a priori known [ 23 ] ; yet further verifications are needed in order to show the general extendibility of the algorithm .
+acknowledgments this work was partly supported by the national projects ppr2 (' control of hand prosthesis by invasive neural interfaces ' , cup : e58c13000990001 ) , pcr 1 / 2 (' new methods in the treatment of limb amputation , finalized to the application of bionic prostheses ' , cup : e57b16000160005 ) and rehabrobo @ work ( cup : c82f17000040001 ) , funded by the national institute for insurance against industrial injuries ( inail ) , by the national project prin / handbot (' biomechatronic hand prostheses endowed with bio - inspired tactile perception , bi - directional neural interfaces and distributed sensori - motor control ' , cup : b81j12002680008 ) , funded by the italian minister of instruction , university and research , and by the eu grant fp7 - nmp 228844 nanobiotouch project (' nanoresolved multi - scan investigations of human tactile sensations and tissue engineered nanobiosensors ') .
+author contributions r.a.r. performed experiments , designed the slippage detection algorithm , analyzed data , discussed the results and wrote the paper ; c.m.o. developed the biomimetic fingertip , performed experiments , contributed to the design of the slippage detection algorithm , discussed the results , wrote the paper and co - supervised the study ; m.c.c. provided bioengineering background , developed the biomimetic fingertip and contributed to the discussion ; e.g. provided bioengineering background and discussed the results ; l.z. performed experiments , contributed to the design of the slippage detection algorithm , discussed the results , wrote the paper and supervised the study ; all authors revised and approved the manuscript .
+conflicts of interest the authors declare no conflict of interest .
+references 1 .
+kappassov z. corrales j. perdereau v. tactile sensing in dexterous robot hands - - review robot. auton. syst .
+2015 74 195 220 10.1016 / j.robot.2015.07.015 2 .
+ciancio a.l. cordella f. barone r. romeo r.a. bellingegni - dellacasa a. sacchetti r. davalli a. di pino g. ranieri f. di lazzaro v. control of prosthetic hands via the peripheral nervous system front. neurosci .
+2016 10 1 17 10.3389 / fnins.2016.00116 26858586 3 .
+francomano m.t. accoto d. guglielmelli e. artificial sense of slip - - a review ieee sens. j. 2013 13 2489 2498 10.1109 / jsen.2013.2252890 4 .
+dahiya r.s. valle m. tactile sensing technologies robotic tactile sensing springer science & business media dordrecht , the netherlands 2012 79 136 5 .
+mingrino a bucci a. magni r. dario p. slippage control in hand prostheses by sensing grasping forces and sliding motion proceedings of the ieee / rsj / gi international conference on intelligent robots and systemsmunich , germany12 - 16 september 1994 6 .
+de maria g. natale c. pirozzi s. tactile sensor for human - like manipulation proceedings of the international conference on biomedical robotics and biomechatronicsrome , italy24 - 27 june 2012 7 .
+fernandez r. payo i. vazquez a.s. becedas j. micro - vibration - based slip detection in tactile force sensors sensors 2014 14 709 730 10.3390 / s140100709 24394598 8 .
+engeberg e.d. meek s.g. adaptive sliding mode control for prosthetic hands to simultaneously prevent slip and minimize deformation of grasped objects ieee / asme trans. mechatron .
+2013 18 376 385 10.1109 / tmech.2011.2179061 9 .
+wettels n. parnandi a.r. moon j.h. loeb g.e. sukhatme g.s. grip control using biomimetic tactile sensing systems ieee / asme trans. mechatron .
+2009 14 718 723 10.1109 / tmech.2009.2032686 10 .
+wolweg e.g.m. hoeve h. jongkind w. marconi l. melchiorri c. bonivento c. slip detection by tactile sensors : algorithms and experimental results proceedings of the international conference on robotics and automationminneapolis , mn , usa22 - 28 april 1996 11 .
+gunji d. mizoguchi y. teshigawara s. ming a. namiki a. ishikawaand m. shimojo m. grasping force control of multi - fingered robot hand based on slip detection using tactile sensor proceedings of the international conference on robotics and automationpasadena , ca , usa19 - 23 may 2008 12 .
+kawamura t. inaguma n. nejigane k. tani k. yamada h. measurement of slip , force and deformation using hybrid tactile sensor system for robot hand gripping an object int. j. adv. robot. syst .
+2012 10 1 8 10.5772 / 55476 13 .
+yamada y. cutkosky m.r. tactile sensor with 3 - axis force and vibration sensing functions and its application to detect rotational slip proceedings of the international conference on robotics and automationsan diego , ca , usa8 - 13 may 1994 14 .
+choi b. kang s. choi h. development of fingertip tactile sensor for detecting normal force and slip proceedings of the international conference on control , automation and systemsseoul , korea2 - 5 june 2005 15 .
+cotton d.p.j. chappell p.h. cranny a. white n.m. beeby s.p. novel thick - film piezoelectric slip sensor for a prosthetic hand ieee sens. j. 2007 7 752 761 10.1109 / jsen.2007.894912 16 .
+howe r.d. cutkosky m.r. sensing skin acceleration for slip and texture perception proceedings of the international conference on robotics and automationscottsdale , az , usa14 - 19 may 1989 17 .
+romeo r.a. cordella f. zollo l. formica d. saccomandi p. schena e. carpino g. davalli a. sacchetti r. guglielmelli e. development and preliminary testing of an instrumented object for force analysis during grasping proceedings of the 37th annual international conference of the ieee engineering in medicine and biology society ( embc ) milano , italy25 - 29 august 2015 18 .
+abhinav v. vivekanandan s. real - time intelligent gripping system for dexterous manipulation of industrial robots proceedings of the world congress on engineeringlondon , uk1 - 3 july 2009 19 .
+teshigawara s. tadakuma k. ming a. ishikawa m. shimojo m. high sensitivity initial slip sensor for dexterous grasp proceedings of the international conference on robotics and automationanchorage , ak , usa3 - 8 may 2010 20 .
+pasluosta c.f. chiu a.w. evaluation of a neural network - based control strategy for a cost - effective externally - powered prosthesis assist. technol .
+2012 24 196 208 10.1080 / 10400435.2012.659796 23033736 21 .
+fishel j.a. loeb g.e. sensing tactile microvibrations with the biotac - - comparison with human sensitivity proceedings of the international conference on biomedical robotics and biomechatronicsrome , italy24 - 27 june 2012 22 .
+su z. hausman k. chebotar y. molchanov a. loeb g.e. sukhatme g.s. schaal s. force estimation and slip detection for grip control using a biomimetic tactile sensor proceedings of the international conference on humanoid robotsseoul , korea3 - 5 november 2015 23 .
+romeo r.a. zollo l. guglielmelli e. method for detection of slippage with force sensors and apparatus thereof. patentno .
+102016000105302 19 10 2016 24 .
+ho a.v. hirai s. mechanics of localized slippage in tactile sensing - - and application to soft sensing systems springer berlin , germany 2013 25 .
+barone r. ciancio a.l. romeo r.a. davalli a. sacchetti r. guglielmelli e. zollo l. multilevel control of an anthropomorphic prosthetic hand for grasp and slip prevention adv. mech. eng .
+2016 8 1 13 10.1177 / 1687814016665082 26 .
+oddo c.m. valdastri p. beccai l. roccella s. carrozza m.c. dario p. investigation on calibration methods for multi - axis , linear and redundant force sensors meas. sci. technol .
+2007 18 623 631 10.1088 / 0957 - 0233 / 18 / 3 / 011 27 .
+oddo c.m. controzzi m. beccai l. cipriani c. carrozza m.c. roughness encoding for discrimination of surfaces in artificial active - touch ieee trans. robot .
+2011 27 522 533 10.1109 / tro.2011.2116930 28 .
+scheibert j. leurent s. prevost a. debregeas g. the role of fingerprints in the coding of tactile information probed with a biomimetic sensor science 2009 323 1503 1506 10.1126 / science.1166467 19179493 29 .
+wu w. wen x. wang z.l. taxel - addressable matrix of vertical - nanowire piezotronic transistors for active and adaptive tactile imaging science 2013 340 952 957 10.1126 / science.1234855 23618761 30 .
+oddo c.m. beccai l. vitiello n. wasling h.b. wessberg j. carrozza m.c. a mechatronic platform for human touch studies mechatronics 2011 21 604 613 10.1016 / j.mechatronics.2011.02.012 31 .
+johansson r.s. westling g. roles of glabrous skin receptors and sensorimotor memory in automatic control of precision grip when lifting rougher or more slippery objects exp .
+brain res .
+1984 56 550 564 10.1007 / bf00237997 6499981 32 .
+macefield v.g. johansson r.s. control of grip force during restraint of an object held between finger and thumb : responses of muscle and joint afferents from the digits exp .
+brain res .
+1996 108 172 184 10.1007 / bf00242914 8721165 figure 1 block scheme of the slippage detection method .
+figure 2 operations of the algorithm blocks : ( a ) example of voltage signal from a force sensor ( top ) with the corresponding filtered signal ( bottom ) ; ( b ) same signal as in ( a ) ( top ) with the filtered and rectified signal ( bottom ) ; ( c ) original voltage signal ( top ) and enveloped one ( bottom ) .
+the signal on top in ( a - c ) was obtained by pressing and rubbing the sensor onto an unknown roughness surface .
+the filters were dimensioned as reported in this section .
+figure 3 ( a ) positioning of the 16 tactile units in the fingertip ; ( b ) cad image of the experimental setup .
+fingertip embedding the sensing units ( 1 ) , plastic plate ( stimulus ) ( 2 ) , voice coil actuator providing interaction force ( 3 ) and support ( 4 ) moved on a linear guide ( 5 ) by a dc motor ; ( c ) real picture of the experimental setup .
+figure 4 ( a ) voltage output from one of the 16 tactile units ; ( b ) result of the algorithm application using a 40 ms window for the on / off signal computation ; ( c ) result of the algorithm application using a 30 ms window for the on / off signal computation ; ( d ) result of the algorithm application using a 20 ms window for the on / off signal computation .
+the enveloped signal was computed using a 40 ms time window in all subfigures .
+it is clearly noticeable , from the event detected between 9 and 10 s in the last 2 subplots , that the narrowest the window , the highest is the possibility to detect false positives .
+figure 5 algorithm performance plots .
+panels ( a,b ) show the mems sensors output from some of the channels , one for each of the four groups mentioned in section 3 ; panel ( c ) contains the and mechanism results for every group ; panel ( d ) represents the final slip signal ( or of all the ands ) .
+figure 6 algorithm performance plots .
+again , panels ( a,b ) show the mems sensors output from some channels ( one per group ) while panel ( c,d ) depict respectively the and mechanism results for every group and their or , i.e. , the final slip signal .
+figure 7 algorithm performance for different design choices .
+panels ( a,c ) plot respectively the and results of the four channel groups .
+panels ( b,d ) plot the final slip signal generated through the or operator .
+sensors - 17 - 01844 - t001 _ table 1 table 1 the four channel groups .
+channels name acronym 14 , 16 , 11 , 9 transversal proximal tp 1 , 3 , 8 , 6 transversal distal td 5 , 7 , 12 , 10 longitudinal radial lr 2 , 4 , 15 , 13 longitudinal ulnar lu sensors - 17 - 01844 - t002 _ table 2 table 2 this table contains the mean delays mdi of every trial , obtained upon all the 16 channels for every deltap .
+trial md ( deltap = 400 microm ) ( ms ) md ( deltap = 440 microm ) ( ms ) md ( deltap = 480 microm ) ( ms ) 1 43.37 +/ - 32.98 66.66 +/ - 15.89 73.48 +/ - 30.95 2 33.19 +/ - 22.01 55.44 +/ - 13.06 44.01 +/ - 11.73 3 33.19 +/ - 22.99 42.57 +/ - 15.98 55.98 +/ - 12.40 4 39.60 +/ - 22.01 37.29 +/ - 13.16 40.92 +/ - 10.79 5 34.32 +/ - 20.66 36.30 +/ - 14.32 47.96 +/ - 8.74 6 33.19 +/ - 19.54 39.27 +/ - 15.76 50.16 +/ - 6.99 7 35.83 +/ - 23.10 34.98 +/ - 11.44 43.56 +/ - 10.57 8 37.33 +/ - 25.11 33.99 +/ - 13.55 39.16 +/ - 17.35 9 30.55 +/ - 11.74 36.30 +/ - 12.71 44.88 +/ - 16.59 10 39.60 +/ - 25.17 34.98 +/ - 14.91 48.84 +/ - 16.34

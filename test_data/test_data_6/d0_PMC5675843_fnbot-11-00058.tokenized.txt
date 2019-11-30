@@ -1,0 +1,506 @@
+front neurorobot front neurorobot front. neurorobot .
+frontiers in neurorobotics 1662 - 5218 frontiers media s.a .
+29163121 5675843 10.3389 / fnbot.2017.00058 neuroscienceoriginal research joint learning of binocularly driven saccades and vergence by active efficient coding zhu qingpeng 1 * triesch jochen 2 shi bertram e .
+1 1department of electronic and computer engineering , hong kong university of science and technology , hong kong , hong kong 2frankfurt institute for advanced studies , frankfurt am main , germany edited by : jeffrey l. krichmar , university of california , irvine , united states reviewed by : michael beyeler , university of washington , united states ; jaerock kwon , kettering university , united states * correspondence : qingpeng zhu , qzhuad @ ust.hk 03 11 2017 2017 11 58 24 7 2017 13 10 2017 copyright ( c ) 2017 zhu , triesch and shi .
+2017 zhu , triesch and shithis is an open - access article distributed under the terms of the creative commons attribution license ( cc by ) .
+the use , distribution or reproduction in other forums is permitted , provided the original author ( s ) or licensor are credited and that the original publication in this journal is cited , in accordance with accepted academic practice .
+no use , distribution or reproduction is permitted which does not comply with these terms .
+this paper investigates two types of eye movements : vergence and saccades .
+vergence eye movements are responsible for bringing the images of the two eyes into correspondence , whereas saccades drive gaze to interesting regions in the scene .
+control of both vergence and saccades develops during early infancy .
+to date , these two types of eye movements have been studied separately .
+here , we propose a computational model of an active vision system that integrates these two types of eye movements .
+we hypothesize that incorporating a saccade strategy driven by bottom - up attention will benefit the development of vergence control .
+the integrated system is based on the active efficient coding framework , which describes the joint development of sensory - processing and eye movement control to jointly optimize the coding efficiency of the sensory system .
+in the integrated system , we propose a binocular saliency model to drive saccades based on learned binocular feature extractors , which simultaneously encode both depth and texture information .
+saliency in our model also depends on the current fixation point .
+this extends prior work , which focused on monocular images and saliency measures that are independent of the current fixation .
+our results show that the proposed saliency - driven saccades lead to better vergence performance and faster learning in the overall system than random saccades .
+faster learning is significant because it indicates that the system actively selects inputs for the most effective learning .
+this work suggests that saliency - driven saccades provide a scaffold for the development of vergence control during infancy .
+active efficient coding saccades vergence binocular saliency map generative adaptive subspace self - organizing map reinforcement learning introduction biological vision systems are often active and rely on a number of eye movements to sense the environment .
+remarkably , these vision systems have the ability to autonomously self - calibrate , but the underlying mechanisms are still poorly understood .
+here , we focus on vergence and saccadic eye movements .
+vergence eye movements are slow and disconjugate ( the two eyes move in opposite directions ) .
+they serve to align the images acquired by the two eyes so that they can be binocularly fused .
+saccadic eye movements are rapid and conjugate ( the two eyes move in the same direction ) .
+they serve to direct gaze so that the fovea , the region with highest visual acuity , falls on objects of interest .
+the two types of eye movements often cooccur .
+for example , they are both involved when eye movements are made to direct gaze toward different objects in a 3d scene ( yang et al. , 2002 ) .
+the association between vergence and saccades facilitates the imaging of objects of interest onto the fovea of both eyes ( zee et al. , 1992 ) .
+saccades are of great importance for human vision .
+at any time , the visual system receives a large amount of information from the environment , but has limited capacity for sensing and signal processing .
+humans use saccades to direct foveal vision toward places with relevant information ( yarbus , 1967 ; renninger et al. , 2007 ) .
+these saccades can be driven by top - down ( gao et al. , 2009 ; kanan et al. , 2009 ; yang and yang , 2012 ) or bottom - up ( itti et al. , 1998 ; hou and zhang , 2007 ; zhang et al. , 2008 ; bruce and tsotsos , 2009 ; han et al. , 2011 ) attention mechanisms .
+top - down attention is voluntary and task - driven , whereas bottom - up attention is involuntary and stimulus - driven .
+we focus here on the bottom - up mechanism , where saccades are assumed to be generated according to a saliency map , which assigns salience to different points on an image by combining a number of low - level features .
+for example , itti et al .
+( 1998 ) proposed to generate a saliency map by combining the outputs of feature maps that are sensitive to different features , such as color , intensity , and orientation .
+since the primary visual cortex ( area v1 ) is one of the first stages of visual information processing , many models have been inspired by the processing found there .
+for example , li ( 2002 ) proposed to generate the saliency map by combining the responses of model v1 neurons tuned to input features such as orientation and color .
+the attention based on information maximization ( aim ) saliency model , proposed by bruce and tsotsos ( 2009 ) , combines feature maps generated by a set of learned basis functions that are similar to the receptive fields of v1 neurons .
+most proposed saliency models , including those described earlier , assume monocular images , ignoring the importance of depth in human vision .
+depth cues play an important role in visual attention ( wolfe and horowitz , 2004 ) and have a strong relationship with objects , since depth discontinuities suggest object boundaries .
+although some saliency models have incorporated depth cues , they have typically processed depth and 2d texture information separately , e.g. , by combining saliency maps computed by considering each cue in isolation .
+for example , wang et al .
+( 2013 ) proposed a visual saliency model that combines a saliency map computed from disparity with a saliency map computed from monocular visual features .
+liu et al .
+( 2012 ) proposed a saliency model where disparity information is extracted by taking the difference between the left and right images .
+they compute the overall saliency as the weighted average of the saliencies computed from disparity , color , and intensity separately .
+we describe here an integrated vision system that combines binocular vergence control and binocularly driven saccadic eye movements .
+this system extends prior work on learning binocular vergence control using the active efficient coding ( aec ) framework , first proposed by zhao et al .
+( 2012 ) .
+the aec framework is an extension of barlow 's ( barlow , 1961 ) efficient coding hypothesis , which states that the activity of the sensory - processing neurons encodes their input using as few spikes as possible .
+a primary prediction of the efficient encoding hypothesis is that the properties of the sensory - processing neurons adapt to the statistics of the input stimuli .
+the aec framework extends the efficient coding hypothesis to include the effect of behavior .
+it posits that in addition , the organism 's behavior adapts so that the input can be efficiently encoded. by combining unsupervised and reinforcement learning , aec simultaneously learns both a distributed representation of the sensory input and a policy for mapping this representation to motor commands .
+thus , it jointly learns both perception and action as the organism behaves in the environment .
+in previous work , aec has been shown to model the development of many reflexive eye movements and other behaviors , such as vergence control ( zhao et al. , 2012 ; lonini et al. , 2013 ; klimmasch et al. , 2017 ) , smooth pursuit ( zhang et al. , 2014 ; teuliere et al. , 2015 ) , optokinetic nystagmus ( zhang et al. , 2016 ) , the combination of vergence and smooth pursuit ( vikram et al. , 2014 ) , and imitation learning ( triesch , 2013 ) .
+we make several contributions in this work .
+first , in the original work by zhao et al .
+( 2012 ) , saccades were generated completely randomly .
+this paper integrates the vergence control process with a more realistic model of saccade generation .
+second , we extend bruce and tsotsos 's ( bruce and tsotsos , 2009 ) aim saliency model , which was formulated for monocular images , to binocular images .
+in particular , instead of using a set of fixed pre - trained monocular basis functions learned on a separate database , our model uses a set of binocular basis functions that are learned as the model agent interacts with the environment .
+these low - level binocular features integrate depth and texture information much earlier than in the prior work described earlier and are consistent with what is known about the visual cortex .
+poggio and fischer ( 1977 ) claimed that most cortical neurons ( 84 %) are sensitive to the depth of a stimulus .
+third , we propose a saliency model , where the saliency of a given point depends upon the current fixation point , whereas most prior saliency models have assigned saliency independently of the current fixation point .
+in this version of the saliency model , image points that are different from the current fixation point in terms of appearance or depth are more salient .
+fourth , rather than treating saliency and vergence control as two separate problems , our model exhibits a very close coupling between the two .
+not only are the two behaviors learned at the same time but they also share the same set of low - level feature detectors .
+materials and methods architecture overview our model assumes the robot is in an environment that has multiple objects located at different depths .
+we have made a video1 to demonstrate how our system works in the icub simulator ( tikhanoff et al. , 2008 ) .
+one frame of the video is shown in figure 1 .
+the system drives the robot eyes to saccade to different fixations chosen according to a probability distribution over the points in the scene .
+this probability distribution is derived from the saliency map of the scene .
+fixations last 400 ms. during each fixation , the system controls the vergence eye movement .
+after each fixation , the robot saccades to another fixation point in the environment .
+figure 1 the virtual environment in the icub simulator .
+the two red rays indicate the eye gaze vectors .
+the inset at the lower right hand corner outlined in red shows a red - cyan anaglyph of the stereo images .
+the architecture of the integrated active vision system is illustrated in figure 2 .
+it consists of three main parts : the perceptual representation mechanism , the saccade control mechanism , and the vergence control mechanism .
+figure 2 the architecture of the model integrating vergence and saccadic eye movements .
+red regions in the saliency map correspond to high values while blue regions correspond to low values .
+the red arrows identify the steps in generating the saccade command .
+the blue arrows identify the steps in generating the vergence command .
+the inputs to the system come from pairs of sub - windows from the left and right camera images .
+the input to the saccade control mechanism comes from the largest pair of sub - windows , which cover most of the images .
+this pair is down - sampled to generate a coarse scale representation .
+the input to the vergence control mechanism comes from three pairs of sub - windows : a pair of small fine scale sub - windows , a pair of medium - sized medium scale sub - windows , and a pair of large coarse scale sub - windows .
+the perceptual representation mechanism encodes the binocular image inputs using a distributed representation learned using the generative adaptive subspace self - organizing map ( gassom ) algorithm ( chandrapala and shi , 2014 ) .
+the gassom model is a statistical generative model for time - varying sensory input that combines both sparsity and slowness .
+the same perceptual representation is used to generate the input to both the saccade and the vergence control mechanisms .
+the vergence control mechanism maps the gassom representation of the binocular inputs at all three scales to a set of discrete vergence actions .
+the vergence action is chosen according to a probability distribution computed using a neural network with a softmax output .
+the image input in the next iteration changes because of the vergence action .
+the saccade control mechansim maps the gassom representation of the entire left and right eye images at the coarse scale to a fixation point by sampling the fixation point from a 2d probability distribution generated by a binocular saliency map .
+the saliency control policy also includes inhibition of return ( ior ) to prevent the system from returning to a previously generated fixation too quickly .
+saccades move the eyes to the selected fixation point while keeping the vergence angle the same .
+below , we describe in more detail the experimental setup and the three parts of the integrated active vision system .
+to avoid clutter in the notation , we do not indicate time explicitly .
+however , it should be understood that most quantities evolve over time either due to the agent 's behavior in the environment , e.g. , the inputs and actions , or due to learning , e.g. , the network weights .
+both behavior and learning progress simultaneously .
+experimental setups we trained and tested our system in two different simulation environments : the tsukuba environment and the icub environment .
+most experiments are implemented in the tsukuba environment .
+the results of experiments using the icub environment are reported in figures 5 and 10 .
+the tsukuba environment is based on the tsukuba dataset ( martull et al. , 2012 ) , which contains 1,800 photorealistic stereo image pairs created by rendering a virtual 3d laboratory environment .
+the environment contains objects located at various depths , resulting in a large range of disparities .
+each image has size 640 - by - 480 pixels .
+we simulated the effect of eye movements by extracting sub - windows from a single pair of stereo images , where the locations of the extracted sub - windows changes over time .
+in particular , we define fixation points in the left and right images .
+the left and right fixation points share the same vertical position , but are offset horizontally by an amount modeling the vergence angle .
+if the vergence angle is equal to the disparity in the original image , then the fixation points correspond to the same point in the virtual environment .
+the stereo input to the saccade control mechanism is obtained by extracting the largest equally sized sub - windows from the left and right images such that the left and right fixation points are aligned in the two sub - windows .
+let m and n denote the vertical and horizontal sizes of the images in pixels .
+if the horizontal offset between the left and right fixation points is d , then the upper left and lower right locations of the sub - windows are ( d , 1 ) and ( m , n ) in the left image and ( 1,1 ) and ( m - d + 1 , n ) in the right image .
+these sub - windows are down - sampled by a factor of 4 , resulting in a coarse scale representation .
+we applied bicubic interpolation to implement the image down - sampling .
+the stereo input to the vergence control mechanism is obtained by extracting pairs of square sub - windows centered at the fixation points and then possibly down - sampling to generate pairs of 55 - by - 55 pixel images corresponding to three scales : coarse , medium , and fine .
+the coarse scale input is obtained by down - sampling 220 - by - 220 pixel sub - windows by a factor of 4 .
+the medium scale input is obtained by down - sampling 110 - by - 110 pixel sub - window by a factor of 2 .
+the fine scale input is obtained by extracting 55 - by - 55 pixel sub - windows without down - sampling .
+simulations consist of 10 frame periods of fixation separated by saccades .
+assuming a frame rate of 25 frames per second , each fixation lasts for 400 ms. during each fixation , the horizontal location of the right fixation point is adjusted according to the command given by the vergence control mechanism .
+if learned correctly , the vergence control mechanism adjusts the horizontal shift so that both sub - images are centered on the same point in the scene .
+we define the retinal disparity to be the difference between the shift and the original image disparity .
+when the retinal disparity is 0 , the images in the left and right sub - windows are aligned .
+the binocular image pair is changed after every 30 fixations ( 300 frames ) , modeling a change in the scene. between fixations , the system uses the saccade mechanism to choose the left image fixation point .
+the right image fixation point is located at the same vertical location but is offset horizontally by a shift , which models the vergence angle .
+the initial vergence angle of each fixation is the same as the last vergence angle from the previous fixation .
+the icub environment runs in the icub simulation platform ( tikhanoff et al. , 2008 ) .
+the icub is a humanoid robot with an active binocular vision system .
+the horizontal and vertical field of view are 64degrees and 50degrees , respectively .
+to simplify the simulation of the environment , we created the icub world using some simple objects as shown in figure 1 .
+the virtual environment in front of the icub robot contains a number of frontoparallel planar surfaces : a large background plane at a depth of 2 m , and five smaller planes of size 0.6 m x 0.6 m square placed at varying depths between the icub and the background plane and at varying frontoparallel offsets .
+the planes are textured with images randomly chosen from the mcgill natural image database ( olmos and kingdom , 2004 ) .
+binocular images pairs with size 320 - by - 240 pixels are generated by rendering this environment based on the positions and gaze angles of the two eyes .
+in our simulations , the icub remains stationary , except for changes in the gaze directions of its left and right eyes , which are controlled by three degrees of freedom : the version , tilt , and vergence angles .
+as in the tsukuba environment , simulations consist of 10 frame periods of fixation separated by saccades .
+however , the left and right fixation points are both fixed at the center of the images .
+saccades between fixations are implemented by changing the version and tilt angles , which are common to both eyes .
+during saccades , the vergence angle remains constant .
+during fixation , vergence eye movements are implemented by changing the vergence angle between the two eyes while keeping the version and tilt angles fixed .
+the icub environment is more realistic than the tsukuba environment , but simulations are more time consuming due to the rendering .
+every 30 fixations ( 300 frames ) , the virtual environment is changed by choosing a new set of images from the database to apply to the planar surfaces and by randomizing the depths and positions of the smaller surfaces .
+perceptual representation mechanism the vergence and saccade control mechanisms are based on the same perceptual representation mechanism applied to the left and right eye inputs .
+the left and right eye images are divided into 2d arrays of 10 - by - 10 pixel patches .
+for saccade generation , the patches are offset by a stride of one pixel .
+for the vergence control , the patches are offset by a stride of five pixels .
+at each scale s and for each pair j of corresponding patches in the left and right eye sub - windows , we concatenate the image intensities into a 200 - dimensional binocular vector , ( 1 ) xs,j = xl,s,jxr,s,jinr200 where s in { c , m , f } ( c , m , f stand for the three scales : coarse , medium , and fine scale , respectively ) , and the monocular vectors , xl,s,j and xr,s,j , contain the pixel intensities from the left and right image patches , which are normalized separately to have zero mean and unit variance .
+the representation mechanism has three sets of n = 324 binocular feature extractors , each set corresponding to one scale .
+the binocular stimulus xs,j is encoded by the set of feature extractors at the associated scale s. the n - th feature extractor in scale s is defined by a two dimensional subspace of the input space , which is spanned by the basis defined by the columns of a matrix phis,n in r200x2 where n in { 1 , ...
+, n } .
+given an input patch vector xs,j , the response of the n - th feature extractor is defined to be the squared length of the projection of xs,j onto the subspace defined by phis,n : ( 2 ) rn ( xs,j )= phis,ntxs,j2 where the superscript t denotes the transpose operation .
+for each feature extractor phis,n , we define the response map to be the 2d set of responses of that feature detector to the 2d array of patches .
+the operations involved in computing the response maps are similar to those used in computing the binocular energy model , which is commonly used to model the responses of orientation , scale , and disparity tuned binocular complex cells in the primary visual cortex ( ohzawa et al. , 1990 ) .
+the subspace projection operation computes two weighted sums of the binocular image intensities .
+thus , each basis vector ( column of phis,n ) is analogous to the linear spatial receptive field of a binocular simple cell .
+after learning , these basis vectors exhibit gabor - like structures and are in approximate spatial phase quadrature ( chandrapala and shi , 2014 ) .
+as in the binocular energy model , the response rn ( xs,j ) combines the squared magnitudes of two binocular simple cells .
+the magnitude of the response reflects the similarity between the binocular image patch and the binocular receptive fields .
+the subspaces are initialized randomly and develop according to the update rules for the gassom algorithm described in chandrapala and shi ( 2014 ) .
+the gassom exploits the concept of sparsity by using only one subspace to represent the input and captures the slowness by assuming that the subspace representing x ( t ) is more likely to be the same as the one that generated x ( t - 1 ) .
+the model parameters , e.g. , the matrices phis,n , are learned in an unsupervised manner , by maximizing the likelihood of the observed data .
+the update to each subspace is calculated by ( 3 ) deltaphis,n = sumjhs,n.x ~ s,j,n.xs,jtphis,nx ^ s,j,nxs,j where hs,n determines the amount that subspace phis,n is updated towards the observation , x ~ s,j,n = xj - x ^ s,j,n is the difference between the input xj and its projection onto subspace phis,n , where the projection is computed by x ^ s,j,n = phis,nphis,ntxj .
+thus , each subspace at time t is updated by ( 4 ) phis,n ( t )= phis,n ( t - 1 )+ lambdadeltaphis,n ( t - 1 ) where lambda > 0 is the learning rate .
+under the aec framework , both the gassom model parameters and the parameters of the vergence control policy ( described below ) are learned simultaneously .
+vergence control mechanism the vergence control mechanism maps the visual input to a probability distribution over a discrete set of 11 possible vergence actions averg .
+for the tsukuba environment , the 11 discrete vergence actions are averg = { - 16 , - 8 , - 4 , - 2 , - 1 , 0 , 1 , 2 , 4 , 8 , 16 } pixels , which modify the shift between the centers of the left and right sub - windows .
+for the icub environment , the vergence actions are averg = { - 3.2 , - 1.6 , - 0.8 , - 0.4 , - 0.2 , 0 , 0.2 , 0.4 , 0.8 , 1.6 , 3.2 } degrees .
+the vergence control policy is implemented by a two layer neural network .
+the input to the network is a 3n - dimensional vector : ( 5 ) rverg = rcrmrf where for each s in { c , m , f } , rs in rn is obtained by spatially pooling the response maps of the feature detectors at scale s : ( 6 ) rs = 1psumj = 1pr1 ( xs,j )... 1psumj = 1prn ( xs,j ) where p = 100 is the number of the patches .
+the output layer of the network contains 11 neurons , each corresponding to a possible vergence command .
+the vector of activations to the output neurons , zverginr11 , is computed as : ( 7 ) zverg = thetatrverg where thetatinr972x11 is a matrix of synaptic weights .
+the vector of probabilities for selecting the different vergence actions , piverginr11 , is calculated by applying a softmax operation to the activation vector zverg : ( 8 ) piverg = softmaxzverg / betaverg where the softmax function y = softmax ( z ) is defined component - wise by : ( 9 ) yi = expzisumk = 111expzk for i in { 1 , ...
+, 11 } the temperature parameter , betaverg , balances exploration and exploitation during reinforcement learning .
+in the following experiments , betaverg is set to 1 .
+the neural network weights develop according to the natural actor - critic reinforcement learning algorithm ( bhatnagar et al. , 2009 ) .
+in our system , the reinforcement learner seeks a vergence control policy that minimizes the error in the perceptual representation of the sensory input , or equivalently maximizes the fidelity of the perceptual representation .
+we define the instantaneous reward to be the negative of the average squared reconstruction error across the three scales , which is defined by ( 10 ) rverg = - eavg = - 13sumsinses where es is the mean squared reconstruction error at scale s averaged across all patches .
+the reconstruction error of each patch is defined as the squared length of the residual between the input vector xs,j and its projection onto the best - fitting subspace : ( 11 ) es = 1psumj = 1pxs,j - phis,ms,jt.xs,j2 where ms,j is the index of the best - fitting subspace for xs,j , ( 12 ) ms,j = arg maxn phis,nt.xs,j2 .
+the weight matrices of the value and policy networks are updated during fixation , but not across saccades .
+saccade control mechanism binocular saliency model the binocular saliency map is generated using binocular attention based on information maximization ( baim ) , which we propose as a binocular extension of the aim model of bruce and tsotsos ( 2009 ) .
+the baim architecture is illustrated in figure 3 .
+in essence , we replace the monocular basis functions learned by ica in the aim model with the binocular basis functions learned by gassom .
+whereas the monocular basis functions encode only texture information , the binocular basis functions used here jointly encode depth and texture information .
+since our experiment use only gray scale images , we do not jointly encode color as in the experiments by bruce and tsotsos ( 2009 ) .
+however , the extension to include color is straightforward , involving only an expansion of the size of the input vector .
+figure 3 the architecture of the binocular attention based on information maximization ( baim ) .
+the left and right parts of image patches and basis vectors are shown as 10 - by - 10 pixel images and aligned vertically .
+red regions in the response maps and saliency maps correspond to high values while blue regions correspond to low values .
+the red squares in the response maps represent the local area where response histograms are generated .
+the computations to obtain the salience map are performed at the coarse scale .
+we assign saliency values to 10 - by - 10 pixel patches , which are extracted with a stride of one .
+given coarse scale images with size m1 x m2 , we obtain a 2d array of psal =( m1 - 9 ) x ( m2 - 9 ) binocular patches .
+to obtain a saliency map at the original resolution , we use zero padding to increase the size of the coarse scale map to m1 x m2 pixels and then upsample by a factor of 4 .
+the saliency value for the j - th coarse scale binocular image patch , s ( xc,j ) , is a measure of how informative or unlikely the responses of the gassom feature detectors are in the context of the responses from the other patches .
+more specifically , it is the sum of saliency values computed for individual feature extractors in the gassom representation , sn ( xc,j ) : ( 13 ) sxc,j = sumn = 1nsnxc,j. the saliency of each feature extractor is the shannon self - information of the response : ( 14 ) snxc,j = - ln pnrc,nxc,j where pn [.] is the probability distribution of the responses of the n - th feature extractor at the coarse scale , which we estimate empirically using a histogram .
+each response map is normalized to the range 0 - 1 .
+the histogram of each response map is generated using k = psal equal width bins : ( 15 ) pnrc,nxc,j = alpha + 1 - alphasumk = 0k - 1hn ( k ). 1kk,k + 1krc,nxc,j where ( 16 ) 1a,bx = 1 ifxina,b0 ifxnot - ina,b is an indicator function with a and b as free parameters .
+the parameter alpha = 10 - 6 is a small number that guarantees that the response probabilities are non - zero .
+the coefficients ( 17 ) hn ( k ) = 1psalsumj = 1psal1kk,k + 1krnxc,j for kin0,1,2 ,... , k - 1 are empirical estimates of the probability that the response falls into the k - th bin computed over psal patches .
+we considered both global binocular attention based on information maximization ( gbaim ) and local binocular attention based on information maximization ( lbaim ) versions of the saliency map , which differed according to patches used to estimate the coefficients hn ( k ) in eq .
+17. in the gbaim model , the coefficients were computed by summing over all coarse scale patches .
+in the lbaim model , the sum was over only the coefficients from a 31 x 31 array of patches centered around the current fixation point .
+the lbaim model tends to favor patches where the gassom responses are more unlike those in the local neighborhood of the current fixation point .
+to speed up computations , we use only a random subset of the gassom feature extractors to compute the sum in eq .
+13. to determine the size of the subset , we computed the correlation coefficients ( ccs ) to measure the similarity between the saliency maps generated by random subsets of feature extractors and by all feature extractors .
+the cc between two saliency maps s1 and s2 is defined as : ( 18 ) cc = sumjs1 ( xc,j ) - mu1s2 ( xc,j ) - mu2sumjs1 ( xc,j ) - mu12sumjs2 ( xc,j ) - mu22 where mu1 and mu2 are the mean saliencies in the maps .
+figure 4 plots the ccs averaged over salience maps computed from 1,800 pairs of binocular images from the tsukuba dataset .
+for each saliency map , the subsets of a certain number of feature extractors are chosen randomly from all 324 feature extractors .
+using only 25 feature , extractors generates a baim saliency map that is very similar to the one using all 324 features .
+thus , in our experiments , we sum over 25 randomly selected feature extractors .
+figure 4 the average correlation coefficient ( cc ) values between the binocular attention based on information maximization ( baim ) saliency maps generated by all feature extractors and the saliency maps generated by different subsets of feature extractors .
+a logarithmic scale is used on the x - axis .
+error bars represent 95 % confidence intervals for the mean values of the ccs .
+inhibition of return given the current fixation , a saccade target for the next fixation is generated by combining the saliency map at the full image resolution with a simple ior mechanism ( dorris et al. , 2002 ) , which prevents the system from saccading to recently visited image locations .
+defining the full resolution saliency map by s ( j ) where j indexes the patch , we choose the next fixation point by sampling from the probability distribution ( 19 ) pj = sj.iorjsumksk.iork where ior (.) is a mask that suppresses recently visited image locations .
+posner and cohen ( 1984 ) indicate that the currently attended region is inhibited for approximately 500 - 1,000 ms. since fixations last for 10 frames , and assuming a frame rate of 25 frames per second , we prevent the system from visiting the last two fixation points , resulting in a 800 ms long ior window .
+assuming the indices of most recent and second most recent fixation locations are j1 and j2 , we set ( 20 ) iorj = fj,j1,sigma12.fj,j2,sigma22 where ( 21 ) fj,k,sigma2 = 1 - exp - pj - pk22sigma2 .
+where pj is the 2d image location of patch j , sigma1 = 20 pixels and sigma2 = 10 pixels .
+results baim - driven saccades accelerate vergence learning we compared the rate at which vergence control policies emerged and the quality of the final polices under different saccade control policies including a random policy where p ( m , n ) in eq .
+19 was uniform over all image locations and policies where s ( m , n ) in eq .
+19 was computed according to the saliency model of itti et al .
+( 1998 ) , the aim model ( bruce and tsotsos , 2009 ) , and the gbaim and lbaim models proposed here.2 figure 5 shows the evolution of the root mean squared error ( rmse ) between the learned vergence control policies during training and the ideal policy that zeros out the input disparity in both the tsukuba and the icub environments .
+for the tsukuba environment , we ran three training trials for each saccade control policy .
+we set the same learning rate for the vergence control learner to make all the saccade methods comparable .
+each trial used binocular inputs generated by disjoint sets of 120 randomly chosen stereo images , but we used the same image sets to train the different saccade policies .
+we sampled the vergence policies at 20 equally spaced checkpoints during training .
+at each checkpoint , we presented the policy with inputs with initial disparities ranging from - 20 to + 20 pixels and let the vergence policy run for 10 iterations .
+the rmse in pixels was computed as the square root of the mean squared retinal disparity after 10 iterations averaged over all initial disparities and 100 inputs per disparity .
+the images used to characterize the policies at all testing points and for all saccade policies were identical and disjoint from those used in training .
+for the icub environment , we also ran three training trials for each saccade control policy .
+each trial was conducted in a different randomly generated environment with disjoint sets of image textures mapped on to the surfaces .
+the same environments were used to train under different saccade policies .
+during testing , the icub was presented with frontoparallel surfaces at depths ranging from 0.5 to 2.0 m and textures disjoint from those used in training and allowed to verge for 10 iterations starting from initial vergence angles ranging from 0degrees to 10degrees .
+the rmse of the final vergence angle was averaged over all depths and all initial vergence angles .
+figure 5 the evolution of the root mean squared error ( rmse ) of the vergence control policy for different saccade control policies over training in ( a ) the tsukuba environment and ( b ) the icub environment .
+error bars indicate the sd computed over three training runs .
+as shown in figure 5 , the random saccade policy performs the worst , resulting in the largest vergence control policy rmse at the end of training .
+the two baim - driven saccade policies result in the best final performance .
+although there is little difference between the two final policies , the lbaim model exhibits faster vergence learning , with a faster decrease in the rmse .
+the two monocular saccade models result in vergence control policies with rmse values lying between those learned under random and binocularly driven saccades , with the aim model exhibiting slightly faster learning and lower final rmse .
+figure 6 shows visualizations of the final policies learned in the tsukuba environment .
+it is clear that the final vergence control policies learned using the baim - driven saccades are closer to the ground truth .
+the " blurred " images for the policy learned using random and monocular saliency driven saccades indicate that the policies are less reliable in zeroing out the retinal disparity .
+figure 6 visualizations of the final vergence policies after training .
+each policy is presented as an image .
+the horizontal axis indicates the initial disparity and the vertical axis indicates the change in vergence after 10 iterations of the policy .
+the intensity of each pixel corresponds to the probability of the change in vergence given the initial disparity , i.e. , the entries in each column sum to 1 .
+for the ground truth policy , the change in vergence is always the negative of the initial disparity .
+baim - driven saccades select image regions with higher entropy to understand better how the different saccade policies lead to vergence control policies with different performance , we examined the entropy of the image regions around the fixation points chosen by the different saccade policies .
+the entropy is defined as : ( 22 ) e = - sumipilog2pi where pi is the probability of the pixel intensity value i , which is estimated from the histogram of pixel intensity values .
+the entropy is a measure of the spread of gray values and is one measure of the information content .
+image regions whose pixels all have the same intensity have zero entropy .
+textured regions will have more variability in gray levels , and therefore a higher entropy .
+intuitively , it will be harder to learn vergence from regions without texture ( with lower entropy ) .
+figure 7 shows the median entropies computed over the 55 - by - 55 pixel fine scale sub - windows at the fixation points selected by the different saccade control methods .
+the statistics were collected over 1,800 sub - window pairs .
+for each of the 180 stereo image pairs obtained by taking every 10th frame from the 1,800 stereo image pairs in the tsukuba dataset , we ran the saccade / vergence policy learned after 100,000 iterations ( the first checkpoint in figure 5 ) for 10 fixations ( 100 frames ) , and averaged the entropies of the left and right sub - windows .
+our testing results for the learned systems at other checkpoints were similar .
+figure 7 ( a ) the entropy histogram of the fine scale sub - windows selected by local binocular attention based on information maximization ( lbaim ) .
+the red line indicates the median entropy .
+( b ) the median entropy of the patches at the fixation points selected by different saccade control methods .
+the error bars represent the sem .
+baim - driven saccades lead to improved encoding of small disparities by selecting different fixation points , the different saccade policies expose the perceptual representation to binocular patches with different statistics .
+since the feature extractors evolve to maximize the likelihood of the observed data , these differences in the input statistics will be reflected as differences in the learned feature extractors .
+to study these differences , we learned feature detectors in the tsukuba environment using sub - windows centered at fixation points chosen by the different saccade control policies .
+since differences in the vergence control policies will affect the input disparity statistics , we chose the vergence angles so that the retinal disparities d between the fixation points followed a discrete truncated laplacian distribution between - 40 and + 40 pixels : ( 23 ) pd = me - d / d,din - 40 , - 39 ,... , 40 where m is a normalization factor that ensures that p ( d ) sums to one .
+the parameter d controls the spread of the input disparities .
+this enabled us to isolate the effects of the saccade policies on the perceptual representations .
+figure 8 shows the average reconstruction error eavg of the perceptual representations after training under different saccade control policies and assuming two different disparity statistics .
+the values of eavg are plotted as a function of the retinal disparity at the fixation points .
+they are computed by averaging the values of eavg computed according to eq .
+10 over sub - windows taken at 1,000 fixation points from 100 images in the tsukuba dataset ( 10 fixations per image ) .
+images used in testing were disjoint from those used in training .
+figure 8 the average reconstruction error for the perceptual representations learned under different saccade control policies plotted as a function of the retinal disparity between the sub - windows .
+the retinal disparity at the fixation points followed truncated laplacian distributions with parameters : ( a ) d = 50 and ( b ) d = 5 .
+in general , the curves have a characteristic " v " shape , being symmetric around and achieving their minima at zero disparity .
+this suggests that the perceptual representation is adapted to best represent binocular stimuli with zero disparity and that there are more feature extractors tuned to zero disparity .
+there is no preference for positive or negative disparity stimuli .
+these observations are consistent with the distribution of retinal disparities in the input , which is peaked at and symmetric around 0 .
+the " v " shape indicates small reconstruction error at 0 and large average reconstruction error at large disparities .
+the " v " shape is more pronounced the more tightly the input disparity statistics are clustered around zero disparity , which is obtained by choosing a smaller value of d in eq .
+23. figure 9a shows the reconstruction error curves of the perceptual representations learned after joint learning under different saccade control policies .
+the differences are much more pronounced , with curves corresponding to the baim - driven saccade policies exhibiting much more pronounced " v " shapes .
+to quantify how pronounced those " v " shapes are , we fit the reconstruction error curves with the function ( 24 ) fa,mu,b,cd = c - a.exp - d - mub where c is a vertical offset , mu sets the location of the minimum , and a and b control the slope and depth of the " v ," respectively .
+figure 9b shows one example of a fit .
+we measure the sharpness of the " v " by the ratio a / b , which is the absolute value of the slope at mu. figure 9c shows the evolution of the slope during training under the different saccade control policies .
+in all cases , the slope increases over time , indicating that the basis functions evolve so that they provide a better encoding of stimuli with zero disparity .
+however , the rate and magnitude at which the slope increases are largest under the baim - driven saccade control policies .
+figure 9 ( a ) the average reconstruction error as a function of the retinal disparity .
+( b ) the experimentally estimated reconstruction errors of local binocular attention based on information maximization ( lbaim ) and the corresponding curve fit .
+( c ) the change of the slope a / b over the training process .
+larger slopes indicate that the perceptual encoding exhibits a stronger preference for inputs with zero disparity .
+error bars represent the sd computed over three training runs .
+lbaim - driven saccades target locations with different disparities figure 5 indicates that the rmse of the final vergence control policies learned under the gbaim and lbaim saccade policies are similar , but that the vergence control policy emerges faster under lbaim .
+the similarities between the reconstruction error curves and slope trajectories of the perceptual representations learned under gbaim and lbaim in figures 8 and 9 suggest that the faster learning is not due to differences in the perceptual representation .
+rather , we suggest the learning is faster because lbaim presents more challenging vergence control stimuli to the system .
+as a concrete example , figure 10 shows two examples of saliency maps computed by lbaim in the icub environment .
+the maps were computed in the same environment , which had two objects with the same textures in front of the icub : one on the left at a closer distance and one on the right at a farther distance and partially occluded by the closer object .
+figures 10a,b show example images from the left and right eye cameras .
+the two saliency maps were computed assuming the icub was fixating either on the closer or the farther object .
+comparing their intensities , we observe that points on the closer object become more salient when the icub is fixating on the farther object and vice versa .
+figure 10 ( a,b ) left ( a ) and right ( b ) eye images obtained from the icub simulator when the robot was viewing two planar objects : one on the left which is closer and the other on the right which is farther .
+( c,d ) examples of the local binocular attention based on information maximization ( lbaim ) saliency map computed with the icub fixating on the closer ( c ) and farther ( d ) objects .
+bright regions correspond to high saliency .
+the red points indicate the fixation point .
+the red squares indicate the local area over which the empirical response histogram is computed .
+for a more comprehensive and quantitative comparison , we estimated the expected absolute disparity difference between current and next fixations for different saliency models according to ( 25 ) deltad = 1psumi,jdi - djp ( i | j ) where i indexes all possible next fixations , j indexes the current fixation point , di is the disparity at i , and p is the number of current fixation points considered .
+the term ( 26 ) pi | j = si | jsumksk | j is the probability of choosing the next fixation point i given the current fixation point j. it is similar to eq .
+19 except that we do not include the ior and that we make explicit the dependency of the saliency map s ( i | j ) on the current fixation .
+for all of the saliency mechanisms except lbaim , the saliency map does not change with the current fixation location .
+the lbaim saliency model shows a clear preference toward selecting targets with disparities that are different from that at the current fixation point .
+figure 11 shows the expected absolute disparity difference under different saccade policies normalized by the expected absolute disparity difference under the random saccade policy .
+the expected differences were estimated from data in the tsukuba data set , for which ground truth disparity data are available .
+we selected 200 binocular images randomly from the 1,800 image frames in the video of the tsukuba dataset .
+for each binocular image , we computed the saliency maps at 10 fixation points ( i.e. , p = 2,000 ) .
+figure 11 the estimated expected absolute disparity difference , deltad , for saccades generated by the different saliency models normalized by the expected difference estimated using random saccades .
+the error bar represents the sd. change of reconstruction error within one fixation the average reconstruction error of the perceptual representation , eavg , plays a critical role in this system .
+both the learning of the perceptual representation and the learning of the vergence control policy seek to minimize eavg .
+large decreases in eavg during fixation suggest that the vergence control reinforcement learning is being exposed to " challenging " situations where there is potential for large changes in the reward .
+figure 12a shows how the average decrease in eavg during fixation evolves over training under the different saccade control policies .
+we define the normalized decrease across one fixation ( 10 frames ) as the difference between the values of eavg at the start and end of a fixation normalized by the value of eavg at the start of fixation , and compute the running average across 3,000 fixations .
+the normalized decreases in eavg under the baim - driven saccade policies exhibit much larger and faster increases across training than the monocular saliency and random policies .
+figure 12 ( a ) the running average of the normalized decrease in the average reconstruction error during fixation increases during training .
+( b ) to isolate the effect of the saccade policy from differences in the perceptual representation and the vergence policy , we plot the normalized decrease in average reconstruction error when the same perceptual representation and vergence policy were used .
+we isolated the effect of the choice of saccade target on the average normalized decrease in eavg by using the same perceptual representation and vergence policies during fixation , but choosing the initial fixation points according to the different saccade control policies .
+in the results reported here , we used the perceptual representation and vergence policies learned by lbaim , but other choices gave similar results .
+figure 12b shows that the ordering of the policies is preserved , but the relative differences between the curves for different saccade policies are smaller .
+discussion we have described an integrated active vision system that combines vergence control learning with saccade control based on two novel binocular saliency models : lbaim and gbaim .
+these models are based on binocular feature extractors that simultaneously encode both texture and depth information and that are computed in a way similar to the binocular energy model , a common computational model for disparity and orientation selective cells in the primary visual cortex .
+the algorithm assigns high saliency to regions with high information content considering either the lbaim or gbaim context .
+similar to the development of human infants , both the saccadic and vergence control policies in our model are immature at the start of simulation and emerge through interaction with the environment .
+for the saccade policy , this is because the basis functions are randomly initialized .
+for the vergence policy , this is because both the basis functions and the weights in the actor and critic networks are randomly initialized .
+the order in which these policies emerge is the same as in humans .
+in our simulation , the saccade policy develops before the vergence policy .
+in humans , infants begin to look at edges or places with sharp and high - contrast features from 1 to 2 months of age ( bronson , 1990 , 1991 ; colombo , 2001 ) .
+vergence develops at about 4 months of age ( aslin , 1977 ; hainline and riddell , 1995 ) .
+however , the absolute time scale at which these behaviors emerge differs .
+we measure the time it takes these policies to emerge in terms of fixations , since the number of iterations required by the model is somewhat arbitrary , as it depends upon the choice of the time step .
+in our simulations , the vergence policies when following the lbaim saccade policy emerge after about 30,000 fixations ( 300,000 iterations ) ( figure 5 ) .
+adult humans execute around 105 fixations / day,3 so this corresponds to 3 days for an adult , but we expect this number to be a bit larger as infants spend less time awake and their saccade policies are immature .
+the saccade policy develops very quickly , after about 100 fixations ( see supplementary material ) , but this is largely due to the fact that it depends only on the basis functions , as much of the processing is hard coded in our model .
+we expect that if we incorporated learning into more aspects of the saccade control policy as is likely the case in humans , we would obtain a much slower rate of emergence .
+we could obtain simulations where vergence policies emerge on the same timescales as in humans by lowering the learning rate .
+however , we did not do so to avoid excessively long computation time .
+we are primarily interested in the relative rates , rather than absolute rates at which the policies emerge .
+since we use the same learning rate in all simulations , the faster rate at which the vergence policy emerges when following the baim saccade policies indicates that the system is actively choosing inputs that allow for the most effective learning .
+while it is clear that saccades are driven by a number of factors beyond obtaining effective inputs to train vergence control , our model does suggest a complementary , and hitherto largely unappreciated , potential role for saliency - driven saccadic eye movements .
+our experimental results show that vergence control policies learned with saliency - driven saccades all exhibit higher accuracy and are learned faster than when saccades are driven randomly ( figures 5 and 6 ) .
+the baim - driven saccade policies result in the highest accuracy and fastest learning .
+the primary function of saccades ( and attention in general ) is commonly thought to direct the limited neural processing of an organism to more important stimuli .
+our results suggest a new complementary role of saccades in aiding in the learning of behavior. through our experiments with this model , we have identified a number of different interacting factors that account for the improved performance and faster learning .
+first , differences in the saccade policies expose the system to input patches with different statistics .
+all of the attention - based saccade control models direct gaze toward image regions with higher entropy than encountered with randomly generated saccades ( figure 7 ) .
+patches selected by the lbaim models have the highest entropy , followed by the gbaim , itti , and aim models .
+second , since the perceptual representations adapt to the input statistics , these differences lead to differences in the perceptual representations .
+higher entropy patches contain more texture , which provides more visual cues to disparity .
+perceptual representations learned using higher entropy patches encode differences between zero and non - zero disparities better .
+figure 8 shows the dependency between the reconstruction error and the input disparity for the different perceptual representations .
+the differences between the reconstruction errors for zero and non - zero disparities follow the same trend as the entropy , being the smallest for the random policy , and the largest for the lbaim and gbaim policies .
+the difference also depends upon the statistics of the disparities of the input patches , increasing the more the disparities are concentrated around zero disparity ( smaller values of d in eq. 23 ) .
+the magnitude of the reconstruction error at zero disparity shows the opposite trend , achieving the largest value for the random policy and the smallest values for the baim - based policies .
+third , the differences between the reconstruction error curves in figure 8 are amplified during joint learning by a positive feedback loop setup by the interaction between the learning of the perceptual representation and the learning of vergence control .
+both learners seek to maximize the same reward : the average negative reconstruction error of the perceptual representation .
+initially , the disparity statistics will be similar , since the vergence policies are initialized with random weights .
+the different saccade policies will result in slightly different reconstruction error curves .
+the lower reconstruction error at zero disparity and the larger difference between the reconstruction error at non - zero and zero disparities for the baim - driven saccade control will cause the reinforcement learner to favor more strongly the emergence of vergence policies that seek to 0 out the retinal disparity , resulting in a slightly better vergence control policy .
+in turn , the better vergence policies cause the distribution of retinal disparities presented to the perceptual representation to be more tightly clustered around 0 .
+the perceptual representation will respond by allocating more basis functions to represent zero disparity inputs .
+this further reduces the reconstruction error for zero disparity inputs and increases the difference at non - zero and zero disparities .
+this in turn improves vergence control and the cycle continues .
+figure 9a shows the net effect of this positive feedback loop by plotting the reconstruction error curves of the perceptual representations learned after joint learning under different saccade control policies .
+the differences between the perceptual representations are much more pronounced , with curves corresponding to the baim - driven saccades policies exhibiting much more pronounced " v " shapes .
+figure 9b shows the dynamic evolution of the slope of the " v " shape at its minimum point , which is a measure of the difference in reconstruction error at zero and non - zero disparities .
+small initial differences expand rapidly under the positive feedback .
+finally , the baim - driven saccades direct the system to focus on more " challenging " situations , i.e. , those with larger initial retinal disparity or those where the potential change in the reward are larger .
+in particular , we find that the lbaim algorithm , by emphasizing saccade targets that are different from the current fixation , exposes the system to a wider diversity of input patch textures and input disparities , which drives faster learning .
+intuitively , saccades between targets at different depths will present more challenges for vergence control , since they require larger change in vergence angle between the two eyes .
+in our system , vergence angle is preserved across saccades .
+thus , saccades to locations with the same absolute disparity as the current fixation will require no change in vergence angle , presenting less of a challenge to the vergence control policy than saccades to targets with a different absolute disparity .
+the primary difference between the lbaim and gbaim saliency models is that for the lbaim model , the saliency depends upon the current fixation point , whereas for the gbaim model , saliency is independent of the current fixation point .
+this dependency is introduced due to the data used to compute the coefficients of the empirical response histogram ( eq. 17 ) .
+for the lbaim model , points whose feature extractor responses are different from those around the current fixation point will be more salient .
+since the feature extractors encode disparity , this implies that points with disparity different from the current fixation point will be more salient under lbaim .
+thus , we observe greater differences in disparity between adjacent fixations ( figure 11 ) .
+we also observe larger reductions in reconstruction error during fixations ( figure 12 ) .
+these larger decreases are due to the combination of a number of factors identified earlier .
+first , the same reduction in retinal disparity will result in a larger decrease in the reconstruction error for the baim policies , due to the more pronounced " v " shape of the reconstruction error curves for the baim policy .
+second , the better quality of the vergence control policies learned under baim will result in larger changes in retinal disparity .
+third , the choice of saccade targets will influence the change in two ways. by choosing saccade targets with larger entropy , the effect of changes in the retinal disparity on the visual input will be more pronounced , leading to larger changes in eavg .
+in addition , choosing initial fixation points with larger retinal disparity will result in larger changes in eavg .
+this final factor likely accounts for much of the difference between lbaim and gbaim .
+future work will focus on learning all aspects of the saccade and vergence policies simultaneously and under a common parsimonious framework provided by active efficient encoding .
+for example , although the baim saliency maps adapt to the statistics of the sensory input because of changes in the binocular feature detectors learned by the gassom algorithm , the way in which the feature detector outputs are integrated to construct the saliency maps is hard coded .
+we are currently investigating how to learn how to combine feature map outputs to generate saccade policies .
+in addition , our model of saccades and vergence can be made more realistic .
+in humans , some of the required vergence change takes place during the saccade ( coubard , 2013 ) , with the remaining disparity canceled by vergence changes after the saccade .
+our current model is a simplification of this , since there is no change in vergence during the saccade .
+it will also be interesting to extend the framework here to include these initial vergence changes by incorporating an estimate of the disparity of the target .
+author contributions all authors contributed to the design of the experiments and the paper writing .
+qz conducted the experiments .
+conflict of interest statement the authors declare that the research was conducted in the absence of any commercial or financial relationships that could be construed as a potential conflict of interest. funding .
+this work was supported in part by the hong kong research grants council under grant 618713 and in part by the quandt foundation and the german federal ministry of education and research ( bmbf ) under grants 01gq1414 and 01ew1603a .
+1the video is available online at https :// youtu.be / axgbhder1ow .
+2we implemented itti 's and aim saliency model by using the code available at http :// www.vision.caltech.edu / harel / share / gbvs.php and http :// www - sop.inria.fr / members / neil.bruce /# sourcecode .
+our implementations of the gbaim and lbaim are based on the code of the aim saliency model .
+3here , we assume that adult humans are awake for 15 h / day and make 2 saccades / s. supplementary material the supplementary material for this article can be found online at http :// www.frontiersin.org / article / 10.3389 / fnbot.2017.00058 / full # supplementary - material .
+click here for additional data file .
+click here for additional data file .
+references aslin r. n. ( 1977 ) .
+development of binocular fixation in human infants . j. exp .
+child psychol .
+23 , 133 - 150 . 10.1016 / 0022 - 0965 ( 77 ) 90080 - 7 839156 barlow h. b. ( 1961 ) .
+possible principles underlying the transformations of sensory messages , ed. rosenblith w. a. ( cambridge , ma : mit press ) , 216 - 234 . bhatnagar s. sutton r. s. ghavamzadeh m. lee m .
+( 2009 ) .
+natural actor - critic algorithms . automatica 45 , 2471 - 2482 . 10.1016 / j.automatica.2009.07.008 bronson g. w. ( 1990 ) .
+changes in infants' visual scanning across the 2 - to 14 - week age period . j. exp .
+child psychol .
+49 , 101 - 125 . 10.1016 / 0022 - 0965 ( 90 ) 90051 - 9 2303772 bronson g. w. ( 1991 ) .
+infant differences in rate of visual encoding . child dev .
+62 , 44 - 54 . 10.2307 / 1130703 2022137 bruce n. d. tsotsos j. k. ( 2009 ) .
+saliency , attention , and visual search : an information theoretic approach . j. vis .
+9 , 5.1 - 24 . 10.1167 / 9.3.5 19757944 chandrapala t. n. shi b. e. ( 2014 ) .
+" the generative adaptive subspace self - organizing map ," in international joint conference on neural networks , beijing 10.1109 / ijcnn.2014.6889796 colombo j .
+( 2001 ) .
+the development of visual attention in infancy . annu. rev. psychol .
+52 , 337 - 367 . 10.1146 / annurev.psych.52.1.337 11148309 coubard o. a. ( 2013 ) .
+saccade and vergence eye movements : a review of motor and premotor commands . eur. j. neurosci .
+38 , 3384 - 3397 . 10.1111 / ejn.12356 24103028 dorris m. c. klein r. m. everling s. munoz d. p. ( 2002 ) .
+contribution of the primate superior colliculus to inhibition of return . j. cogn. neurosci .
+14 , 1256 - 1263 . 10.1162 / 089892902760807249 12495530 gao d. han s. vasconcelos n .
+( 2009 ) .
+discriminant saliency , the detection of suspicious coincidences , and applications to visual recognition . ieee trans .
+pattern anal. mach. intell .
+31 , 989 - 1005 . 10.1109 / tpami.2009.27 19372605 hainline l. riddell p. m. ( 1995 ) .
+binocular alignment and vergence in early infancy . vision res .
+35 , 3229 - 3236 . 10.1016 / 0042 - 6989 ( 95 ) 00074 - o 8560794 han b. zhu h. ding y .
+( 2011 ) .
+" bottom - up saliency based on weighted sparse coding residual ," in proceedings of the 19th acm international conference on multimedia , scottsdale 10.1145 / 2072298.2071952 hou x. zhang l .
+( 2007 ) .
+" saliency detection : a spectral residual approach ," in ieee conference on computer vision and pattern recognition , minneapolis .
+itti l. koch c. niebur e .
+( 1998 ) .
+a model of saliency - based visual attention for rapid scene analysis . ieee trans .
+pattern anal. mach. intell .
+20 , 1254 - 1259 . 10.1109 / 34.730558 kanan c. tong m. h. zhang l. cottrell g. w. ( 2009 ) .
+sun : top - down saliency using natural statistics . vis. cogn .
+17 , 979 - 1003 . 10.1080 / 13506280902771138 21052485 klimmasch l. lelais a. lichtenstein a. shi b. e. triesch j .
+( 2017 ) .
+learning of active binocular vision in a biomechanical model of the oculomotor system .
+biorxiv : 160721 .
+li z .
+( 2002 ) .
+a saliency map in primary visual cortex . trends cogn. sci. 6 , 9 - 16 . 10.1016 / s1364 - 6613 ( 00 ) 01817 - 9 11849610 liu z. chen w. zou y. wu x .
+( 2012 ) .
+" salient region detection based on binocular vision ," in 7th ieee conference on industrial electronics and applications , singapore 10.1109 / iciea.2012.6361031 lonini l. zhao y. chandrashekhariah p. shi b. e. triesch j .
+( 2013 ) .
+" autonomous learning of active multi - scale binocular vision ," in ieee third joint international conference on development and learning and epigenetic robotics , osaka 10.1109 / devlrn.2013.6652541 martull s. peris m. fukui k .
+( 2012 ) .
+" realistic cg stereo image dataset with ground truth disparity maps ," in icpr workshop trakmark , tsukuba .
+ohzawa i. deangelis g. c. freeman r. d. ( 1990 ) .
+stereoscopic depth discrimination in the visual cortex : neurons ideally suited as disparity detectors . science 249 , 1037 - 1041 . 10.1126 / science.2396096 2396096 olmos a. kingdom f. a. ( 2004 ) .
+a biologically inspired algorithm for the recovery of shading and reflectance images . perception 33 , 1463 - 1473 . 10.1068 / p5321 15729913 poggio g. f. fischer b .
+( 1977 ) .
+binocular interaction and depth sensitivity in striate and prestriate cortex of behaving rhesus monkey . j. neurophysiol .
+40 , 1392 - 1405 . 411898 posner m. i. cohen y .
+( 1984 ) .
+components of visual orienting . atten. perform .
+x control lang .
+processes 32 , 531 - 556 . renninger l. w. verghese p. coughlan j .
+( 2007 ) .
+where to look next ?
+eye movements reduce local uncertainty . j. vis .
+7 , 6 . 10.1167 / 7.3.6 17461684 teuliere c. forestier s. lonini l. zhang c. zhao y. shi b .
+( 2015 ) .
+self - calibrating smooth pursuit through active efficient coding . rob. auton. syst .
+71 , 3 - 12 . 10.1016 / j.robot.2014.11.006 tikhanoff v. cangelosi a. fitzpatrick p. metta g. natale l. nori f .
+( 2008 ) .
+" an open - source simulator for cognitive robotics research : the prototype of the icub humanoid robot simulator ," in proceedings of the 8th workshop on performance metrics for intelligent systems , gaithersburg 10.1145 / 1774674.1774684 triesch j .
+( 2013 ) .
+imitation learning based on an intrinsic motivation mechanism for efficient coding . front. psychol .
+4 : 800 . 10.3389 / fpsyg.2013.00800 24204350 vikram t. n. teuliere c. zhang c. shi b. e. triesch j .
+( 2014 ) .
+" autonomous learning of smooth pursuit and vergence through active efficient coding ," in 4th international conference on development and learning and on epigenetic robotics , genoa 10.1109 / devlrn.2014.6983022 wang j. dasilva m. p. lecallet p. ricordel v .
+( 2013 ) .
+computational model of stereoscopic 3d visual saliency . ieee trans .
+image process .
+22 , 2151 - 2165 . 10.1109 / tip.2013.2246176 23412612 wolfe j. m. horowitz t. s. ( 2004 ) .
+what attributes guide the deployment of visual attention and how do they do it ?
+nat. rev. neurosci .
+5 , 495 - 501 . 10.1038 / nrn1411 15152199 yang j. yang m. h. ( 2012 ) .
+" top - down visual saliency via joint crf and dictionary learning ," in ieee conference on computer vision and pattern recognition , providence , rhode island 10.1109 / cvpr.2012.6247940 yang q. bucci m. p. kapoula z .
+( 2002 ) .
+the latency of saccades , vergence , and combined eye movements in children and in adults . invest. ophthalmol. vis. sci. 43 , 2939 - 2949 . available at : http :// iovs.arvojournals.org / article.aspx ? articleid = 2162756 12202513 yarbus a. l. ( 1967 ) .
+" eye movements during perception of complex objects ," in eye movements and vision , ed. riggs l. a. ( new york : plenum press ) , 171 - 211 . 10.1007 / 978 - 1 - 4899 - 5379 - 7 _ 8 zee d. s. fitzgibbon e. j. optican l. m. ( 1992 ) .
+saccade - vergence interactions in humans . j. neurophysiol .
+68 , 1624 - 1641 . 1479435 zhang c. triesch j. shi b. e. ( 2016 ) .
+an active - efficient - coding model of optokinetic nystagmus . j. vis .
+16 , 10 - 10 . 10.1167 / 16.14.10 27832268 zhang c. zhao y. triesch j. shi b. e. ( 2014 ) .
+" intrinsically motivated learning of visual motion perception and smooth pursuit ," in international conference on robotics and automation , hong kong 10.1109 / icra.2014.6907110 zhang l. tong m. h. marks t. k. shan h. cottrell g. w. ( 2008 ) .
+sun : a bayesian framework for saliency using natural statistics . j. vis .
+8 , 32 - 32 . 10.1167 / 8.7.32 19146264 zhao y. rothkopf c. a. triesch j. shi b. e. ( 2012 ) .
+" a unified model of the joint development of disparity selectivity and vergence control ," in ieee international conference on development and learning and epigenetic robotics , san diego 10.1109 / devlrn.2012.6400876

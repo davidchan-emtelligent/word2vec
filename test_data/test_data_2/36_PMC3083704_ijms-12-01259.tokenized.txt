@@ -1,0 +1,398 @@
+int j mol sci ijms international journal of molecular sciences 1422 - 0067 molecular diversity preservation international ( mdpi ) 21541057 3083704 10.3390 / ijms12021259 ijms - 12 - 01259 article a classification study of respiratory syncytial virus ( rsv ) inhibitors by variable selection with random forest hao ming 1 li yan 1 * wang yonghua 2 zhang shuwei 1 1 school of chemical engineering , dalian university of technology , dalian , liaoning 116012 , china ; e - mails : dluthm @ yeah.net ( m.h. ) ; zswei @ dlut.edu.cn ( s.z . )
+2 center of bioinformatics , northwest a & f university , yangling , shaanxi 712100 , china ; e - mail : yh _ wang @ nwsuaf.edu.cn * author to whom correspondence should be addressed ; e - mail : yanli @ dlut.edu.cn ; tel. : + 86 - 411 - 84986062 ; fax : + 86 - 411 - 84986063 .
+21 2 2011 2011 12 2 1259 1280 13 12 2010 10 2 2011 11 2 2011 ( c ) 2011 by the authors ; licensee mdpi , basel , switzerland .
+2011 this article is an open - access article distributed under the terms and conditions of the creative commons attribution license ( http :// creativecommons.org / licenses / by / 3.0 /) .
+experimental pec50s for 216 selective respiratory syncytial virus ( rsv ) inhibitors are used to develop classification models as a potential screening tool for a large library of target compounds .
+variable selection algorithm coupled with random forests ( vs - rf ) is used to extract the physicochemical features most relevant to the rsv inhibition .
+based on the selected small set of descriptors , four other widely used approaches , i.e. , support vector machine ( svm ) , gaussian process ( gp ) , linear discriminant analysis ( lda ) and k nearest neighbors ( knn ) routines are also employed and compared with the vs - rf method in terms of several of rigorous evaluation criteria .
+the obtained results indicate that the vs - rf model is a powerful tool for classification of rsv inhibitors , producing the highest overall accuracy of 94.34 % for the external prediction set , which significantly outperforms the other four methods with the average accuracy of 80.66 % .
+the proposed model with excellent prediction capacity from internal to external quality should be important for screening and optimization of potential rsv inhibitors prior to chemical synthesis in drug development .
+rsv variable selection mold2 descriptors random forest 1 .
+introduction respiratory syncytial virus ( rsv ) , a single - stranded rna virus of negative genome polarity , is a member of the pneumovirus genus of the paramyxovirus family .
+rsv was first shown to occur in humans in 1957 , after being recovered from two infants hospitalized with severe lower respiratory tract infections [ 1,2 ] .
+today , rsv is recognized as the leading cause of virus - induced lower respiratory tract disease among infants and children [ 3 ] .
+most children are infected with rsv before two years of age , re - infection is a common occurrence and morbidity due to complications is high among premature infants and those with underlying cardiopulmonary problems [ 4 ] .
+moreover , rsv infections have been associated with increased prevalence of asthma in later childhood [ 5 ] .
+however , rsv was not recognized as a potentially serious problem in adults until the 1970s , when outbreaks of the virus occurred in long - term care facilities [ 6,7 ] .
+until a safe and effective antiviral can be developed for treatment of rsv infections , prevention of the infection by use of anti - rsv antibodies appears to be the most acceptable approach .
+the main therapeutic agents include ribavirin [ 8 ] and rsv - igiv [ 9 ] .
+however , both of them pose some disadvantages .
+for example , ribavirin is not a specific antiviral agent and is teratogenic , while rsv - igiv is derived from blood , and consequently has the potential to transmit blood - borne pathogens .
+thus , a search for more potent and selective inhibitors of rsv is clearly necessary .
+recently , nikitenko and co - workers have discovered a potent and selective inhibitor ( rfi - 641 ) [ 10 ] .
+chapman et al .
+[ 11 ] also reported the discovery and initial development of rsv604 , a novel benzodiazepine with submicromolar anti - rsv activity .
+in addition , with continuous efforts , meanwell and colleagues have examined several of benzimidazole derivatives with highly potent rsv inhibition activity [ 12 - 18 ] .
+traditionally , the biological activity of a drug candidate is obtained via costly and time consuming experiments .
+thus the introduction of in silico methods , including the quantitative structure - activity relationship ( qsar ) approaches in particular , has been explored in the drug development process for predicting the biological activity of drug candidates [ 19 - 23 ] prior to synthesis , thus attempting to eliminate undesirable compounds in a fast and cost - effective manner .
+however , to our best knowledge , there is still no report of any computational models to classify rsv inhibition activity .
+therefore , it is necessary to develop a predictive model to fill this gap .
+construction of a computational model often requires two conditions .
+the first factor is molecular descriptors , which are used to extract the structural information that is suitable for model development .
+the software mold2 [ 24 ] enables the rapid calculation of a large and diverse set of descriptors encoding two - dimensional chemical structure information .
+comparative analysis of mold2 descriptors with those calculated by cerius2 , dragon or molconnz on several data sets has demonstrated that mold2 descriptors can convey a similar amount of information as those widely - used software packages [ 24 ] .
+although a freely available software , it has been proven that mold2 is suitable not only for qsar [ 25 ] , but also for virtual screening large databases in drug development [ 24 ] .
+secondly , the adoption of appropriate classification approaches to establish models is another central element to obtain accurate prediction .
+often used classification methods include the simple but interpretable linear discriminant analysis ( lda ) and partial least square ( pls ) [ 26 ] , and nonlinear , relatively difficult to interpret but often highly predictive methods such as artificial neural networks ( ann ) [ 27 ] , support vector machine ( svm ) , random forest ( rf ) , gaussian process ( gp ) and so forth [ 28 - 31 ] .
+all of these methods have a proven record of many successful applications in computational modeling .
+however , several of these methods often suffer several limitations .
+for example , traditional statistical method like lda can only handle data sets where the number of descriptors ( p ) is smaller than that of the molecules ( n ) , unless again a pre - selection of the descriptors is executed ( e.g. , by using successive projections or genetic algorithms [ 32,33 ] , etc. ) .
+also they are not flexible enough and do not explain nonlinear behavior [ 28 ] .
+svm , a relatively new nonlinear technique employed in classification problems [ 34,35 ] , is not robust to the presence of a large number of irrelevant descriptors [ 28 ] .
+pls is a popular computational method that expresses a dependent variable in terms of linear combinations of the independent variables commonly known as principal components .
+however , pls may not be suitable for handling multiple mechanisms of action [ 28 ] , such as the nonlinear biological behaviors .
+random forest , a new classification and regression tool , has been reported as combining relatively high prediction accuracy and a collection of desired features that make rf uniquely suited for modeling in cheminformatics [ 28 ] including predicting a compound 's quantitative or categorical biological activity based on a quantitative description of the compound 's molecular structure .
+rf has shown excellent performance even when most predictive variables are noise , and be used when the number of variables is much larger than the number of observations , and returns measures of variable importance .
+it is well known that an ideal classification model should have high performance with a lower number of descriptors .
+thus , in the present work , to optimize the 2d ( two - dimensional ) molecular descriptor subset , while simultaneously enhancing the statistical performance and efficiency of the model , the variable selection ( vs ) method by rf combined with backward elimination using out - of - bag ( oob ) error is selected to perform a classification task for the current rsv inhibitors to investigate whether the proposed vs - rf method can construct an ideal prediction model ( i.e. , high performance with less descriptors ) for this dataset .
+this method was proposed originally for gene selection .
+the authors have proven that the novel approach can return very small sets of genes compared to the other alternative variable selection methods , while retaining predictive performance comparable to that of seven alternative state - of - art methods [ 36 ] .
+although this method has been successfully applied to gene selection and microarray data [ 36 ] , there is still no record of attempts to develop computational models for small molecular inhibitors .
+to extend the range of application , we examined the vs - rf method to classify the current dataset of rsv inhibitors .
+in addition , based on the performance evaluation , this method has also been compared with four other popular ones , i.e. , svm , gp , lda , and knn ( k nearest neighbors ) on the basis of the selected descriptors within the same data sets .
+2. results and discussion 2.1 .
+self - organizing map as a special kind of neural network that can be used for clustering , visualization , and abstraction tasks , self - organizing map ( som ) is especially suitable for data survey due to its prominent visualization properties .
+in our previous work , this technology has been successfully applied to dataset split [ 22,31 ] .
+som creates a set of prototype vectors representing the dataset and carries out a topology preserving projection of the prototypes from the d - dimensional input space onto a low - dimensional grid [ 37 ] , which is a convenient visualization space for showing the cluster structure of the data .
+in the present work , based on the som visualization of the whole data , the construction of the training and test sets was made [ 38 ] .
+a small kohonen network with 6 x 6 = 36 neurons was employed , producing a map with 36 positions .
+all the compounds with 272 molecular descriptors were placed onto the 36 positions ( neurons ) of the kohonen map .
+figure 1 demonstrates the distribution of the molecules , where the number corresponds to the series number of the compounds in table s1 ( supporting information ) .
+the training set is labeled in black and the prediction set in red .
+the purpose of performing the som simulation on the dataset was to guarantee that the representative points of the training set are distributed evenly within the whole area of the descriptor space occupied by the dataset and the representative points of the training set are close to those of the test set , which ensures the reliability of the simulation results .
+2.2 .
+selected descriptors using vs - rf a vs - rf strategy has been developed successfully , with the final number of descriptors being reduced to six from the original 272 for the further study .
+since it is recommended that the number of compounds in the training set should be at least five - times larger than that of the selected independent variables [ 39 ] , the model developed by vs - rf obviously maintains the recommended ratio .
+table 1 lists the selected descriptors together with their definitions and their values are listed in table s2 ( supporting information ) .
+2.3 .
+performance of different statistical methods based on the selected descriptors , five different statistical methods ( vs - rf , svm , gp , lda , knn ) were performed to compare their performance , and the detailed statistics are summarized in table 2 .
+the results predicted by these methods are presented in table s3 ( supporting information ) .
+vs - rf : random forest effectively has only one tuning parameter , mtry .
+in the present work , the mtry value was tried from 1 to 6 and the optimal value determined by 10 - fold cross - validation accuracy ( qcv = 0.816 ) .
+ultimately , optimal rf results are obtained based on the mtry = 4 and 500 trees in the forest .
+the efficiency and robustness of the derived models are further evaluated by using the external prediction set .
+as shown in table 2 , for the external prediction set , the prediction accuracies of vs - rf are 100 % for high active rsv inhibitors and 88.46 % for low active ones , with a total accuracy ( q ) of 94.34 % .
+the values of mcc and f are 0.89 and 0.96 , respectively .
+svm : similar to other multivariate statistical models , the performance of svm depends on the combination of several parameters including the capacity parameter c , the kernel type k and its corresponding indices .
+c is a regularization parameter which controls the tradeoff between maximizing the margin and minimizing the training error .
+in this work , the grid search technology was employed to obtain the optimum parameters ( c and sigma ) using the r package caret [ 40 ] on the basis of 10 - fold cross validation .
+here , the function sigest in the kernlab package [ 41 ] was used to provide a good estimate of the sigma parameter , so that only the c parameter was tuned .
+the final values used in the model are c = 10 and sigma = 0.284 with the highest 10 - fold cross - validation accuracy ( 0.791 ) .
+using the determined optimal parameters , the svm obtains statistical results of 85.19 % , 80.77 % and 83.02 % for the sensitivity , specificity and q of the test set , respectively .
+the mcc and f values are 0.66 and 0.84 , respectively .
+gp : the gaussian process method , based on clearly defined statistical principles and easily programmed [ 42 ] , was also adopted to classify the rsv - related compounds .
+the optimal inverse kernel width for the radial basis kernel function ( sigma ) was finally fixed to 0.284 based on sigest function including the r package kernlab .
+based on the 10 - cross - validation , the final qcv of gp we derived is 0.78 .
+as for the rf model , the gp model also presents 100 % sensitivity , however , a low specificity of 76.92 % for the test set .
+in addition , the values of q , mcc and f are 88.68 % , 0.79 and 0.9 , respectively .
+lda : a widely used classification technology , lda , was also performed to classify the current dataset based on the selected six descriptors .
+as shown in table 2 , no statistically satisfactory lda - based model could be obtained , with the optimal one only depicting sensitivity of 74.07 % , specificity of 80.77 % , and overall accuracy of 77.36 % for the test set .
+the value of qcv was just 0.675 .
+knn : after 10 - fold cross - validation , an optimal k = 17 was determined on the basis of the highest accuracy ( qcv = 0.729 ) .
+as seen from table 2 , the sensitivity and specificity for the prediction set are 81.48 % and 65.38 % , respectively. and the overall prediction accuracy for the test set is 73.58 % .
+the values of mcc and f are 0.48 and 0.76 .
+it is obvious that knn , of the five statistical methods , is uniformly less able to predict than the others .
+2.4 .
+comparison of different approaches from the above discussion , it can be concluded that the developed vs - rf model performed comparably with svm and gp , demonstrated by the qcv (%) of vs - rf , svm and gp of 81.6 % , 79.1 % and 78 % , respectively , in terms of cross - validation .
+these models outperform those of the lda and knn , whose qcv (%) are 67.5 % and 72.9 % , respectively .
+high cross - validation accuracy is necessary , but not sufficient for a model with high predictive ability [ 43 ] , thus an external validation is a better way to estimate the performance of the models .
+therefore , a further investigation of q (%) in the external prediction set was performed , where the vs - rf model increases about 11.32 % and 5.66 % compared to the svm and gp models , respectively .
+it should be noted that although gp shares the same prediction ability for high active compounds , for low active inhibitors the prediction accuracy decreases by 11.54 % compared with vs - rf. from this point of view , one can consider that the vs - rf model is more favorable than others for the rsv inhibitors .
+in addition , when comparing the other four models , it is observed that the lda model is comparable to that of knn , both of them presenting less overall accurate ( q ) ( 77.36 % for lda and 73.58 % for knn ) in the test set than the other models .
+the reason for lda 's failure may be due to the existence of some nonlinear relationship between the molecular structures and the corresponding activity .
+for knn , a possible reason for the low accuracy is that the method - - based on the euclidean distance - - may not be the most effective approach for every problem just like the present one .
+furthermore , for svm and gp , their internal prediction ability is comparable , while the performance of gp is slightly better than svm in terms of the external prediction .
+the area under the roc ( receiver operating characteristic ) curve ( auc ) [ 44,45 ] is also considered as an important criterion for measuring the performance of the model .
+an auc value of 1 indicates a theoretically perfect performance , while a value of 0.5 denotes no prediction ability .
+clearly , the closer the auc value is to 1 , the better the model performance is. figure 2 gives the roc curves of vs - rf , svm , gp , lda and knn for the prediction set .
+the computed auc values for the five statistical methods are 0.96 , 0.89 , 0.94 , 0.86 and 0.78 , respectively , also proving the good prediction ability and reliability of the vs - rf model .
+thus , our further analysis is only restricted to the vs - rf model for prediction of rsv inhibition .
+it should be noted that rf , as a new classification and regression tool , can well solve the small n and large p ( n < p , that is the number of samples is smaller than that of descriptors ) problems [ 28 ] even without variable selection .
+keeping this in mind , in order to estimate the effect of vs - rf , we have compared both the statistical performance with and without variable selection .
+as shown in table 3 , for the training set , the statistical performance obtained with or without variable selection makes no difference , while the time cost of rf is approximately 20 - times more than that of vs - rf. it must be pointed out that for the rf model without variable selection , the optimal mtry is obtained using grid search technology including the r package caret , and the search length is set to 10 .
+for the test set , one can see that the statistics of vs - rf outperform rf. the vs - rf presents a sensitivity of 100 % , while rf gives that of 92.59 % , that is to say there are two high active compounds misclassified to low active ones by rf. according to above analysis , one can conclude that the vs - rf model depicts not only high computation efficiency but also enhances prediction ability .
+therefore , for the rsv inhibitor classification , the vs - rf model gives very high statistical results with total accuracies of 100 % and 94.34 % , for the training and test set , respectively .
+in the final vs - rf model , three compounds ( no. 68 , 120 and 124 ) are misclassified ( tables s1 and s3 ; supporting information ) .
+the reason for misclassification of compound 68 is unclear , since by comparison with compound 39 , the former introduces a polar substituent ch2cooh instead of et , however , the activity decreases sharply suggesting the atomic polarizabilities may play a role in the rsv inhibition .
+compounds 120 and 124 are misclassified as high active molecules by the vs - rf model. by investigation of the correctly classified compounds , i.e. , 115 , 116 , 118 , 119 , 123 and 125 ~ 132 in tables s1 and s3 ( supporting information ) , it is revealed that all of them possess a linear r1 group at position 5 .
+however , compounds 120 and 124 have a ring - based substituent at the same location , which we suppose may be the reason for the misclassification .
+2.5 .
+interpretation of the selected descriptors by using feature selection , the most appropriate sets of molecular descriptors for predicting the rsv low and high active inhibitors are extracted from the vs - rf models , some of which probably provide new insights into the physicochemical characteristics of rsv inhibition by specific classes of compounds .
+d299 , one of the topological descriptors , is a molecular branching index that is calculated from the algebraic formulas derived by lovasz and pelikan for special types of trees such as path or star and for particular eigenvalues [ 46 ] .
+the highest molecular branching corresponds to the most branched graphs .
+this is in agreement with the previous result that the topology of the side chain is important to modulate physical properties [ 12 ] .
+d347 stands for molecular topological path index of order 07 .
+the path counts are molecular descriptors obtained from an h - depleted molecular graph and are vertex invariants encoding that molecular environment , defined as the number of path lengths m starting from the ith vertex to any other vertex in the graph .
+a path ( or self - avoiding walk ) is a walk without any repeated vertices [ 47 ] .
+the path length is the number of edges associated with the path , and this value is increased with the ring size , ring numbers , and the ramification number [ 48 ]. of the selected six descriptors , d503 and d513 belong to 2d autocorrelation classes , which represent the topological structure of the compounds but are more complex in nature than the classical topological descriptors .
+computation of these descriptors involves the summations of different autocorrelation functions corresponding to different structural lags and leads to different autocorrelation vectors corresponding to the lengths of sub - structural fragments .
+hence , it can distinguish the details of important sub - structural differences .
+in the previous work , the 2d autocorrelation descriptors have been proven advantageous for establishing a qsar model [ 49 - 53 ] .
+for the present work , the moran 's index i [ 53,54 ] is employed for the classification of rsv inhibitors : ( 1 ) i = n2lsumijdeltaij ( pki - p k )( pkj - p k ) sumi ( pki - p k ) where n is the total number of data points ; pki and pkj are the values of physicochemical properties ( i.e. , atomic van der waals volumes , and atomic polarizabilities in the present work ) k of atoms i and j , respectively ; pk is the average value of property k ; and deltaij is a dirac - delta function defined as ( 2 ) deltaij ={ 1if dij = 10if dij != 1where dij is the topological distance of spatial lag between atoms i and j. the 2d autocorrelation descriptors can be obtained by summing up the products of certain properties of the two atoms located at a given topological distance or spatial lag .
+the most important factor in interpreting them in the model is the topological distance , once weighted equally .
+in point of this fact , the best model selected an optimum descriptor combination , which includes van der waals volumes and atomic polarizabilities as the most relevant key features ( table 1 ) .
+this result illustrates that a certain distribution of these properties is necessary to distinguish the rsv inhibitors .
+the last selected two descriptors ( d513 and d528 ) belong to topological charge indices .
+d513 , molecular topological order - 3 charge index ( ggi3 ) represents the three eigenvalues of the corrected adjacency matrix of a molecule .
+d528 , the mean molecular topological order - 8 charge index ( jgi8 ) , is a kind of galvez topological charge index which evaluates the charge transfers between pairs of atoms and the global charge transfers in the molecule [ 55 ] .
+galvez charge indices ggik and jgik are computed as follows : ( 3 ) ggik = sumi = 1 , j = i + 1i = n - 1 , j = n | ctij | delta ( k,dij ) ( 4 ) jgik = ggikn - 1where n is the number of vertices ( atoms different to hydrogen ) in the molecular graph , and k the length of each path .
+ctij = mij - mji m stands for the elements of m matrix , m = a x d * where a is the adjacency ( n x n ) matrix of the molecular graph and d * is the inverse square distance matrix in which their diagonal entries are assigned as 0 , and delta is kronecker 's delta .
+thus , jgik represents the average of the ctij terms with dij = k , being dij the entries of the topological distance matrix ( d ) .
+in the charge indices terms , the presence of heteroatoms is taken into account by introducing their electronegativity values in the corresponding entry of the main diagonal of the adjacency matrix .
+these indices represent a strictly topological quantity plausibly correlating with the charge distribution inside the molecule .
+this distribution is an important property , which conditions the behavior of many physiochemical and biological properties .
+this index describes topological characteristics of the molecules. from the aforementioned discussion , it can be seen that the activity of these rsv inhibitors is mainly influenced by several factors including the molecular branching index and atomic polarizabilities .
+these results are to some extent in agreement with the corresponding related experimental conclusions [ 12,13,18 ] .
+for example , yu et al. reported that the topology of the side chain of rsv inhibitors is important , while we also find that the corresponding descriptors ( d299 and d347 ) play a part in rsv inhibition .
+the studies on a series of benzotriazole derivatives as rsv inhibitors [ 13 ] revealed a broad tolerance for substituent size and functionality , our selected 2d autocorrelation descriptors also disclose such information .
+in reference [ 12 ] , the authors reported that the polar functionality provides considerable latitude to modulate both the pharmaceutical and pharmacokinetic properties , which is found also to be of considerable importance in the quest for orally effective rsv inhibitors .
+in addition , reference [ 18 ] illustrated polarity in the oxime substituent in a series of compounds with potent antiviral activity in cell culture that combined good metabolic stability in vitro with high cell membrane permeability , and the descriptor d503 also depicts the role that atomic polarizabilities plays in rsv inhibition .
+as expected , besides the robust , sparse and predictive features , an ideal classification model would still be interpretable .
+in many cases , gaining an intuitive interpretation of important features from the two - dimensional qsar is not always simple .
+for the present work , it should be pointed out that our explanations for the current descriptors are just broad due to nonlinear model types and abstract descriptors .
+however , in terms of developing a highly predictive classification model , the proposed vs - rf model in this work could allow this task .
+3. material and experimental methods 3.1 .
+data sets a large , diverse dataset of 216 rsv inhibitors collected from the literature [ 12 - 18 ] published by the same research group with converted molar pec50 ( - logec50 ) values ranging from less than 3.563 to 8.699 mole were used as the dataset in the present study .
+these ec50 values were the results of two experiments performed on consecutive weeks with the data from individual experiments shown in parentheses .
+based on the inhibitory activity , the dataset is split into two classes , i.e. , 107 low active compounds with pec50 < 6.5 and 109 high active ones with pec50 > 7.5 .
+table 4 depicts several representative compounds together with their classification labels .
+all information of the dataset with their diverse scaffolds of structures is provided in table s1 ( supporting information ) .
+3.2 .
+descriptors calculation and pre - processing in the present work , the two dimensional structures of all rsv inhibitors were built with the isis / draw 2.3 program [ 56 ] , and converted to sdf format by open babel software package ( http :// openbabel.sourceforge.net /) .
+the final structures were transferred into mold2 [ 24 ] , a free program available to public to calculate molecular descriptors .
+the mold2 software package can calculate 777 molecular descriptors solely from 2d chemical structures , and the models generated using mold2 descriptors were reported comparable to those generated using descriptors from the compared commercial software packages [ 24 ] .
+in our work , all original 777 mold2 molecular descriptors were calculated , and then underwent a pre - processing process ( also called unsupervised selection of descriptors ) as follows : ( 1 ) descriptors containing larger than 85 % zero values were removed ; ( 2 ) zero - and near zero - variance predictors were removed because such descriptors may cause the model to crash or the fit to be unstable ; and ( 3 ) one of the two descriptors that have the absolute correlations above 0.95 was omitted .
+after these steps , the number of original descriptors was reduced to 272 for further research .
+3.3 .
+split of the training and test sets rational division of an experimental sar ( structure - activity relationship ) dataset into the respective training and test sets for model development and validation is very important .
+the methods often used include random sampling ( rs ) , kennard - stone ( ks ) , k - mean clustering , and self - organizing map , etc .
+the basic rule should be that the points of the training set are distributed evenly within the whole area covered by the dataset , and that the condition of closeness of the test set points to those of the training set is satisfied [ 57 ] .
+for the independent prediction set , we performed our selection on the basis of their distribution in the chemical space , which is defined by kohonen neural network [ 58 ] .
+the kohonen neural network of dimension 6 x 6 was applied , which enables one to map objects into 36 positions .
+similar objects were mapped into the same position ( x , y coordinates in a kohonen map ) .
+only one part of a representative object from each position in the kohonen map was chosen for the training set , respecting the original proportion among the different classes and the predefined 3:1 ratio between the training and the test objects .
+the rest were put into the test set .
+the self - organizing map simulations were carried out using internally developed c - language program .
+the training set was used for the development of the classification models , and the independent prediction set was used for the assessment of the system .
+the training and independent test sets contain 163 ( 81 low active and 82 high active ) and 53 ( 26 low active and 27 high active ) compounds , respectively , with approximately one - fourth of the respective groups assigned in the independent prediction set .
+3.4 .
+statistical methods vs - rf : random forest model was constructed according to the described original rf algorithm [ 59 ] .
+rf is an ensemble of single decision trees , whose assembly produces a corresponding number of outputs and the outputs of all trees are aggregated to obtain one final prediction .
+the training algorithm of the rf for classification can be briefly summarized as follows : ( 1 ) draw n bootstrap samples from the original training set .
+( 2 ) construct an unpruned tree tp ( p = 1 , ... , n ) with each training set bp. at each node , rather than choosing the best split among all predictors , randomly sample mtry of the predictors and then choose the best split from among those variables .
+the tree is grown to maximum size and not pruned back .
+( 3 ) predict the n trees by majority vote for classification .
+rf algorithm is the same as bagging when mtry = p and the tree growing algorithm used in rf is cart ( classification and regression tree ) .
+the rf algorithm can be efficient especially when the number of descriptors ( p ) is very large .
+this is because rf only tests the mtry of the descriptors rather than the p , where the default mtry is the square root of the number of descriptors for classification .
+thus , mtry is very small , so that the search is very fast .
+rf possesses its own reliable statistical characteristics based on oob set prediction , which could be used for validation and model selection with no cross - validation performed .
+it was shown that the prediction accuracy of an oob set and a 5 - fold cross validation procedure was nearly the same [ 28 ] .
+although rf performs relatively well " off the shelf " without expending much effort on parameter tuning or variable selection [ 28 ] , it is also important for carrying out some tentative investigations on the changes of mtry or descriptor selection to optimize the performance of rf. in the current study , the optimal mtry was determined when the prediction accuracy reached the highest based on the 10 - fold cross - validation .
+random forest , as a new classification and regression tool , has not been frequently applied in qsar , qspr ( quantitative structure - property relationship ) [ 25,28,60,61 ] .
+thus it should be of value to investigate whether the rf can be applied to obtain better statistical performance for the current dataset of rsv inhibitors .
+here , only a brief introduction about rf is presented , since more details can be found in corresponding literatures [ 28,59 ] .
+in the present work , the rf algorithm was employed using the r package randomforest [ 62 ] .
+as expected , an ideal classification model should possess high prediction ability with a small set of descriptors .
+thus , variable selection with random forest was used to implement this task .
+here , we simply introduce the vs - rf. to select optimal descriptors , random forests were iteratively fitted , at each iteration building a new forest after discarding those descriptors with the smallest variable importance ; the selected set of descriptor is the one that yields the smallest oob error rate .
+in this algorithm , all forests result from eliminating , iteratively , a fraction , fraction.dropped , of the descriptors ( the least important ones ) used in the previous iteration. by default , fraction.dropped = 0.2 , which allows for relatively fast operation , coherent with the idea of an " aggressive variable selection " approach , and increases the resolution as the number of descriptors considered becomes smaller .
+after fitting all forests , the oob error rates from all the fitted random forests were examined. and the solution with the smallest number of descriptors whose error rate is within mu standard errors of the minimum error rate of all forests is chosen .
+setting mu = 0 is the same as selecting the set of descriptors that leads to the smallest error rate .
+setting mu = 1 is similar to the common " 1 s.e. rule " , used in the classification trees [ 36 ] .
+in our work , the mu = 1 was adopted , since this strategy can lead to solutions with fewer descriptors than selecting the solution with the smallest error rate , while achieving an error rate that is not different , within sampling error , from the " best solution " .
+more details on the vs - rf can be found in literature [ 36 ] .
+the variable selection from random forest was performed using the r package varselrf [ 63 ] .
+all parameters were adopted by default .
+svm : support vector machines are a relatively new type of learning algorithm originally introduced by vapnik and co - workers [ 64 ] .
+due to its many attractive features and promising empirical performances , svm is gaining increasing popularity in many fields [ 65,66 ] , and thus was also performed in the present work .
+since there have been a number of excellent introductions into svm [ 35,64,67 ] , only a briefly description of the main idea of svm classification is presented here .
+for the classification task , briefly , this involves the optimization of lagrangian multipliers alphai with constraints 0 <= alphai <= c and sumalphai yi = 0 to yield a decision function as follows : ( 5 ) f ( x )= sign ( sumi = 1lyialphaik ( x,xi )+ b ) where yi are input class labels that take a value of - 1 or 1 , xi are a set of descriptors , and k ( x , xi ) is a kernel function , whose value is equal to the inner product of two vectors x and xi in the feature space phi ( x ) and phi ( xi ) , i.e. , k ( x , xi ) = phi ( x ) x phi ( xi ) .
+the elegance of using a kernel function lies in the fact that one can deal with feature spaces of arbitrary dimensionality without having to compute the phi ( x ) explicitly .
+any function that satisfies mercer 's condition can be used as the kernel function .
+the sign function sign ( mu ) returns 1 when mu > 0 , and - 1 when mu <= 0 .
+in support vector classification , the gaussian kernel k ( mu , upsilon ) = exp ( - | mu - upsilon | 2 / delta2 ) was used. and the r package kernlab was used to develop the svm classification model .
+gp : preliminarily used in qsar field , the gaussian process ( gp ) was also introduced in the present study to classify the rsv inhibitors .
+pioneering work was made by burden [ 42 ] who demonstrated gp applications in qsar modeling of data sets of compounds active at the benzodiazepine and muscarinic receptors , etc .
+in addition , the authors of these references [ 68 - 71 ] have also reported the successful use of gp in statistical predictions of a series of pharmacokinetic properties .
+recently , gp was also reported to be applied both in an automatic qsar modeling of adme ( absorption , distribution , metabolism , excretion ) properties [ 72 ] , and the multivariate spectroscopic calibration [ 73 ] .
+all these works confirmed the possibility of gp as a promising machine learning tool , to be used in qsar studies .
+in view of this , the present study is dedicated to introducing gp in classification modeling of rsv inhibitors .
+a gaussian process is defined simply as a collection of random variables which have a joint gaussian distribution .
+it is completely characterized by its mean and covariance function .
+in the gp , the kernel function used in training and prediction contains ( 1 ) radial basis kernel function " gaussian " ; ( 2 ) polynomial kernel function ; ( 3 ) linear kernel function ; ( 4 ) hyperbolic tangent kernel function ; ( 5 ) laplacian kernel function ; ( 6 ) bessel kernel function ; ( 7 ) anova rbf kernel function ; and ( 8 ) spline kernel .
+in the present work , the popular radial basis kernel function was chosen , with the kernel parameters determined by sigest function implemented in the r package kernlab .
+lda : lda is a pattern recognition method providing a classification model based on the combination of variables that best predicts the category or group to which a given compounds belongs .
+the basic theory of lda is to classify the dependents by dividing an n - dimensional descriptor space into two regions that are separated by a hyperplane defined by a linear discriminant function .
+in this study , the independent variables were the calculated molecular descriptors , and the discrimination property was ec50 ( represented by either high active or low active ) .
+statistical analyses were performed using the r package mass [ 74 ] .
+knn : knn measures the euclidean distance between a to - be - classified vector x and each individual vector xi in the training set [ 75 ] .
+a total of k number of vectors nearest to the vector x are used to determine its class , f ( x ) : ( 6 ) f ^( x )< - - arg maxvinv sumi = 1kdelta [ v , f ( xi )] where delta ( a,b ) = 1 if a = b and delta ( a,b ) = 0 if a != b , argmax is the maximum of the function , v is a finite set of vectors { v1 ,... vs } , and f ( x ) is an estimate of f ( x ) .
+here , estimate refers to the class of the majority of the knns .
+here , the knn computation was performed by r package caret [ 40 ] .
+3.5 .
+evaluation of the statistical performance as in the case of all discriminative methods [ 22,31 ] , the performance of statistical learning methods can be measured by a series of parameters including the quantity of true positives ( tp ) , true negatives ( tn ) , false positives ( fp ) , false negatives ( fn ) , sensitivity ( se ) ( also called recall ) , se = tp /( tp + fn ) , which is the prediction accuracy for the high active compounds in this work , and specificity ( sp ) , sp = tn /( tn + fp ) , which is the prediction accuracy for the low active inhibitors , precision = tp /( tp + fp ) , which is the positive predictive value .
+the overall prediction accuracy ( q ) , matthews correlation coefficient ( mcc ) and f - measure , a function of recall and precision which indicated the accuracy of real and estimated class , respectively , are also used to measure the prediction accuracies and can be given as follows : ( 7 ) q = tp + tntp + tn + fp + fn ( 8 ) mcc = tpxtn - fnxfp ( tp + fn )( tp + fp )( tn + fn )( tn + fp ) ( 9 ) f - measue = 2xrecallxprecisionrecall + precision 4 .
+conclusions in the present work , based on the up - to - date largest dataset ( to our best knowledge ) of 216 structurally diverse rsv inhibitors , a vs - rf classification model with good predictive performance ( the overall q = 94.34 % for the prediction set ) has been built. by explanation of the selected descriptors , we conclude that the topological structure and electronic factors play a central role in the rsv inhibition .
+moreover , a comparison with four other statistical methods , i.e. , svm , gp , lda and knn , demonstates that the vs - rf model presents better statistics both for the training and test sets. through a comparison of rf statistical performance with and without variable selection based on these rsv inhibitors , the proposed vs - rf method not only improves the prediction ability but also enhances computational efficiency .
+therefore , we hope that this method and the derived model will be of help for predictive tasks to screen new and potent rsv inhibitors in early drug development .
+this work is financially supported by the national natural science foundation of china ( grant no. 10801025 ) .
+the authors thank the r development core team for affording the free r2.10 software .
+references 1 .
+chanock r roizman b myers r recovery from infants with respiratory illness of a virus related to chimpanzee coryza agent ( cca ) am. j. epidemiol 1957 66 281 290 2 .
+cianci c genovesi e lamb l medina i yang z zadjura l yang h d'arienzo c sin n yu k oral efficacy of a respiratory syncytial virus inhibitor in rodent models of infection antimicrob .
+agents chemother 2004 48 2448 2454 15215093 3 .
+cianci c yu k combrink k sin n pearce b wang a civiello r voss s luo g kadow k orally active fusion inhibitor of respiratory syncytial virus antimicrob .
+agents chemother 2004 48 413 422 14742189 4 .
+greensill j mcnamara p dove w flanagan b smyth r hart c human metapneumovirus in severe respiratory syncytial virus bronchiolitis emerg. infect .
+dis 2003 9 372 375 12643835 5 .
+sigurs n gustafsson p bjarnason r lundberg f schmidt s sigurbergsson f kjellman b severe respiratory syncytial virus bronchiolitis in infancy and asthma and allergy at age 13 am. j. respir. crit .
+care med 2005 171 137 141 15516534 6 .
+hart r an outbreak of respiratory syncytial virus infection in an old people 's home j. infect 1984 8 259 261 6736667 7 .
+falsey ar hennessey pa formica ma cox c walsh ee respiratory syncytial virus infection in elderly and high - risk adults n. engl. j. med 2005 352 1749 1759 15858184 8 .
+ding w - d mitsner b krishnamurthy g aulabaugh a hess cd zaccardi j cutler m feld b gazumyan a raifeld y novel and specific respiratory syncytial virus inhibitors that target virus fusion j. med. chem 1998 41 2671 2675 9667956 9 .
+sidwell r barnard d respiratory syncytial virus infections : recent prospects for control antiviral res 2006 71 379 390 16806515 10 .
+nikitenko a raifeld y wang t the discovery of rfi - 641 as a potent and selective inhibitor of the respiratory syncytial virus bioorg. med. chem .
+lett 2001 11 1041 1044 11327584 11 .
+chapman j abbott e alber d baxter r bithell s henderson e carter m chambers p chubb a cockerill g rsv604 , a novel inhibitor of respiratory syncytial virus replication antimicrob .
+agents chemother 2007 51 3346 3353 17576833 12 .
+yu k - l zhang y civiello rl kadow kf cianci c krystal m meanwell na fundamental structure - activity relationships associated with a new structural class of respiratory syncytial virus inhibitor bioorg. med. chem .
+lett 2003 13 2141 2144 12798322 13 .
+yu k - l zhang y civiello rl trehan ak pearce bc yin z combrink kd gulgeze hb wang xa kadow kf respiratory syncytial virus inhibitors .
+part 2 : benzimidazol - 2 - one derivatives bioorg. med. chem .
+lett 2004 14 1133 1137 14980651 14 .
+yu k - l wang xa civiello rl trehan ak pearce bc yin z combrink kd gulgeze hb zhang y kadow kf respiratory syncytial virus fusion inhibitors .
+part 3 : water - soluble benzimidazol - 2 - one derivatives with antiviral activity in vivo bioorg. med. chem .
+lett 2006 16 1115 1122 16368233 15 .
+yu k - l sin n civiello rl wang xa combrink kd gulgeze hb venables bl wright jjk dalterio ra zadjura l respiratory syncytial virus fusion inhibitors .
+part 4 : optimization for oral bioavailability bioorg. med. chem .
+lett 2007 17 895 901 17169560 16 .
+wang xa cianci cw yu k - l combrink kd thuring jw zhang y civiello rl kadow kf roach j li z respiratory syncytial virus fusion inhibitors .
+part 5 : optimization of benzimidazole substitution patterns towards derivatives with improved activity bioorg. med. chem .
+lett 2007 17 4592 4598 17576060 17 .
+combrink kd gulgeze hb thuring jw yu k - l civiello rl zhang y pearce bc yin z langley dr kadow kf respiratory syncytial virus fusion inhibitors .
+part 6 : an examination of the effect of structural variation of the benzimidazol - 2 - one heterocycle moiety bioorg. med. chem .
+lett 2007 17 4784 4790 17616396 18 .
+sin n venables bl combrink kd gulgeze hb yu k - l civiello rl thuring j wang xa yang z zadjura l respiratory syncytial virus fusion inhibitors .
+part 7 : structure - activity relationships associated with a series of isatin oximes that demonstrate antiviral activity in vivo bioorg. med. chem .
+lett 2009 19 4857 4862 19596574 19 .
+roy pp roy k qsar studies of cyp2d6 inhibitor aryloxypropanolamines using 2d and 3d descriptors chem. biol .
+drug des 2009 73 442 455 19291105 20 .
+hemmateenejad b miri r akhond m shamsipur m qsar study of the calcium channel antagonist activity of some recently synthesized dihydropyridine derivatives .
+an application of genetic algorithm for variable selection in mlr and pls methods chemom. intell. lab .
+syst 2002 64 91 99 21 .
+agrafiotis d bandyopadhyay d wegner j van vlijmen h recent advances in chemoinformatics j. chem. inf .
+model 2007 47 1279 1293 17511441 22 .
+sun x li y liu x ding j wang y shen h chang y classification of bioaccumulative and non - bioaccumulative chemicals using statistical learning approaches mol .
+divers 2008 12 157 169 18937041 23 .
+roy k leonard lt classical qsar modeling of anti - hiv 2,3 - diaryl - 1,3 - thiazolidin - 4 - ones qsar comb .
+sci 2005 24 579 592 24 .
+hong h xie q ge w qian f fang h shi l su z perkins r tong w mold2 , molecular descriptors from 2d structures for chemoinformatics and toxicoinformatics j. chem. inf .
+model 2008 48 1337 1344 18564836 25 .
+hao m li y wang y zhang s prediction of pkctheta inhibitory activity using the random forest algorithm int. j. mol .
+sci 2010 11 3413 3433 20957104 26 .
+wang y li y wang b an in silico method for screening nicotine derivatives as cytochrome p450 2a6 selective inhibitors based on kernel partial least squares int. j. mol .
+sci 2007 8 166 179 27 .
+wang z li y ai c wang y in silico prediction of estrogen receptor subtype binding affinity and selectivity using statistical methods and molecular docking with 2 - arylnaphthalenes and 2 - arylquinolines int. j. mol .
+sci 2010 11 3434 3458 20957105 28 .
+svetnik v liaw a tong c culberson jc sheridan rp feuston bp random forest : a classification and regression tool for compound classification and qsar modeling j. chem. inf. comput .
+sci 2003 43 1947 1958 14632445 29 .
+obrezanova o segall m gaussian processes for classification : qsar modeling of admet and target activity j. chem. inf .
+model 2010 50 1053 1061 20433177 30 .
+zhou p chen x wu y shang z gaussian process : an alternative approach for qsam modeling of peptides amino acids 2010 38 199 212 19123053 31 .
+li y wang y ding j wang y chang y zhang s in silico prediction of androgenic and nonandrogenic compounds using random forest qsar comb .
+sci 2009 28 396 405 32 .
+pontes m galvaob r araujo m moreira p neto o josea g saldanha t the successive projections algorithm for spectral variable selection in classification problems chemom. intell. lab .
+syst 2005 78 11 18 33 .
+bakken g jurs p classification of multidrug - resistance reversal agents using structure - based descriptors and linear discriminant analysis j. med. chem 2000 43 4534 4541 11087578 34 .
+pourbasheer e riahi s ganjali m norouzi p qsar study on melanocortin - 4 receptors by support vector machine eur. j. med. chem 2010 45 1087 1093 20031282 35 .
+doucet jp barbault f xia hr panaye a fan b nonlinear svm approaches to qspr / qsar studies and drug design curr. comput .
+aided drug des 2007 3 263 289 36 .
+diaz - uriarte r alvarez de andres s gene selection and classification of microarray data using random forest bmc bioinformatics 2006 7 3 1 3 13 16393334 37 .
+vesanto j alhoniemi e clustering of the self - organizing map ieee trans .
+neural networks 2000 11 586 600 38 .
+zupan j novic m ruisanchez i kohonen and counterpropagation artificial neural networks in analytical chemistry chemom. intell. lab .
+syst 1997 38 1 23 39 .
+eriksson l jaworska j worth a cronin m mcdowell r gramatica p methods for reliability and uncertainty assessment and for applicability evaluations of classification - and regression - based qsars environ .
+health perspect 2003 111 1361 1375 12896860 40 .
+kuhn m caret : classification and regression training .
+cran : wien , austria , 2010 ; available online : http :// cran.r - project.org / web / packages / caret / index.html ( accessed on 11 february 2011 ) .
+41. karatzoglou a smola a hornik k kernlab : kernel - based machine learning lab .
+cran : wien , austria , 2010 ; available online : http :// cran.r - project.org / web / packages / kernlab / index.html ( accessed on 11 february 2011 ) .
+42. burden f quantitative structure - activity relationship studies using gaussian processes j. chem. inf. comput .
+sci 2001 41 830 835 11410065 43 .
+golbraikh a tropsha a beware of q2 !
+j. mol. graph .
+model 2002 20 269 276 11858635 44 .
+triballeau n acher f brabet i pin j - p bertrand h - o virtual screening workflow development guided by the " receiver operating characteristic " curve approach .
+application to high - throughput docking on metabotropic glutamate receptor subtype 4 j. med. chem 2005 48 2534 2547 15801843 45 .
+bradley a the use of the area under the roc curve in the evaluation of machine learning algorithms pattern recognit 1997 30 1145 1159 46 .
+lovasz l pelikan j on the eigenvalues of trees periodica mathematica hungarica 1973 3 175 182 47 .
+helguera am rodriguez - borges je garcia - mera x fernandez f natalia m cordeiro ds probing the anticancer activity of nucleoside analogues : a qsar model approach using an internally consistent training set j. med. chem 2007 50 1537 1545 17341060 48 .
+randic m wilkins c graph theoretical approach to recognition of structural similarity in molecules j. chem. inf. comput .
+sci 1979 19 31 37 49 .
+saiz - urra l gonzalez m teijeira m 2d - autocorrelation descriptors for predicting cytotoxicity of naphthoquinone ester derivatives against oral human epidermoid carcinoma bioorg. med. chem 2007 15 3565 3571 17368033 50 .
+caballero j garriga m fernandez m 2d autocorrelation modeling of the negative inotropic activity of calcium entry blockers using bayesian - regularized genetic neural networks bioorg. med. chem 2006 14 3330 3340 16442799 51 .
+bauknecht h zell a bayer h levi p wagener m sadowski j gasteiger j locating biologically active compounds in medium - sized heterogeneous datasets by topological autocorrelation vectors : dopamine and benzodiazepine agonists j. chem. inf. comput .
+sci 1996 36 1205 1213 8941996 52 .
+moreau g broto p the autocorrelation of a topological structure : a new molecular descriptor nouv. j. chim 1980 4 359 360 53 .
+wagener m sadowski j gasteiger j autocorrelation of molecular surface properties for modeling corticosteroid binding globulin and cytosolic ah receptor activity by neural networks j. am. chem .
+soc 1995 117 7769 7775 54 .
+moran p notes on continuous stochastic phenomena biometrika 1950 37 17 23 15420245 55 .
+galvez j garcia r salabert mt soler r charge indexes .
+new topological descriptors j. chem. inf. comput .
+sci 1994 34 520 525 56 .
+isis draw 2.3 .
+mdl information systems , inc. : san leandro , ca , usa , 2010 57 .
+golbraikh a tropsha a predictive qsar modeling based on diversity sampling of experimental datasets for the training and test set selection j. comput .
+aided mol .
+des 2002 16 357 369 12489684 58 .
+kohonen t the self - organizing map proc. inst .
+electrical electronics eng 1990 78 1464 1480 59 .
+breiman l random forests mach .
+learn 2001 45 5 32 60 .
+polishchuk pg muratov en artemenko ag kolumbin og muratov nn kuz'min ve application of random forest approach to qsar prediction of aquatic toxicity j. chem. inf .
+model 2009 49 2481 2488 19860412 61 .
+palmer d o'boyle n glen r mitchell j random forest models to predict aqueous solubility j. chem. inf .
+model 2007 47 150 158 17238260 62 .
+breiman l cutler a liaw a wiener m randomforest : breiman and cutler 's random forests for classification and regression .
+cran : wien , austria , 2010 ; available online : http :// cran.r - project.org / web / packages / randomforest / index.html ( accessed on 11 february 2011 ) .
+63. diaz - uriarte r varselrf : variable selection using random forests .
+cran : wien , austria , 2010 ; available online : http :// cran.r - project.org / web / packages / varselrf / index.html ( accessed on 11 february 2011 ) .
+64. guyon i weston j barnhill s vapnik v gene selection for cancer classification using support vector machines mach .
+learn 2002 46 389 422 65 .
+riahi s pourbasheer e dinarvand r ganjali mr norouzi p exploring qsars for antiviral activity of 4 - alkylamino - 6 - ( 2 - hydroxyethyl ) - 2 - methylthiopyrimidines by support vector machine chem. biol .
+drug des 2008 72 205 216 18715229 66 .
+kriegl jm arnhold t beck b fox t a support vector machine approach to classify human cytochrome p450 3a4 inhibitors j. comput .
+aided mol .
+des 2005 19 189 201 16059671 67 .
+furey t cristianini n duffy n bedarski d schummer m haussler d support vector machine classification and validation of cancer tissue samples using microarray expression data bioinformatics 2000 16 906 914 11120680 68 .
+enot d gautier r marouille j gaussian process : an efficient technique to solve quantitative structure - property relationship problems sar qsar environ .
+res 2001 12 461 469 11813811 69 .
+tino p nabney it williams bs losel j sun y nonlinear prediction of quantitative structure - activity relationships j. chem. inf. comput .
+sci 2004 44 1647 1653 15446822 70 .
+schwaighofer a schroeter t mika s laub j ter laak a sulzle d ganzer u heinrich n muller k accurate solubility prediction with error bars for electrolytes : a machine learning approach j. chem. inf .
+model 2007 47 407 424 17243756 71 .
+schroeter t schwaighofer a mika s ter laak a suelzle d ganzer u heinrich n muller k predicting lipophilicity of drug - discovery molecules using gaussian process models chem. med. chem 2007 2 1265 1267 17576646 72 .
+obrezanova o csanyi g gola jmr segall md gaussian processes : a method for automatic qsar modeling of adme properties j. chem. inf .
+model 2007 47 1847 1857 17602549 73 .
+chen t morris j martin e gaussian process regression for multivariate spectroscopic calibration chemom. intell. lab .
+syst 2007 87 59 71 74 .
+mass : main package of venables and ripley 's mass .
+cran : wien , austria , 2010 ; available online : http :// cran.r - project.org / web / packages / mass / index.html ( accessed on 11 february 2011 ) .
+75. gunturi sb narayanan r in silico adme modeling 3 : computational models to predict human intestinal absorption using sphere exclusion and knn qsar methods qsar comb .
+sci 2007 26 653 668 figure 1 .
+self - organizing map ( som ) top map indicating the distribution of the training and external prediction sets .
+the training set is labeled in black font and the prediction set in red font .
+the number corresponds to the series number of the compounds of the rsv inhibitors .
+figure 2 .
+the roc ( receiver operating characteristic ) curves of vs - rf , svm , gp , lda and knn for the prediction set .
+table 1 .
+the selected 6 mold2 descriptors using variable selection algorithm coupled with random forests ( vs - rf ) and their definition .
+descriptor definition class d299 the largest eigenvalue eigenvalue - based indices d347 molecular topological path index of order 07 walk and path counts d490 moran topological structure autocorrelation length - 4 weighted by atomic van der waals volumes 2d autocorrelation d503 moran topological structure autocorrelation length - 1 weighted by atomic polarizabilities 2d autocorrelation d513 molecular topological order - 3 charge index topological charge indices d528 mean molecular topological order - 8 charge index topological charge indices table 2 .
+the prediction performance of high and low active compounds as respiratory syncytial virus ( rsv ) inhibitors from vs - rf , svm , gp , lda and knn statistical methods for the external prediction set and the 10 - fold cross - validationa .
+model high active inhibitors low active inhibitors q (%) mcc f qcv (%) tp fn se (%) tn fp sp (%) vs - rf 27 0 100 23 3 88.46 94.34 0.89 0.96 81.6 svm 23 4 85.19 21 5 80.77 83.02 0.66 0.84 79.1 gp 27 0 100 20 6 76.92 88.68 0.79 0.9 78 lda 20 7 74.07 21 5 80.77 77.36 0.55 0.77 67.5 knn 22 5 81.48 17 9 65.38 73.58 0.48 0.76 72.9 a , vs - rf , mtry = 4 ; svm , c = 10 , sigma = 0.284 ; gp , sigma = 0.284 ; knn , k = 17 ; tp , true positives ; fn , false negatives ; se , sensitivity ; tn , true negatives ; fp , false positives ; sp , specificity ; q , the overall prediction accuracy ; mcc , matthews correlation coefficient ; f , f - measure ; qcv , the prediction accuracy from 10 - fold cross - validation for the training set .
+table 3 .
+comparison of random forest ( rf ) statistical performance with and without variable selection based on the respiratory syncytial virus ( rsv ) inhibitor dataset a. high active inhibitors low active inhibitors model tp fn se (%) tn fp sp (%) q (%) qcv time cost ( s ) training set rf 82 0 100 81 0 100 100 0.816 171.42 vs - rf 82 0 100 81 0 100 100 0.816 8.06 test set rf 25 2 92.59 23 3 88.46 90.57 - - vs - rf 27 0 100 23 3 88.46 94.34 - - a , for rf , mtry = 62 ; for vs - rf , mtry = 4 ; tp , true positives ; fn , false negatives ; se , sensitivity ; tn , true negatives ; fp , false positives ; sp , specificity ; q , the overall prediction accuracy ; mcc , matthews correlation coefficient ; f , f - measure ; qcv , the prediction accuracy from 10 - fold cross - validation for the training set .
+table 4 .
+representative compounds with their chemical names , activities and classes used in the dataset. no. structure pec50 classb ref.a 1 4.507 l 12 2 6.328 l 12 3 5.174 l 12 4 * 6.222 l 12 5 5.959 l 12 7 5.959 l 12 8 * 4.81 l 12 9 5.481 l 12 10 5.114 l 12 11 5.570 l 12 12 * 6.284 l 12 29 6.125 l 13 30 8.398 h 13 31 7.959 h 13 32 * 7.796 h 13 34 7.602 h 13 35 7.745 h 13 36 7.921 h 13 37 7.678 h 13 38 8.046 h 13 39 * 8.000 h 13 41 7.959 h 13 42 * 7.854 h 13 43 7.824 h 13 * , test set ; a , from the corresponding reference ; b , h denotes high active compounds , l denotes low active compounds .

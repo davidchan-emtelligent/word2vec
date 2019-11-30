@@ -1,0 +1,531 @@
+sci rep sci rep scientific reports 2045 - 2322 nature publishing group 26868667 4751475 srep21223 10.1038 / srep21223 article using contrast patterns between true complexes and random subgraphs in ppi networks to predict unknown protein complexes liu quanzhong a1 song jiangning 234 li jinyan b5 1 college of information engineering , northwest a & f university , yangling 712100 , china 2 monash bioinformatics platform and department of biochemistry and molecular biology , monash university , melbourne , vic 3800 , australia 3 monash centre for data science , faculty of information technology , monash university , melbourne , vic 3800 , australia 4 national engineering laboratory for industrial enzymes and key laboratory of systems microbial biotechnology , tianjin institute of industrial biotechnology , chinese academy of sciences , tianjin 300308 , china 5 advanced analytics institute and centre for health technologies , faculty of engineering and it , university of technology sydney , 81 broadway , nsw 2007 , australia a liuqzhong @ nwsuaf.edu.cn b jinyan.li @ uts.edu.au 12 02 2016 2016 6 21223 08 10 2015 19 01 2016 copyright ( c ) 2016 , macmillan publishers limited 2016 macmillan publishers limitedthis work is licensed under a creative commons attribution 4.0 international license .
+the images or other third party material in this article are included in the article 's creative commons license , unless indicated otherwise in the credit line ; if the material is not included under the creative commons license , users will need to obtain permission from the license holder to reproduce the material .
+to view a copy of this license , visit http :// creativecommons.org / licenses / by / 4.0 / most protein complex detection methods utilize unsupervised techniques to cluster densely connected nodes in a protein - protein interaction ( ppi ) network , in spite of the fact that many true complexes are not dense subgraphs .
+supervised methods have been proposed recently , but they do not answer why a group of proteins are predicted as a complex , and they have not investigated how to detect new complexes of one species by training the model on the ppi data of another species .
+we propose a novel supervised method to address these issues .
+the key idea is to discover emerging patterns ( eps ) , a type of contrast pattern , which can clearly distinguish true complexes from random subgraphs in a ppi network .
+an integrative score of eps is defined to measure how likely a subgraph of proteins can form a complex .
+new complexes thus can grow from our seed proteins by iteratively updating this score .
+the performance of our method is tested on eight benchmark ppi datasets and compared with seven unsupervised methods , two supervised and one semi - supervised methods under five standards to assess the quality of the predicted complexes .
+the results show that in most cases our method achieved a better performance , sometimes significantly .
+a protein complex is a group of proteins that interact one another for specific biological activities1 .
+identification of protein complexes is important for predicting protein functions2 , disease genes34 , phenotypic effects of genetic mutations5 , and drug - disease associations6 .
+it not only helps to characterize and understand certain biological processes7 , also improves our understanding on human diseases8 .
+laboratory - based techniques have been developed to identify complexes .
+however , laboratory - based techniques are low in efficiency ; and the identified complexes are usually incomplete9 .
+over the last decade , more than 20 computational methods have been proposed as complementary tools to laboratory - based techniques for detecting protein complexes from protein - protein interaction ( ppi ) networks. by these methods , a ppi network is represented as a undirected graph , where the nodes stand for proteins and the edges stand for protein interactions .
+given a ppi network , these methods search for protein complexes by detecting densely connected subgraphs in the network .
+these clustering methods can be roughly grouped into two categories10 .
+the first category includes those methods solely based on ppi network topological properties , such as method mcode ( molecular complex detection ) 11 , mcl ( markov cluster ) 12 , cmc ( clustering based on maximal cliques ) 13 , cfinder1415 , clusterone ( clustering with overlapping neighborhood expansion ) 16 , rrw ( repeated random walks ) 17 , and an ensemble clustering method18 .
+the second category includes those based on ppi network topological properties and some additional biological insights , such as a core - attachment structure focused method1920 , a restricted neighborhood search clustering algorithm ( rnsc ) 21 , pcia22 which incorporates attribute information of the proteins in the networks , and dcafp9 which makes use of functional information .
+however , true complexes are not always dense subgraphs .
+sometimes they can be very sparse .
+figure 1 shows two sparse complexes from the the munich information center for protein sequence ( mips ) catalogue complex database23 .
+thus , the density of a subgraph is not the only property that is useful for predicting whether the subgraph is a complex or not .
+supervised learning methods have been recently developed to detect complexes by combining other informative properties of true complexes .
+for example , sci - bn24 is a supervised learning method which uses a bayesian network model to learn the characteristics of true complexes .
+rm25 is a regression model for protein complex prediction .
+nn26 is a semi - supervised method taking a neural network framework .
+a common issue of these supervised or semi - supervised learning methods is that they cannot easily answer why a group of proteins is predicted as a complex .
+moreover , they have not considered to predict new complexes of one species by training the model on the true complexes of another species .
+in fact , many informative properties such as degree statistics , clustering coefficient , topological coefficients and eigen values of subgraphs can be used to derive conjunctive patterns , which might be more effective than the only density feature , or the bayesian network , regression or the neural network model , for distinguishing true complexes from random subgraphs ( see our case studies ) .
+emerging patterns ( eps ) 27 are such type of conjunctive patterns that contrast sharply between different classes of data .
+for example , pattern { meanclusteringcoeff <= 0.3 , 1.0 < vardegreecorrelation <= 2.80 } is an emerging pattern in the collins28 ppi network .
+it states that if the average clustering coefficient of a subgraph is less than or equal to 0.3 and the degree correlation variance is between 1.0 and 2.80 , then 98.2 % of non - complexes ( random subgraphs ) exhibit this pattern , while only 6 % of true complex subgraphs contain this pattern .
+if a new subgraph contains this ep , then it is much more likely to be a non - complex instead of a new complex .
+we can see that the characteristics of complexes involved in an ep is not restricted to the density property only .
+rather , eps combine novel properties of complexes to answer why a subgraph can be predicted as a complex or not .
+usually , we group a set of eps to make the prediction more reliable .
+table 1 lists several other examples of eps from the collins ppi network .
+eps have been previously applied to deal with gene expression bioinformatics problems29303132 .
+this work is the first time that eps are exploited to address the complex prediction problem given a ppi network containing some true complexes .
+our ep - based method consists of three main steps .
+the first step is to construct a feature vector to describe the key properties of the subgraphs of true complexes ( positive class ) in the ppi network as well as those of random non - complexes subgraphs ( negative class ) .
+the second step is to discover eps by contrasting the positive and negative classes of data .
+at the third step , we define an ep - based clustering score and propose a search algorithm to identify protein complexes ( including overlapping complexes ) from the ppi network .
+our method is named clustereps .
+the prediction performance of clustereps is compared with supervised , semi - supervised and unsupervised learning methods .
+comparing with the two supervised learning methods sci - bn24 and rm25 , and the semi - supervised learning method nn26 , clustereps achieved a much better performance ( precision , recall and f1 ) on the commonly used dip network33 .
+as the unsupervised approach has been intensively explored in the literature , we choose to compare clustereps with seven representative clustering methods .
+the evaluation is on five large - scale yeast ppi datasets under three standard scores , and the quality of predicted complexes is assessed with reference to the true complexes from the mips complex catalogue database23 and the saccharomyces genome database ( sgd ) 34 .
+the three standard scores are : ( i ) the fraction of matched complexes16 , ( ii ) the geometric accuracy measure35 , and ( iii ) the maximum matching ratio16 derived from a maximal one - to - one mapping between the predicted and true complexes .
+their sum is termed composite score , which is a more comprehensive performance measurement widely used in the field .
+these unsupervised clustering methods under our comparison are : mcode11 , mcl12 , cmc13 , cfinder1415 , clusterone16 , rrw17 , and rnsc21 .
+comparative experiments show that clustereps can achieve a higher score of the maximum matching ratio than all the seven literature methods on all the five datasets , and a higher composite score than six of the seven methods on almost all the datasets .
+detection of new human complexes through the model learned from the complexes of yeast ppi networks is a novel attempt by this study .
+we trained our prediction model using the complexes from the six yeast ppi networks , and made predictions to discover new human complexes from human ppi networks .
+again , clustereps achieved a better performance in comparison with the other prediction methods .
+case studies are also performed to further illustrate the detailed predictive capability of clustereps .
+it is observed that only clustereps can make a complete and accurate prediction for the challenging case of the rna polymerase i complex that consists of 14 proteins .
+clustereps is also able to detect the recq helicase - topo iii complex , a small complex of only three proteins .
+it is highlighted here , because it is a not - well - separated subgraph , connecting to a large number of proteins outside the complex .
+go analysis on the novel protein complexes predicted by our method suggests that there are strong evidences to support our prediction for these currently unknown complexes .
+the algorithm has been implemented and a software version of clustereps is downloadable at website http :// lightning.med.monash.edu / clustereps / .
+this website also provides a hyperlink pointing to a web server for a wider research community to use this prediction method .
+results this section is organized into five parts .
+the first part presents our comparison results with the two supervised learning methods : the bayesian network ( sci - bn ) model24 and the regression model ( rm ) 25 , and the semi - supervised learning method26 .
+the second part reports our comparison results with the seven unsupervised clustering methods .
+the third part describes the results on the prediction of new human protein complexes using the model constructed from yeast ppi data .
+the fourth and fifth parts present detailed case studies and go analysis results on the novel protein complexes predicted by our method .
+performance comparison with supervised or semi - supervised learning methods sci - bn24 is the first supervised learning method for protein complex prediction .
+yu et al. proposed another supervised learning method rm25 .
+as the sci - bn program is not available , yu et al. used the published results to compare the performance between rm and sci - bn. unfortunately , the rm program is also not available to this work , we decided to compare their published results with ours .
+sci - bn and rm used two independent sets of true complexes as the positive class of data .
+one is the mips23 protein complex catalog , while the other one is the core set tap06 of protein complexes from a tap - ms experiment36 .
+taking the same way as sci - bn and rm did , we filtered out those complexes composed of a single or a pair of proteins from the two sets of true complexes .
+we note that some complexes in mips are duplicate .
+hence , our method also removed those duplicate complexes .
+there are 195 complexes remained in mips and 193 complexes remained in tap06 .
+the ppi data set for the test is the well - known dip data set33 .
+a svm - based preprocessing step was used by sci - bn to remove all edges having a weight below 1.0 .
+the preprocessing step by rm is to remove those interactions with a go similarity less than 0.9 .
+because these two preprocessing methods are not available , we chose the tcss ( topological clustering semantic similarity ) method37 to preprocess dip .
+the semantic similarity scores between two interacting proteins compose of a biological process ( bp ) score , a cellular component ( cc ) score , and a molecular function ( mf ) score .
+we removed those interactions from dip with a bp score less than 0.5 .
+we conducted experiments using mips as the positive training set and tap06 as the test set and vice versa .
+there are a total of 1579 proteins from the complexes stored in mips and tap06 .
+taking the same way as sci - bn and rm did , we first extracted a ppi graph containing these proteins and their interactions from the dip network , and then tested clustereps on this ppi graph .
+same measures including precision , recall and f1 ( see methods ) were then applied to assess the performance .
+the results are shown in table 2 .
+as can be seen , when tap06 was used as the training set and mips as the test set , the f1 measure of clustereps was 32.2 percentage points higher than that of sci - bn , and 12.8 percentage points higher than that of rm. when mips was considered as the training set and tap06 as the test set , the f1 measure of clustereps was 14.8 percentage points higher than that of sci - bn , and 10 percentage points higher than that of rm .
+nn26 is a semi - supervised learning model for protein complex prediction .
+its performance was evaluated by using mips as both training set and test set .
+we tested clustereps under this setting and the prediction performance is shown in table 3 .
+as can be seen , the f1 measure of clustereps was 29.9 percentage points higher than that of nn , and significantly better than those of sci - bn and rm. performance comparison with unsupervised methods recently , nepusz et al.16 proposed an unsupervised method named clusterone , and conducted a wide range of comparative studies with a group of unsupervised clustering methods on five yeast ppi networks .
+this group of state - of - the - art unsupervised methods include : cfinder1415 , cmc13 , mcode11 , mcl12 , rnsc21 , rrw17 , and clusterone16 .
+the five yeast ppi networks are the gavin dataset36 , the krogan core dataset38 , the krogan extended dataset38 , the collins dataset28 , and biogrid39 .
+the performance evaluation was conducted under three measures ( see methods ) : the fraction of matched complexes ( frac ) , the geometric accuracy ( acc ) and the maximum matching ratio ( mmr ) , and two gold reference complex sets were used in the assessment : mips23 and sgd34 .
+in line with nepusz et al.16 , we tested the performance of clustereps on the same five yeast ppi networks , and compared with the above seven unsupervised clustering methods .
+the quality of the predicted complexes was also assessed using mips and sgd under the same performance measures .
+all parameters of the seven comparing algorithms on every ppi dataset were the same as those used in the corresponding literature16 for a fair comparison .
+clustereps was first tested on the five yeast ppi networks when sgd was applied as the positive training data .
+table 4 shows the comparative performance of the eight algorithms using the mips standard complexes as the test set .
+then , clustereps was tested on these ppi networks when mips is used as the positive training set .
+table 5 shows the comparison results when the sgd standard complexes were considered as the test set .
+" n / a " for the cfinder algorithm on the biogrid dataset denotes that cfinder did not output any result within 24 hours .
+" n / a " for the cmc algorithm on the biogrid dataset denotes that cmc generated a prohibitively large number of clusters ( more than 6000 ) 16 .
+we can see that clustereps achieved the highest mmr score on all the ppi datasets. that is , the complexes identified by clustereps from the five ppi datasets had better one - to - one mapping with the reference complexes from both mips and sgd .
+for the composite scores , clustereps achieved the highest scores on the gavin , krogan extended and biogrid datasets ( column 7 in tables 4 and 5 ) .
+it is noteworthy that none of the eight algorithms achieved an overall best performance across all the datasets .
+however , except clusterone , our clustereps algorithm achieved a consistently better composite score than the other six algorithms on four datasets .
+as the negative data ( random subgraphs ) were generated by randomly selecting nodes in the ppi networks , we ran clustereps 20 times on two personal computers to calculate the average performance .
+the standard deviation of the 20 runs was very small for each assessment score ( supplementary tables 17 - 26 ) .
+detection of human protein complexes through prediction model constructed on yeast protein complex data this work was also aimed to detect novel human protein complexes from human ppi networks through a prediction model constructed using yeast complexes and ppi data .
+yeast ppi networks and complexes have been deeply explored by many research teams .
+our idea is to learn the basic principles of ppi networks and characteristics of protein complexes from yeast ppi and complex data , and then apply the constructed prediction model to human ppi data to transfer the basic principles for the prediction of novel human protein complexes which has been less intensively studied recently .
+we used all the true yeast complexes from mips and sgd ( mips + sgd ) as the positive training data .
+the negative data were randomly generated from individual or all - combined of the six yeast ppi networks .
+then emerging patterns were discovered from these positive and negative data .
+the prediction model was then applied to the human ppi network named hprd ( the human protein reference database release 9 ) 40 to detect new human complexes .
+the all - combined ppi dataset of the six yeast ppi networks contains 77051 distinct interactions after the removal of duplicate interactions .
+this combined dataset is named combinedyeast .
+hprd contains 37080 interactions , encompassing a high proportion of human ppis present in the other literature databases41 .
+tcss37 was used to filter out those interactions which have a biological process score less than 0.5 .
+there were 11765 interactions left in our application .
+the prediction model constructed on the combinedyeast datasets using all the true yeast complexes from mips and sgd as the positive training data was also applied to a large human signaling network ( hsn ) to detect new human complexes .
+hsn ( version 6 ) contains 6305 proteins and 62937 relations including activation , inhibition and physical interactions ( http :// www.cancer - systemsbiology.org / dataandsoftware.htm ) .
+physical relations represent complexes that play an important role in cell signaling .
+to the best of our knowledge , this network has been considered as the largest manually curated human signaling network according to the literature4243444546 .
+we also combined the two human ppi networks hsn and hprd into one large human protein relation network ( hsn + hprd ) .
+the merged network contains 92252 distinct interactions after removing those duplicates .
+then , we predicted human complexes from this network through the model constructed on combinedyeast using complexes from mips and sgd .
+to assess the quality of the predicted human complexes , they are compared against the gold standard database corum ( the comprehensive resource of mammalian protein complexes ) 47 which stores 1843 human protein complexes .
+we also compared the prediction performance of clustereps with cluseterone which had the second best performance for predicting yeast complexes shown in the above experiments .
+as can be seen in table 6 , clustereps achieved a higher precision , recall , f1 and mmr scores than clusterone .
+this superior performance is mainly attributed to the knowledge and principles learned by the prediction model from the well explored yeast ppi and complex data .
+hsn + hprd is a very large network , it may contain some noise interactions .
+similarly as preprocessing hprd , we also used tcss to filter out those interactions having a biological process score less than 0.5 .
+the processed ppi network is named hsnhprd _ f which contains 38091 interactions .
+we ran our algorithm and clusterone on hsnhprd _ f to identify new human complexes .
+experimental results ( table 6 ) show that both our method and clusterone achieved a better performance than those on the original hsn + hprd network .
+again , our method achieved a better performance than clusterone .
+case studies this section first presents detailed case studies on three non - overlapping yeast complexes ( i.e. complexes that are separated one another in the yeast ppi networks ) , a pair of overlapping yeast complexes , and a human protein complex .
+the three non - overlapping complexes are : the rna polymerase i complex ( large size ) , recq helicase - topo iii complex ( small size ) , and the dash complex .
+the two overlapping complexes are the pair of the rsc and the swi / snf complexes .
+the dash complex and the two overlapping complexes have been previously used as case study examples by clusterone16 and other methods for performance evaluation .
+the example of human complex is the ubiquitin e3 ligase complex which was detected by our prediction model constructed on the yeast interaction data .
+the rna polymerase i complex is a transcription complex ( mips identifier 510.10 ) , comprising 14 proteins .
+the collins ppi network contains the subgraph of this complex .
+figure 2 shows the predicted subgraph of this complex by clustereps in comparison with clusterone .
+our clustereps could completely identify all the proteins in this complex with 100 % precision , while the other seven methods failed to do so. the rna polymerase i complex subgraph is a subgraph with a density of 0.89 .
+this subgraph also has a higher cohesiveness than sparse subgraphs .
+however , this subgraph is not a well - separated subgraph , as it is connected to 109 external proteins outside the complex ( see supplementary figure 4 ) .
+this means that it has a higher boundary weight .
+due to these facts , clusterone was not able to exactly recover this complex - - it added 10 nearby proteins , which almost doubled the true size of this complex .
+as a comparison , mcl and cfinder added other proteins into the rna polymerase i complex .
+interestingly , the wrongly predicted proteins by cfinder not only included those added by mcl and clusterone , but also included 34 other unrelated proteins .
+rnsc and rrw were only able to cluster part of the rna polymerase i. cmc clustered part of this complex and added an unrelated protein .
+mcode clustered 30 proteins 10 of which belong to this complex and 20 of which are irrelevant to the rna polymerase i complex .
+more details of the results for this complex can be found in supplementary figure 5 .
+the recq helicase - topo iii complex is a small complex in the sgd database , comprising 3 proteins .
+figure 3 shows the neighborhood of this complex in the biogrid ppi network .
+predicting small complexes ( consisting of fewer than four proteins ) is a challenging research because they are more susceptible to noise ( missing or spurious interactions ) in a ppi network48 .
+the strategy of identifying dense regions ( applicable to large complexes ) is less effective for the prediction of small complexes10 .
+especially , in the cases where a small complex directly connects to a large number of external proteins , it is even more challenging to detect these small complexes with 100 % precision10 .
+as our clustereps method not only considers the density of subgraphs , but also makes use of other topological measurements , such as the clustering coefficient that measures the number of triangles that go through a node49 , the topological coefficient that reflects the number of rectangles that pass through a node2450 .
+these measurements can capture and characterize the connectivity of the neighboring subgraphs .
+therefore , clustereps was able to completely identify the subgraph of the recq helicase - topo iii complex with 100 % precision .
+other methods ( except mcl ) could not completely identify this complex .
+the dash complex has been examined as a case study by16 .
+the subgraph of this complex was included in the krogan extended ppi network , and the complex is described by mips which contains 9 proteins .
+only clusterone and clustereps were able to detect this complex completely and correctly .
+supplementary figure 6 presents more details of the result .
+the rsc and the swi / snf complexes are a pair of overlapping complexes which were also investigated by16 as a case study .
+this pair of overlapping complexes have a match with two overlapping subgraphs in the collins ppi network .
+both clustereps and clusterone obtained a prediction result closest to the ground truth .
+supplementary figure 7 presents the detailed prediction result .
+the ubiquitin e3 ligase complex ( complexe id : 1162 ) is a human complex recorded at the corum database .
+the topological structure of this complex is like a five - pointed star shape ( fig. 4 ) in the hprd ppi network .
+we constructed the prediction model by training on the yeast complexes data and the six yeast ppi networks .
+the prediction model was applied to detect human complexes from the hprd ppi network .
+the ubiquitin e3 ligase complex was detected when the prediction model was constructed using every individual yeast ppi network .
+for comparison , we also applied clusterone16 on the same hprd ppi network .
+the result is that an unrelated protein dtl was added into the ubiquitin e3 ligase complex .
+as only one protein ( ddb1 ) in the whole hprd ppi network interacts with the protein dtl , the cohesiveness of the subgraph of ubiquitin e3 ligase complex becomes locally optimal after dtl is added to this subgraph as determined by clusterone .
+this is the direct reason why clusterone could n't detect this complex correctly .
+similar to other supervised learning methods for protein complex prediction , clustereps constructed the negative examples of data by randomly selecting subgraphs .
+however , this did not seem to have effect on these case studies .
+we ran clustereps 20 times on two different personal computers , each run ended up with the same prediction results for these case study complexes .
+predicting currently unknown but biologically interpretable complexes figure 5 presents four examples of identified subgraphs by clustereps .
+the first complex ( yeastcomplex - 1 in the krogan core ppi network ) is very sparse ; while the third one ( yeastcomplex - 3 in the collins ppi network ) is very dense .
+the second complex yeastcomplex - 2 is embedded in the krogan extended ppi network .
+these three predicted complexes have not been characterized by mips or sgd .
+the fourth example is a subgraph identified from the human ppi network ( hprd ) by clustereps when it was trained on the combined yeast ppi network ( combinedyeast ) .
+to our best knowledge , this subgraph has not been characterized by any databases including corum .
+our analysis revealed that none of the four subgraphs contained any eps favoring the non - complex class , but only eps favoring the complex class .
+( supplementary tables 28 - 31 list the features and their values of these subgraphs , and supplementary tables 11 - 16 provide the detailed eps ). that is , these subgraphs match many properties of currently true complexes , but they do not match any property of the random subgraphs .
+therefore , these subgraphs are highly likely to be currently unknown true complexes .
+we conducted gene ontology ( go ) enrichment analysis for these predicted complexes by using bingo51 .
+yeastcomplex - 1 is a sparse subgraph ( density 0.4 ) in the krogan core ppi network .
+all the 11 proteins of yeastcomplex - 1 are enriched in 13 go terms that are mostly related to translation , macromolecule biosynthetic process , protein metabolic process , gene expression , biosynthetic process , or metabolic process ( with a p - value < 8.1 * 10 - 3 ) .
+all the 10 genes in yeastcomplex - 2 are enriched in 56 go terms that are mostly related to histone deacetylation , protein amino acid deacetylation , positive regulation of transcription , positive regulation of metabolic process , positive regulation of biosynthetic process , negative regulation of cellular process , or post - translation protein modification ( with a p - value < 7.891 * 10 - 3 ) .
+all the 16 proteins in yeastcomplex - 3 are enriched in 19 go terms that are mostly related to transcription from rna polymerase iii promoter , rna biosynthetic process , rna metabolic process , or biosynthetic process ( with a p - value < 9.076 * 10 - 4 ) .
+all the 9 proteins in humancomplex - 1 are enriched in 32 go terms that are mostly related to positive regulation of transcription , positive regulation of rna metabolic process , positive regulation of gene expression , positive regulation of metabolic process , positive regulation of biological process , regulation of biosynthetic process , regulation of metabolic process , regulation of cellular process , and biological regulation ( with a p - value < 1.489 * 10 - 3 ) .
+these go analysis results suggest that the proteins in each of these subgraphs are strongly correlated with each other in terms of the enriched go terms .
+these subgraphs represent biologically interpretable complexes that are currently not characterized but are worth further experimental investigations .
+supplementary tables 32 - 35 provide detailed results of these gene ontology enrichment analysis .
+functional information of proteins such as biological processes , molecular functions and cellular components are useful to decide whether two proteins should be classified into or not into the same complex9 .
+as proposed by922 , proteins similar in specific subsets of these three functional categories should be considerably more preferred than those where proteins are not similar .
+there are a total of 55 protein pairs in yeastcomplex - 1 .
+surprisingly , the cellular component score of every protein pairs in this sugraph achieved the maximum value of 1.0 .
+biological process scores of 62 % ( 28 / 45 ) protein pairs in yeastcomplex - 2 achieved the maximum value of 1.0 .
+biological process scores of 87.5 % ( 105 / 120 ) protein pairs in yeastcomplex - 3 achieved the maximum value of 1.0 .
+molecular function scores of 55.6 % ( 20 / 36 ) protein pairs in humancomplex - 1 achieved the maximum value of 1.0 , and 13.9 % ( 5 / 36 ) protein pairs in humancomplex - 1 had molecular function scores less than 1.0 but greater than 0.9 .
+the functional information scores of the proteins in these identified subgraphs strongly indicate that these subgraphs are worth further experimental investigations for complex verification .
+a very recent study8 shows that a protein complex is associated with a disease phenotype if one or more of its protein elements are associated with the disease phenotype. with this hypothesis , we can infer that humancomplex - 1 is a disease - protein complex , because smad4 , mitf , smad3 , ep300 and ctnnb1 of this subgraph are all known disease genes .
+for example , juvenile polyposis syndrome [ mim : 174900 ] , pancreatic cancer ( pnca ) [ mim : 260350 ] , syndrome phenotype consisting of the coexistence of juvenile polyposis ( jip ) and hereditary hemorrhagic telangiectasia ( hht ) [ mim : 187300 ] , colorectal cancer ( crc ) [ mim : 114500 ] , myhre syndrome ( myhrs ) [ mim : 139210 ] , and juvenile polyposis / hereditary hemorrhagic telangiectasia syndrome ( jp / hht ) [ mim : 175050 ] are all caused by mutations in smad4 [ uniprot : q13485 ] .
+waardenburg syndrome 2a ( ws2a ) [ mim : 193510 ] , waardenburg syndrome 2 , with ocular albinism , autosomal recessive ( ws2 - oa ) [ mim : 103470 ] , tietz syndrome ( tietzs ) [ mim : 103500 ] , melanoma , cutaneous malignant 8 ( cmm8 ) [ mim : 614456 ] are all caused by mutations in mitf [ uniprot : o75030 ] .
+colorectal cancer ( crc ) [ mim : 114500 ] and loeys - dietz syndrome 3 ( lds3 ) [ mim : 613795 ] are both caused by mutations in smad3 [ uniprot : p84022 ] .
+rubinstein - taybi syndrome 2 ( rsts2 ) [ mim : 613684 ] is caused by a mutation in ep300 [ uniprot : q09472 ] .
+pilomatrixoma ( ptr ) [ mim : 132600 ] , medulloblastoma ( mdb ) [ mim : 155255 ] , colorectal cancer ( crc ) [ mim : 114500 ] , ovarian cancer ( oc ) [ mim : 167000 ] , mesothelioma , malignant ( mesom ) [ mim : 156240 ] , and mental retardation , autosomal dominant 19 ( mrd19 ) [ mim : 615075 ] are all caused by mutations in ctnnb1 [ uniprot : p35222 ] .
+for the other proteins in humancomplex - 1 , their functional analysis and results are even more interesting .
+as discussed by52 , even if two protein sequences do not share significant sequence identity but share a functional domain , then mutations may disrupt the same process of them and thereby lead to similar phenotypes .
+smad2 , smad4 and smad3 have mh1 and mh2 domains in common [ pfam : pf03165 , pf03166 ] .
+tfe3 and mitf have duf3371 and hlh domains in common [ pfam : pf11851 , pf00010 ] .
+moreover , smad2 and smad4 are 77 % identical at sequence level , tfe3 and mitf are 77 % identical at sequence level .
+therefore , we can infer that smad2 may have similar disease phenotypes as smad4 and smad3 , and tfe3 may have similar disease phenotypes as mitf .
+discussion due to the fact that gold standard protein complex sets are incomplete53 , random subgraphs may contain some unknown complexes , although the probability is extremely low .
+here unknown complexes mean true complexes but they are not discovered by the research community .
+clustereps is developed based on the knowledge of true complexes .
+these unknown complexes that were treated as negative samples in the current work might have an effect on the performance of clustereps. with the increasing availability of true complexes discovered , it is likely to achieve a better performance of clustereps ( supplementary discussion ) .
+in our future work , we will consider exploring positive - unlabeled ( pu ) learning algorithms5455 to achieve a better optimization of the complex search process to further enhance the performance and quality of our method .
+there remain significant challenges for the detection of human complexes from human ppi networks for the following reasons and facts : human ppis are more noisy and less complete than yeast ppis .
+the most recent version of hprd ( release 9 ) has collected 39240 interactions , containing a high proportion of human ppis that are present in other databases41 , and it includes all human disease - associated genes listed in omim .
+hprd contains 84.7 % ( 1562 of 1843 ) human complexes in the47 ( corum ) database , and 3.7 % ( 23 of 622 ) human soluble protein complexes ( hspc ) 56 .
+hspc complexes were not used as a test set to evaluate the predicted complexes in our experiments , because a large percentage of hspc complexes ( 96.3 %) were not included in human ppis .
+however , the yeast ppis curated by biogrid contain 96.4 % ( 188 of 195 ) yeast complexes in mips , and 99.7 % ( 322 of 323 ) yeast complexes in sgd .
+these facts highlight that human ppis are actually more noisy and less complete than yeast ppis .
+human ppis contain a larger number of small complexes compared with yeast ppis .
+the corum database contains 72.3 % ( 1333 of 1843 ) of small human complexes ( less than five proteins each ) .
+hspc contains 64.3 % ( 400 of 622 ) of small human complexes .
+however , mips contains 34.9 % ( 68 of 195 ) of yeast complexes , while sgd contains 61.6 % ( 199 of 323 ) of yeast complexes .
+as aforementioned , small complexes are more susceptible to noise ( missing or spurious interactions ) , and accordingly it is a big challenge to detect small complexes accurately .
+some human complexes are very big .
+the maximum size ( number of proteins in a complex ) of human complexes in corum is 142 , and the number is 105 in hspc .
+however , the maximum size of yeast complexes in mips is 95 , and it is 55 in sgd .
+these complexes consist of some small complexes , so it is difficult to recover these complexes .
+there are many paralogous proteins that have similar and overlapping functions with human ppis .
+for example , the proteins akt1 , akt2 and akt3 are present in human ppis , but yeast ppis have only one akt .
+these paralogous proteins have similar and overlapping functions and are involved in multiple complexes .
+thus , it remains a big challenge using the sequence or functional information only to identify which protein belongs to which complex .
+there are many proteins that match many uniprotkb human ids in human ppis .
+for example , the uniprotkb human ids of the protein hla - a include p30443 , p01892 , p04439 , p13746 , p30447 , p05534 , p18462 , p30450 , p30512 and p16188 .
+however , yeast proteins have unique sgd gene ids .
+thus , it remains another difficult challenge as to how to filter out false interactions in order to improve the quality of predicted human ppis .
+clusterone16 is an unsupervised clustering methods with a better performance than other unsupervised clustering methods .
+our clustereps is a supervised learning methods developed based on the knowledge of true protein complexes .
+when using true yeast complexes to construct the prediction model to detect human complexes from human ppi networks , clustereps achieved a better performance than clusterone .
+this indicates that human complexes have similar topologies as yeast complexes .
+thus , this represents an alternative strategy to research human complexes using yeast complexes topologies .
+methods a ppi network is modeled by an undirected graph , where v denotes the set of proteins and e denotes the set of protein interactions .
+the degree of v in v is defined as the number of its direct neighbors .
+let c = ( vc , ec ) be a subgraph in the ppi network .
+the average degree avedeg ( c ) of c is given by where | ec | denotes the number of edges in ec and | vc | denotes the number of vertices in c. the density den ( c ) of c is given by the neighboring nodes of c in is defined as the three major steps of clustereps : step 1 uses a feature vector to represent the positive class of data ( the true complexes ) and the negative class of data ( the random subgraphs ) ; step 2 discovers eps that can distinguish the properties between the complex class and the random subgraph class ; step 3 uses an ep - based scoring method to discover currently unknown protein complexes or re - discover currently known complexes .
+feature vector representation for true complexes and random ppi subgraphs given a subgraph c of a ppi graph , we convert some properties of c into a feature vector .
+this feature vector consists of 22 features .
+feature - 1 is named node size ( the number of nodes in the subgraph c ) ; feature - 2 is named graph density ( the density of the subgraph c ) .
+the remaining 20 features are organised into six groups : degree statistics , degree correlation statistics , clustering coefficient statistics , topological coefficients , first eigenvalues , and protein weight / size statistics .
+( see supplementary table 1 for details ) .
+for each protein complex subgraph of , mapped from the gold standard mips database or the sgd database , we calculate the values of the 22 features for this subgraph , and represent them as a vector ( i.e. a set of feature values ) .
+this vector is an instance in the positive class .
+to construct a negative dataset , we generate complex - unlikely subgraphs by randomly selecting nodes in the input ppi network , with the number of generated random subgraphs 20 times the true complexes .
+the size distribution of true complexes in mips , sgd or tap06 is distributed as a power law .
+in line with other supervised learning methods , we generated non - complexes subgraphs following the same power law distribution .
+more details can be found in the size distribution of the non - complexes subgraphs of the supplementary file .
+we then calculate all the feature values for each random subgraph to be an instance in the negative class .
+we use dp and dn to denote the positive and negative class , respectively , and use d to denote . discovery of emerging patterns for the dataset d derived from the input ppi network , a discretization method in the weka package57 is used to uniformly discretize each feature into 10 equal width bins .
+a bin of each feature is called an item of the feature .
+a set of items from different features is called an itemset ( pattern ) .
+this work focuses on a special type of eps called noise - tolerant eps .
+definition 158 give two support thresholds delta1 > 0 and delta2 > 0 , delta2 >> delta1 , a noise - tolerant emerging pattern ( nep ) from d1 to d2 is an itemset x that satisfies the following conditions : and ; any proper subset of x does not satisfy condition 1 .
+where represents the occurrence frequency of x in dataset d1. is similarly defined .
+neps have strong predictive power and noise tolerance .
+an nep from d1 to d2 is simply called an nep of d2 .
+the contrast pattern tree algorithm59 is modified to discover neps from the discretized d. searching for new protein complexes for a ppi network , we use ep ( d ) to denote the set of neps discovered from d ( namely , neps of dp and neps of dn ) .
+assuming g is a subgraph of , we use ins ( g ) to denote the feature vector comprising of the 22 discretized feature values of g. an aggregate score for g in terms of dp is defined as where e subset / equal ins ( g ) means e is contained by ins ( g ) .
+similarly , an aggregate score for g in terms of dn is defined as to label the subgraph g , score ( g , dp ) favors a positive label .
+the larger score ( g , dp ) is , the more likely g belongs to the class of true complexes .
+on the other hand , score ( g , dn ) favors a negative label for g. the number of neps for the two classes can greatly affect the final decision .
+if dp has many more neps than dn , score ( g , dp ) would be often larger than score ( g , dn ) , even when g actually belongs to the negative class .
+therefore , we normalize the two scores for making a fair decision .
+for each instance of dp , we calculate the score using equation 4 .
+then we choose the median value of the | dp | number of scores as a base score for dp , denoted by base _ score ( dp ) .
+the normalized score for g in terms of dp is given by the base score for dn , base _ score ( g , dn ) , can be similarly defined , which is given by a clustering score for g is defined as f ( g ) > 1 / 2 means norm _ score ( g , dp ) > norm _ score ( g , dn ) ; it implies that g matches more properties of currently known complexes .
+f ( g ) = 1 means norm _ score ( g , dn ) = 0 ; it implies that g does not match any property of the random subgraphs .
+thus , a larger f ( g ) suggests that g is more likely to be a protein complex .
+we search for those subgraphs g in that have a high f ( g ) .
+as the number of possible subgraphs in is exponential , we use a heuristic method to identify good candidates for those subgraphs that are likely to be protein complexes .
+using this heuristic method , we first select a seed protein as the starting cluster , and then add proteins one - by - one from its neighbor nodes to grow the cluster .
+more specifically , we select the protein with the highest degree as the first seed protein from the input ppi network . when the cluster grows into a protein complex , the growth process finishes for the current seed protein .
+we then select the next seed protein with the highest degree from the set of proteins that have not occurred in any of the protein complexes found so far .
+the search algorithm terminates when each protein in has occurred at least once in the protein complexes found .
+the steps of the heuristic search are detailed below .
+suppose the search starts from v0 .
+step 1 : denote the initial cluster as c = { v0 } ; step 2 : compute f ( c ) and avedeg ( c ) .
+let v = c ; step 3 : for each vertex v in its neighborhood ( i.e. , eqn ( 3 )) , let edgenum ( v,c ) denote the number of edges that connect v to the nodes of c. we select the vertex v with the maximum value of edgenum ( v,c ) , and then let . if f ( c ') >= f ( c ) and avedeg ( c ') > avedeg ( c ) then let c = c ' .
+step 4 : if c != v , go back to step 2 .
+otherwise , if f ( c ) > 1 / 2 , then a subgraph c is constructed which is predicted to be a true complex .
+we note that the search process uses v to expand the current subgraph c under the two strong conditions : and . the first condition ensures that a subgraph should grow into a protein complex ( i.e. , f ( g ) > 0.5 ) , while the second condition guarantees that a protein complex should have the highest average degree compared with all its ancestor subgraphs .
+as proposed by16 , we also merge two subgraphs found above if they are highly overlapping .
+suppose c1 and c2 are two clusters , the overlapping score omega11 between c1 and c2 is defined as when omega ( c1 , c2 ) meets a certain threshold , then they will be merged as a subgraph , where . benchmark datasets and performance evaluation measures the dip database33 has been widely used by supervised learning methods of protein complex detection .
+the most recent version of dip ppi networks ( 1 july 2015 ) contains 22895 interactions .
+after removing self - interactions , the resulting dip network contains 22277 interactions and 4931 proteins .
+mips23 and tap0636 are usually used by the supervised learning methods as the positive training set and test set .
+mips contains 103 complexes and tap06 contains 491 complexes , respectively .
+actually , tap06 is the core set of protein complexes from a tap - ms experiment .
+we used five large - scale yeast ppi datasets to compare the performance of our methods with unsupervised clustering methods .
+these five ppi datasets are : the gavin dataset36 , the krogan core dataset38 , the krogan extended dataset38 , the collins dataset28 , and biogrid39 .
+mips23 and sgd34 , as two reference complex sets , were used to compare the quality of predicted complexes .
+these five ppi datasets and two reference complex sets have been used by clusterone16 to assess the performance of eight unsupervised clustering methods .
+refer to supplementary tables 2 - 3 for details of these datasets .
+we used the above six yeast ppi datasets as the training data to detect human complexes from human ppi networks .
+the human protein reference database ( hprd ) 40 has been widely used by the research community .
+hprd ( release 9 ) has collected 39240 interactions , containing a high proportion of human ppis that are present in other literature databases41 .
+we removed self - interactions from hprd , and the resulting hprd network contains 37080 interactions and 9465 proteins .
+we used 1843 human protein complexes from the database of the comprehensive resource of mammalian protein complexes47 ( corum ) as gold standards .
+three independent quality measures are used to assess the performance of supervised learning methods , i.e. precision , recall and f1 - measure .
+let s denote the set of standard protein complexes ( true complexes ) , and p denote the set of predicted protein complexes by a method .
+the set of true complexes detected by predicted complexes is defined as st = { s | omega ( s , p ) >= 0.25 , s in s , p in p } , and the set of predicted complexes matching true complexes is defined as sp = { p | omega ( s , p ) >= 0.25 , s in s , p in p } .
+precision and recall are then given by | sp |/| p | and | st |/| s | , respectively , where | s | and | p | denotes the numbers of standard complexes and predicted complexes , respectively .
+the f1 - measure is defined as 2 *| sp |/| st | .
+recall measures the fraction of true complexes matched by at least one predicted complex .
+it is also denoted as the fraction of matched complexes in the literature16 .
+in this work , we use " frac " and " recall " interchangeably to represent the fraction of matched complexes .
+a predicted complex and a gold standard one are often matched in part .
+a gold standard complex may match with more than one predicted complexes , and vice versa .
+these facts make the comparison difficult16 .
+to address this problem , nepusz et al. proposed a measure based on the maximum matching ratio ( mmr ) , which is based on the maximal one - to - one mapping between predicted and the standard complexes16 .
+mmr builds on a bipartite graph , in which each node represents a standard protein complex or a predicted protein complex .
+a maximum matching ratio is calculated as follows : for each standard protein complex s in s and predicted protein complex candidate p in p , if omega ( s , p ) > 0 , then s and p are connected by an edge with the weight equal to omega ( s , p ) .
+a subset of edges subedges is chosen from the bipartite graph such that these edges satisfy the two following conditions : for each s in s and p in p , s and p are incident on at most one of the selected edges .
+the sum of the weights of the selected edges is maximal .
+then , the mmr between s and p is the sum of the weights of the selected edges in subedges , divided by | s | .
+another independent measure is the geometric accuracy ( acc ) 35 .
+acc is the geometrical mean of the clustering - wise sensitivity sen ( s , p ) and the clustering - wise positive predictive value ppv ( s , p ) .
+suppose s = { s1 , s2 , ... , si , ... , sn } contains n standard protein complexes , and p = { p1 , p2 , ... , pj , ... , pm } contains m predicted protein complexes , where si and pj respectively denotes the ith standard protein complex and the jth predicted protein complex , respectively .
+let t be a matrix with n rows and m columns , row i corresponds to si and column j corresponds to pj. tij indicates the number of proteins found both in si and pj. sen ( s , p ) is defined as where , | si | is the number of proteins in the complex si. ppv ( s , p ) is given by then , additional information how to cite this article : liu , q. et al. using contrast patterns between true complexes and random subgraphs in ppi networks to predict unknown protein complexes. sci. rep .
+6 , 21223 ; doi : 10.1038 / srep21223 ( 2016 ) .
+supplementary material supplementary information funding : this work was supported by the fundamental research funds for the central universities ( qn2013053 ) and by australia research council ( arc ) discovery project 130102124 .
+js is an australian national health and medical research council ( nhmrc ) peter doherty fellow and a recipient of the hundred talent program of the chinese academy of sciences ( cas ) .
+we thank dr. sriganesh srihari ( the university of queensland ) for the useful discussions on human ppi and complexes .
+fiannaca a .
+, la rosa m .
+, urso a .
+, rizzo r .
+& gaglio s. a knowledge - based decision support system in bioinformatics : an application to protein complex extraction . bmc bioinformatics 14 , s5 ( 2013 ) .
+23368995 schwikowski b .
+, uetz p .
+& fields s. a network of protein - protein interactions in yeast . nat. biotechnol .
+18 , 1257 - 1261 ( 2000 ) .
+11101803 lage k. et al. a human phenome - interactome network of protein complexes implicated in genetic disorders . nat. biotechnol .
+25 , 309 - 316 ( 2007 ) .
+17344885 yang p .
+, li x .
+, wu m .
+, kwoh c .
+- k .
+& ng s .
+- k. inferring gene - phenotype associations via global protein complex network propagation . plos one 6 , e21502 ( 2011 ) .
+21799737 fraser h .
+& plotkin j. using protein complexes to predict phenotypic effects of gene mutation . genome biol .
+8 , r252 ( 2007 ) .
+18042286 liang y. et al. inferring drug - disease associations based on known protein complexes . bmc med genomics 8 , s2 ( 2015 ) .
+altaf - ul - amin m .
+, shinbo y .
+, mihara k .
+, kurokawa k .
+& kanaya s. development and implementation of an algorithm for detection of protein complexes in large interaction networks . bmc bioinformatics 7 , 207 ( 2006 ) .
+16613608 le d. h. a novel method for identifying disease associated protein complexes based on functional similarity protein complex networks . algorithm mol biol 10 , 1 - 12 ( 2015 ) .
+hu l .
+& chan k. c. a density - based clustering approach for identifying overlapping protein complexes with functional preferences . bmc bioinformatics 16 , 1 - 16 ( 2015 ) .
+25591917 srihari s .
+, yong c. h. , patil a .
+& wong l. methods for protein complex prediction and their contributions towards understanding the organisation , function and dynamics of complexes . febs letters 589 , 2590 - 2602 ( 2015 ) .
+25913176 bader g. d. & hogue c. w. an automated method for finding molecular complexes in large protein interaction networks . bmc bioinformatics 4 , 2 ( 2003 ) .
+12525261 enright a. j. , van dongen s .
+& ouzounis c. a. an efficient algorithm for large - scale detection of protein families . nucleic acids res .
+30 , 1575 - 1584 ( 2002 ) .
+11917018 liu g .
+, wong l .
+& chua h. n. complex discovery from weighted ppi networks . bioinformatics 25 , 1891 - 1897 ( 2009 ) .
+19435747 palla g .
+, derenyi i .
+, farkas i .
+& vicsek t. uncovering the overlapping community structure of complex networks in nature and society . nature 435 , 814 - 818 ( 2005 ) .
+15944704 adamcsek b .
+, palla g .
+, farkas i. j. , derenyi i .
+& vicsek t. cfinder : locating cliques and overlapping modules in biological networks . bioinformatics 22 , 1021 - 1023 ( 2006 ) .
+16473872 nepusz t .
+, yu h .
+& paccanaro a. detecting overlapping protein complexes in protein - protein interaction networks . nat. methods 9 , 471 - 472 ( 2012 ) .
+22426491 macropol k .
+, can t .
+& singh a. rrw : repeated random walks on genome - scale protein networks for local cluster discovery . bmc bioinformatics 10 , 283 ( 2009 ) .
+19740439 yong c. h. , liu g .
+, chua h. n. & wong l. supervised maximum - likelihood weighting of composite protein networks for complex prediction . bmc syst biol 6 , 1 - 21 ( 2012 ) .
+22222070 min w .
+, li x .
+, kwoh c. k. & ng s. k. a core - attachment based method to detect protein complexes in ppi networks . bmc bioinformatics 10 , 1 - 16 ( 2009 ) .
+19118496 ma x .
+& gao l. predicting protein complexes in protein interaction networks using a core - attachment algorithm based on graph communicability . inform sciences 189 , 233 - 254 ( 2012 ) .
+king a. d. , przulj n .
+& jurisica i. protein complex prediction via cost - based clustering . bioinformatics 20 , 3013 - 3020 ( 2004 ) .
+15180928 hu a. l. & chan k. c. c. utilizing both topological and attribute information for protein complex identification in ppi networks . ieee acm t comput bi 10 , 780 - 792 ( 2013 ) .
+mewes h. w. et al. mips : analysis and annotation of proteins from whole genomes . nucleic acids res .
+32 , d41 - d44 ( 2004 ) .
+14681354 qi y .
+, balem f .
+, faloutsos c .
+, klein - seetharaman j .
+& bar - joseph z. protein complex identification by supervised graph local clustering . bioinformatics 24 , i250 - i268 ( 2008 ) .
+18586722 feng y. y. et al. predicting protein complex in protein interaction network - a supervised learning based method . bmc syst biol .
+8 , s4 ( 2014 ) .
+lei s .
+, lei x .
+& zhang a. protein complex detection with semi - supervised learning in protein interaction networks . protemo sci. 9 , 295 - 297 ( 2011 ) .
+dong g .
+& li j. efficient mining of emerging patterns : discovering trends and differences .
+in proceedings of the fifth acm sigkdd international conference on knowledge discovery and data mining , kdd ' 99 , 43 - 52 ( acm , new york , ny , usa , 1999 ) .
+collins s. r. et al. toward a comprehensive atlas of the physical interactome of saccharomyces cerevisiae . mol .
+cell proteomics 6 , 439 - 450 ( 2007 ) .
+17200106 li j .
+& wong l. identifying good diagnostic gene groups from gene expression profiles using the concept of emerging patterns . bioinformatics 18 , 725 - 734 ( 2002 ) .
+12050069 li j .
+, liu h .
+, ng s .
+- k .
+& wong l. discovery of significant rules for classifying cancer diagnosis data . bioinformatics 19 , ii93 - ii102 ( 2003 ) .
+14534178 li j .
+, liu h .
+, downing j. r. , yeoh a. e. - j .
+& wong l. simple rules underlying gene expression profiles of more than six subtypes of acute lymphoblastic leukemia ( all ) patients . bioinformatics 19 , 71 - 78 ( 2003 ) .
+12499295 boulesteix a .
+- l .
+, tutz g .
+& strimmer k. a cart - based approach to discover emerging patterns in microarray data . bioinformatics 19 , 2465 - 2472 ( 2003 ) .
+14668233 xenarios i. et al. dip , the database of interacting proteins : a research tool for studying cellular networks of protein interactions . nucleic acids res .
+30 , 303 - 305 ( 2002 ) .
+11752321 hong e. l. et al. gene ontology annotations at sgd : new data sources and annotation methods . nucleic acids res .
+36 , d577 - d581 ( 2008 ) .
+17982175 brohee s .
+& van helden j. evaluation of clustering algorithms for protein - protein interaction networks . bmc bioinformatics 7 , 488 ( 2006 ) .
+17087821 gavin a .
+- c. et al. proteome survey reveals modularity of the yeast cell machinery . nature 440 , 631 - 636 ( 2006 ) .
+16429126 jain s .
+& bader g. d. an improved method for scoring protein - protein interactions using semantic similarity within the gene ontology . bmc bioinformatics 11 , 1 - 14 ( 2010 ) .
+20043860 krogan n. j. et al. global landscape of protein complexes in the yeast saccharomyces cerevisiae . nature 440 , 637 - 643 ( 2006 ) .
+16554755 stark c. et al. biogrid : a general repository for interaction datasets . nucleic acids res .
+34 , d535 - d539 ( 2006 ) .
+16381927 peri s. et al. development of human protein reference database as an initial platform for approaching systems biology in humans . genome res .
+13 , 2363 - 2371 ( 2003 ) .
+14525934 mathivanan s. et al. an evaluation of human protein - protein interaction data in the public domain . bmc bioinformatics 7 , 56 - 66 ( 2006 ) .
+16464248 cui q. et al. a map of human cancer signaling . mol syst biol 3 , 152 ( 2007 ) .
+18091723 awan a. et al. regulatory network motifs and hotspots of cancer genes in a mammalian cellular signalling network . iet syst biol 1 , 292 - 297 ( 2007 ) .
+cui q .
+, purisima e .
+& wang e. protein evolution on a human signaling network . bmc syst biol 3 , 21 ( 2009 ) .
+19226461 li l. et al. the human phosphotyrosine signaling network : evolution and hotspots of hijacking in cancer . genome res 22 , 1222 - 1230 ( 2012 ) .
+22194470 zaman n. et al. signaling network assessment of mutations and copy number variations predict breast cancer subtype - specific drug targets . cell rep 5 , 216 - 223 ( 2013 ) .
+24075989 ruepp a. et al. corum : the comprehensive resource of mammalian protein complexes - - 2009 . nucleic acids res .
+38 , 497 - 501 ( 2010 ) .
+yong c .
+, maruyama o .
+& wong l. discovery of small protein complexes from ppi networks with size - specific supervised weighting . bmc syst biol 8 , s3 ( 2014 ) .
+25559663 barabasi a .
+- l .
+& oltvai z. n. network biology : understanding the cell 's functional organization . nat rev genet .
+5 , 101 - 113 ( 2004 ) .
+14735121 stelzl u. et al. a human protein - protein interaction network : a resource for annotating the proteome . cell 122 , 957 - 968 ( 2005 ) .
+16169070 maere s .
+, heymans k .
+& kuiper m. bingo : a cytoscape plugin to assess overrepresentation of gene ontology categories in biological networks . bioinformatics 21 , 3448 - 3449 ( 2005 ) .
+15972284 vanel m. a. , bruggeman j .
+, vriend g .
+, brunner h. g. & leunissen j. a. a text - mining analysis of the human phenome . eur j hum genet 14 , 535 - 42 ( 2006 ) .
+16493445 jansen r .
+& gerstein m. analyzing protein function on a genomic scale : the importance of gold - standard positives and negatives for network prediction . curr opin microbiol 7 , 535 - 545 ( 2004 ) .
+15451510 yang p .
+, li x .
+- l .
+, mei j .
+- p .
+, kwoh c .
+- k .
+& ng s .
+- k. positive - unlabeled learning for disease gene identification . bioinformatics 28 , 2640 - 2647 ( 2012 ) .
+22923290 yang p .
+, li x .
+, chua h .
+- n .
+, kwoh c .
+- k .
+& ng s .
+- k. ensemble positive unlabeled learning for disease gene identification . plos one 9 , e97079 ( 2014 ) .
+24816822 havugimana p. et al. a census of human soluble protein complexes . cell 150 , 1068 - 1081 ( 2012 ) .
+22939629 witten i .
+& frank e. data mining : practical machine learning tools and techniques , morgan kaufmann series in data management systems ( morgan kaufmann , san francisco , 2005 ) , second edn .
+fan h .
+& ramamohanarao k. fast discovery and the generalization of strong jumping emerging patterns for building compact and accurate classifiers . ieee t. knowl. data .
+en . 18 , 721 - 737 ( 2006 ) .
+liu q .
+, shi p .
+, hu z .
+& zhang y. a novel approach of mining strong jumping emerging patterns based on bsc - tree . int. j. syst. sci. 45 , 598 - 615 ( 2014 ) .
+author contributions q.l. and j.l. conceived the study .
+q.l. devised and implemented the algorithm and conducted the experiments .
+j.s. conducted some important analysis on the ppi networks and yeast complexes .
+q.l. wrote the manuscript , j.l. and j.s. revised the manuscript .
+figure 1 sparse complexes in the mips complex catalogue database .
+figure 2 the rna polymerase i complex as predicted by clusterone and clustereps .
+the red nodes represent proteins that belong to the true complex , while the white color nodes represent proteins that do not belong to the true complex .
+the shaded area indicates the whole predicted subgraph .
+figure 3 the recq helicase - topo iii complex as predicted by clustereps .
+the red nodes represent proteins that belong to the true complex and the white color nodes represent proteins that do not belong to the true complex .
+figure 4 the ubiquitin e3 ligase complex as predicted by clustereps .
+figure 5 four examples of complexes identified by clustereps .
+table 1 examples of emerging patterns from the collins ppi network .
+emerging patterns frequency (%) in subgraphs representing true complexes frequency (%) in random subgraphs { meandegree > 0.61 } 99.4 0 { meanclusteringcoeff > 0.3 } 88.6 0 { meandegreecorrelation <= 1.9 , maxlength > 868 } 2.4 85 table 2 performance comparison with sci - bn and rm. train test method precision recall f1 mips tap06 clustereps 0.399 0.798 0.529 mips tap06 sci - bn 0.312 0.489 0.381 mips tap06 sci - svm 0.247 0.377 0.298 mips tap06 rm 0.424 0.433 0.429 tap06 mips clustereps 0.601 0.672 0.634 tap06 mips sci - bn 0.219 0.537 0.312 tap06 mips sci - svm 0.176 0.379 0.240 tap06 mips rm 0.489 0.525 0.506 table 3 performance comparison with nn. train test method precision recall f1 mips mips clustereps 0.638 0.769 0.696 mips mips sci - bn 0.273 0.473 0.346 mips mips sci - svm 0.239 0.412 0.302 mips mips rm 0.419 0.67 0.514 mips mips nn 0.333 0.491 0.397 table 4 performance comparison of eight algorithms tested on five yeast ppi datasets using mips as the test set .
+datasets methods # cluster frac acc mmr composite score gavin clustereps 240 0.774 0.479 0.431 1.684 mcl 252 0.681 0.503 0.331 1.515 mcode 135 0.611 0.447 0.301 1.359 cmc 339 0.663 0.452 0.347 1.462 clusterone 196 0.708 0.5 0.375 1.583 rnsc 138 0.611 0.485 0.319 1.415 rrw 234 0.664 0.446 0.34 1.45 cfinder 137 0.558 0.487 0.279 1.324 krogan core clustereps 364 0.691 0.420 0.357 1.468 mcl 376 0.6 0.441 0.272 1.313 mcode 79 0.326 0.334 0.144 0.804 cmc 156 0.37 0.374 0.172 0.916 clusterone 522 0.674 0.44 0.319 1.433 rnsc 87 0.422 0.383 0.182 0.987 rrw 329 0.504 0.361 0.248 1.113 cfinder 115 0.341 0.369 0.166 0.876 krogan extended clustereps 561 0.598 0.386 0.319 1.302 mcl 483 0.436 0.409 0.193 1.038 mcode 64 0.192 0.294 0.097 0.583 cmc 421 0.365 0.343 0.172 0.88 clusterone 530 0.577 0.422 0.284 1.283 rnsc 93 0.365 0.369 0.159 0.893 rrw 232 0.468 0.354 0.222 1.044 cfinder 121 0.218 0.315 0.107 0.64 collins clustereps 171 0.705 0.528 0.421 1.654 mcl 183 0.739 0.537 0.397 1.673 mcode 112 0.652 0.499 0.351 1.502 cmc 184 0.591 0.509 0.309 1.409 clusterone 195 0.782 0.555 0.418 1.755 rnsc 94 0.608 0.499 0.306 1.413 rrw 190 0.678 0.446 0.378 1.502 cfinder 114 0.557 0.495 0.312 1.364 biogrid clustereps 862 0.635 0.366 0.304 1.304 mcl 338 0.196 0.348 0.083 0.627 mcode 85 0.201 0.325 0.08 0.606 cmc n / a n / a n / a n / a n / a clusterone 473 0.466 0.44 0.195 1.101 rnsc 209 0.481 0.43 0.212 1.123 rrw 253 0.402 0.348 0.176 0.926 cfinder n / a n / a n / a n / a n / a table 5 performance comparison of eight algorithms tested on five yeast ppi datasets using sgd as the test set .
+datasets methods # cluster frac acc mmr composite score gavin clustereps 244 0.825 0.657 0.526 2.008 mcl 253 0.75 0.689 0.438 1.877 mcode 135 0.602 0.628 0.38 1.61 cmc 339 0.726 0.612 0.466 1.804 clusterone 196 0.789 0.706 0.476 1.971 rnsc 143 0.648 0.684 0.398 1.73 rrw 237 0.758 0.667 0.471 1.896 cfinder 137 0.609 0.668 0.369 1.646 krogan core clustereps 292 0.642 0.584 0.431 1.656 mcl 367 0.636 0.637 0.354 1.627 mcode 79 0.394 0.477 0.218 1.089 cmc 156 0.394 0.516 0.232 1.142 clusterone 522 0.667 0.663 0.418 1.748 rnsc 88 0.43 0.529 0.23 1.189 rrw 264 0.606 0.561 0.361 1.528 cfinder 115 0.418 0.494 0.243 1.155 krogan extended clustereps 522 0.669 0.550 0.414 1.633 mcl 517 0.492 0.594 0.253 1.339 mcode 64 0.278 0.422 0.147 0.847 cmc 351 0.401 0.513 0.232 1.146 clusterone 530 0.594 0.628 0.364 1.586 rnsc 97 0.406 0.527 0.225 1.158 rrw 232 0.54 0.529 0.311 1.38 cfinder 88 0.262 0.47 0.155 0.887 collins clustereps 385 0.805 0.646 0.536 1.987 mcl 181 0.836 0.723 0.518 2.077 mcode 112 0.672 0.66 0.439 1.771 cmc 184 0.589 0.626 0.37 1.585 clusterone 195 0.828 0.731 0.532 2.091 rnsc 95 0.627 0.661 0.377 1.665 rrw 190 0.754 0.656 0.494 1.904 cfinder 114 0.605 0.648 0.412 1.665 biogrid clustereps 780 0.668 0.539 0.397 1.604 mcl 335 0.3 0.46 0.144 0.904 mcode 85 0.21 0.424 0.094 0.728 cmc n / a n / a n / a n / a clusterone 481 0.562 0.628 0.277 1.467 rnsc 220 0.527 0.616 0.287 1.43 rrw 270 0.485 0.534 0.263 1.282 cfinder n / a n / a n / a n / a n / a table 6 performance of clustereps in the detection of human complexes through the model constructed on the yeast ppi and complexes data .
+method trained yeast ppi trained yeast complexes human ppi precision recall f1 acc mmr clustereps gavin mips + sgd hprd 0.211 0.603 0.313 0.243 0.206 clustereps krogan core mips + sgd hprd 0.232 0.551 0.326 0.226 0.195 clustereps krogan extended mips + sgd hprd 0.217 0.586 0.317 0.238 0.207 clustereps collins mips + sgd hprd 0.191 0.612 0.292 0.247 0.201 clustereps biogrid mips + sgd hprd 0.197 0.580 0.294 0.239 0.198 clustereps dip mips + sgd hprd 0.190 0.574 0.286 0.245 0.199 clustereps combinedyeast mips + sgd hprd 0.208 0.482 0.290 0.213 0.173 clusterone hprd 0.169 0.376 0.233 0.317 0.114 clustereps combinedyeast mips + sgd hsn 0.121 0.429 0.189 0.248 0.139 clusterone hsn 0.057 0.128 0.079 0.308 0.035 clustereps combinedyeast mips + sgd hsn + hprd 0.115 0.448 0.183 0.217 0.170 clusterone hsn + hprd 0.062 0.164 0.090 0.312 0.057 clustereps combinedyeast mips + sgd hsnhprd _ f 0.196 0.504 0.282 0.237 0.171 clusterone hsnhprd _ f 0.125 0.242 0.165 0.332 0.074

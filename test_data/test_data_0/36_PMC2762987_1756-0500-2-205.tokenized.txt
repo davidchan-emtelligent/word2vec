@@ -1,0 +1,115 @@
+bmc res notes bmc research notes 1756 - 0500 biomed central 19807919 2762987 1756 - 0500 - 2 - 205 10.1186 / 1756 - 0500 - 2 - 205 technical note sigwinr ; the sigwin - detector updated and ported to r de leeuw wim c 1 w.c.deleeuw @ uva.nl rauwerda han 1 rauwerda @ science.uva.nl inda marcia a 1 marcia.inda @ philips.com bruning oskar 1 o.bruning @ uva.nl breit timo m 1 t.m.breit @ uva.nl 1 microarray department & integrative bioinformatics unit , swammerdam institute for life sciences , faculty of science , university of amsterdam , science park 904 , 1098 xh amsterdam , the netherlands 2009 6 10 2009 2 205 205 26 6 2009 6 10 2009 copyright ( c ) 2009 breit et al ; licensee biomed central ltd .
+2009 breit et al ; licensee biomed central ltd .
+this is an open access article distributed under the terms of the creative commons attribution license () , which permits unrestricted use , distribution , and reproduction in any medium , provided the original work is properly cited .
+background our sigwin - detector discovers significantly enriched windows of ( genomic ) elements in any sequence of values ( genes or other genomic elements in a dna sequence ) in a fast and reproducible way .
+however , since it is grid based , only ( life ) scientists with access to the grid can use this tool .
+therefore and on request , we have developed the sigwinr package which makes the sigwin - detector available to a much wider audience .
+at the same time , we have introduced several improvements to its algorithm as well as its functionality , based on the feedback of sigwin - detector end users .
+findings to allow usage of the sigwin - detector on a desktop computer , we have rewritten it as a package for r : sigwinr .
+r is a free and widely used multi platform software environment for statistical computing and graphics .
+the package can be installed and used on all platforms for which r is available .
+the improvements involve : a visualization of the input - sequence values supporting the interpretation of ridgeograms ; a visualization allowing for an easy interpretation of enriched or depleted regions in the sequence using windows of pre - defined size ; an option that allows the analysis of circular sequences , which results in rectangular ridgeograms ; an application to identify regions of co - altered gene expression ( rocages ) with a real - life biological use - case ; adaptation of the algorithm to allow analysis of non - regularly sampled data using a constant window size in physical space without resampling the data .
+to achieve this , support for analysis of windows with an even number of elements was added .
+conclusion by porting the sigwin - detector as an r package , sigwinr , improving its algorithm and functionality combined with adequate performance , we have made sigwin - detector more useful as well as more easily accessible to scientists without a grid infrastructure .
+introduction for the detection of significantly enriched windows of elements in any sequence of values in a fast and reproducible way , we developed and published a workflow and grid - based tool ; sigwin - detector [ 1 ] .
+for instance , elements may be genes and a sequence may consist of values attributed to these genes .
+sigwin - detector is based on a moving median false discovery rate ( mmfdr ) procedure using an exact formula .
+sigwin - detector visualizes significantly enriched windows by ridgeograms ; the sequence is depicted by stacking increasing window sizes from 1 onward , thus forming a triangle .
+enriched or depleted windows are marked by a color .
+windows in the input sequence are considered to be significantly enriched , if they have a median value that deviates significantly from the expected value assuming random ordering of the values in the input sequence .
+the development of sigwin - detector was originally motivated by the need to identify regions of increased gene expression ( ridges ) in the human transcriptome map ( htm ) [ 1,2 ] , see additional file 1 .
+however , the applicability of the tool is much wider , as we discovered that sigwin - detector can also be used to identify regions of co - altered gene expression ( rocage ) .
+because sigwin - detector has been implemented on a grid - platform , and many life scientists do not have access to grid resources , we have received requests from users for a sigwin - detector that operates in a non - grid environment .
+we therefore have ported our sigwin - detector to r [ 3 ] , the most commonly used statistical language in omics research .
+at the same time , we have extended the underlying algorithm and the functionality of sigwin - detector .
+the r package is called sigwinr .
+description porting sigwin - detector to r the original sigwin - detector workflow was rewritten in the r language , except for the median calculation of the moving windows , which was programmed in c to achieve an acceptable performance .
+sigwinr can produce a ridgeogram for a sequence containing 10,000 elements in less than 1 minute using a modern desktop computer with an intel ( r ) core ( tm ) 2 quad q8200 processor running at 2.33 ghz with 2 gb of ram .
+hence , it is feasible to analyze whole eukaryotic genomes within a practical timeframe .
+sigwinr has been developed on r - 2.8.0 and has been tested on a linux and microsoft windows environment .
+the package has been validated with the data sets used in [ 1 ] ( results not shown ) .
+help and documentation is available in the r package , which can be downloaded from the comprehensive r archive network ( cran , ) .
+visualizing input - sequence values ridgeograms are the standard output of sigwinr .
+to support the interpretation of the produced ridgeogram , we have added a xy - plot below the ridgeogram containing the values of all elements in the sequence .
+all figures show examples of this visualization .
+visualizing enriched windows of pre - defined size ridgeograms are visualizations of significant windows using all possible window sizes .
+however , it often occurs that the most interesting scale on which to analyze a sequence is known .
+for those cases , we have added an extra option in sigwinr that allows identification of significantly enriched windows for a pre - defined subset of window sizes .
+this makes the analysis considerably more efficient .
+in figure 1 ( upper and lower right panel ) an example of this visualization is shown .
+figure 1 advanced sigwinr ridgeogram for ridges in the human transcriptome map .
+an example of sigwinr ridgeograms ( left ) and ridgeplots for pre - defined window sizes ( right ) for chromosome 1 from the analysis of ( anti - ) ridges in the human transcriptome map ( htm ) [ 2 ] .
+the p - values of the ridges ( red ) and anti - ridges ( blue ) in the ridgeograms are indicated by the shade of the colour as shown on the scale bars to the right of the ridgeograms .
+below the ridgeograms , an xy - plot of the gene - expression values of the whole genome sequence is depicted .
+in the ridgeplots the stretches with p - values ( corrected for multiple testing ) below 0.01 are shown : ridges with a red shade , anti - ridges with a blue shade .
+the window size taken to generate the ridgeplots is indicated by a horizontal bar in the ridgeograms .
+the xy - plots beneath the ridgeogram are shown in non - log space , whereas in the ridgeplots log values are used .
+since the sigwin algorithm is based on a rank statistics , this is of no influence to the result .
+upper part : the input sequence is the genes ordered by their occurrence on the chromosomes .
+the value of the sequence elements is gene - expression from a serial analysis of gene expression ( sage ) compendium .
+lower part : an example of a sigwinr posridgeogram for essentially the same analysis , but with an input sequence consisting of 1 kb chromosomal stretches .
+as such , although the moving window analyses for every line in the ridgeogram the same chromosomal size , it will contain a variable number of genes .
+in the ridgeplot the centromere is clearly visible as a region with a low sample density .
+the ridgeograms of all chromosomes from these analyses are presented in the additional files 1 and 4 , respectively .
+analyzing circular sequences since sigwin - detector originates from the life sciences , an obvious extension of sigwinr is the possibility to analyze circular sequences , such as bacterial genomes .
+as in a linear sequence , the largest meaningful size of the moving window in a circular sequence equals the total length of that sequence .
+however , where in linear sequences the moving windows decrease in number as they increase in size ( hence the triangular shape of the ridgeogram ) , in a circular sequence , all possible window sizes including the largest , can still travel across the entire sequence .
+therefore the ridgeogram is rectangular .
+an example of an analysis of a circular sequence is shown in figure 2 .
+relevant observations could be missed , if circular nucleotide sequences are analyzed as artificially linearized sequences based on an arbitrary cut , such as the origin of replication in bacterial genomes .
+figure 2 sigwinr rectangular ridgeogram of the gene density in the circular bacterial genome of staphylococcus aureus .
+the sigwinr rectangular ridgeogram showing the significant windows of gene density , i.e. the number of nucleotides that belong to a gene , on the dna positive strand of the circular genome of bacterium staphylococcus aureus using a bin - size of 1 kb. the input values are calculated per 1 kb bin as the difference of the number of gene nucleotides between the top strand and the bottom strand divided by 1,000 .
+the dna origin - of - replication ( ori ) and replication terminus ( ter ) are at position 0 and ~ 1,500 at the x - axis , respectively .
+the y - axis shows the window size .
+the known , skewed gene distribution with over - representation in the dna replication leading strand ( ori - - > ter ) and under - representation in the lagging strand ( ter - - > ori ) [ 5,6 ] , are clearly visible and most pronounced at a window size of half the total sequence length .
+furthermore , the ridgeogram shows that on the leading strand near the ter , the gene density is highest .
+the dotted triangle is placed in this figure to illustrate which part of this rectangular ridgeogram represents the content of the common ( triangular ) ridgeogram .
+below the ridgeogram , a xy - plot of the 1 kb bin gene - density values of the whole genome sequence is depicted .
+identifying elements with altered values that are co - localized in a sequence in life sciences , it is often interesting to identify regions in a sequence in which many of the elements have an altered value ( rocages ) in the context of an experimental contrast .
+thus , when using for instance gene - expression data , instead of identifying ridges , which requires data from many experiments , we would like to be able to identify rocages within single experiments .
+to accomplish this , sigwin - detector can be fed an input sequence consisting of gene - expression log ratios or , in a replicated experiment per gene t - values or per gene p - values .
+as an example we investigated gene - expression data concerning down syndrome that is typified by a trisomy of chromosome 21 ( figure 3 and additional files 2 and 3 ) [ 4 ] .
+in chromosomal regions that are duplicated such as the down syndrome chromosome 21 , one expects to find co - localized genes with altered gene expression .
+indeed figure 3 and additional files 2 and 3 show rocages for the down chromosome 21 vs. control tissue using t - values and p - values as input .
+figure 3 sigwinr ridgeogram identifying rocages in down syndrome data .
+ridgeograms of human chromosome 21 from the sigwinr analysis of down syndrome ( trisomy 21 ) transcriptome data [ 4 ] .
+left : input - sequence values are the per gene t - values , i.e fold change of gene - expression log ratios of down and control samples divided by their standard error .
+right : input - sequence values are the p - values , which indicate the statistical significance of the gene - expression differences between down and control samples .
+the data for all chromosomes concatenated has been used as input for the analysis , the result for chromosome 21 was extracted from the genome wide ridgeogram .
+using both types of input - sequence value results in detection of regions of co - altered gene expression ( rocages ) .
+as expected , both ridgeograms show clear rocages in the analysis of the chromosomal trisomy typifying this syndrome .
+the ridgeograms of all chromosomes from these analyses are presented in the additional files 2 and 3 , respectively , the r code and data used to generate the figures can be downloaded from the project home page .
+considering the spatial distribution of sequence elements the spatial distribution of genes on chromosomes is not uniform .
+in the previous implementation [ 1 ] this was solved by re - sampling the input sequence , which distorts the data .
+here we have implemented a method in which the distribution is taken into account by representing the data as a non - regularly sampled sequence .
+this sequence is a sequence of position , value pairs .
+in sigwinr , a new function ( posridgeogram ) is available , which calculates a ridgeogram that uses windows based on the physical location of the elements in the underlying sequence .
+medians are calculated for a sequence of , in physical space regularly spaced , overlapping windows that now may contain a variable number of elements .
+p - values for the median are calculated using the presented exact formula based on the number of elements in the window .
+in figure 1 and additional file 4 results from calculations with the htm [ 2 ] are shown that were obtained using the posridgeogram function of sigwinr .
+because gene density is not equally distributed along the chromosome , as illustrated by the region near the centromere with low sample density in the lower ridgeplot in figure 1 , the posridgeogram differs from the ridgeogram .
+because a position on the x - axis represents a position on the chromosome the posridgeogram can be interpreted in terms of position .
+extending the algorithm a consequence of the approach that takes physical position into account is that windows may contain an even number of elements .
+the sigwin - detector algorithm avoids even window sizes , because the previously presented exact formula [ 1 ] is only suited for windows with an uneven number of elements and the use of those uneven windows results in a ridgeogram with sufficient resolution .
+to address this , we derived a formula for even windows that calculates the p - values associated with a certain median given sequence length and window size .
+this formula is presented in additional file 5 .
+concluding remarks sigwinr is an r implementation of the grid - based sigwin - detector application for a desktop computer .
+it has an adequate performance and makes the sigwin algorithm available to a much wider audience than just the grid community .
+also , with sigwinr , a number of improvements have been introduced , both in the algorithms used and the visualizations that can be produced .
+for future developments , we are considering parallelization of the sigwinr package .
+availability and requirements * project name : sigwinr * project home page : * programming language : r * other requirements : - * download : competing interests the authors declare that they have no competing interests .
+authors' contributions wdl specified and implemented the sigwinr package .
+hr , mai and tb all worked on the specification of the sigwinr package and adapted it by discussing applicability of it with life scientists .
+ob analyzed the down syndrome gene expression data .
+supplementary material additional file 1 ridges in htm .
+ridges in a human transcriptome map [ 2 ] .
+click here for file additional file 2 rocages on t - values .
+rocages in down syndrome brain expression data [ 4 ] for all chromosomes calculated by fold change of gene - expression log ratios of down and control samples divided by their standard error ( t - values ) .
+click here for file additional file 3 rocages on p - values .
+rocages in down syndrome brain expression data [ 4 ] for all chromosomes calculated by p - values on the null hypothesis of no differential expression between down and control samples .
+click here for file additional file 4 positional ridges in htm .
+positional ridges ( s2b ) in a human transcriptome map [ 2 ] .
+click here for file additional file 5 an exact formula for the probability function .
+an exact formula for calculating the probability given a median , window size and sequence length for even and uneven window sizes .
+click here for file acknowledgements this work was carried out in the context of : the virtual laboratory e - science project supported by a bsik grant from the dutch ministry of education , culture and science ( oc & w ) and the ict innovation program of the ministry of economic affairs ( ez ) ; and biorange program of the netherlands bioinformatics centre ( nbic ) supported by a bsik grant through the netherlands genomics initiative ( ngi ) .
+inda ma van batenburg mf roos m belloum as vasunin d wibisono a van kampen ah breit tm sigwin - detector : a grid - enabled workflow for discovering enriched windows of genomic features related to dna sequences bmc res notes 2008 1 63 18710516 10.1186 / 1756 - 0500 - 1 - 63 versteeg r van schaik bd van batenburg mf roos m monajemi r caron h bussemaker hj van kampen ah the human transcriptome map reveals extremes in gene density , intron length , gc content , and repeat pattern for domains of highly and weakly expressed genes genome res 2003 13 1998 2004 12915492 10.1101 / gr.1649303 ihaka r gentleman r a language for data analysis and graphics journal of computational and graphical statistics 1996 5 299 314 10.2307 / 1390807 lockstone he harris lw swatton je wayland mt holland aj bahn s gene expression profiling in the adult down syndrome brain genomics 2007 90 647 660 17950572 10.1016 / j.ygeno.2007.08.005 audit b ouzounis ca from genes to genomes : universal scale - invariant properties of microbial chromosome organisation j mol biol 2003 332 617 633 12963371 10.1016 / s0022 - 2836 ( 03 ) 00811 - 8 hu j zhao x yu j replication - associated purine asymmetry may contribute to strand - biased gene distribution genomics 2007 90 186 194 17532183 10.1016 / j.ygeno.2007.04.002

@@ -1,0 +1,416 @@
+front genet front genet front. genet .
+frontiers in genetics 1664 - 8021 frontiers media s.a .
+29018478 5623000 10.3389 / fgene.2017.00136 geneticsmethods ultrafast comparison of personal genomes via precomputed genome fingerprints glusman gustavo * mauldin denise e. hood leroy e. robinson max institute for systems biology , seattle , wa , united states edited by : max a. alekseyev , george washington university , united states reviewed by : filippo geraci , consiglio nazionale delle ricerche ( cnr ) , italy ; pavel loskot , swansea university , united kingdom ; son pham , salk institute for biological studies , united states ; kui lin , beijing normal university , china * correspondence : gustavo glusman , gustavo @ systemsbiology.org this article was submitted to bioinformatics and computational biology , a section of the journal frontiers in genetics 26 9 2017 2017 8 136 14 7 2017 12 9 2017 copyright ( c ) 2017 glusman , mauldin , hood and robinson .
+2017 glusman , mauldin , hood and robinsonthis is an open - access article distributed under the terms of the creative commons attribution license ( cc by ) .
+the use , distribution or reproduction in other forums is permitted , provided the original author ( s ) or licensor are credited and that the original publication in this journal is cited , in accordance with accepted academic practice .
+no use , distribution or reproduction is permitted which does not comply with these terms .
+we present an ultrafast method for comparing personal genomes .
+we transform the standard genome representation ( lists of variants relative to a reference ) into " genome fingerprints " via locality sensitive hashing .
+the resulting genome fingerprints can be meaningfully compared even when the input data were obtained using different sequencing technologies , processed using different pipelines , represented in different data formats and relative to different reference versions .
+furthermore , genome fingerprints are robust to up to 30 % missing data .
+because of their reduced size , computation on the genome fingerprints is fast and requires little memory .
+for example , we could compute all - against - all pairwise comparisons among the 2504 genomes in the 1000 genomes data set in 67 s at high quality ( 21 mus per comparison , on a single processor ) , and achieved a lower quality approximation in just 11 s. efficient computation enables scaling up a variety of important genome analyses , including quantifying relatedness , recognizing duplicative sequenced genomes in a set , population reconstruction , and many others .
+the original genome representation cannot be reconstructed from its fingerprint , effectively decoupling genome comparison from genome interpretation ; the method thus has significant implications for privacy - preserving genome analytics .
+computational genomics algorithms genome comparison study design population genetics privacy national institutes of health10.13039 / 100000002u54 eb020406 introduction personal genome sequences contain the information required for assessing genetic risks , matching genetic backgrounds between cases and controls in medical research , and detecting duplicate individuals or close relatives for medical , legal , or historical reasons .
+research purposes served by personal genome sequencing include classifying individuals by population , reconstructing human history , assessing and controlling the quality of the sequence information itself , computing kinship matrices to support genome - wide association studies , and combining data sets for meta - analysis .
+many of these applications involve comparison of two or more personal genomes .
+however , the size , complexity , and diversity of representations in which they are stored makes comparison of personal genomes in their existing forms error - prone and slow , and therefore challenging to scale from pairs to the hundreds , thousands , or millions of individuals we will soon wish to compare in order to provide improved , personalized medical care .
+comparison of personal genomes requires cross - referencing on a very large number ( potentially millions ) of variants , most of which are single - nucleotide variants ( snvs ) ; this process can be slow enough to make the computation of all pairwise comparisons take a prohibitive amount of time .
+current approaches to rapid genome comparison rely on severely limiting the number of single nucleotide polymorphisms ( snps , defined as snvs with population frequency above 1 %) to compare .
+a carefully curated set of 24 autosomal exome snps ( pengelly et al. , 2013 ) captures up to 38 bits of information per genome and thus limits utility to establishing identity and is susceptible to failure when data are partially missing .
+a larger set of 1500 pre - selected snps has been used to match genomes directly from bam files ( wang et al. , 2016 ) , with the requirement that these be mapped to the same reference genome .
+similarly , focusing on tens of thousands of pre - selected snvs enables multiple fast quality control computations in pedigrees ( pedersen and quinlan , 2017 ) .
+another powerful strategy involves deep compression of the data , coupled with advanced algorithms for fast querying and retrieval ( layer et al. , 2016 ; tatwawadi et al. , 2016 ) .
+the recent unicorn method enables independent mapping of individuals onto ancestry spaces based on detailed maps of minor allele frequency distributions ( bodea et al. , 2016 ) .
+these strategies offer better speed at the expense of limited applicability , severely reduced accuracy , or strong reliance on detailed prior knowledge about the population being studied .
+perhaps more importantly , the diversity of representations of personal genomes remains a problem for each of these methods , which must translate variants represented in different ways to a common representation in order to assemble the data to compare .
+this diversity of representations arises from the variety of technologies used to determine personal genomes , their processing with diverse software pipelines and their representation relative to multiple versions of the reference genome .
+we explore each of these below .
+the billions of base pairs in an individual 's genome can be assayed using a variety of techniques , the most complete of which is whole - genome sequencing ( wgs ) .
+several wgs technologies have been used to determine individual genomic sequences , differing in experimental protocols and in specific parameters such as read length and error tolerances ; the resulting data are processed using diverse computational pipelines .
+each technology brings a different set of observational biases and error modalities ; the resulting observations are expressed in a diversity of " native " vendor - specific file formats , and translated to one or more standard formats [ e.g. , variant call format ( vcf )] in a variety of ways , leading to a bewildering diversity of flavors of semi - standard formats .
+the resulting sequence is compactly represented as a list of differences ( variants ) from a reference genome .
+due to the ongoing progress in improving the quality of the human reference genome , there are now several different versions ( also known as " freezes ") in use .
+to date , many thousands of personal genomes have been ascertained , most of them expressed relative to the grch37 ( also known as " hg19 ") and grch38 (" hg38 ") freezes , though much legacy data exist using grch36 (" hg18 ") coordinates and even earlier versions .
+the position of a genomic variant depends on the reference version used : from one genome freeze to another , typically only the position of each variant along the chromosome changes , though in a small fraction of the cases a variant may be located in different chromosomes .
+any two genomes of interest may be expressed relative to different reference genomes , necessitating conversion prior to comparison and analysis .
+even relative to the same reference version , a variant may have more than one representation , necessitating additional conversion steps potentially leading to errors .
+each chromosome has multiple names ( e.g. , " nc _ 000003.12 ," " chr3 " or just " 3 " are all used refer to the third largest human chromosome ) , and different representations count the first nucleotide of each chromosome as position 0 or 1 .
+even with the same naming and numbering conventions , some variants can be expressed in more than one way , requiring normalization ( tan et al. , 2015 ) .
+sequencing the same genome using different technologies can yield differing results , as each technology has its own biases .
+even when using the same technology , reference and encoding , sequencing the same genome repeatedly can give somewhat different results due to the stochastic nature of genome sequencing , to batch effects , or to differences in the computational pipelines used .
+looking to the future , additional ( long - read ) technologies will enable de novo genome assembly to become commonplace ; the reference genome representation will change to a graph format , further breaking the concept of absolute coordinates ; and the number of genomes available will soon be in the millions .
+these trends will deepen , not lessen the complexity of genome comparison .
+we present here a new , rapid method for summarizing personal genomes that does not require knowledge of the technology , reference and encoding used , and yields " genome fingerprints " that can be used to facilitate many standard problems in genomics .
+thanks to their reduced size , computation on the genome fingerprints is orders of magnitude faster and requires little memory , enabling comparison of much larger sets of genomes .
+no individual variants or other detailed features of the personal genome can be reconstructed from the fingerprint , thereby allowing private information to be more closely guarded and protected by decoupling genome comparison from genome interpretation .
+fingerprints of different sizes allow balancing the speed and accuracy of the comparisons , and due to the high value of estimating relatedness , the potential applications of genome fingerprinting range from basic science ( study design , population studies ) to personalized medicine , forensics and genealogy research .
+methods overview our algorithm summarizes a personal genome as a " fingerprint " ( figure 1 ) .
+conceptually , any variant - oriented representation of a personal genome ( e.g. , a vcf file or vendor - specific format , regardless of encoding or reference genome used ) includes a list of variants , including their position and reference and alternative alleles , sorted by position .
+a " raw " fingerprint is a tally of consecutive biallelic snv pairs grouped on a combination of these two attributes .
+we then normalize the raw fingerprint to account for systematic differences in frequency between groups by allele and by position .
+the resulting " normalized " fingerprint preserves differences at the species level , e.g. , between individuals from different populations .
+averaging the normalized fingerprints of the individuals in a population yields a " population " fingerprint , which can be subtracted from an individual 's normalized fingerprint to produce a " population - adjusted " fingerprint suitable for more sensitive detection of related genomes .
+figure 1 overview of method .
+pairs of consecutive snvs in the input file ( upper right ) are encoded into a table ( upper left ) by snv key and by distance .
+a section of the table , informative about technology , is segregated (" close " matrix , lower left ) .
+the rest of the table is folded using the modulo function to generate the raw fingerprint (" raw " matrix , lower center ) , which is then normalized and adjusted to the closest population ( lower right ) .
+computation of raw fingerprints the first stage in computing genome fingerprints yields a " raw " fingerprint , a 144 x l table of snv pair counts ( l , the fingerprint length , is the main parameter of the method , defaulting to 20 ) .
+we classify each pair of consecutive snvs by the combination of reference and alternate alleles at both snvs : this information determines the row in the table .
+we also consider the distance between the snvs : this information determines the column in the table .
+when studying genomes produced using complete genomics and illumina technologies , we observed differences in the distribution of distances between consecutive snvs , for short distances ( supplementary figure 1 ) .
+these differences largely reflect each vendor pipeline 's encoding of multi - nucleotide variants ; some pipelines represent these as individual snvs , potentially leading to interpretation errors ( wei et al. , 2015 ) .
+we thus exclude snv pairs that are separated by fewer than c base pairs ( defaulting to 20 ) from the final fingerprint .
+to avoid technology - specific artifacts , we recommend c at least 5 ( see below ) .
+to compute a raw fingerprint : ( 1 ) parse the autosomes in the personal genome ( e.g. , from a vcf file ) to identify biallelic snvs as variants with reference allele of length 1 and single alternate allele of length 1 , both in the case - insensitive alphabet [ a c g t ] .
+ignore all other types of variants : two biallelic snvs separated by other types of variants are still considered consecutive .
+( 2 ) for each snv , join its reference and alternative alleles into one of 12 possible snv keys .
+for example , reference allele " g " and alternative allele " a " form key " ga . "
+( 3 ) join the keys of consecutive snvs on the same chromosome to form one of 144 possible snv pair keys ; for example , consecutive snvs with keys " ga " and " tc " form the snv pair key " gatc . "
+( 4 ) compute the number of base pairs between the two snvs ( the " distance " between the snvs along the reference genome ) .
+if this distance is smaller than c , increment by one the corresponding value in the [ 144 x c ] " close " matrix ( figure 1 ) , and skip the next steps .
+( 5 ) compute a reduced distance as the distance between the two snvs , modulo the l .
+( 6 ) increment by one the corresponding value in the [ 144 x l ] " raw " matrix .
+normalization of fingerprints the second stage in computing genome fingerprints performs a normalization of the raw fingerprint to account for the different frequencies of transitions and transversions , distance and parameter effects ( supplementary figure 2 ) .
+the normalization is performed in two steps : ( 1 ) normalization by distance : subtract the mean and divide by the standard deviation of each column .
+( 2 ) normalization by snv pair key : subtract the mean and divide by the standard deviation of each row .
+the normalized fingerprints do not show any remaining structure ( supplementary figure 3 ) .
+normalizing fingerprints in the reverse order ( first by snv pair key , then by distance ) fails to correct for the internal structure of raw fingerprints ( supplementary figure 4 ) .
+population fingerprints we compute a population fingerprint as the average of the normalized fingerprints from the individuals in the population .
+these fingerprints must have been computed using the same parameters ( c and l ) .
+adjustment to population we compute a population - adjusted fingerprint for an individual by subtracting a population fingerprint from the normalized fingerprint of that individual .
+the individual fingerprint and the population fingerprint must have been computed using the same parameters ( c and l ) .
+similar to normalized fingerprints , population - adjusted fingerprints show no internal structure ( supplementary figure 5 ) .
+fingerprint comparison to compare two fingerprints , concatenate the rows of each fingerprint matrix into a vector and compute the spearman correlation between the two vectors .
+the fingerprints to be compared thus have to be computed using the same parameter l. this same procedure is appropriate for comparing two normalized fingerprints or two population adjusted fingerprints , whether adjusted to the same or different populations .
+binary fingerprints we also evaluated a minimal version of the genome fingerprints , in the shape of a binary string of length 144 , as follows ( supplementary figure 6 ) .
+we ( a ) compute a raw fingerprint matrix with l = 2 , and ( b ) for each row in the matrix , corresponding to a snv pair key , add to the binary fingerprint a 1 if the value of the second column is larger than the value in the first column .
+there is no need to normalize binary fingerprints .
+to compare two binary fingerprints , we count how many bits are identical between the two , divide by the number of bits ( 144 ) and square the resulting fraction .
+evaluation of the robustness of genome fingerprints different reference versions to evaluate the robustness of the fingerprinting method to different versions of the reference genome , we computed fingerprints ( l = 20 and binary ) for a set of 69 genomes sequenced by complete genomics , inc .
+[ a ] ; these genomes were mapped to both grch36 ( hg18 ) and grch37 ( hg19 ) .
+we then computed all pairwise correlations , which include ( a ) each genome on both references , ( b ) combinations of different genomes on the same reference , and ( c ) combinations of different genomes with different references .
+format and normalization to evaluate the robustness of the fingerprinting method to transformation from vendor - specific formats to standard representations , we studied 2436 cgi genomes delivered in " var " format and 1618 cgi genomes delivered in " mastervar " format .
+the var format reports each allelic observation in a separate line , while the mastervar format represents each locus in one line ( in similarity with the vcf format ) .
+we used custom parsers to transform these vendor - specific genome representations to vcf format , and normalized them using vt normalize ( tan et al. , 2015 ) .
+we then compared genome fingerprints computed from the original ( var or mastervar ) representations and from the normalized vcf representations .
+we performed these computations with l = 20 and with binary fingerprints .
+significant filtering and post - processing to evaluate the robustness of the fingerprinting method to complex post - processing procedures , we studied 154 genomes from the 1000 genomes project for which individual wgs data are available from the international genome sample resource [ b ] .
+the genomes were analyzed using complete genomics' analysis pipeline versions 2.2.0.19 through 2.2.0.26 and reported in mastervar format .
+we compared for each genome fingerprints computed from the mastervar representation and from the version extracted from the multi - sample vcfs in release 20130502 ( filenames : all.chrnn.phase3 _ shapeit2 _ mvncall _ integrated _ v5.20130502.genotypes.vcf.gz ) .
+we performed these computations with l = 20 , l = 200 , and binary fingerprints .
+sequencing technology effects to evaluate the robustness of the fingerprinting method to differences between technologies , we computed fingerprints for several versions of the " platinum " na12878 genome , some of them sourced from the genome in a bottle consortium ( downloaded from [ c ]) .
+these assemblies were sequenced using multiple versions of cgi 's technology and illumina , processed using various pipeline versions , mapped to grch36 , grch37 , and grch38 ( figure 2 ) .
+we performed these comparisons with l = 5 , l = 20 , l = 120 , and binary fingerprints .
+figure 2 comparison of several versions of the same genome .
+we compared six versions of the genome of the same individual ( na12878 ) , one of them ( gs00363 - dna _ c04 ) processed in three different ways .
+the values above the diagonal of the matrix represent pairwise spearman correlations between fingerprints with l = 20 , while numbers under the diagonal represent comparisons of binary fingerprints .
+color scale from 0.5 ( red ) through 0.75 ( white ) to 1.0 ( blue ) .
+cgi , complete genomics , inc. ; ilm , illumina ; lfr , long fragment read ; 1000g , 1000 genomes project .
+the asterisks "**" highlights the post - processing of the illumina - based genome sequence as done by the 1000 genomes project .
+missing data and added noise to evaluate the robustness of the fingerprinting method to missing data , we performed a simulation in which we degraded a genome to increasing degrees and compared the resulting fingerprints to the original .
+we computed a series of fingerprints for the same genome by varying the probability of not observing each individual variant , excluding 1 , 5 , 10 , 15 , 20 , 25 , 30 , 35 , 40 , 45 , 50 , 60 , 70 , 80 , 90 , 95 , and 99 % of the variants at random ( figure 3 ) .
+we performed this simulation with l = 10 , l = 20 , l = 50 , l = 120 , and binary fingerprints .
+figure 3 robustness to missing data and to added noise .
+we simulated increasing fractions of missing data ( a ) and to increasing probability of added noise ( b ) and computed the correlation between the resulting fingerprint and the fingerprint derived from the full data .
+for fingerprints with l = 10 , l = 20 , l = 50 , and l = 120 , the method was robust to up to 35 % data loss and up to 15 % added noise .
+the binary fingerprint was robust to up to 10 % data loss and less than 5 % added noise .
+similarly , we evaluated robustness to added noise .
+we simulated noise from sequencing errors ( false positives ) by adding an additional , intervening spurious variant between each observed variant pair , with probabilities as in the missing data simulation .
+pedigree study we studied wgs data from 35 individuals in a large family ( figure 4 ) .
+all genomes were sequenced by complete genomics , inc. from blood ( n = 25 ) or saliva ( n = 10 ) samples , and processed using pipeline version 2.5.0.20 .
+the genome data and a description of the family pedigree were donated by the private family .
+we categorized all pairwise relationships within the family as sibling , parent / child , half - sibling , aunt / uncle , grandparent , cousin , second cousin , second cousin once removed , unrelated , and other .
+the last category included more complex relations , e.g. , child and grandchild of half - siblings .
+we computed for each individual a series of genome fingerprints using l in the range 2 - 200 .
+for each l we computed all pairwise correlations , then computed their average and standard deviation stratified by the relationship categories listed above .
+figure 4 fingerprint correlation reflects degree of relatedness .
+each trace represents the average correlation between fingerprints of individuals in each relatedness group , as a function of l. the number of pairs in each class is shown between parentheses .
+inset : family structure ; green icons represent individuals whose genomes were sequenced .
+not shown : 169 additional pairs with complex relationships .
+population reconstruction we computed fingerprints ( l = 20 , l = 120 , and binary ) for each of the 2504 genomes in the 1000 genomes project data set from the version extracted from the multi - sample vcfs in release 20130502 ( filenames : all.chrnn.phase3 _ shapeit2 _ mvncall _ integrated _ v5.20130502.genotypes.vcf.gz ) .
+for comparison , we analyzed the same data by principal components analysis ( pca ) as follows .
+we identified snps with a minor allele frequency of 5 % or more , removed snps in complete linkage disequilibrium with a snp to the left ( i.e. , a smaller chromosomal position ) , retained 5 % at random ( 298,454 snps ) and counted occurrences of the minor allele ( 0 , 1 , or 2 ) in each genome to form a 2504 x 298,454 genotype matrix m. we performed pca using the r function call prcomp ( m , center = true , scale = true ) and t - distributed stochastic neighbor embedding ( t - sne ) using the r package rtsne with perplexity = 25 and max _ iter = 500 ( figure 5 ) .
+figure 5 reconstruction of population structure of the 1000 genomes project data set .
+( a ) principal component analysis ( pca ) of the 2504 individuals using ~ 300,000 snps , ( b ) pca on genome fingerprints with l = 120 , ( c ) pca on genome fingerprints with l = 20 , ( d ) t - sne on genome fingerprints with l = 20 .
+individuals are color coded according to their population as per the key to the right .
+eas , sas , eur , amr , and afr : east asian , south asian , european , admixed american , and african , respectively .
+pc1 and pc2 : first two principal components .
+tsne - 1 and tsne - 2 : first two t - sne components .
+we obtained data of the sheep genome project run 1 ( international sheep genomics consortium ) from [ d ] as multi - sample vcfs ( similar to the 1000 genomes project ) with 453 samples .
+we computed fingerprints ( l = 120 ) and analyzed using pca as above ( figure 6a ) .
+figure 6 reconstruction of population structure of 453 sheep genomes ( a ) and 3000 rice genomes ( b ) .
+each panel shows the principal component analysis ( pca ) of the data sets using genome fingerprints with l = 120 .
+individual sheep genomes are color coded according to their country of origin .
+pc1 and pc2 : first two principal components .
+we obtained data of the 3000 rice genomes project ( international rice research institute ) from [ e ] as single - sample genome vcfs for 3000 rice varieties .
+we computed fingerprints ( l = 120 ) and analyzed using pca as above ( figure 6b ) .
+evaluation of fingerprints for population classification we computed a population fingerprint for each of the annotated populations studied by the 1000 genomes project .
+to identify the population closest to each individual , we compared each individual 's normalized fingerprint to the population fingerprints ( using spearman correlation , as described for comparing individual fingerprints ) .
+each individual was considered classified as belonging to the closest population .
+to avoid bias , we excluded each individual from the computation of their own population fingerprint .
+population - adjusted fingerprints we computed a population - adjusted fingerprint for each individual in the 1000 genomes data set by subtracting the population fingerprint ( excluding the individual ) from the individual 's normalized fingerprint .
+we computed all pairwise spearman correlations and identified outliers using the absolute deviation around the median ( wilcox , 2016 ) with false discovery rate of 5 % .
+to compute kinship coefficients , we identified snps with a minor allele frequency of 5 % or more , removed snps in complete linkage disequilibrium with a snp to the left ( i.e. , a smaller chromosomal position ) , retained 5 % at random ( 324,313 snps ) , reformatted using vcftools ( danecek et al. , 2011 ) and plink ( purcell et al. , 2007 ) , and computed kinship coefficients using king ( manichaikul et al. , 2010 ) .
+we obtained previously reported close relationships in the 1000 genomes data set ( gazal et al. , 2015 ) as computed using relpair ( epstein et al. , 2000 ) .
+results a novel genome encoding method we developed a novel algorithm for computing " fingerprints " from genome data ; the algorithm is akin to locality - sensitive hashing ( indyk and motwani , 1998 ) .
+these fingerprints are rapidly computed , only need to be computed once per genome ( not once per comparison ) , and can be rapidly compared to determine whether two genome sequences are derived from the same individual , closely related individuals , or unrelated individuals .
+moreover , the original genome representation cannot be reconstructed from the fingerprint , and fingerprints can be shared when privacy concerns prevent sharing the genome itself .
+importantly , the fingerprints can be computed starting from any of several file formats , with a variety of encodings and relative to any reference version , and the resulting fingerprints are directly comparable without further conversion .
+based on characteristics of consecutive pairs of snvs ( see section " methods ") , our algorithm computes two small matrices of numbers for each genome ( figure 1 ) , one of which (" close ") holds potentially useful information about the technology used to generate the genome , and the other (" raw ") represents the genome itself .
+the latter is then normalized and potentially adjusted to the relevant population fingerprint .
+each of these matrix versions has its own utility .
+the main parameter of our algorithm , l , determines the size of the fingerprint .
+smaller fingerprints ( e.g. , l = 20 ) are useful for fast genome comparisons to determine identity , while larger fingerprints ( e.g. , l = 120 , l = 200 ) retain more information and better support detailed analyses like population reconstruction .
+comparison of genome fingerprints two fingerprint matrices can be easily compared by first serializing each fingerprint into a vector of numbers ( see section " methods ") and then computing a correlation value between the two vectors .
+the correlation reflects the overall similarity between the two genomes being compared : identical input genomes yield perfect correlation .
+based on our experiments , detailed below , comparison of two versions of the same genome typically display correlations above 0.75 , and lower correlation values reflect various degrees of similarity that inform about family relatedness and population of origin .
+various cutoff values can be used to determine the degree of relatedness represented by each correlation level ; these cutoffs may depend on the parameters used for constructing fingerprints , and can be determined empirically through family studies as described below .
+a minimal fingerprint we further sought to create a minimal genome fingerprint .
+using the smallest meaningful table ( l = 2 ) , we created a fingerprint of just 144 bits for each genome .
+each bit represents , for each of the 144 possible snv pair keys ( e.g. , " gagt ") , whether the distance ( the number of intervening base pairs ) between the consecutive snvs is more frequently an odd or an even number .
+this simple function yields a " binary barcode " of a genome ( supplementary figure 6 ) with negligible storage and memory footprints , trivially comparable to similarly computed " barcodes " by counting binary matches .
+computation on genome fingerprints is fast computation of genome fingerprints is very fast , typically requiring 15 - 45 s per genome , depending on the file format .
+the computation requires a single - pass read of the genome and depends principally on the time it takes to read the file ( i.e. , it is " i / o bound ") .
+it is also trivially parallelizable : computation of one genome fingerprint does not depend on the results of similar computations for other genomes .
+it is also possible to compute partial raw fingerprints from sections of the genome , e.g. , individual chromosomes ; such partial fingerprints can then be combined by simple summation , yielding the raw fingerprint for the whole genome .
+this is particularly useful when the data are represented in separate multi - sample files per chromosome , as is the case for the 1000 genomes data set .
+thanks to the small size of the fingerprint matrices , fingerprint comparisons are extremely fast .
+we performed all - against - all comparisons in the set of 2,504 genomes from the 1000 genomes project .
+the 3.1 million comparisons required 67 s ( 21.3 mus per comparison ) with l = 120 , and 11 s ( 3.53 mus per comparison ) with l = 20 .
+fingerprint comparisons are also independent and trivially parallelizable .
+genome fingerprints are robust fingerprints are robust to reference versions mapping raw sequence data to different reference versions can yield disparate variant calls .
+the absolute coordinates for most observed variants will differ between references ; a fraction of the variants will differ also in other aspects including reference allele , variant allele and even chromosome assignment and strand .
+we studied a set of 69 genomes that were mapped to two reference versions and evaluated the effect of reference version on fingerprint comparison. with l = 20 , the spearman correlation between fingerprints derived from genomes mapped to grch36 and grch37 ranged from 0.989 to 0.991 , while fingerprints derived from different genomes in this set ranged from 0.222 to 0.685 ( see example in figure 2 ) .
+these differences are much larger than the standard deviations observed for each relatedness level ( supplementary figure 8 and sections below ) .
+binary fingerprints yielded lower correlations that nevertheless clearly separated self - comparisons ( 0.853 - 0.986 ) from comparisons of different individuals ( 0.243 - 0.683 ) .
+genomes mapped to different references therefore yield highly comparable fingerprints .
+fingerprints are robust to format differences genome sequencing vendors may deliver results in non - standard file formats that best convey technology - specific characteristics of the data ; the variants themselves may be represented in inconsistent ways .
+considering two vendor - specific file formats ( complete genomics' var and mastervar ) , we evaluated the effect on fingerprinting of standardizing the genome data representation by transforming to the standard vcf format and by normalization of variants ( tan et al. , 2015 ). with l = 20 , the correlation between fingerprints derived from var files and from their normalized vcf counterparts was 0.9911 +/ - 0.0008 .
+for mastervar files , the correlation was 0.9982 +/ - 0.0015 .
+binary fingerprints yielded marginally lower correlations : 0.9262 +/ - 0.0313 for var files and 0.9688 +/ - 0.0211 for mastervar files .
+we found that this transformation yields nearly identical fingerprints .
+fingerprints are robust to complex post - processing the 1000 genomes project applied a number of post - processing steps to the collection of 2504 genomes to normalize variant calls and exclude spurious or unreliable variants .
+thus , for each genome in the data set there are at least two versions : the initial , unprocessed individual genome , and the harmonized version in the context of the large study .
+we evaluated whether fingerprint comparison is robust to this complex post - processing procedure ( see example in figure 2 ). with l = 20 , the correlation between initial and post - processed versions was 0.798 +/ - 0.010 .
+we observed nearly identical results with l = 200 : 0.798 +/ - 0.008 .
+the lowest observed correlation for an individual genome was 0.776 , well above the correlations observed for different individuals , even those closely related .
+as expected , binary fingerprints were more strongly affected by the post - processing procedure , yielding correlations of 0.660 +/ - 0.057 ( supplementary figure 7 ) .
+here , the lowest observed correlation for an individual was 0.482 , significantly below the highest correlation observed between binary fingerprints of two related individuals ( 0.683 ) .
+therefore , binary fingerprint comparisons for the purpose of determining identity between two genomes may frequently lead to false negatives in the presence of complex post - processing of genome data .
+we observed no false positive identifications using the 0.75 cutoff , though this could conceivably happen with much larger data sets .
+fingerprints are robust to technology differences we compared fingerprints computed from various versions of the same genome ( na12878 ) as ascertained using different technologies , mapped with different pipelines and using different references ( figure 2 ) .
+using fingerprints with l >= 20 , all comparisons yielded correlations higher than 0.8 .
+shorter fingerprints ( l = 5 ) yielded correlations above 0.75 ( not shown ) .
+as expected , binary fingerprints were more sensitive to technology differences .
+fingerprints are robust in the presence of sequencing errors we evaluated , by simulation , whether fingerprint comparison is robust to missing data and to added noise .
+for a variety of fingerprint sizes , we degraded a personal genome by excluding ( prior to computing fingerprints ) a fraction of the variants ( false negatives ) , and alternatively by adding spurious variant observations ( false positives ) .
+for most fingerprint sizes , we observed a monotonic and equivalent decrease in spearman correlation between the degraded genome fingerprints and the original , undegraded genome fingerprint .
+given the 0.75 lowest correlation observed for different versions of the same genome , we conclude that the fingerprinting method is robust to up to 35 % missing data and up to 15 % added noise ( figure 3 ) .
+as expected , the less informative binary fingerprint is less robust ( up to 10 % missing data , and to less than 5 % added noise ) .
+all these error levels are significantly higher than what is typically observed in genome sequencing ; this is consistent with the high correlations observed between technical replicates ( figure 2 ) .
+fingerprint similarity reflects degree of relationship we compared pairwise genome fingerprint correlations with known family relationships in a large pedigree ( figure 4 ) .
+the family relationships spanned the range from close ( e.g. , siblings ) to distant ( e.g. , second cousins once removed ) and also included unrelated individuals ( joining the family by marriage ) .
+we observed that fingerprint correlations decrease with increasing degree of relationship , from 0.62 +/ - 0.031 for full siblings to 0.41 +/ - 0.007 for unrelated individuals .
+this demonstrates that our genome fingerprinting method is locality - sensitive .
+we also observed that l >= 20 is sufficient for distinguishing most relationship levels on average .
+larger fingerprints have lower standard deviations ( supplementary figure 8 ) , improving resolution and the confidence of close relationship .
+the genomes of all individuals in this pedigree were sequenced using the same technology and processed using similar pipeline versions and the same reference version ; this setup is typical for research studies .
+combining data obtained using multiple technologies and processing pipelines could reduce the ability to confidently distinguish between relationship levels. of note , fingerprints derived from siblings tend to be more highly correlated than fingerprints of parents and their offspring ( 0.62 +/ - 0.031 vs. 0.58 +/ - 0.007 , respectively ) .
+in both cases the degree of relationship is the same , but the identity by descent ( ibd ) pattern differs : parents and offspring share 100 % of the genome in ibd1 state , while siblings share ( on average ) 50 % of the genome in ibd1 state and 25 % in ibd2 state .
+this increases the probability that sibling pairs will share heterozygous variants , especially heterozygous rare variants , as compared with parent / child pairs .
+for similar reasons , fingerprints of half siblings are more correlated than fingerprints of relatives of the same average degree ( grandparental and avuncular relationships ) .
+fast reconstruction of population structure we tested the utility of genome fingerprints for population studies .
+we computed fingerprints for the 2504 individuals from 1000 genomes project and used pca and t - sne to reconstruct the known population structure ( figure 5 ) in a fraction of the time required to perform the same task using standard methods and with much smaller memory requirements .
+the quality of the reconstruction depended on fingerprint size : fingerprints with l = 120 yielded excellent population structure reconstruction and fingerprints with l = 20 yielded good separation at the continental level .
+pca applied to fingerprints of different values of l provided results highly correlated with results from pca applied to variants , with convergence to the same principal component axes as either the number of variants or the l increased .
+for a sufficient amount of data in either form , correlation between corresponding principal components was > 0.99 for the first 5 to the first 10 components .
+this strongly suggests pca of either kind of data provides equivalent information regarding population structure .
+importantly , the population reconstruction workflow using fingerprints is simple and requires no prior knowledge .
+the standard workflow requires creating multi - sample vcfs ( which in turn requires normalizing variants ) , filtering out unreliable variants ( which requires prior knowledge ) , filtering by allele frequency ( requiring previous knowledge of population frequencies ) , paying attention to linkage disequilibrium , making assumptions about variants not observed in some samples and , finally , selecting a suitably sized subset of variants to balance resolution with memory and computational requirements .
+in some cases , these technical requirements can be quite severe , e.g. , limiting the set of variants to a few thousands for t - sne analysis ( li et al. , 2017 ) .
+in contrast , using genome fingerprints it is possible to reconstruct population structure by computing fingerprints directly from the unprocessed individual genomes and combining the fingerprints into a matrix ready for analysis with pca , t - sne or any other method of choice .
+to test the general applicability of the method , we similarly studied 453 sheep ( ovis aries ) genomes [ d ] and 3000 rice ( oryza sativa ) genomes ( the 3000 rice genome project , 2014 ) .
+these two data sets are available in different formats : the sheep genome data as multi - sample vcfs , while the rice genomes are provided as individual sample vcfs .
+we computed genome fingerprints with l = 120 and reconstructed population structure for each of these model species ( figure 6 ) .
+while it took many hours to download the sheep and rice genome data ( 14 and 30 h , respectively ) , fingerprint computation took just 1.5 h for the multi - sample sheep genome vcf and 55 min for the single - sample rice vcfs .
+once the genome fingerprints were computed , the complete population reconstruction and visualization workflow took minutes to run (~ 5 min for sheep , ~ 15 min for rice ) , including the pca component ( 15 s for sheep , 9 min for rice ) .
+these efforts did not require any prior knowledge of ovine ( or rice ) genome structure , linkage maps , population frequencies of variants , or metadata about the samples .
+utility for fast and simple population assignment individuals from the same population share some evolutionary history , and therefore some of the snv pairs counted in computing genome fingerprints .
+it is thus useful to summarize the fingerprints of a population , both to estimate the " center " of the population 's fingerprints and their variability around that center ( population diversity ) .
+such " population fingerprints " have a variety of uses , including population assignment for individuals .
+we implemented a simple and very rapid method in which we first compute fingerprints ( l = 120 ) for each population in the 1000 genomes data set by simply averaging the fingerprints of the genomes in each population .
+we then compute the correlation between the fingerprint of a query genome and the fingerprint of each population : the genome is assigned to the population with which it is most strongly correlated .
+we tested this method by " leave one out " cross - validation .
+the correct population was identified as the best match for 2047 of 2504 query genomes ( 82 % of cases ) .
+some of the populations in the 1000 genomes data set are very closely related and difficult to separate ; for many practical purposes ( e.g. , selecting appropriate allele frequencies ) using such closely related populations yields equivalent results .
+accepting the second or third best population matches increased the success rate to 96 and 98 % , respectively .
+at the continental resolution ( five regions : afr , amr , eas , eur , and sas ) , the best match was correct for all but 42 admixed amr genomes .
+utility of population - adjusted fingerprints fingerprints can be manipulated in a familiar way to perform different distance - based analyses .
+population fingerprints , for example , are simple averages of a group that capture the features common to the group with respect to distance , but without corresponding interpretations that could be used for racial profiling or stereotyping .
+population adjusted fingerprints allow analysis of relationships within a population , beyond the features shared among the population .
+this allows close relationships to be distinguished from membership in the same population and may help increase resolution of population structure reconstruction .
+we adjusted the l = 120 fingerprints for the 2504 individuals in the 1000 genomes data set relative to their stated population of origin , performed all pairwise comparisons , compared with kinship coefficients computed using king ( manichaikul et al. , 2010 ) and with previously reported relationships ( gazal et al. , 2015 ) computed using relpair ( epstein et al. , 2000 ) ( figure 7 ). of note , these correlation values among population adjusted fingerprints are not comparable with those observed among normalized fingerprints in the family study ( figure 4 ) .
+the similarity between unrelated individuals derived from the same population ( e.g. , figure 4 ) is removed by adjustment to the population average .
+thus , population - adjusted fingerprints for unrelated individuals show no significant correlation .
+figure 7 identification of close relationships in the 1000 genomes project .
+comparison between the correlations of population - adjusted fingerprints and the kinship coefficient as computed using king , highlighting close relationships identified using relpair .
+fs : full siblings ( red ) .
+po , parent / offspring ( blue ) ; hs , half siblings ( magenta ) ; av , avuncular ( black ) ; co , cousins ( green ) .
+all other pairs in gray .
+one fs pair ( hg03873 and hg03998 , with maximal kinship coefficient and fingerprint correlation ) was not identified by relpair .
+dashed line : kinship coefficient = 0.25 , corresponding to 0.5 relatedness ( consistent with fs and po ) .
+upper inset : example of a gujarati indian ( gih ) family trio with a cousin of one of the parents , recognized through fingerprint comparisons .
+thick edges represent po relationships .
+lower inset : example of a sri lankan tamil ( stu ) pair of siblings and three cousins , identified through fingerprint comparisons .
+the thick edge represents the fs relationship .
+we observed 143 pairs of individuals from the same population with correlations higher than expected ( at 5 % false discovery rate ) and two outlier pairs linking individuals of the itu and stu populations ( supplementary table 1 ) , consistent with previous reports ( gazal et al. , 2015 ) .
+the highly correlated pairs correspond to a variety of degrees of relationship , from full siblings to cousins .
+in several cases they form networks of related individuals , e.g. , a gujarati indian trio with a cousin of one of the parents ( figure 7 , upper inset ) and a sri lankan tamil pair of full siblings and three cousins ( figure 7 , lower inset ) .
+for related pairs , fingerprint correlation levels are correlated with the kinship coefficient as computed using king ( figure 7 ) .
+the fingerprint correlation method can further distinguish between full sibling and parent / offspring relationships .
+many more cousin pairs are clearly distinguished from unrelated pairs by their fingerprint correlations than by their kinship coefficient values .
+for unrelated pairs , fingerprint correlations are narrowly distributed around 0 ( no correlation ) , while the kinship coefficients range from ~ 0.1 down to - 0.4 .
+discussion we have presented a novel algorithm for computing " fingerprints " of individual genomes , and various examples of their potential applications .
+genome fingerprints are reduced representations that retain information about distances ( between genomes ) but not functional features , enabling ultrafast comparison of genomes .
+importantly , the fingerprints need to be computed just once per genome , not once per comparison .
+they can also be computed directly from any representation of the genome , regardless of technology , reference version , formatting and encoding choices , and even significant levels of missing data and added noise .
+these features provide for the first time the ability to rapidly compute the level of similarity between genomes regardless of such representational differences .
+we described an implementation of the method for whole - genome data and various aspects of comparing whole - genome fingerprints , pairwise and in large sets .
+fingerprints can similarly be computed for exome data .
+the fingerprint computed from an individual 's exome would not be directly comparable to the fingerprint derived from the same individual 's whole genome ; it is though possible and very efficient to approximate exome data from whole - genome data , by simple subsetting using bedtools ( quinlan and hall , 2010 ) .
+our current implementation of pairwise comparison of genomes via fingerprints takes microseconds per comparison ; using multithreading or specialized hardware acceleration could potentially significantly improve performance .
+these speeds are already orders of magnitude faster than afforded by current methods , and enable orders of magnitude more comparisons to be routinely performed .
+as expected from the highly lossy data reduction involved in generating genome fingerprints , their comparison for various applications yields results that are somewhat inferior to direct computation on the entire dataset of all observed variants .
+the fast approximation afforded by genome fingerprints will be good enough for some applications , and will help prioritize more detailed computations where precise results are required .
+widespread adoption of this methodology could revolutionize the field of comparative genomics by enabling comparisons on a scale not now attempted due to the time and effort required .
+for example , all - against - all pairwise comparisons of a million genomes could be performed with l = 20 in 20 cpu days ( or under 1 day with minimal parallelization ) , followed by more refined comparison of the subset of genome pairs of interest .
+we have shown that regardless of the technology , genome freeze , or encoding used for specific personal genomes , the corresponding fingerprints enable rapid testing of whether two genome representations are derived from the same person or from closely related individuals , rapid identification of the closest among a specified set of candidate populations , and acceleration of population structure studies .
+genome fingerprints are also lightweight and restricted to distance information , and therefore suitable for databasing on a broader scale than the personal genomes themselves .
+such databases would enable rapid testing of whether a new personal genome has already been observed , rapidly ensuring that a data set includes only unrelated individuals , and rapid testing for the presence of shared genomes in two or more studies , all of which are common steps in the planning and construction of cohorts of genomes for more sensitive , functional analysis .
+distances between fingerprints also provide an unbiased scale for selecting pairs of individuals at comparable distances , for example , to select individuals from a control set matched to a set of cases at a consistent evolutionary distance .
+genome fingerprints are highly robust to a variety of important technical issues , including different reference versions , variant normalization and post - processing , different sequencing technologies , and different variant sampling efficiencies ( missing data ) .
+we observed that significant post - processing of genome data in a large cohort , as done by the 1000 genomes project , can lead to reduced similarities with the unprocessed versions of the same genomes .
+several processing steps may contribute to this effect : exclusion of problematic " blacklisted " regions , imputation of missing values , changes in genotypes determined through " joint calling ," and the increased chance of observing multi - allelic variants - - which are excluded from our analysis .
+we evaluated the value of the most compact form of fingerprint , binary fingerprints .
+despite their simplicity and compactness , binary fingerprints are typically sufficient to establish whether two genome representations are derived from the same individual , and even to distinguish between closely related and unrelated individuals ; however , they do not retain enough information to make these determinations when comparing mixtures of unprocessed and highly post - processed versions of genomes .
+our fingerprinting algorithm is a fully deterministic form of locality - sensitive hashing ( indyk and motwani , 1998 ) , a class of algorithms which has been successfully applied to large - scale sequence comparisons ( buhler , 2001 ) , protein classification ( caragea et al. , 2012 ) , metagenome clustering ( rasheed et al. , 2013 ) , and the detection of gene - gene interactions ( brinza et al. , 2010 ) .
+locality sensitive hashing methods based on indexing substrings have been used to compare genomes , typically of different species , and other sequence data types. by encoding single - nucleotide differences from a reference sequence , our method focuses on representing distances among individuals of the same species , for whom the base ( reference ) sequence is identical and need not be indexed as k - mers .
+accordingly , the main application of our method is to detect relationships at various levels - - from identity to population structure .
+we chose to focus on the most common and well - defined type of genome variation - - snvs .
+other types of variation , including short insertions and deletions ( indels ) , larger structural variants , and copy - number variants ) are significantly less common than snvs , and are frequently either represented differently in different genomes , not detected , or not reported : we therefore chose to exclude them for the sake of simplicity and consistency in analysis .
+our results demonstrate that snv - based fingerprints contain enough information to support many genome comparison tasks ; the other types of variation are not necessary to estimate evolutionary distances within a species , and could be detrimental for the above reasons .
+for each snv , we only consider the nature of the reference allele and the alternate allele as observed in the individual .
+our current implementation considers only positions in which an alternate allele is observed , regardless of zygosity : heterozygous snvs and homozygous - alternate snvs are treated equally .
+we also evaluated alternative versions of the method in which snvs with different zygosity are weighted differently .
+some of these alternative versions will be useful in particular contexts , e.g. , for fingerprinting genomes in a fully reference - free fashion by considering only heterozygous snvs .
+for each pair of consecutive snvs , we consider the distance separating them along the reference genome .
+this is unaffected by any intervening indels or other complex variants in the individual .
+we also chose to include only snvs observed in autosomes .
+inclusion of variants in the sex chromosomes leads to distorted similarity values .
+for example , due to shared variants on the x chromosome , a female child would appear to be more closely related to her mother than to her father , or to be as closely related to her grandfather as to her grandfather 's sister .
+pairs of consecutive snps within 200 bp ( microhaplotype loci ) have been recognized as a powerful tool for individual identification , ancestry inference , determining family / clan relationships , and other forensic applications ( kidd et al. , 2013 ) .
+our method collects from each genome all snv pairs regardless of distance and population frequency , thus extracting a phylogenetic signal in an unbiased way and without necessitating prior population knowledge .
+most importantly , our algorithm successfully distributes this phylogenetic signal onto a matrix representation that preserves distances without preserving individual , functionally interpretable variants .
+while some algorithmic aspects of our method may seem somewhat arbitrary , it is simple and efficient to compute .
+prior applications of locality sensitive hashing to genomics have demonstrated the utility of quite arbitrary - seeming algorithms .
+for example , the kernel of a locality sensitive hashing approach to genome - scale assembly of single - molecule sequencing data uses the xorshift pseudo - random number generator to transform k - mer hashes into comparable " sketches " ( berlin et al. , 2015 ) .
+the focus on local patterns of snvs offers an additional advantage of our method .
+to date , the reference genome has been represented as a collection of linear sequences ( chromosomes ) with absolute coordinates .
+one disadvantage of this method is that the absolute coordinates change from version to version ; another is that the linear representation is not flexible enough to represent the rich diversity in structural variation observed within our species .
+the genomics community is now developing a new , graph - based reference genome format , which will further devalue the use of global sequence coordinates as the method for matching sequence variants .
+we expect that genome fingerprints can be computed from graph - based genome representations , which will be highly comparable to fingerprints we currently compute from linear - reference representations .
+public sharing of genome data has been limited by multiple personal privacy and confidentiality considerations .
+a central risk is the possibility of identifying genetic predispositions to certain diseases or other traits that could affect the individual 's ability to obtain or maintain employment , insurance or financial services , or may carry social stigma , or could lead to other negative effects .
+quantifying this risk is difficult since the ability to interpret genomic variants will expand over time with additional research .
+our method enables sharing enough information about a genome to enable the comparison tasks , without concomitantly revealing the information needed for predicting phenotype .
+as such , our method decouples genome comparison from interpretation .
+this property has important implications for privacy - preserving genome analytics .
+identifying genomes harboring a specific variant can be of interest both in the presence of associated phenotype , as facilitated through the matchmaker exchange ( philippakis et al. , 2015 ) , or in its absence , to ascertain novelty and frequency ( glusman et al. , 2011 and the beacon network [ f ]) .
+genome fingerprints support the complementary task of matchmaking via identification of closely related individuals , without exposing variant information , in similarity with the unicorn method ( bodea et al. , 2016 ) but with a much simpler algorithm that does not require extensive prior modeling of variant frequencies , nor samples to be expressed relative to the same reference .
+genome fingerprints can furthermore be used to compare genomes from populations not previously studied .
+finally , as growing contingents of private individuals get access to their own genetic data , there is increasing public interest in efficient and private analysis of personal genomic variation , not just for interpreting variants and their combinations , but also for identifying related individuals .
+as such , our method has strong potential for empowering citizen science .
+internet resources ( a ) http :// www.completegenomics.com / public - data / 69 - genomes / ( b ) http :// www.internationalgenome.org / announcements / complete - genomics - data - release - 2013 - 07 - 26 / ( c ) ftp :// ftp - trace.ncbi.nlm.nih.gov / giab / ftp / data / na12878 / analysis / ( d ) http :// www.ebi.ac.uk / ena / data / view / prjeb14685 ( e ) https :// aws.amazon.com / public - datasets / 3000 - rice - genome / ( f ) http :// ga4gh.org /#/ beacon ( g ) documentation , code , sample datasets and more are available at : * http :// db.systemsbiology.net / gestalt / genome _ fingerprints * https :// github.com / gglusman / genome - fingerprints author contributions gg , lh , and mr designed the study .
+gg , dm , and mr performed analyses .
+all authors contributed to writing the manuscript and approved its final version .
+conflict of interest statement gg and mr hold a provisional patent application on the method described in this manuscript .
+gg and lh hold stock options in arivale , inc .
+arivale , inc .
+did not fund the study and was not involved in its design , implementation , or reporting .
+the other author declares that the research was conducted in the absence of any commercial or financial relationships that could be construed as a potential conflict of interest. funding .
+this work was supported by nih grant u54 eb020406 .
+we wish to thank chris witwer , ben heavner , irit rubin , jeremy protas , and terry farrah for helpful discussions .
+supplementary material the supplementary material for this article can be found online at : http :// journal.frontiersin.org / article / 10.3389 / fgene.2017.00136 / full # supplementary - material click here for additional data file .
+references berlin k. koren s. chin c .
+- s. drake j. p. landolin j. m. phillippy a. m. ( 2015 ) .
+assembling large genomes with single - molecule sequencing and locality - sensitive hashing. nat. biotechnol .
+33 623 - 630 . 10.1038 / nbt.3238 26006009 bodea c. a. neale b. m. ripke s. daly m. j. devlin b. roeder k .
+( 2016 ) .
+a method to exploit the structure of genetic ancestry space to enhance case - control studies. am. j. hum. genet .
+98 857 - 868 . 10.1016 / j.ajhg.2016.02.025 27087321 brinza d. schultz m. tesler g. bafna v .
+( 2010 ) .
+rapid detection of gene - gene interactions in genome - wide association studies .
+bioinformatics 26 2856 - 2862 . 10.1093 / bioinformatics / btq529 20871107 buhler j .
+( 2001 ) .
+efficient large - scale sequence comparison by locality - sensitive hashing .
+bioinformatics 17 419 - 428 . 10.1093 / bioinformatics / 17.5.419 11331236 caragea c. silvescu a. mitra p .
+( 2012 ) .
+protein sequence classification using feature hashing .
+proteome sci. 10 ( suppl. 1 ) : s14 10.1186 / 1477 - 5956 - 10 - s1 - s14 danecek p. auton a. abecasis g. albers c. a. banks e. depristo m. a. ( 2011 ) .
+the variant call format and vcftools .
+bioinformatics 27 2156 - 2158 . 10.1093 / bioinformatics / btr330 21653522 epstein m. p. duren w. l. boehnke m .
+( 2000 ) .
+improved inference of relationship for pairs of individuals. am. j. hum. genet .
+67 1219 - 1231 . 10.1016 / s0002 - 9297 ( 07 ) 62952 - 8 11032786 gazal s. sahbatou m. babron m .
+- c. genin e. leutenegger a .
+- l .
+( 2015 ) .
+high level of inbreeding in final phase of 1000 genomes project. sci. rep .
+5 : 17453 10.1038 / srep17453 glusman g. caballero j. mauldin d. e. hood l. roach j. c. ( 2011 ) .
+kaviar : an accessible system for testing snv novelty .
+bioinformatics 27 3216 - 3217 . 10.1093 / bioinformatics / btr540 21965822 indyk p. motwani r .
+( 1998 ) .
+" approximate nearest neighbors ," in proceedings of the thirtieth annual acm symposium on theory of computing - stoc ' 98 ( new york , ny : acm press ) 604 - 613 . kidd k. k. pakstis a. j. speed w. c. lagace r. chang j. wootton s .
+( 2013 ) .
+microhaplotype loci are a powerful new type of forensic marker .
+forensic sci. int. genet. suppl. ser .
+4 e123 - e124 . 10.1016 / j.fsigss.2013.10.063 layer r. m. kindlon n. karczewski k. j. consortium e. a. quinlan a. r. city s. l. ( 2016 ) .
+efficient genotype compression and analysis of large genetic variation datasets. nat. methods 13 63 - 65 . 10.1038 / nmeth.3654.efficient 26550772 li w. cerise j. e. yang y. han h .
+( 2017 ) .
+application of t - sne to human genetic data. j. bioinform. comput. biol .
+15 1750017 10.1142 / s0219720017500172 manichaikul a. mychaleckyj j. c. rich s. s. daly k. sale m. chen w. m. ( 2010 ) .
+robust relationship inference in genome - wide association studies .
+bioinformatics 26 2867 - 2873 . 10.1093 / bioinformatics / btq559 20926424 pedersen b. s. quinlan a. r. ( 2017 ) .
+who 's who ?
+detecting and resolving sample anomalies in human dna sequencing studies with peddy. am. j. hum. genet .
+100 406 - 413 . 10.1016 / j.ajhg.2017.01.017 28190455 pengelly r. j. gibson j. andreoletti g. collins a. mattocks c. j. ennis s .
+( 2013 ) .
+a snp profiling panel for sample tracking in whole - exome sequencing studies .
+genome med. 5 : 89 10.1186 / gm492 philippakis a. a. azzariti d. r. beltran s. brookes a. j. brownstein c. a. brudno m .
+( 2015 ) .
+the matchmaker exchange : a platform for rare disease gene discovery. hum. mutat .
+36 915 - 921 . 10.1002 / humu.22858 26295439 purcell s. neale b. todd - brown k. thomas l. ferreira m. a. r. bender d .
+( 2007 ) .
+plink : a tool set for whole - genome association and population - based linkage analyses. am. j. hum. genet .
+81 559 - 575 . 10.1086 / 519795 17701901 quinlan a. r. hall i. m. ( 2010 ) .
+bedtools : a flexible suite of utilities for comparing genomic features .
+bioinformatics 26 841 - 842 . 10.1093 / bioinformatics / btq033 20110278 rasheed z. rangwala h. barbara d .
+( 2013 ) .
+16s rrna metagenome clustering and diversity estimation using locality sensitive hashing .
+bmc syst. biol .
+7 ( suppl. 4 ) : s11 10.1186 / 1752 - 0509 - 7 - s4 - s11 tan a. abecasis g. r. kang h. m. ( 2015 ) .
+unified representation of genetic variants .
+bioinformatics 31 2202 - 2204 . 10.1093 / bioinformatics / btv112 25701572 tatwawadi k. hernaez m. ochoa i. weissman t .
+( 2016 ) .
+gtrac : fast retrieval from compressed collections of genomic variants .
+bioinformatics 32 i479 - i486 . 10.1093 / bioinformatics / btw437 27587665 the 3000 rice genome project ( 2014 ) .
+the 3,000 rice genomes project .
+gigascience 3 : 7 10.1186 / 2047 - 217x - 3 - 7 wang p. p. s. parker w. t. branford s. schreiber a. w. ( 2016 ) .
+bam - matcher : a tool for rapid ngs sample matching .
+bioinformatics 32 2699 - 2701 . 10.1093 / bioinformatics / btw239 27153667 wei l. liu l. t. conroy j. r. hu q. conroy j. m. morrison c. d. ( 2015 ) .
+mac : identifying and correcting annotation for multi - nucleotide variations .
+bmc genomics 16 : 569 10.1186 / s12864 - 015 - 1779 - 7 wilcox r .
+( 2016 ) .
+introduction to robust estimation and hypothesis testing 4th edn .
+cambridge , ma : academic press .

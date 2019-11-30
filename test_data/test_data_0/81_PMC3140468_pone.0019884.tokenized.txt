@@ -1,0 +1,424 @@
+plos one plos one plos plosone plos one 1932 - 6203 public library of science san francisco , usa 21799725 3140468 pone - d - 10 - 01041 10.1371 / journal.pone.0019884 research articlebiologyanatomy and physiologyelectrophysiologyneurosciencecomputational neurosciencecoding mechanismssensory systemssensory systemsvisual systemneurophysiologycomputer sciencealgorithmsengineeringsignal processingmathematicsapplied mathematicsalgorithmsstatisticsstatistical methods fast , scalable , bayesian spike identification for multi - electrode arrays multi - electrode spike identification prentice jason s .
+1 * homann jan 1 simmons kristina d .
+2 tkacik gasper 1 balasubramanian vijay 1 2 nelson philip c .
+1 1 department of physics and astronomy , university of pennsylvania , philadelphia , pennsylvania , united states of america 2 department of neuroscience , university of pennsylvania , philadelphia , pennsylvania , united states of america taylor william rowland editor oregon health & science university , united states of america * e - mail : jprentic @ sas.upenn.edu conceived and designed the experiments : jsp jh kds gt vb pcn .
+performed the experiments : jsp kds .
+analyzed the data : jsp jh kds pcn .
+contributed reagents / materials / analysis tools : jsp jh pcn .
+wrote the paper : jsp vb pcn .
+2011 20 7 2011 6 7 e19884 1 9 2010 19 4 2011 prentice et al .
+2011 this is an open - access article distributed under the terms of the creative commons attribution license , which permits unrestricted use , distribution , and reproduction in any medium , provided the original author and source are properly credited .
+we present an algorithm to identify individual neural spikes observed on high - density multi - electrode arrays ( meas ) .
+our method can distinguish large numbers of distinct neural units , even when spikes overlap , and accounts for intrinsic variability of spikes from each unit .
+as meas grow larger , it is important to find spike - identification methods that are scalable , that is , the computational cost of spike fitting should scale well with the number of units observed .
+our algorithm accomplishes this goal , and is fast , because it exploits the spatial locality of each unit and the basic biophysics of extracellular signal propagation .
+human interaction plays a key role in our method ; but effort is minimized and streamlined via a graphical interface .
+we illustrate our method on data from guinea pig retinal ganglion cells and document its performance on simulated data consisting of spikes added to experimentally measured background noise .
+we present several tests demonstrating that the algorithm is highly accurate : it exhibits low error rates on fits to synthetic data , low refractory violation rates , good receptive field coverage , and consistency across users .
+introduction the vertebrate retina is an important model system in neuroscience because it is amenable to detailed study despite having a complex structural and functional architecture [ 1 ] .
+population coding and collective behavior in the retinal output is studied by use of multi - electrode arrays ( meas ) to record extracellularly from many retinal ganglion cells ( rgcs ) simultaneously [ 2 ] , [ 3 ] .
+similar recordings can now also be made in other brain areas [ 4 ] .
+meas offer unprecedented possibilities to obtain both single neuron and single action potential resolution from large tissue samples .
+however , recordings obtained in this way are useful only if most spikes can be assigned , with sufficient accuracy , to the neurons that generated them .
+even if each neuron spikes with a unique waveform signature , we must still determine all those " template " waveforms present in a dataset , separating them from each other and from noise .
+moreover , in practice there can be wide variation in the spike waveforms from a given unit ( for instance in amplitude ) , complicating the task of determining from data which units fired and when .
+this " spike sorting problem " is therefore a bottleneck in the use of high density arrays with hundreds or thousands of electrodes .
+methods that were manageable with tetrodes [ 5 ] do not generally scale up to the massive datasets that large arrays generate .
+for example , some standard methods cluster data by manually examining two - dimensional projections in a feature space of a few tens of dimensions .
+this approach is infeasible when the feature space contains thousands of dimensions .
+another challenge with large arrays is that the chance of seeing a single isolated spike becomes negligible , simply because there is so much activity .
+thus we must find template waveforms corresponding to the activity of single neural units ( as extracellular recording cannot unambiguously identify distinct single neurons , we will refer to our recovered putative neurons as " neural units ") without ever seeing a pristine example of one , and we must be prepared to decompose temporally overlapping spikes in essentially every recorded event .
+overlaps in both space and time are less frequent , but they nevertheless must be resolved if we wish to unravel the patterns of collective neural activity .
+resolution methods that rely on exhaustively checking all possible combinations suffer a combinatorial explosion for large arrays .
+further , any spike decomposition method must stop before every spike has been found , because there will be some units whose intrinsic amplitude is not larger than recording noise .
+we need a principled approach to terminating each fit and to deciding later which units' activities have been reliably captured .
+thus , to be most useful for large arrays , a spike identification algorithm should ideally both scale well and also be able to decompose overlapping events .
+this article outlines a method that accomplishes these goals ( matlab code available upon request. ) it first clusters a small subset of a larger dataset , using a partially automated , human - guided clustering technique .
+this manual step is efficient , and scalable , because ( i ) the clustering is based on an ordering that arranges event data by similarity along a single dimension , ( ii ) the ordered data display band - like features that are visually very salient for human operators , making cluster cutting unambiguous , and ( iii ) the algorithm is robust to variations and outliers in the cluster - cutting procedure .
+the algorithm then fits the full dataset to the spike templates thus obtained , using a modified bayesian approach .
+in our data ( from guinea pig retina ) most of the intrinsic variability of spikes from a given unit consists of amplitude variation only , whereas other variability can be summarized as a universal ( spike - independent ) noise process. by carefully modeling these circumstances we greatly reduce our computational burden .
+after characterizing the spatiotemporal character of the noise , our algorithm identifies spikes iteratively in a matching - pursuit ( or " greedy ") scheme [ 6 ] , [ 7 ] .
+fitting terminates when addition of another spike does not improve the posterior probability of a fit ; a natural overfitting penalty is provided by prior probabilities of firing and of spike amplitude .
+no assumptions are made about spike time cross - correlations ; in particular , we do not require a priori any refractory " hole " in the spike time autocorrelation functions .
+nevertheless , all of the inferred spike trains corresponding to otherwise acceptable spike types do exhibit such a hole , which serves as a check on our results .
+fitting is followed by several qualitative post - hoc validations of the templates .
+where our method requires human judgment , we structure our techniques and develop tools to facilitate interaction and proofreading .
+our approach combines successful elements from previous techniques : the empirical characterization of the noise [ 8 ] ; separation of clustering and fitting steps and the iterative subtraction scheme for handling overlaps [ 7 ] ; and division of the clustering task by leader electrode address [ 9 ] .
+novel features of our approach include systematic exploitation of the spatial organization of the signals , the use of an ordering algorithm to greatly simplify clustering , the observation that the noise temporal correlation is well represented by a simple function , an explicit model of spike amplitude variation , and the introduction of a principled bayesian likelihood criterion for terminating spike fitting .
+each of these innovations adds a critical element to the success of our spike sorting method .
+although we focused on data taken on vertebrate retina , the methods should be equally applicable to other kinds of mea data , for example in other brain areas [ 4 ] .
+results to illustrate our method , we tested our spike sorting algorithm on 120 minutes of recordings from guinea pig retinal ganglion cells ( rgc ) , acquired with a 30 - electrode , dense mea covering about of tissue ( fig. 1a ) .
+the analysis described in this paper identified 1,260,475 spikes in the dataset .
+a typical firing event took the form fig. 1b , where each panel shows of the electrical potential recorded by each electrode ( or " channel ") .
+we identified spiking events as voltages crossing a threshold of , taking into account the fact that simultaneous threshold crossings on neighboring channels represent the same spike event ( see methods for details ) .
+the duration of each spike event was taken to be centered on the event 's peak .
+10.1371 / journal.pone.0019884.g001 figure 1 recording chamber and typical data .
+( a ) typical mea apparatus .
+a tissue sample was mounted in an inverted microscope , with images projected onto it via a small video monitor at the camera port ( not visible ) .
+clockwise from left , 1 : suction ; 2 : tissue hold - down ring ; 3 : perfusion inflow , with temperature control ; 4 : preamplifier ; 5 : location of the multi - electrode array .
+( b ) example of a single - spike event .
+each subpanel shows the time course of electrical potential () on a particular electrode in the array .
+the electrodes are separated by ( similar to rgc spacing ) .
+a spike from one unit is visible in the lower right corner and an axonal spike can be seen running vertically in the second column of electrodes .
+data were acquired at . after baseline subtraction and high - pass filtering , a spatial whitening filter was applied ( see methods , step 1 ) .
+in addition to identifiable spikes , each electrode had background activity with a standard deviation of that we will collectively refer to as " noise. " potential sources for this activity include true ( johnson ) noise in the electrode and electronics , electrical pickup from the environment , as well as a hash of background activity from weak or distant neurons [ 10 ] .
+a challenge for spike identification is that in general there is no way to separate these three classes of " noise " cleanly from each other , nor from the spikes of interest to us. nevertheless , we will propose a technique for identifying spikes that is very accurate for firing events with intrinsic amplitude at least 4 times the standard deviation of the noise. fig. 1b illustrates that each single firing unit will be " heard " on multiple electrodes , and that those electrodes form a spatially localized group .
+our method is scalable because it systematically exploits this simple observation : even on a large electrode array , most firing units will involve only a handful of electrodes .
+( some of our signals were not local , and stretched over the entire electrode array in a line ( e.g. , fig. 1b ) .
+we ignored such axonal signals , which were also distinguished by their low amplitude and triphasic shape. ) preliminary visualization of our data we first attempted a " geographical clustering " : from each event we found the minimum of the potential on each channel and the channel containing the deepest minimum (" leader channel ") .
+we then used the absolute values of the minima as weights in a weighted average of the locations of the electrodes neighboring the leader channel .
+this weighted average gave a particularly salient two - dimensional feature , the event 's barycenter : the sums run over the electrodes neighboring the leader , and is the location of the neighbor electrode .
+we then augmented with a third feature , , minus the absolute peak potential .
+these three features gave a scatterplot that clearly showed many well - separated clusters ( fig. 2a ) , without any need to deduce the " best " features by principal component analysis ( fig. 2b ) .
+10.1371 / journal.pone.0019884.g002 figure 2 visualization of data ; flowchart of our method .
+( a ) firing events cluster well in terms of their barycenter ( voltage weighted average spatial location ) and absolute peak voltage ( see text ) , despite wide amplitude dispersion in some groups ; each combination of color and marker size corresponds to one spiking unit identified by the clustering method developed in the text .
+grey points were unassigned to any cluster .
+a total of 107 clusters are marked .
+( b ) events cluster poorly when projected onto the three principal features uncovered by principal component analysis ( pca ) .
+coloring as in ( a ) .
+( c ) schematic of our spike sorting method .
+dashed lines involve a small subset of a full dataset .
+the backwards arrow describes the introduction of new spike templates found after the first pass of fitting ; a total of two passes are performed .
+( d ) the optics algorithm orders all firing events into a linear sequence based on a distance measure ( see text ) .
+events are lined up in this order ( x - axis ) , and represented in terms of the 960 voltage samples recorded by all the electrodes during a 3.2 ms firing event ( y - axis ; from top to bottom , 32 consecutive time samples from one channel , then 32 time samples from the second channel , and so on ) .
+the human operator highlights bands of events ( typically very clear to an observer ) that appear to constitute a single cluster ; one such band is shown .
+later automated diagnostics refine and check these assessments .
+this extension of the " triangulation " method developed for tetrode recordings [ 5 ] already shows key aspects of the data : ( a ) many clusters are highly dispersed in amplitude , and ( b ) some cluster pairs appear at nearly the same spatial locations but are nevertheless well separated by amplitude .
+the first circumstance means that we must allow for variable amplitude when fitting spikes to templates representing the clusters .
+the second warns us that a simple least - squares fit to amplitude could confound two distinct units .
+for this reason our spike - fitting method employs a bayesian prior for each cluster 's amplitude variation , allowing us to make such discriminations .
+although the simple clustering based on spatial location in fig. 2a looks promising , it can be misleading .
+indeed , the restriction of the weighted average to the electrodes around the leader can artificially separate clusters by biasing the barycenter to be located near a particular electrode .
+this problem could be alleviated by using a larger neighborhood , but on large arrays there will inevitably be temporal collisions of spikes from distinct units .
+the barycentric features in fig. 2a will register such collisions as a haze of seemingly random spots .
+thus , at a minimum the mea voltage traces must be segmented by exploiting the spatial locality of recorded responses .
+despite these shortcomings , fig. 2a points out why the more sophisticated method developed in this article can succeed : the " geographic " information encoded by the mea is a powerful intrinsic clue to each unit 's identity .
+summary of our method our sorting method is outlined in fig. 2c ( details in methods and text s1 sect. b ). from a subset of the raw data , we made a preliminary classification of spike events in terms of the electrode on which they achieved their peak voltage .
+all events sharing a given leader channel were cropped to the electrodes neighboring the leader , then ordered with the optics algorithm [ 11 ] into a linear sequence .
+the optics algorithm places similar events nearby in the sequence ; distance was measured by a normalized euclidean distance between event voltage traces ( see methods ) .
+the linear sequence of events was displayed to the user along with all the recorded voltage samples for each event ( fig. 2d ) , and manually clustered .
+although the ordering was based on events cropped to channels , the full waveforms were displayed to the user ( fig. 2d ) .
+because the data are ordered in one dimension , and because precision is not required in view of later refinement , this manual step remains rapid .
+an automated method for cluster cutting could be implemented , but in view of the inevitable desire for human proofreading we preferred to simply carry out this step by hand. from each preliminary cluster , we estimated a template waveform representing the corresponding neural unit and then fit the templates to the remaining data .
+fitting was accomplished by a bayesian algorithm based on a probabilistic model capturing the dominant sources of variability we observed in our data : background noise , spike amplitude variation , and overlapping spikes from distinct units .
+after finding , for each event , the most probable template which accounts for the event , we subtracted it and then iterated .
+finally , the fit results were used in a post - hoc validation of the initial clustering , and we repeated the procedure in a second pass if necessary .
+details of each step are presented in methods .
+tests of our method optics - based clustering of a subset of our dataset led to 107 potential templates for events from distinct neural units .
+many of these templates had low amplitudes ; such low - amplitude templates were sometimes mistakenly fit to noise by our algorithm .
+we therefore rejected units that were likely to contain substantial noise fits because they were of amplitude less than or comparable to the noise ( details in methods and text s1 sect. h ) .
+this left fifty potentially reliable units that were accepted in our dataset .
+comparison with geographical clusters our optics - based procedure identified 107 potential clusters of events in a subset of the data .
+to check that the procedure gave reasonable results we plotted each event in the barycentric coordinates of fig. 2a , and colored the events according to the assigned cluster label .
+the clusters were spatially localized and separated in peak amplitude , as they should be if they were produced by distinct single neurons .
+gray dots in fig. 2a were not assigned to any cluster .
+some of these events contained overlaps of spikes that were not resolved by the initial spatial segmentation of data during the preprocessing step .
+the subsequent spike fitting step in our algorithm resolved most such ambiguities .
+error rates on synthetic data to validate our algorithm we tested its performance on synthetic data created by adding spikes to experimentally measured background noise clips , then fitting templates to each clip .
+we took noise clips to be segments of time during which no spikes were recorded on any channel ; we identified 14,000 such clips .
+for each clip , we randomly chose a fixed number ( 1 , 3 , or 5 ) of templates from the initial set of 107 , with uniform probability and without replacement .
+we then added these templates to the noise clip at random times , leaving a margin of on either side of the clip to prevent waveforms from being cut off .
+( our typical template waveforms extended approximately to either side of the peak. ) we gave each spike an amplitude drawn from a gaussian distribution with mean equal to its template amplitude and standard deviation 10 % of the template amplitude ( this was similar to the observed distribution ) .
+the template fitting algorithm was then run over this synthetic dataset and analyzed for false positive and false negative rates ( fig. 3a ) .
+we counted a false negative for a template every time that template was present in an event but not fit correctly to within ; we counted a false positive every time a template was fit to the data without actually being present .
+the error rates increased with the number of template overlaps ; thus , for the fifty templates with amplitudes that exceed the noise , we separately plotted error rate histograms for each degree of overlap .
+error rates were robustly low - even within extremely complex events with 5 overlapping spikes ( rare in the data ) , the majority of spike templates had an error rate of a few percent or less .
+to gain perspective on these values , we measured the number of templates fit to each event in our recorded data : 60 % of events contained 1 spike , 94 % 3 or fewer spikes , and 98 % had 5 spikes or fewer .
+most of the errors were made on lower amplitude templates for which amplitude variations can lead to confusion with noise .
+10.1371 / journal.pone.0019884.g003 figure 3 tests of the method .
+( a ) ( top ) the cumulative percentage of templates having false negative probabilities less than the indicated values .
+error rates were measured in fits to synthetic data as the fraction of times a fit was not reported for a template when it was actually present .
+( bottom ) as above , but showing false positive probabilities ( fraction of times a fit was reported for a template when it was not actually present ) .
+results reported separately for fits to events with different numbers of overlapping spikes ( inset colors ) .
+( b ) correlation in spike trains across fits by three different users ( a , b , and c ) .
+each curve corresponds to one pair of users and gives the cumulative fraction of templates having lower correlation than indicated .
+see main text for further details .
+( c ) cumulative fraction of templates having fewer refractory violations than indicated .
+refractory violations are rare ( see text ) .
+( d ) the centers of 19 off cell receptive fields recorded from a single piece of tissue .
+to map a neuron 's receptive field center , we first find the peak ( in space and time ) of the spike - triggered average stimulus .
+restricting to the peak time , we apply cubic spline interpolation in space and then draw contour lines at 75 % of the peak value .
+refractory violations when sorting spikes recorded extracellularly , ground truth can be assessed if simultaneous intracellular recordings are available , e.g. , [ 12 ] .
+since we do not have such recordings , in order to validate our algorithm on real data we examined the rate of refractory violations - i.e. , the fraction of interspike intervals of duration less that . refractory violations can appear in our sorted data if spikes from distinct neural units are mis - assigned to the same unit , or if noise fluctuations are mistaken for spikes. of the 107 templates constructed from the initial clustering 84 % had less than 0.5 % refractory violations and all had less than 2.5 % , providing evidence that the templates produced by the initial clustering rarely merge distinct neural units ( fig. 3c ) .
+more significantly , all fifty templates describing units that rose reliably over the noise level had less than 0.5 % refractory violations .
+futhermore , 96 % of these had less than 0.1 % refractory violations ( fig. 3c ) .
+note that the percentage of refractory violations only provides a lower bound on the number of misidentified spikes - nevertheless , the low refractory violation rates we observed provide strong evidence that our algorithm makes few fitting mistakes on the units otherwise identified as reliable .
+coverage while the absence of refractory violations gives evidence that our algorithm does not merge different neural units together , it might still split spikes from the same unit into two distinct clusters if , e.g. there was substantial amplitude variation .
+to test for this , for each unit that was above the noise level we measured the linear receptive field by taking the spike triggered average ( sta ) of the flickering checkerboard stimulus ( sect. b ) .
+we expect that such receptive fields will be connected regions of the visual field , roughly elliptical in shape , and that no two units will have identical receptive fields .
+31 of the 50 reliably identified units had enough spikes to give reliable estimates of the spatial receptive field. of these , examination of the temporal kernel showed that 19 were off cells ( responding to light decrement ) and 12 were on cells ( responding to light increment ) , consistent with the expected excess of off ganglion cells [ 13 ] - [ 18 ] .
+none of these receptive fields were identical , giving evidence that our algorithm did not split single units into multiple clusters .
+further , all of the receptive fields were connected , suggesting that none of our clusters are mixtures of different rgc .
+in addition , essentially all of the recorded area was covered by at least one receptive field ( coverage of off cells shown in fig. 3d ) .
+the density of rgcs in guinea pig varies from to [ 19 ] .
+we receive signals from a region slightly larger than the electrode array , roughly . thus the expected number of rgc is 16 - 97 , comparable to our total of 31 receptive fields , keeping in mind that many of the sluggish cell types would not have enough spikes to yield a good spike triggered average .
+different users because our method involves human intervention , there exists a risk that different users could obtain divergent results .
+one possible discrepancy is that different users could identify distinct sets of templates .
+this would not pose a serious problem in and of itself , as long as further analysis did not demand a complete population .
+moreover , the completeness of the template set is ultimately limited only by the time invested by the operator in clustering .
+however , it would be problematic if the spike trains fit to the same template by different users differed significantly .
+to assess the robustness of our method , we therefore had three different users ( here referred to as a , b , and c ) carry out our spike sorting procedure on the same data set and examined the correlation of the results .
+user a found 20 templates with large enough spike counts to assess cross - correlation , b found 25 , and c found 28 .
+while these numbers were smaller than the 50 we had identified previously , the difference consisted of units with extremely low firing rates .
+we compared the three sets of templates to identify those which were found by multiple users , by minimizing the euclidean distance between template pairs .
+18 templates agreed between a and b , 18 between a and c , and 23 between b and c. a total of 17 templates were found by all three users .
+for each template that was found by at least two users , we computed the cross - correlation coefficient of the corresponding spike trains .
+across all pairs of users , two - thirds of such templates had a spike train correlation higher than 0.95 ( fig. 3b ) .
+complex events a major challenge for a spike sorting algorithm is dealing with variability in spikes produced by individual neural units .
+an even greater challenge arises from spatio - temporal overlaps between spikes from different neural units .
+our low error rate in analysis of synthetic data containing both of these complexities ( fig. 3 ) provides evidence that our algorithm is effective at resolving overlaps and identifying variable spikes from given units .
+to test this further , we manually examined many events in the real data which a human observer could identify as representing overlaps or neural variability ; and our algorithm typically did an excellent job of dealing with variable - amplitude bursts ( fig. 4b ) , as well as events that overlap in space and time ( fig. 4c ) .
+10.1371 / journal.pone.0019884.g004 figure 4 template fitting to complex events .
+( a ) example of a single - spike event .
+each subpanel shows the time course of electrical potential ( in , black curves ) , on a particular electrode in the array .
+after baseline subtraction and high - pass filtering , a spatial whitening filter was applied ( see methods ) .
+red curves show the result of our fitting algorithm , in this case a single template waveform representing an individual neural unit .
+( b ) detail of a more complex event and its fit , in which a single unit fires a burst of 9 spikes of varying amplitudes ( upper left channel ) , while a different unit fires 5 other spikes ( upper right channel ) .
+simultaneous data from four neighboring electrodes are shown .
+( c ) example of an overlap event and its fit , which now is a linear superposition of 7 templates .
+( d ) detail of ( c ) , showing signals on four of the electrodes .
+this time individual fit spikes are displayed .
+the red and green traces show fit templates that , although similar , differ significantly in their overall strength , and in the relative strengths of their features .
+the black trace shows a fit to a low - amplitude template that was later classified as unusable , and hence was discarded , by the procedure in methods , step 4 .
+speed currently the main fitting code , written in matlab , requires about of real computer time per fit spike on a commercial 2.5 ghz computer , times 2 for the two passes .
+this is fast enough for our purposes ; considerable further improvement is possible with existing software ( mex ) and hardware ( gpu ) techniques .
+materials and methods ethics statement this study was carried out in accordance with recommendations from the national institutes of health and the guidelines of the american veterinary medical association .
+the protocol was approved by the animal care and use committee of the university of pennsylvania ( no. 803091 ) .
+all surgery was performed under ketamine / xylazine and pentobarbital anesthesia , and all efforts were made to minimize suffering .
+experimental procedure our methods were developed and tested on retinal response data , from albino guinea pig , recorded with a dense 30 - electrode array ( spacing , multi channel systems mcs gmbh , reutlingen , germany ) .
+after anesthesia with ketamine / xylazine ( 100 / 20 mg / kg ) and pentobarbital ( 100 mg / kg ) , the eyeball was enucleated and the animal was killed by pentobarbital overdose in keeping with the avma guidelines on euthanasia .
+the eyeball was hemisected and the retina was allowed to dark adapt .
+a small piece was cut out , separated from the pigment epithelium , mounted ( ganglion cells up ) onto a piece of filter paper , and placed ganglion cells down onto the mea .
+a flickering checkerboard consisting of binary noise , updated at 30 hz , was projected onto the tissue ( text s1 sect. c ) .
+we alternated between uncorrelated and exponentially correlated ( space constant ; time constant 33 ms ) stimuli .
+our procedure for identifying spikes in the recorded data had four steps , each detailed below : ( 1 ) preprocessing , where spatial locality was exploited to segment the data , ( 2 ) clustering and template building , where a subset of the data was clustered to separate the responses of likely neural units , template waveforms for each neural unit were built , and their variability characterized , ( 3 ) spike fitting , where every firing event was separated into a superposition of responses from different neural units , and ( 4 ) validation of templates , where each template and the spikes identified with it were tested for reliability .
+step 1 : data preparation and segmentation the first step in our procedure ( fig. 2c ) was to prepare the data for clustering of events from different neural units , by separating firing events from noise , and segmenting spatio - temporally distinct regions of spiking activity on the electrode array .
+data from the array were sampled at 10 khz , high - pass filtered below 200 hz with a finite impulse response filter to remove low frequency baseline fluctuations , and then packaged into clips : ( a ) " noise clips " in which the potential never fell below , and ( b ) " spike events " surrounding moments at which the potential crossed . the duration of the clip was chosen to include the full extent of most spike events with a small margin on either side .
+the threshold was set such that there were no discernible spikes among the subthreshold voltage deflections , although this low - amplitude noise likely contained contributions from spikes of distant neurons ( see text s1 sect. g2 ) .
+clips with potentials between and were neither used to characterize noise ( since they might contain small spikes ) nor used to identify spikes ( since they were very noisy ) .
+the threshold for spikes was set to times the standard deviation of the potential in the noise clips .
+each spike event thus consisted of numbers , the potentials on a grid of space - time pixels (" stixels ") .
+spike events sometimes overlapped each other , for example if a burst of spikes lasted longer than . cluster identification and spike template building ( step 2 ) used four 30 - second segments sampled from different times , but subsequent spike fitting and sorting ( step 3 ) used all the data .
+electrodes can share signals because of instrumental cross - talk and because the activity of neurons spreads passively to nearby electrodes .
+we modeled both effects by a linear filter that spatially blurs signals .
+to find this filter empirically , we noted that it also applies to the noise .
+accordingly , we measured the spatial covariance of noise clips , finding that it was spatially isotropic and had a roughly exponential falloff , with a correlation length of . we applied the square root of the inverse of this covariance matrix to all data , and used the resulting " spatially whitened " data for all analysis .
+in some datasets this transformation sharpened the individual spikes spatially , improving our ability to distinguish them in the clustering stage .
+in other datasets the transformation had little effect .
+our data also exhibited temporal correlations , but these have a different physical origin from the essentially instantaneous passive spatial spread .
+we found that temporal whitening prior to clustering [ 8 ] worsened our signal / noise ratio and impeded cluster determination .
+thus we incorporated temporal correlations later , during the spike fitting .
+segmentation each spike event is a superposition of spikes from an unknown number of distinct neural units with stereotyped waveforms that we sought to identify .
+we first spatially segmented the data to isolate waveforms from individual units and their immediate neighbors .
+to this end , we identified all stixels at which the potential was more negative than the threshold of and divided this set into connected components ( two stixels were considered connected if they were nearest neighbors in either time or space ) .
+within each connected patch we identified the absolute peak electrode and time , then extracted a region centered temporally on the peak time and cropped spatially to a neighborhood of nine channels surrounding ( and including ) the leader electrode .
+thus each spike event was segmented into one or more cropped events ; each of which was then classified according to its leader electrode .
+a similar segmentation method has recently been applied to the spike identification problem by j. schulman ( unpublished ) ; see http :// caton.googlecode.com .
+in subsequent clustering , only those events having the same leader electrode were directly compared to each other [ 9 ] .
+some cropped events might be composites of two spike types corresponding to neighboring , but distinct , neural units .
+however , this step at least decomposes composite events whose components are well separated in space or in time , and hence reduces the combinatorial burden inherent in large arrays ; later steps handle composites missed at this stage .
+the method also ensures that , if spikes from two well - separated units frequently co - occur , the two units will nevertheless be correctly handled as separate .
+step 2 : cluster identification and template building the second step in our procedure ( fig. 2c ) was to cluster spiking events in a subset of the data ( four 30 - second segments ) into groups that had similar waveforms and thus probably came from the same neural unit .
+for each cluster , we produced a template waveform describing the typical spike , and determined the distribution of amplitude rescalings that best matched spikes to this template .
+cluster identification in order to group events into clusters based on the similarity of their waveforms , some previous approaches have sought a low - dimensional set of discriminable waveform " features ," and have assumed that variability between events in the same cluster arises only from additive noise .
+in practice , systematic variation in the shape of spikes from single units is often observed that is not well described by additive noise .
+furthermore , identifying the correct set of salient waveform features that discriminate between units is challenging ([ 20 ] ; see fig. 2b ) .
+thus , seeking a technique that did not require feature extraction , we adapted the optics algorithm [ 11 ] .
+briefly , optics computes distances between all pairs of waveforms , then orders the waveforms such that similar ones are placed close together in a single linear sequence .
+optics makes no assumption that clusters have a gaussian distribution in feature space , nor does it set any threshold density in that space to trigger cluster identification .
+the linear ordering allows for easy visualization and cutting of clusters .
+we applied this algorithm to cropped and segmented spike events ( obtained in step 1 ) which were upsampled by a factor of 5 ( using matlab 's cubic spline interpolation ) and then temporally aligned to place the absolute peak of the waveform at a common position before downsampling again .
+the interpolation was necessary to compensate for apparent variations in spike waveforms due to discrete sampling [ 21 ] .
+to reduce the fuzziness of the clusters , we masked spike events by setting voltage samples to zero if they were less negative than . as a distance metric between and , the masked potentials of spike events , we chose where indexes the potentials at each channel and timepoint , and is the total number of nonzero potentials after masking of either or . division by normalized for the effective dimensionality ( given by the number of dimensions containing nonzero entries ) .
+we observed that higher voltage traces tended to have a higher variance ; the factor partially compensated for this , leading to more homogeneous clusters .
+we constructed a graphical user interface ( gui ) that allowed a human operator to visualize each spike event in the optics sequence as a vertical column of pixels color - coded by voltage ( see fig. 2d ) .
+transitions between distinct spike types were usually obvious to the operator , who could quickly find and select bands corresponding to each spike type .
+( for the data in this paper , the operator found over 100 such clusters in about 30 minutes. ) the software then wrote the corresponding cropped events to a set of data files .
+the ease of separation likely occurred because clusters could already be fairly well delineated with just the " geographical " features in fig. 2a .
+up to this point , the events being clustered were still segregated into batches according to their leader channel . thus it was possible for a single unit to be multiply identified : if it stimulated two neighboring electrodes nearly equally , the unit could generate events in both of the corresponding batches .
+we tested for duplicates by manually examining pairs of clusters whose medians had a large cross - correlation and merged the clusters if necessary .
+there was also a possibility that the initial clustering would assign multiple units to one cluster .
+in these cases , visual examination of the superposed waveforms of the cluster often showed it to be a composite of multiple units .
+this was resolved by doing a principal components analysis on the waveforms in that cluster : if the cluster was composite , at least one of the first few principal component weights had a multimodal histogram .
+the cluster was split by thresholding at the valleys of the histogram ; we then tested whether any of the split components ought to be merged with an existing cluster .
+we developed a graphical user interface to assist the operator in performing these merging and splitting steps .
+generally it was clear to the human operator when a band in the gui output was clean enough and wide enough ( contained enough events ) to generate a good cluster ; thus there was no need to specify a priori the desired number of clusters , an advantage over many automated clustering procedures .
+marginally significant clusters were either eliminated during template building ( see below ) , or else generated fits that were themselves discarded during spike fitting ( step 3 ) and evaluation of template reliability ( step 4 ) .
+any significant clusters missed at this stage , for example because of the small fraction of the data used in this step , were found and reincorporated later during spike fitting ( step 3 ) .
+template building next we created a consensus waveform (" template ") summarizing each cluster of cropped , upsampled events , and characterized meaningful deviations from that consensus .
+we created a draft template by finding the pointwise median over all events in a cluster , then aligned each event to the draft template by maximizing their cross - correlation over time shifts , which we found to be more accurate than aligning to each event 's peak time .
+finally , we found the pointwise median ( to suppress the effects of outliers ) of the aligned events ; this waveform was our template ( fig. 5b ) .
+10.1371 / journal.pone.0019884.g005 figure 5 template building .
+( a ) detail of 40 of the aligned events used to compute a template , upsampled and shifted into alignment as described in the text .
+some outlier traces reflect events in which this unit fired together with some other unit ; the unwanted peaks occur at random times relative to the one of interest , and thus do not affect the template .
+( b ) blue , detail of a template waveform , showing the potential on 12 neighboring electrodes .
+time in runs horizontally ; the vertical axis is potential in . red , for comparison , the pointwise mean of the 430 waveforms used to find this template ( nearly indistinguishable from the blue curve ) .
+( c ) detail of ( a ) , showing only the leader channel .
+in addition , each trace has been rescaled by a constant to emphasize their similarity apart from variation in overall amplitude .
+a key step was to realize that , in our data , the most significant sources of variation of individual spikes from the template were ( a ) additive noise , and ( b ) overall multiplicative rescaling of the spike 's amplitude ( fig. 5c ) .
+to quantify ( b ) , we found the rescaling factor that optimized the overlap of each spike with its template , then stored the mean and variance of those factors in a lookup table for later use as a prior probability for amplitude variation .
+we also logged the number of events associated to each template , converted to an approximate firing rate , and saved those rates , again for later use as a prior .
+step 3 : spike fitting the third step in our procedure was to fit the spike templates constructed in step 2 to each firing event in the data in order to determine which neural units were responsible for the activity .
+to this end , we constructed a simple generative model of firing events , and included distributions of firing rate and of amplitude variation for each template .
+the firing probabilities and amplitude distributions were inferred from the previously clustered data , and therefore served as priors in the template fitting procedure described below .
+the fitting procedure iteratively identified and subtracted the most likely templates in each firing event .
+the cluster templates were produced using an upsampled sample rate , but for fitting to data we downsampled back to the actual , in each of 5 " reading frames " ; that is , we created five versions of each template corresponding to subsample shifts .
+let be the potential of template , on the electrode with address , at time , with time measured in units of the sampling time , and the template peak at the central point within the template frame .
+we use the vector notation for the template shifted to time , i.e. its component is . generative model the goal of spike fitting is to identify , for each spike event , all the units which contribute to the event and their firing times irrespective of their amplitudes . thus we assumed a probabilistic generative model of the data [ 8 ] , [ 21 ] - [ 23 ] and computed the posterior probability of given the observed data .
+we assumed that a spike event could be explained by a linear combination of templates with variable amplitudes and correlated , zero - mean gaussian noise : ( 1 ) here is the ( a priori unknown ) number of units contributing to the event .
+given this model , to obtain the posterior probability that a firing event consists of a particular set of templates , we need to specify the prior probability of , , and . we chose a gaussian prior for the amplitude , a poisson prior for , and a uniform prior for . although is a strictly positive quantity , we modeled its distribution with a gaussian for analytical tractability .
+in practice , the distribution of was tightly concentrated around its mean of approximately and the gaussian approximation had negligible weight at negative values ( fig. 6d ) .
+10.1371 / journal.pone.0019884.g006 figure 6 after fitting spikes , only noise remains .
+( a ) noise covariance after spatial whitening .
+subpanels : spacetime covariance between the central channel and its neighbors as a function of , for various fixed ( colored curves ) .
+central panel ( dotted line ) : the function . ( the various lines and the dotted line are too similar to discriminate visually. ) horizontal axes : in ; vertical axes : in . ( b ) blue curve , semilog plot of the one point marginal probability density function of decorrelated noise samples .
+red curve , same quantity , evaluated on residuals after spikes have been removed from spike events .
+dotted curve , the gaussian chosen to represent this distribution .
+( c ) green , detail of the same template waveform shown in fig. 5. red , pointwise mean of the residuals after the fit spike is subtracted from 4,906 one - spike events of this type is nearly flat .
+this validates our assumption that spikes vary only in overall amplitude , and that noise is independent of spiking .
+blue , pointwise standard deviation of the residuals , again evidence that only noise remains after fitting and subtracting spikes .
+( d , top ) histogram of fit values of the scale factor for a template with peak amplitude ( well above noise ) obtained without a prior on , superposed with a gaussian of the same mean and variance .
+( d , bottom ) similar histogram for a low amplitude template .
+a secondary bump appears , due to noise - fits , but is well separated from the main peak ; a cutoff is shown as a dashed green line .
+the superposed gaussian has mean and variance computed from the part of the empirical distribution lying above the cutoff .
+our generative model assumes that spike waveforms from a given neural unit are stereotyped , apart from their amplitude .
+we did observe considerable variation in spike amplitude ( fig. 2a ) , in part due to bursting [ 10 ] , [ 12 ] , and thus included it in the model as a distribution of amplitude rescaling factors .
+allowing for the possibility of slight variations in spike width ( text s1 sect. f ) also slightly improved our results .
+but there was little additional variability to be modelled ( fig. 5c ) .
+our model also assumes that signals from different units combine linearly , as does the noise .
+this is reasonable , because the biophysics of extracellular recording is governed by the equations of electrodynamics , ohm 's law , and other linear relations .
+a third assumption is that noise and the variability of spike amplitude are each well described by gaussian distributions .
+assuming gaussianity ( well - confirmed in some settings [ 8 ] , but not others [ 24 ]) allows for a fast , partially analytic approach to fitting .
+we validate this assumption quantitatively below .
+our generative model has a poisson prior probability for firing by each neural unit , i.e. a prior that is as unstructured as possible while being consistent with the mean firing rate .
+the prior probability could be made somewhat more accurate by including refractory periods , the likelihood of bursting , and correlations between neural units .
+but this would significantly increase the complexity of the model , and inferring the distribution would require much more data [ 25 ] .
+finally , we assumed that all statistical distributions that enter into the model are stationary and independent of the stimulus .
+while our retinal preparation does not suffer electrode drift ( as might implanted electrodes ) , there are occasionally shifts in spike amplitudes and firing rates over the course of a lengthy experiment .
+although in principle our fixed priors could lead to biased estimates , these biases are small when spike identification is robust , i.e. when the likelihood function dominates the prior in the posterior probability of a neural unit [ 26 ] .
+noise characterization in the context of our generative model , in order to assess the probability that the residual after subtracting a putative spike is indeed noise , we first need to measure the distribution of noise .
+after applying the spatial whitening filter ( described in step 1 ) , our noise clips are decorrelated in space , but not in time ( fig. 6a ) .
+assuming that the noise has a correlated gaussian distribution , we need the inverse of the noise covariance matrix , . one approach to finding is to invert the empirical covariance matrix of a large set of noise clips .
+besides being intractable for larger arrays , this approach has the disadvantage that a numerically stable evaluation requires a very large noise sample .
+for these reasons we instead took a parametric approach .
+after evaluating the covariance we noted that it was approximately diagonal and translation - invariant in space ( i.e. proportional to and independent of and ) .
+it was also approximately stationary , i.e. invariant under time shifts , , and thus only depended on . finally , we observed that the time dependence of was roughly an exponential , ( fig. 6a ) .
+this gave : ( 2 ) here is the sample time , and is the kronecker symbol. and are obtained from the noise covariance .
+the dataset used in results yields noise strength and . by construction , our noise model reproduces the 2 - point correlations in the noise clips .
+however , real noise may not be gaussian distributed .
+one check on this is to construct the transformed quantities empirically , find their full distribution as ranges over noise clips ( the " one - point marginal " distribution ) , and compare to a normal distribution. fig. 6b shows this comparison , lumping together every element of . the empirical noise deviates from a gaussian only in the far tails that contain very little weight .
+fitting algorithm for single spikes given the above characterization of the noise distribution , and our gaussian prior for spike amplitude variation , the generative model eqn .
+1 defined the posterior probability for templates to be present at times with amplitude scale factors , given the recorded potentials . we ideally would have marginalized over the nuisance parameters and then maximized with respect to to identify the most probable set of units and spike times .
+in practice , this maximization is computationally expensive to perform on many templates simultaneously .
+instead , we used a greedy approximation which fit one template at a time .
+we first assumed that the event contained exactly one spike and identified the spike 's type and time of occurrence . bayes' formula gives for the posterior probability : ( 3 ) up to a constant independent of , , and . here is the prior probability of the template appearing at time with an amplitude : ( 4 ) where is the mean and the variance of the scale factor for cluster ; is the estimated overall rate of firing for this cluster .
+the generative model gave the probability of the observed potential given ( the likelihood ) as where is a gaussian distribution with zero mean and covariance ( eqn. 2 ) .
+combining the likelihood and prior , then integrating out , gave the formula we ultimately used in our fitting algorithm : ( 5 ) we have expressed eqn .
+5 as a ratio with the probability that no templates contributed to the event .
+finally , we varied and to find the template and time which maximized eqn .
+5. this gave the first fit template , , its firing time , , and the probability ratio of the fit .
+we improved scalability by a slight approximation .
+starting from a spike event , we first identified the time and electrode address of its absolute peak and restricted the matrix products in expression eqn .
+5 to only sum over a spatiotemporal neighborhood surrounding this peak .
+the size of the neighborhood was chosen to match the typical spatial extent and temporal duration of the templates .
+multiple spikes in principle , we could have extended the single template procedure described above to compare the probabilities of all possible combinations of two or more spikes .
+such an exhaustive approach , however , would quickly have become impractical .
+we instead noted that , even if an event contains multiple spikes , the single - spike fit described above still identified that template whose removal would lead to the largest increase in the probability that the remaining waveform is noise .
+thus we adopted an iterative ( matching - pursuit or " greedy ") approach : starting with a spike event , we found the absolute peak , fit it by the method described above , subtracted the fit , and then repeated the process [ 7 ] .
+the single - spike procedure found the most probable spike type ; we then computed the scale factor and spike time that would allow the fit spike to be subtracted as fully as possible .
+we thus held fixed to and minimized the ordinary norm over and . the scaled and shifted template obtained in this way was subtracted before repeating the single - spike fitting procedure .
+the parameter was only used for template subtraction .
+the spike time which was actually reported by the algorithm was not , but described above .
+in practice , was always very close to . to determine when to stop fitting spikes , we adopted a likelihood ratio test .
+at each step of the fitting loop , we summed eqn .
+5 over , obtaining the probability ratio that an additional spike of type is present relative to the probability that no additional spike was present .
+we can then say that fitting an additional spike is justified if the ratio exceeds unity for some . the fitting loop terminates when the significance test fails .
+note that the factor ( the prior probability of a spike from unit ) in eqn .
+5 is typically much smaller than one .
+in order for the fitting algorithm to accept a candidate spike , the remaining terms in eqn .
+5 , which relate to goodness - of - fit , must be large enough to overcome this small factor .
+furthermore , the amplitude prior is typically concentrated tightly around its mean .
+the marginalization over amplitudes thus suppresses templates that would have to stretch by a large factor in order to fit the data .
+both of these effects counteract overfitting. fig. 4c,d shows an example of the successful decomposition of a multiple - spike event using our method .
+second pass the spike fitting algorithm might exit prematurely if a spike is present that does not appear in the list of templates initially extracted from the small subset of data .
+in this case , the fit will terminate , even though other identifiable spikes of lower amplitude may remain .
+to check this , if the residual exceeds after termination , the code declares an " incomplete fit " and writes the residual to a file ; the small set of resulting waveforms were then reintroduced into our clustering code and used for a second round of fitting .
+in this way we can be assured of finding even rare spike types , without having to perform clustering on the complete dataset .
+using this method , only of fits in the second pass were classified as incomplete .
+it can also happen that the small data sample used for clustering gives a poor estimate of some firing rates and amplitude distributions that enter our priors for spike fitting .
+thus , before the second pass of fitting the priors are updated based on the outcome of the first pass .
+step 4 : evaluation of template reliability after spike identification , we performed a final evaluation to test whether templates and their sorted spike trains were trustworthy .
+the primary criteria were : ( 1 ) residuals after spike removal should resemble noise , ( 2 ) the histogram of amplitude scale factors should be unimodal , ( 3 ) the inter - spike interval ( isi ) distributions should display " refractory holes " ; and the cross - correlation functions should not .
+additional criteria are described in text s1 sect. h. reliable templates were taken to be those that passed all these tests .
+most unreliable templates failed multiple tests .
+residuals for single - spike events , the residual signal after subtracting the fit should resemble pure noise ; in particular it should be stationary in time and translation - invariant in space. fig. 6c shows that these expectations were met , validating our assumptions .
+for example , if the unit in fig. 6c had significant variations other than amplitude rescaling , or if there had been an amplitude - dependent noise process , then we would expect significant non - stationarity in the residual curves [ 21 ] .
+to test that , after termination , the residual of a spike event consists only of noise , we computed the one - point marginal distribution of waveforms after all known spikes had been removed. fig. 6b shows that this distribution closely resembled that of noise clips , indicating that our code indeed found the significant spikes. of particular note , the standard deviation of the residuals matched that of the noise : for each template , we found the standard deviation of the residuals of events to which only that template was fit .
+this value ranged from to , while the noise standard deviation was . amplitude for large amplitude templates , the distribution of amplitude scale factors () obtained during spike fitting was typically close to gaussian ( fig. 6d ) .
+on the other hand , for low amplitude templates , accidental noise fits can sometimes lead to a histogram of values with a secondary , low - amplitude peak well separated from the expected peak near ( fig. 6d ) .
+examining the histograms allowed us to quickly set an individual threshold for each reliable template .
+fit spikes with value below this threshold were discarded .
+if two peaks were discernible but overlapped significantly , the entire cluster was deemed unreliable and its spikes were not used in further analysis .
+in addition , our trigger rejected any spike event that did not cross , thus any cluster whose histogram extended closer to zero than this was probably missing some true spikes , and was not used .
+isi distribution and cross - correlation interspike interval distributions for single units are expected to have a refractory hole ; our analysis of these distributions was described in results .
+two distinct neural units need not respect any mutual refractory period .
+their spike - time cross - correlation function is therefore not expected to display any hole .
+we looked for such unexpected behavior and , when found , reexamined the corresponding templates .
+if the templates appeared to be duplicates , we merged the corresponding spike trains [ 7 ] , [ 9 ] .
+another diagnostic for duplicate templates is a coincident receptive field .
+discussion a review of early work on spike identification , prior to the widespread use of meas , can be found in [ 27 ] .
+like some earlier work , our method separates spike identification into distinct steps of clustering and fitting .
+the clustering step uses all the waveform features , and makes no assumption about the cluster structure ( e.g. , that it is a mixture of gaussian distributions ) .
+the fitting step acknowledges that each neural unit 's signals are subject to intrinsic , multiplicative variation as well as additive noise , and uses a bayesian approach to infer the identity of the most likely firing unit .
+our approach is intentionally not fully automatic , since human proof - reading of the results of automated clustering is generally essential .
+however , we have been careful to use human judgement only where it is indispensable .
+further , both the human and machine steps are organized so as to scale well with array area ( or number of units monitored ) .
+for example , cluster cutting was greatly simplified by representing spikes in an ordered one - dimensional array .
+this feature , along with systematic exploitation of the spatio - temporal locality of spikes ( fig. 2a ) , and the use of a simple but powerful generative model , make our method scalable to large arrays .
+furthermore , we observed that our more ambiguous templates tended to be located on the boundary of the array due to recording of units located some distance from the electrodes .
+these " boundary effects " should become less important for larger arrays ; we thus anticipate that the methods described in this paper will yield more accurate spike sorting for large , dense arrays .
+our method can be extended in many ways .
+for example , it would be straightforward to update the priors continually as fitting proceeds , allowing non - stationarity and stimulus dependence to be handled more gracefully .
+in some applications it may be preferable to report spike identification probabilistically , rather than just listing the most - likely spike events ; our formulas already provide this information .
+the method can also be extended to non - planar arrangements of electrodes and neural tissues , for , e.g. , cortical applications .
+finally , the generative model in the present paper does not take into account correlations within and between spike trains , or the receptive field structure and stimulus dependence of responses .
+performance could be further improved on complex overlapping spike events via a bootstrapping procedure .
+we could first use the simple independent , poisson generative model of this article to produce an accurate preliminary assignment of spikes to units. from this assignment we could construct a more detailed model of correlated activity with pairwise interactions ( e.g. [ 25 ] or the stimulus - dependent models [ 28 ] , [ 29 ]) .
+this more complex generative model could then be used to further refine spike assignments for applications requiring a very high degree of accuracy .
+supporting information text s1 supplementary appendix describing additional methodological details .
+( pdf ) click here for additional data file .
+michael berry and olivier marre have developed an algorithm similar to , but different from , ours ( manuscript in preparation ) .
+we thank them for discussions of their work , and specifically thank olivier marre for suggesting to us that the most complete subtraction of a spike can be obtained by refitting the spike without a prior .
+competing interests : the authors have declared that no competing interests exist .
+funding : this work was supported by national science foundation ( nsf ) grants ibn - 0344678 , ef - 0928048 , national institutes of health ( nih ) grant ro1 ey08124 , nih training grant t32 - 07035 , and nih training grant 5t90da022763 - 04 .
+the funders had no role in study design , data collection and analysis , decision to publish , or preparation of the manuscript .
+references 1 sterlng p 2004 how retinal circuits optimize the transfer of visual information .
+chalupa l werner j the visual neurosciences 2 meister m pine j baylor da 1994 multi - neuronal signals from the retina : acquisition and analysis .
+j neurosci methods 51 95 106 8189755 3 devries s baylor d 1997 mosaic arrangement of ganglion cell receptive fields in rabbit retina .
+j neurophysiol 78 2048 9325372 4 buzsaki g 2004 large - scale recording of neuronal ensembles .
+nature neuroscience 7 446 51 15114356 5 gray cm maldonado pe wilson m mcnaughton b 1995 tetrodes markedly improve the reliability and yield of multiple single - unit isolation from multi - unit recordings in cat striate cortex .
+j neurosci methods 63 43 54 8788047 6 mallat sg zhang zf 1993 matching pursuits with time - frequency dictionaries .
+ieee transactions on signal processing 41 3397 3415 7 segev r goodhouse j puchalla j berry mj 2004 recording spikes from a large fraction of the ganglion cells in a retinal patch .
+nature neuroscience 7 1154 61 15452581 8 pouzat c mazor o laurent g 2002 using noise signature to optimize spike - sorting and to assess neuronal classification quality .
+j neurosci methods 122 43 57 12535763 9 litke am bezayiff n chichilnisky ej cunningham w dabrowski w 2004 what does the eye tell the brain ? : development of a system for the large scale recording of retinal output activity .
+ieee trans nucl sci 51 1434 1439 10 fee ms mitra p kleinfeld d 1996 automatic sorting of multiple unit neuronal signals in the presence of anisotropic and non - gaussian variability .
+j neurosci methods 69 175 188 8946321 11 ankerst m breunig mm kriegel hp sander j 1999 optics : ordering points to identify the clustering structure .
+sigmod rec 28 49 60 12 harris kd hirase h leinekugel x henze da buzsaki g 2001 temporal interaction between single spikes and complex spike bursts in hippocampal pyramidal cells .
+neuron 32 141 9 11604145 13 ratliff c borghuis b kao y sterling p balasubramanian v 2010 retina is structured to process an excess of darkness in natural scenes .
+proceedings of the national academy of sciences 107 17368 14 chichilnisky e kalmar r 2002 functional asymmetries in on and off ganglion cells of primate retina .
+journal of neuroscience 22 2737 11923439 15 peichl l buhl e boycott b 1987 alpha ganglion cells in the rabbit retina .
+the journal of comparative neurology 263 25 41 2444630 16 peichl l 1989 alpha and delta ganglion cells in the rat retina .
+the journal of comparative neurology 286 120 139 2768556 17 dacey d petersen m 1992 dendritic field size and morphology of midget and parasol ganglion cells of the human retina .
+proceedings of the national academy of sciences of the united states of america 89 9666 1409680 18 tauchi m morigiwa k fukuda y 1992 morphological comparisons between outer and inner ramifying alpha cells of the albino rat retina .
+experimental brain research 88 67 77 1541363 19 do - nascimento jlm do - nascimento rsv damasceno ba silveira lcl 1991 the neurons of the retinal ganglion cell layer of the guinea pig : quantitative analysis of their distribution and size .
+brazilian j med biol res 24 199 214 20 quiroga rq 2007 spike sorting .
+scholarpedia 2 3583 21 lewicki ms 1994 bayesian modeling and classification of neural signals .
+neural computation 6 1005 1030 22 atiya a 1992 recognition of multiunit neural signals .
+ieee transactions on biomedical engineering 39 723 729 1516939 23 sahani m 1999 latent variable models for neural data analysis .
+ph.d. thesis , california institute of technology , pasadena ca 24 shoham s fellows mr normann ra 2003 robust , automatic spike sorting using mixtures of multivariate t - distributions .
+j neurosci methods 127 111 22 12906941 25 schneidman e berry mj segev r bialek w 2006 weak pairwise correlations imply strongly correlated network states in a neural population .
+nature 440 1007 12 16625187 26 ventura v 2009 traditional waveform based spike sorting yields biased rate code estimates .
+proc natl acad sci usa 106 6921 6 19372379 27 lewicki ms 1998 a review of methods for spike sorting : the detection and classification of neural action potentials .
+network ( bristol , england ) 9 r53 78 28 pillow jw shlens j paninski l sher a litke am 2008 spatio - temporal correlations and visual signalling in a complete neuronal population .
+nature 454 995 999 18650810 29 tkaficik g prentice j balasubramanian v schneidman e 2010 optimal population coding by noisy spiking neurons .
+proceedings of the national academy of sciences 107 14419

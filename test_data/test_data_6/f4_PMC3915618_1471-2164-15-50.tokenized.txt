@@ -1,0 +1,347 @@
+bmc genomics bmc genomics bmc genomics 1471 - 2164 biomed central 24447430 3915618 1471 - 2164 - 15 - 50 10.1186 / 1471 - 2164 - 15 - 50 research article prediction of bacterial type iv secreted effectors by c - terminal features wang yejun 1 yejun.wang @ gmail.com wei xiaowei 1 weixiaowei00 @ gmail.com bao hongxia 1 wulantuya2 @ 163.com liu shu - lin 12 slliu @ ucalgary.ca 1 genomics research center , harbin medical university , harbin , china 2 department of microbiology and infectious diseases , university of calgary , calgary , canada 2014 21 1 2014 15 50 50 5 8 2013 16 1 2014 copyright ( c ) 2014 wang et al. ; licensee biomed central ltd .
+2014 wang et al. ; licensee biomed central ltd.this is an open access article distributed under the terms of the creative commons attribution license ( http :// creativecommons.org / licenses / by / 2.0 ) , which permits unrestricted use , distribution , and reproduction in any medium , provided the original work is properly cited .
+background many bacteria can deliver pathogenic proteins ( effectors ) through type iv secretion systems ( t4sss ) to eukaryotic cytoplasm , causing host diseases .
+the inherent property , such as sequence diversity and global scattering throughout the whole genome , makes it a big challenge to effectively identify the full set of t4ss effectors .
+therefore , an effective inter - species t4ss effector prediction tool is urgently needed to help discover new effectors in a variety of bacterial species , especially those with few known effectors , e.g. , helicobacter pylori .
+results in this research , we first manually annotated a full list of validated t4ss effectors from different bacteria and then carefully compared their c - terminal sequential and position - specific amino acid compositions , possible motifs and structural features .
+based on the observed features , we set up several models to automatically recognize t4ss effectors .
+three of the models performed strikingly better than the others and t4sepre _ joint had the best performance , which could distinguish the t4ss effectors from non - effectors with a 5 - fold cross - validation sensitivity of 89 % at a specificity of 97 % , based on the training datasets .
+an inter - species cross prediction showed that t4sepre _ joint could recall most known effectors from a variety of species .
+the inter - species prediction tool package , t4sepre , was further used to predict new t4ss effectors from h. pylori , an important human pathogen associated with gastritis , ulcer and cancer .
+in total , 24 new highly possible h. pylori t4s effector genes were computationally identified .
+conclusions we conclude that t4sepre , as an effective inter - species t4ss effector prediction software package , will help find new pathogenic t4ss effectors efficiently in a variety of pathogenic bacteria .
+type iv secretion system effector secretion signal prediction sequence analysis machine learning helicobacter pylori background type iv secretion system ( t4ss ) is a membrane - associated multi - component transporter complex , which plays important roles both in horizontal dna transfer between different bacteria and in bacterial pathogenesis by translocating pathogenic substrates ( dna or protein ) into host plant , animal or human cells [ 1,2 ] .
+a large number of t4sss have been identified in a variety of bacterial species [ 1,2 ] .
+in many cases t4sss have been implicated in protein delivery during the infection process , such as helicobacter cag - t4ss in human gastric ulcer and cancer , legionella dot / lcm - t4ss in legionnaires' disease , and bartonella virb / vird4 in cat scratch disease [ 3 - 8 ] .
+recently , a large - scale screening study performed in over 1000 prokaryotic genomes disclosed a total of 949 t4sss , among which 267 lacked relaxases and were considered as putative protein - exporting t4sss , since the t4sss involving horizontal dna transfer require the activity of relaxases while known protein - exporting t4sss do not need relaxes [ 9 ] .
+the proteins specifically secreted through t4ss conduit are called type iv secreted ( t4s ) effectors , which exert important functions in cytoplasm of infected eukaryotic cells [ 10,11 ] .
+a large number of t4s effectors have been characterized experimentally with assays involving genetic complementation , reporter protein fusion , secretion apparatus or chaperone interaction , etc .
+[ 12 - 16 ] .
+however , it is difficult and time - consuming to find new effectors purely based on experimental methods .
+additionally , in a given bacterial strain , most effectors are scattered throughout the genome rather than clustered in a narrow genomic region .
+moreover , the validated effectors in different species are significantly diverse in sequence .
+therefore , the bioinformatic methods so far used , based essentially on sequence comparison , can hardly reveal new effectors .
+recently , two groups of investigators performed large - scale screening of t4s effectors by bioinformatic analysis [ 17,18 ] .
+integrating multiple features including gene g + c content , sequence conservation , within - genome gene organization , regulatory elements , signal sequence composition , etc. , burstein et al. , for the first time , set up a machine learning method to predict and experimentally identify new t4s effectors from legionella pneumophila [ 17 ] .
+the prediction accuracy was considerably high , but the method developed is merely suitable for t4s protein prediction in legionella or closely - related species , since the training sequences are all from legionella and the features about sequence conservation , gene organization and regulatory elements are specific for legionella .
+in addition , a similar training pipeline is infeasible to develop t4s effector predictors for a broader range of bacteria , because the numbers of validated t4s effectors in most other bacterial genera , not like in legionella ( more than 100 ) , are so small ( 0 ~ 5 ) that the training data cannot provide reliable feature information .
+in another study , based on the weak sequence similarity with legionella effectors , chen et al. identified a group of effectors in coxiella burnetii [ 18 ] .
+most effectors , especially those in the distantly - related species , however , are of no or very low sequence similarity .
+therefore , new effectors without sequence similarity cannot be captured through sequence alignment .
+we have focused on helicobacter pylori to predict t4s effectors for insights into the pathogenesis of the distinct infections caused by these bacteria. h. pylori may elicit human gastritis and gastric ulcer , and this pathogen is also associated with gastric cancer [ 4 ] .
+in the pathogenesis , cag - t4ss plays key roles as an important virulence factor in the bacterial interaction with human stomach cells [ 3,4 ] .
+to date , only one effector , caga , has been identified , although several lines of evidence have indicated that there should be other effectors that participate in bacterial infection and pathogenesis [ 4,19,20 ] .
+no experimental , sequence alignment or comparative genomic methods are available for identifying new effectors .
+the only caga protein could not provide any statistic information about its sequence features as a t4s effector either .
+numerous reports have indicated that , in many different bacteria , the c - terminal peptide sequences of t4s effectors are necessary for their secretion [ 21 - 25 ] .
+do these amino acid sequences share any common composition or structural features among different effectors in different bacterial species ?
+could such features , if any , be used to develop an inter - species t4s effector predictor ?
+such a generally - suitable prediction tool would be especially useful for identification of new effectors in species like h. pylori , which is supposed to have multiple effectors that are not experimentally validated yet and lacks a sufficient number of within - species validated effectors for species - specific effector feature extraction .
+recently , many inter - species prediction tools have been developed to predict type iii secreted ( t3s ) effectors [ 26 - 32 ] , but no similar software tool has been developed for t4s effector prediction .
+in this research , we collected a full set of t4s effectors and made systematical comparisons of their c - terminal sequence - based and position - specific amino acid compositions , motifs , secondary structures and solvent accessibility properties .
+based on these features , we developed a series of machine learning methods to classify t4s effectors and non - effectors .
+to our knowledge , this is the first inter - species t4s protein prediction tool , which can be applied to different bacteria and is especially useful for bacteria that have limited effector information for species - specific bioinformatic analysis .
+results sequence - based amino acid composition ( aac ) differences between c - termini of t4s and non - t4s proteins the t4s proteins were annotated from literature , while the non - t4s proteins were randomly selected from the genome - encoding proteins removed of known t4s proteins and their homologs ( methods ) .
+the size of non - t4s proteins was twice of t4s proteins .
+the gc content of the nucleotide sequences encoding the t4s proteins was roughly equal to that of non - t4s encoding nucleotide sequences ( methods ) .
+comparisons were performed on sequence - based aac of c - terminal 100 positions ( c100 ) between t4s and non - t4s sequences .
+most amino acid species were not equally distributed in the two types of sequences , with glutamic acid , serine , lysine , threonine , asparagine and proline enriched and isoleucine , glycine , valine , tyrosine , tryptophan , methionine , leucine , phenylalanine and alanine depleted in t4s sequences ( p < 0.05 , bonferroni - corrected binomial test and t - test ; figure 1a ) .
+the relative enrichment ratio of aac was calculated for each amino acid species which showed statistical difference between t4s and non - t4s sequences .
+glutamic acid and serine had the largest enrichment in t4s sequences , whereas isoleucine , tyrosine and glycine were enriched in non - t4s sequences ( tryptophan and methionine were not considered because of their low occurrence in both types of sequences ) ( figure 1a ) .
+the relative enrichment ratios of biased amino acids between t4s and non - t4s sequences were not apparently enlarged when the length of observed signal sequence was shortened ( additional file 1 : figure s1 ) .
+figure 1 sequence - based aac difference between t4s and control proteins for c - terminal 100 - aa positions .
+( a ) single - residue composition difference .
+the different amino acids were listed along the horizontal axis while the length of bars represented the frequency of the corresponding amino acid .
+t4s and non - t4s proteins were represented in black and gray , respectively .
+amino acid with significant different compositions between effectors and non - effectors were indicated with a star above the bar ( bonferroni - corrected student 's t test and binomial test , p < 0.05 ) .
+the logarithm of amino acid frequency ratio was also shown , with red representing preference and black representing depletion in effectors .
+( b ) continual and spanned bi - residues with statistically significant composition difference between effectors and non - effectors ( bonferroni - corrected student 's t test and binomial test , p < 0.05 ) .
+' px ' represented ' position x ' .
+' x ' represented any type of amino acid .
+the amino acid at the last position was in red if the corresponding bi - residue was preferred and in black if depleted in t4s sequences .
+( c ) distribution of motifs in t4s and non - t4s proteins .
+bi - residue composition ( baac ) was also compared between t4s and non - t4s c100 sequences .
+among the 400 combinations of bi - residues , 29 were significantly enriched and 25 were depleted in t4s sequences ( p < 0.05 , bonferroni - corrected binomial test ; figure 1b left and additional file 2 : table s1 ) .
+most significantly enriched bi - residues included '[ ekd ] e ' , '[ stpe ] s ' , ' e [ tkn ]' , ' s [ pe ]' , ' ff ' , ' tp ' and ' pt ' , while ' i [ iag ]' , '[ vyf ] l ' , ' g [ ivg ]' and '[ fv ] i ' were most significantly depleted in t4s sequences ('[ xy ]' means ' x ' or ' y ' ; additional file 2 : table s1 ) .
+the composition was further compared for discontinuous bi - residues ( eg. , ' exxs ' , ' exsx ' , etc. , where targeted bi - residues ' e ' and ' s' were interupted by other residues ) .
+twenty two bi - residues interrupted by one amino acid were enriched and 31 were depleted in t4s sequences , among which '[ ke ] xe ' , '[ estk ] xs ' , ' ex [ tk ]' and ' sx [ per ]' were most significantly enriched while '[ glvi ] xi ' , '[ igl ] xv ' , ' axy ' , ' lxa ' and '[ yi ] xl ' were most significantly depleted (' x ' represents any amino acid ; figure 1b middle and additional file 2 : table s1 ) .
+among the bi - residues interrupted by two amino acids , '[ ekp ] xxe ' , ' sxx [ sktpn ]' , ' exx [ tk ]' , ' nxxt ' and ' dxxs' were most significantly enriched , and '[ gi ] xxi ' , ' ixx [ gf ]' , ' gxx [ fl ]' , ' vxx [ ag ]' and ' lxxg ' were most significantly depleted in t4s sequences ( figure 1b right and additional file 2 : table s1 ) .
+among these continuous and interrupted bi - residues , ' kxxe ' , ' sxxs' and ' exxe ' existed in 193 ( 56 %) , 187 ( 54 %) and 183 ( 53 %) t4s sequences , respectively , representing the patterns most enriched in t4s signal peptides .
+nearly 90 % ( 312 / 347 ) of the t4s sequences contained at least one of the three motifs .
+however , the percentages of non - t4s sequences containing such motifs were much lower ( 34 % , 30 % and 31 % for ' kxxe ' , ' sxxs' and ' exxe ' respectively , and 67 % for existence of at least one of the three motifs ) .
+tri - residue ( taac ) and quart - residue ( qaac ) compositions were further compared , so as to refine the conserved motifs buried in t4s signal sequences .
+taking into account of the bi - residue composition preference property described above , an consensus method disclosed three degenerate motifs , ' k [ adehklmnrvwy ][ adeknpq ] e ' , ' e [ aegkmnqr ][ deknpq ] e ' , and ' s [ giklmnqrst ][ pqrs ] s ' , which were significantly enriched in t4s sequences ( p < 0.05 , bonferroni - corrected binomial test ) .
+in total , more than 50 % ( 175 / 347 ) of the t4s sequences contained at least one of these three motifs , whereas only 12 % ( 82 / 694 ) of the non - t4s sequences contained one or more of them ( figure 1c and additional file 3 : table s2 ) .
+the motifs existed in effectors of different bacteria with iva or ivb t4ss ( additional file 3 : table s2 ) .
+the patterns with more than four residues were quite degenerate , and represented by very few t4s sequences ( data not shown ) .
+distinct position - specific aac profiles in c - termini of t4s effectors besides sequence - based aac preference in t4s signal peptides , the position - specific aac profiles were also compared between t4s and non - t4s sequences .
+as shown in additional file 4 : figure s2 and figure 2 , t4s sequences showed apparently different amino acid composition profiles from non - t4s sequences .
+these differences were most striking for c - terminal 1 - 50 ( especially 1 - 25 ) positions ( additional file 4 : figure s2 ) .
+more positions in t4s effectors exhibited specific amino acid preference , while in non - t4s sequences , different species of amino acids appeared more evenly distributed at each position ( figure 2a and b ) .
+consistent with the sequence - based observations , glutamic acid , serine and lysine were also frequently preferred in t4s sequences ( figure 2a ) .
+leucine was enriched in both t4s and non - t4s sequences ( figure 2a and b ) .
+figure 2 position - specific aac profiles of t4s and control proteins for c - terminal 50 positions .
+the horizontal axis indicates the c - terminal position number .
+( a ) and ( b ) represent t4s proteins and control proteins , respectively .
+to further evaluate whether the observed amino acid preference ( or depletion ) is statistically significant , we set up a binomial distribution model for each amino acid at each position of t4s and non - t4s c - terminal 50 positions .
+at positions of t4s c - termini , the 20 amino acid species did not show equal preference .
+some amino acids were enriched while some others depleted significantly ( figure 3a ; additional file 5 : table s3 ) .
+tryptophan and cysteine were most generally depleted in t4s c - termini .
+additionally , leucine ( enriched ) , methionine ( depleted ) , serine ( enriched ) , glutamic acid ( enriched or depleted ) and histidine ( depleted ) were also frequently biased in the composition ( figure 3b ; additional file 5 : table s3 ) .
+the total number of amino acids with significant position - specific composition difference between t4s and non - t4s proteins was much smaller than that of theoretically biased amino acids in t4s proteins , demonstrating that there are many common amino acid composition biases between the two types of proteins ( additional file 5 : table s3 ) .
+however , the difference between t4s and non - t4s proteins was even more pronounced at the c - terminal 30 positions ( figure 3c ) .
+the most profound composition difference between t4s and non - t4s in most positions was the frequency bias of glutamic acid ( enriched or depleted ) , followed by those of serine ( enriched ) , aspartic acid ( enriched or depleted ) , proline ( enriched or depleted ) , threonine ( enriched ) and phenylalanine ( enriched or depleted ) ( figure 3d ) .
+it should be noted that , leucine was also frequently biased ( depleted ) in t4s sequences compared with its composition in non - t4s sequences , indicating the larger enrichment in the latter ( figure 3b and d ) .
+other amino acids , e.g. , cysteine , tryptophan , methionine and histidine , did not contribute much to the composition bias , as they are depleted in both t4s and non - t4s proteins ( figure 3b and d ) .
+notably , glutamic acid , though enriched in most c - terminal positions of t4s proteins when compared with non - t4s proteins , showed significant depletion in c - terminal 1 - 4 positions of t4s proteins and was significantly enriched at positions 9 to 19 continuously ( additional file 5 : table s3 ) .
+some of the amino acids enriched or depleted in t4s sequences ( e.g. , serine , threonine , proline and glutamic acid ) could be related with the secondary structure and hydrophilicity , two possibly important secondary features related with signal recognition [ 26,30 ] .
+the biological relevance of the biases of the amino acids remains to be clarified .
+figure 3 distribution of amino acids with significant different position - specific composition .
+( a ) and ( b ) show the distribution of significantly preferred or unfavorable amino acids in t4s proteins , respectively .
+( c ) and ( d ) show the distribution of amino acid with significantly different composition between t4s and control proteins .
+( a ) and ( c ) compare the numbers of significantly different amino acids at each position .
+( b ) and ( d ) showed the times of each type of amino acid exhibiting significant difference .
+structural flexibility of the c - termini of t4s effectors the primary peptide sequence determines its secondary structure ( sse ) and solvent accessibility ( acc ) , which may be associated with the specificity of signal recognition .
+therefore , we compared the sse and acc composition in each c - terminal position of t4s effectors with those of the non - t4s proteins .
+as expected , t4s effectors showed a position - specific sse preference pattern apparently different from that of the non - t4s proteins in the c - terminal region , especially at the c - terminal 40 positions ( additional file 6 : figure s3a and b ) .
+in contrast to helices in the non - t4s sequences , coils are more common in most regions of the t4s sequences , indicating that they are more flexible ( additional file 6 : figure s3a and b ) .
+besides , beta - strands were less frequently adopted by t4s sequences ( additional file 6 : figure s3a and b ) .
+t4s and non - t4s sequences also showed different position - specific acc profiles , with more positions being exposed in the c - termini of t4s sequences ( additional file 6 : figure s3c and d ) .
+the distinct sse and acc profiles adopted by the c - terminal region of t4s effectors were similar to those of n - terminal region of type iii secreted ( t3s ) proteins , indicating possibly similar signal recognition mechanisms between the type iv and type iii secretion systems [ 26 ] .
+when twenty t4s c - terminal peptides were randomly selected for 3d structure prediction , six peptides were predicted with high accuracy .
+the c - terminal ends of all the six peptides form helices or coiled coils , always exposed outside ( additional file 7 : figure s4 ) .
+a structure alignment showed that these six peptides could form a cluster with quite similar structures ( 37 % structure similarity , < 10 a ; additional file 8 : figure s5a ) .
+most interestingly , though without similarity at the sequence level , legionella vipe ( yp _ 096808.1 ) and yp _ 094180.1 had an extremely similar 3d structure , with a mirror symmetry for the c - terminal end parts ( 76 % structure similarity , < 5 a ; additional file 8 : figure s5b ) .
+legionella yp _ 094076.1 and coxiella yp _ 001597263.1 also showed 74 % similarity , and these four proteins , vipe , yp _ 094180.1 , yp _ 094076.1 and coxiella yp _ 001597263.1 , had 52 % structure similarity (< 10 a ; additional file 8 : figure s5c and d ) .
+the 3d structure similarity suggested that the high - order structure could exert important function in specific t4s signal recognition .
+inter - species prediction of t4s effectors based on aac and structural features it is interesting to determine whether the distinct aac ( sequence - based and position - specific ) , motifs , sse and acc profiles can be used for distinguishing t4s proteins .
+support vector machine ( svm ) based machine learning models were therefore trained with different features and / or their combination , and comparison was performed on their classification power .
+svm was adopted since it often generates high classification accuracy and especially high specificity [ 26 - 28,31 ] .
+additional file 9 : table s4 showed the parameters optimized for different models .
+as shown in table 1 , the decision model based only on motifs detected above had the worst distinguishing power , with an average accuracy of 75.6 % .
+the distinguishing power was similar among the models based on sequential aac , bi _ residue composition ( baac ) , their combination and the combination of significantly biased aac and bi _ aac between t4s and non - t4s peptides , in terms of sensitivity , specificity , accuracy , auc and mcc values ( table 1 ) .
+the svm model based on position - specific , single - profile bayesian ( spb ) features only performed a little better than the sequence - based models ( table 1 ) .
+the bi - profile bayesian ( bpb ) model , however , considerably outperformed both the spb model and the sequence - based models ( table 1 and figure 4a ) .
+interestingly , the combination of spb aac features and sequential aac features could greatly improve the classifying performance , which was comparable to that of bpb aac model ( table 1 and figure 4a ) .
+table 1 performance of different models classifying t4s effectors and non - effectors features model sn (%) vs. sp (%) a (%) auc mcc seq _ aac svm 50.57 vs. 93.86 79.43 0.8212 0.5146 seq _ baac svm 44.57 vs. 96.29 79.05 0.8311 0.5088 seq _ aac , baac svm 46.00 vs. 96.14 79.43 0.8343 0.5182 seq _ sig svm 50.57 vs. 93.86 79.43 0.8500 0.5146 motif - 50.43 vs. 88.18 75.60 - 0.4222 seq _ aac , sse , acc svm 69.71 vs. 91.14 84.00 0.8742 0.6313 pos _ aac _ spb svm 61.71 vs. 92.14 82.00 0.8538 0.5802 pos _ aac _ spb + seq _ aac svm 78.86 vs. 93.29 88.48 0.9362 0.7369 pos _ aac _ bpb bpb - svm 79.14 vs. 94.43 89.33 0.9559 0.7561 pos _ aac , sse , acc bpb - svm 89.14 vs. 97.14 94.57 0.9883 0.8770 note : the rbf kernel function was used for all the models except ' motif ' .
+the performance was evaluated according to 5 - fold cross validation results .
+figure 4 performance rocs of different t4s effector prediction models .
+( a ) comparison of ' pos _ aac _ spb ' , ' seq _ aac ' , and ' pos _ aac _ spb + seq _ aac ' models .
+' pos _ aac _ spb ' only extracted the features of positive dataset .
+' seq _ aac ' only learned sequence - based single - residue composition features .
+' pos _ aac _ spb + seq _ aac ' combined the features of ' pos _ aac _ spb ' and ' seq _ aac ' .
+( b ) comparison of ' pos _ aac _ spb ' , ' pos _ aac _ bpb ' , ' pos _ aac _ spb + seq _ aac ' and ' pos _ aac,sse,acc ' models .
+' pos _ aac _ bpb ' model extracted the aac features of both positive and negative datasets , while ' pos _ aac,sse,acc ' learned the joint position - specific aac , sse and acc features .
+all comparisons were performed with a 5 - fold cross - validation strategy .
+inclusion of secondary structure and solvent accessibility improved the distinguishing power of both sequence - based models and position - specific bayesian models .
+the model based on sequential joint features of aac , sse and acc outperformed any other pure sequential features - based model ( table 1 ) .
+most strikingly , the position - specific model based on the joint features outperformed all other models in terms of any evaluation parameter ( table 1 and figure 4b ) .
+the five - fold cross - validation sensitivity , specificity , accuracy , auc and mcc of this model could achieve 89.14 % , 97.14 % , 94.57 % , 0.9883 and 0.8770 , respectively ( table 1 ) .
+we also tested the influence of different signal sequence length on model performance .
+among the models based on c - terminal 25aa , 30aa , 40aa , 50aa and 100aa ( c25 , c30 , c40 , c50 and c100 , respectively ) , c100 models apparently outperformed the others ( data not shown ) .
+since the models based on combined spb aac and sequential aac features ( t4sepre _ psaac ) , bpb aac features ( t4sepre _ bpbaac ) and position - specific joint features of aac , sse and acc ( t4sepre _ joint ) showed the best performance on classification of t4s and non - t4s sequences , the rest parts of the research will only use these three models based on c - terminal 100aa signals .
+to further confirm the classification performance of these three models , we changed the size of negative dataset ( from 2 - fold to 6 - fold size of the positive dataset , additional file 10 : text s1 ) , and assessed the performance with 5 - fold and 10 - fold cross validation .
+as shown in additional file 11 : table s5 and additional file 12 : table s6 , the prediction performance was improved slightly when the negative dataset with larger size ( additional file 11 : table s5 ) was used and quite stable when 5 - fold ( additional file 11 : table s5 ) or 10 - fold ( additional file 12 : table s6 ) cross validation was adopted .
+it is also important to observe the inter - species effector discriminating power of the models .
+a leave - one genus - out strategy was proposed previously and adopted here .
+as shown in figure 5 , t4sepre _ joint exhibited the best inter - species prediction performance , while t4sepre _ psaac performed worst among the three software tools .
+for most genera , t4sepre _ joint could recall all or nearly all known effectors without any prior knowledge about the targeted genus ( figure 5a ) and at very high prediction specificity ( figure 5b ) .
+the specificity of t4sepre _ joint for brucella appeared lower because the total number of negative control proteins was only 4 , and in fact , merely one of them was misclassified ( figure 5b ) .
+it is worth pointing out that only 73 training effectors remained after all the 274 legionella effectors were excluded , and the t4sepre _ joint model with such limited training data ( 21 % of the original training data ) could still correctly recognize most of the known legionella effectors ( 222 / 274 , 81 %) .
+one genus , ochrobactrum , was an apparent exception : the models based on the effectors of other genera could at best recall 2 / 5 of the known effectors ( figure 5a , t4sepre _ bpbaac ) .
+figure 5 inter - species / group prediction of t4s effectors by three computational models with a leave - one genus - out strategy .
+( a ) recall of known effectors in each species or group .
+agr , ana , bar , bor , bru , cox , ehr , hel , leg and och represented agrobacterium , anaplasma , bartonella , bordetella , brucella , coxiella , ehrlichia , helicobacter , legionella , and ochrobactrum respectively .
+type a and b represented the two types of t4sss .
+( b ) prediction specificity of different models in each species or group .
+there are two types of t4sss , type a and type b. it is interesting to observe the inter - category discretion power of these models .
+the effectors were therefore assigned to two subsets , type a t4ss substrates and type b t4ss substrates .
+the negative controls were divided into two parts accordingly .
+models were trained with either one type of sequences and were further used to classify the other type of sequences .
+as shown in figure 5 , whereas t4sepre _ bpbaac and t4sepre _ psaac also showed some performance , t4sepre _ joint showed the best classification power .
+the relatively low recall rates of type b effectors ( 67.85 % for t4sepre _ joint ) with the model based on type a effectors were due to the extremely limited number of type a effectors ( 36 / 347 , 10.4 %) ( figure 5a ) .
+again , the specificity of different models on either type was very high , further demonstrating the reliability of inter - species prediction with all these three software tools ( figure 5b ) .
+taking together , the results demonstrated that the features purely extracted from c - terminal sequences could well distinguish t4s effectors and non - effectors .
+the models , especially t4sepre _ joint , showed an excellent inter - species prediction performance .
+new t4s effector candidates in h. pylori and salmonella typhiumium h. pylori is reported to encode multiple t4s effectors [ 4,19,20 ] , among which only one , caga , has been experimentally validated .
+as a result , direct statistic feature analysis for h. pylori effectors is impossible .
+it has been a big challenge to look for new effectors in h. pylori .
+we therefore used t4sepre ( additional file 13 ) , the inter - species t4s effector prediction software containing 3 highly - efficient models ( t4sepre _ joint , t4sepre _ bpbaac , and t4sepre _ spaac ) , to screen the h. pylori genome ( nc _ 000915 ) for possible t4s effectors .
+t4sepre _ joint , t4sepre _ bpbaac and t4sepre _ spaac identified 58 , 78 and 37 t4s effectors respectively ( additional file 14 : table s7 ) .
+in total , 25 candidates were predicted by t4sepre _ joint and at least one other model , which composed the most potentially true effectors ( table 2 ) .
+the genes encoding these effector candidates were widely scattered throughout the genome .
+among these candidates , caga was a known effector and the rest 24 were new .
+motif screening showed that more than half of the candidates contained ' k [ adehklmnrvwy ][ adeknpq ] e ' , ' e [ aegkmnqr ][ deknpq ] e ' , or ' s [ giklmnqrst ][ pqrs ] s' ( additional file 14 : table s7 ; table 2 , italic ) .
+it should be noted that ~ 70 % of the t4s candidates were hypothetical proteins with unknown function ( table 2 ) .
+previous studies have demonstrated that many proteins with unknown function were likely to function as pathogenic effectors [ 27 ] .
+therefore , these proteins deserve further experimental validation analysis .
+table 2 t4s effectors predicted from h. pylori protein _ accession annotation joint bpbaac psaac gi | 15644760 | ref | np _ 206930.1 | hypothetical protein hp0130 sqrt sqrt sqrt gi | 15645482 | ref | np _ 207657.1 | hypothetical protein hp0863 sqrt sqrt sqrt gi | 15645135 | ref | np _ 207305.1 | hypothetical protein hp0508 sqrt sqrt sqrt gi | 15644973 | ref | np _ 207143.1 | hypothetical protein hp0345 sqrt sqrt gi | 15645339 | ref | np _ 207511.1 | dna polymerase iii subunits gamma and tau sqrt sqrt sqrt gi | 15645728 | ref | np _ 207905.1 | excinuclease abc subunit b sqrt sqrt gi | 15646132 | ref | np _ 208314.1 | hypothetical protein hp1524 sqrt sqrt gi | 15645173 | ref | np _ 207343.1 | cag pathogenicity island protein ( cag26 , caga ) sqrt sqrt sqrt gi | 15644995 | ref | np _ 207165.1 | hypothetical protein hp0367 sqrt sqrt gi | 15645343 | ref | np _ 207515.1 | hypothetical protein hp0721 sqrt sqrt gi | 15645618 | ref | np _ 207794.1 | hypothetical protein hp1003 sqrt sqrt sqrt gi | 15645567 | ref | np _ 207743.1 | putative recombination protein reco sqrt sqrt gi | 15645998 | ref | np _ 208179.1 | hypothetical protein hp1388 sqrt sqrt gi | 15644810 | ref | np _ 206980.1 | hypothetical protein hp0181 sqrt sqrt gi | 15644793 | ref | np _ 206963.1 | signal - transducing protein , histidine kinase sqrt sqrt sqrt gi | 15645647 | ref | np _ 207823.1 | hypothetical protein hp1033 sqrt sqrt gi | 15644672 | ref | np _ 206842.1 | hypothetical protein hp0041 sqrt sqrt sqrt gi | 15644966 | ref | np _ 207136.1 | hypothetical protein hp0338 sqrt sqrt sqrt gi | 15646203 | ref | np _ 208145.1 | hypothetical protein hp1353 sqrt sqrt gi | 15645609 | ref | np _ 207785.1 | hypothetical protein hp0994 sqrt sqrt sqrt gi | 15644860 | ref | np _ 207030.1 | hypothetical protein hp0232 sqrt sqrt sqrt gi | 15645621 | ref | np _ 207797.1 | conjugal transfer protein ( trag ) sqrt sqrt gi | 15645351 | ref | np _ 207525.1 | hypothetical protein hp0731 sqrt sqrt gi | 15645518 | ref | np _ 207693.1 | hydrogenase expression / formation protein ( hypb ) sqrt sqrt sqrt gi | 15645888 | ref | np _ 208066.1 | paralysed flagella protein ( pfla ) sqrt sqrt note : ' joint ' , ' bpbaac ' and ' psaac ' represent ' t4sepre _ joint ' , ' t4sepre _ bpbaac ' and ' t4sepre _ psaac ' model , respectively .
+the genes with one or more of the three motifs identified in this study were in italic .
+as a control , we also made a whole - genome t4s effector prediction from salmonella typhimurium lt2 , a strain which has never been reported with a functional protein - transporting t4ss .
+as shown in additional file 15 : table s8 , t4sepre _ joint , t4sepre _ bpbaac and t4sepre _ spaac identified 57 , 81 and 27 t4s effectors respectively .
+dividing by the total number of genome - encoding proteins ( s. tyhimurium lt2 , 4423 ; h. pylori , 1573 ) , the percentages of positive t4s proteins predicted in s. tyhimurium ( 1.29 , 1.83 and 0.61 , respectively ) were lower than in h. pylori ( 3.69 , 4.96 and 2.35 , respectively ) .
+furthermore , the prediction results of the three software tools were combined to increase prediction specificity , as performed in h. pylori .
+we found only 13 proteins were predicted by both t4sepre _ joint and at least one other software tool ( additional file 15 : table s8 ) .
+this positive ratio ( 0.29 % , 13 / 4423 ) was also much lower than that in h,pylori ( 1.59 % , 25 / 1573 ) .
+similar to the distribution of t3s signals among different bacteria , it is not surprising to find t4s signal containing proteins in strains without protein - transporting t4sss such as s. typhimurium lt2 , though the number of positive proteins could be much smaller [ 27,29,30 ] .
+three proteins in lt2 predicted to be positive t4s effectors by all the three tools meanwhile ( stm1870 , stm2074 and stm2256 ; additional file 15 : table s8 ) .
+among them , stm1870 is particularly interesting .
+it was predicted by all the three models with the highest scores and hence most likely represents a true t4s effector ( additional file 15 : table s8 ) .
+in a previous report , stm1870 was also found to contain a t3s signal [ 27 ] .
+the function of stm1870 remains to be clarified .
+stm2074 is annotated as a histidinol phosphatase and stm2256 encodes a cytochrome c - type subunit .
+these two proteins are more likely to represent false positives predicted by the software tools , but the possibility could not be excluded either that , they contain the t4s signal sequences and could be translocated through the t4ss conduit to host cells if there was a functional t4ss in salmonella .
+discussion and conclusion bacteria encode diverse protein secretion or translocation systems to effectively interact with host cells .
+type iii and type iv secretion systems play especially important roles in gram - negative bacteria [ 2,9,33,34 ]. through comparative genomic analysis , guglielmini et al. found more bacteria than expected could encode potential protein - exporting t4sss [ 9 ] .
+this is an interesting finding , indicating that these bacteria potentially interact with host cells by injecting effector proteins through t4sss .
+it is much easier to detect whether these t4sss are assembled and functional than to analyze how they could function .
+identifying possible effectors is the determinant step to solve the latter problem .
+currently , the most effective way to identify new t4s effectors is to validate candidates predicted according to the common features of known effectors encoded by the same or closely - related bacteria [ 17,18 ] .
+however , for most species that have t4sss , only a small number of effectors have been identified to date .
+due to the small sample pool of known t4s effectors , no reliable features could be generalized from them .
+the species - specific methods described above therefore could not be adopted directly either .
+the number of newly discovered effectors is increasing for a limited number of representative species , e.g. , l. pneumophila , but very few new effectors are being identified for other important species , e.g. , h. pylori .
+these factors prompted us to develop an inter - species t4s effector prediction method .
+in this study , we focused on sequence and structure - derived features. through sequence - based single - , bi - , tri - residue aac and motif analysis , we found distinct composition preference in c - terminal sequences of t4s effectors relative to control proteins .
+glutamic acid and serine were most strikingly preferred by t4s effector sequences ( figure 1a , b and c ) .
+position - specific aac comparison demonstrated significant biases in the composition of glutamic acid and serine in a number of positions .
+unlike serine , which always showed preference in t4s sequences , glutamic acid was preferred in most positions but depleted in c - terminal positions 1 - 4 ( figure 3 ) .
+in the c - terminal sequences of more than 50 % effectors , three possible motifs were identified , which always contained one ( or more ) glutamic acid or serine as the consensus residue ( s ) ( figure 1c ) .
+it is interesting to examine whether and how these two amino acids or the motifs play roles in the specificity of type iv secretion recognition .
+the biological meaning of other aac preference also remains to be clarified .
+we also tried to observe the different secondary structure and solvent accessibility determined by the different aac features between t4s and control proteins .
+the t4s effectors had much more flexible and exposed c - terminal regions than the control proteins ( additional file 6 : figure s3 ) .
+we had similar observation for the n - terminal sequences of type iii secreted effectors reported previously [ 26 ] .
+it is not clear whether this is a common property of protein secretion signal sequences .
+interestingly , 3d structure modeling revealed similar tertiary structure of the t4s c - terminal sequences ( additional file 8 : figure s5 ) .
+due to the relatively low accuracy and heavy computation cost of de novo structure prediction , it is not feasible to predict the structure of all t4s effectors with high precision .
+however , it is still interesting to observe the structure basis of specific type iv secretion recognition .
+a variety of computational models were trained based on the different types or combinations of features .
+three of them , t4sepre _ joint trained on joint features of position - specific aac , sse and acc , t4sepre _ bpbaac trained on bi - profile bayesian aac , and t4sepre _ psaac trained on both position - specific ( single - profile bayesian ) and sequence - based aac features , considerably outperformed the others in terms of sensitivity , specificity , accuracy , auc and mcc ( table 1 and figure 4 ) .
+additionally , t4sepre _ joint also exhibited an ideal inter - species prediction power .
+due to the lack of known effectors in most bacterial species , legionella effectors represented the overwhelming majority of the training data ( 89 %) .
+remarkably , the t4sepre _ joint model trained on the sequences of the other species ( 21 % of the original training data ) could still correctly recall ~ 81 % of the known legionella effectors ( figure 5 ) .
+even with the fewer training data ( type a effectors and control proteins , 10.4 % of the original training data ) , t4sepre _ joint could correctly recognize ~ 68 % of the relatively independent type b effectors ( figure 5 ) .
+though with lower distinguishing performance than t4sepre _ joint , t4sepre _ bpbaac and t4sepre _ psaac revealed different features of t4s effectors .
+these three tools , therefore , may be combined in practice for t4s effector prediction .
+prediction of sse and acc is relatively time - consuming for all bacterial proteins .
+we therefore only used t4sepre _ bpbaac and t4sepre _ psaac to screen t4s signals in all the bacteria with possible protein - delivery t4sss [ 9 ] .
+we found all the bacterial chromosomes containing protein - exporting t4sss encode possible t4s effectors .
+on average , up to 5 % genes encode t4s effectors ( data not shown ) .
+we further focused on h. pylori , for which all the three t4sepre models were adopted to predict possible new effectors other than caga .
+a total of 25 genes were predicted by both t4sepre _ joint and at least one other model .
+notably , nearly 70 % of the predicted genes encoded hypothetical proteins with unknown functions ( table 2 ) .
+besides , many genes , especially those with higher prediction scores , contained at least one of the three types of t4s motifs .
+these genes and others with high prediction values provide a valuable list of effector candidates for pathogenic study of h. pylori .
+an ideal computational model could predict all the true positive effectors ( highest sensitivity ) without any false positive effector ( highest specificity ) .
+however , it is infeasible to develop such a perfect model .
+in practice , we have to make a balance between sensitivity and specificity to cope with different situations .
+for example , in bacteria with many known effectors such as legionella , the prediction specificity has to be sacrificed to increase the sensitivity , so as to find more new effectors .
+however , to identify effectors from bacteria with few known effectors such as h. pylori , it is recommended to increase prediction specificity at a cost of sensitivity .
+the higher specificity will ensure the fewer false positives and the lower experimental cost .
+the three software tools proposed here all exhibited quite high prediction specificity ( 93 ~ 97 %) .
+it should be pointed out that , even with the highest cross - validation specificity 97 % , ~ 86 false positives would be predicted from a genome encoding 2850 non - effector proteins .
+the sensitivity of t4sepre _ joint is 89 % at the specificity of 97 % , so about 134 effectors can be correctly predicted assuming there are 150 effector proteins in the same genome .
+therefore , in a genome encoding 3000 total proteins and 150 ( 5 %) t4s effectors , t4sepre _ joint will predict 220 candidates , 61 % ( 134 / 220 ) among which are true positives .
+in order to further increase the specificity , we suggested the following two strategies as we adopted in h. pylori effector prediction : ( 1 ) combining all the three tools and looking for the effectors predicted by both t4sepre _ joint and at least one other software tool , and ( 2 ) increasing the prediction threshold value to 0.5 or higher. from our observations , the true positives are more often predicted by combining multiple models , and with higher prediction scores .
+therefore , both the strategies should decrease the ratio of false positives in the prediction results .
+the t4s proteins were also predicted from bacteria without known protein - transporting t4sss ( e.g. , s. typhimurium lt2 , additional file 15 : table s8 ) .
+it is not unexpected that some proteins also contain t4s signals in such bacteria .
+lower and schneider [ 29 ] and arnold et al .
+[ 30 ] independently found there were t3s signals in proteins of bacteria without known type iii secretion systems ( t3sss ) .
+in a previous study , we also demonstrated that t3s signals could exist in proteins of gram - negative bacteria without t3sss , gram - positive bacteria and even yeasts [ 27 ] .
+being similar with t3s signals , it makes sense that some proteins in bacteria without protein - delivery t4sss may happen to have t4s signal sequences .
+strictly , a protein containing a t4s signal sequence does not necessarily represent a t4s effector .
+a t4s effector must have the signal sequence , be encoded in a host strain bearing a functional protein - transporting t4ss , and can be co - expressed with t4ss apparatus genes [ 27 ] .
+a tentative hypothesis is , however , as in s. typhimurium lt2 , the number of total proteins with t4s signals in bacteria without protein - transporting t4sss should be much smaller than strains with functional protein - transporting t4sss .
+methods datasets experimentally validated t4s effectors were retrieved from literature and their putative orthologs were extracted from genome annotation files .
+in total , we analyzed 1913 effectors from 10 genera , including agrobacterium , anaplasma , bartonella , bordetella , brucella , coxiella , ehrlichia , helicobacter , legionella and ochrobactrum .
+the t4s signal peptide , i.e. , the c - terminal 100 - aa fragment , was extracted from each effector sequence .
+pairwise alignment was performed for the 100 - aa t4s signal peptides with jaligner implementing smith - waterman algorithm ( http :// jaligner.sourceforge.net /) .
+the ratio between the similarity score of pairwise sequences and self similarity score was calculated .
+conserved paralogs or orthologs were identified when a pair of sequences had an above - stated similarity score ratio higher than 0.30 .
+for each orthologous or paralogous cluster , only one representative was selected as the training sequence .
+this homology - filtering procedure reduced the number of t4s peptides to 347 .
+the non - redundant peptides constitute the positive training dataset .
+non - t4s proteins were randomly selected from the same strains where the positive training sequences were originated , followed by removal of the known t4s effectors and their homologs .
+the c - terminal 100 - aa peptide fragment was also extracted from each non - t4s protein , and the same homology - filtering procedure was performed .
+finally , for each strain , the ratio of non - t4s : t4s peptides was set as 2:1 , and the gc content for encoding nucleotides was generally maintained equal or similar between the two types of sequences ( t4s 40 % vs. non - t4s 41 %) [ 26 ] .
+the 347 t4s and 694 non - t4s sequences constituted final positive and negative dataset , respectively ( additional file 16 : text s2 ) .
+for 5 - fold ( or 10 - fold ) cross - validation , the negative and positive training datasets were pooled as the final training dataset , which was evenly split into five ( or ten for 10 - fold cross - validation ) sub - datasets , each containing the same number of positive / negative samples .
+to observe whether the size of negative dataset influence the classifying prediction performance , another independent negative dataset was prepared ( additional file 10 : text s1 ) .
+the proteins were randomly selected from different bacteria ( from all the bacteria classes listed in ncbi genome database ) .
+the c - terminal 100 amino acids were extracted from each protein , and then a similar homology - filtering strategy was performed to get rid of the known effector homologs and redundant homologs of included negative sequences .
+finally , 2082 non - redundant negative sequences were included ( 6 - fold size of the positive dataset ) .
+these negative sequences were combined with the positive t4s sequences to form an independent training dataset .
+for the new sequences , sse and acc were predicted with the same procedures described before .
+extraction of sequence - based and position - specific aac features sequence - based aac was calculated for each t4s or non - t4s sequence .
+each of the 20 amino acid species was counted for its occurrence within the c - terminal 100 , 50 and 30 positions ( c100 , c50 , and c30 respectively ) .
+an aac frequency vector was obtained for each sequence , and the vectors for all sequences composed a frequency matrix .
+the composition of each amino acid species was compared between t4s and non - t4s sequences with student 's two - tail t - test and a binomial distribution - based statistic test .
+the resulted p - value was further adjusted by bonferroni multiple testing correction [ 35 ] .
+the significance level was set as p < 0.05 for both tests .
+for each amino acid species with significant bias , the log ratio of average composition was calculated between the two types of sequences , which represented the relative advantage of the amino acid composition in t4s ( positive ) or non - t4s ( negative ) sequences , with a larger absolute value for a more striking advantage .
+the bi - residue ( baac ) and tri - residue ( taac ) compositions were calculated with a similar procedure .
+putative and conserved motifs were screened with meme [ 36 ] , followed by an iterative calculation of the frequency of possible motifs derived from single aac , baac or taac preference .
+the position - specific aac features were extracted as follows .
+let vector s = s1 , s2 , s3 ,... , s n denote a peptide sequence in which s represents amino acid while 1 , 2 ,... or i represents position and n represents sequence length .
+for m sequences , the position - specific occurrence of a certain amino acid a is described as : p ( a i ) = f ( a i )/ m i , in which f ( a i ) denotes the frequency of amino acid a at position i. for each position , the p ( a i ) of different amino acids form a position set , and for a sequence s with n amino acids , n values ( extracted from each position set ) comprise a composition vector .
+a binomial distribution b i ( m , p aa ) was modeled for each amino acid species at each position , where p aa was set as p ( a i ) of negative dataset or 1 / 20 ( ideal random situation ) for different comparison purpose .
+a bonferroni - corrected binomial test was performed based on the distribution model to find out the significantly preferred or un - favored amino acids at corresponding position of t4s sequences .
+the significance level was also set as p < 0.05 .
+secondary structure , solvent accessibility and tertiary structure scratch was used to predict the secondary structure ( sse , represented as a combination sequence of ' c ' , ' h ' or ' e ' of each sequence where ' c ' meant coil , ' h ' meant helix and ' e ' meant strand ) and solvent accessibility ( acc , a combination of ' b ' or ' e ' , representing ' buried ' or ' exposed ' respectively ) [ 37 ] .
+tertiary structure of t4s peptides were predicted with i - tasser [ 38 ] .
+the structures with tm - score >= 0.5 were further analyzed for their structural similarity using multiprot [ 39 ] .
+models and performance assessment sequence - based aac features were directly represented by the frequency of each amino acid species (' seq _ aac ') or each bi - residue (' seq _ baac ') .
+the combination of all the ' seq _ aac ' and ' seq _ baac ' features or those significantly preferred / depleted in t4s peptides led to the features of model ' seq _ aac , baac ' or ' seq _ sig ' , respectively .
+the sequence - based joint aac , sse and acc features were extracted with the strategy described in yang et al. , [ 28 ] .
+position - specific single - profile and bi - profile bayesian features were extracted with the same pipeline for the type iii secreted effector prediction model bpbaac [ 26 ] .
+the combination of sequence - based aac and position - specific single - profile aac features formed the features of model ' pos _ aac _ spb + seq _ aac ' .
+position - specific joint aac , sse and acc features were extracted according to wang et al. , [ 27 ] .
+the feature values for each training sequence formed a vector .
+the vectors were further trained with an r package ' e1071 ' implementing svm ( http :// cran.r - project.org ) , with radial basis kernel function .
+the parameters for svm were optimized using grid search based on 10 - fold cross - validation .
+the model performance was evaluated and compared with a five - fold cross - validation and leave - one genus - out strategy [ 26 ] .
+accuracy ( a ) , specificity ( sp ) , sensitivity ( sn ) , receiver operating characteristic ( roc ) curve , the area under roc curve ( auc ) and matthews correlation coefficient ( mcc ) were utilized to assess the predictive performance .
+in the following formula , a denotes the percentage of both positive instances ( t4s ) and negative instances ( non - t4s ) correctly predicted .
+sn ( true positive rate ) and sp ( true negative rate ) , respectively , represent the percentage of positive instances ( t4s ) and the percentage of negative instances ( non - t4s ) correctly predicted .
+an roc curve is a plot of sn versus ( 1 - sp ) and is generated by shifting the decision threshold .
+auc gives a measure of classifier performance .
+mcc takes into account true and false positives and false negatives and is generally regarded as a balanced measure which can be used even if the classes are of very different sizes .
+a = tp + tntp + fp + tn + fn,sp = tntn + fp,sn = tptp + fn,mcc = tpxtn - fnxfptp + fnxtn + fpxtp + fpxtn + fn where , and denote the number of true positives , true negatives , false positives and false negatives , respectively .
+genome - wide prediction of t4s effectors the proteins were deduced from the h. pylori genome ( nc _ 000915 ) and s. typhimurium lt2 ( nc _ 003197 ) dna sequences downloaded from the ncbi genome database .
+the sequences were screened for possible t4s effectors with three independent models in the t4sepre package ( t4sepre _ joint , t4sepre _ bpbaac and t4sepre _ psaac ) .
+the default cutoff svm scores (>= 0.5 ) were adopted for all the three models .
+the standalone t4sepre package could be freely downloaded from the web site : http :// biocomputer.bio.cuhk.edu.hk / softwares / t4sepre / .
+competing interests the authors declare that they have no competing interests .
+authors' contributions yw and sll conceived and designed the project ; yw and xw annotated t4s effectors and control proteins ; yw , xw and hb analyzed the data ; yw developed the models and wrote the software ; yw and sll wrote the manuscript .
+all authors read and approved the final manuscript .
+supplementary material additional file 1 : figure s1 logarithm of aac ratios between t4s and non - t4s c - terminal sequences .
+the different amino acids were listed along the horizontal axis while the length of bars represented the logarithm of composition ratio of the corresponding amino acid .
+three lengths of t4s and non - t4s c - terminal sequences were analyzed , with c100 , c50 and c30 representing c - terminal 100 - aa , 50 - aa and 30 - aa peptides , respectively .
+click here for file additional file 2 : table s1 significantly biased sequential bi - aac .
+click here for file additional file 3 : table s2 motifs in signal sequences of t4s effectors .
+click here for file additional file 4 : figure s2 position - specific aac profiles of t4s and control proteins for c - terminal 100 positions .
+the horizontal axis indicates the c - terminal position number .
+( a ) and ( b ) represent t4s proteins and control proteins , respectively .
+click here for file additional file 5 : table s3 significantly biased position - specific aac .
+click here for file additional file 6 : figure s3 position - specific sse and acc profiles of t4s and control proteins for c - terminal 100 positions .
+the horizontal axis indicates the c - terminal position number .
+( a ) and ( b ) represent the sse of t4s proteins and control proteins , respectively .
+( c ) and ( d ) represent the acc of t4s proteins and control proteins , respectively .
+click here for file additional file 7 : figure s4 3d structure of c - terminal 100aa peptides of t4s effectors .
+( a ) legionella vipe ; ( b ) legionella yp _ 094180.1 ; ( c ) legionella yp _ 094076.1 ; ( d ) coxiella yp _ 001597263.1 ; ( e ) legionella yp _ 094096.1 ; ( f ) legionella yp _ 094157.1 .
+click here for file additional file 8 : figure s5 structural similarity among c - termini of t4s effectors .
+( a ) the structure cluster formed by all the six t4s effectors with high prediction accuracy ( legionella vipe , yp _ 094180.1 , yp _ 094076.1 , yp _ 094096.1 , yp _ 094157.1 and coxiella yp _ 001597263.1 ) ; ( b ) structure alignment between legionella vipe and yp _ 094180.1 ; ( c ) structure alignment between legionella yp _ 094076.1 and coxiella yp _ 001597263.1 ; ( d ) structure alignment among legionella vipe , yp _ 094180.1 , yp _ 094076.1 and coxiella yp _ 001597263.1 .
+click here for file additional file 9 : table s4 optimized parameters for different svm models classifying t4s effectors and control proteins .
+click here for file additional file 10 : text s1 6 - fold negative dataset .
+click here for file additional file 11 : table s5 performance of models classifying t4s effectors and non - effectors ( data size ratio between negative and positive data : 6:1 ; 5 - fold cross validation ) .
+click here for file additional file 12 : table s6 performance of models classifying t4s effectors and non - effectors ( data size ratio between negative and positive data : 6:1 ; 10 - fold cross validation ) .
+click here for file additional file 13 t4sepre package .
+click here for file additional file 14 : table s7 t4ses predicted from h. pylori .
+click here for file additional file 15 : table s8 t4ses predicted from s. typhimurium lt2 .
+click here for file additional file 16 : text s2 training datasets .
+click here for file acknowledgments we want to give our thanks to the two anonymous reviewers for their critical comments and constructive suggestions .
+the work is supported by a national natural science foundation of china ( nsfc81301390 ) to yw , a national natural science foundation of china ( nsfc30970119 ) and a national natural science foundation of china and national institutes of health of usa ( nsfc - nih81161120416 ) to sll .
+alvarez - martinez ce christie pj biological diversity of prokaryotic type iv secretion system microbiol mol biol 2009 15 4 775 808 backert s meyer tf type iv secretion systems and their effectors in bacterial pathogenesis curr opion microbiol 2006 15 207 217 censini s lange c xiang z crabtree je ghiara p borodovsky m rappuoli r covacci a cag , a pathogenicity island of helicobacter pylori , encodes type i - specific and disease - associated virulence factors proc natl acad sci usa 1996 15 14648 14653 8962108 tegtmeyer n wessler s backert s role of the cag - parhogenicity island encoded type iv secretion system in helicobacter pylori pathogenesis febs j 2011 15 1190 1202 21352489 segal g purcell m shuman ha host cell killing and bacterial conjugation require overlapping sets of genes within a 22 - kb region of the legionella pneumophila genome proc natl acad sci usa 1998 15 1669 1674 9465074 vogel jp andrews hl wong sk isberg rr conjugative transfer by the virulence system of legionella pneumophila science 1998 15 873 876 9452389 saenz hl engel p stoeckli mc lanz c raddatz g vayssier - taussat m birtles r schuster sc dehio c genomic analysis of bartonella identifies type iv secretion systems as host adaptability factors nat genet 2007 15 1469 1476 18037886 rhomberg ta truttmann mc guye p ellner y dehio c a translocated protein of bartonella hensela : interferes with endocytic uptake of individual bacteria and triggers uptake of large bacterial aggregates via the invasome cell microbiol 2009 15 927 945 19302579 guglielmini j quintais l garcillan - barcia mp de la cruz f rocha ep the repertoire of ice in prokaryotes underscores the unity , diversity , and ubiquity of conjugation plos genet 2011 15 e1002222 21876676 ding z atmakuri k christie pj the outs and ins of bacterial type iv secretion substrates trends microbiol 2003 15 527 535 14607070 cambronne ed roy cr recognition and delivery of effector proteins into eukaryotic cells by bacterial secretion systems traffic 2006 15 929 939 16734660 ward dv zambryski pc the six functions of agrobacterium vire2 proc natl acad sci usa 2001 15 385 386 11209039 schrammeijer b den dulk - ras a vergunst ac jurado jacome e hooykaas pj analysis of vir protein translocation from agrobacterium tumefaciens using saccharomyces cerevisiae as a model : evidence for transport of a novel effector protein vire3 nucleic acids res 2003 15 860 868 12560481 schroder g krause s zechner el traxler b yeo hj lurz r waksman g lanka e trag - like proteins of dna transfer systems and of the helicobacter pylori type iv secretion system : inner membrane gate for exported substrates ?
+j bacteriol 2002 15 2767 2779 11976307 coers j kagan jc matthews m nagai h zuckman dm roy cr dentification of icm protein complexes that play distinct roles in the biogenesis of an organelle permissive for legionella pneumophila intracellular growth mol microbiol 2000 15 719 736 11115108 hofreuter d odenbreit s puls j schwan d haas r genetic competence in helicobacter pylori : mechanisms and biological implications res microbiol 2000 15 6 487 491 10961464 burstein d zusman t degtyar e viner r segal g pupko t genome - scale identification of legionella pneumophila effectors using a machine - learning approach plos pathog 2009 15 e1000508 19593377 chen c banga s mertens k weber mm gorbaslieva i tan y luo zq samuel je large - scale identification and translocation of type iv secretion substrates by coxiella burnetii proc natl acad sci usa 2010 15 50 21755 21760 21098666 ramarao n gray - owen sd backert s meyer tf helicobacter pylori inhibits phagocytosis by professional phagocytes involving type iv secretion components mol microbiol 2000 15 1389 1404 10998171 fehri lf rechner c janssen s mak tn holland c bartfeld s bruggemann h meyer tf helicobacter pylori - induced modification of the histone h3 phosphorylation status in gastric epithelial cells reflects its impact on cell cycle regulation epigenetics 2009 15 577 586 20081355 vergunst ac schrammeijer b den dulk - ras a de vlaam cm regensburg - tuink tj hooykaas pj virb / d4 - dependent protein translocation from agrobacterium into plant cells science 2000 15 979 982 11062129 simone m mccullen ca stahl le binns an the carboxy - terminus of vire2 from agrobacterium tumefaciens is required for its transport to host cells by the virb - encoded type iv transport system mol microbio 2001 15 1283 1293 vergunst ac van lier mc den dulk - ras a stuve ta ouwehand a hooykaas pj positive charge is an important feature of the c - terminal transport signal of the virb / d4 - translocated proteins of agrobacterium proc natl acad sci usa 2005 15 832 837 15644442 schulein r guye p rhomberg ta schmid mc schroder g vergunst ac carena i dehio c a bipartite signal mediates the transfer of type iv secretion substrates of bartonella henselae into human cells proc natl acad sci usa 2005 15 856 861 15642951 hohlfeld s pattis i puls j plano gv haas r fischer w a c - terminal translocation signal is necessary , but not sufficient for type iv secretion of the helicobacter pylori caga protein mol microbiol 2006 15 1624 1637 16469000 wang y zhang q sun m guo d high - accuracy prediction of bacterial type iii secreted effectors based on position - specific amino acid composition profiles bioinformatics 2011 15 777 84 21233168 wang y sun m bao h zhang q guo d effective identification of bacterial type iii secretion signals using joint elemental features plos one 2013 15 4 e59754 23593149 yang y zhao j morgan rl ma w jiang t computational prediction of type iii secreted proteins from gram - negative bacteria bmc bioinf 2010 15 s1 s47 lower m schneider g prediction of type iii secretion signals in genomes of gram - negative bacteria plos one 2009 15 6 e5917 19526054 arnold r brandmaier s kleine f tischler p heinz e behrens s niinikoski a mewes hw horn m rattei t sequence - based prediction of type iii secreted proteins plos pathog 2009 15 4 e1000376 19390696 samudrala r heffron f mcdermott je accurate prediction of secreted substrates and identification of a conserved putative secretion signal for type iii secretion systems plos pathog 2009 15 4 e1000375 19390620 wang y sun m bao h white ap t3 _ mm : a markov model effectively classifies bacterial type iii secretion signals plos one 2013 15 3 e58173 23472154 hueck cj type iii protein secretion systems in bacterial pathogens of animals and plants micorbiol mol biol rev 1998 15 2 379 433 wang y huang h sun m zhang q guo d t3db : an integrated database for bacterial type iii secretion system bmc bioinf 2012 15 66 dunn oj multiple comparisons among means j am stat assoc 1961 15 52 64 bailey tl elkan c fitting a mixture model by expectation maximization to discover motifs in biopolymers proceedings of the second international conference on intelligent systems for molecular biology 1994 menlo park , california : aaai press 28 36 cheng j randall az sweredoski mj baldi p scratch : a protein structure and structural feature prediction server nuceic acids res 2005 15 w72 w76 zhang y i - tasser server for protein 3d structure prediction bmc bioinf 2008 15 40 shatsky m nussinov r wolfson hj a method for simultaneous alignment of multiple protein structures proteins struct funct bioinf 2004 15 1 143 156

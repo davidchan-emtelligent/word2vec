@@ -1,0 +1,267 @@
+ecol evol ecol evol ece3 ecology and evolution 2045 - 7758 2045 - 7758 john wiley & sons , ltd chichester , uk 26257872 4523355 10.1002 / ece3.1529 original research bemovi , software for extracting behavior and morphology from videos , illustrated with analyses of microbes pennekamp frank 12 schtickzelle nicolas 2 petchey owen l 3 1 institute of evolutionary biology and environmental studies , university of zurichwinterthurerstrasse 190 , zurich , ch - 8057 , switzerland 2 earth & life institute , universite catholique de louvaincroix du sud 4 , louvain - la - neuve , b - 1348 , belgium 3 department of aquatic ecology , eawag : swiss federal institute of aquatic science and technologyuberlandstrasse 133 , dubendorf , ch - 8600 , switzerland correspondence , frank pennekamp , institute of evolutionary biology and environmental studies , university of zurich , winterthurerstrasse 190 , ch - 8057 zurich , switzerland. , tel : + 41 ( 0 ) 44 635 47 64 ; , fax : + 41 ( 0 ) 44 635 57 11 ; , e - mail : frank.pennekamp @ ieu.uzh.ch funding information fp was funded by a ucl - fsr grant and the university of zurich .
+ns is research associate of the f.r.s .
+- fnrs , and acknowledges financial support from arc 10 - 15 / 031 , f.r.s .
+- fnrs and ucl - fsr .
+op has financial support by the university of zurich and swiss national science foundation grant 31003a _ 137921 .
+7 2015 04 6 2015 5 13 2584 2595 23 11 2014 15 4 2015 16 4 2015 ( c ) 2015 the authors .
+ecology and evolution published by john wiley & sons ltd .
+2015 this is an open access article under the terms of the creative commons attribution license , which permits use , distribution and reproduction in any medium , provided the original work is properly cited .
+microbes are critical components of ecosystems and provide vital services ( e.g. , photosynthesis , decomposition , nutrient recycling ). from the diverse roles microbes play in natural ecosystems , high levels of functional diversity result .
+quantifying this diversity is challenging , because it is weakly associated with morphological differentiation .
+in addition , the small size of microbes hinders morphological and behavioral measurements at the individual level , as well as interactions between individuals .
+advances in microbial community genetics and genomics , flow cytometry and digital analysis of still images are promising approaches .
+they miss out , however , on a very important aspect of populations and communities : the behavior of individuals .
+video analysis complements these methods by providing in addition to abundance and trait measurements , detailed behavioral information , capturing dynamic processes such as movement , and hence has the potential to describe the interactions between individuals .
+we introduce bemovi , a package using the r and imagej software , to extract abundance , morphology , and movement data for tens to thousands of individuals in a video. through a set of functions bemovi identifies individuals present in a video , reconstructs their movement trajectories through space and time , and merges this information into a single database .
+bemovi is a modular set of functions , which can be customized to allow for peculiarities of the videos to be analyzed , in terms of organisms features ( e.g. , morphology or movement ) and how they can be distinguished from the background .
+we illustrate the validity and accuracy of the method with an example on experimental multispecies communities of aquatic protists .
+we show high correspondence between manual and automatic counts and illustrate how simultaneous time series of abundance , morphology , and behavior are obtained from bemovi .
+we further demonstrate how the trait data can be used with machine learning to automatically classify individuals into species and that information on movement behavior improves the predictive ability .
+microbial ecology microcosm trait - based ecology video analysis introduction microbes are crucial components of all ecosystems , providing important services such as organic matter decomposition , production of biomass and oxygen , or carbon storage ( kirchman 2012 ) .
+whereas tremendous progress has been made in describing the phenotype of microbes such as their physiology , other aspects of the phenotype such as behavior have progressed at a slower pace ( finlay 2004 ) .
+until recently , this was mainly due to methodological limitations which constrain descriptions of microbes to the population or community level ( kreft et al. 2013 ) .
+while these approaches provided important insights into the functional diversity of microbes , limitations in describing microbes at the individual level would preclude understanding of ecological and evolutionary processes dependent on individual level characteristics , and intraspecific variability in such characteristics ( bolnick et al. 2003 ; deangelis and mooij 2005 ) .
+the same limitations apply to the use of microbial model systems such as protists , which have a long and successful tradition in testing ecological and evolutionary theory ( gause 1934 ; elena and lenski 2003 ; holyoak and lawler 2005 ; kawecki et al. 2012 ; altermatt et al. 2015 ) .
+advances in microbiology have been driven by technological developments ever since antonie van leeuwenhoek invented the compound microscope ( kreft et al. 2013 ) .
+new technologies such as metagenomic studies ( albertsen et al .
+2013 ) , flow cytometry ( muller and nebe - von caron 2010 ) , digital analysis of still images ( schillinger et al .
+2012 ) , and single - cell microbiology ( brehm - stecher and johnson 2004 ) provide insights about the structure and composition of microbial communities , as well as the morphology , function and ecology of microbes at the individual level ( kreft et al. 2013 ) .
+whereas these new technologies are powerful in showing differences among individuals in physiology or morphology , they miss out on an important component of the individual phenotype : behavior .
+behavior is important because it mediates the interaction strength in communities , for instance , between predators and prey ( mcgill and mittelbach 2006 ) with effects on community properties such as stability ( fryxell and lundberg 1998 ) .
+digital video analysis can complement these approaches by providing quantitative descriptions of behavior via automated tracking ( dell et al .
+2014 ) , which is collected at the individual level in addition to abundance and morphological data .
+such methods apply to all types of empirical systems where individuals in the community are characterized by continuous movement , for example , they should work on samples taken in the field and also for micro - and mesocosm systems in laboratory conditions .
+whereas a variety of commercial and open - source software exists to perform tracking ( see supplementary material of dell et al .
+2014 for an overview ) , or to extract morphology and abundance data ( e.g. , daime , schillinger et al .
+2012 ) , the combination of these capabilities is to our knowledge rare .
+some software lacks efficient ways of dealing with large numbers of video files and may be difficult to customize and automate .
+dell et al .
+( 2014 ) give an extensive overview of tracking software and their strengths and weaknesses .
+while previous demonstrations relying on digital image analysis tested and validated work flows aimed at single - species microcosms ( e.g. , mallard et al .
+2013 ; pennekamp and schtickzelle 2013 ) , extending the capability of such systems to more complex communities is required ( gaston and o'neill 2004 ) .
+some success with automatic classification of species was achieved with protists in activated wastewater sludge ( amaral et al .
+2008 ) and with automated systems to analyze abundance and quantify trait distributions during large - scale marine monitoring schemes ( e.g. , zoo / phytoimage : http :// www.sciviews.org / zooimage / , bell and hopcroft 2008 ) .
+these show that such efforts are worthwhile even with challenging field - collected samples .
+to our knowledge , no studies so far used automated video analysis in the context of automated species identification , although branson et al .
+( 2009 ) showed that it was possible to predict the gender and genotype of drosophila flies from their dynamic movement behavior .
+automated video analysis usually consists of three steps : video acquisition , video processing / analysis , and data interpretation ( dell et al. 2014 ) .
+to fulfill the latter two steps , we introduce a new r package , bemovi , and show its validity and scope of application .
+for guidance on the image acquisition step , refer to dell et al .
+( 2014 ) or pennekamp and schtickzelle ( 2013 ) .
+bemovi is an automated digital video processing and analysis work flow to extract abundance , morphological , and movement data for tens to thousands of individuals in a video , hence characterizing a microbial population or community by multiple traits .
+we illustrate how this trait data can be used to predict species identity in a multispecies community , and how the characteristics of the movement improve the predictive ability of the classification model compared to morphological data only .
+we then derive population abundance by counting the individuals of each species and validate these against manual counts of a trained human observer taken simultaneously for both single and multispecies communities .
+description of the bemovi package and its functions the bemovi work flow relies on two freely available , open source , and cross - platform software widely used in the scientific community : r - the statistical computing environment ( r development core team 2012 ) and imagej , a powerful image processing and analysis software ( schneider et al. 2012 ) .
+imagej shows considerably better performance than a native r solution for the video processing steps ( pennekamp and schtickzelle 2013 ) .
+we therefore built bemovi as a set of modular r functions ( table s1 ) calling imagej and reading its output , creating a seamless work flow that deals efficiently with large numbers of video files and merges results into databases for easy analysis .
+additional helper functions are provided to help in setting up and validating the use of bemovi for a specific experimental system .
+bemovi is readily available from github ( https :// github.com / pennekampster / bemovi ) , a solution allowing for easy package upgrading , and has been thoroughly tested on macintosh os x , windows 7 & 8 , and ubuntu linux 14.04 lts .
+additional documentation and a full demonstration of the package can be found at www.bemovi.info .
+bemovi is built to process a directory containing a set of video files shot with identical settings , with three main steps ( table1 ) : ( 1 ) locate , measure , and reconstruct the movement trajectories of individuals in a video ; ( 2 ) merge measurements from all treated videos into a single database to which information on experimental conditions is added ; and ( 3 ) perform basic analyses and validating results .
+table 1 overview of functions provided with the bemovi package .
+functions are ordered according to the analysis flow step function name short description setup check _ video _ file _ names checks whether video files are either of *. avi or *. cxd format check _ threshold _ values assists finding manually an appropriate threshold for image segmentation locate , measure , and reconstruct trajectories locate _ and _ measure _ particles segments and thresholds video by difference image segmentation , then runs particle analysis to locate and measure the morphological properties of each particle on all frames link _ particles reconstructs the movement trajectory of a given particle by linking its coordinates through time and calculates movement metrics such as turning angles and step lengths merge data merge _ data creates a database merging morphology and trajectory information with a description of the experimental design process data summarize _ trajectories summarizes the mean morphology and movement and its variability on the trajectory level filter _ data filters the data , excluding very short , almost non - moving and low detection trajectories validation create _ overlays creates an overlay of the original video and the trajectories identified in the segmentation and tracking steps ; two different visualization options are possible ; if the species was predicted , trajectories can be colored according to the species they were predicted to belong to identify , locate , and measure individuals bemovi includes two functions : locate _ and _ measure _ particles and link _ particles .
+in the first , each single video is split into a stack of images (= frames ) ordered in time ( dell et al .
+2014 ) , and each of these frames is treated sequentially to locate and measure individuals ( function : locate _ and _ measure _ particles ) .
+to discriminate individuals from a background , bemovi uses the dynamic difference image segmentation which is a variant of background subtraction ( pennekamp and schtickzelle 2013 ) .
+the difference in intensity ( gray value ) between the frame to be analyzed and a reference frame at a constant time offset ( e.g. , 25 frames or 1 second later ) is calculated by subtracting the two frames from each other .
+the resulting difference image , which contains only the particles that moved ( i.e. , pixels that changed intensity ) , is then binarized ( i.e. , converted to black and white ) using a user defined threshold .
+both the time offset and the threshold must be carefully adjusted and validated by the user to minimize segmentation errors ( e.g. , immobile individuals are considered background and do not appear in the difference image , or the size and shape of individuals are biased due to partial overlap between the frames used for creating the difference image ) .
+other segmentation approaches such as intensity thresholding or edge detection , which do not suffer from this problem , are compromised by the heterogeneous backgrounds and light conditions common in our experimental system ( microbial microcosm communities ) ( pennekamp and schtickzelle 2013 ) .
+a helper function assists with finding the appropriate threshold ( function : check _ threshold _ values ) .
+binarized images are then analyzed by the particleanalyzer tool of imagej ( this is run automatically from r , within the function locate _ and _ measure _ particles ) , which extracts for each particle , x - and y - position and morphology ( area , mean , minimum and maximum of the gray value , perimeter , width , length , and angle with the dominant axis of a fitted ellipse , circularity , aspect ratio , roundness , and solidity ) ( schneider et al. 2012 ) .
+reconstruct movement trajectories reconstructing movement trajectories ( with function link _ particles ) involves linking the position of each particle through the stack of images .
+the link _ particles function in r uses the mosaic particletracker plug - in for imagej ( sbalzarini and koumoutsakos 2005 ) , which performs both segmentation and tracking in its native form .
+however , the particletracker also allows the input of x - and y - coordinates themselves , having two advantages : ( 1 ) users can use whatever approach they want for segmentation and feed x - and y - positions directly to the link _ particle function , and ( 2 ) linking on x - and y - positions only is more efficient as large variation in size and shape of the individual can hamper the detection in tracking applications ( dell et al. 2014 ) .
+another useful feature of the particletracker is its ability to track simultaneously hundreds of particles in an unrestricted viewing field ( e.g. , particles can move in and out ) , even when some of them miss out on certain frames due to detection problems .
+the algorithm deals with occlusions ( i.e. , when a particle collides with another particle , either individual or debris ) conservatively by interrupting the current trajectory and starting a new one ( sbalzarini and koumoutsakos 2005 ) .
+so far , no attempts are made to recombine partial trajectories due to occlusions .
+recombining tracks after occlusion often implies some assumptions on movements ( e.g. , it is more likely that individuals go straight so recombination is carried out such as minimizing turns at occlusion ) , but such assumptions might afterwards bias the analysis of movement .
+two arguments are required to parameterize the tracking function : the maximum possible displacement of particles between two successive frames and the number of frames over which a particle can be linked if missing on some intervening frame ( s ) .
+they must be carefully validated to avoid errors ( e.g. , creating an erroneous link between different particles if displacement and / or link range are too large , or broken links if they are too small ) .
+after trajectories are reconstructed , movement metrics are computed for each pair of coordinates ( between two frames ) that form an individual trajectory : step length , absolute angle , turning angle , net squared displacement , and gross displacement .
+for a detailed description on the calculation and interpretation of these metrics , refer to textbooks on the quantitative analysis of trajectories such as turchin ( 1998 ) .
+merge measurements from all treated videos into a single database the second step ( i.e. , data merging ) combines the morphology and movement metrics acquired on each video into a single database and links this information with a video description file containing any relevant information on experimental conditions for each video ( e.g. , treatment level , video capture settings ) , using the video file name for merging ( function : merge _ data ) .
+perform basic analyses and validate results in the third step ( i.e. , data processing ) , aggregation of the morphology and movement metrics ( median , mean , and variability ; see table s1 ) is performed on the trajectory level ( each trajectory is given a unique id , that is , a combination of file name and trajectory number ) .
+this averaging over the trajectory will to a certain degree account for errors on cell morphology originating from imperfect segmentation such as described above ( e.g. , individuals partially overlap among the frames used to build the difference image ) .
+in case such problems occur more then only occasionally , this means that the processing has not been parametrized correctly and / or there is some intrinsic flaw in applying bemovi to that set of videos ( e.g. , because no reliable segmentation can be obtained ) .
+to validate the output of bemovi , we suggest using the create _ overlays helper function for visualizing the extracted trajectories .
+this function overlays the original video data with the extracted trajectories , labelled with id , and thus helps troubleshooting erroneous and incomplete tracking results .
+videos in which individuals are not labelled with an id ( i.e. , were not tracked ) , or whose label frequently changes , are indicators that the morphology extraction or the tracking parameters require fine - tuning .
+to distinguish individuals from remaining artefacts ( e.g. , moving debris ) , we provide another function to exclude particles that do not comply with certain minimum requirements , that is , minimum net displacement , trajectory duration , detection rate , and median step length ( function : filter _ data ) .
+materials and methods species and experimental conditions microcosms of protists are widely used model systems in ecology and evolution ( altermatt et al. 2015 ) .
+for the following experiments illustrating the use of the bemovi package , a set of nine small , single - celled ciliates was used : paramecium caudatum , paramecium aurelia , blepharisma japonicum , colpidium striatum , colpidium campylum , cyclidium glaucoma , tetrahymena thermophila , didinium nasutum , and loxocephalus sp. , which show variation in morphology ( giometto et al. 2013 ) as well as in movement behavior ( carrara et al. 2012 ) .
+the aquatic microcosms used followed a similar setup as petchey ( 2000 ) , and for detailed and comprehensive methods , please see altermatt et al .
+( 2015 ) .
+for each experiment , ciliates were cultured in jars of 240 ml volume covered by an aluminum cap to allow air exchange but prevent contamination .
+each jar contained 100 ml of bacterized medium before ciliates were added .
+the medium consisted of protist pellet medium ( carolina biological supplies , burlington , nc ) at a concentration of 0.55 g per liter of chalkley 's medium , as well as two wheat seeds for slow nutrient release .
+the medium was then inoculated with three species of bacteria ( serratia fonticola , brevibacillus brevis and bacillus subtilis ) .
+bacteria were cultured for a day at 37degreesc .
+ciliates were then added to the jars and kept in temperature - controlled incubators at 20degreesc for the remainder of the experiments .
+three experiments were run to test and illustrate the performance and scope of the bemovi package : monocultures of eight ciliate species ( previous list except for didinium nasutum ) were assembled , and videos taken to characterize the variation among species in terms of morphology and movement behavior .
+mono - and mixed cultures of colpidium striatum , didinium nasutum , paramecium caudatum , and tetrahymena thermophila were assembled and ten independent samples assessed by automatic and manual counts , in order to compare the abundances per experimental unit ( the individual microcosm ) .
+colpidium striatum , paramecium caudatum , and tetrahymena thermophila were followed over 28 days in monocultures and mixed cultures by automatic and manual counts ( nine sampling days ) , again to compare these two methods of observation .
+microscope and video setup all videos were taken using a stereomicroscope ( leica m205 c ) with a 25x magnification mounted with a digital cmos camera ( hamamatsu orca c11440 , hamamatsu photonics , japan ) .
+dark field illumination ( led ring light stage controlled by a schott visiled mc 1500 ) was used such that the ciliates , usually transparent in bright field microscopy , appear white on black background ; this greatly facilitates segmentation .
+for details how to setup the hardware for best segmentation results , please refer to pennekamp and schtickzelle ( 2013 ) or dell et al .
+( 2014 ) .
+to sample a culture , we transferred 1 ml of culture into a sedgewick rafter cell ( s52 , spi supplies , westchester , pa ) , which was placed under the microscope objective .
+we took videos at a frame rate of 25 frames per second in the proprietary . cxd format .
+the bemovi package is limited in the video formats and it can currently read (. avi and . cxd , via the bio - formats plug - in ) , but could easily be extended to accommodate any of the many other video formats readable by imagej and the bio - formats plugin ( linkert et al. 2010 ) .
+as tracking parameters , we specified a link range of five frames for all three experiments and a displacement of 20 pixels for experiments 1 and 3 .
+in experiment 2 , a higher displacement of 25 pixels was required to account for the fast moving didinium nasutum .
+trajectories were filtered by the filter _ data function to get rid of artefacts such as spurious trajectories due to moving debris .
+trajectories for analysis were required to show a minimum net displacement of at least 50 mum , a duration of 0.2 sec , and a detection rate of 80 % ( for a trajectory with a duration of 10 frames , the individual has to be detected on at least eight frames ) and a median step length of > 2 mum .
+in open systems where the viewing field is not restricted ( i.e. , individuals can swim in and out of the viewing field ) , automatic counts by bemovi are required on a by - frame basis and then averaged across the whole video .
+this avoids that occlusions resulting in multiple trajectories recorded for a single individual inflate the counts .
+for manual counting , a sample was taken from the culture and manually counted under a dissecting microscope by an experienced experimenter ( as described in altermatt et al. 2015 ) .
+such manual observations , albeit very time - consuming and limited to abundance measurements , are still the most widely used method in experimental micro - and mesocosm studies ( pennekamp and schtickzelle 2013 ) .
+therefore , we chose them as the standard against which to compare the automatic measurements by bemovi .
+however , as an alternative methodology , manually counting individuals on the recorded video would have the advantage of disentangling different sources of error ( e.g. , intersample variability , compensation between false positives and false negatives in the automatic segmentation procedure of bemovi ) .
+it was not chosen here for the following reasons : first , we consider the microcosm , not the sample , as the relevant experimental unit ; second , a specific example may not be particularly informative because different sources of error are likely to vary widely among case studies as they are highly dependent on the video settings , the environment ( amount of debris present ) or the movement behavior of the target species ; third , manual observation of videos , required for quantifying frequencies of different types of error , would be very cumbersome , and also prone to error .
+as we considered the microcosm as the relevant experimental unit for all experiments , we took independent samples for manual and automatic counts ; this has the drawback that samples were not paired , and thus , intersample variability may be confounded with tracking errors .
+however , the intersample variability also affects manual counting and should be overall comparable between methods as sampling is performed in a similar fashion .
+machine learning for automated species identification we used supervised machine learning to train and classify individuals in mixed cultures .
+the random forest ( rf ) classifier is a widely used classification algorithm based on ensembles of decision trees ( breiman 2001 ). by constraining the number of observations and variables included when constructing individual decision trees , trees within an ensemble are decorrelated and the identity assigned to an individual is usually based on the majority vote of the ensemble ( cutler et al. 2007 ) .
+we trained the rf on the properties of individuals from monocultures and consequently used the model to predict species identity in mixed cultures using the same traits but on unidentified individuals .
+we report the classification success ( 1 - out - of - bag error rate ; reported as percentage ) , which states how well the model performs on observations not included in training the model ( i.e. , a cross - validation ) .
+results information on traits exhibited by individuals in a mixed community is usually used to predict their species identity as long as sufficient differences in trait space exist ( gorsky et al. 2010 ) .
+figure1 shows the differences in two morphological traits ( cell perimeter and aspect ratio ) among eight species grown separately in monocultures in experiment 1 .
+some species , such as paramecium caudatum and paramecium aurelia , show considerable morphological overlap , whereas many species occupy quite distinct areas of the morphological trait space , aiding in their automatic classification .
+comparing manual cell length measurements collected from the literature and online sources with those measured by bemovi , we found a strong positive correlation ( r2 = 0.85 , p < 0.01 , see fig. s1 ) , illustrating the correspondence between manual and automatic trait measurements .
+on average , we reached a classification success of 84 % in our study ; however , species overlapping strongly in trait space were impossible to distinguish , resulting in a complete failure to predict the identity correctly ( see p. caudatum and p. aurelia ) .
+figure2 shows species classification based on morphological traits , with higher misclassification of morphologically similar species , that is , 37 % of known colpidium campylum got identified as tetrahymena thermophila , whereas 19 % of known t. thermophila were misclassified as c. campylum .
+when the movement characteristics were considered in addition to morphology , classification success increased about 5 % to an average of 89 % , with a decrease in classification error by 18 % in tetrahymena and by 8 % in colpidium ( fig. 2 ) .
+highly similar species such as p. caudatum and p. aurelia , however , remain indistinguishable even after adding movement traits .
+figure 1 morphological characteristics of eight ciliate species : cell perimeter and aspect ratio ( major axis / minor axis of a fitted ellipse ) .
+figure 2 confusion matrices between eight ciliate species to illustrate the improved classification success when both morphology and movement features are considered (> 89 %) , compared to morphology only ( 84 %) .
+the lower panel shows the differences in classification success between the two models .
+along the diagonal , increases in the proportion of correctly classified species are positive , indicating higher rates of successful classification , whereas off the diagonal , negative differences indicate decreasing classification error ( fewer individuals are misclassified into an incorrect species ) .
+in the second experiment , four ciliate species ( t. thermophila , p. caudatum , colpidium striatum , and didinium nasutum ) were grown in mono - and mixed cultures , with the aim to compare automatic ( using bemovi ) and manual counts .
+because the four species used in this experiment are well separated in trait space , the out - of - bag classification error of the training model was < 2 % .
+we separately took 10 samples from each culture to assess the total amount of variability associated with sampling abundances .
+automatic and manual counts showed high correspondence , regardless whether mono - and mixed cultures ( containing all three ciliate species in the same microcosm ) were considered ( fig. 3 , r2 : 0.94 and 0.94 , mono - and mixed cultures , respectively ) .
+the among - sample variability was overall similar between the two counting methods .
+figure 3 comparison of manual and automatic estimates of population abundance in single ( dashed bars ) and mixed species cultures ( solid bars ) .
+the +/ - 1 std error bars are calculated for the 10 repeated samples from each species and cultures ( monocultures and mixed cultures ) for manual and automatic counts .
+the dashed line indicates the 1:1 line .
+a barplot is used instead of showing the data point - by - point because the 10 samples for each treatment were not paired , that is , counting was not made on the same sample but rather on the same experimental unit ( the microcosm ) .
+in experiment 3 , we followed mono - and mixed cultures ( containing all three species ) for a period of 28 days and obtained species identification and estimation of abundance both automatically and manually .
+both methods captured very well the monoculture growth dynamics of p. caudatum , c. striatum , and t. thermophila ( fig. 4 ) .
+although t. thermophila showed some discrepancy between the methods , overall both were closely correlated ( r2 : 0.86 ) .
+importantly , bemovi succeeded in automatically identifying the abundance of the three species when cultured together in a mixed culture , closely matching the counts of a trained human observer .
+furthermore , cell size dynamics ( fig. 5 ) illustrate the ability of bemovi to capture trait dynamics .
+over the first twenty days , c. striatum and t. thermophila decreased in size , whereas p. caudatum remained rather stable .
+after a resource pulse ( replacement of 50 % of the medium ) on day 20 , cell sizes increased .
+figure6 shows how a dynamic trait such as movement speed changes during the 28 day experiment .
+the species show stronger overlap in movement speed than in size , but the distribution of speed seems more stable through time and unaffected by the resource pulse on day 20 .
+such patterns demonstrate the potential of bemovi in trait - based community ecology , although deep analysis of the patterns illustrated here is beyond the scope of this article .
+figure 4 population dynamics of three species of ciliates given by manual and automatic counting ( fitted lines are local polynomial regressions ) to illustrate the general growth dynamics .
+the mixed culture contains a combination of the three species used in the monocultures ( colpidium striatum , paramecium caudatum , tetrahymena thermophila ) .
+figure 5 body size changes through time ( from first row to last row ) in the mono - and mixed cultures during the experiment .
+at day 20 , the medium was partly replaced by fresh medium perturbing the mono - and mixed cultures .
+both axes are on log10 scaling .
+figure 6 changes in movement speed through time ( from first row to last row ) in the mono - and mixed cultures during the experiment .
+at day 20 , the medium was partly replaced by fresh medium perturbing the mono - and mixed cultures .
+both axes are on log10 scaling .
+discussion microbes are important for all the ecosystems on the planet , but are still mostly studied at the population or community level .
+this contrasts with the notion that ecological processes can be influenced by variation among individuals and that descriptions on the population or community level require incorporation of such differences ( bolnick et al. 2003 ; deangelis and mooij 2005 ) .
+recent technological advances allow study of microbes at the individual level and discovery of whether variation among individuals is as important for microbes as for larger animals and plants ( kreft et al. 2013 ) .
+the video analysis work flow we presented here complements techniques such as flow cytometry and metagenetic approaches , because it allows to study the behavior of microbes within populations and communities in situ .
+characterizing behavior may thus reveal unrecognised functional diversity , previously masked by low morphological and potentially genetic differentiation .
+bemovi shares the advantages of other automated image analysis systems : ( 1 ) results ( videos ) can be stored for later analysis or re - analysis , ( 2 ) use of a computer reduces observer bias , ( 3 ) video acquisition is usually faster than manual counts and the effort is constant regardless of community complexity , whereas manually counting complex communities can be very time - consuming ( pennekamp and schtickzelle 2013 ) .
+for illustration , an experiment including all pairwise combinations of six species required nine person - hours to count a total of 108 microcosms .
+in comparison , video acquisition was achieved in about 2.5 h and subsequent video processing by bemovi taking an additional 2 h. it is important to note , however , that setup and validation of such a system require initial time investment .
+moreover , very complex videos , with many individuals (> 1000 ) , may also take considerable time to process ( e.g. , several hours for a single video ) .
+still , given that nearly no intervention by humans is needed , the gains in real working time are considerable .
+in addition , the work flow presented here extracts far more information than manual observation because multiple traits are collected simultaneously with no extra effort .
+in contrast to manual observations , automatic classification of species by random forest classification based on the output of bemovi allows users to quantify classification uncertainty .
+classifications of individuals below a certain threshold could be flagged as " uncertain " or measures of classification error integrated in the statistical inference framework .
+a prerequisite for robust results of bemovi requires to compare its output against standard methods to quantify abundance or traits in a particular study system .
+whereas we quantified the correspondence of manual and automatic counts , one could also have manually counted individuals on the videos recorded .
+this would allow to specifically disentangle the different sources of variability in automatic counts .
+whereas we chose to compare results on the level of the microcosm , bemovi does not prevent users to choose different standards , especially if one is interested in integrating the sampling process in a state - space model ; this is likely part of the necessary validation when applying bemovi ( as any automated analysis approach ) to a particular experimental system , that only the individual experimenter can perform on his / her data in the appropriate way given the system peculiarities .
+whereas the random forest algorithm provided low classification error in the smaller communities ( three species ) , in the more complicated case of eight species with strong imbalance in the availability of individuals for training the algorithm , classification success was variable among classes .
+in particular , the complete misclassification of p. aurelia , although not unexpected due to the working of the random forest , warrants future improvements .
+indeed , in random forest classification , under - represented classes may get lumped into the majority class if they are not easily distinguished , as is the case of p. aurelia and p. caudatum .
+however , note that this is not the case for blepharisma for which only few individuals are available as well , but which gets classified very reliably .
+this behavior is due to the way the random forest classification works , which tries to minimize the impurities in the nodes ( cutler et al. 2007 ) .
+minority classes may overall cause negligible impurities ( especially if imbalance is strong ) , although every case is misclassified .
+random forest classification is only one among multiple classification methods with specific advantages and disadvantages .
+however , the automatic classification of species is not a feature of bemovi ( i.e. , there are no dedicated functions to perform this task ) , but rather a proof - of - concept that bemovi can provide the data allowing for species recognition , using random forest as an example of statistical analysis for such a goal .
+we suggest users dealing with these problems may use classification techniques better able to deal with large imbalances , for instance , naive bayes or support vector machines that take information about the relative abundance of classes into account .
+some limitations need to be considered when using bemovi .
+first , the tracking of individuals is performed in two dimensions , although the environment may be often three dimensional .
+whereas this may be largely representative for organisms living on a plane ( such as ground - dwelling insects for instance ) , for others such as aquatic organisms this simplification may be problematic for extrapolating the measured movement in the 3d environment .
+several studies show , however , that 2d tracking successfully predicts spread rates even in higher dimensional systems ( giometto et al. 2014 ; pennekamp 2014 ) .
+complex environments with many physical obstacles ( e.g. , debris particles in our medium ) prevent reliable tracking in three dimensions , because individuals may be frequently invisible to one of the three required cameras .
+nevertheless , rapid development of software and hardware will ultimately lead to systems performing 3d tracking ( dell et al. 2014 ) .
+another limitation , which applies to video tracking in general , is the occurrence of occlusions , that is , when a particle collides with another particle ( individual or debris ) ( dell et al. 2014 ) .
+this can result in errors and their propagation when identifying individuals ( e.g. , in studies of collective movement and social interactions in a swarm of animals ) .
+some recently developed tracking algorithms such as the idtracker ( perez - escudero et al. 2014 ) or the ctrax software ( branson et al .
+2009 ) can deal with such situations using powerful " fingerprinting " techniques to keep track of individuals or including probabilistic models , which predict the position after the occlusion , and therefore may be able to maintain the individual identity .
+due to the large numbers of individuals tracked simultaneously , the use of computationally intensive " fingerprinting " or manual verification are currently not suited to the goals of bemovi .
+however , given that the work flow is highly modular , another tracking software could easily replace the plug - in used and therefore extend for 3d tracking or having more power in maintaining individual identities .
+the same applies for the segmentation approach which is currently the dynamic difference image .
+bemovi will read and process data regardless of the segmentation method , as long it is provided in the format used by the package .
+so far , bemovi has no functionality to deal with clustering individuals ( e.g. , colonies ) .
+if these move as a cluster , they will be counted as one individual .
+because bemovi was designed for communities of multiple species , splitting clusters automatically is a much harder problem than the single - species case , where size - based rules can be used ( e.g. , pennekamp and schtickzelle 2013 ) .
+the watershed algorithm may have potential for improvement ( roerdink and meijster 2000 ) ; however , if light conditions are heterogeneous and shapes of species differ considerably , the danger of oversplitting and splitting of non - clusters needs to be carefully evaluated .
+extending and improving the functionality of bemovi is a long - term goal facilitated by the availability of the source code on the community coding platform github .
+finally , bemovi is not intended as a tool for microbiologists to screen for new species but rather to work either on communities in which species are known to differ in morphology and movement , or in natural communities where researchers want to gain information on size distributions and movement related traits ( regardless of taxonomy ) .
+dell et al .
+( 2014 ) conclude their review on automated video analysis in ecology with a call to developers .
+they ask for video analysis systems that are easy to use , do not require marking of individuals , are flexible to work with in a variety of experimental settings and with different organisms , allow tracking of a large number of individuals simultaneously , overcome significant data management issues , and are mostly automated .
+we believe bemovi is a promising step in this direction and will allow biologists to follow new and exciting research lines such as the effects of intraspecific and interindividual variation for ecological and evolutionary dynamics .
+furthermore , although we tested utility for microbes , it is likely that bemovi will be useful for analyzing any objects moving against a relatively stationary background .
+for example , insects or birds on a surface could be tracked and analyzed , and it might even be possible to track and count birds flying in the sky or fish in the sea ( although movement data would need to be treated with caution , given the 2d constraint of bemovi ) .
+we thank s. vader ( uk.linkedin.com / in / shawnvader ) for creating the standalone particlelinker and the mosaic group ( max planck institute of molecular cell biology and genetics , dresden ) for developing the particletracker plug - in in imagej .
+fp was funded by a ucl - fsr grant and the university of zurich .
+ns is research associate of the f.r.s .
+- fnrs and acknowledges financial support from arc 10 - 15 / 031 , f.r.s .
+- fnrs and ucl - fsr .
+op has financial support by the university of zurich and swiss national science foundation grant 31003a _ 137921 ( to op ) .
+work by fp and ns is referenced under number brc337 at the biodiversity research centre of universite catholique de louvain .
+conflict of interest none declared .
+references albertsen m hugenholtz p skarshewski a nielsen kl tyson gw nielsen ph genome sequences of rare , uncultured bacteria obtained by differential coverage binning of multiple metagenomes nat. biotechnol 2013 31 533 538 23707974 altermatt f fronhofer ea garnier a giometto a hammes f klecka j big answers from small worlds : a user 's guide for protist microcosms as a model system in ecology and evolution methods ecol .
+evol 2015 6 218 231 amaral al ginoris yp nicolau a coelho m ferreira ec stalked protozoa identification by image analysis and multivariable statistical techniques anal. bioanal .
+chem 2008 391 1321 1325 18327573 bell jl hopcroft rr assessment of zooimage as a tool for the classification of zooplankton j. plankton res 2008 30 1351 1367 bolnick di svanback r fordyce ja yang lh davis jm hulsey cd the ecology of individuals : incidence and implications of individual specialization am. nat 2003 161 1 28 12650459 branson k robie aa bender j perona p dickinson mh high - throughput ethomics in large groups of drosophila nat. methods 2009 6 451 457 19412169 brehm - stecher bf johnson ea single - cell microbiology : tools , technologies , and applications microbiol. mol. biol .
+rev 2004 68 538 559 15353569 breiman l random forests mach .
+learn 2001 45 5 32 carrara f altermatt f rodriguez - iturbe i rinaldo a dendritic connectivity controls biodiversity patterns in experimental metacommunities proc .
+natl acad .
+sci 2012 109 5761 5766 22460788 cutler dr edwards tc beard kh cutler a hess kt gibson j random forests for classification in ecology ecology 2007 88 2783 2792 18051647 deangelis dl mooij wm individual - based modeling of ecological and evolutionary processes annu. rev. ecol. evol .
+syst 2005 36 147 168 dell ai bender ja branson k couzin id de polavieja gg noldus lpjj automated image - based tracking and its application in ecology trends ecol .
+evol 2014 29 417 428 24908439 elena s lenski r evolution experiments with microorganisms : the dynamics and genetic bases of adaptation nat. rev .
+genet 2003 4 457 469 12776215 finlay bj protist taxonomy : an ecological perspective philos. trans .
+r soc. lond .
+b biol .
+sci 2004 359 599 610 15253347 fryxell jm lundberg p individual behavior and community dynamics 1998 london chapman & hall gaston kj o'neill ma automated species identification : why not ?
+philos. trans .
+r soc. lond .
+b biol .
+sci 2004 359 655 667 15253351 gause gf the struggle for existence 1934 baltimore williams & wilkins giometto a altermatt f carrara f maritan a rinaldo a scaling body size fluctuations proc .
+natl acad .
+sci 2013 110 4646 4650 23487793 giometto a rinaldo a carrara f altermatt f emerging predictable features of replicated biological invasion fronts proc .
+natl acad .
+sci 2014 111 297 301 24367086 gorsky g ohman md picheral m gasparini s stemmann l romagnan jb digital zooplankton image analysis using the zooscan integrated system j. plankton res 2010 32 285 303 holyoak m desharnais ra lawler s the contribution of laboratory experiments on protists to understanding population and metapopulation dynamics population dynamics and laboratory ecology 2005 london academic press 245 272 kawecki tj lenski re ebert d hollis b olivieri i whitlock mc experimental evolution trends ecol .
+evol 2012 27 547 560 22819306 kirchman dl processes in microbial ecology 2012 oxford , new york oxford univ. press kreft ju plugge cm grimm v prats c leveau jhj banitz t mighty small : observing and modeling individual microbes becomes big science proc .
+natl acad .
+sci 2013 110 18027 18028 24194530 linkert m rueden ct allan c burel jm moore w patterson a metadata matters : access to image data in the real world j. cell biol 2010 189 777 782 20513764 mallard f le v bourlot tully t an automated image analysis system to measure and count organisms in laboratory microcosms plos one 2013 8 e64387 23734199 mcgill bj mittelbach gg an allometric vision and motion model to predict prey encounter rates evol. ecol .
+res 2006 8 691 701 muller s nebe - von caron g functional single - cell analyses : flow cytometry and cell sorting of microbial populations and communities fems microbiol .
+rev 2010 34 554 587 20337722 pennekamp f swimming with ciliates : dispersal and movement ecology of tetrahymena thermophila 2014 louvain - la - neuve , belgium universite catholique de louvain dissertation .
+pennekamp f schtickzelle n implementing image analysis in laboratory - based experimental systems for ecology and evolution : a hands - on guide methods ecol .
+evol 2013 4 483 492 perez - escudero a vicente - page j hinz rc arganda s de polavieja gg idtracker : tracking individuals in a group by automatic identification of unmarked animals nat. methods 2014 11 743 748 24880877 petchey o prey diversity , prey composition , and predator population dynamics in experimental microcosms j. anim .
+ecol 2000 69 874 882 r development core teamr : a language and environment for statistical computing 2012 vienna , austria r foundation for statistical computing roerdink jbtm meijster a the watershed transform : definitions , algorithms and parallelization strategies fundam .
+inform 2000 41 187 228 sbalzarini i koumoutsakos p feature point tracking and trajectory analysis for video imaging in cell biology j. struct .
+biol 2005 151 182 195 16043363 schillinger c petrich a lux r riep b kikhney j friedmann a co - localized or randomly distributed ?
+pair cross correlation of in vivo grown subgingival biofilm bacteria quantified by digital image analysis plos one 2012 7 5 e37583 22655057 schneider ca rasband ws eliceiri kw nih image to imagej : 25 years of image analysis nat. methods 2012 9 671 675 22930834 turchin p quantitative analysis of movement : measuring and modeling population redistribution in animals and plants 1998 sunderland sinauer associates supporting information additional supporting information may be found in the online version of this article : video s1 .
+video footage of microcosm sample in counting chamber .
+video s2 .
+overlay video showing the individuals identified by bemovi and their respective trajectory labels .
+video s3 .
+overlay video showing the individuals of two ciliate species with different colour codes and their respective trajectory labels .
+table s1 .
+overview of traits / measures used in the automatic classification of species .
+figure s1 .
+positive correlation between ciliate cell length measurements ( collected from literature and online resources ) and cell length measured by bemovi .

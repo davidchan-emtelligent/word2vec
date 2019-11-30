@@ -1,0 +1,352 @@
+sensors ( basel ) sensors ( basel ) sensors ( basel , switzerland ) 1424 - 8220 molecular diversity preservation international ( mdpi ) 22454570 3312428 10.3390 / s90806028 sensors - 09 - 06028 article mcbt : multi - hop cluster based stable backbone trees for data collection and dissemination in wsns shin inyoung 1 kim moonseong 2 * mutka matt w .
+2 choo hyunseung 3 lee tae - jin 3 1 convergence lab .
+digital media & communications r & d center , samsung electronics , korea ; e - mail : inyoung.shin @ gmail.com 2 department of computer science and engineering , michigan state university , usa ; e - mails : mkim @ msu.edu ; mutka @ cse.msu.edu 3 school of information and communication engineering , sungkyunkwan university , korea ; e - mails : choo @ ece.skku.ac.kr ; tjlee @ ece.skku.ac.kr * author to whom correspondence should be addressed ; e - mail : mkim @ msu.edu ; tel. : + 82 - 31 - 290 - 7145 / 7226 ; fax : + 82 - 31 - 299 - 4134 2009 29 7 2009 9 8 6028 6045 26 6 2009 9 7 2009 17 7 2009 ( c ) 2009 by the authors ; licensee mdpi , basel , switzerland 2009 this article is an open access article distributed under the terms and conditions of the creative commons attribution license ( http :// creativecommons.org / licenses / by / 3.0 /) .
+we propose a stable backbone tree construction algorithm using multi - hop clusters for wireless sensor networks ( wsns ) .
+the hierarchical cluster structure has advantages in data fusion and aggregation .
+energy consumption can be decreased by managing nodes with cluster heads .
+backbone nodes , which are responsible for performing and managing multi - hop communication , can reduce the communication overhead such as control traffic and minimize the number of active nodes .
+previous backbone construction algorithms , such as hierarchical cluster - based data dissemination ( hcdd ) and multicluster , mobile , multimedia radio network ( mmm ) , consume energy quickly .
+they are designed without regard to appropriate factors such as residual energy and degree ( the number of connections or edges to other nodes ) of a node for wsns .
+thus , the network is quickly disconnected or has to reconstruct a backbone .
+we propose a distributed algorithm to create a stable backbone by selecting the nodes with higher energy or degree as the cluster heads .
+this increases the overall network lifetime .
+moreover , the proposed method balances energy consumption by distributing the traffic load among nodes around the cluster head .
+in the simulation , the proposed scheme outperforms previous clustering schemes in terms of the average and the standard deviation of residual energy or degree of backbone nodes , the average residual energy of backbone nodes after disseminating the sensed data , and the network lifetime .
+multi - hop cluster backbone load balancing energy efficient routing network lifetime 1 .
+introduction wireless sensor networks ( wsns ) have a wide range of potential applications , including environment monitoring , military surveillance , and remote medical systems [ 1 ] .
+the energy - efficient routing has become a key issue attracting recent interest , since the battery of nodes is the most critical limiting factor [ 2 - 5 ] .
+power failure of a node affects its ability to forward the data packets of others as well as sending its own messages .
+thus , the overall network lifetime will be seriously reduced .
+for this reason , extensive research has focused on how to prolong the network lifetime [ 6 - 12 ] .
+much of the research on energy efficient routing for wsns has several drawbacks .
+a single - hop clustering algorithm [ 13 ] can reduce energy consumption since only a fraction of the nodes , called cluster heads , communicate with the sink in one hop .
+however , a single - hop clustering algorithm is impractical , because nodes at a distance greater than one hop from the sink do not have adequate transmission power to communicate with the sink [ 14 ] .
+although the multi - hop model would be a more practical approach to solve this problem , it can increase communication overhead and costs required to obtain the routing information in large - scale networks .
+in view of these issues , routing through a backbone reduces communication overhead and overall energy consumption for wsns [ 15 - 17 ] .
+however , backbone nodes require extra functionality and therefore consume more energy compared with other nodes in the network .
+unbalanced energy consumption among the sensor nodes may cause network partition and node failures where transmission from some sensors to the sink node becomes blocked .
+therefore , construction of a stable backbone is one of the challenges in sensor network applications [ 2 ] .
+definition 1 ( d - hop cluster ) - the d - hop cluster is the set of nodes that are at most d hops away from a cluster head .
+each cluster has one cluster head and several cluster gateways and cluster members .
+hierarchical cluster - based data dissemination ( hcdd ) [ 18 ] applies a backbone construction algorithm for wireless ad hoc networks , such as max - min d - cluster [ 19 ] , to wsns .
+the max - min d - cluster diffuses node ids to neighbors and each node selects the cluster head within a maximum d - hop to transmit data efficiently .
+note that backbone construction for ad hoc networks is not considered energy consumption .
+therefore , this scheme is inadequate for wsns that are sensitive to energy .
+the residual energy in wsns changes based on data transmission .
+moreover , the degree of the node could decrease due to energy exhaustion .
+in the frequently changing network topology , we need to use a routing method that reflects the current network conditions , such as residual energy and degree , rather than using fixed node ids .
+the max - min d - cluster forms clusters based on a pre - allocated id , so there is a high probability of selecting the same node again as a cluster head when attempting to form new clusters .
+this characteristic decreases the transition overheads when old cluster heads give routing information to new cluster heads .
+however , the disadvantages are that the energy consumption of specific nodes increases since the same nodes are repeatedly selected .
+therefore , in this paper , we present a novel algorithm to form a multi - hop cluster based stable backbone trees , called mcbt .
+this algorithm is appropriate for dynamic sensor networks by reflecting the network conditions such as residual energy and degree .
+it selects nodes with higher energy or degree as the cluster heads in order to prolong the network lifetime .
+moreover , mcbt balances the energy consumption by distributing the packet transmission role among the nodes around the cluster head .
+this paper is organized as follows : in section 2 , the major routing techniques are introduced and discussed .
+section 3 presents our stable backbone formation scheme for wsns .
+the performance of mcbt is evaluated in section 4 .
+finally , we conclude with the main findings and contributions of our research in the last section .
+2. related work 2.1 .
+traditional energy efficient routing protocols in the single - hop communication model , each sensor node communicates with the cluster head within a single - hop , and the cluster head transfers the sensed data directly to the sink ( base station ) .
+low energy adaptive clustering hierarchy ( leach ) [ 6 ] is a cluster based protocol that randomly rotates cluster heads to evenly distribute the energy load among the sensor nodes in the network .
+leach is able to incorporate data fusion into the routing protocol to reduce the amount of information that must be transmitted to the sink .
+this largely reduces the energy dissipated since the computation requires a negligible amount of energy compared with communication .
+leach uses single - hop routing where the cluster head transmits directly to the sink .
+however , this is infeasible in large scale sensor networks comprised of thousands of sensor nodes , due to the limited transmission power of sensor nodes .
+the multi - hop communication model [ 20 , 21 ] is a more practical approach to solve this problem .
+in this model , data hops from one node to another until it reaches the sink .
+in view of the limited transmission range of the sensor nodes , this is a viable approach and most nodes can connect and transmit their packets to the sink .
+therefore , the coverage area of the sensor nodes and the sink in this model is an improvement over the single - hop model .
+sensor protocols for information via negotiation ( spin ) [ 20 ] efficiently disseminates information in a multi - hop manner .
+nodes running spin assign a high - level name to their data , called meta - data , and perform meta - data negotiations before any data is transmitted .
+this assures that there is no redundant data sent throughout the network .
+in addition , spin has access to the current energy level of the node and adapts the protocol for wsns .
+however , since all nodes participate in the route discovery phase , the multi - hop routing protocols may cause data communication problems , such as broadcasting storm and unnecessary communication overhead .
+consequently , applying these approaches to large - scale sensor networks might considerably increase the overhead and associated costs .
+2.2 .
+routing protocols through a backbone routing through a backbone is restricted in a set of particular nodes to reduce the communication overhead for route discovery and the number of active nodes for wsns .
+a typical approach for backbone formation is to partition the network into clusters consisted of cluster heads and ordinary nodes .
+the cluster heads are then linked to form the connected backbone .
+several approaches have been presented to select the cluster heads and construct the clusters .
+the optimal selection of cluster heads is an np - hard problem [ 22 ] , thus many heuristic methods have been designed for approximate solutions .
+the clustering phase of heuristics can be done in both centralized and distributed ways .
+in our work , we are interested in the network clustering of large - scale distributed systems .
+the challenge is to partition the network in an efficient and distributed manner , i.e. , to design an effective distributed clustering protocol .
+such protocols include ( i ) highest connectivity cluster algorithm and ( ii ) highest - id or lowest - id cluster algorithm .
+the highest connectivity cluster algorithm of mmm [ 23 ] creates the clusters to consider the node 's connectivity .
+nodes with the highest connectivity are elected as cluster heads .
+in the case of a tie , the node with the lowest id prevails .
+other nodes will be members of the nearest cluster head .
+however , this approach can result in a high turnover of cluster heads as the network topology changes , which is undesirable due to the high overhead associated with cluster heads changeover .
+the lowest - id cluster algorithm of mmm creates the clusters using the unique ids of the nodes .
+the lowest - id node among neighbors is elected as the cluster head .
+other nodes could be organized using the same process of the highest connectivity cluster algorithm of mmm .
+hcdd applies the backbone construction algorithm for wireless ad hoc networks , such as max - min d - cluster , to wsns .
+it forms d - hop clusters using the node id. the d - hop cluster method is efficient for large - scale networks because it generates an appropriate number of cluster heads and the sensed data is transmitted in a multi - hop manner .
+the max - min d - cluster balances the load of the cluster heads by allocating a similar number of nodes in each cluster .
+however , there are many characteristics in wsns , such as limited node resources , battery dependency and data fusion .
+thus , this method cannot be applied to a realistic sensor environment .
+the max - min d - cluster algorithm forms clusters using a randomly allocating node id. it has a tendency to re - elect existing cluster heads when it reconstructs the backbone .
+in spite of having a heavier load than that of the ordinary node , the cluster head will consume energy quickly if it has low energy .
+as a result , the network is easily disconnected or must form a new backbone .
+the max - min d - cluster algorithm may be suitable for ad hoc networks in which nodes have high energy and higher mobility .
+however , when we apply it to wsns , it needs to form a backbone considering appropriate factors , rather than considering the fixed node id .
+3. multi - hop cluster based stable backbone trees ( mcbt ) 3.1 .
+motivation and new factor backbone nodes consume more energy than ordinary nodes .
+it is important to form a stable backbone by taking into account the node 's residual energy and degree in order to prolong the network lifetime .
+mcbt constructs a stable backbone by selecting nodes with higher energy or degree as the cluster heads and distributes the role of packet forwarding among nodes around the cluster heads to enhance the network lifetime .
+in this paper , we consider a new factor : the flooding value .
+using the flooding value , we can simultaneously consider the residual energy and degree , which are the core factors to evaluate the stability of the sensor node .
+if the node has high residual energy and degree , it has a high flooding value .
+definition 2 ( round ) - round is the stage in which each node exchanges flooding values with 1 - hop neighbors , and chooses the flooding value among its own and the neighbors' flooding values .
+round 0 is the computation step of the flooding value and mcbt performs the ( 2d + 1 ) rounds to form the d - hop clusters .
+definition 3 ( floodingarray ) - floodingarray is the ( 2d + 1 ) sized array to record the selected flooding value for each round .
+the first element of floodingarray is the flooding value in round 0 .
+flooding values selected from round 1 to round 2d are sequentially recorded in the array .
+each node exchanges the flooding values with its neighbors for 2d rounds to form d - hop clusters and selects the node with higher flooding value as the cluster head .
+in each round , all nodes broadcast the flooding values selected in the previous round to their 1 - hop neighbors and select one value by comparing among its own flooding value and the flooding values received from neighbors .
+this process is repeatedly performed for 2d rounds .
+the algorithm selects the nodes with a higher flooding value as cluster heads , applying the cluster head selection rule based on all values saved in floodingarray .
+using the following criterion , the flooding value takes both the node 's residual energy and degree into account : ( 1 ) f ( i,omega )= omega ( ereseini )+( 1 - omega )( degimaxjinsi ( degj )) where si is a set of neighbors of node i including itself .
+let f ( i , omega ) denote the flooding value of the node i ; omega is the weight factor that adjusts the priority and omega in [ 0 , 1 ] .
+a large omega gives more weight to the node 's residual energy than its degree .
+eini is the initial energy of a node and eres is the residual energy of the node i. the degi is the number of nodes that are within the node i 's transmission range , namely its neighbors .
+the maxjinsi ( degj ) is the maximum degree among its own degree and the degrees of the neighbors of the node i. note that ereseiniin [ 0 , 1 ] and degimaxjinsi ( degj ) in ( 0 , 1 ] .
+suppose ereseini remains constant ; in this case , the flooding value increases when the degree increases .
+on the contrary , suppose degimaxjinsi ( degj ) and eini are constant ; then , the flooding value increases as eres increases .
+3.2 .
+the clustering algorithm the proposed cluster formation consists of three steps .
+first , each node calculates its own flooding value in round 0 , as mentioned in the previous subsection , and maintains the ( 2d + 1 ) sized floodingarray .
+second , this is followed by the floodmax and floodmin stage ; each stage is performed for d rounds in which each node propagates the flooding value to its d - hop neighbors .
+the elements from 1st to dth in the floodingarray are the selected the flooding values in floodmax and the rest from ( d + 1 ) th to ( 2d ) th in floodingarray are the selected flooding values in floodmin .
+finally , after floodmax and floodmin , each node looks at the all elements in floodingarray to best determine its cluster head .
+the detailed procedures of floodmax and floodmin in the second step are as follows : definition 4 ( floodmax - i ) - in round i ( 1 <= i <= d ) of floodmax - i , each node broadcasts its flooding value in the round ( i - 1 ) and selects the maximum value among its own flooding value and the flooding values received from neighbors , and records it as the ith element in floodingarray .
+this process runs for d rounds .
+definition 5 ( floodmax - j ) - after floodmax , floodmin is performed for d rounds .
+in round j ( d + 1 <= j <= 2d ) of floodmin - j , each node broadcasts its flooding value in the round ( j - 1 ) and selects the minimum value among its own flooding value and the flooding values received from neighbors , and records it as the jth element in floodingarray .
+in floodmax , the nodes with the higher flooding value propagate their flooding value in the 0th round to their node 's d - hop neighbors .
+therefore , the flooding values selected by each node in floodmax - d are the maximum values in the overall network .
+the nodes with this flooding value are finally selected as cluster heads .
+however , if nodes with the same flooding value in floodmax - d are grouped , there would be a heavy load on the node with the highest flooding value , because the number of cluster members of nodes with higher flooding value increases .
+floodmin balances the cluster heads' load by evenly distributing the number of cluster members .
+floodmin has the similar process as floodmax , but each node selects the minimum value among its own flooding value and the flooding values received from neighbors .
+at the conclusion of floodmin , the flooding values selected in floodmax - d are evenly distributed through the overall network by further propagating lower flooding values .
+figure 1 shows a demonstration of floodmax and floodmin .
+figure 2 ( a ) presents the network topology with 16 nodes .
+for simplicity , it is assumed that the weight factor ( omega ) is 1 and the initial energy of each node is 100 .
+each node records the 0th element in floodingarray by computing the flooding value using its residual energy and degree .
+in the case of node 3 , the residual energy is 31 , thus the flooding value is 0.31 according to equation ( 1 ) .
+in floodmax - 1 , each node chooses the largest value among its own flooding value and the flooding values of 1 - hop neighbors and records the selected flooding value as 1st element in its floodingarray .
+node 3 selects the highest value , 0.77 among 0.31 , 0.42 , 0.40 , and 0.77 , the flooding values in the 0th round of node 3 and its neighbors 1 , 2 , 5 , respectively .
+in floodmax - 2 , 1.00 is selected as the maximum value among its own flooding value and the flooding values of neighbors in floodmax - 1 .
+figure 2 ( b ) shows the groups of nodes that select the same flooding value in floodmax - 2 .
+among the 16 nodes , 11 nodes select the highest flooding value in floodmax - 2 , 1.00 .
+floodmax is a greedy algorithm and may result in an unbalanced load for the cluster heads .
+however , using flood - min , we can evenly distribute the flooding values selected in floodmax - d to the overall network .
+in floodmin - 3 , each node selects the minimum value among the flooding value of the neighbors including itself in floodmax - 2 .
+node 3 selects 0.77 in floodmin - 3 and the same number in floodmin - 4 .
+nodes 3 , 5 , and 11 regain the flooding value of 0th round or the flooding value in floodmax - 1 by floodmin .
+after floodmax and floodmin , the node declares itself a cluster head or selects another node as a cluster head using three rules of cluster head selection .
+rule 1 : if a node x has the same value in floodmin - 2d of the 0th round value , node x declares itself a cluster head and skip the rest of the rules .
+rule 2 : if the first rule cannot be applied , node x compares d values of floodmax with d values of floodmin in its floodingarray without order .
+if there is the value that appears in both floodmax and floodmin , node y that has this value is selected as the cluster head of node x. if node x has two or more of the same flooding values in its floodingarray , it selects the node y that has a lower flooding value .
+rule 3 : if node y ' flooding value in 0th round is the same to the value of floodmax - d of node x , node y becomes the cluster head of node x. after cluster head selection , each node broadcasts its elected cluster head 's id to all of its neighbors .
+if a node receives a different cluster head id , this node becomes a cluster gateway .
+finally , in the case of a cluster head that is on the path between an ordinary node and its elected cluster head , the ordinary node chooses the cluster head with the minimum hops .
+applying the first rule , if the flooding value selected in floodmax - d is same to the 0th round value , the node declares itself a cluster head .
+two cases can be classified .
+first , in the case of node 9 , its flooding value of the 0th round is the maximum value among the flooding values of the d - hop neighbors , so it continuously selects its flooding value .
+second , with nodes 5 and 11 , the flooding values in the 0th round are deleted from their floodingarray , because they select higher flooding values in floodmax .
+however , their d - hop neighbors transmit the flooding values of nodes 5 and 11 and save them in the floodingarray because these flooding values are higher than the flooding values of their d - hop neighbors .
+then the floodmin process will successfully propagate these flooding values back to the originating nodes .
+to select the node that can satisfy the two cases , if the flooding value selected in floodmin - 2d is its own flooding value in the 0th round , this node will declare itself to be the cluster head .
+other nodes select their cluster head by the second and the third rule .
+applying the second rule , the node selects one node among cluster heads within d - hop as its cluster head .
+figure 2 shows that node 3 receives again the flooding value 0.77 by floodmin .
+therefore , 0.77 is the pair selected in both the floodmax and floodmin and node 3 selects node 5 with this value as the 0th round value as its cluster head. that is , node 3 selects the adjacent node 5 , as a cluster head instead of node 9 that has a higher flooding value in the 0th round .
+as the result , the cluster head that has a lower flooding value can gain more cluster members .
+all nodes except nodes 5 , 9 and 11 conform to the second rule of cluster head selection .
+the node to which the first and the second rule are not applicable selects the node with the flooding value in floodmax - d as the 0th round value ; that is , the maximum flooding value among d - hop neighbors .
+after the cluster head selection process , each node broadcasts its elected cluster head 's id to all of its neighbors .
+nodes 4 and 6 conform to the case of a cluster head being on the path between an ordinary node and its elected cluster head .
+nodes 4 and 6 choose the cluster head with the minimum hops .
+here it can be seen that there are three cluster heads ( nodes 5 , 9 , and 11 ) whose energy is higher than that of the other nodes .
+moreover , mcbt constructs three similar - sized clusters .
+algorithm : mcbt clustering algorithm input : undirected graph ( g ) , residual energy ( eres ) , and d output : cluster heads' id // floodingarrayi : floodingarray of node i , chi : cluster head ' id of node i mcbt ( g , eres , d ) 01 : n < - - the number of nodes 02 : fori < - - 1 ton 03 : dof ( i,omega )< - - omega ( ereseini )+( 1 - omega ) ( degimaxjinsi ( degj )) , where si is a set of neighbors of node i including itself 04 : floodingarrayi [ 0 ] < - - f ( i , omega ) // floodmax phase 05 : fork < - - 1 to d 06 : do fori < - - 1 ton 07 : do broadcast ( floodingarrayi [ k - 1 ]) // a node broadcasts its ( k - 1 ) th flooding value to neighbors and receive // all neighbors' ( k - 1 ) th flooding value 08 : do fori < - - 1 ton 09 : do floodingarrayi [ k ] < - - maxjinsi ( floodingarrayj [ k - 1 ]) // floodmin phase 10 : fork < - - 1 tod 11 : do fori < - - 1 ton 12 : do broadcast ( floodingarrayi [ k - 1 + d ]) 13 : do fori < - - 1 ton 14 : do floodingarrayi [ k + d ] < - - minjinsi ( floodingarrayj [ k - 1 + d ]) // cluster head selection 15 : do fori < - - 1 ton 16 : do if ( floodingarrayi [ 2d ]= floodingarrayi [ 0 ]) 17 : then chi < - - i 18 : else if ( pair ( i )) 19 : then chi < - - ch _ id ( pair ( i )) 20 : else chi < - - ch _ id ( floodingarrayi [ d ]) pair ( id ) 01 : fori < - - 1 tod 02 : do forj < - - ( d + 1 ) to 2d 03 : do if ( floodingarrayid [ i ] = floodingarrayid [ j ]) 04 : then return floodingarrayid [ i ] 05 : return 0 ch _ id ( floodingvalue ) 01 : fori < - - 1 ton 02 : do if ( floodingarrayi [ 0 ] = floodingvalue ) 03 : then returni 04 : returnerror the pseudo code of mcbt clustering algorithm is shown above .
+lines 1 - 4 show that each node computes its flooding value using the residual energy and degree , and makes a ( 2d + 1 ) sized floodingarray .
+lines 5 - 9 explain the process of floodmax - i ( 1 <= i <= d ) .
+in round i , each node broadcasts its flooding value in the round ( i - 1 ) and receives the neighbors' flooding values .
+the node then selects the maximum value among its own flooding value and the flooding values received from neighbors .
+each node records the selected flooding value as the ith element in its floodingarray .
+lines 10 - 14 explain the process of floodmin - j ( d + 1 <= j <= 2d ) , which is the same as floodmax except a node chooses the smallest value rather than the largest value .
+in lines 15 - 20 , each node declares itself a cluster head or selects another node as its cluster head based on the cluster head selection rules .
+lines 16 - 17 describe the first cluster head selection rule .
+if the element in floodingarray [ 2d ] is the same as the element in floodingarray [ 0 ] , then that node will declare itself a cluster head .
+lines 18 - 19 show the second cluster head selection rule to select another node as a cluster head .
+like the function pair , a node compares d values from floodingarray [ 1 ] to floodingarray [ d ] with d values from floodingarray [ d + 1 ] to floodingarray [ 2d ] , to determine whether they are the same value .
+line 20 describes the third cluster head selection rule .
+the node selects another node with the flooding value in floodmax - d as the 0th round value .
+the function ch _ id returns the cluster heads' id as a result of cluster head selection rules 2 and 3 .
+3.3 .
+validation of the proposed method and the effect of weight factor ( omega ) if the flooding value selected in floodmin - 2d is the value computed in the 0th round , the node will declare itself a cluster head during cluster head selection .
+this node has higher residual energy or degree , since its flooding value is selected in floodmax - d. this is clear , if we examine the process of cluster creation .
+nodes selected as cluster heads can be classified into two types .
+the first class includes nodes with the maximum flooding value within d - hop .
+the second class includes nodes with the maximum flooding value among d - hop neighbors' neighbors .
+consider node x in the first class ; node x updates the flooding values of its d - hop neighbors during floodmax .
+therefore , all nodes within the d - hop coverage area of node x will record the flooding value of node x in their floodingarray .
+at the conclusion of floodmin , node x will declare itself a cluster head and some d - hop neighbors will select node x as their cluster head .
+consider node y in the second class .
+although flooding value of node y in its floodingarray is changed by a larger flooding value , its flooding value in the 0th round continues to propagate and consumes all of the smaller node 's flooding values within its d - hop neighbors .
+therefore , at the completion of floodmin , node y receives its flooding value in the 0th round again .
+every node in the second class will elect themselves as cluster heads based on the first cluster head rule , and some d - hop neighbors will choose node y as their cluster head .
+hence , any node that survives the floodmax stage will elect itself as a cluster head. that is , floodmax enables us to select favorable nodes with a higher flooding value .
+this allows a stable backbone to be constructed and balances the energy consumption around the cluster heads for wsns .
+we simulate our algorithm to confirm that the backbone is composed of nodes with higher energy and degree .
+the parameters of the simulation are shown in table 2 of section 4 .
+figure 3 shows the results of the average and standard deviation of the backbone nodes' residual energy as the weight factor changes .
+as the weight factor approaches 1 , the weight of the nodes' residual energy increases and the average residual energy of the backbone nodes also increases ( solid line in figure 3 ) .
+as the weight factor approaches 1 , nodes with higher residual energy are selected as cluster heads in advance and the distribution of residual energy among backbone nodes is even ( dotted line in figure 3 ) .
+figure 4 shows the average and standard deviation of degree of backbone nodes as the weight factor changes .
+as the weight factor approaches 0 , the weight of the node 's degree increases and the average degree of the backbone nodes also increases ( solid line in figure 4 ) .
+as the weight factor approaches 0 , the nodes with higher degree are selected as cluster heads in advance .
+the distribution among degree of backbone nodes could be even ( dotted line in figure 4 ) .
+this weight policy can be implemented to optimize in various environments of wsns by changing the weight factor , omega .
+as shown in figure 5 , we could create an appropriate backbone using the flooding value .
+for example , in some wsns , a cluster head frequently handles heavy inter - cluster traffic and coordinates many nodes .
+in this case , a longer expected lifetime for sensor networks can be achieved by giving a weight factor value approaching 1 .
+although cluster heads consume more energy than ordinary nodes , the network lifetime could be extended due to their higher residual energy .
+alternatively , assuming that each node periodically transmits the sensing information to the cluster head in a multi - hop manner , the nodes near the cluster head tend to exhaust their energy sooner due to the energy consumption in forwarding packets .
+in this scenario , a value approaching 0 is assigned to the weight factor .
+since cluster heads have higher degree , mcbt balances energy consumption by distributing the traffic load among nodes around the cluster head .
+4. performance evaluation 4.1 .
+simulation environment via the ns - 2 simulator , we implement and compare the performance of mcbt with other backbone construction schemes , i.e. , hcdd and mmm .
+their information is listed in table 1 ( in table 1 , d is the maximum number of hops between the cluster head and ordinary node and n is the number of nodes in the network ) .
+the mac layer follows the ieee 802.11 mac specification .
+the main objective of our scheme is to create a stable backbone with the node 's residual energy and degree taken into account , and each node transmits packets through this stable backbone .
+thus , we evaluate the performance of the backbone construction scheme in terms of the average residual energy or degree of backbone nodes , the standard deviation of the residual energy or degree of backbone nodes , the average residual energy of backbone nodes after event occurrence , and the network lifetime .
+average residual energy or degree of backbone nodes : the residual energy or degree of the backbone nodes shows the stability of the backbone .
+the demands on the backbone nodes are larger than those of ordinary nodes and nodes around the cluster head consume more energy in order to forward packets .
+however , by selecting a node with higher energy or degree , the high energy consumption of specific nodes should be alleviated .
+the standard deviation of residual energy or degree of the backbone nodes : assume that the number of backbone nodes in the network is m , the residual energy or degree of each backbone node is z , and the average residual energy or degree of backbone nodes is z , then the standard deviation is represented by sigma = sumi = 1m ( zi - z ) 2m - 1 .
+the standard deviation of the backbone nodes refers to the distribution rate of backbone nodes' residual energy or degree .
+a small standard deviation means that the residual energy or degree of each backbone node is similar to the average value and the residual energy or degree of each backbone node is almost uniform .
+if the average residual energy or degree of backbone nodes is high and their standard deviation is low , then the node with higher residual energy or degree is selected as a backbone node in advance .
+moreover , the backbone is composed of nodes with even characteristics .
+this may decrease the rapid disconnection of the network caused by a load imbalance .
+the average residual energy of backbone nodes and the network lifetime after events occur : we can evaluate the network lifetime by measuring the operational time until the backbone is disconnected or by counting the maximum number of transmitted messages from source to sink .
+this indirectly indicates how long a backbone is maintained before its reconstruction .
+reconstruction overhead places a heavy load on the network , and it is important to ensure the backbone is stable and maintained for a long time .
+the time can be affected by variable factors , such as routing paths and data transfer collisions .
+thus , in this paper , we compare the network lifetime with other algorithms by evaluating the maximum number of transmitted messages .
+the main parameters of our simulation are listed in table 2 .
+the sensor nodes are randomly selected as the source and a residual energy below 2.5 j is randomly assigned to each node .
+our simulation environment uses the following energy model [ 24 ] : etx = alpha11 + alpha2rn , erx = alpha12 , where etx and erx denote the energy consumed to transmit and receive a bit over a distance r , respectively .
+alpha11 is the energy / bit consumed by the transmitter electronics .
+alpha2 is the energy dissipated in the transmit op - amp and alpha12 is the energy / bit consumed by the receiver electronics .
+4.2 .
+simulation results influence of number of nodes figure 6 shows the average and standard deviation of the backbone nodes' residual energy as the number of nodes changes .
+as shown in figure 7 ( a ) , regardless of the number of nodes composing the network , mcbt ( omega = 0.7 ) maintains the highest residual energy .
+the backbone nodes' average residual energy of mcbt , mmm , and hcdd are 2.43 j , 1.89 j , and 1.79 j , respectively .
+mcbt exhibits 22 % and 26 % improvement respectively , compared with mmm and hcdd .
+considering that the backbone nodes have greater demands in terms of packet transmission than those of the ordinary nodes , we can form a stable backbone by selecting nodes with higher residual energy as cluster heads .
+the standard deviation describes the difference in residual energy among backbone nodes as shown in figure 7 ( b ) .
+mcbt selects nodes with higher residual energy as cluster heads in advance , so it has a low standard deviation , averaging around 0.01 ~ 0.03 j. influence of number of events figure 7 shows the average and standard deviation of degree of backbone nodes as the number of nodes changes .
+in figure 8 ( a ) , when the number of nodes increases , the network density also increases , thus the average degree of the backbone nodes increases .
+the range among degree of nodes is not high , so the average degree of each algorithm is similar .
+mmm always performs well , since it forms the backbone by taking into account the node degree .
+the average degree of backbone nodes of mcbt is similar to that of mmm because mcbt ( omega = 0.7 ) considers both degree and energy .
+if we set omega to 0 , mcbt has a similar value to mmm .
+as shown in figure 8 ( b ) , the standard deviations of degree of backbone nodes in mcbt and mmm are very small values , such as 0.93 and 0.79 .
+nodes around the cluster head consume more energy than nodes located far from the cluster head , since they frequently transmit packets to the cluster head .
+however , if we select the nodes with high degree as cluster heads , we could distribute the packet forwarding load among nodes around the cluster head , and thus extend the network lifetime .
+figure 8 shows the average residual energy of backbone nodes after 30 sources initiate 20 events periodically .
+it appears to be a similar graph to that of the average residual energy in the early phase of backbone construction ( figure 7 ( a )) .
+therefore , we know that the stability of the backbone of mcbt is maintained after data transmission .
+figure 9 shows the remaining energy of nodes when 30 sources initiate 40 events periodically .
+the lighter color of the node denotes a lower residual energy .
+hcdd has large differences in terms of residual energy between , before , and after event occurrence , compared with mcbt .
+this means the backbone of hcdd is composed of nodes with low energy .
+thus , hcdd has many backbone nodes that exhaust energy when many events occur , which causes network disconnection .
+figure 10 shows the maximum number of transmitted messages from source to sink before reconstruction of the backbone at different number of sources .
+the maximum number of transmitted messages is the performance metric to show the network lifetime indirectly .
+if the path differs for the same source and sink , the time can be affected by network conditions , such as collisions and delays .
+therefore , the maximum number of transmitted messages , excluding those factors , is appropriate to measure the network lifetime .
+as the number of sources increases , the performances of mcbt and other schemes decrease .
+mmm performs 11 % better when the number of sources is small .
+however , as shown in figure 10 , when the number of sources increases , the difference between mcbt and mmm becomes negligible .
+the good performance of mmm is due to the selection of cluster heads with a high degree .
+this provides load distribution among nodes around the cluster head , so the loss of energy due to packet forwarding is decreased .
+moreover , the degree based algorithm such as mmm provides high connectivity .
+even when the path used at the first time gets disconnected , it will be able to use another path .
+therefore , the maximum number of transmitted messages is high .
+however , by managing the weight factor , mcbt can select nodes with higher degree as the cluster heads , which reflects the advantages of mmm .
+mcbt appropriately considers both important factors ( residual energy and degree ) based on system conditions .
+in addition , mcbt has better time complexity than mmm as shown in table 1 .
+5. conclusion in this paper , we propose a stable backbone tree construction algorithm using multi - hop clusters for wsns .
+mcbt constructs the backbone by considering the node 's residual energy and degree .
+since the backbone nodes have extra functionality and consume more energy compared with other nodes in the network , the construction of a stable backbone by selecting nodes with higher energy as the cluster heads could prolong the network lifetime .
+nodes around the cluster head also consume more energy to forward packets , thus selecting the node with higher degree could distribute the load for packet forwarding among the nodes near the cluster head and balance the energy consumption .
+moreover , mcbt could create an appropriate backbone for the system by adjusting the weight factor .
+simulations show that mcbt performs better than existing schemes , in terms of the average and the standard deviation of residual energy or degree of backbone nodes , the average residual energy of backbone nodes after event occurrence , and the network lifetime .
+this research was supported by mke , korea under itrc iita - 2009 - ( c1090 - 0902 - 0046 ) , iita - 2009 - ( c1090 - 0902 - 0005 ) ; and , by the mest , korea under the wcu program supervised by the kosef ( no. r31 - 2008 - 000 - 10062 - 0 ) .
+references and notes 1 .
+akyildiz i.f. sankarasubramaniam w. su y. cayirci e. a survey on sensor networks ieee commun .
+mag 2002 40 102 114 2 .
+england d. veeravalli b. weissman j.b. a robust spanning tree topology for data collection and dissemination in distributed environments ieee t. parall .
+distr 2007 18 608 620 3 .
+ma m. yang y. sencar : an energy efficient data gathering mechanism for large scale multihop sensor networks ieee t. parall .
+distr 2007 18 1476 1488 4 .
+liu c. wo k. pei j. an energy - efficient data collection framework for wireless sensor networks by exploiting spatiotemporal correlation ieee t. parall .
+distr 2007 18 1010 1023 5 .
+liu m. cao j. chen g. wang x. an energy - aware routing protocol in wireless sensor networks mdpi sensors 2009 9 445 462 6 .
+heinzelman w.r. chandrakasan a. balakrishnan h. energy - efficient communication protocol for wireless microsensor networks proceedings of hawaii international conference on system sciencesisland of maui , hawaii , usajanuary 4 - 7 , 2000 1 10 7 .
+chuang s .
+- y. chen c. smartbone : an energy - efficient smart backbone construction in wireless sensor networks in proceedings of ieee wireless communications and networking conferencehong kong , chinamarch 11 - 15 , 2007 3394 3399 8 .
+manjeshwar a. agrawal d.p. teen : a routing protocol for enhanced efficiency in wireless sensor networks proceedings of ieee international parallel distributed processing symposiumsan francisco , usaapril 23 - 27 , 2001 2009 2015 9 .
+manjeshwar a. agrawal d.p. apteen : a hybrid protocol for efficient routing and comprehensive information retrieval in wireless sensor networks proceedings of ieee international parallel distributed processing symposiumfort lauderdale , fl , usaapril 15 - 19 , 2002 195 202 10 .
+intanagonwiwat c. govindan r. estrin d. heidemann j. silva f. directed diffusion for wireless sensor networking ieee / acm t. network 2003 11 2 16 11 .
+zalyubovskiy v. erzin a. astrakov s. choo h. energy - efficient area coverage by sensors with adjustable ranges mdpi sensors 2009 9 2446 2460 12 .
+park s. shin k. abraham a. han s. optimized self organized sensor networks mdpi sensors 2007 7 , 5 730 742 13 .
+lin c.r. gerla m. adaptive clustering for mobile wireless networks ieee j. sel. area .
+comm 1997 15 1265 1275 14 .
+akkaya k. younis m. a survey on routing protocols for wireless sensor networks ad hoc net 2005 3 325 349 15 .
+wang y. li x .
+- y. efficient distributed low - cost backbone formation for wireless networks ieee t. parall .
+distr 2006 17 681 693 16 .
+cheng x. narahari b. simha r. cheng m.x. liu d. strong minimum energy topology in wireless sensor networks : np - completeness and heuristics ieee t. mobile comput 2003 2 248 256 17 .
+paruchuri v. durresi a. durresi m. barolli l. routing through backbone structures in sensor networks proceedings of ieee international conference on parallel and distributed systemslas vegas , nevada , usaseptember 12 - 14 , 2005 397 401 18 .
+lin c.j. chou p.l. chou c.f. hcdd : hierarchical cluster - based data dissemination in wireless sensor networks with mobile sink proceedings of acm international conference on wireless communications and mobile computingvancouver , canadajuly 3 - 6 , 2006 1189 1194 19 .
+amis a.d. prakash r. huynh d.t. vuong t.h.p. max - min d - cluster formation in wireless ad hoc networks proceedings of ieee infocomtel aviv , israelmarch 26 - 30 , 2000 10 32 41 20 .
+heinzelman w.r. kulik j. balakrishnan h. adaptive protocols for information dissemination in wireless sensor networks proceedings of acm / ieee mobile computing and networkingseattle , washington , usa1999 174 185 21 .
+jeon h. park k. hwang d .
+- j. choo h. sink - oriented dynamic location service protocol for mobile sinks with an energy efficient grid - based approach mdpi sensors 2009 9 1433 1453 22 .
+muthuramalingam s. malarvizhi r. veerayazhmi r. rajaram r. reducing the cluster overhead by selecting optimal and stable cluster head through genetic algorithm proceedings of ieee asia international conference on modeling & simulationkuala lumpur , malaysiamay 13 - 15 , 2008 540 545 23 .
+gerla m. tsai j.t.c. multicluster , mobile , multimedia radio network wirel .
+netw 1995 1 255 265 24 .
+bhardwaj m. garnett t. chandrakasan a.p. upper bounds on the lifetime of sensor networks proceedings of ieee international conference on communicationsst .
+- petersburg , russiajune 11 - 15 , 2001 785 790 figure 1 .
+2 - hop clustering - floodmax and floodmin phase .
+figure 2 .
+2 - hop clustering - resulting network topology .
+figure 3 .
+average and standard deviation of residual energy .
+figure 4 .
+average and standard deviation of degree .
+figure 5 .
+the effect of weight factor ( omega ) on the backbone .
+figure 6 .
+residual energy of backbone nodes .
+figure 7 .
+degree of backbone nodes .
+figure 8 .
+average residual energy after event occurrence .
+figure 9 .
+remaining energy of nodes after event occurrence .
+figure 10 .
+maximum number of transmission messages .
+table 1 .
+three clustering schemes in simulation .
+schemes cluster head selection criteria time complexity hcdd id o ( d ) mmm degree o ( n ) mcbt energy & degree o ( d ) table 2 .
+simulation parameters .
+network size 500 m x 500 m transmission range 28 m initial energy 2.5 j data packet size 500 bytes control packet size 15 bytes energy consumption model etx alpha11 + alpha2rn energy consumption model erx alpha12 alpha11 , alpha12 80 nj / bit alpha2 1 pj / bit / m2 n 2

@@ -1,0 +1,432 @@
+peerj peerj peerj peerj peerj 2167 - 8359 peerj inc .
+san francisco , usa 29062598 5649605 3859 10.7717 / peerj.3859 bioinformaticsstatistics how to normalize metatranscriptomic count data for differential expression analysis klingenberg heiner meinicke peter peter @ gobics.de department of bioinformatics , institute of microbiology and genetics , university of goettingen , gottingen , germany chen jun 17 10 2017 2017 5 e3859 10 5 2017 6 9 2017 ( c ) 2017 klingenberg and meinicke 2017 klingenberg and meinickethis is an open access article distributed under the terms of the creative commons attribution license , which permits unrestricted use , distribution , reproduction and adaptation in any medium and for any purpose provided that it is properly attributed .
+for attribution , the original author ( s ) , title , publication source ( peerj ) and either doi or url of the article must be cited .
+background differential expression analysis on the basis of rna - seq count data has become a standard tool in transcriptomics .
+several studies have shown that prior normalization of the data is crucial for a reliable detection of transcriptional differences .
+until now it has not been clear whether and how the transcriptomic approach can be used for differential expression analysis in metatranscriptomics .
+methods we propose a model for differential expression in metatranscriptomics that explicitly accounts for variations in the taxonomic composition of transcripts across different samples .
+as a main consequence the correct normalization of metatranscriptomic count data under this model requires the taxonomic separation of the data into organism - specific bins .
+then the taxon - specific scaling of organism profiles yields a valid normalization and allows us to recombine the scaled profiles into a metatranscriptomic count matrix .
+this matrix can then be analyzed with statistical tools for transcriptomic count data .
+for taxon - specific scaling and recombination of scaled counts we provide a simple r script .
+results when applying transcriptomic tools for differential expression analysis directly to metatranscriptomic data with an organism - independent ( global ) scaling of counts the resulting differences may be difficult to interpret .
+the differences may correspond to changing functional profiles of the contributing organisms but may also result from a variation of taxonomic abundances .
+taxon - specific scaling eliminates this variation and therefore the resulting differences actually reflect a different behavior of organisms under changing conditions .
+in simulation studies we show that the divergence between results from global and taxon - specific scaling can be drastic .
+in particular , the variation of organism abundances can imply a considerable increase of significant differences with global scaling .
+also , on real metatranscriptomic data , the predictions from taxon - specific and global scaling can differ widely .
+our studies indicate that in real data applications performed with global scaling it might be impossible to distinguish between differential expression in terms of transcriptomic changes and differential composition in terms of changing taxonomic proportions .
+conclusions as in transcriptomics , a proper normalization of count data is also essential for differential expression analysis in metatranscriptomics .
+our model implies a taxon - specific scaling of counts for normalization of the data .
+the application of taxon - specific scaling consequently removes taxonomic composition variations from functional profiles and therefore provides a clear interpretation of the observed functional differences .
+statistical modeling metatransriptomics differential expression analysis rna - seq count data normalization metagenomics university of goettingendfgthis work was funded by the university of goettingen and dfg ( project : " computational models for metatranscriptome analysis " , me3138 ) .
+there was no additional external funding received for this study .
+background metagenome analysis can provide a comprehensive view on the metabolic potential of a microbial community ( eisen , 2007 ; simon & daniel , 2009 ) .
+in addition to the static functional profile of the metagenome , metatranscriptomic rna sequencing ( rna - seq ) can highlight the multi - organism dynamics in terms of the corresponding expression profiles ( poretsky et al. , 2005 ; frias - lopez et al. , 2008 ; gilbert et al. , 2008 ; urich et al. , 2008 ) .
+in particular , metatranscriptomics makes it possible to investigate the functional response of the community to environmental changes ( gilbert et al. , 2008 ; poretsky et al. , 2009 ) .
+in single organism transcriptome studies , differential expression analysis based on rna - seq data has become an established tool ( marioni et al. , 2008 ; trapnell et al. , 2012 ) .
+for the analysis , first , quality - checked sequence reads are mapped to the organisms genome for transcript identification .
+then the transcript counts are compared between different experimental conditions to identify statistically significant differences .
+several studies have shown that read count normalization has a great impact on the detection of significant differences ( bullard et al. , 2010 ; dillies et al. , 2013 ; lin et al. , 2016 ) .
+the aim of the count normalization is to make the expression levels comparable across different samples and conditions .
+this is an essential prerequisite for distinguishing condition - dependent differences from spurious variation of expression levels .
+in metatranscriptomics , already the transcript identification step can be challenging .
+in many cases , rna - seq faces a mixture of organisms for which no reference genome sequence is available .
+several strategies have been suggested : de novo transcriptome assembly combined with successive homology - based annotation ( celaj et al. , 2014 ) , the direct functional annotation of reads by classification according to some protein database ( huson et al. , 2011 ; nacke et al. , 2014 ; hesse et al. , 2015 ) or parallel sequencing of the corresponding metagenome with successive mapping of rna - seq reads to assembled and annotated contigs ( mason et al. , 2012 ; franzosa et al. , 2014 ; ye & tang , 2016 ) .
+for the subsequent comparison of counts between different conditions no standard protocol exists for differential expression analysis on metatranscriptomic data .
+several studies and tools apply methods that have been developed for differential expression analysis in transcriptomics to metatranscriptomic count data ( mcnulty et al. , 2013 ; martinez et al. , 2016 ; macklaim et al. , 2013 ) .
+however , the question of under which conditions established models from single organism transcriptomics also apply to organism communities has not been addressed sufficiently so far .
+here we present an extended statistical model for count data from metatranscriptomic rna - seq experiments .
+the model provides a novel view on metatranscriptome data , which negates the impact of taxonomic abundance differences between samples for differential expression analysis .
+theoretical considerations , as well as studies on simulated and real count data , show that our approach can help to identify differentially expressed features which actually reflect a changing behavior of the organisms .
+for our model to work , accurate normalization of the data is crucial and in general , requires an organism - specific rescaling of expression profiles .
+the application of differential expression analysis to mixed - species data without prior separation can be found in several metatranscriptomic studies ( nacke et al. , 2014 ; mcnulty et al. , 2013 ; de filippis et al. , 2016 ) as well as in dedicated pipelines for metatranscriptome analysis ( martinez et al. , 2016 ; westreich et al. , 2016 ) .
+our results suggest that this approach may imply a large number of significant differences which lack a clear interpretation in terms of functional responses .
+materials & methods normalization in transcriptomics to clarify our arguments for an alternative normalization of metatranscriptomic data we need to explain the statistical nature of the normalization problem .
+we first follow the approach of anders & huber ( 2010 ) for single organism rna - seq count data and start with a basic model for the mean of the observed counts .
+the expected ( mean ) count \ documentclass [ 12pt ]{ minimal } \ usepackage { amsmath } \ usepackage { wasysym } \ usepackage { amsfonts } \ usepackage { amssymb } \ usepackage { amsbsy } \ usepackage { upgreek } \ usepackage { mathrsfs } \ setlength {\ oddsidemargin }{ - 69pt } \ begin { document } }{}$\ mathbb { e } \ left [ { y }_{ ij } \ right ] $\ end { document } eyij for gene ( feature ) i and sample j arises from a product of the per - gene quantity lambdaicj under condition cj and a size factor sj : ( 1 ) \ documentclass [ 12pt ]{ minimal } \ usepackage { amsmath } \ usepackage { wasysym } \ usepackage { amsfonts } \ usepackage { amssymb } \ usepackage { amsbsy } \ usepackage { upgreek } \ usepackage { mathrsfs } \ setlength {\ oddsidemargin }{ - 69pt } \ begin { document } }{}\ begin { eqnarray *}\ mathbb { e } \ left [ { y }_{ ij } \ right ] ={\ lambda }_{ i { c }_{ j }}{ s }_{ j }.\ end { eqnarray *}\ end { document } eyij = lambdaicjsj.the factor lambdaicj is proportional to the mean concentration of feature i under condition cj. the size factor sj represents the sampling depth or library size .
+usually , both factors are unknown .
+if we assume the ith feature to be non - differentially expressed ( nde ) we can represent the corresponding row of the count matrix by ( 2 ) \ documentclass [ 12pt ]{ minimal } \ usepackage { amsmath } \ usepackage { wasysym } \ usepackage { amsfonts } \ usepackage { amssymb } \ usepackage { amsbsy } \ usepackage { upgreek } \ usepackage { mathrsfs } \ setlength {\ oddsidemargin }{ - 69pt } \ begin { document } }{}\ begin { eqnarray *}\ mathbb { e } \ left [ { y }_{ i \ bullet }^{(\ text { nde })} \ right ] ={\ lambda }_{ i }\ mathbf { s }\ end { eqnarray *}\ end { document } eyi * nde = lambdaiswhere the relative feature abundance is equal for all samples and all size factors have been comprised in the row vector s. thus , for nde features the size factors are proportional to the expected counts .
+if we knew which features are actually nde , we would be able to estimate the required size ( scaling ) factors for normalization from the corresponding counts .
+usually this is not the case and we need to make some assumptions .
+a common assumption that is used in current tools is that most of the features are nde .
+then it is possible to estimate the scaling factors by some robust statistics .
+in deseq for each sample the putative scaling factors from all features are calculated and then the median of all these values is used as an estimator of the sample - specific scaling factor ( anders & huber , 2010 ). with a breakdown point of 50 % the median requires that the majority of the data corresponds to nde features .
+without any distinction between de and nde features the scaling factors have also been estimated from the count sums of all samples .
+however , the potential shortcomings of this total count normalization have widely been discussed ( anders & huber , 2010 ; robinson & oshlack , 2010 ; soneson & delorenzi , 2013 ) .
+normalization in metatranscriptomics in metatranscriptomics the situation is more complicated because for each organism we can have a different scaling factor .
+so we have to extend the above sampling model to an n - organism mixture that includes a matrix s of organism - specific scaling factors sjk : ( 3 ) \ documentclass [ 12pt ]{ minimal } \ usepackage { amsmath } \ usepackage { wasysym } \ usepackage { amsfonts } \ usepackage { amssymb } \ usepackage { amsbsy } \ usepackage { upgreek } \ usepackage { mathrsfs } \ setlength {\ oddsidemargin }{ - 69pt } \ begin { document } }{}\ begin { eqnarray *}\ mathbb { e } \ left [ { y }_{ ij } \ right ] =\ sum _{ k = 1 }^{ n }{\ lambda }_{ ijk }{ s }_{ jk }\ end { eqnarray *}\ end { document } eyij = sumk = 1nlambdaijksjkwhere i , j , k are the feature , sample and organism indices , respectively .
+we omitted the condition dependency ( cj ) for convenience .
+in analogy to eq .
+( 2 ) for nde features we have the following model for a feature row i of the count matrix : ( 4 ) \ documentclass [ 12pt ]{ minimal } \ usepackage { amsmath } \ usepackage { wasysym } \ usepackage { amsfonts } \ usepackage { amssymb } \ usepackage { amsbsy } \ usepackage { upgreek } \ usepackage { mathrsfs } \ setlength {\ oddsidemargin }{ - 69pt } \ begin { document } }{}\ begin { eqnarray *}\ mathbb { e } \ left [ { y }_{ i \ bullet }^{(\ text { nde })} \ right ] ={\ lambda }_{ i }^{ t }{\ mathbf { s }}^{ t }\ end { eqnarray *}\ end { document } eyi * nde = lambdaitstwhere the column vector lambdai contains all organism - specific rates for feature i and \ documentclass [ 12pt ]{ minimal } \ usepackage { amsmath } \ usepackage { wasysym } \ usepackage { amsfonts } \ usepackage { amssymb } \ usepackage { amsbsy } \ usepackage { upgreek } \ usepackage { mathrsfs } \ setlength {\ oddsidemargin }{ - 69pt } \ begin { document } }{}${\ lambda }_{ i }^{ t }$\ end { document } lambdait indicates transposition of this vector .
+application of the above single - organism scheme for estimation of scaling factors is only valid if the matrix of scaling factors has the following form : ( 5 ) \ documentclass [ 12pt ]{ minimal } \ usepackage { amsmath } \ usepackage { wasysym } \ usepackage { amsfonts } \ usepackage { amssymb } \ usepackage { amsbsy } \ usepackage { upgreek } \ usepackage { mathrsfs } \ setlength {\ oddsidemargin }{ - 69pt } \ begin { document } }{}\ begin { eqnarray *}\ mathbf { s }= \ left [ {\ alpha }_{ 1 }\ mathbf { s },{\ alpha }_{ 2 }\ mathbf { s },\ ldots ,{\ alpha }_{ k }\ mathbf { s } \ right ] =\ mathbf { s }{\ alpha }^{ t }\ end { eqnarray *}\ end { document } s = alpha1s,alpha2s ,... , alphaks = salphatwhere alpha is a column vector of organism - specific abundances and s contains the sample - specific scaling factors , now in a column vector , which is equal for all organisms .
+then we can write ( 6 ) \ documentclass [ 12pt ]{ minimal } \ usepackage { amsmath } \ usepackage { wasysym } \ usepackage { amsfonts } \ usepackage { amssymb } \ usepackage { amsbsy } \ usepackage { upgreek } \ usepackage { mathrsfs } \ setlength {\ oddsidemargin }{ - 69pt } \ begin { document } }{}\ begin { eqnarray *}\ mathbf { s }{\ lambda }_{ i }=\ mathbf { s }{\ alpha }^{ t }{\ lambda }_{ i }={\ tilde {\ lambda }}_{ i }\ mathbf { s }\ end { eqnarray *}\ end { document } slambdai = salphatlambdai = lambda ~ iswhere \ documentclass [ 12pt ]{ minimal } \ usepackage { amsmath } \ usepackage { wasysym } \ usepackage { amsfonts } \ usepackage { amssymb } \ usepackage { amsbsy } \ usepackage { upgreek } \ usepackage { mathrsfs } \ setlength {\ oddsidemargin }{ - 69pt } \ begin { document } }{}${\ tilde {\ lambda }}_{ i }$\ end { document } lambda ~ i results from the dot product of the organism and the feature rates .
+this corresponds to eq .
+( 2 ) and allows to apply deseq or other tools for single organism differential expression analysis to the metatranscriptomic count matrix .
+however , the underlying assumption that s has column rank 1 , i.e. , all column vectors are collinear , would be hard to justify in practice .
+implicitly we would assume that the relative contributions of all organisms are constant across all samples .
+in general , this assumption is not met , because for a real metatranscriptome , the organism composition of transcripts cannot be controlled and will be different for different samples .
+in the following we show how to normalize metatranscriptomic counts so that the data actually meet the former assumption .
+taxon - specific scaling and global scaling we propose a method to prepare metatranscriptomic data for differential expression analysis .
+the method is referred to as taxon - specific scaling .
+as an essential prerequisite our approach requires that the data is first partitioned according to the contributing organisms .
+then the count data matrix from each partition is normalized separately .
+here , established tools from transcriptomics can be used to estimate the corresponding scaling factors .
+finally , the normalized count data matrices are summed up to provide normalized metatranscriptomic count data which can be analyzed in terms of differential expression ( fig. 1 ) .
+here all statistical models and tools for count - based differential expression analysis in transcriptomics can in principle be used to identify differentially expressed features .
+10.7717 / peerj.3859 / fig - 1 figure 1 work flow for taxon - specific normalization .
+( a ) sequence samples from conditions a ( white ) and b ( light gray ) .
+assign each sequence read to taxonomic and feature categories .
+( b ) compute feature profiles from the assignment counts .
+( c ) obtain count matrix from taxon - specific feature profiles .
+( d ) normalize feature profiles of each taxon - specific count matrix separately .
+( e ) recombine normalized feature profiles of all taxa into a metatranscriptomic profile .
+( f ) perform differential expression analysis on metatranscriptomic count matrix .
+if we denote the original count matrix for organism k as yk and the associated vector of estimated scaling factors as \ documentclass [ 12pt ]{ minimal } \ usepackage { amsmath } \ usepackage { wasysym } \ usepackage { amsfonts } \ usepackage { amssymb } \ usepackage { amsbsy } \ usepackage { upgreek } \ usepackage { mathrsfs } \ setlength {\ oddsidemargin }{ - 69pt } \ begin { document } }{}${\ hat {\ mathbf { s }}}_{ k }$\ end { document } s ^ k the normalized metatranscriptomic count matrix is computed by ( 7 ) \ documentclass [ 12pt ]{ minimal } \ usepackage { amsmath } \ usepackage { wasysym } \ usepackage { amsfonts } \ usepackage { amssymb } \ usepackage { amsbsy } \ usepackage { upgreek } \ usepackage { mathrsfs } \ setlength {\ oddsidemargin }{ - 69pt } \ begin { document } }{}\ begin { eqnarray *}\ tilde {\ mathbf { y }}=\ sum _{ k }{\ mathbf { y }}_{ k } {\ mathrm { diag }}^{ - 1 }({\ hat {\ mathbf { s }}}_{ k }).\ end { eqnarray *}\ end { document } y ~= sumkykdiag - 1s ^ k.here , the diag - 1 operator transforms the scaling vector to a diagonal matrix with inverse scaling factors on the diagonal and zeros everywhere else .
+we provide an r script where we use deseq2 for scaling factor estimation and identification of significant differences ( see file s1 ) .
+in principle , our method is computationally simple and the hard work has to be done beforehand in order to provide the partitioned data in terms of the organism - specific count matrices .
+this is the realm of binning methods and , in addition , may require sequence assembly tools to achieve a sufficient sequence length for reliable separation .
+at this point , the question may arise as to why get back to metatranscriptomic data when differential expression analysis could be performed for separate organisms or specific taxa .
+in this context , by metatranscriptomic counts we refer to mixed counts that arise from a sum over superimposed organisms .
+there are several reasons why the analysis of the recombined metatranscriptome data can be useful : first of all , the statistical power of organism - specific tests may be low due to decreased counts .
+if several organisms show the same slight difference , this difference may only become statistically significant when accumulating their normalized counts. or a feature may show differences for single organisms but these differences may cancel out when correctly summarized .
+in this case the corresponding feature is not indicative for the experimental condition with regard to the whole community .
+therefore the analysis of separate organism transcriptomes and the analysis of the rectified metatranscriptome data should be combined to provide a complete picture of the community response .
+in our study and in the supplied r script we use deseq2 to compute scaling factors and to identify significant differences on the basis of the normalized count matrices .
+we decided for deseq2 for several reasons .
+it is an established tool in transcriptomics which has shown a good performance in comparative studies ( soneson & delorenzi , 2013 ; dillies et al. , 2013 ) and which has already been used for metatranscriptome analysis ( mcnulty et al. , 2013 ; martinez et al. , 2016 ; de filippis et al. , 2016 ) .
+in particular , the estimation of scaling factors is robust and can be performed as a separate prior step apart from the computation of significant differences .
+the latter aspect is important for taxon - specific scaling which requires applying the normalization independently .
+however , we would like to emphasize that our arguments for the taxon - specific scaling approach do not depend on a particular statistical tool and in fact the main findings of our study can be reproduced with other tools , such as edger , samseq ( li & tibshirani , 2013 ) or limma ( ritchie et al. , 2015 ) .
+in some experiments we also used edger and total count ( tc ) normalization to study the impact of different transcriptomic scaling methods .
+in contrast to taxon - specific scaling , global scaling performs the normalization of metatranscriptomic data without prior separation , i.e. , sample - specific scaling factors are estimated from the original metatranscriptomic counts .
+in general , taxon - specific and global scaling will result in distinct normalized count matrices which in turn can lead to largely differing results in differential expression analysis .
+taxon - specific scaling and global scaling provide two different views on the metatranscriptome .
+taxon - specific scaling considers varying taxonomic abundances as a confounding factor and eliminates its influence on the identification of differentially expressed features ( def ) by scaling the profiles of each organism individually .
+in contrast , global scaling normalizes the data with respect to the total library size , i.e. , the sample - specific count sum , and taxonomic abundance shifts can strongly influence the identification of def. with global scaling , the researcher expects the taxonomic composition of the samples to be informative for differential expression analysis .
+however , it is not always clear how this information can be utilized .
+when relative taxonomic abundance varies within a condition , this implies a higher dispersion of the corresponding count data , which in turn may prevent the identification of def .
+furthermore , if def are identified , it is unclear whether they result from organisms which show a differing functional profile between conditions or whether they result from organisms with unchanged functional profiles but with varying relative abundances .
+finally , if taxonomic composition variations in the data are maintained it may happen that for organisms that are only abundant in one condition all of their associated functions become differentially expressed .
+if this affects the majority of features , the model assumptions of statistical tools for def identification may be violated ( see above ) .
+normalization methods have also been used in the field of metagenomics to make the taxonomic compositions between samples comparable .
+here , similar techniques can be applied ( mcmurdie & holmes , 2014 ; weiss et al. , 2017 ) to identify the differential abundance of taxons .
+however , while in metagenomics the number of reads for a taxon is proportional to the genome size ( or marker gene copy number ) and the abundance of the organism , in metatranscriptomics , each gene can have a different transcription rate .
+when using tools like edger ( robinson , mccarthy & smyth , 2010 ) or deseq2 ( love , huber & anders , 2014 ) for the identification of differential taxonomic abundance in metagenomic data , the model assumptions may be violated .
+in particular , it is unclear if the majority of taxons do not change between different communities .
+simulated metatranscriptome the aim of our simulations was to demonstrate and explain the differences between taxon - specific and global scaling in practice , using a fully controlled data generation setup .
+to make the differences visible and understandable it is sufficient to simulate small communities as an increased complexity requires more parameters to be controlled which may even complicate interpretation .
+in some cases even a minimal community with two organisms may be sufficient to clearly show the different effects of the two scaling methods .
+in our simulations , a metatranscriptome arises from a mixture of various organisms , each with individual features .
+we assume that all organisms somehow react to a change of experimental conditions in terms of changing feature profiles .
+a metatranscriptome can include features covered by all taxa as well as features occurring only in few or a single organism .
+the sum of contributed counts from a single organism we refer to as the organism - specific library size .
+generally , the count contributions from different organisms are not equal and vary across samples .
+we refer to this as the variation of the library size .
+to simulate the variation of organism - specific library sizes , we generated multiple transcriptomic count data sets with different total count numbers .
+thereby , each generated data set mimics the contribution of a single organism .
+the data sets were then combined to simulate a metatranscriptomic count matrix .
+as with all simulations , the generated data can only provide a coarse approximation of real data and the obtained counts depend on particular parameters .
+therefore , settings for the number of features and the total count values influence the results .
+each organism is simulated with 100 differentially expressed features ( def ) , 50 of them upregulated , and with 900 features that were non - differentially expressed ( nde ) .
+each data set consists of two conditions , a and b , with six samples ( replicates ) per condition and up to five organisms ( org1 to org5 ) per sample .
+in the first three simulations , the different organism profiles are stacked , to exclude any interference between features from different organisms in the combined data .
+accordingly , the final count matrix has 12 columns and 5,000 rows that correspond to samples and features , respectively .
+in our simulated metatranscriptome experiments we show under which circumstances , the differences between global scaling and taxon - specific scaling increase in respect to the number of identified def. with the stacked profiles we focus on the ability to recover def which the data generation process labeled as de for the simulated transcriptomes .
+within this context , the data generation provides the necessary information to calculate the number of true positives ( tp ) and false positives ( fp ) .
+the label li is de or nde according to feature i being differentially expressed or non - differentially expressed .
+the statistical test used to detect def , provides a p - value for each feature .
+the predicted label \ documentclass [ 12pt ]{ minimal } \ usepackage { amsmath } \ usepackage { wasysym } \ usepackage { amsfonts } \ usepackage { amssymb } \ usepackage { amsbsy } \ usepackage { upgreek } \ usepackage { mathrsfs } \ setlength {\ oddsidemargin }{ - 69pt } \ begin { document } }{}${\ hat { l }}_{ i }$\ end { document } l ^ i is de if the adjusted p - value ( benjamini & hochberg , 1995 ) is below a threshold of 0.05 for feature i. the tp and fp counts are calculated for each organism k individually : ( 8 ) \ documentclass [ 12pt ]{ minimal } \ usepackage { amsmath } \ usepackage { wasysym } \ usepackage { amsfonts } \ usepackage { amssymb } \ usepackage { amsbsy } \ usepackage { upgreek } \ usepackage { mathrsfs } \ setlength {\ oddsidemargin }{ - 69pt } \ begin { document } }{}\ begin { eqnarray *}& & {\ text { tp }}_{ k }={|}\{ i :{\ hat { l }}_{ i }=\ text { de }\ wedge { l }_{ i }=\ text { de }\}{|}\ end { eqnarray *}\ end { document } tpk =| i : l ^ i = de ^ li = de | ( 9 ) \ documentclass [ 12pt ]{ minimal } \ usepackage { amsmath } \ usepackage { wasysym } \ usepackage { amsfonts } \ usepackage { amssymb } \ usepackage { amsbsy } \ usepackage { upgreek } \ usepackage { mathrsfs } \ setlength {\ oddsidemargin }{ - 69pt } \ begin { document } }{}\ begin { eqnarray *}& & {\ text { fp }}_{ k }={|}\{ i :{\ hat { l }}_{ i }=\ text { de }\ wedge { l }_{ i }=\ text { nde }\}{|}.\ end { eqnarray *}\ end { document } fpk =| i : l ^ i = de ^ li = nde | .
+synthetic data generation and analysis tools the tool compcoder ( soneson , 2014 ) was used to generate all simulated data .
+the tool generates count data based on a negative binomial distribution model with parameters estimated from real transcriptome data ( pickrell et al. , 2010 ; cheung et al. , 2010 ) .
+if not explicitly specified , the compcoder parameters in the r function " generate.org.mat " are used ( see file s1 ) .
+we also included the real data in csv format ( file s2 ) and a r function " run.experiments.tax.glo " ( file s3 ) to perform the simulations and real data analyses .
+all analyses were performed with r version 3.3.0 , deseq2 version 1.8.2 and edger version 3.10.5 , bioconductor version 3.1 and compcoder version 1.4.0 .
+simulation i : " without library size variation " in the first experiment we simulate the case where the library size ( ls ) for each of the five organisms does not vary across different samples .
+although this is an unrealistic case we performed this simulation to verify that both normalization approaches produce the same results under idealized conditions .
+in addition , we wanted to investigate how different organism abundances affect the identification of def .
+each organism was assigned a fixed total count number across all samples , without variation in library size .
+we simulated organism org1 with a base count of 1e7 followed by organism org2 with 5e6 , 1e6 for organism org3 and organism org4 , org5 with 5e5 , 1e5 respectively .
+this results in relative abundance fractions of 0.60 , 0.30 , 0.06 , 0.03 and 0.01 for the 5 organisms .
+because data is generated without variation for the number of counts per sample , no normalization is required , i.e. , the correct scaling factors for all samples and all organisms are the same (= 1 ) .
+simulation ii : " variations in library size of species present in the metacommunity " in the second experiment we simulated a more realistic situation , with varying ls for all included organisms .
+organism base counts are identical to the first simulation but the ls is randomly increased or reduced according to a random factor between 0.5 and 2 .
+due to the different library sizes in the samples , a prior normalization for both global scaling and taxon - specific scaling is required .
+simulation iii : " condition dependent variation " in the third simulation , we investigated to what extent a condition dependent variation of ls can affect the normalization results .
+under condition a we increase ls of org1 by a random factor between 1.5 and 2 while under condition b we decrease the ls by a random factor between 0.5 and 0.667 .
+for org2 the direction of change is reversed , with a random decrease under condition a and an increase for condition b. for org1 and org2 the same base count as for simulation i and ii is used and for org3 - 5 all parameters from simulation ii are used .
+simulation iv : " mixed feature effects " in this simulation , we investigated the different effects that can be observed for taxon - specific scaling and global scaling when using superimposed ( mixed ) counts .
+for the superposition , we assume that the corresponding counts of equal functional categories are summed up across different species .
+for an easier visualization , we reduced the setup to two organisms with a base count of 1e7 for both .
+here , we used the ls variation range for org1 and org2 from simulation iii .
+compcoder generated each organism profile with first 50 features as upregulated def , next 50 as downregulated def , followed by additional 900 nde features .
+as a result , we obtain a total of 1,000 features for the superimposed data .
+for the mixed features , we sum up the corresponding features ( a for org1 and b for org2 ) of both organisms i.e. , feature a1 + b1 , a2 + b2 , ... , a1,000 + b1,000 .
+thus , the feature combination results in summing up def with the same direction for both organisms .
+scaling factor divergence the scaling divergence dk was estimated from the difference between the sample - specific scaling factors \ documentclass [ 12pt ]{ minimal } \ usepackage { amsmath } \ usepackage { wasysym } \ usepackage { amsfonts } \ usepackage { amssymb } \ usepackage { amsbsy } \ usepackage { upgreek } \ usepackage { mathrsfs } \ setlength {\ oddsidemargin }{ - 69pt } \ begin { document } }{}${\ hat { s }}_{ jk }$\ end { document } s ^ jk and the actual scaling factors sjk for each organism k as provided by the simulation parameters .
+in both cases the factors are scaled to provide a unit mean across samples .
+to obtain a value between 0 and 1 , we compute the divergence by : ( 10 ) \ documentclass [ 12pt ]{ minimal } \ usepackage { amsmath } \ usepackage { wasysym } \ usepackage { amsfonts } \ usepackage { amssymb } \ usepackage { amsbsy } \ usepackage { upgreek } \ usepackage { mathrsfs } \ setlength {\ oddsidemargin }{ - 69pt } \ begin { document } }{}\ begin { eqnarray *}{ d }_{ k }= \ frac {\ sum _{ j }{|}{\ hat { s }}_{ jk } - { s }_{ jk }{|}}{ 2n } \ end { eqnarray *}\ end { document } dk = sumj | s ^ jk - sjk | 2nwhere n is the number of samples .
+in addition , we used the logarithmic measure \ documentclass [ 12pt ]{ minimal } \ usepackage { amsmath } \ usepackage { wasysym } \ usepackage { amsfonts } \ usepackage { amssymb } \ usepackage { amsbsy } \ usepackage { upgreek } \ usepackage { mathrsfs } \ setlength {\ oddsidemargin }{ - 69pt } \ begin { document } }{}${\ log }_{ 2 }{\ hat { s }}_{ jk }/{ s }_{ jk }$\ end { document } log2s ^ jk / sjk to represent the directed divergence .
+metatranscriptome data for a real data study , we chose a metatranscriptome dataset from mice gut ( mcnulty et al. , 2013 ) .
+the experiment includes 12 different species ( see file s4 : table 1 ) representing an artificial human gut microbial community which was inserted into germ free mice .
+in the original study the diet for the mice was changed at different time points .
+metatranscriptomic data is available for six time points which provide the conditions for our analysis .
+the available processed count data was obtained from the european bioinformatics institute ( http :// www.ebi.ac.uk / , arrayexpress , e - geod - 48993 ) and contains gene names and the associated numbers .
+because the gene to pfam ( finn et al. , 2014 ) mapping is available for most organisms , we selected pfam protein domains as features for the differential expression analysis .
+each pfam domain family is a feature in the resulting vector , including only pfams observed at least once .
+we transformed the available rpkm values for the genes back to raw counts .
+for genes with multiple pfam annotations , we added the raw count values of the gene to all associated pfam features. from the available data , we constructed a count matrix for each condition and organism ( file s5 ) .
+here , each column constitutes a different sample and each row represents a particular feature .
+because the count data from bacteroides cellulosilyticus wh2 did not map to gene names , all related counts are excluded from the analysis .
+a differential expression analysis for all pairwise combinations of distinguished conditions was performed to compare the results of global and taxon - specific scaling .
+we calculated the number of def predicted ( a ) with both methods with the same fold change direction , ( b ) with both methods but with an opposite fold change direction and ( c ) with only one scaling method .
+in addition , we investigated the overlap between the single organism transcriptome analyses and the differential expression analysis for the mixture .
+we applied a significance threshold on the adjusted p - value of 0.05 for the prediction of def .
+results in the first part of our evaluation we examined the performance of taxon - specific and global scaling methods on simulated data .
+because simulations i to iii had been designed to provide a clear ground truth from a transcriptomics perspective we were able to distinguish true positive predictions of def from falsely classified features .
+in the second part we show results on real metatranscriptomic count data .
+here the ground truth is not known and therefore we restrict the analysis on the comparison of the results from the two normalization approaches .
+because it is impossible to verify the correctness of predictions we focus on analyzing the agreement or disagreement on def detection in this case .
+simulation i in this experiment , we measured the ability to detect def in a metatranscriptome without variation of organism - specific library sizes across different samples .
+this situation , in principle , does not require any normalization and therefore we expected taxon - specific (" tax ") and global (" glo ") scaling to yield similar results .
+this is confirmed by the resulting true positive ( tp ) predictions of def for the included organisms ( fig. 2 ) .
+for both approaches the number of true positives is higher for more abundant organisms due to an increased statistical power of the corresponding tests .
+the final profile includes 100 de and 900 nde features for each organism , resulting in 5,000 features in total .
+10.7717 / peerj.3859 / fig - 2 figure 2 simulation i. number of true positive ( tp ) and false positive ( fp ) features identified with deseq2 for global (" glo ") and taxon - specific (" tax ") scaling : boxplots represent variation over 100 runs of the simulation .
+we repeated the analysis with edger with the included normalization and deseq2 / edger with tc normalization to estimate the scaling factors ( see file s4 : fig. 1 ) .
+for edger , the number of correctly identified def is lower for all organisms ( see file s4 : fig. 1 ) .
+for this particular data set , the library size ( ls ) was correctly adjusted by deseq2 with scaling factors close to 1 for all samples .
+again both normalization approaches performed equally well .
+a similar picture can be expected for a varying total ls of the metatranscriptome samples as long as the relative ls of the organisms does not vary across different samples .
+simulation ii when introducing organism - specific ls variation across samples the picture changes .
+for the global scaling approach the results show a decrease in the average tp rate for all organisms ( see fig. 3 ) .
+this trend is also visible when edger with the included normalization and deseq2 / edger with tc normalization are used for differential expression analysis ( see file s4 : fig. 2 ) .
+on the other hand , with taxon - specific scaling the results are very similar to results from simulation i ( see fig. 2 ). with this method more def are correctly identified than with global scaling .
+the difference in the number of correctly identified def for global scaling is dependent on the parameter settings for the ls variation .
+for a lower amplitude of the ls variation , the tp rate for global scaling increases ( file s4 : fig. 3 ) .
+the range of tp for the most abundant organisms org1 and org2 is broader with global scaling ( see fig. 3 ) which also shows a higher scaling divergence for organisms with a lower sequencing depth ( see file s4 : fig. 4 ) .
+10.7717 / peerj.3859 / fig - 3 figure 3 simulation ii. number of true positive ( tp ) and false positive ( fp ) features identified with deseq2 for global (" glo ") and taxon - specific (" tax ") scaling .
+fp boxplots appear compressed due to outliers .
+organism order for fp is the same as for tp boxplots .
+the receiver operating characteristics ( roc ) shows a higher area under curve ( auc ) value for taxon - specific scaling ( 0.8776 ) than for global scaling ( 0.8282 ) .
+the curve for global scaling also shows a higher degree of variation across different simulation runs ( fig. 4 dotted lines ) .
+10.7717 / peerj.3859 / fig - 4 figure 4 roc curves for simulation ii. average curve for taxon - specific scaling ( blue ) vs. average curve for global scaling ( red ) with false positive rate ( fpr ) on x - axis and true positive rate ( tpr ) on y - axis .
+dotted lines above and below indicate the standard deviation for each method .
+the average area under curve ( auc ) is 0.8776 for taxon - specific scaling and 0.8282 for global scaling .
+simulation iii with the inclusion of a condition dependent variation of the ls this simulation experiment can be viewed as a worst case study .
+for global scaling , the observed number of true positives is higher for all data sets compared to simulation ii ( see fig. 5 ) .
+however , the number of false positive predictions explodes and even exceeds the total number of def ( 500 ) resulting in average tp and fp numbers of 228 (+/ - 11 ) and 1,523 (+/ - 78 ) , i.e. , ~ 35 % of all features are predicted to be def .
+10.7717 / peerj.3859 / fig - 5 figure 5 simulation iii .
+number of true positive ( tp ) and false positive ( fp ) features identified with deseq2 for global (" glo ") and taxon - specific (" tax ") scaling .
+boxplots represent variation over 100 runs of the simulation .
+in particular , the biggest portion of fp accumulates in features from org1 and org2 ( see fig. 5 ) .
+inspecting the log2 fold changes ( see fig. 6 ) a shift from the correct center of 0 upwards and downwards can be observed for org1 and org2 , respectively .
+as a result , many def are identified with the wrong ( opposite ) direction and most of the false positive detections just reflect the direction of this shift .
+the results with edger and tc normalization show a similarly high fp rate ( see file s4 : fig. 5 ) .
+10.7717 / peerj.3859 / fig - 6 figure 6 simulation iii : log2 fold changes .
+log2 fold changes of features for global normalization on one example data set .
+along x - axis , features ( dots ) are ordered according to five stacked organism profiles , each with 1,000 features of which the first 50 features are " upregulated " , and the next 50 features are " downregulated " .
+gray dots correspond to correctly detected nde features , light green dots to downregulated features which are missed and dark green dots to correctly identified downregulated def .
+light blue dots correspond to missed upregulated def and dark blue dots to correctly identified upregulated def .
+red dots mark def where global scaling leads to an incorrect direction .
+purple dots correspond to nde features which are incorrectly identified as significant features .
+as a consequence , the roc curve collapses for global scaling ( see fig. 7 ) with an auc of 0.6396 .
+in contrast , taxon - specific scaling does not suffer from condition - dependent ls variation and the results compare well with those of simulation i & ii showing a similar shape of the roc curve ( auc : 0.8785 ). with taxon - specific scaling , the average tp across all species is 237 which corresponds to a sensitivity of ~ 47 % .
+for global scaling the total number of predicted def ( tp + fp ) is dependent on the amplitude of the condition dependent ls shift and increases for bigger shifts .
+10.7717 / peerj.3859 / fig - 7 figure 7 roc curves for simulation iii .
+average curve for taxon - specific scaling ( blue ) vs. average curve for global scaling ( red ) with false positive rate ( fpr ) on x - axis and true positive rate ( tpr ) on y - axis .
+dotted lines above and below indicate the standard deviation for each method .
+the average area under curve ( auc ) is 0.8785 for taxon - specific scaling and 0.6369 for global scaling .
+note that the fp predictions under global scaling arise from a transcriptomics perspective which assumes that all information is represented in the functional variation of organism - specific feature profiles .
+we admit that for this simulation the term " false positives " can be misleading , because we introduced a systematic condition - dependent ls variation which might as well correspond to a meaningful reaction to a change of experimental conditions .
+however , the main point here is that with global scaling it would not be possible to distinguish between both kinds of predictions in real data .
+as shown above , also the number of identified transcriptomic differences ( tp ) is high and in a typical application of global scaling on mixed counts from different organisms the two types of transcriptional differences will not be recognized .
+simulation iv the last simulation only includes two organisms for a better illustration of the effects that arise from a superposition of counts from different organisms .
+the normalized superimposed counts show a characteristic picture ( figs. 8a and 8b ) when looking at the mean counts for condition a ( x - axis ) and b ( y - axis ) .
+while the feature distribution for taxon - specific scaling shows an elliptical distribution with a higher concentration near the diagonal , for global scaling we observe a clustering of features , with a lower density near the diagonal .
+the two clusters arise from the two organisms , which show a different ratio of condition - specific means , due to different ls under the two conditions .
+here we see that it can be problematic to infer the scaling factors which are typically estimated from putative nde features on and near the diagonal .
+in this case , for transcriptomics tools like deseq2 and edger the assumption of a majority of nde features is obviously violated .
+10.7717 / peerj.3859 / fig - 8 figure 8 comparison of the mean scaled counts between condition a ( cond a ) and condition b ( cond b ) .
+the figures ( a ) and ( c ) show the results of taxon - specific scaling and ( b ) and ( d ) the results for global scaling .
+on the x - axis is the log average count per feature in condition a and on the y - axis the log average count per feature in condition b. the dashed line represents the balance between counts from condition a and condition b ( i.e. , ideal nde features ) .
+points show superimposed count data for taxon - specific scaling ( a ) and global scaling ( b ) .
+the embedded figure displays the density of the distance of each feature to the dashed diagonal .
+in ( c ) and ( d ) the start of each arrow corresponds to a stacked feature count that is labeled " upregulated " by the data generation process and the color indicates the source organism .
+the head of each arrow indicates the superimposed count for one of these 50 def for taxon - specific ( c ) and global ( d ) scaling .
+to illustrate how the superimposed ( mixed ) counts are obtained , we used arrows to show the contribution of both organisms to the mixed counts for the first 50 features , i.e. , all up - regulated def from the generated transcriptome profiles ( see figs. 8c and 8d ) .
+each arrow starts at the location of the transcriptomic ( mean ) counts and ends in the mixed ( mean ) count .
+because we used two organisms , each metatranscriptomic count has two transcriptomic sources .
+for taxon - specific normalization , most arrows are ( nearly ) parallel to the diagonal , which indicates that the type of the difference is maintained .
+for global scaling the arrows form a larger angle and often cross the diagonal .
+a crossing means that the direction of the difference changes for the mixed feature .
+a feature that was up - regulated for one transcriptome becomes down - regulated for the metatranscriptome. with global scaling , on average 43.6 crossings occur for the 100 features labeled as de by the generation process .
+only six crossings were observed for taxon - specific scaling ( see figs. 8c and 8d ) .
+thus , the meaning of up and down regulation may completely change with global scaling and in large parts the results may contradict the corresponding single transcriptome analyses .
+this may even rise the question whether the term " differential expression " is still adequate for this kind of difference which arises from a shift of taxonomic abundances .
+real metatranscriptome data while the objective of the simulation studies was to evaluate and compare the two normalization approaches in terms of combined transcriptomic def , we do not have de and nde labels for the analysis of the real data .
+therefore we focused on an analysis of the ( dis - ) agreement in results between both approaches without assessing the detection performance .
+the analyzed data comprises pfam counts from 11 organisms , six conditions according to different time points and four replicates per condition .
+an overview on predicted def in all pairwise condition comparisons is shown in fig. 9. 10.7717 / peerj.3859 / fig - 9 figure 9 predicted def for real data ( a ) .
+number of significant features from taxon - specific scaling (" tax ") and global scaling (" glo ") for different condition comparisons .
+colors indicate shared significant features with same direction of difference ( grey ) , shared significant features with opposite direction ( red ) and mutually exclusive features ( purple ) that are only found to be significant for one scaling method .
+histograms for predicted def according to the number of single organism analyses that show a significant difference ( x - axis ) with results for taxon - specific scaling ( b ) and global scaling ( c ) .
+for example , a high bar at " 0 " means that many features are found to be significant for the metatranscriptome which are not significant for any of the single transcriptome analyses .
+for both approaches , the number of predicted def peaked at " day 13 " vs. " day 27 " with 512 and 756 significant features for taxon - specific and global scaling .
+the number of def was low when conditions close together on the time line were compared (" day 15 " vs. " day 16 " or " day 29 " vs. " day 30 ") .
+for global scaling , the number of predicted def was generally higher than for taxon - specific scaling .
+for some of the comparisons , the number of extra predictions under global scaling was even higher than the number of shared predictions ( see fig. 9 ) .
+the high number of extra predictions observed with global scaling is especially prevalent for the comparisons " day 15 " vs " day 16 " with 16 times more extra predictions than predictions shared with taxon - specific scaling and " day 13 " vs " day 16 " with three times more extra predictions than shared predictions .
+we also compared the results of the mixture analysis for global scaling and taxon - specific scaling to the transcriptome analyses of the individual organisms .
+for 10 of the 15 comparisons , the majority of predicted def with global scaling were not predicted as def in any transcriptome ( see file s4 : fig. 6 ) .
+in contrast , with taxon - specific scaling only the comparisons " day 29 " vs " day 30 " and " day 15 " vs " day 16 " show a higher fraction of significant features not predicted as def in the transcriptomes .
+these two comparisons are also the ones with the smallest total number of predicted def .
+when taking into account the direction of the differential expression , the number of def predicted by both methods but with contrary regulation direction is low .
+here , comparison " day 16 " vs " day 30 " shows a maximum of 5 def with an opposite direction .
+an example of a feature that shows a contrary result under the two scaling methods is shown in fig. 10. 10.7717 / peerj.3859 / fig - 10 figure 10 single feature analysis ( pf12667 ) .
+stacked bars in three parts ( x - axis ) show organism - specific counts before scaling (" raw ") , after taxon - specific scaling (" tax ") and after global scaling (" glo ") .
+significant feature with opposite direction for the two scaling methods .
+taxon - specific and global scaling result in adjusted p - values 6.91e - 5 and 1.33e - 5 , respectively .
+the log2 fold change for condition a in comparison to condition b is 0.70 for taxon - specific scaling and - 0.82 for global scaling .
+analysis of " day 13 " vs " day 27 " as described in the original study , " day 13 " and " day 27 " each correspond to the final day of a particular diet .
+because the number of predicted def for both scaling methods ( global and taxon - specific ) was the highest here , we analyze the results for this comparison in more detail .
+we mapped the pfam - annotated features which were predicted as def for global scaling and taxon - specitic scaling to gene ontology ( go ) terms and compared the results. with taxon - specific scaling 250 go terms with at least one def mapping were identified , while global scaling resulted in 311 go terms .
+go terms associated to biological processes with a high agreement between the two methods were for example cellular amino acid metabolic process where both methods identified seven of the nine associated pfams as def and carbohydrate metabolic process with 11 def shared between taxon - specific scaling and global scaling .
+in this category , taxon - specific scaling and global scaling predicted five additional def uniquely .
+go terms with predicted def from taxon - specific scaling alone included magnesium ion binding and fucose metabolic process with three predicted def each .
+for global scaling alone , we found that dna modification , molybdopterin cofactor biosynthetic process , and rna modification with 3 , 2 and 2 predicted def respectively ( see file s6 for a complete list ) .
+extra predictions .
+in the condition comparison " day 13 " vs " day 27 " , both normalization approaches shared 376 def. with taxon - specific scaling , 136 extra predictions were observable while global scaling resulted in 380 extra predictions .
+we then compared the results of both scaling methods to the single organism transcriptome analyses where a total of 1,302 features had been found to be def at least for one transcriptome .
+global scaling and taxon - specific scaling resulted in 252 and 69 predictions of def that were insignificant in all single analyses ( see fig. 9 ) .
+within these predictions both methods shared an overlap of 53 features .
+the fraction of shared def predictions between the two scaling methods is lower if the def are supported by a smaller number of transcriptome analyses .
+for features supported by one transcriptome the agreement was ~ 48 % , increasing to ~ 56 % for two transcriptomes .
+in the range of three to six supporting transcriptomes , the agreement increases to ~ 59 % , ~ 80 % , 100 % and 100 % respectively .
+while the relative agreement between taxon - specific and global scaling increases , the total number of features supported by multiple transcriptomes decreases ( file s4 : fig. 6 ) .
+the results indicate that with global scaling we encounter the same problem that we have already outlined in the simulations .
+as shown above , on real data the number of shared def predictions between the two scaling methods can be as high as the number of extra predictions that result from global scaling .
+as also indicated by the following scaling factor analysis there is strong evidence that these extra predictions result from taxonomic abundance variations .
+again we argue , that without taxonomic separation and further analysis , with global scaling it is impossible to distinguish differences that result from taxonomic abundance shifts from differences that arise from organism - specific changes of the transcriptome .
+scaling divergence .
+in the simulations , the differences in the estimated scaling factors for the single organism profiles in comparison to the actual scaling factors were low with a scaling divergence of ~ 0.01 .
+in simulation ii we found the scaling deviation to be high in general with global scaling ( file s4 : fig. 3 ) and in simulation iii which showed the highest divergence we observed a drastic increase of predicted def with global scaling when two organisms with condition - dependent abundance shifts were combined .
+to further investigate the increased number of def predicted by global scaling , we compared the scaling factors estimated for the single organism profiles with the estimated scaling factors for the global normalization in the comparison " day 13 " vs " day 27 " .
+for several organisms , a pattern emerged which shows a condition specific scaling divergence ( fig. 11 ) .
+while the scaling factors for one condition are relatively small , the scaling factors in the other condition are relatively high .
+as a result , global scaling leads to a condition - dependent divergence which may explain the increased prediction of def because the normalization introduces a shift between the two conditions .
+the observed scaling divergence is also in agreement with the organism abundance for each sample ( see file s4 : fig. 7 ) .
+10.7717 / peerj.3859 / fig - 11 figure 11 global scaling condition bias .
+direction of global scaling divergence in terms of the log2 - ratio of scaling factors from transcriptomic and global scaling .
+results for different organisms in the comparison of " day 13 " vs. " day 27 " .
+for symmetry of the color range the negative log2 - ratio was capped at - 1.25 , with divergence values below that threshold showing the same color ( blue ) .
+samples 1 - 4 are from condition a and samples 5 - 8 from condition b. for the species name abbreviations see file s2 : table 1. d. longicatena dsm 13814 was not observed in that particular condition comparison .
+a single scaling factor per sample is especially problematic for features , which mainly comprise counts from one organism or when counts from mixed organisms with the same scaling shift are analyzed .
+for a quantification we determined the number of features , for which counts from a single organism ( or the mixture of organisms with the same scaling divergence direction ) exceed 80 % of the normalized counts for that feature .
+for extra predictions obtained only with global scaling without evidence from the transcriptome analyses , the counts from a single organism are the main contribution for 82 of 199 features .
+additional 43 features are predicted from the summed counts from organisms with the same scaling shift .
+an example of a feature that shows a dominating single organism is shown in fig. 12. 10.7717 / peerj.3859 / fig - 12 figure 12 single feature analysis ( pf07881 ) .
+stacked bars in three parts ( x - axis ) show organism - specific counts before scaling (" raw ") , after taxon - specific scaling (" tax ") and after global scaling (" glo ") .
+loss of significance due to ( mis ) scaling of profiles from mainly one organism .
+feature is significant for organisms org2 , org5 and org11 in transcriptome analysis .
+taxon - specific and global scaling result in adjusted p - values 1.79e - 3 and 0.66 , respectively .
+discussion the simulations allowed us to highlight the effects of the two normalization approaches that can lead to results with a varying degree of divergence between taxon - specific and global scaling .
+here , we could show that organism - specific transcript abundance and its variation between and within conditions is the key factor for the divergent results .
+other important factors are the accuracy of the functional and taxonomic annotation and the number of observed features with sufficient counts to estimate the scaling factors .
+in this regard , the simulations correspond to idealized conditions which cannot reflect the difficulties of a real data analysis .
+the number of organisms was chosen with respect to a clear visualization of results .
+in principle , an increase of the organism number does not add any effects that could not be observed with a lower complexity .
+all simulations were designed to demonstrate the very different nature of the two normalization approaches .
+taxon - specific scaling is closely related to the transcriptomic approach to differential expression analysis and can be viewed as a possible generalization of the single - organism setup to a multi - organism analysis .
+it equalizes all variations of the taxonomic composition of transcripts across samples to identify functional effects that are consistent across different organisms .
+if the functional profiles do not show systematic variation between conditions , no meaningful differences will be found with taxon - specific scaling .
+in contrast , global scaling assumes that variations of the taxonomic composition are meaningful and important for differential analysis .
+depending on the data , this assumption may be correct and then many of the false positives for global scaling in simulation iii may actually correspond to true positives .
+the objective of the simulations was to compare the two normalization approaches under the assumption that the relevant information is in the variation of the organism - specific functional profiles , similar to the transcriptomic approach .
+in contrast , the taxonomic variations were not assumed to be indicative of the experimental conditions and might for instance result from sample preparation .
+we chose this setup because it reveals a potential complication of the global scaling approach .
+as the main problem , the effects of taxonomic and functional variations will always be mixed up in the results when applying global scaling .
+without further analysis , it is impossible to determine whether a predicted def results from a taxonomic or from a functional variation .
+another problem with global scaling has been shown in simulation iv , where the underlying model assumptions for the normalization tend to be violated. with an increasing number of def it becomes increasingly unclear which features should be used as a reference for estimation of the scaling factors .
+therefore , if taxonomic variation is informative it might be a better strategy to estimate the species composition for each sample and then compare the taxonomic profiles for the identification of significant differences .
+in fact a differential composition analysis as used in metagenomics ( mcmurdie & holmes , 2014 ; weiss et al. , 2017 ) will well complement a differential expression analysis based on taxon - specific scaling .
+it is important to realize that while taxon - specific scaling negates library size variation of the organisms between samples , it retains the overall taxonomic composition of the observed transcripts .
+therefore , the feature counts of rare organisms will have less impact on the combined metatranscriptome data than feature counts from highly abundant organisms .
+the minimum required coverage of an organism for reliable estimation of the scaling factors highly depends on the data .
+for rare species it is possible that only a few highly expressed features are observed .
+as a special case , organisms only observed in one condition cannot be included in the differential expression analysis of the combined counts for taxon - specific scaling .
+therefore , the user has to check what fraction of the features can actually be used in the analysis and if identified def could be the result of the exclusion of features from organisms not observed in both conditions. with global scaling such single - condition organisms can be included but without taxonomic separation it can become difficult to explain a possibly large number of differences from a change of experimental conditions .
+for taxon - specific scaling our approach relies on techniques implemented in tools that have been developed for differential expression analysis in transcriptomics .
+as a consequence , our method also inherits the assumptions and requirements of these tools for the normalization of transcriptomic count data .
+in general , both deseq2 and edger require a sufficient number of nde features to reliably perform the normalization .
+in particular , both methods expect the number of def to be lower than the number of nde features .
+also the proportion of up - and down - regulated features may have an influence on the detection of def .
+when the ratio is shifted towards one regulation direction , the detection performance may decrease .
+other normalization methods might provide better results under these conditions ( soneson & delorenzi , 2013 ) .
+the applicability of taxon - specific scaling inherently depends on the accuracy of the methods that are used for taxonomic binning and feature annotation .
+among the factors that impact the accuracy are the complexity of the analyzed metatranscriptome and the evolutionary distance between the observed organisms and organisms in reference databases .
+for highly complex communities and for communities with only distantly related organisms in the reference databases , additional sequencing of the metagenome will be highly beneficial to improve the results .
+the optimal situation for taxon - specific scaling would enable the separation of all feature profiles from different organisms .
+this organism - specific separation can be viewed as the most conservative approach , as in principle it would be sufficient to separate all differing expression profiles .
+therefore , if organisms show the same transcriptional activities , the normalization of their combined count data is possible without problems .
+for example , the metatranscriptome might include multiple strains of the same species occurring simultaneously but showing the same activities .
+the choice of features is also an important factor to consider before the experiments are performed .
+the transformation of the organism - specific genes to a common feature space , such as the pfam protein domain categories , allows us to first normalize and then sum up the features of different organisms to obtain a superimposed count matrix .
+the mapping can also include the assignment of multiple genes from the same organism to a single feature representation .
+as a consequence , it is no longer possible to identify differential expression with respect to a single gene .
+this limitation is inherent to many metatranscriptome studies and does not depend on the chosen normalization approach .
+again , parallel sequencing of the metagenome might be considered , to obtain a higher resolution .
+then , a combined assembly and binning strategy can yield the required draft genomes as reference to realize the highest taxonomic and functional resolution for differential expression analysis .
+conclusions differential expression analysis in metatranscriptomics is challenging .
+metatranscriptomic count data from rna - seq experiments show two main modes of biological variation .
+the functional composition of transcripts reflects the activity of organisms and systematic changes might indicate a metabolic response to experimental conditions .
+the taxonomic composition of transcripts can change as well and a change may not necessarily be explainable in terms of controlled experimental conditions .
+in contrast to metagenomics , in metatranscriptomics the questions " who is there ?" and " what are they doing " are not necessarily connected and should be answered separately for a clear interpretation of results .
+if the two questions are not separated , just from a significant difference it is not possible to decide whether this difference goes back to a variation of taxonomic or functional profiles or if it reflects both kinds of variation .
+our approach to normalization of metatranscriptomic data eliminates the influence of taxonomic variations from functional analysis .
+for realization of this approach , the metatranscriptome needs to be decomposed to normalize the organism profiles independently .
+then the metatranscriptomic count data can be recombined from the normalized profiles to look for any general tendencies in the superimposed count data .
+if differential expression tools are directly applied to the metatranscriptomic count matrix , the interpretation of results can be difficult .
+our simulations indicate that it is easily possible to obtain a large number of putative functional differences which just arise from taxonomic abundance variations across samples .
+we would like to point out that our findings do not affect metatranscriptome studies that just aim to analyze the functional repertoire from rna - seq data .
+the question which functions or genes are expressed is much easier to answer than the question what is the functional response to a change of experimental conditions .
+however , it is important to note that our results do not only apply to the classic two conditions setup that we used throughout our study .
+also for multiple conditions and time series our normalization approach will be beneficial to separate functional from taxonomic trends in metatranscriptomic count data .
+supplemental information 10.7717 / peerj.3859 / supp - 1 file s1 r - script to normalize and analyze metatranscriptomic count data with taxon - specific scaling and deseq2 click here for additional data file .
+10.7717 / peerj.3859 / supp - 2 file s2 count data to perform the real data analyses click here for additional data file .
+10.7717 / peerj.3859 / supp - 3 file s3 r - script to perform simulated and real data analyses click here for additional data file .
+10.7717 / peerj.3859 / supp - 4 file s4 supplemental material - - additional table and figures click here for additional data file .
+10.7717 / peerj.3859 / supp - 5 file s5 real metatranscriptome count data table containing the count data for the 11 organisms and 6 conditions from the real metatranscriptome dataset and the pfam names to feature associations click here for additional data file .
+10.7717 / peerj.3859 / supp - 6 file s6 go - table - - table with pfam to go mappings for taxon - specific scaling and global scaling click here for additional data file .
+additional information and declarations competing interests the authors declare there are no competing interests .
+author contributions heiner klingenberg conceived and designed the experiments , performed the experiments , analyzed the data , wrote the paper , prepared figures and / or tables , reviewed drafts of the paper .
+peter meinicke conceived and designed the experiments , analyzed the data , wrote the paper , reviewed drafts of the paper , statistical modeling .
+data availability the following information was supplied regarding data availability : the r code for count data normalization and the count data used for evaluation have been provided as supplemental files .
+references anders & huber ( 2010 ) anders s huber w 2010 differential expression analysis for sequence count data genome biology 11 10 article r106 10.1186 / gb - 2010 - 11 - 10 - r106 benjamini & hochberg ( 1995 ) benjamini y hochberg y 1995 controlling the false discovery rate : a practical and powerful approach to multiple testing journal of the royal statistical society .
+series b ( methodological ) 57 1 289 300 10.2307 / 2346101 bullard et al .
+( 2010 ) bullard jh purdom e hansen kd dudoit s 2010 evaluation of statistical methods for normalization and differential expression in mrna - seq experiments bmc bioinformatics 11 94 10.1186 / 1471 - 2105 - 11 - 94 20167110 celaj et al .
+( 2014 ) celaj a markle j danska j parkinson j 2014 comparison of assembly algorithms for improving rate of metatranscriptomic functional annotation microbiome 2 article 39 10.1186 / 2049 - 2618 - 2 - 39 cheung et al .
+( 2010 ) cheung vg nayak rr wang ix elwyn s cousins sm morley m spielman rs 2010 polymorphic cis - and trans - regulation of human gene expression plos biology 8 9 e1000480 10.1371 / journal.pbio.1000480 20856902 de filippis et al .
+( 2016 ) de filippis f genovese a ferranti p gilbert ja ercolini d 2016 metatranscriptomics reveals temperature - driven functional changes in microbiome impacting cheese maturation rate scientific reports 6 21871 10.1038 / srep21871 26911915 dillies et al .
+( 2013 ) dillies ma rau a aubert j hennequet - antier c jeanmougin m servant n keime c marot g castel d estelle j guernec g jagla b jouneau l laloe d le gall c schaeffer b le crom s guedj m jaffrezic f 2013 a comprehensive evaluation of normalization methods for illumina high - throughput rna sequencing data analysis briefings in bioinformatics 14 6 671 683 10.1093 / bib / bbs046 22988256 eisen ( 2007 ) eisen ja 2007 environmental shotgun sequencing : its potential and challenges for studying the hidden world of microbes plos biology 5 3 e82 10.1371 / journal.pbio.0050082 17355177 finn et al .
+( 2014 ) finn rd bateman a clements j coggill p eberhardt ry eddy sr heger a hetherington k holm l mistry j sonnhammer el tate j punta m 2014 pfam : the protein families database nucleic acids research 42 database issue d222 d230 10.1093 / nar / gkt1223 24288371 franzosa et al .
+( 2014 ) franzosa ea morgan xc segata n waldron l reyes j earl am giannoukos g boylan mr ciulla d gevers d izard j garrett ws chan at huttenhower c 2014 relating the metatranscriptome and metagenome of the human gut proceedings of the national academy of sciences of the united states of america 111 22 e2329 e2338 10.1073 / pnas.1319284111 24843156 frias - lopez et al .
+( 2008 ) frias - lopez j shi y tyson gw coleman ml schuster sc chisholm sw delong ef 2008 microbial community gene expression in ocean surface waters proceedings of the national academy of sciences of the united states of america 105 10 3805 3810 10.1073 / pnas.0708897105 18316740 gilbert et al .
+( 2008 ) gilbert ja field d huang y edwards r li w gilna p joint i 2008 detection of large numbers of novel sequences in the metatranscriptomes of complex marine microbial communities plos one 3 8 e3042 10.1371 / journal.pone.0003042 18725995 hesse et al .
+( 2015 ) hesse cn mueller rc vuyisich m gallegos - graves lv gleasner cd zak dr kuske cr 2015 forest floor community metatranscriptomes identify fungal and bacterial responses to n deposition in two maple forests frontiers in microbiology 6 article 337 10.3389 / fmicb.2015.00337 huson et al .
+( 2011 ) huson dh mitra s ruscheweyh hj weber n schuster sc 2011 integrative analysis of environmental sequences using megan4 genome research 21 9 1552 1560 10.1101 / gr.120618.111 21690186 li & tibshirani ( 2013 ) li j tibshirani r 2013 finding consistent patterns : a nonparametric approach for identifying differential expression in rna - seq data statistical methods in medical research 22 5 519 536 10.1177 / 0962280211428386 22127579 lin et al .
+( 2016 ) lin y golovnina k chen zx lee hn negron yl sultana h oliver b harbison st 2016 comparison of normalization and differential expression analyses using rna - seq data from 726 individual drosophila melanogaster bmc genomics 17 28 10.1186 / s12864 - 015 - 2353 - z 26732976 love , huber & anders ( 2014 ) love mi huber w anders s 2014 moderated estimation of fold change and dispersion for rna - seq data with deseq2 genome biology 15 12 article 550 10.1186 / s13059 - 014 - 0550 - 8 macklaim et al .
+( 2013 ) macklaim jm fernandes ad di bella jm hammond ja reid g gloor gb 2013 comparative meta - rna - seq of the vaginal microbiota and differential expression by lactobacillus iners in health and dysbiosis microbiome 1 1 article 12 10.1186 / 2049 - 2618 - 1 - 12 marioni et al .
+( 2008 ) marioni jc mason ce mane sm stephens m gilad y 2008 rna - seq : an assessment of technical reproducibility and comparison with gene expression arrays genome research 18 9 1509 1517 10.1101 / gr.079558.108 18550803 martinez et al .
+( 2016 ) martinez x pozuelo m pascal v campos d gut i gut m azpiroz f guarner f manichanh c 2016 metatrans : an open - source pipeline for metatranscriptomics scientific reports 6 26447 10.1038 / srep26447 27211518 mason et al .
+( 2012 ) mason ou hazen tc borglin s chain ps dubinsky ea fortney jl han j holman hy hultman j lamendella r mackelprang r malfatti s tom lm tringe sg woyke t zhou j rubin em jansson jk 2012 metagenome , metatranscriptome and single - cell sequencing reveal microbial response to deepwater horizon oil spill isme journal 6 9 1715 1727 10.1038 / ismej.2012.59 22717885 mcmurdie & holmes ( 2014 ) mcmurdie pj holmes s 2014 waste not , want not : why rarefying microbiome data is inadmissible plos computational biology 10 4 e1003531 10.1371 / journal.pcbi.1003531 24699258 mcnulty et al .
+( 2013 ) mcnulty np wu m erickson ar pan c erickson bk martens ec pudlo na muegge bd henrissat b hettich rl gordon ji 2013 effects of diet on resource utilization by a model human gut microbiota containing bacteroides cellulosilyticus wh2 , a symbiont with an extensive glycobiome plos biology 11 8 1 20 10.1371 / journal.pbio.1001637 nacke et al .
+( 2014 ) nacke h fischer c thurmer a meinicke p daniel r 2014 land use type significantly affects microbial gene transcription in soil microbial ecology 67 4 919 930 10.1007 / s00248 - 014 - 0377 - 6 24553913 pickrell et al .
+( 2010 ) pickrell jk marioni jc pai aa degner jf engelhardt be nkadori e veyrieras j - b stephens m gilad y pritchard jk 2010 understanding mechanisms underlying human gene expression variation with rna sequencing nature 464 768 772 10.1038 / nature08872 20220758 poretsky et al .
+( 2005 ) poretsky rs bano n buchan a lecleir g kleikemper j pickering m pate wm moran ma hollibaugh jt 2005 analysis of microbial gene transcripts in environmental samples applied and environmental microbiology 71 7 4121 4126 10.1128 / aem.71.7.4121 - 4126.2005 16000831 poretsky et al .
+( 2009 ) poretsky rs hewson i sun s allen ae zehr jp moran ma 2009 comparative day / night metatranscriptomic analysis of microbial communities in the north pacific subtropical gyre environmental microbiology 11 6 1358 1375 10.1111 / j.1462 - 2920.2008.01863.x 19207571 ritchie et al .
+( 2015 ) ritchie me phipson b wu d hu y law cw shi w smyth gk 2015 limma powers differential expression analyses for rna - sequencing and microarray studies nucleic acids research 43 7 e47 10.1093 / nar / gkv007 25605792 robinson , mccarthy & smyth ( 2010 ) robinson md mccarthy dj smyth gk 2010 edger : a bioconductor package for differential expression analysis of digital gene expression data bioinformatics 26 1 139 140 10.1093 / bioinformatics / btp616 19910308 robinson & oshlack ( 2010 ) robinson md oshlack a 2010 a scaling normalization method for differential expression analysis of rna - seq data genome biology 11 3 article r25 10.1186 / gb - 2010 - 11 - 3 - r25 simon & daniel ( 2009 ) simon c daniel r 2009 achievements and new knowledge unraveled by metagenomic approaches applied microbiology and biotechnology 85 2 265 276 10.1007 / s00253 - 009 - 2233 - z 19760178 soneson ( 2014 ) soneson c 2014 compcoder - - an r package for benchmarking differential expression methods for rna - seq data bioinformatics 30 17 2517 2518 10.1093 / bioinformatics / btu324 24813215 soneson & delorenzi ( 2013 ) soneson c delorenzi m 2013 a comparison of methods for differential expression analysis of rna - seq data bmc bioinformatics 14 91 10.1186 / 1471 - 2105 - 14 - 91 23497356 trapnell et al .
+( 2012 ) trapnell c roberts a goff l pertea g kim d kelley dr pimentel h salzberg sl rinn jl pachter l 2012 differential gene and transcript expression analysis of rna - seq experiments with tophat and cufflinks nature protocols 7 3 562 578 10.1038 / nprot.2012.016 22383036 urich et al .
+( 2008 ) urich t lanzen a qi j huson dh schleper c schuster sc 2008 simultaneous assessment of soil microbial community structure and function through analysis of the meta - transcriptome plos one 3 6 e2527 10.1371 / journal.pone.0002527 18575584 weiss et al .
+( 2017 ) weiss s xu zz peddada s amir a bittinger k gonzalez a lozupone c zaneveld jr vazquez - baeza y birmingham a hyde er knight r 2017 normalization and microbial differential abundance strategies depend upon data characteristics microbiome 5 1 article 27 10.1186 / s40168 - 017 - 0237 - y westreich et al .
+( 2016 ) westreich st korf i mills da lemay dg 2016 samsa : a comprehensive metatranscriptome analysis pipeline bmc bioinformatics 17 1 399 10.1186 / s12859 - 016 - 1270 - 8 27687690 ye & tang ( 2016 ) ye y tang h 2016 utilizing de bruijn graph of metagenome assembly for metatranscriptome analysis bioinformatics 32 7 1001 1008 10.1093 / bioinformatics / btv510 26319390

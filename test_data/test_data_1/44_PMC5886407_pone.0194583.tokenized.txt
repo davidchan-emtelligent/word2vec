@@ -1,0 +1,293 @@
+plos one plos one plos plosone plos one 1932 - 6203 public library of science san francisco , ca usa 29621250 5886407 pone - d - 17 - 34990 10.1371 / journal.pone.0194583 research articlebiology and life sciencesmolecular biologymacromolecular structure analysisrna structurebiology and life sciencesbiochemistrynucleic acidsrnarna structurephysical sciencesphysicsthermodynamicsfree energybiology and life sciencesmolecular biologymacromolecular structure analysisrna structurerna structure predictionbiology and life sciencesbiochemistrynucleic acidsrnarna structurerna structure predictionphysical sciencesmathematicsapplied mathematicsalgorithmsresearch and analysis methodssimulation and modelingalgorithmsphysical scienceschemistrychemical physicsmolecular structurephysical sciencesphysicschemical physicsmolecular structurebiology and life sciencesmolecular biologymacromolecular structure analysisrna structurepseudoknotsbiology and life sciencesbiochemistrynucleic acidsrnarna structurepseudoknotsbiology and life sciencesmolecular biologymacromolecular structure analysisrna structurerna foldingbiology and life sciencesbiochemistrynucleic acidsrnarna structurerna foldingbiology and life sciencesmolecular biologymacromolecular structure analysisrna structurerna stem - loop structurebiology and life sciencesbiochemistrynucleic acidsrnarna structurerna stem - loop structure rna secondary structure prediction with pseudoknots : contribution of algorithm versus energy model rna secondary structure prediction with pseudoknots : contribution of algorithm versus energy model http :// orcid.org / 0000 - 0002 - 7155 - 2297 jabbari hosna conceptualizationdata curationformal analysisinvestigationmethodologysoftwaresupervisionvalidationvisualizationwriting - original draftwriting - review & editing1 * wark ian softwarevalidationvisualization2 montemagno carlo funding acquisitionsupervision3 1 department of computer science , university of vermont , burlington , vermont , united states of america 2 ingenuity lab , department of chemical and materials engineering , university of alberta , edmonton , alberta , canada 3 southern illinois university carbondale , carbondale , illinois , united states of america rahman m. sohel editor bangladesh university of engineering and technology , bangladesh competing interests : the authors have declared that no competing interests exist .
+* e - mail : jabbari @ ualberta.ca 2018 5 4 2018 13 4 e0194583 27 9 2017 6 3 2018 ( c ) 2018 jabbari et al 2018 jabbari et althis is an open access article distributed under the terms of the creative commons attribution license , which permits unrestricted use , distribution , and reproduction in any medium , provided the original author and source are credited .
+motivation rna is a biopolymer with various applications inside the cell and in biotechnology .
+structure of an rna molecule mainly determines its function and is essential to guide nanostructure design .
+since experimental structure determination is time - consuming and expensive , accurate computational prediction of rna structure is of great importance .
+prediction of rna secondary structure is relatively simpler than its tertiary structure and provides information about its tertiary structure , therefore , rna secondary structure prediction has received attention in the past decades .
+numerous methods with different folding approaches have been developed for rna secondary structure prediction .
+while methods for prediction of rna pseudoknot - free structure ( structures with no crossing base pairs ) have greatly improved in terms of their accuracy , methods for prediction of rna pseudoknotted secondary structure ( structures with crossing base pairs ) still have room for improvement .
+a long - standing question for improving the prediction accuracy of rna pseudoknotted secondary structure is whether to focus on the prediction algorithm or the underlying energy model , as there is a trade - off on computational cost of the prediction algorithm versus the generality of the method .
+results the aim of this work is to argue when comparing different methods for rna pseudoknotted structure prediction , the combination of algorithm and energy model should be considered and a method should not be considered superior or inferior to others if they do not use the same scoring model .
+we demonstrate that while the folding approach is important in structure prediction , it is not the only important factor in prediction accuracy of a given method as the underlying energy model is also as of great value .
+therefore we encourage researchers to pay particular attention in comparing methods with different energy models .
+the authors received no specific funding for this work.data availabilityour software and datasets are freely available on github ( https :// github.com / hosnajabbari ) .
+data availability our software and datasets are freely available on github ( https :// github.com / hosnajabbari ) .
+1 introduction rna molecules are crucial in different levels of cellular function , and their functions largely depend on their structures .
+rna molecules are widely used as building blocks of nano - structures with various applications in biotechnology [ 1 ] .
+since experimental methods for determining rna structure are expensive , time - consuming and in some cases impossible , computational methods for prediction of rna secondary structure ( the set of base pairs ) are valuable .
+the most widely used methods for prediction of rna secondary structure , however , can deal only with pseudoknot - free structures ( structures with no crossing base pairs ) , even though pseudoknots ( structures with crossing base pairs ) are known to be functionally important in many rnas .
+although several approaches have been proposed that predict pseudoknotted structures , it is still difficult to evaluate merits of each approach as they are different in their hypothesis and their underlying scoring function ( i.e. energy model ) .
+in particular it is not known how much prediction accuracy depends on folding hypothesis ( structure formation hypothesis ) versus the underlying energy model .
+we aim to address this question by comparing performance of four rna pseudoknotted secondary structure prediction methods with different folding hypotheses but the same energy model .
+in this work , we thoroughly compare performance of four of the most general rna pseudoknotted secondary structure prediction algorithms ( ipknot [ 2 ] , hotknots [ 3 ] , ccj [ 4 ] and iterative hfold [ 5 ]) with four different folding approaches ( maximum expected accuracy , heuristic approach , minimum free energy and hierarchical folding hypotheses respectively ) but the same underlying energy model ( hotknots v2.0 dp09 ) on a large dataset of known structures .
+all algorithms compared in this work are applicable to novel rnas with unknown families ; two are based on biologically sound folding hypotheses ( ccj and iterative hfold ) , and all use an energy model that is , to the best of our knowledge , one of the best available energy models for prediction of pseudoknotted structure and is based on experimentally determined parameters. by comparing these algorithms with similar energy model , we provide a fair evaluation of advantages and disadvantages of each approach .
+in addition , we provide the first computational framework for the evaluation of two biologically sound rna folding hypotheses ( minimum free energy vs. hierarchical folding ) .
+we selected these methods for our analysis for the following reasons : ( 1 ) they are all sequence - based ( vs. alignment - based ) methods and therefore , applicable to novel classes of rnas including non - coding rnas ; ( 2 ) ipknot and hotknots are two of the best performing algorithms in the comparison performed by puton et al .
+[ 6 ] ; ccj and iterative hfold are two of the newer methods for rna pseudoknotted structure prediction and so were not part of puton et al. comparison .
+the ccj algorithm is the most general pseudoknot prediction algorithm that runs in o ( n5 ) time and o ( n4 ) space ; with our implementation of the ccj algorithm , we can predict structure of long ( up to 500 length ) rna molecules .
+( 3 ) all four methods use hotknots v2.0 dp09 energy model ( and parameters ) .
+we perform a thorough empirical evaluation of these methods on a large dataset of more than 600 structures , and present merits and shortcomings of each method .
+2 methods we represent an rna molecule as a sequence of its four bases ( a , c , g , and u ) arranged on a line ( representing the backbone ) from 5 ' ( left ) to 3 ' ( right ) ends .
+n represents the length of the rna molecule .
+each base is referred to by its index .
+rna secondary structure is then represented by a set of complimentary base pairs i.j ( i.e. , a.u , u.a , c.g , g.c , u.g and g.u ) .
+we represent base pairs by arcs connecting index i to index j ( see fig 1 ) .
+there are different loop types based on the closing arc ( s ) .
+loops are differentiated based on their features .
+for a precise definition of loops we refer the readers to the work of jabbari et al .
+[ 7 ] or rastegari and condon [ 8 ] .
+we refer to structures with no crossing arcs as pseudoknot - free and structures with crossing arcs as pseudoknotted structures .
+10.1371 / journal.pone.0194583.g001 fig 1 pseudoknot - free secondary structure of 5s ribosomal rna , escherichia coli , pdb _ 00030 [ 9 ] .
+the horizontal line shows the backbone from 5 ' to 3 ' end , and arcs represent pairing between two nucleotides ( bases ) .
+note that there are no crossing arc in this molecule .
+2.1 energy model energy of a secondary structure in energy - model based approaches used in this work is calculated as the sum of energies of its loops , as defined in the energy model .
+here we use the dp09 parameter set of andronescu et al .
+[ 3 ] used by the hotknots v2.0 method .
+table 1 summarizes values of the pseudoknotted parameters of this energy model .
+10.1371 / journal.pone.0194583.t001 table 1 energy parameters .
+this table provides the names , description and values of the energy parameters and functions used in this work .
+these parameters were derived for a temperature of 37degreesc and 1 m salt ( nacl ) concentration .
+values are reported in kcal / mol .
+dp09 column corresponds to the pseudoknotted parameters of hotknots v2.0 [ 3 ] , and t99 column corresponds to the standard turner 99 parameters with dirks and pierce 2003 pseudoknotted parameter values [ 10 ] .
+name description dp09 t99 ps exterior pseudoloop initiation penalty - 1.38 9.6 psm initiation penalty of pseudoloop inside a multiloop 10.07 15.00 psp initiation penalty of pseudoloop inside a pseudoloop 15.00 15.00 pb initiation penalty of a band 2.46 0.2 pup penalty for unpaired base of a pseudoloop 0.06 0.1 pps penalty for closed subregion inside a pseudoloop 0.96 0.1 eh ( i , j ) energy of a hairpin loop closed by i.j es ( i , j ) energy of stacked pair closed by i.j estp ( i , j ) energy of stacked pair that spans a band 0.89 x es ( i , j ) 0.83 x es ( i , j ) eint ( i , d , e , j ) energy of a pk - free internal loop eintp ( i , d , e , j ) energy of internal loop that spans a band 0.74 x eint ( i , d , e , j ) 0.83 x eint ( i , d , e , j ) a initiation penalty of an ordinary multiloop 3.39 3.4 b multiloop base pair penalty 0.03 0.4 c penalty for unpaired base of an ordinary multiloop 0.02 0 a ' initiation penalty of a multiloop that spans a band 3.41 3.4 b ' branch penalty in a multiloop that spans a band 0.56 0.4 c ' penalty for unpaired base in a multiloop that spans a band 0.12 0 2.2 datasets we use four datasets to analyze performance of our algorithms , namely hk - pk , hk - pk - free , ip - pk168 and dk - pk16 .
+hk - pk ( with 88 pseudoknotted structures ) and hk - pk - free ( with 337 pseudoknot - free structures ) datasets were compiled from rna strand database and were used as test datasets in evaluating hotknots v2.0 [ 3 ] ; ip - pk168 ( with 168 pseudoknotted structures ) contains 16 categories of pseudoknotted structures with at most 85 % sequence similarities [ 2 , 11 ] ; and dk - pk16 contains 16 pseudoknotted structures with strong experimental support [ 12 ] .
+we note that all pseudoknotted structures are density - 2 structures ( i.e. are in class of structures handled by iterative hfold ) and there is no overlap between our four datasets .
+table 2 summarizes the datasets used in this work .
+10.1371 / journal.pone.0194583.t002 table 2 summary of datasets used in this work .
+name # of sequences lengths reference hk - pk 88 26 - 400 andronescu et al .
+[ 3 ] hk - pk - free 337 10 - 194 andronescu et al .
+[ 3 ] ip - pk168 168 21 - 137 huang and ali [ 11 ] dk - pk16 16 34 - 377 sperschneider et al .
+[ 12 ] 2.3 accuracy to evaluate prediction accuracy of the methods used in this work we use the harmonic mean of sensitivity and positive predictive value ( ppv ) , commonly referred to as f - measure .
+sensitivity = numberofcorrectlypredictedbasepairsnumberofbasepairsinthereferencestructure ppv = numberofcorrectlypredictedbasepairsnumberofpredictedbasepairs and f - measure = 2xsensitivityxppvsensitivity + ppv value of f - measure ranges between 0 and 1 , with 0 indicating no common base pair with the reference structure and 1 indicating a perfect accuracy .
+when the denominators are 0 , these values are set to 0 .
+2.4 bootstrap percentile confidence intervals we use bootstrap confidence intervals [ 13 , 14 ] to assess the dependency of measured prediction accuracy of results of a method on a given set of rna .
+we calculated 95 % percentile confidence intervals of average f - measures for each method as explained in [ 5 , 15 ] .
+we report the bootstrap 95 % percentile confidence interval for average f - measure of each method , on our datasets .
+all calculations are performed using the " boot " package of the r statistics software environment [ 16 ] .
+2.5 permutation test we use a two - sided permutation test to assess the statistical significance of the observed performance differences between two methods .
+we follow the procedure explained in [ 5 , 15 ] .
+all calculations are performed using the " permts " method in the " perm " package of the r statistics software environment .
+we report a significance in prediction accuracy if the difference in p - values is less than 5 % .
+3 ipknot : a maximum - expected - accuracy - based method motivated by the finding of mathews [ 17 ] that base pairs with high base pairing probabilities in the thermodynamic ensemble are more likely to exist in the known structure , methods based on maximum expected accuracy ( mea ) , predict the most probable structure [ 2 , 18 - 20 ] .
+ipknot algorithm of sato et al .
+[ 2 ] is an mea - based method that employs the free energy parameters of hotknots v2.0 [ 3 ] , uses an approximation of base pairing probability distribution that considers pseudoknotted structures , and handles a wide class of pseudoknotted structures .
+in addition to rna sequence , ipknot takes various input parameters ; values of these parameters have a significant effect on performance of ipknot , and therefore must be chosen with care .
+to find the best performing combination of scoring model and weights we ran ipknot with all combinations on our datasets ( we fixed complexity of structure at level 2 , and did not use refinements ) .
+ipknot with nupack scoring model was not able to predict the structure for all sequences on our dataset .
+while ipknot performance with mccaskill and contrafold scoring models was quite similar in almost all datasets , we found ipknot with contrafold with gamma1 = 4 and gamma2 = 16 performing significantly better than the rest on hk - pk dataset .
+therefor , in our work we compare ipknot with this setting ( i.e. no refinement , scoring model = contrafold , level = 2 , and gamma1 = 4 and gamma2 = 16 ) with the rest of methods .
+4 hotknots : a heuristic method heuristic approaches for prediction of rna secondary structure employ greedy methods to find the lowest energy structure with no guarantee of finding the minimum free energy structure .
+such methods are mostly based on step - wise addition of structural features with the aim of minimizing the overall free energy , while the addition of features are not necessarily in any biologically important order [ 3 , 21 - 26 ] .
+hotknots method of ren et al .
+[ 22 ] uses a similar technique but maintains a tree of candidate structures in which multiple partially formed structures are maintained and there are various possibilities in each case for addition of the next structural features .
+given an rna sequence , hotknots first finds up to 20 lowest energy stems ( from the set of all stems for the given rna sequence ) , called hotspots .
+then iteratively adds other non - overlapping low energy stems to these set of hotspots to produce up to 20 output structures .
+the original version of hotknots employed energy model of dirks and pierce [ 10 ] .
+in the most updated version , i.e. hotknots v2.0 , andronescu et al .
+[ 3 ] used machine learning techniques to estimate the energy parameters and improved hotknots accuracy by 11 % over its original energy model .
+5 ccj : an mfe - based method the ccj algorithm is based on the minimum free energy ( mfe ) folding hypothesis , which states an rna molecule folds into the structure with the minimum free energy .
+to predict the mfe secondary structure of pseudoknot - free secondary structures , a divide - and - conquer approach , based on dynamic programming can be used as follows .
+a pseudoknot - free secondary structure for a sequence is either closed by a base pair connecting the first and last base in the sequence , or can be broken down into two independent substructures .
+the total energy of a structure which is composed of two independent substructures is the sum of the energies of the loops of the substructures .
+the run - time of such algorithms is theta ( n3 ) for standard energy loop models [ 27 ] , where n is the length of the sequence .
+since mfe pseudoknotted secondary structure prediction is np - hard [ 28 - 30 ] , algorithms for mfe pseudoknotted secondary structure prediction trade off run - time complexity and the class of structures they " can handle " .
+we say that a given algorithm can handle a structure r if r is in the class of structures over which the algorithm optimizes .
+various polynomial time algorithms exist that handle pseudoknotted structures [ 10 , 30 - 33 ] .
+all algorithms can handle h - type pseudoknots , and some can handle kissing hairpin structures when these do not have arbitrary nested substructures [ 32 ] .
+the most general mfe - based algorithm for prediction of pseudoknotted structures , pknots , was proposed by rivas and eddy in 1999 [ 33 ] .
+pknots is a complex dynamic programming algorithm that runs in theta ( n6 ) time , and theta ( n4 ) space .
+a recent algorithm put forward by chen et al .
+[ 4 ] , called ccj , significantly expanded the class of structures that can be handled in o ( n5 ) time and o ( n4 ) space .
+for example , only ccj can handle kissing hairpin structures with arbitrary nested substructures in o ( n5 ) time , and this is a real limitation of previous methods given the biological importance of such structures .
+in addition , neither of the structures of fig 2 nor fig 3 can be handled by any of the algorithms with o ( n5 ) running time , except ccj .
+ccj can also handle arbitrary nested substructures of these types .
+10.1371 / journal.pone.0194583.g002 fig 2 arc diagram representation of a chain of four interleaved stems .
+circles along the horizontal line represent bases from the 5 ' ( left ) to the 3 ' ( right ) ends .
+arcs represent base pairs .
+some arcs cross , thereby introducing pseudoknots .
+10.1371 / journal.pone.0194583.g003 fig 3 arc diagram representation of sam - iv riboswitch [ 34 ] .
+the ccj algorithm describes a more general method of formulating the dynamic programming recurrences for prediction of pseudoknotted rna secondary structures that cover " gapped regions " .
+it introduces two new ideas into the dynamic programming recurrences that improve the time complexity to o ( n5 ) : ( i ) a new class of structures called three - group - of - band ( tgb ) structures , with at most three groups of bands ( where bands refer to consecutive base pairs that cross the same loop ) , and ( ii ) recurrences that handle tgb structures by transferring to the left , right , middle or the outer bands .
+ccj algorithm can handle ccj structures , that are constructed by overlaying two tgb structures .
+fig 4 represent two tgb structures that overlay to create the ccj structure of sam - iv riboswitch presented in fig 3 .
+10.1371 / journal.pone.0194583.g004 fig 4 sam - iv riboswitch of fig 3 , decomposed into two tgb structures .
+( a ) represents a tgb structure with no band on the right ; ( b ) represents a tgb structure .
+red bases represent " gaps " in parsing the structure .
+overlaying tgb structures ( a ) and ( b ) creates the sam - iv riboswitch as a ccj structure .
+the energy model used in the ccj algorithm is a loop - based energy model , in which the energy of a secondary structure is calculated as sum of the energy of the structure 's loops .
+we used the dp09 energy model of hotknots v2.0 [ 3 ] , summarized in table 1 in our implementation of the ccj algorithm .
+the published version of the ccj algorithm [ 4 ] uses a slightly more general model .
+there are few energy functions in the ccj energy model that are not explicitly in the dp09 model .
+we have set values of these functions to 0 , in order to make the models as similar as possible .
+we assume that any function specified in the energy model of the ccj algorithm can be calculated in constant time , given sequence s .
+6 iterative hfold : a method based on the relaxed hierarchical folding hypothesis methods based on the hierarchical folding hypothesis have two potential advantages over mfe - based methods : ( 1 ) hierarchical folding hypothesis may model biological rna folding just as well or better than does the mfe structure formation hypothesis , and ( 2 ) they are significantly more efficient in terms of time and space complexity when compared with the mfe - based methods that handle the same class of structures .
+the hierarchical folding hypothesis , which was first put forward by tinoco and bustamante [ 35 ] , states that an rna molecule first folds into a pseudoknot - free structure , then additional base pairs are added that may form pseudoknots with the first structure so as to lower the structure 's free energy .
+this hypothesis was first implemented in hfold , [ 7 ] .
+given a pseudoknot - free structure as input , hfold predicts a ( possibly ) pseudoknotted structure that minimizes the free energy relative to the input structure .
+the class of structures handled by hfold , density - 2 structures , is broad and hfold is significantly faster than mfe pseudoknotted secondary structure prediction methods ( runs in o ( n3 ) time and o ( n2 ) space ) .
+however , hfold is unable to predict the correct structure if the input structure contains incorrect base pairs .
+while hierarchical folding hypothesis has been supported in the literature [ 36 ] , there have been cases describing minor restructure of the originally formed pseudoknot - free structure upon formation of pseudoknot [ 37 - 39 ] .
+motivated by the literature on the hierarchical folding hypothesis and to overcome some of the shortcomings of the mfe - based methods and those based on the hierarchical folding a new folding hypothesis , called " relaxed hierarchical folding " was recently described [ 5 ] .
+the first rna pseudoknotted secondary structure prediction method based on this hypothesis , iterative hfold , allows for minor modification in the input structure to minimize the overall free energy , while stays in the o ( n3 ) time and o ( n2 ) space complexity .
+handling a general class of pseudoknotted structures ( density - 2 structures ) and having the same time and space complexity as hfold ( i.e. o ( n3 ) time and o ( n2 ) space ) , iterative hfold improves significantly on its predecessor , achieving very good prediction performance while being one of the fastest pseudoknot prediction methods available .
+iterative hfold uses hotknots v2.0 dp09 parameter sets in its underlying energy model .
+7 results by comparing four of the best methods for prediction of rna pseudoknotted secondary structure ( i.e. ipknot , a method based on maximum expected accuracy , hotknots , a heuristic method , ccj , a method based on mfe , and iterative hfold , a method based on relaxed hierarchical folding hypothesis ) , while they all use the same energy model , we can evaluate ( 1 ) the merit of the hypothesis that rna molecules fold into their mfe structures , and ( 2 ) significance of underlying prediction algorithm versus energy model .
+therefore , we implemented optimized versions of iterative hfold and ccj algorithms to use hotknots v2.0 dp09 energy model .
+our implementations are available at our github page .
+we start by describing the experimental settings for each of our computational experiments .
+7.1 input since iterative hfold is the only method that requires an input structure , it is only fair if in comparison with other methods , no known structural information be provided as input structure to it. as demonstrated in [ 5 ] , when there is no structural information available on a given rna sequence , iterative hfold performs best when provided with hotknots hotspots as input structures .
+hotknots hotspots are the 20 lowest energy pseudoknot - free stems produced in the first phase of hotknots [ 3 ] .
+here , we compare the average accuracy of iterative hfold with hotknots hotspots [ 3 ] as input structure .
+we choose the lowest free energy structure predicted by iterative hfold for each set of hotspots as its final prediction given these hotspots .
+similarly we chose the lowest free energy structure predicted by hotknots v2.0 ( out of up to 20 structures predicted for each sequence ) as the structure predicted by hotknots to compare with other methods .
+we ran ipknot with no refinement , scoring model = contrafold , level = 2 , and gamma1 = 4 and gamma2 = 16 , as it yields the best results .
+7.2 platform we ran all algorithms on amazon cloud ( r4.8xlarge instance consisting of 32 xeon e5 - 2686 broadwell 2.3 ghz cpus , and 244gb of ddr3 ram ) .
+7.3 run time on our dataset with sequences of 10 to 400 bases , ipknot took as little as 0.01 to 0.56 seconds to complete a run , compared to ccj that took 0.05 to 576328.86 seconds ( i.e. 6.67 days ) .
+iterative hfold and hotknots took 0.01 to 304.32 seconds ( i.e. 5.072 minutes ) and 0.10 to 2254.76 seconds ( i.e. 37.58 minutes ) respectively .
+7.4 accuracy comparison fig 5 presents the bootstrap 95 % percentile confidence intervals of average f - measure for all methods on all datasets .
+as shown in the figure and confirmed by our permutation tests the difference in accuracy of iterative hfold , and ccj on all datasets is not significant .
+on ip - pk168 dataset both iterative hfold and ccj perform significantly better than hotknots v2.0 and ipknot .
+on hk - pk dataset both iterative hfold and ccj achieve significantly higher accuracies than ipknot , while their difference with hotknots v2.0 is not significant .
+hotknots v2.0 outperforms ipknot on both ip - pk168 and hk - pk datasets , but their accuracy difference on the rest of datasets is not significant .
+10.1371 / journal.pone.0194583.g005 fig 5 comparison of bootstrap 95 % percentile confidence intervals of average f - measure .
+fig 6 demonstrates sensitivity of all methods versus their ppv on all of our four datasets .
+as seen in fig 6 , iterative hfold ( i.e. diamond ) has the highest ppv value in almost all our datasets , while ccj ( i.e. circle ) has the highest sensitivity on all pseudoknotted datasets .
+hotknots' sensitivity and ppv values in almost all cases are close to the dashed line ( i.e. almost equal ) ; this might be due to the fact that the energy parameters were estimated based on hotknots' results .
+ipknot ( i.e. square ) in all pseudoknotted datasets has higher ppv than sensitivity while for pseudoknot - free dataset its sensitivity is higher than its ppv .
+it is interesting to note that while all other methods have similar performance on all our datasets , ipknot shows a lot of variations in its sensitivity versus ppv on different datasets .
+10.1371 / journal.pone.0194583.g006 fig 6 comparison of sensitivity versus ppv of all methods on our four datasets .
+points above the dashed line represent higher ppv value versus sensitivity while points below the dashed line represent higher sensitivity versus ppv value .
+to evaluate dependency of a method to its energy parameters , we ran iterative hfold once more , this time with the standard turner 99 parameters with dirks and pierce 2003 parameters for pseudoknotted structures , and refer to it by " iterative hfold t99 " .
+values of this parameter set is presented in t99 column of table 1 .
+as expected , we see a significant degrade in the performance of iterative hfold t99 compared to iterative hfold .
+our permutation test confirms the significance of the difference in all pseudoknotted datasets ( see fig 5 ) .
+also as seen in fig 6 decline in both sensitivity and ppv of iterative hfold t99 in all pseudoknotted datasets is clear .
+this emphasizes dependency of prediction accuracy of the method to its underlying energy parameters .
+8 discussion in this section we evaluate merits of two biologically sound hypotheses on rna folding ( namely mfe and hierarchical folding hypotheses ) , by comparing performance of ccj , hfold ( a method base on strict hierarchical folding hypothesis , and one of the underlying methods of iterative hfold ) and iterative hfold .
+more specifically we would like to see how a method that is purely based on mfe performs versus a method that strictly adheres to the hierarchical folding hypothesis and a method that is based on the " relaxed " hierarchical folding hypothesis .
+we did not find significant difference in accuracies of ccj , hfold and iterative hfold on any of our datasets .
+however , we observed that predicting the structure with the minimum free energy is not directly correlated with finding the structure with the highest accuracy among all methods .
+more specifically in the dk - pk16 dataset ccj produces the lowest energy structure in all cases but only in one case produces the highest accuracy .
+this offers some support for the ( relaxed ) hierarchical folding hypothesis .
+we should note that this may be dependent also on the energy model used .
+fig 7 shows an example of the structure produced by the ccj algorithm , compared to the structure predicted by the iterative hfold algorithm .
+the f - measure of the ccj structure is 64.4 % while iterative hfold 's structure has an f - measure of 88.1 % .
+as seen in fig 7 , both iterative hfold and ccj predicted the pseudoknotted stems in the reference structure .
+however , the structure predicted by ccj missed the nested substructure and instead added another pseudoknotted stem .
+10.1371 / journal.pone.0194583.g007 fig 7 example structure predicted by the ccj algorithm vs. iterative hfold .
+( a ) structure representation of the reference structure for sequence rfa _ 00632 of the hk - pk dataset .
+( b ) the structure predicted by the ccj algorithm given sequence rfa _ 00632 .
+( c ) the structure predicted by iterative hfold for the same sequence .
+both methods correctly identified the pseudoknotted stems , but ccj added an extra pseudoknotted stem in place of the nested substructure in the reference structure .
+we also notice that by following the relaxed hierarchical folding hypothesis , hence allowing changes to the input structure , iterative hfold more often finds structures with lower energy than those predicted by hfold in all of our datasets .
+however this does not result in significant improvement in prediction accuracy compared to hfold .
+fig 8 shows an example of one such case , in which finding a lower energy structure results in predicting the reference structure .
+this also demonstrates hfold 's inability to add crossing base pairs to its input structure , and how iterative hfold overcomes this limitation .
+10.1371 / journal.pone.0194583.g008 fig 8 an example where iterative hfold finds a structure with lower energy and higher accuracy than the structure predicted by hfold .
+( a ) the reference structure for ec _ pk4 of the hk - pk dataset .
+( b ) the hotspot for ec _ pk4 provided as input to both hfold and iterative hfold resulting in their lowest energy structure prediction .
+( c ) the structure predicted by hfold for ec _ pk4 given the hotspot input ( b ) .
+hfold is unable to find the pseudoknotted base pairs .
+( d ) the structure predicted by iterative hfold for ec _ pk4 given the hotspot input ( b ) .
+iterative hfold successfully identified the pseudoknotted base pairs .
+in many cases , especially for longer rna strands in the hk - pk - free dataset , the mfe structures predicted by the ccj algorithm are pseudoknotted .
+this suggests that the energy parameters encourage addition of pseudoknots and so parameter estimation specifically for ccj would be useful .
+fig 9 shows an example of structures predicted by ccj vs. iterative hfold .
+in this example , the reference structure is a pseudoknot - free structure , consisting of single outermost base pair and a nested stem - loop structure .
+due to high cost of the single base pair iterative hfold does not predict it as part of its output structure , while predicting the rest of the structure correctly .
+ccj on the other hand misses the pseudoknot - free structure completely and predicts a pseudoknotted structure ( kissing hairpin ) .
+10.1371 / journal.pone.0194583.g009 fig 9 example of a pseudoknot - free structure predicted as a pseudoknotted structure by ccj .
+( a ) the reference structure for crw _ 00628 of the hk - pk - free dataset .
+( b ) the structure predicted by the ccj algorithm for sequence crw _ 00628 .
+ccj identifies part of the reference structure ( middle stem ) but predicts the whole structure as pseudoknotted .
+( c ) the structure predicted by iterative hfold given the same sequence .
+iterative hfold identifies all but one base pair of the reference structure .
+addition of pseudoknots in hfold 's predictions is the least among hfold , ccj and iterative hfold .
+this is mainly due to the fact that the hotspots input to hfold must also be part of the structure output by hfold , reducing hfold 's flexibility in adding pseudoknots ( compared with ccj and iterative hfold ) .
+iterative hfold 's predictions are mostly similar to those of hfold on the rna sequences of the hk - pk - free dataset .
+however , in a few cases , especially in longer rna strands iterative hfold 's predictions are also pseudoknotted .
+on shorter rna sequences , iterative hfold is not able to modify the given structure , when the input structure is overcrowded with base pairs .
+fig 10 shows an example in which input structure is overcrowded with base pairs , while the reference structure has a subset of base pairs in the input structure .
+in this example , removing identified base pairs causes increase in energy and therefore is not performed by iterative hfold .
+this example is an illustration of either incorrect energy parameters or inaccurate reference structure .
+10.1371 / journal.pone.0194583.g010 fig 10 an example of overcrowded input structure provided to iterative hfold .
+( a ) the reference structure for srp _ 00265 of the hk - pk - free dataset .
+( b ) the hotspot input for srp _ 00265 provided as input to iterative hfold that resulted in prediction of the lowest energy structure .
+this input structure has more base pairs than the reference structure .
+( c ) the structure predicted by iterative hfold for srp _ 00265 given hotspot ( b ) .
+while the output structure predicted by iterative hfold contains the base pairs of the reference structure , iterative hfold is unable to remove base pairs of the overcrowded input structure .
+to evaluate performance of the methods compared in this work based on sequence length , we combined all our pseudoknotted datasets , binned the sequences to [ 10 , 50 ) , [ 50 , 100 ) , [ 100 , 150 ) and [ 150 , 400 ] , and reported average f - measure of each method in each case .
+fig 11 summarizes this finding .
+10.1371 / journal.pone.0194583.g011 fig 11 comparison of average f - measure of each method based on sequence length on our pseudoknotted dataset .
+as seen in fig 11 , in almost all compared methods ( except ipknot ) , average f - measure declines by length .
+the methods accuracy increases up to length 100 and then decreases by length .
+ipknot is the only method that does not follow this trend .
+dependency of prediction accuracy ( i.e. average f - measure ) on sequence length may be due to energy model parameters .
+to find out whether ipknot with a different energy model would follow the same trend seen in other methods , we ran ipknot with all combinations of energy model and weight values on our pseudoknotted dataset .
+as seen in fig 12 , regardless of the scoring model and weight combinations used for prediction of pseudoknotted structures , ipknot follows the same trend , and this trend is not similar to that of the rest of the methods compared in this work .
+ipknot with nupack scoring model did not produce results in all cases , so the number of sequences in each bin is not equal .
+10.1371 / journal.pone.0194583.g012 fig 12 comparison of average f - measure of ipknot on pseudoknotted structures with different scoring / energy models based on sequence length .
+each figure shows a different weight combination : the weight combination represented in ( a ) is 2 and 4 , in ( b ) is 2 and 16 , in ( c ) is 4 and 8 and in ( d ) is 4 and 16 .
+we further investigated dependency of prediction accuracy of all methods based on length on our pseudoknot - free dataset .
+as seen in fig 13 , accuracy decreases by length ; this trend is consistent in all the methods compared in this work .
+this decrease in accuracy is in part due to addition of pseudoknotted base pairs .
+10.1371 / journal.pone.0194583.g013 fig 13 comparison of average f - measure of each method based on sequence length on our pseudoknot - free dataset .
+9 conclusion in this work we thoroughly compared performance of four different methods for rna pseudoknotted secondary structure prediction .
+all methods used similar energy models and two of them ( iterative hfold and ccj ) have biologically sound folding hypotheses .
+our permutation test did not find significant difference in accuracy ( computed as average f - measure ) of iterative hfold and ccj with dp09 energy model , while the change in energy parameter values did make this difference significant .
+we also noticed a decline in average f - measure on length of the sequence in both methods ; this is consistent with the finding of lang et al .
+[ 40 ] for pseudoknot - free structure prediction .
+this decline in average f - measure might be due to inaccuracy of energy parameter values for long range interactions .
+we found that predicting the mfe structure does not necessarily translate to predicting the highest accuracy structure ( i.e. structure with highest f - measure ) ; this might be also due to inaccuracy of energy parameter values or due to our simplified assumption that rna molecule folds in isolation while in nature it is guided ( and restricted ) by surrounding molecules .
+looking closely at our findings we observed that on long rna sequences , ccj tends to add more pseudoknotted base pairs ; on short rna sequences , when the given input structure is overcrowded by base pairs , iterative hfold is unable to modify the input structure to predict the reference structure ; ccj has the highest sensitivity on all pseudoknotted datasets , while iterative hfold has the highest ppv value ; this indicates ccj 's tendency to add pseudoknotted base pairs ; iterative hfold in most cases predicts the overall " shape " of the structure correctly ; f - measure alone is not a good measure for accurately predicting the overall shape of the structure .
+out of the four methods compared in this work , ipknot was the fastest and ccj was the most expensive method to run .
+therefore considering the differences in prediction accuracies , and time and memory requirements of the methods compared in this work , iterative hfold with dp09 energy model might be the method of choice .
+however , we believe estimating the energy parameters specifically for each folding hypothesis might yield a different result as we find underlying energy model a significant contributor to prediction accuracy .
+references 1 jabbari h , aminpour m , montemagno c . computational approaches to nucleic acid origami . acs comb sci. 2015 ; 17 ( 10 ) : 535 - 547 . doi : 10.1021 / acscombsci.5b00079 26348196 2 sato k , kato y , hamada m , akutsu t , asai k . ipknot : fast and accurate prediction of rna secondary structures with pseudoknots using integer programming . bioinformatics .
+2011 ; 27 ( 13 ) : i85 - i93 . doi : 10.1093 / bioinformatics / btr215 21685106 3 andronescu ms , pop c , condon ae . improved free energy parameters for rna pseudoknotted secondary structure prediction . rna ( new york , ny ) .
+2010 ; 16 ( 1 ) : 26 - 42 . doi : 10.1261 / rna.1689910 4 chen hl , condon a , jabbari h . an o ( n ( 5 )) algorithm for mfe prediction of kissing hairpins and 4 - chains in nucleic acids . j comput biol .
+2009 ; 16 ( 6 ) : 803 - 815 . doi : 10.1089 / cmb.2008.0219 19522664 5 jabbari h , condon a . a fast and robust iterative algorithm for prediction of rna pseudoknotted secondary structures . bmc bioinformatics .
+2014 ; 15 ( 1 ) : 147 + .
+doi : 10.1186 / 1471 - 2105 - 15 - 147 24884954 6 puton t , kozlowski lp , rother km , bujnicki jm . comparna : a server for continuous benchmarking of automated methods for rna secondary structure prediction . nucleic acids research .
+2013 ; 41 ( 7 ) : 4307 - 4323 . doi : 10.1093 / nar / gkt101 23435231 7 jabbari h , condon a , zhao s . novel and efficient rna secondary structure prediction using hierarchical folding . j comput biol .
+2008 ; 15 ( 2 ) : 139 - 163 . doi : 10.1089 / cmb.2007.0198 18312147 8 rastegari b , condon a . parsing nucleic acid pseudoknotted secondary structure : algorithm and applications . j comput biol .
+2007 ; 14 ( 1 ) : 16 - 32 . doi : 10.1089 / cmb.2006.0108 17381343 9 andronescu m , bereg v , hoos hh , condon a . rna strand : the rna secondary structure and statistical analysis database . bmc bioinformatics .
+2008 ; 9 ( 1 ) : 340 + .
+doi : 10.1186 / 1471 - 2105 - 9 - 340 18700982 10 dirks rm , pierce na . a partition function algorithm for nucleic acid secondary structure including pseudoknots . j comput chem .
+2003 ; 24 ( 13 ) : 1664 - 1677 . doi : 10.1002 / jcc.10296 12926009 11 huang x , ali h . high sensitivity rna pseudoknot prediction . nucleic acids research .
+2007 ; 35 ( 2 ) : 656 - 663 . doi : 10.1093 / nar / gkl943 17179177 12 sperschneider j , datta a , wise mj . predicting pseudoknotted structures across two rna sequences . bioinformatics ( oxford , england ) .
+2012 ; 28 ( 23 ) : 3058 - 3065 . doi : 10.1093 / bioinformatics / bts575 13 varian h . bootstrap tutorial . mathematica journal .
+2005 ; 9 ( 4 ) : 768 - 775 . 14 hesterberg t , monaghan s , moore ds , cipson a , epstein r . 18 in : farace p , ward t , swearengin d , donnellan b , editors .
+bootstrap methods and permutation tests .
+new york : w. h. freeman and company ; 2005 . 15 hajiaghayi m , condon a , hoos h . analysis of energy - based algorithms for rna secondary structure prediction . bmc bioinformatics .
+2012 ; 13 ( 1 ) : 22 + .
+doi : 10.1186 / 1471 - 2105 - 13 - 22 22296803 16 team r. the r project for statistical computing .
+vienna , austria : r foundation for 2011 ; 309 . 17 mathews dh . using an rna secondary structure partition function to determine confidence in base pairs predicted by free energy minimization . rna .
+2004 ; 10 ( 8 ) : 1178 - 1190 . doi : 10.1261 / rna.7650904 15272118 18 do cb , woods da , batzoglou s . contrafold : rna secondary structure prediction without physics - based models . bioinformatics .
+2006 ; 22 ( 14 ) : e90 - e98 . doi : 10.1093 / bioinformatics / btl246 16873527 19 lu zjj , gloor jw , mathews dh . improved rna secondary structure prediction by maximizing expected pair accuracy . rna ( new york , ny ) .
+2009 ; 15 ( 10 ) : 1805 - 1813 . doi : 10.1261 / rna.1643609 20 bellaousov s , mathews dh . probknot : fast prediction of rna secondary structure including pseudoknots . rna ( new york , ny ) .
+2010 ; 16 ( 10 ) : 1870 - 1880 . doi : 10.1261 / rna.2125310 21 ruan j , stormo gd , zhang w . an iterated loop matching approach to the prediction of rna secondary structures with pseudoknots . bioinformatics .
+2004 ; 20 ( 1 ) : 58 - 66 . doi : 10.1093 / bioinformatics / btg373 14693809 22 ren j , rastegari b , condon a , hoos hh . hotknots : heuristic prediction of rna secondary structures including pseudoknots . rna .
+2005 ; 11 ( 10 ) : 1494 - 1504 . doi : 10.1261 / rna.7284905 16199760 23 huang ch , lu cl , chiu ht . a heuristic approach for detecting rna h - type pseudoknots . bioinformatics .
+2005 ; 21 ( 17 ) : 3501 - 3508 . doi : 10.1093 / bioinformatics / bti568 15994188 24 sperschneider j , datta a . knotseeker : heuristic pseudoknot detection in long rna sequences . rna .
+2008 ; 14 ( 4 ) : 630 - 640 . doi : 10.1261 / rna.968808 18314500 25 sperschneider j , datta a . dotknot : pseudoknot prediction using the probability dot plot under a refined energy model . nucleic acids research .
+2010 ; 38 ( 7 ) : e103 + .
+doi : 10.1093 / nar / gkq021 20123730 26 sperschneider j , datta a , wise mj . heuristic rna pseudoknot prediction including intramolecular kissing hairpins . rna .
+2011 ; 17 ( 1 ) : 27 - 38 . doi : 10.1261 / rna.2394511 21098139 27 nussinov r , jacobson ab . fast algorithm for predicting the secondary structure of single - stranded rna . proc natl acad sci u s a .
+1980 ; 77 ( 11 ) : 6309 - 6313 . 6161375 28 akutsu t . dynamic programming algorithms for rna secondary structure prediction with pseudoknots . disc app math .
+2000 ; 104 ( 1 - 3 ) : 45 - 62 . doi : 10.1016 / s0166 - 218x ( 00 ) 00186 - 4 29 lyngso rb . in : diaz j , karhumaki j , lepisto a , sannella d , editors .
+complexity of pseudoknot prediction in simple models vol. 3142 of lecture notes in computer science .
+springer ; 2004 p .
+919 - 931 . 30 lyngso rb , pedersen cn . rna pseudoknot prediction in energy - based models . j comput biol .
+2000 ; 7 ( 3 - 4 ) : 409 - 427 . doi : 10.1089 / 106652700750050862 11108471 31 reeder j , giegerich r . design , implementation and evaluation of a practical pseudoknot folding algorithm based on thermodynamics . bmc bioinformatics .
+2004 ; 5 doi : 10.1186 / 1471 - 2105 - 5 - 104 15294028 32 uemura y , hasegawa a , kobayashi s , yokomori t . tree adjoining grammars for rna structure prediction . theor comput sci. 1999 ; 210 ( 2 ) : 277 - 303 . doi : 10.1016 / s0304 - 3975 ( 98 ) 00090 - 5 33 rivas e , eddy sr . a dynamic programming algorithm for rna structure prediction including pseudoknots . j mol biol .
+1999 ; 285 ( 5 ) : 2053 - 2068 . doi : 10.1006 / jmbi.1998.2436 9925784 34 weinberg z , regulski ee , hammond mc , barrick je , yao z , ruzzo wl , et al the aptamer core of sam - iv riboswitches mimics the ligand - binding site of sam - i riboswitches . rna .
+2008 ; 14 : 822 - 828 . doi : 10.1261 / rna.988608 18369181 35 tinoco i , bustamante c . how rna folds . j mol biol .
+1999 ; 293 ( 2 ) : 271 - 281 . doi : 10.1006 / jmbi.1999.3001 10550208 36 mathews dh . predicting rna secondary structure by free energy minimization . theor chem acc : theory , computation , and modeling ( theoretica chimica acta ) .
+2006 ; p .
+1 - 9 . 37 wu m , tinoco i . rna folding causes secondary structure rearrangement . proc natl acad sci u s a .
+1998 ; 95 ( 20 ) : 11555 - 11560 . doi : 10.1073 / pnas.95.20.11555 9751704 38 wilkinson ka , merino ej , weeks km . rna shape chemistry reveals nonhierarchical interactions dominate equilibrium structural transitions in trnaasp transcripts . journal of the american chemical society .
+2005 ; 127 ( 13 ) : 4659 - 4667 . doi : 10.1021 / ja0436749 15796531 39 ding f , sharma s , chalasani p , demidov vv , broude ne , dokholyan nv . ab initio rna folding by discrete molecular dynamics : from structure prediction to folding mechanisms . rna .
+2008 ; 14 ( 6 ) : 1164 - 1173 . doi : 10.1261 / rna.894608 18456842 40 lange sj , maticzka d , mohl m , gagnon jn , brown cm , backofen r . global or local ?
+predicting secondary structure and accessibility in mrnas . nucleic acids research .
+2012 ; 40 ( 12 ) : 5215 - 5226 . doi : 10.1093 / nar / gks181 22373926

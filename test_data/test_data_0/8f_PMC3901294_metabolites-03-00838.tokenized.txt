@@ -1,0 +1,199 @@
+metabolites metabolites metabolites metabolites 2218 - 1989 mdpi 24958152 3901294 10.3390 / metabo3030838 metabolites - 03 - 00838 article a novel methodology to estimate metabolic flux distributions in constraint - based models massucci francesco alessandro 1 * font - clos francesc 23 de martino andrea 456 perez castillo isaac 7 1 department d'enginyeria quimica , universitat rovira i virgili , tarragona 43007 , spain 2 centre de recerca matematica , edifici c , campus bellaterra , bellaterra ( barcelona ) e - 08193 , spain ; e - mail : fontclos @ crm.cat 3 department de matematiques , universitat autonoma de barcelona , edifici c , bellaterra ( barcelona ) e - 08193 , spain 4 dipartimento di fisica , sapienza universita di roma , p. a. moro 2 , rome 00185 , italy ; e - mail : andrea.demartino @ roma1.infn.it 5 cnr / ipcf , uos di roma , roma 00185 , italy 6 center for life nano science @ sapienza , istituto italiano di tecnologia , v. regina elena 291 , rome 00161 , italy 7 department of mathematics , king 's college london , london wc2r 2ls , uk ; e - mail : isaac.perez _ castillo @ kcl.ac.uk * author to whom correspondence should be addressed ; e - mail : francesco.massucci @ urv.cat ; tel. : + 34 - 977 - 558 - 580 ; fax + 34 - 977 - 559 - 621 .
+20 9 2013 9 2013 3 3 838 852 01 8 2013 10 9 2013 10 9 2013 ( c ) 2013 by the authors ; licensee mdpi , basel , switzerland .
+2013 this article is an open access article distributed under the terms and conditions of the creative commons attribution license ( http :// creativecommons.org / licenses / by / 3.0 /) .
+quite generally , constraint - based metabolic flux analysis describes the space of viable flux configurations for a metabolic network as a high - dimensional polytope defined by the linear constraints that enforce the balancing of production and consumption fluxes for each chemical species in the system .
+in some cases , the complexity of the solution space can be reduced by performing an additional optimization , while in other cases , knowing the range of variability of fluxes over the polytope provides a sufficient characterization of the allowed configurations .
+there are cases , however , in which the thorough information encoded in the individual distributions of viable fluxes over the polytope is required .
+obtaining such distributions is known to be a highly challenging computational task when the dimensionality of the polytope is sufficiently large , and the problem of developing cost - effective ad hoc algorithms has recently seen a major surge of interest .
+here , we propose a method that allows us to perform the required computation heuristically in a time scaling linearly with the number of reactions in the network , overcoming some limitations of similar techniques employed in recent years .
+as a case study , we apply it to the analysis of the human red blood cell metabolic network , whose solution space can be sampled by different exact techniques , like hit - and - run monte carlo ( scaling roughly like the third power of the system size ) .
+remarkably accurate estimates for the true distributions of viable reaction fluxes are obtained , suggesting that , although further improvements are desirable , our method enhances our ability to analyze the space of allowed configurations for large biochemical reaction networks .
+metabolic networks flux balance analysis belief propagation algorithm 1 .
+introduction the development of high throughput techniques now makes available a considerable number of high quality reconstructions of the metabolism of a variety of organisms , which include the stoichiometry of the biochemical reactions in the network and the underlying enzyme - gene associations [ 1,2,3,4 ] .
+ideally , this information may be employed for kinetic modeling approaches that could shed light on issues , like the organization of a cell 's metabolic phenotype and its robustness to perturbations ( internal or exogenous ) in a fully dynamical setting .
+indeed , consider a metabolic network of n coupled chemical reactions transforming m metabolites and let xi = { xiimicro } ( i = 1 ,... , n ; micro = 1 ,... , m ) denote the stoichiometric coefficients , with the standard sign convention to distinguish substrates ( xiimicro < 0 ) from products ( xiimicro > 0 ) in each reaction , i. if one denotes by gammamicro the rate of change of the intracellular level of species micro , due to exchanges between the cell 's interior and the environment , then , under mass action kinetics , the intracellular concentration , cmicro , of metabolite micro obeys the equation : ( 1 ) where gammamicro > 0 ( resp.gammamicro < 0 ) if there is a net out - take ( resp. in - take ) of species micro .
+unluckily , addressing the above system in full generality requires knowledge about reaction mechanisms and kinetic constants ( which specify how rates depend on concentrations ) , which is at best only partially available .
+( besides , it is not entirely clear to us that , were that information fully at our disposal , simulating ( 1 ) for a genome - scale reconstruction involving thousands of reactions and metabolites would be a sensible thing to do ) .
+computational studies of metabolic networks therefore generally assume that the cell operates at non - equilibrium steady - state ( ness ) conditions , where the concentration of the metabolites is constant [ 5,6 ] , with the rationale that as long as one is interested in the behaviour for time scales shorter than genetic ones ( minutes ) , the much faster equilibrating biochemistry can be assumed to be " frozen " in an ness .
+under this assumption , computing ness fluxes more modestly requires the prescription of bounds for flux variability , i.e. , xi in [ mi , mi ] ( which also encode for reaction reversibility assumptions ) , and for exchange rates , i.e. , gammamicro in [ mmicro , mmicro ] , with which conditions ( 1 ) can be written as : ( 2 ) mi <= xi <= mi , i = 1 ,... , n ( 3 ) this set of inequalities is fairly general , since it may include metabolites involved only in internal reactions ( for which gammamicro = 0 ) , as well as exchanged species ( i.e. , with gammamicro != 0 ) .
+the solution space of equation ( 2 ) is , in turn , given by : ( 4 ) the problem we address here concerns computational methods to sample s , in order to retrieve information on quantities like the distribution of the allowed values of each flux over the entire solution space .
+while most studies aiming at developing predictive power on metabolic phenotypes ( especially for microbes ) have been thus far based on coupling ( 2 ) with a phenotypic optimization principle ( the solving of which requires no sampling of s ) , it is being increasingly recognized that the information entailed by the structure of s might provide key insight into different aspects of metabolic network analysis , from flux - flux correlations , to robustness , to perturbations , to ( more subtly ) optimal experiment design [ 7 ] .
+the task , however , presents many challenges , especially from the viewpoint of cpu costs .
+the running time of the paradigmatic algorithm to sample high - dimensional polytopes , such as s , namely hit - and - run monte carlo , is known to scale , in the best case , as the third power of the number of variables in the system [ 8 ] , making it impractical for large enough networks .
+on the other hand , it has recently been shown that the heuristics of message - passing ( mp ) algorithms may provide a powerful alternative [ 9 ] .
+in brief , mp - based protocols are designed to compute solutions to statistical inference problems , like estimating marginals of random variables , exploiting peculiar topological properties of the underlying graphs that describe the interdependence of variables ( reactions in our case ) and constraints ( metabolites in our case ) .
+indeed , when such a graph is locally tree - like , i.e. , it lacks short loops , statistical inference can be performed accurately by mp in linear time with the number of variables [ 10 ] .
+this property has been used in [ 9 ] to devise a highly efficient mp method to sample sets like s. yet more recently [ 11 ] , a second mp algorithm has been proposed to overcome some of the limitations of the method of [ 9 ] , most notably , the inapplicability of the latter to real valued stoichiometry and , perhaps more importantly , the accuracy problems that may arise when ( some ) fluxes are allowed to span several orders of magnitude .
+here , we build on the work presented in [ 11 ] and apply a mp methodology , which we call weighted belief propagation ( wbp ) , to the analysis of the solution space of metabolic reaction networks .
+in particular , we focus on the metabolism of the human red blood cell ( hrbc ) , a major benchmark for sampling tools , as its size ( n = 46 , m = 34 ) makes it possible to characterize its solution space s by various methods and to compare the results .
+specifically , we have evaluated results retrieved by wbp against those obtained by hit - and - run monte carlo to sample the polytope s for the hrbc ( a note of caution here is needed regarding the words monte carlo , which are used throughout the text , as well as in some of the references in a somewhat unspecific way .
+as is well - known , monte carlo techniques generically rely on repeated random sampling .
+thus , hit - and - run is a monte carlo algorithm .
+the method used in [ 12 ] to sample a volume is also a monte carlo algorithm , albeit a different one , based on a rejection method .
+methods to perform statistical inference by directly computing high - dimensional integrals , or sums , are often also monte carlo methods , as long as the integrals involved are evaluated by monte carlo integration .
+therefore , by itself , monte carlo is perhaps too generic a term and does not reveal the specifics of an algorithm .
+the reader is advised to check the references carefully when comparing the various techniques ) .
+because of the importance of hit - and - run as a mathematically controlled procedure with broad applicability , we have tried to devise a monte carlo method with computing times reduced as much as possible ( the limit of standard hit - and - run techniques lying in their mixing time , known to scale cubically with the number of variables ) .
+the modified hit - and - run algorithm we have devised , based on a projection method , appears to be indeed optimized from this viewpoint with respect to , e.g. , what was done in [ 13 ] .
+we call the resulting method the kernel hit - and - run algorithm ( khr ) .
+as we will see , results obtained by wbp and khr are in remarkable agreement among themselves ( and with previous studies of the same problem by other , more costly , computational methods ) .
+2. methodology 2.1 .
+mathematical statement of the problem suppose that we are interested in estimating the probability distribution functions ( pdfs ) pi ( x ) for each reaction flux i = 1 ,... , n. by definition , they are given by : ( 5 ) where vol ( s ) is the volume of set s. pi ( x ) can be mathematically written as an integral over all fluxes , but xi , of a set of functions enforcing the constraints that define the polytope , namely ( 1 ) .
+denoting by fmicro these functions ( micro = 1 ,... , m ) , we can write pi ( x ) for flux i as : ( 6 ) where x \ i = ( x1 ,... , xi - 1,xi + 1 ,... , xn ) denotes the collective integration variable , is the domain of integration ( the set - product of the ranges of variability of all fluxes , except flux i ) and zi = integraldxpi ( x ) is a normalisation constant , so that each pi ( x ) is properly normalised to one .
+each indicator function fmicro should distinguish between metabolites involved only in internal reactions ( micro in for brevity ) and metabolites that are exchanged with the surrounding .
+a convenient parameterisation is given by : ( 7 ) where delta ( y ) is a dirac delta - distribution and rhomicro is an a priori distribution for the exchange rate gammamicro .
+under this choice , for intracellular metabolites , fmicro simply enforces the mass - balance constraint ( 1 ) with gammamicro = 0 in equation ( 6 ) through a delta - function .
+for exchanged chemical species , the situation is slightly more complex .
+if the exchange rate takes a fixed value z0 , then rhomicro ( z ) = delta ( z - z0 ) and : fmicro ( y ) = delta ( y - z0 ) ( 8 ) corresponding , once inserted in equation ( 6 ) , to the mass - balance constraint ( 1 ) with gammamicro = z0 .
+if , however , the exchanged rate is known only probabilistically , then rhomicro ( z ) can be a non - trivial distribution and fmicro enforces ( 1 ) in ( 6 ) by weighing all possible values of gammamicro according to the measure rhomicro .
+for instance , if there is no a priori information about the exchange rate , then rhomicro ( z ) can be taken to be uniform .
+note that when gammamicro is a random variable , one can consider it as another unknown rate , so that one could also be interested in estimating its a posteriori distribution pmicro ( gamma ) .
+the problem we want to face is that of computing quantities like equation ( 6 ) for all i 's .
+2.2 .
+weighted belief propagation to push mathematically forward expression ( 6 ) , we need to do some type of approximation for s. following [ 11 ] , we assume the bipartite graph that describes the interdependency of reactions and metabolites to be locally tree - like .
+in such a case , we are supposing there are no ( or only very long ) cycles connecting the reactions that process a given metabolite micro .
+( in the following , we shall write i in micro to indicate that reaction i processes , either as a substrate or as a product , metabolite micro. ) thus , if we imagine removing metabolite micro from the system , all reactions i in micro become ( approximately ) statistically independent , as they belong to separate branches of the metabolic ( tree - like ) network , and their joint pdf factorizes .
+this is explained pictorially in figure 1a .
+if we now put metabolite micro back , we see that , at a fixed value , x , of reaction i , the probability lmicro - - > i ( x ) that mass balance holds for metabolite micro can be expressed , in terms of the factorized pdf computed in absence of micro , as ( see figure 1b ) : ( 9 ) with lmicro - - > i , a normalisation constant .
+in this formula , we use latin labels ( i , l ,...) for reactions and greek ones ( micro , nu ,...) for metabolites , while the script , l in micro \ i , denotes the reactions that process micro except reaction i. accordingly , we defined the shorthands , dxmicro \ i = productl in micro \ idxl and dmicro \ i = xl in micro \ i [ ml , ml ] .
+the quantity , pl - - > micro ( xl ) , is the pdf of flux l taking a value xl , when metabolite micro is removed .
+those pdfs are , in turn , given by the probability , for each reaction i , to satisfy the mass balance conditions for all the metabolites they process , except micro ( see figure 1c ) , namely : ( 10 ) here , the set nu in i \ micro stands for all metabolites nu , processed by reaction i , except micro , and pi - - > micro is a normalisation constant .
+again , the above equations simply state the fact that , on locally tree - like graphs , the contributions to the pdfs coming from each node ( reaction or metabolite ) nicely factorize .
+figure 1 the method used to derive self - consistency equations ( 9 ) and ( 10 ) for the conditional marginals ; we only show the nearest neighbours of what one must imagine to be a large tree - like bipartite graph , where circles are reactions and squares , metabolites .
+( a ) metabolite micro and the reactions that process it ( l in micro ) .
+if we assume removing micro from the system , all reactions connected to it belong to disjoint branches of the metabolic network , highlighted with the dashed lines .
+as a consequence , their joint probability distribution function ( pdf ) factorizes in the product of the marginals , pl - - > micro ( x ) , of each reaction l .
+( b ) when metabolite micro is put back in the graph , the probability , lmicro - - > i ( x ) , of satisfying its mass balance condition when fixing the flux of reaction i to x depends on the marginals , pl - - > micro ( x ) , of all neighbours , but i , and on the indicator function , fmicro .
+( c ) the marginal pi - - > micro ( x ) , which is computed in absence of micro , expresses the probability that i satisfies the mass balance conditions for all the metabolites it processes ( eta in i ) , except micro .
+on a tree , each mass balance condition is independent , so that the probability of satisfying all of them is given by the product of the various lnu - - > i ( x ) .
+the conceptual step of removing metabolites from the system is the key that allows us to recast the problem in the set of self - consistency equations ( 9 ) and ( 10 ) , for the conditional probabilities ( the reader should keep in mind that this is , however , just a mathematical trick with no biological interpretation whatsoever [ 10 ]) .
+once the fixed point of the system formed by equations ( 9 ) and ( 10 ) is known , one can compute the actual pdfs of the fluxes in the metabolic network as : ( 11 ) where pi is a normalisation constant .
+note that equation ( 11 ) also provides the recipe to evaluate the pdfs , pmicro ( gamma ) , for the exchange rates , gammamicro , once the conditional marginals , pl - - > micro ( xl ) , are known .
+as discussed in [ 9,11 ] , the difficulties of the problem lie not so much in the derivation of equations ( 9 ) and ( 10 ) , but in devising an efficient method to solve them .
+in wbp , we tackle the issue by representing the marginals ( 10 ) through a collection of variables and associated weights , rather than discretizing them as one would normally do when facing a similar problem .
+let us illustrate the idea with a fairly simple example .
+consider the integral : ( 12 ) with the extra condition that x >= 0 , where y , z are known densities normalised in the interval [ 0 , 1 ] , and c is a normalisation constant .
+to evaluate ( 12 ) , we could use monte carlo integration and draw pairs of random variables according to the distributions , y and z. correspondingly , an estimate for x ( x ) can be written as : ( 13 ) where the term , theta ( 1 - yi - zi ) , accounts for draws for which the quantity x = 1 - yi - zi must be rejected due to the condition x >= 0 .
+the latter condition indeed defines a feasible triangular region in the integration plane , yz ( see figure 2 ) , such that every extraction ( yi , zi ) falling outside this domain must be rejected .
+this method ( basically , naive monte carlo integration ) is , hence , poised to be rather inefficient .
+fortunately , we know precisely where the rejection region is , and we can rewrite equation ( 12 ) as follows : ( 14 ) now , equation ( 14 ) does not contain a rejection region , but we cannot apply monte carlo integration just yet , since z ( z ) is not normalised in the interval [ 0 , 1 - y ] .
+introducing the corresponding weight : ( 15 ) we can , however , re - cast equation ( 14 ) in the form : ( 16 ) with z ( z | y ) = ( z )/ w ( y ) .
+the distributions appearing above are now properly normalized .
+therefore , to evaluate equation ( 16 ) , we can simply draw pairs according to y ( y ) and z ( z | y ) , respectively , and estimate x ( x ) by : ( 17 ) i.e. , by pairs of variables and weights . the key point of this method is that the reweighted density , z ( z | y ) , has a y - dependent support , such that rejection never occurs .
+thus , at a price of computing a weight , w ( y ) , we overcome the whole rejection issue , and the method becomes much more efficient .
+the great advantage of using wbp is that , at fixed , its running time goes as o ( 2nk ) , where k is the average number of metabolites processed by each reaction .
+thus , as opposed to sampling techniques that have normally super - linear mixing times [ 14 ] , wbp only scales linearly with the number of reactions ( see figure 3 ) , making it an ideal candidate for application to genome - scale metabolic networks .
+in the present work , we focus , however , on the relatively small case of the hrbc , so that we are able to compare with sampling methods that yield a uniform exploration of the solution space s [ 8 ] .
+due to the nature of such methods ( see next section ) , this type of comparison is still not feasible for larger systems .
+this , and the fact that previous results are available [ 9 ] , make the metabolic network of the hrbc the ideal testing ground for wbp .
+figure 2 avoiding rejection .
+as explained in the text , from the original integration region , ( y , z ) in [ 0 , 1 ] x [ 0 , 1 ] , only the one below the line z = 1 - y contributes to x ( x ) .
+however , in this lower triangle , the density , y ( y ) z ( z ) , is no longer normalised .
+this is easily dealt with by reweighting the integral .
+figure 3 the running time t of the weighted belief propagation ( wbp ) algorithm vs. the number of reactions , n. for each value of n , we average here over 10 random synthetic metabolic networks , each having m = n / 2 metabolites .
+the algorithm ( blue circles ) scales linearly with the system size ; a linear function , t ~ n ( green dashed line ) , is plotted to guide the eye .
+2.3 .
+the kernel hit - and - run ( khr ) algorithm in order to sample the solution space s and obtain exact pdfs of individual fluxes for the hrbc by a controlled method that guarantees uniformity , we have developed an optimized version of hit - and - run monte carlo , which we call the kernel hit - and - run method .
+let us start by re - writing constraints ( 2 ) explicitly for metabolites involved in internal reactions and the rest : ( 18 ) ( 19 ) mi <= xi <= mi , i = 1 ,... , n ( 20 ) we note that the set of || equations in ( 18 ) defines the null - space of xi , and geometrically corresponds to a family of hyperplanes passing through the origin x = 0 .
+let us denote the dimension of the null space of xi as k. clearly , k would be at least n - || ( actually k = n - || when xi has full row rank , which can always be made to be the case and which we assume from now on ) .
+this means , obviously , that , although the number of variables in the system is n , due to the constraints in the model , the actual dimension of the solution space s is only k. as in real metabolic networks most reactions are internal , the dimension k of the null space will be significantly smaller than the original dimension of the problem n. additionally , it turns out that the way to implement in practice such a dimensional reduction is quite straightforward : suppose that a basis of the null - space has been found , e.g. , through gaussian elimination or singular value decomposition ( svd ) , and let us denote as y = ( y1 ,... , yk ) the system of coordinates with respect to such a basis , so that we can write each flux in this basis as , with phi an n x k matrix related to the change of basis between the original space and the null subspace .
+plugging this into equations ( 19 ) and ( 20 ) allows us to write : ( 21 ) where we have defined the projected stoichiometric matrix , psi , with entries . the set of equations ( 21 ) defines a k - dimensional polytope in the null space ( see figure 4 ) , which can be sampled uniformly by using the hit - and - run algorithm [ 8,15,16 ] .
+finally , to go back to the original space , that of the reaction rates , we simply use the fact that . the sampling properties of the hit - and - run algorithm under the uniform measure were indeed mathematically proven [ 8 ] , and in our case , it is very easy to see that the uniform measure in the k - dimensional null space is preserved under a linear transformation , so that the final sample in the full - dimensional space is also uniform by construction .
+while the sampling measure of khr is well controlled , a word needs to be spent on the algorithmic mixing time .
+for the standard hit - and - run algorithm , this scales as the square of the dimensions times the diameter of the polytope , i.e. , in practice , cubically with the number of dimensions [ 8,14 ] .
+yet , as mentioned before , in our approach , the dimension of the polytope is k , rather than n. this can yield a significant reduction in computation times if k is small compared to n , as will quite generally be the case .
+for the hrbc , for instance , we pass from n = 46 ( which can be problematic , e.g. , for monte carlo rejection [ 17 ]) , to a much more modest k = 12 , which is sampled quite fastly by khr .
+note also that no additional constraints need to be introduced to enclose the polytope ( as opposed to [ 13 ]) .
+this is due to the fact that the m - || metabolites that are exchanged with the environment suffice to bound the polytope in the null space .
+figure 4 a cartoonish representation of the polytope in a k - dimensional null space spanned by y - coordinates .
+here , the green dashed lines represent the set of hyperplanes ( 21 ) enclosing the polytope .
+finally , it is worth mentioning that the matrix phi can be easily obtained with any standard algebra software or by standard svd algorithms , and that no matrix inversion is required to compute the projected matrix psi nor to convert the obtained sample to the original , full dimensional space .
+therefore , to sum up , khr uniformly samples the solution space s , with a mixing time that scales as o ( k3 ) .
+3. results and discussion we have applied the wbp and khr algorithms to the study of the metabolic network of the hrbc .
+as mentioned in section 2.2 , such a choice is dictated by the fact that the hrbc size allows us to apply hr in a modest time and that previous results are available .
+we have used the same network considered in [ 9,12,17 ] , which accounts for 34 metabolites , 32 internal reactions and 14 exchange reactions ( see figure 5 ) .
+we are able to smoothly apply the method by using the effective reaction domains computed in [ 17 ] and used also in [ 9 ] .
+such domains are derived starting from real enzymatic rates [ 18,19 ] , so that they are physiologically meaningful , and span several orders of magnitude .
+note that this would be a major issue if one were to discretize marginals ( 10 ) , as it would require dealing with binning functions defined on totally different scales .
+thanks to our representation in terms of variables and weights , the fact that the reaction fluxes are of a different order of magnitude does not affect our method at all .
+we run the wbp algorithm by representing the marginals , like equation ( 10 ) , with sets of variables / weights of size = 500 .
+to solve the fixed point equations ( 9 ) and ( 10 ) , we performed 30 iterations of our method .
+we started with uniform weights and , at each iteration t = 1 ,... , 30 , and for each fixed value of the variable xi , we applied wbp 103 x t times to evaluate the average weight alphai .
+once convergence was reached , we used the variable / weight sets to compute the final 46 pdfs , pi ( x ) and pmicro ( gamma ) , according to equation ( 11 ) .
+in this last step , we averaged the weight values over 105 wbp extractions to achieve a higher accuracy .
+we report the results in figure 5 and figure 6 , where we compare our method with khr ; the agreement is excellent .
+the reaction pdfs obtained with both methods have indeed a very similar domain and shape in most of the cases .
+notably , wbp does not perfectly capture the profile of reactions involving currency metabolites , such as atp , adp , nadp and nadph .
+an explanation of this may lie in the fact that these compounds are highly connected in metabolic networks and likely to be involved in small loops that are not considered by the wbp method .
+figure 5 results for human red blood cell .
+here , we draw a pictorial representation of the system as a directed bipartite graph .
+reaction nodes are plotted with their pdfs and metabolite nodes with green squares .
+arrows entering ( resp. leaving ) a reaction stand for a substrate ( resp. a product ) .
+we have plotted the marginals , pi ( x ) , for the internal reactions together with the pmicro ( gamma ) for the exchange rates ( these are the leaves on the bipartite graph ) .
+for the densities , we have used the wbp method ( red filled plots ) and have compared them with the khr algorithm ( blue solid lines ) .
+figure 6 results for human red blood cell .
+the probability density functions of the reaction rates ; reaction names are the same as [ 9 ] .
+for the densities , we have used the wbp method ( red filled plots ) and have compared them with the kernel hit - and - run ( khr ) algorithm ( blue solid lines ) .
+note that the flux ranges span different orders of magnitude , but still , the profiles are very smooth for both weighted population dynamics and the kernel hit - and - run algorithm .
+concerning the results obtained by khr , we have been particularly careful to make sure we obtain a uniform distribution of the solution space s. as the uniform measure is guaranteed to be a limiting distribution , the difficulty lies , of course , in deciding when such a limit has practically been reached in the simulations .
+in this regard , we decided to apply three conservative measures to ensure this : first of all , we checked that the initial conditions did not affect the results and , after that , the simulations were averaged over the initial conditions ( the initial points were generated using the minover algorithm [ 20 ]) ; secondly , the initial time - window was disregarded in the sampling ; and finally , in order to avoid correlation effects in the sampling of the pdfs , we only recorded points at large spacing in time .
+in figure 6 , we report a panel with all the pdfs for the hrbc network to make the comparison between the methods more straightforward .
+4. conclusions in this work , inspired by techniques employed in the statistical mechanics of disordered systems , we have presented a novel method to estimate distributions of reaction fluxes in constraint - based models of metabolic networks .
+the wbp methodology has , in our view , clear advantages when compared with alternative approaches .
+if compared to rejection - based monte carlo methods [ 12 ] or even to more refined sampling approaches [ 13 ] , our algorithm has the significant advantage of scaling linearly with the system size , a feature that makes it particularly suitable to study genome - scale metabolic reconstructions .
+comparing wbp with similar mp - based approaches [ 9 ] , our method turns out to be unaffected by the flux ranges spanning several orders of magnitude nor by the stoichiometric coefficients taking real values .
+note that the former property is particularly important for the study of real metabolic systems in physiologic conditions , as enzymatic rates can vary wildly across the network [ 12,17 ] .
+wbp can also be integrated with optimization - based flux balance analysis ( fba ) , as it easily allows us to evaluate the pdfs of the enzymatic rates close to optimality ( assuming a score function is known ) by just injecting a priori to keep fluxes " close " to their optimal value .
+we have also compared the performance of wbp against the khr method .
+the latter is a controlled hit - and - run monte carlo taking place in the null space defined by the set of internal reactions , where a considerable effective dimensional reduction can be achieved .
+indeed , starting from the original n - dimensional space of solutions , one can wind up into a space that , in the best of cases , has the same number of dimensions as the number of exchange reactions .
+given the considerable gains that this observation provides , we believe that this method may be worth being explored further in its own right .
+the validation of the wbp algorithm in the hrbc network , which can be considered a benchmark for the sampling problem for constrained metabolic models , opens the door to future applications of the method to more relevant organisms , such as mycoplasma pneumoniae [ 21 ] or escherichia coli [ 2 ] .
+in our opinion , the fact that its algorithmic complexity scales linearly with the number of reactions , combined with the aforementioned ability to deal with more realistic bounds , makes it a highly promising candidate for effective solutions to this challenging task .
+acknowledgments we thank de martino , d. , guell , o. , guimera , r. , sales - pardo , m. , serrano , m.a. and sagues , f. for useful discussions and comments .
+f.f.c. would like to thank funding from mineco ( grant fis2012 - 31324 ) and agaur ( grant 2012fi b00422 ) .
+f.a.m. acknowledges financial support from european union grants , pirg - ga - 2010 - 277166 and pirg - ga - 2010 - 268342 .
+a.d.m. is supported by the dream seed project of the italian institute of technology ( iit ) .
+the iit platform computation is gratefully acknowledged .
+conflicts of interest the authors declare no conflict of interest .
+references 1 .
+bowman s. churcher c. badcock k. brown d. chillingworth t. connor r. dedman k. devlin k. gentles s. hamlin n. the nucleotide sequence of saccharomyces cerevisiae chromosome xiii nature 1997 387 90 92 10.1038 / 387090a0 9169872 2 .
+feist a. henry c. reed j. krummenacker m. joyce a. karp p.d. broadbelt l.j. hatzimanikatis v. palsson b.o. a genome - scale metabolic reconstruction for escherichia coli k - 12 mg1655 that accounts for 1260 orfs and thermodynamic information mol. syst. biol .
+2007 10.1038 / msb4100155 3 .
+thiele i. palsson b.o. a protocol for generating a high - quality genome - scale metabolic reconstruction nat. protoc .
+2010 5 93 121 10.1038 / nprot.2009.203 20057383 4 .
+thiele i. swainston n. fleming r.m.t. hoppe a. sahoo s. aurich m.k. haraldsdottir h. mo m.l. rolfsson o. stobbe m.d. a community - driven global reconstruction of human metabolism nat. biotechnol .
+2013 31 419 425 10.1038 / nbt.2488 23455439 5 .
+kauffman k.j. prakash p. edwards j.s. advances in flux balance analysis curr. opin. biotechnol .
+2003 14 491 496 10.1016 / j.copbio.2003.08.001 14580578 6 .
+orth j. thiele i. palsson b. what is flux balance analysis ?
+nat. biotechnol .
+2010 28 245 248 20212490 7 .
+schellenberger j. palsson b.o. use of randomized sampling for analysis of metabolic networks j. biol. chem .
+2009 284 5457 5461 10.1074 / jbc.r800048200 18940807 8 .
+lovasz l. hit - and - run mixes fast math. progr .
+1999 86 443 461 10.1007 / s101070050099 9 .
+braunstein a. mulet r. pagnani a. estimating the size of the solution space of metabolic networks bmc bioinforma .
+2008 10.1186 / 1471 - 2105 - 9 - 240 10 .
+mezard m. montanari a. information , physics , and computation oxford university press oxford , uk 2009 11 .
+font - clos f. massucci f.a. perez castillo i. a weighted belief - propagation algorithm for estimating volume - related properties of random polytopes j. stat. mech .
+theory exp .
+2012 10.1088 / 1742 - 5468 / 2012 / 11 / p11003 12 .
+price n.d. schellenberger j. palsson b.o. uniform sampling of steady - state flux spaces : means to design experiments and to interpret enzymopathies biophys. j. 2004 87 2172 2186 10.1529 / biophysj.104.043000 15454420 13 .
+almaas k. kovacs b. vicsek t. oltvai z.m. barabasi a.l. global organization of metabolic fluxes in the bacterium escherichia coli nature 2004 427 839 843 10.1038 / nature02289 14985762 14 .
+simonovits m. how to compute the volume in high dimension ?
+math. progr .
+2003 97 337 374 15 .
+smith r.l. efficient monte carlo procedures for generating points uniformly distributed over bounded regions oper. res .
+1984 32 1296 1308 10.1287 / opre.32.6.1296 16 .
+berbee h. boender c. ran a.r. scheffer c. smith r. telgen j. hit - and - run algorithms for the identification of nonredundant linear inequalities math. progr .
+1987 37 184 207 10.1007 / bf02591694 17 .
+wiback s.j. famili i. greenberg h.j. palsson b.o. monte carlo sampling can be used to determine the size and shape of the steady - state flux space j. theor. biol .
+2004 228 437 447 10.1016 / j.jtbi.2004.02.006 15178193 18 .
+wiback s.j. mahadevan r. palsson b.o. reconstructing metabolic flux vectors from extreme pathways : defining the - spectrum j. theor. biol .
+2003 224 313 324 10.1016 / s0022 - 5193 ( 03 ) 00168 - 1 12941590 19 .
+wiback s.j. palsson b.o. extreme pathway analysis of human red blood cell metabolism biophys. j. 2002 83 808 818 10.1016 / s0006 - 3495 ( 02 ) 75210 - 7 12124266 20 .
+krauth w. mezard m. learning algorithms with optimal stability in neural networks j. phys .
+a 1987 10.1088 / 0305 - 4470 / 20 / 11 / 013 21 .
+wodke j.a.h. puchalka j. lluch - senar m. marcos j. yus e. godinho m. gutierrez - gallego r. dos santos v.a.p.m. serrano l. klipp e. maier t. dissecting the energy metabolism in mycoplasma pneumoniae through genome - scale metabolic modeling mol. syst. biol .
+2013 9 10.1038 / msb.2013.6

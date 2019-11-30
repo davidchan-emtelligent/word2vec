@@ -1,0 +1,236 @@
+bmc bioinformatics bmc bioinformatics 1471 - 2105 biomed central london 17394658 1852325 1471 - 2105 - 8 - 109 10.1186 / 1471 - 2105 - 8 - 109 research article a meta - data based method for dna microarray imputation jornsten rebecka 1 rebecka @ stat.rutgers.edu ouyang ming 2 ouyangmi @ umdnj.edu wang hui - yu 3 huiwang @ us.ibm.com 1 department of statistics , rutgers , the state university of new jersey , new brunswick , nj 08903 , usa 2 informatics institute , university of medicine and dentistry of new jersey , piscataway , nj 08854 , usa 3 9 stoecker road , holmdel , nj 07733 , usa 2007 29 3 2007 8 109 109 25 10 2006 29 3 2007 copyright ( c ) 2007 jornsten et al ; licensee biomed central ltd .
+2007 jornsten et al ; licensee biomed central ltd .
+this is an open access article distributed under the terms of the creative commons attribution license () , which permits unrestricted use , distribution , and reproduction in any medium , provided the original work is properly cited .
+background dna microarray experiments are conducted in logical sets , such as time course profiling after a treatment is applied to the samples , or comparisons of the samples under two or more conditions .
+due to cost and design constraints of spotted cdna microarray experiments , each logical set commonly includes only a small number of replicates per condition .
+despite the vast improvement of the microarray technology in recent years , missing values are prevalent .
+intuitively , imputation of missing values is best done using many replicates within the same logical set .
+in practice , there are few replicates and thus reliable imputation within logical sets is difficult .
+however , it is in the case of few replicates that the presence of missing values , and how they are imputed , can have the most profound impact on the outcome of downstream analyses ( e.g. significance analysis and clustering ) .
+this study explores the feasibility of imputation across logical sets , using the vast amount of publicly available microarray data to improve imputation reliability in the small sample size setting .
+results we download all cdna microarray data of saccharomyces cerevisiae , arabidopsis thaliana , and caenorhabditis elegans from the stanford microarray database. through cross - validation and simulation , we find that , for all three species , our proposed imputation using data from public databases is far superior to imputation within a logical set , sometimes to an astonishing degree .
+furthermore , the imputation root mean square error for significant genes is generally a lot less than that of non - significant ones .
+conclusion since downstream analysis of significant genes , such as clustering and network analysis , can be very sensitive to small perturbations of estimated gene effects , it is highly recommended that researchers apply reliable data imputation prior to further analysis .
+our method can also be applied to cdna microarray experiments from other species , provided good reference data are available .
+background the spotted cdna microarray technology [ 1 ] is a widely used tool for examining gene expression profiles across experimental conditions .
+it measures the messenger rna ( mrna ) levels of thousands to tens of thousands of genes in the sample .
+scientists typically conduct the experiments in logical sets , such as time course profiling of yeast cell cycles [ 2 ] , or comparing cancer to normal tissues [ 3 ] .
+one feature of these experiments is the small number of replicates ( technical and / or biological replicated experiments under the same experimental condition ) : three or less are common , and six or more are rare .
+despite the vast improvement of the technology in recent years , missing values are still a common feature of spotted array experiments .
+missing values arise from e.g. blemishes on the chips ; a few percent to more than 50 percent of the values of a chip may be missing .
+yet most data analysis procedures require a complete data set .
+thus missing values need to be imputed , and numerous imputation algorithms have previously been proposed [ 4 - 14 ] .
+all these studies used only the numerical data from the microarray experiments for imputation .
+two recent studies [ 15,16 ] incorporated external biological knowledge to improve the estimate .
+we begin by briefly reviewing the cdna microarray technology , for the purpose of introducing a common notation for the rest of the discussion .
+the spotted cdna microarray experiments usually follow the two - dye protocol , where the red channel is the sample under study and the green channel is the reference pool [ 17 ] .
+after the microarray experiments are completed , the data of a logical set of g genes examined under c experimental conditions are collected in a g x c matrix , which we will denote by a. each row g in { 1 , ... , g } corresponds to a gene , and each column c in { 1 , ... , c } corresponds to a particular microarray sample .
+after background subtraction and normalization [ 18 ] , every entry in a is the base - two logarithm of the ratio of the red and green intensities .
+if a gene g in { 1 , ... , g } has missing values in some columns c in { 1 , ... , c } , most imputation methods will try to borrow strength from other genes g ' in { 1 , ... , g } with " similar " expression profiles to g , across replicate experiments or experiments under several conditions .
+for example , knnimpute [ 4 ] first selects the k ( usually between 10 and 20 ) genes from { 1 , ... , g } with the shortest euclidean distances to g , d ( g , g ') , where d ( g,g ')= sumcin { 1 ,... , c } : g ( c ) , g '( c ) not missing ( g ( c ) - g '( c )) 2. that is , the distance between genes g and g ' is calculated in the non - missing dimensions .
+we denote the set of the k genes with minimum euclidean distances to g by s ( k ) .
+then , each of the missing values of gene g is estimated by a weighted average of expression values for the k similar genes .
+for each c such that g ( c ) is missing , we impute by the value g ~( c ) , where g ~( c )= sumg'ins ( k )( d ( g,g ')) - 1g '( c ) sumg'ins ( k )( d ( g,g ')) - 1 .
+the reciprocal of the euclidean distance is used to measure the similarity in expression profiles .
+most imputation algorithms are variations of this scheme ; they differ by how many genes in { 1 , ... , g } are used to impute , and how the weights are calculated .
+in this study , we put forth the idea that the matrix a may not be the most suitable to impute its own missing values .
+intuitively , imputation is best done with a lot of replicates .
+yet the logical set is an aggregate of samples under various conditions , with few replicates for each condition .
+the performance of the imputation method will very much depend on the similarity of the set of genes g ' to g. in the case of small logical sets , the limited replicate information or experimental profile information may not be sufficient to determine which genes g ' are indeed similar to g. thus , this study explores the possibility of using microarrays from different logical sets for imputation .
+we compare each column c in the matrix a to hundreds of experiments in databases in the public domain , and we seek experiments with similar expression profiles across the genes to c. we will use this richer data source to improve on the identification of genes g ' that are similar to gene g with a missing value in c , with the aim of improving imputation accuracy .
+we demonstrate this meta - data based imputation method using saccharomyces cerevisiae ( yeast ) , caenorhabditis elegans ( worm ) , and arabidopsis thaliana ( plant ) as the model systems .
+to proceed , we need to obtain data from a large number of microarray experiments .
+this is facilitated by microarray data depositories offering public access , such as the stanford microarray database ( smd ) [ 19 ] .
+we downloaded the data of more than two thousand microarrays from smd , and after some pre - processing , extracted a database matrix for each species .
+the data to be imputed are in the matrix a , and its columns will be imputed one by one using " similar " columns in the database matrix .
+this is where our approach differs from the usual imputation paradigm , under which the matrix a is used to impute itself .
+for computational efficiency , we need to select a subset of the columns from the database matrix to impute a column c of a. we use the absolute value of column - wise pearson correlation as a measure of similarity between data columns. through simulations , we find that imputation via 40 database columns with the highest similarity to the column c strikes a good balance between computation efficiency and imputation accuracy , which is measured by the normalized root mean squared error ( rmse ) .
+our results ( 1 ) support the use of the absolute value of column - wise pearson correlation as a measure of similarity , ( 2 ) support the choice of using 40 database columns for imputation , and ( 3 ) demonstrate the superiority of our meta - data based approach ( imputation via the database matrix ) to the usual paradigm ( imputation via the matrix a itself ) .
+furthermore , for each column c in the matrix a , we designate the most up - regulated ten percent genes and the most down - regulated ten percent genes as potentially significant .
+the rmse of these genes is generally a lot less than that of non - significant ones .
+in addition , the meta - data imputation greatly improves rmse for significant genes compared to the usual paradigm .
+researchers often use only this filtered subset of genes for clustering and classification , and small perturbations of the estimated gene effects can have a huge impact on these downstream analyses [ 11 ] .
+thus the database imputation provides high quality data for subsequent analyses .
+the findings in this study are incorporated in a web - based software tool for yeast , worm , and plant cdna microarray data imputation [ 20 ] .
+methods let the microarray data be represented by a matrix , where the g rows correspond to the genes and the c columns correspond to the samples .
+we previously described gmcimpute [ 10 ] .
+briefly , the rows of the matrix are clustered into 1 , 2 , ... , q - component gaussian mixtures ( q is usually less than 10 ) .
+for each q - component model , we assume that the expression data are generated from a mixture distribution sumj = 1qpijn ( muj,sigmaj ) , where pij is the mixing proportion , muj = muj ( 1 ) , ... , muj ( c ) is the j - th component mean expression profile across the c columns , and the c x c covariance matrix sigmaj summarizes the relationship among the c columns .
+the mixture models are fit to the data by the classification expectation - maximization algorithm ( cem ) [ 21 ] ; then the missing values are estimated by the expectation - maximization algorithm [ 22 ] ; for each missing value , the estimate by gmcimpute is the simple average of the q estimates .
+if the cem algorithm takes i iterations to converge , then gmcimpute takes o ( iqmn ) time .
+if gene g has a missing value in column c , we use the information in the other columns { g ( c ') , c ' != c } , and the estimated relationship among the columns , to impute the value g ~( c ) via a weighted average of the component - wise conditional expectations of g ( c )|{ g ( c ') , c ' != c }. that is , g ~( c )= 1qsumq = 1q ( sumj = 1qetagjq [ muj ( c )+ sigmaj [ c , - c ] sigmaj [ - c , - c ] - 1 ( g ( - c ) - muj ( - c )) t ]) , where etagjq refers to the posterior probability of gene g with respect to component j in the ( q - component mixture model , sigmaj [ c , - c ] refers to the c - th row , and all but the c - th column of the covariance of component j , and similarly for all other entries .
+let a ' be the imputed data matrix , i.e. , an estimate of a. the accuracy of a ' is measured by normalized root mean squared error ( rmse ) : rmse = mean {( a - a ') 2 } mean { a2 } , ( 1 ) where a2 , for example , is component - wise .
+we have found that gmcimpute is competitive in terms of imputation rmse , and in terms of its effect on downstream significance and clustering analysis , and it is also computationally efficient [ 11 ] .
+traditionally , a ' is computed solely from a. in our meta - data imputation , when we apply gmcimpute to the missing values in the matrix a , the columns that are used by gmcimpute are not necessarily limited to only those of a. let us assume that we impute missing values in a column c in { 1 ... c } from matrix a. we will identify the m columns , from a or from the database matrix d , with the largest absolute pearson correlation to column c. we will then use these m columns in gmcimpute .
+in july 2006 , we downloaded from smd [ 19 ] the data of 1,082 , 469 , and 630 cdna microarrays for yeast , worm , and plant , respectively .
+raw data processing ( background subtraction and normalization ) was performed by smd .
+each entry in the data is the base - two logarithm of the ratio of the red and green intensities .
+if an experiment used the dye - swap design [ 17 ] , the two channels were swapped back so that the numerators of the ratios were always the samples under study .
+the data deposited in smd over the years came from different microarray platforms .
+thus we need to establish the correspondence of genes across the platforms .
+yeast has 6,300 or so nuclear open reading frames ( orf ) , and they are uniquely identified by their orf systematic names promulgated by the saccharomyces genome database [ 23 ] .
+for the worm , the genes are identified by the clone identifiers maintained by the wormbase [ 24 ] .
+for the plant , the genes are identified by their genbank accession numbers .
+the data we downloaded from smd will be used to construct the database matrix d ( one for each organism ) .
+to examine the performance of meta - data imputation , we need a gold - standard data set on which to conduct a simulation study .
+we will thus create a data set without missing values .
+we will then randomly mask values in the gold - standard data set , pretend that they are missing , and apply imputation .
+since the true values of these artificial missing entries are known , we can compare and validate imputation methods .
+for the yeast data , we use yeast orf systematic names as the row labels , and obtain a 6314 x 1082 matrix .
+some entries in this matrix are flagged by the experimenters as missing , and we have to remove rows and columns with too many missing values .
+after their removal , we obtain a 6220 x 442 matrix .
+this matrix still has 107,093 missing values ( 3.9 %) , and we use the following steps to impute them ; ( 1 ) we order the columns by the numbers of missing values in them , from the smallest to the largest ( i.e. from the easiest to the most difficult to impute ) ; ( 2 ) for each column c in the order prescribed in step 1 , we identify the 40 columns ( c excluded ) that have the highest absolute values of pearson correlation to c ; ( 3 ) we impute missing values in c using these 40 columns by gmc impute ; ( 4 ) we repeat steps 2 and 3 ten times ( to reach convergence , as measured by the rmse between consecutive iterations ) .
+finally , the 6220 x 442 matrix with 3.9 % imputed values is the database matrix d for yeast .
+when steps 2 and 3 are iterated , the imputed values in a column ci may be used to impute the missing values in a different column cj. the reason why we order the columns by the way described in step 1 is to control the propagation of imputation errors presumably from the smallest to the largest .
+the imputed values are changing from one iteration to the next , because they are used to impute one another .
+thus we need to iterate steps 2 and 3 some number of times till the change becomes small enough , presumably reaching a ( local ) optimum .
+the worm and plant database matrices are similarly prepared .
+the worm database matrix is 13338 x 381 , with 2 % imputed values ; the plant database matrix is 7424 x 301 , with 1.9 % imputed values .
+in practice , researchers may submit their data for imputation without removing columns or rows with many missing values .
+however , we recommend a basic quality - control screening .
+if a sample ( microarray ) has an excessive number of missing values , it may be better to eliminate it from the logical set .
+results we first use the yeast data to develop the algorithm and fine - tune the algorithmic parameters ; the parameters are the number of mixtures in gmcimpute and the number of columns from the database matrix d selected for use in gmcimpute .
+then we use yeast , worm , and plant data to compare imputation via database matrix d to imputation within logical sets .
+measuring similarity by the absolute value of pearson correlation we use cross - validation to investigate the imputation accuracy of database columns selected by the absolute values of their pearson correlation to the column to be imputed .
+for each column c of the yeast database matrix d , we randomly generate 2 % , 4 % , 8 % , and 16 % missing values in c ( we prevent these artificial missing values from coinciding with the genuine missing values as flagged in smd , since this would not constitute a proper validation ) .
+thus the true values of the artificial missing values are known .
+then for each instance of c with artificial missing values , we select the 40 columns ( c excluded ) that have the largest absolute values of pearson correlation to c. the missing values are then imputed by gmcimpute of 1 , 2 , and 3 clusters via the 40 selected columns .
+the simulation is repeated 30 times for each of the four proportions of missing values .
+the mean rmse is plotted in figure 1 .
+the mean absolute pearson correlation and the imputation rmse are highly negatively correlated .
+this suggests that imputation via the database matrix is a viable approach , as long as there are sufficiently many columns with large absolute pearson correlation to c. moreover , this result is stable across the full range of 2 % to 16 % missing values , as shown in figure 2 and table 1 .
+figure 2 shows that the rmses for 2 % and 16 % missing values are highly correlated , and table 1 contains the pearson correlation coefficients of the rmses for the four proportions of missing values .
+figure 1 yeast data : cross - validation of imputation rmse of the database matrix .
+each point corresponds to a column c of the matrix d , imputed by using 40 other columns from d that have the largest absolute values of pearson correlation to c. the horizontal axis is the mean of absolute pearson correlation of the 40 columns , and the vertical axis is mean rmse of 30 independent runs .
+figure 2 a different view of the data in figure 1 , showing that the imputation rmses are stable for different proportions of missing values : each point corresponds to a column .
+the ( blue ) line is x = y. the horizontal axis is the mean rmse for 2 % missing values , and the vertical axis is mean rmse for 16 % missing values .
+table 1 pearson correlation coefficients of rmse among the four missing probabilities .
+missing prob .
+0.02 0.04 0.08 0.16 0.02 1 0.9967 0.9956 0.9961 0.04 1 0.9972 0.9978 0.08 1 0.9989 0.16 1 for imputation within a logical set a , the performance of imputation decreases as the proportion of missing values increases .
+this is well documented in the literature by many authors and us. the reason is simple .
+when imputing a column c from a , both c and the rest of a have missing values .
+meta - data imputation is different .
+it uses information from the database matrix , in addition to the data matrix .
+the columns from the database matrix are complete , independent from the amount of missing values in c. figure 2 and table 1 show that the performance of meta - data imputation barely decreases with 2 % to 16 % missing values .
+number of columns from the database matrix if few database columns exhibit strong correlation to c , imputation rmse is large .
+thus one might think that there is a cut - off for the optimum number of database columns to be used for imputation , and that rmse performance may deteriorate if weakly correlated database columns are included in imputation .
+we use simulation with increasing numbers of database columns to look for such a cut - off , but do not find one before reaching the limitation of gmcimpute .
+the limitation is that it becomes difficult to reliably estimate the cluster variances when the data dimension ( the number of columns ) increases while the number of clusters and thus the numbers of genes in the clusters are held constant .
+we find that , regardless of strong or weak correlation , the more database columns that are used , the lower the rmse , as long as the gaussian mixtures can still be computed .
+specifically , we generate 2 % , 4 % , 8 % , and 16 % missing values in c , and then use 5 , 10 , 20 , 40 , and 80 yeast database columns with the largest absolute pearson correlation to c to impute them .
+the mean rmse ( 16 % missing values ) of 30 independent runs are plotted in figure 3 for 15 randomly chosen c's. the plots for the other proportions of missing values exhibit the same characteristics .
+for almost every c , rmse always decreases when the number of database columns increases , although the decrease from 40 to 80 columns is small .
+in light of these results , we choose to use 40 database columns for imputation as a reasonable trade - off between imputation accuracy and computation efficiency .
+figure 3 yeast data : imputation rmse when 5 , 10 , 20 , 40 , and 80 database columns with the largest absolute pearson correlation to the column c are used to impute c with 16 % missing values .
+the results of 15 randomly chosen c 's are shown in the figure .
+comparing imputation via the database matrix to imputation within logical sets the most critical issue is whether imputation via the database matrix is better than imputation within a logical set .
+the 442 columns of the yeast database matrix are partitioned into 28 logical sets , based on their smd annotation .
+as an example , one of the logical sets is the time course profile of yeast cells treated with 0.24 mm h2o2 , consisting of 23 columns labeled by 0 to 275 minutes after treatment .
+the largest logical set has 35 columns , and the smallest has three .
+as before , 2 % , 4 % , 8 % , and 16 % missing values are randomly generated for each of the columns , and then each column c is imputed via 40 other database columns .
+the simulation is repeated 30 times .
+in each independent run , we also impute c via its own logical set , and thus obtain paired comparison of imputation accuracy between meta - data imputation and logical - set imputation .
+we find that meta - data imputation is always superior to logical - set imputation .
+the results for 16 % missing values are plotted in figure 4 .
+in particular , the set of h2o2 treatment has 0.68 rmse by meta - data , compared to 0.7 rmse by logical - set .
+this is one of the smallest improvements among the 28 logical sets , because time course data are highly correlated and thus the two imputation approaches use almost the identical core set of columns .
+for one of the logical sets with 33 columns , imputation within itself has 0.94 rmse , and imputation with the database has 0.72 rmse , an astonishing improvement .
+note that meta - data imputation improves imputation accuracy for both large and small logical sets , and that in general the improvement is substantial for experiments with few replicates .
+figure 4 yeast data : imputation via the database is always better than imputation within logical sets .
+each vertical line represents a logical set ; the top of the line is mean rmse of imputation within the set , and the bottom of the line is mean rmse of imputation via the database .
+some logical sets have the same numbers of columns ( the horizontal axis ) , and their lines are drawn with slight offsets so that they do not overlap .
+comparing imputation via the database matrix to imputation via one external logical set a recent paper [ 25 ] also examined imputation via external logical sets .
+the main finding is that the performance of the local least squares imputation [ 12 ] can be consistently improved when extra data , along with the rest of the original data where the sample came from , are included in imputation .
+five logical sets are employed in their study .
+there are 51 samples ( columns ) in total ; the largest set has 18 samples , and the smallest has four .
+unlike our approach , which completely breaks up the boundaries of logical sets , their approach either includes or excludes a logical set in entirety. with their approach in mind , we next investigate whether there is any benefit in keeping a logical set together in our setting .
+we use the time - series of h2o2 treatment , which has 23 columns , as the reference set .
+among the remaining 419 columns of the yeast database matrix , some of them , such as the 2 mm md treatment , the heat shock treatment , and the hypo - osmotic shock treatment , are parts of the same study of yeast environmental stress response as the h2o2 set [ 26 ] .
+we assume that they should benefit from the information in the later .
+in the simulation , for each of the remaining 419 columns , we generate 16 % missing values , and impute them via the 23 h2o2 columns as well as via the 23 columns selected from the database matrix using our method .
+as shown in figure 5 , breaking up the boundaries of logical sets is always better than using a logical set in entirety in our setting .
+furthermore , it is not a trivial exercise to identify the logical sets that lead to good imputation .
+in contrast , our approach is a simple and very effective method that identifies individual samples from the database for imputation .
+figure 5 yeast data : imputation via the database matrix is always better than imputation via one external logical set .
+each point is a column from the yeast database matrix .
+the horizontal axis is the rmse of imputation via the h2o2 set , which has 23 columns , and the vertical axis is the rmse of imputation via the 23 columns selected from the database matrix using our method .
+the ( blue ) line is x = y. all points are below the line , indicating that the database approach is always superior .
+rmse of significant and non - significant genes in significance analysis of differential expression [ 27 ] , statistical procedures are applied to identify genes that are consistently up - or down - regulated across the microarray replicates .
+among the thousands of genes in a microarray , only a small portion is declared significant .
+for imputation to be a useful tool , its impact on downstream analyses should be minimized .
+since available analysis tools commonly require a full data matrix , imputed data are usually treated as if truly observed .
+when imputation is done within a logical set , or , even more extremely , within a gene as in the case of row - mean imputation , this can be quite hazardous as the gene - specific variances are underestimated and can lead to many false positives in the list of significant genes .
+in other downstream analyses such as clustering , only the subset of genes declared significant are examined .
+many of these clustering approaches are sensitive to small perturbations of the estimated gene effects .
+thus , imputation accuracy is especially important for the potentially significant genes .
+in [ 11 ] we discussed how imputation can affect significance analyses ; in [ 10 ] we discussed the impact on clustering .
+in this study , we designate for each column the most up - regulated ten percent genes and the most down - regulated ten percent genes as potentially significant , and calculate one rmse for these genes and another rmse for the non - significant ones .
+as before , 2 % , 4 % , 8 % , and 16 % missing values are randomly generated for each of the columns , and then each column is imputed via 40 other database columns .
+the simulation is repeated for 30 times .
+for the yeast data , the mean rmses of significant and non - significant genes are plotted in figure 6 for the case with 16 % missing values .
+each point corresponds to a column of the database matrix .
+the ( blue ) line is x = y ; the ( black ) points below the line are samples where significant genes have less rmse than non - significant ones ; the ( red ) points above the line are samples where significant genes have more rmse than non - significant ones .
+we find that the significant genes generally have much smaller rmse than the non - significant ones .
+figure 6 yeast data : rmse of significant and non - significant genes .
+the most up - regulated ten percent genes and the most down - regulated ten percent genes in a column are designated as significant. with 16 % missing values imputed by the database matrix , the significant genes generally have less rmse than the non - significant ones .
+each point in the figure corresponds to a column from the database matrix .
+the ( blue ) line is x = y ; the ( black ) points below the line are samples where significant genes have less rmse than non - significant ones ; the ( red ) points above the line are samples where significant genes have more rmse than non - significant ones .
+in figure 7 , we compare rmses of meta - data imputation to logical - set imputation for the significant genes ( the top panel ) and the non - significant genes ( the bottom panel ) .
+this figure offers detailed views of the data presented in figure 4 .
+our method improves the imputation accuracy for both significant and non - significant genes with few exceptions .
+thus , we can safely deduce that meta - data imputation will have a smaller impact on downstream analyses than the standard approach .
+figure 7 yeast data : comparison of imputation rmse of the meta - data approach and the logical - set approach. with 16 % missing values , the meta - data approach generally have less rmse than the logical - set approach .
+the legends are the same as figure 6 .
+the top panel is for significant genes , and the bottom panel is for non - significant ones .
+this figure offers detailed views of the data presented in figure 4 .
+for the worm and plant data , all the simulation results are very similar in shapes and trends to the yeast results .
+thus we present only the most critical ones , those of the rmse of significant genes .
+the top panel of figure 8 compares rmse of significant worm genes by meta - data imputation to logical - set imputation , and the bottom panel is for the plant data .
+in particular , the top panel ( worm data ) shows that there are a number of columns that have rmse less than 0.1 by meta - data imputation , compared to rmse from more than 0.3 up to 0.8 by logical - set imputation .
+figure 8 worm and plant data : comparison of imputation rmse of significant genes by the meta - data approach and by the logical - set approach. with 16 % missing values , the meta - data approach generally have less rmse than the logical - set approach .
+the legends are the same as figure 6 .
+discussion a logical set of microarray experiments assays mrna in samples under different conditions , and there are usually few replicates for each condition in the set .
+missing value estimation in the literature is mostly confined to imputation within a logical set .
+however , intuition suggests that imputation would be best done with a lot of replicates .
+we hypothesize that imputation accuracy for a logical set can be improved by incorporating information from other logical sets of experiments .
+we download all the saccharomyces cerevisiae ( yeast ) , arabidopsis thaliana ( plant ) , and caenorhabditis elegans ( worm ) cdna microarray data from the stanford microarray database [ 19 ] , and construct database matrices from them. through rigorous cross - validation and simulation , we validate the new meta - data based imputation with the following results .
+first , when a column c ( data from one microarray experiment ) has missing values and when few replicates are available , the next best source of information would be highly correlated columns .
+bo et al .
+[ 8 ] observed that negative correlation was also helpful in imputation .
+thus we use the absolute value of column - wise pearson correlation to select 40 other columns from the database matrix to impute c. figure 1 shows that absolute pearson correlation is a useful measure of similarity in that the higher the correlation , the smaller the imputation rmse .
+second , we find imputation via 40 database columns strikes a good balance between computation efficiency and imputation accuracy .
+using more columns does improve rmse , but the improvement diminishes .
+third and the most important , we compare logical - set imputation to meta - data imputation .
+we find that the meta - data approach always performs better , and the superiority can sometimes be astonishing ( figure 4 ) .
+fourth , we calculate rmse for significant and non - significant genes separately , and we find that the former is generally a lot less than the later. that is , the meta - data approach provides smaller rmse for the important set of potentially significant genes , and thus lessens the impact of imputation on downstream analyses .
+sometimes the improvement in rmse is very dramatic .
+when combined , these results provide strong support for the application of meta - data imputation before data analysis .
+a potential issue in meta - data imputation is the possible presence of lab - specific effects .
+typical normalization may not totally remove these effects .
+to investigate this issue , one would need data from similar experiments conducted in different labs with some within - lab replicates .
+then the within - lab and between - lab effects can be properly delineated .
+at the moment there are not enough data in the public domain to facilitate such an analysis .
+this is an issue that may further improve imputation .
+we construct a simple - to - use web - based tool for meta - data imputation of yeast , worm , and plant cdna microarray data .
+users need to prepare their data in a tab - delimited file format where the first row gives each column a label ( such as the experiment name ) , the first column identifies the rows by unique identifiers , and the rest of the entries are pre - processed and normalized microarray data .
+the unique identifiers are yeast orf names , worm clone identifiers in the wormbase , or plant genbank accession numbers .
+missing entries are left blank or filled with " nan " ( not a number ) .
+the file can be uploaded at the website and imputed data are displayed in the webpage .
+the computation time is linearly proportional to the numbers of rows and columns , and the number of missing entries .
+for the yeast with 6,220 orfs , one column with 1,200 missing entries takes less than 30 seconds to finish , if the load on the server is light .
+conclusion the meta - data imputation is a general approach .
+its consistently superior performance for yeast , worm , and plant data suggests that it can be applied to other species as well .
+it is implemented in matlab scripts .
+academic researchers may obtain the scripts by contacting us , and then they can prepare their own database matrices and conduct high quality imputation without transmitting their new data over the internet .
+authors' contributions rj and mo designed the study .
+mo and hw wrote the matlab scripts and conducted the simulations .
+mo constructed the web tool .
+all authors participated in the preparation of the manuscript and approved its final form .
+acknowledgements mo is grateful for drs .
+bruce byrne and ryan golhar 's help with the web tool .
+rj is partially supported by us nsf grant dms0306360 .
+mo is partially supported by usda grant 2003 - 05414 .
+additionally , both rj and mo are supported by the usepa - funded environmental bioinformatics and computational toxicology center ( ebctc ) , under star grant number gad r 832721 - 010 .
+this work has not been reviewed by and does not represent the opinions of the funding agencies .
+brown p botstein d exploring the new world of the genome with dna microarrays nat genet 1999 21 33 7 9915498 10.1038 / 4462 eisen mb spellman pt brown po botstein d cluster analysis and display of genome - wide expression patterns proc natl acad sci usa 1998 95 14863 8 [ 0027 - 8424 journal article ] 9843981 10.1073 / pnas.95.25.14863 chen x cheung s so s fan s barry c higgins j lai k ji j dudoit s ng i van drm botstein d brown p gene expression patterns in human liver cancers mol biol cell 2002 13 1929 39 12058060 10.1091 / mbc.02 - 02 - 0023 .
+troyanskaya o cantor m sherlock g brown p hastie t tibshirani r botstein d altman r missing value estimation methods for dna microarrays bioinformatics 2001 17 520 5 11395428 10.1093 / bioinformatics / 17.6.520 bar - joseph z gerber g gifford d jaakkola t simon i continuous representations of time - series gene expression data j comput biol 2003 10 341 56 12935332 10.1089 / 10665270360688057 oba s sato m takemasa i monden m matsubara k ishii s a bayesian missing value estimation method for gene expression profile data bioinformatics 2003 19 2088 96 14594714 10.1093 / bioinformatics / btg287 zhou x wang x dougherty e missing - value estimation using linear and non - linear regression with bayesian gene selection bioinformatics 2003 19 2302 7 14630659 10.1093 / bioinformatics / btg323 bo t dysvik b jonassen i lsimpute : accurate estimation of missing values in microarray data with least squares methods nucleic acids res 2004 32 e34 14978222 10.1093 / nar / gnh026 kim ky kim bj yi gs reuse of imputed data in microarray analysis increases imputation efficiency bmc bioinformatics 2004 5 160 15504240 10.1186 / 1471 - 2105 - 5 - 160 ouyang m welsh w georgopoulos p gaussian mixture clustering and imputation of microarray data bioinformatics 2004 20 917 23 14751970 10.1093 / bioinformatics / bth007 jornsten r wang hy welsh wj ouyang m dna microarray data imputation and significance analysis of differential expression bioinformatics 2005 21 4155 61 16118262 10.1093 / bioinformatics / bti638 kim h golub gh park h missing value estimation for dna microarray gene expression data : local least squares imputation bioinformatics 2005 21 187 98 15333461 10.1093 / bioinformatics / bth499 scheel i aldrin m glad ik sorum r lyng h frigessi a the influence of missing value imputation on detection of differentially expressed genes from microarray data bioinformatics 2005 21 4272 9 16216830 10.1093 / bioinformatics / bti708 sehgal ms gondal i dooley ls collateral missing value imputation : a new robust missing value estimation algorithm for microarray data bioinformatics 2005 21 2417 23 15731210 10.1093 / bioinformatics / bti345 gan x liew aw yan h microarray missing data imputation based on a set theoretic framework and biological knowledge nucleic acids research 2006 34 1608 19 16549873 10.1093 / nar / gkl047 tuikkala j elo l nevalainen os aittokallio t improving missing value estimation in microarray data with gene ontology bioinformatics 2006 22 566 72 16377613 10.1093 / bioinformatics / btk019 churchill ga fundamentals of experimental design for cdna microarrays nature genetics 2002 490 5 12454643 10.1038 / ng1031 quackenbush j microarray data normalization and transformation nat genet 2002 496 501 12454644 10.1038 / ng1032 sherlock g hernandez - boussard t kasarskis a binkley g matese j dwight s kaloper m weng s jin h ball c eisen m spellman p brown p botstein d cherry j the stanford microarray database nucleic acids res 2001 29 152 5 11125075 10.1093 / nar / 29.1.152 an imputation tool for dna microarray data banfield jd raftery ae model - based gaussian and non - gaussian clustering biometrics 1993 49 803 821 10.2307 / 2532201 dempster ap laird nm rubin db maximum likelihood from incomplete data via the em algorithm ( with discussion ) j r stat soc b 1977 39 1 38 the yeast genome database wormbase hu j li h waterman m zhou x integrative missing value estimation for microarray data bmc bioinformatics 2006 7 449 17038176 10.1186 / 1471 - 2105 - 7 - 449 gasch a spellman p kao c carmel - harel o eisen m storz g botstein d brown p genomic expression programs in the response of yeast cells to environmental changes mol biol cell 2000 11 4241 57 11102521 cui x churchill ga statistical tests for differential expression in cdna microarray experiments genome biology 2003 4 210 12702200 10.1186 / gb - 2003 - 4 - 4 - 210

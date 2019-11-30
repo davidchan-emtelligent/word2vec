@@ -1,0 +1,284 @@
+sci rep sci rep scientific reports 2045 - 2322 nature publishing group 27181056 4867427 srep25797 10.1038 / srep25797 article quantum versus simulated annealing in wireless interference network optimization wang chi 1 chen huo 1 jonckheere edmond a1 1 department of electrical engineering , university of southern california , los angeles , ca90089 , usa .
+a jonckhee @ usc.edu 16 05 2016 2016 6 25797 01 02 2016 20 04 2016 copyright ( c ) 2016 , macmillan publishers limited 2016 macmillan publishers limitedthis work is licensed under a creative commons attribution 4.0 international license .
+the images or other third party material in this article are included in the article 's creative commons license , unless indicated otherwise in the credit line ; if the material is not included under the creative commons license , users will need to obtain permission from the license holder to reproduce the material .
+to view a copy of this license , visit http :// creativecommons.org / licenses / by / 4.0 / quantum annealing ( qa ) serves as a specialized optimizer that is able to solve many np - hard problems and that is believed to have a theoretical advantage over simulated annealing ( sa ) via quantum tunneling. with the introduction of the d - wave programmable quantum annealer , a considerable amount of effort has been devoted to detect and quantify quantum speedup .
+while the debate over speedup remains inconclusive as of now , instead of attempting to show general quantum advantage , here , we focus on a novel real - world application of d - wave in wireless networking - - more specifically , the scheduling of the activation of the air - links for maximum throughput subject to interference avoidance near network nodes .
+in addition , d - wave implementation is made error insensitive by a novel hamiltonian extra penalty weight adjustment that enlarges the gap and substantially reduces the occurrence of interference violations resulting from inevitable spin bias and coupling errors .
+the major result of this paper is that quantum annealing benefits more than simulated annealing from this gap expansion process , both in terms of st99 speedup and network queue occupancy .
+it is the hope that this could become a real - word application niche where potential benefits of quantum annealing could be objectively assessed .
+quantum annealing quantum annealing is designed to mimic the process of simulated annealing1 as a generic way to efficiently get close - to - optimum solutions in many np - hard optimization problems .
+quantum annealing is believed to utilize quantum tunneling instead of thermal hopping to more efficiently search for the optimum solution in the hilbert space of a quantum annealing device such as the d - wave23 .
+since the introduction of d - wave one in 2011 , there has been a considerable amount of work done on its potential applications , e.g. , protein folding4 , determining ramsey number5 , bayesian network structure learning6 , operational planning7 , power system fault detection8 , graph isomorphism9 , database optimization10 , machine learning11 , deep learning12 , to name but a few .
+note that of all the applications we are aware of , most were solved with small logical instance size due to hardware constraints and none of them demonstrated conclusive speedup compared to classical methods .
+in fact , benchmarking quantum speedup is more subtle than it appears to be. there has recently been a lot of insightful work on such a challenging question131415 .
+one conclusive remark is that no evidence for a general speedup has been found thus far , but potential speedup might exist in certain problems or upon scaling .
+in this paper , we introduce a new breed of graph - theoretic applications motivated by the very problem that makes the design of optimal wireless network protocols outstanding from the computational viewpoint - - the interference constraints - - and we show that a gap expansion technique benefits quantum annealing much more than simulated annealing , indicating a way to obtain quantum speedup .
+quantum annealing is based on the premise that the minimum energy configuration of the ising spin glass model encodes the solution to specific np - hard problems , including all karp 's 21 np - complete problems16 .
+such problems are written in the form of quadratic unconstrained binary optimization ( qubo ) problems , where xm in { 0 , 1 } , and cm , jmn represent qubo parameters .
+the latter has an equivalent ising formulation where represents the z - pauli operator of ising spin j in the network , and hj and jjk are local fields and coupling strengths , resp .
+the annealer initially prepares a initial transverse magnetic field , an equal superposition of 2n computational basis states , eigenspace of during the adiabatic continuation , the hamiltonian evolves smoothly from htrans to hising , that is , where a (.) decreases monotonically from 1 to 0 and b (.) increases monotonically from 0 to 1. from the adiabatic theorem , if the evolution is " slow enough " , the system would remain in its ground state .
+thus , in principle , an optimal solution to the original problem could be obtained by measurements at final time17 .
+network scheduling problem one of the fundamental problems in multi - hop wireless networks is network scheduling .
+signal - to - interference - plus - noise ratio ( sinr ) has to be maintained above a certain threshold to ensure successful decoding of information at the destination .
+for example , ieee 802.11b requires a minimum sinr of 4 and 10 db corresponding to 11 and 1 mbps channel , resp18 .
+consequently , only a subset of edges of the network can be activated within the same time slot , since every link transmission causes interference with nearby link transmissions .
+different networks and protocols use different interference models .
+the most commonly used model is the 1 - hop interference model ( node exclusive model ) , in which every node can transmit or receive along only one activated link abutting that node in the same time slot .
+this is commonly used in bluetooth and fh - cdma1920 , while the 2 - hop interference model is sometimes used in studies of ieee 802.11 networks21 , in which no two links within 2 - hop distance can be simultaneously activated .
+generally , k - hop is used with k representing arbitrary hop interference model .
+in some cross - layer optimization studies22 , the optimal k is found to vary between 1 and 3 .
+in theory , protocol designers can set k to arbitrary value , as long as end - to - end delay , signal interference and computation cost reach a pareto - optimal point .
+there are two major methods for solving network interference : the first one is the graph based model that solves the weighted maximum independence set ( wmis ) problem on a conflict graph2324252627 , the other optimizes a geometric - based sinr28293031 .
+the former is sometimes argued as being an overly idealistic assumption ; however , the wmis problem is still involved in the latter model32 and is of interest in sa versus qa ; thus we mainly consider the former model for simplicity .
+several general heuristics for the wmis problem are well - studied , including simulated annealing33 , neural networks343536 , genetic algorithm373839 , greedy randomized genetic search40 , tabu search41424344 .
+it is claimed that simulated annealing is superior to other competing methods with experimental instances of up to 70,000 nodes33 .
+to give formal definitions on a graph g = ( v , e ) , let wline be the wireless networking link weights in a given time slot .
+( they are related to queue differential and somehow the most highly weighted links should receive priority activation if interference allows. ) let ds ( x , y ) denote the hop distance between x , y in v. consider edges eu , ev in e and let deu = { u1 , u2 } , dev = { v1 , v2 } .
+we then define to be the distance between edges .
+similar to the definition in the work of sharma et al.22 , a subset of edges e ' is said to be valid subject to the k - hop interference model if , for all e1 , e2 in e ' with e1 != e2 , we have d ( e1 , e2 ) >= k. let sk denote the set of k - hop valid edge subsets ( scheduling set ) .
+then the network scheduling under the k - hop interference model is in the k = 1 case , the problem is a max - weight matching problem and thus has polynomial solution ( edmonds' blossom algorithm45 ) .
+however , for the case k > 1 , the problem is proved to be np - hard and non - approximable22 .
+as already said , the network scheduling problem ( 6 ) has to be solved in every time slot ; thus , the complexity of the exact scheduling problem becomes critical in time - sensitive applications .
+overview we intend to design a quantum annealing scheduler to solve the wmis problem and benchmark the results obtained by realistic network simulation against simulated annealing .
+the complete benchmarking is summarized in the following steps .
+conflict graph the original scheduling problem on the original graph is reformulated as a qubo problem ( 1 ) on a conflict graph : the nodes of the conflict graph are the edges of the original graph with weights wl (= cl in qubo ) , while the edges of the conflict graph are pairs of edges of the original graph in scheduling conflict , as illustrated in fig. 1 , left .
+as such , subject to proper choice of the jmn ( details in supplemental material ) , the qubo problem ( 1 ) on the conflict graph , the wmis problem , provides a solution to k - hop interference problem on the original graph ( 6 ) .
+gap expansion in the wmis problem , some betamn scaling of jmn is introduced as shown in ( 7 ) to open up the gap of the ising model , resulting in less scheduling violations , especially in the qa approach .
+embedding to hardware the qubo problem has to be mapped to the ising hamiltonian via , with the constant energy shift ignored .
+we perform minor embedding into the d - wave chimera architecture , as illustrated in fig. 1 , right , or decide that it is not embeddable .
+this is discussed in more detail in the supplemental material .
+figure 1 gives a simple numerical example of how a network is mapped to d - wave architecture .
+measurement and post - processing we perform the annealing run a certain number of times on d - wave , find the lowest energy configuration , and use such configuration as scheduling solution .
+some commonly used algorithm techniques in adiabatic quantum computation , such as gauge transformation and majority vote on possible broken chains are not performed .
+see the work of king et al.46 for more discussion .
+results in theory and practice , sa is regarded as a strong competitor of qa and their performances are often contrasted in the literature131415 .
+on the other hand , it is known that sa can also boost the overall performance of classical heuristic algorithms in solving wmis problems33 .
+thus , it is worth comparing our qa results with the performance of the sa algorithm .
+comparison metrics are defined later in this section .
+we use the gap expansion process on the quantum scheduler , defined in detail in the following section , and observe that the quantum scheduler takes better advantage of this gap expansion technique than sa. table 1 shows the parameters of the 2 random graphs ( 15 and 20 nodes ) being tested on d - wave installed at information sciences institute of university of southern california ( usc ) .
+the " problem size " n is the number of nodes of the wireless network , the " qubo size " is | e | and thus generally scales as o ( n2 ) , where e and n are the edge set and order of the problem graph , resp .
+the " physical qubits " is the number of nodes n after minor embedding in the d - wave architecture .
+after minor - embedding in the case of the 20 - node network , a significantly large proportion of all available qubits are utilized ( 405 out of 502 ) .
+simulated annealing setup here , we adapted a highly optimized simulated annealing algorithm ( an _ ss _ ge _ fi _ vdeg ) 47 , compiling the c ++ source code with gcc 4.8.4 with matlab c - mex api .
+additionally , a wide range of parameters were tested to ensure near optimal performance of the algorithm within a reasonable run time ( see supplemental material ) .
+all the non - time - critical tests in this section were ran on the servers of the usc center for high - performance computing ( hpc ) .
+quality metrics we compare the performance of qa and sa based on three quantitative metrics : average network delay , throughput optimality , and st99 .
+the first metric reflects the actual network performance ; the latter two metrics reflect the accuracy and speed of qa and sa compared to exact solvers ( see supplemental material for formal definitions. ) average network delay we use an optimized wireless network protocol in our experiment ( see supplemental material for protocol definitions ) .
+in fig. 2 , we show that , after gap expansion , the overall performance significantly improves .
+as one would expect , the network delay is also improved and gets closer to the exact classical solution .
+it is a rather delicate issue as how to deal with non - independent solutions returned by d - wave .
+in the experiment , we skip the time slot transmission if the lowest energy solution does not conform to the k - hop interference model .
+sometimes , it makes sense to perform a polynomial greedy style matching when the returned result is non - independent , in which case the problem is more error - insensitive and thus more scalable .
+here we consider the worst case scenario , that is , no transmission is allowed if the result is non - independent .
+throughput optimality and st99 [ opt ] based on our previous assumption , it is of vital importance that the solutions given by the solver satisfy the independence constraint .
+here we use the optimality measure fquantum as defined in section 5.2 of supplemental material .
+briefly , if there are no violations , such measure reaches 1 if the solution is exactly optimal , and less than 1 if suboptimal .
+if there are violations , if those solutions improve the throughput and if the violations do not even improve the throughput .
+in fig. 3 , we investigate the distribution of the optimality factors among all 120 time slots of graph 2 ( the harder graph ) .
+all the violations are counted inside red bars .
+comparing ( a ) and ( c ) of fig. 3 and ( b ) with ( d ) of fig. 3 , we can see that energy compression as shown in fig. 2 results in substantially less violations of the independence constraint , and that this reduction is more pronounced in the qa case than in the sa case .
+this could explain the huge performance improvement before and after gap expansion in fig. 2. the test results of sa under a particular set of parameters are shown in ( c ) and ( d ) of fig. 3 the ranges of our tested parameters are listed in the supplemental material .
+it is worth making the following observations : qa benefits more from the gap expansion compared to sa. sa either finds the very optimal ground state or gets trapped in very ' deep ' local minima .
+there is still a relatively large number of violations in the returned results of sa even after gap expansion .
+this is in agreement with our previous knowledge about sa in that it is designed to find the ground state and it is not optimized to search for sub - optimal results .
+in addition , table 2 shows the exact numbers related to the performances of sa and qa after gap expansion. from the optimality data returned by d - wave , we can plot st99 related to the level of optimality as shown in fig. 4. note that our st99 definition ( see supplemental material ) relies on optimality level , which could typically be 80 % or 90 % depending on user needs .
+in table 3 , we show how setting the penalty weight beta of the gap expansion consistently with the local or global approach would affect the quality of the returned solution .
+we found that setting betaglobal = 1 would yield the best performance so far .
+we do not have a quantitative explanation for the wrong solutions ; potential explanations on small problems have been discussed in refs 13 , 14 , 15 .
+intuitively , as the problem size grows , it is much more difficult even to find close to ground states ; indeed , as the penalty weight grows too large , the local fields begin to vanish , thus making the problem effectively more difficult since all weights have to be scaled to [ - 2 , + 2 ] .
+the problem of quantitative connection among quality measure , network stability , and throughput optimality remains open .
+methods gap expansion we try to make the problem insensitive to quantum annealing errors by properly setting the hi and jij terms in eq .
+( 2 ) in order to expand the final energy gap .
+note that this gap is the energy gap between the eigenvalues of the ising form at the end of the adiabatic evolution , not to be confused with the gap between ground and first excited states during the evolution .
+we introduce a scaling factor betamn that multiplies the quadratic part of the qubo formulation and as such scales the various terms so as to put more penalty weight on the independence constraints : where ve and ec denote the vertex set and edge set , resp. , of the conflict graph and betamn is chosen uniform .
+in theory , betamn = 1 would suffice as long as jmn > min ( cm , cn ) , as the ground state has already encoded the correct solution of the wmis problem48 .
+however , since measuring the ground state correctly is not guaranteed , increasing betamn becomes necessary to enforce the independence constraints , so that the energy spectrum of the non - independence states is raised to the upper energy spectrum and the feasible energy states are compressed to the lower spectrum .
+figure 5 illustrates the effect of the feasible energy compression on a small random graph .
+a natural question regarding beta would be , how large is large enough ?
+the problem is , interestingly , another optimization problem itself .
+the d - wave v7 is subject to an internal control error ( ice ) that gives gaussian errors with standard deviations sigmah =~ 0.05 and sigmaj =~ 0.03546 .
+putting too large a betamn penalty would incur two problems : 1 ) the local fields would become indistinguishable and 2 ) the minimum evolution gap would become too small .
+accordingly , a few parameter values have been tried out and the results are shown in table 3 , which corroborates the experimental results of the previous section indicating that gap expansion would significantly influence the optimality of the returned solution .
+there exist several strategies in setting heavier penalty weights to expand the gap .
+we compare two different approaches to set the penalty weights : in the local adjustment48 , the constraint on jmn depends only on the fields at dmn , whereas in the global adjstment , contrary to48 , jmn depends on all fields .
+discussion we have presented the first experimental d - wave application of network scheduling - - a problem widely investigated in the field of wireless networking understood in the classical sense .
+the problem is reduced to a wmis problem , itself reformulated in the form of the minimum energy level of an ising hamiltonian , itself mapped to the chimera architecture by utilizing a differential geometrical approach49 that immediately rules out cases where minor - embedding is impossible .
+we increased the success rate of the quantum annealer and the simulated annealer to return non - violation solutions by classically increasing the energy gap , so that the range of acceptable solutions is greatly increased. by comparing qa with sa , though omitting quantum monte carlo ( qmc ) , we found a potential comparison point where qa outperforms sa in the sense of benefit from gap expansion as seen in fig. 3. gap expansion reduces by 89 % the number of violation cases for qa , while it only reduces by 67.5 % the number of violation cases for sa. although , as seen from table 2 , sa has an optimality advantage in non - violation cases , it is however interesting to observe that among suboptimal solution cases qa has less violations than sa. by deliberately constructing cases suitable for suboptimal solutions , one could potentially demonstrate a quantum advantage in terms of less violations .
+as far as speed is concerned , we noted that on graph 2 , and disregarding all overhead , the 1,000 runs of qa took a total of 1000 x 20 musec = 20 msec on d - wave ii to render the solution utilized in the performance analysis .
+on sa on the other hand , 5,000 runs , totaling 1 minute in the adopted simulation environment , were needed to get solutions comparable with those of qa. this comparison might however be misleading as there is room for considerable speed up of sa on specialized architecture .
+it is also argued1415 that even 20 mus might be too large for particular problems ; however , this is the minimum programmable annealing time on d - wave platform .
+despite encouraging results , due to the very limited experimental data , we cannot positively assert a general sizable advantage of quantum annealing against simulated annealing .
+however , we plan to generalize this potential advantage in the future by utilizing a broader class of graphs and the 1152 - qubit chip .
+it is hoped that this could help resolve the speedup issue131415 .
+the classical wireless protocols ( backpressure , dirichlet and heat diffusion , see supplemental material for protocol definition ) return solutions with the interference constraints always satisfied - - so that there is forwarding at every time slot .
+here , the qa and sa interference problem solvers allow solutions that violate the interference constraints in the interest of speed .
+unfortunately , should an interference constraint be violated even at a remote corner of the network , our simulation stops the transmission , so that the dirichlet protocol as it now stands cannot take advantage of the proposed algorithm speedup .
+as to whether the dirichlet protocol could be tweaked to take advantage of the faster qa solution to the interference problem is widely open .
+additional information how to cite this article : wang , c. et al. quantum versus simulated annealing in wireless interference network optimization. sci. rep .
+6 , 25797 ; doi : 10.1038 / srep25797 ( 2016 ) .
+supplementary material supplementary information we sincerely thank tameem albash , walter vinci , joshua job and richard li for helpful discussions , and prof. daniel lidar for providing critical comments on the paper .
+many thanks also go to prof. paul bogdan for helpful remarks on the paper .
+this work was supported in part by aro muri contract w911nf - 11 - 1 - 0268 and in part by nsf grant ccf - 1423624 .
+huo chen was supported by an annenberg fellowship .
+kirkpatrick s .
+, gellatt c. d. & vecchi m. p. optimization by simulated annealing . science 220 , 671 - 680 ( 1983 ) .
+17813860 ray p .
+, chakrabarti b. k. & chakrabarti a. sherrington - kirkpatrick model in a transverse field : absence of replica symmetry breaking due to quantum fluctuations . phys. rev .
+b 39 , 11828 ( 1989 ) .
+kadowaki t .
+& nishimori h. quantum annealing in the transverse ising model . phys. rev .
+e 58 , 5355 - 5363 ( 1998 ) .
+perdomo - ortiz a .
+, fluegemann j .
+, narasimhan s .
+, biswas r .
+& smelyanskiy v. n. finding low - energy conformations of lattice protein models by quantum annealing . sci. rep .
+doi : 10.1038 / srep00571 ( 2012 ) .
+bian z .
+.
+experimental determination of ramsey numbers . phys. rev. lett .
+111 , 130505 ( 2013 ) .
+24116761 o'gorman b .
+, perdomo - ortiz p .
+, babbush r .
+, aspuru - guzik a .
+& smelyanskiy v. n. bayesian network structure learning using quantum annealing . euro. phys. j. 224 ( 1 ) , 163 - 188 ( 2015 ) .
+rieffel e. g. .
+a case study in programming a quantum annealer for hard operational planning problems . quan. info. proc .
+14 ( 1 ) , 1 - 36 ( 2015 ) .
+perdomo - ortiz a .
+, fluegemann j .
+, narasimhan s .
+, biswas r .
+& smelyanskiy v. n. a quantum annealing approach for fault detection and diagnosis of graph - based systems . euro. phys. j. 224 ( 1 ) , 131 - 148 ( 2015 ) .
+zick k. m. , shehab o .
+& french m. experimental quantum annealing : case study involving the graph isomorphism problem . sci. rep .
+doi : 10.1038 / srep11168 ( 2015 ) .
+trummer i .
+& koch c. multiple query optimization on the d - wave 2x adiabatic quantum computer .
+arxiv : 1501.06437 .
+pudenz k .
+& lidar d. a. quantum adiabatic machine learning . quan. info. proc .
+12 , 2027 - 2070 ( 2013 ) .
+benedetti m .
+.
+estimation of effective temperatures in a quantum annealer and its impact in sampling applications : a case study towards deep learning applications .
+arxiv : 1510.07611 .
+boixo s .
+.
+quantum annealing with more than one hundred qubits . nature phys .
+10 , 218 - 224 ( 2014 ) .
+ronnow t. f. .
+defining and detecting quantum speedup . science 345 , 420 - 424 ( 2014 ) .
+25061205 hen i .
+.
+probing for quantum speedup in spin glass problems with planted solutions . phys. rev .
+a 92 , 042325 ( 2015 ) .
+lucas a. ising formulation of many np problems . frontiers in phys .
+2 , 5 ( 2014 ) .
+farhi e .
+.
+a quantum adiabatic evolution algorithm applied to random instances of an np - complete problem . science 292 , 472 - 475 ( 2001 ) .
+11313487 the working group for wlan standards .
+ieee 802.11 wireless local area networks available at http :// www.ieee802.org / 11 / ( accessed 23th march , 2016 ) .
+baker d. j. , wieselthier j .
+& ephremides a. a distributed algorithm for scheduling the activation of links in a self - organizing mobile radio network . ieee icc 2f.6.1 - 2f.6.5 ( 1982 ) .
+miller b .
+& bisdikian c. bluetooth revealed : the insider 's guide to an open specification for global wireless communications ( prentice hall , 2000 ) .
+balakrishnan h .
+, barrett c. l. , kumar v. s. a. , marathe m. v. & thite s. the distance - 2 matching problem and its relationship to the mac - layer capacity of ad hoc wireless networks . ieee jsac 22 ( 6 ) , 1069 - 1079 ( 2004 ) .
+sharma g .
+, mazumdar r .
+& shroff n. on the complexity of scheduling in wireless networks . mobicom'06 los angeles , usa , doi : 10.1145 / 1161089.1161116 ( 2006 , sep. 24 - 29 ) .
+jain k .
+.
+impact of interference on multi - hop wireless network performance . mobicom'03 acm , san diego , usa , doi : 10.1145 / 938985.938993 ( 2003 , sep. 14 - 19 ) .
+alicherry m .
+, bhatia r .
+& li l. e. joint channel assignment and routing for throughput optimization in multiradio wireless mesh networks . ieee jsac 24 , 1960 - 1971 ( 2006 ) .
+kodialam m .
+& nandagopal t. characterizing the capacity region in multi - radio multi - channel wireless mesh networks . mobicom'05 acm , cologne , germany ( 2005 , aug .
+28 - sep .
+2 ) .
+sanghavi s. s. , bui l .
+& srikant r. distributed link scheduling with constant overhead . acm sigmetrics 35 , 313 - 324 ( 2007 ) .
+wan p. j. multiflows in multihop wireless networks . mobihoc'09 acm , beijing , china , doi : 10.1145 / 1530748.1530761 ( 2009 sep. 20 - 25 ) .
+blough d. m. , resta g .
+& sant p. approximation algorithms for wireless link scheduling with sinr - based interference . ieee trans .
+on networking 18 , 1701 - 1712 ( 2010 ) .
+chafekar d .
+, kumar v. s. a. , marathe m. v. , parthasarathy s .
+& srinivasan a. capacity of wireless networks under sinr interference constraints . j. wireless networks 17 , 1605 - 1624 ( 2011 ) .
+moscibroda t .
+, wattenhofer r .
+& zollinger a. topology control meets sinr : the schedling complexity of arbitrary topologies . mobihoc'06 acm , florence , itay , doi : 10.1145 / 1132905.1132939 ( 2006 ) .
+gupta p .
+& kumar p. r. the capacity of wireless networks . ieee trans .
+on info .
+theory 46 ( 2 ) , 388 - 404 ( 2000 ) .
+andrews m .
+& dinitz m. maximizing capacity in arbitrary wireless networks in the sinr model : complexity and game theory . infocom'09 rio de janeiro , brazil , doi : 10.1109 / infcom.2009.5062048 ( 2009 , apr. 19 - 25 ) .
+homer s .
+& peinado m. experiments with polynomial - time clique approximation algorithms on very large graphs . cliques , coloring , and satisfiability 147 - 167 ( ams , 1996 ) . grossman t. applying the inn model to the max clique problem . cliques , coloring , and satisfiability 125 - 145 ( ams , 1996 ) . jagota a. approximating maximum clique with a hopfield network . ieee trans .
+neural networks 6 , 724 - 735 ( 1995 ) .
+18263357 jagota a .
+, sanchis l .
+& ganesan r. approximately solving maximum clique using neural networks and related heuristics . cliques , coloring , and satisfiability 169 - 176 ( ams , 1996 ) .
+bui t. n. & eppley p. h. a hybrid genetic algorithm for the maximum clique problem .
+proceedings of the 6th international conference on genetic algorithms 478 - 484 ( morgan kaufmann , 1995 ) .
+hifi m. a genetic algorithm - based heuristic for solving the weighted maximum independent set and some equivalent problems . j. oper. res. soc .
+48 , 612 - 622 ( 1997 ) .
+marchiori e. genetic , iterated and multistart local search for the maximum clique problem . applications of evolutionary computing 2279 , 112 - 121 ( springer - verlag , 2002 ) .
+feo t. a. & resende m. g. c. a greedy randomized adaptive search procedure for maximum independent set . j. oper. res .
+42 , 860 - 878 ( 1994 ) .
+battiti r .
+& protasi m. reactive local search for the maximum clique problem . algorithmica 29 , 610 - 637 ( 2001 ) .
+friden c .
+, hertz a .
+& de werra d. stabulus : a technique for finding stable sets in large graphs with tabu search . computing 42 , 35 - 44 ( springer - verlag , 1989 ) .
+mannino c .
+& stefanutti e. an augmentation algorithm for the maximum weighted stable set problem . comput. optim. appl .
+14 , 367 - 381 ( 1999 ) .
+soriano p .
+& gendreau m. tabu search algorithms for the maximum clique problem . cliques , coloring , and satisfiability 221 - 244 ( ams , 1996 ) .
+edmonds j. paths , trees , and flowers . canad. j. math .
+17 , 449 - 467 ( 1965 ) .
+king a. d. & mcgeoch c. c. algorithm engineering for a quantum annealing platform .
+arxiv : 1410.2628 .
+isakov s. v. , zintchenko i. n. , ronnow t. f. & troyer m. optimized simulated annealing for ising spin glasses .
+arxiv : 1401.1084 .
+choi v. minor - embedding in adiabatic quantum computation : i. the parameter setting problem . quan. info. proc .
+7 , 193 - 209 ( 2008 ) .
+wang c .
+, jonckheere e .
+& brun t. ollivier - ricci curvature and fast approximation to tree - width in embeddability of qubo problems . isccsp ieee , athens , greece , doi : 10.1109 / isccsp.2014.6877946 ( 2014 , may 21 - 23 ) .
+author contributions c.w. formulated the quantum computation formulation of the interference problem and developed the quantum annealing experiments .
+h.c. ran the simulated annealing experiments .
+e.j. developed the heat diffusion wireless protocol and managed the overall project .
+figure 1 an example of conflict graph conversion , qubo generation , and minor - embedding to chimera architecture .
+the conflict graph is generated based on the 1 - hop interference model .
+only 4 cells of k4,4 structure of the chimera architecture are shown .
+on d - wave two platform , 64 such cells are available , giving 512 available physical qubits .
+quantum annealing is performed on such architecture to theoretically give the ground state of the configuration , and thus the network scheduling solution to the original problem .
+the numerical data shows the conflict graph weight structure gqubo and how it is mapped to the ising hamiltonian characterized by hising and jising .
+the off - diagonal entries of gqubo are chosen as 0.1 larger than the minimum of the weights of the two corresponding vertices of the conflict graph .
+figure 2 network delay of classical exact algorithm , quantum annealing , quantum annealing after gap expansion , and simulated annealing are plotted versus time slot for two randomly generated networks .
+the left one is a simpler case with 15 nodes and 31 edges where quantum annealing reaches almost as good a result as the exact solution in terms of network delay ; the right one is a harder case with 20 nodes and 57 edges in total .
+figure 3 number of violation ( red ) and nonviolation ( blue ) cases versus throughput optimality measure on test graph 2 ( the harder instance ) .
+d - wave simulation runs are shown in ( a,b ) .
+sa simulation runs shown in ( c,d ) are executed under the one set of optimal parameters we have tested ( 5000 sweeps , 5000 repetitions , linear schedule with initial temperature beta0 = 0.1 and final temperature beta1 = 10 ) .
+note that the abscissa of the blue vertical bars register fquantum whereas the abscissa of the red vertical bars registers as defined in supplemental material .
+( a ) d - wave : before gap expansion ; ( b ) d - wave : after gap expansion ; ( c ) simulated annealing : before gap expansion ; ( d ) simulated annealing : after gap expansion .
+figure 4 st99 , defined as , versus required optimality level opt specified by network , before and after gap expansion on graph 1 and graph 2 ( the harder instance ) .
+note that the probability is calculated based on all solutions returned by d - wave ; thus , an st99 of 103 corresponds to one set of annealing runs , which in our case costs 20 ms ( 1000 annealing runs with 20 mus for each run ) .
+curve for graph 2 before gap expansion ends at 0.9 optimality level , because there are no solutions that satisfy such optimality level after a total of 120,000 annealing runs .
+figure 5 hamiltonian energy level evolution with h ( s ) = ( 1 - s ) htrans + shising , demonstrating the feasibility of energy compression on a small , randomly generated test wireless graph with 7 nodes on the conflict graph , plotting all 128 possible energy states in both before and after gap expansion cases .
+both hamiltonians are rescaled to have a maximum energy level of 2 for both coupling strengths and local fields .
+note that for a typical desktop computer , such plots are impossible to construct once the size of the conflict graph goes higher than 12 .
+table 1 problem size of random graphs used in experiment .
+problem size qubo size physical qubits graph1 15 31 164 graph2 20 57 405 the third column represents the actual physical qubits used after minor embedding .
+table 2 performances after gap expansion .
+number of violations ( out of 120 ) average optimality ( without violations ) quantum annealing 13 0.8129 simulated annealing 31 0.9935 table 3 penalty weight with different beta setup and resulting quality measure of returned solution averaged over 120 time slots. avg .
+optimality - g1 delay - g1 avg .
+optimality - g2 delay - g2 betamn = 1 + epsilon 0.781 384.9 0.077 nc betamn = 2 0.928 376.3 0.312 1213 betaglobal = 1 0.974 268 0.741 566.1 betaglobal = 1.5 - 0.165 nc - 0.331 nc betaglobal = 2 - 0.185 nc - 0.356 nc graph 2 is a larger size instance than graph 1 .
+delay refers to average network delay in steady state , and nc refers to the non - convergent case where steady state is not reached within tested time span .

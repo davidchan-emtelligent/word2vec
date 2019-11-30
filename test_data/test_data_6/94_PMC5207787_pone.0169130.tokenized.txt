@@ -1,0 +1,344 @@
+plos one plos one plos plosone plos one 1932 - 6203 public library of science san francisco , ca usa 28045972 5207787 pone - d - 16 - 30287 10.1371 / journal.pone.0169130 research articlephysical sciencesmathematicsoptimizationphysical sciencesmathematicsapplied mathematicsalgorithmsresearch and analysis methodssimulation and modelingalgorithmsearth sciencesgeographycartographylongitudeearth sciencesgeographycartographylatitudeearth sciencesmarine and aquatic sciencesbodies of wateroceansbiology and life sciencesneurosciencecognitive sciencecognitionmemorybiology and life sciencesneurosciencelearning and memorymemorycomputer and information sciencesinformation technologydata processingearth sciencesmarine and aquatic sciences performance optimization of marine science and numerical modeling on hpc cluster marine science and numerical modeling optimization yang dongdong 1 yang hailong 1 wang luming 1 zhou yucong 1 zhang zhiyuan 2 wang rui 1 * liu yi 13 1 school of computer science and engineering , beihang university , beijing , china 2 department of computer science and technology , tsinghua university , beijing , china 3 state key lab of mathematical engineering and advanced computing , wuxi , china zou quan editor tianjin university , china competing interests : the authors have declared that no competing interests exist .
+conceptualization : hy rw. data curation : dy lw yz. funding acquisition : hy. investigation : dy hy. methodology : rw. project administration : hy. resources : zz. software : zz. supervision : yl. validation : dy. visualization : dy hy. writing - original draft : dy hy rw. writing - review & editing : hy .
+* e - mail : wangrui @ buaa.edu.cn 2017 3 1 2017 12 1 e0169130 28 7 2016 12 12 2016 ( c ) 2017 yang et al 2017 yang et althis is an open access article distributed under the terms of the creative commons attribution license , which permits unrestricted use , distribution , and reproduction in any medium , provided the original author and source are credited .
+marine science and numerical modeling ( masnum ) is widely used in forecasting ocean wave movement , through simulating the variation tendency of the ocean wave .
+although efforts have been devoted to improve the performance of masnum from various aspects by existing work , there is still large space unexplored for further performance improvement .
+in this paper , we aim at improving the performance of propagation solver and data access during the simulation , in addition to the efficiency of output i / o and load balance .
+our optimizations include several effective techniques such as the algorithm redesign , load distribution optimization , parallel i / o and data access optimization .
+the experimental results demonstrate that our approach achieves higher performance compared to the state - of - the - art work , about 3.5x speedup without degrading the prediction accuracy .
+in addition , the parameter sensitivity analysis shows our optimizations are effective under various topography resolutions and output frequencies .
+http :// dx.doi.org / 10.13039 / 501100001809national natural science foundation of china61502019 yang hailong national key research and development program of china2016yfb1000304 yang hailong this work is supported by national natural science foundation of china ( grant no .
+61502019 ) and national key research and development program of china ( grant no .
+2016yfb1000304 ). data availabilityall relevant data are within the paper .
+data availability all relevant data are within the paper .
+introduction the ability to understand the climate patterns and predict the climate changes is critical to organize daily activities in human society .
+to study the complicated earth climate , various models are proposed to represent different layers of the earth such as atmosphere model [ 1 - 3 ] , ocean model [ 4 , 5 ] , land model [ 6 , 7 ] and sea ice model [ 8 , 9 ] .
+these models are coupled [ 10 , 11 ] together to simulate the climate phenomenon systematically .
+since ocean takes three quarters of the earth surface , it has been an essential task for climate researchers to study the ocean activities in numerical models .
+masnum [ 12 ] is developed to simulate the progress of wave growth and propagation , which is the most common phenomenon in the ocean .
+due to its advanced accuracy in both general and high sea state [ 13 , 14 ] , masnum is widely adopted in forecasting products .
+masnum utilizes a global wave numerical model in spherical coordinates solving several important physical equations to simulate the wave activities .
+these equations [ 15 ] include breaking dissipation source equations , wave energy spectrum balance equations and complicated characteristic equations .
+solving these equations in a reasonable time usually requires large amount of computing resources from a hpc cluster .
+moreover , as the modern forecasting products pushing in the direction of higher resolution , the computation need of masnum grows significantly , which in turn generates increasing demand for hpc cluster .
+in the meanwhile , the rapid development of high performance computers is pushing the edge of the climate research .
+the massive computing resources and scalable design of hpc cluster facilitate the demand for wave simulation with higher resolution .
+however , there is a large obstacle for climate researchers to fully utilize the capability of hpc cluster due to its underlying complexity .
+the massively parallel nature of hpc cluster requires a fundamental re - design of the wave model from various aspects including algorithm , load balance , process communication , i / o and etc .
+tremendous efforts have been devoted to the higher performance of ocean wave simulation .
+in [ 16 ] , a parallel version of masnum using mpi was developed , improving the performance of the serial version .
+later zhang et al .
+[ 17 ] optimized the aggregation , data distribution and local blocking method to achieve higher performance .
+in [ 18 ] zhao et al. improved parallel efficiency based on an irregular quasi - rectangular domain decomposition scheme in masnum .
+later , zhang et al .
+[ 19 ] proposed a way to optimize the load balance by keeping the amount of computation in each process close to the mean .
+in addition , they designed a new i / o strategy to improve the i / o performance as well as mpi message packing method to reduce the communication overhead .
+inspired by [ 19 ] , our work takes a deep dive to further optimize the performance of masnum from multiple aspects such as the algorithms , communication pattern , load balance and data accessing .
+although the performance of masnum has been improved by previous work , we find there is still large space unexplored for further optimization .
+for example , redundant calculation and constrained i / o are all potential directions for performance optimization .
+to improve the parallel efficiency as well as reduce the complexity of computation , we propose several performance optimizations of masnum running on a cluster .
+specifically , this paper makes the following contributions : we develop two methods to accelerate the bottleneck functions through algorithm redesign and redundant calculation elimination .
+we design a better strategy for process communication and load balance with improved performance .
+we parallelize output i / o that significantly reduces the i / o delay at high output frequency .
+we enhance the data locality and alignment for improved cache hit ratio both temporally and spatially .
+we demonstrate a 3.5x speedup of masnum in high topography resolution after applying the proposed optimizations .
+the remainder of this paper is organized as follows .
+section " bottleneck analysis " analyzes the bottlenecks of current masnum implementation .
+section " design decisions for optimizations " discusses the design decisions for optimizing masnum from several aspects .
+section " evaluation " presents the experimental results with comparison to the previous work .
+finally , related work and conclusions are presented in section " related work " and " conclusion " , respectively .
+bottleneck analysis the whole musnum program contains five critical functions such as propagat , implsch , mean1 , updatev and output , as shown in fig 1 .
+the purpose of each function is listed as follows : propagat is to solve the spread of wave equations .
+implsch is to solve the local changes caused by the source functions .
+mean1 is to solve the characteristic of the wave equations .
+updatev is for the communication among adjacent blocks .
+output is to write the simulation results into files .
+10.1371 / journal.pone.0169130.g001 fig 1 the simplified program structure and execution flow of masnum .
+during the simulation , masnum divides the input matrix into small blocks , and then distributes them into different processes according to the theory of jacobi matrix 's iteration ( e.g. , 4 x 6 blocks with 24 processes ) .
+the process communication pattern of masnum is illustrated in fig 2 .
+there are halo regions ( rectangles shown at the right side of fig 2 ) at the block boundary of each process , which buffer the data to exchange with its neighbor .
+before each iteration starts , the process in charge of a particular block sends the data in the halo region to its neighbor , as well as fetches the data into the halo region from its neighbor .
+after the data exchanges , each process computes the data in the assigned block and update the halo region independently .
+the computation of jacobi iteration in masnum is quite effective , especially when the simulation is done in large scale .
+10.1371 / journal.pone.0169130.g002 fig 2 process communication pattern .
+process communication among adjacent matrixes to update data during masnum simulation .
+to identify the bottleneck functions of masnum , we analyze the fraction of the execution time that each critical function takes at one time step .
+the time fraction is shown in fig 3 , profiled by intel vtune amplifier .
+the experiment simulates the western pacific ( 100 - 150e , 10s - 60n ) ocean surface wave .
+the simulation time is from 2009 - 01 - 01 to 2009 - 01 - 04 , with the time step of 5 minutes .
+the resolution is 1 / 2 degree and the output frequency is once per 24 hours .
+we allow each processor core in our experiment to run only one process .
+as seen in fig 3 , the bottleneck functions change as more processor core used .
+for instance , when the cores number is 24 , we observe that propagat ( 54.10 %) , implsch ( 22.54 %) are the two major bottleneck functions .
+as the number of cores increases , the bottleneck of masnum shifts to i / o function output .
+generally , when the number of cores increases to 96 , the percentage of the total execution time due to i / o is nearly 50 % .
+at the same time , the percentage of total execution time in communication stays around 20 % across all core scales .
+thus we treat the computation ( propagat ) , i / o ( output ) and communication ( updatev ) as the bottleneck functions of current masnum implementation and provide detailed analysis accordingly to reveal the opportunities for optimization .
+10.1371 / journal.pone.0169130.g003 fig 3 performance profiling .
+the time fraction of critical functions at each time step .
+propagation solver the propagation subroutine calculates the location x0 , wave - number k0 of the wave packet at time t - deltat which propagates to location x at time t and obtains wave - number k by solving the complicated characteristic equations .
+therefore we get the responding spectrum e ( k0 , x0 , t - deltat ) at time t from interpolation in phase and physical space .
+the goal is to calculate the wave energy - current spreading , and then to gather the effect of refraction caused by topography and current .
+eventually , the wave energy at the physical space point and the wave space point is determined .
+the most time - consuming portion of the propagation subroutine is to solve the propagation equation , and the solution is shown in eqs 1 and 2 , where lambda is the longitude , phi is the latitude , t is the time step , r is the radius of the earth , cglambda denotes the group velocity in the direction of longitude phi , cgphi represents the group velocity in the direction of latitude lambda and uphi denotes the velocity in the direction of longitude phi .
+for detailed proof , readers can refer to [ 15 ] .
+dlambdadt = cglambda + ulambdarcosphi ( 1 ) dphidt = cgphi + uphir ( 2 ) load distribution and communication considering the land - sea distribution , the original masnum implementation takes the following procedures to assign load across processes .
+first , dividing the whole input matrix into xproc columns and then into yproc rows , where xproc is the number of processes along the longitude and yproc is the number of processes along the latitude .
+the algorithm 1 first distributes all of the grids into xproc rows , and the total number of grids is no less than the average load .
+then the algorithm distributes all of the grid in each row into yproc columns .
+this distribution strategy leads imbalanced load of processes along the rows and columns .
+for instance , the load of last column and last row is far less than the average .
+the imbalanced load distribution is also illustrated in fig 2 , where the small cell in the grid represents less load for computation and the large cell means the opposite .
+to improve the load imbalance of masnum , zhang et al .
+[ 19 ] modified the load distribution strategy in step ( 4 ) and ( 10 ) of algorithm 1 , which makes ni close to navg .
+their strategy for load distribution proceeds as follows .
+if ni is less than navg , and navg equals nalready - ixalready - i - 1 , nalready - i represents the total number of distributed grid so far , where xalready - i is the index of matrix waiting for being distributed .
+the load distributed along the latitude is the same as along the longitude .
+however , we find that keeping each process with approximately equal load is not always the best strategy for masnum .
+the reason is that the root process always does more work in reading and writing the data in the format of netcdf file [ 20 ] .
+if the simulation output frequency is high , it is better to keep the computation of the root process lower than the average .
+furthermore , we find that previous load distribution strategy neglects the heterogeneous communication patterns in different directions , wasting the potential opportunity for further optimization .
+for instance , along longitude direction the communication is non - blocking while along latitude direction it is blocking .
+algorithm 1 the load distribution strategy of original masnum 1 : // ntotal is the total grid number of the input matrix .
+xproc is the number of processes along the longitude and yproc is along the latitude 2 : for i = 0 to xproc - 2 do 3 : navg = ntotal / xproc 4 : distributes ni to the processes with column index i , where ni is no less than navg 5 : end for 6 : distributes the remaining to the number of xproc - 1 7 : for i = 0 to xproc - 1 do 8 : for j = 0 to yproc - 2 do 9 : navg = ni / yproc 10 : distributes nj to the processes with row index j , nj is no less than navg 11 : end for 12 : distributes the remaining to the number of yproc - 1 13 : end for i / o strategy after analyzing the i / o of masnum , we find the simulation output is written by the processes sequentially , as shown in fig 4 ( 1 ) .
+only when the process ahead of the current one finishes its output progress , could the current one begin to work .
+therefore , as the number of the processes scales , the program requires longer time to generate the output .
+zhang et al .
+[ 19 ] proposed to buffer the output from other processes into memory in parallel and then allow the root process to write the buffer into disk , as shown in fig 4 ( 2 ) .
+although this technique alleviates the sequential bottleneck , the i / o performance is still limited by a single write process .
+in addition , buffering data into memory is not feasible when the input matrix is too large .
+moreover , when the root process is writing data into disk , other processes stay idle .
+in contrast , we advocate to eliminate the intrinsic serial i / o and enable each process to write the output concurrently , which boosts the i / o performance fundamentally .
+10.1371 / journal.pone.0169130.g004 fig 4 the i / o strategies when writing the output data .
+( 1 ) sequential write : one process writes the output at a time , ( 2 ) parallel write : multiple processes write the output concurrently , ( 3 ) parallel write + memory filesystem : store the output into memory filesystem temporally to circumvent disk access .
+cache locality during the performance profiling of masnum , we notice that the average cache miss rate is high , with 32.72 % of all cache references and 31.63 % of last level cache ( llc ) , although the l1 data load miss is quite low of 0.24 % .
+after analyzing the program , we find that some data structures such as ee ( wave spectrum ) and e ( wave spectrum through propagation ) arrays are visited by line rather than by column .
+in addition , a large number of data is generated during the simulation , however not used until a long reuse distance , both of which results in the low cache hit ratio .
+design decisions for optimizations in this section , we focus on optimization techniques applied to masnum .
+section "' algorithm optimization " presents the algorithm optimization to reduce the amount of computation .
+section "' load distribution optimization " details the load distribution optimization .
+parallel i / o and data access improvement is presented in section "' parallel i / o " and "' data access optimization " respectively .
+algorithm optimization optimizing searching method via derivation feature the searching process within the propagation function is to find the index of longitude in order to solve the eqs 1 and 2 .
+fig 5 ( 1 ) illustrates how the original search algorithm finds the right position in each iteration in the direction of longitude .
+the begin position of the original algorithm is zero as shown in fig 5 ( 1 ) with the orange square .
+assuming the length of the input grid is l , the time complexity of propagat function is o ( n . l ) , where n denotes the number of the grid .
+fig 5 ( 2 ) shows our optimization , which finds the right position by leveraging the result of the last iteration .
+for instance , the begin position , which is the orange square in fig 5 ( 2 ) , is the position of m after the last iteration .
+10.1371 / journal.pone.0169130.g005 fig 5 searching method .
+the models of original traversal searching method and optimized searching method via derivation feature .
+in the search algorithm , x is the array of longitude ( from 180degreesw to 180degreese ) in ascending order .
+based on the integral eqs 1 and 2 , the changes of lambda and phi are usually small when the two points are adjacent , unless the topography and the wind change radically .
+thus we leverage this specific feature to approximate adjacent points with the same value , reducing the complexity of computation. with this optimization , the algorithm complexity tends to o ( 1 ) , although the worst case is o ( l ) , which is the same as the original algorithm .
+therefore , the time complexity of propagat function tends to o ( n ) .
+the same optimization is applied to array y , which stores the input data along the latitude ( from 90degreess to 90degreesn ) .
+store the intermediate results in inner loop as algorithm 2 shows , the variables of ia and ic share the same value between loop j and k. therefore we store the value of these two variables in the inner loop whenever they are calculated , which is reused for further computation .
+storing the intermediate results is able to reduce the amount of computation effectively and thus speedup the performance of the algorithm .
+moreover , the trigonometric function within loop k is time - consuming and do not need to be calculated repeatedly .
+therefore , we store the result of the trigonometric function whenever it is calculated and return the result directly when it is accessed afterward .
+algorithm 2 store the calculated results 1 : // r represents the size of each block , omega is grid indexes in wave - number space , j is wave - number spectrum and k is wave - number of omega 2 : for all point ( ia , ic ) in r do 3 : loop j 4 : if jflag == 0 then > loop j 5 : data dependent of ( ia , ic ) 6 : store those data into temporary matrix t1 7 : jflag = 1 8 : else 9 : read the temporary matrix t1 10 : end if 11 : look k 12 : if kflag == 0 then > loop k 13 : data dependent of ( ia , ic ) and loop j 14 : store data into temporary matrix t2 15 : kflag = 1 16 : else 17 : read the temporary matrix t2 18 : end if 19 : end loop 20 : kflag = 0 21 : end loop 22 : jflag = 0 23 : end for load distribution optimization let xproc and yproc denote the number of processes along the longitude and latitude direction respectively .
+the relationship between xproc and yproc is depicted in eq 3 , where n is the total number of processes .
+since for each pair of layout , there are always two options for xproc and yproc .
+for instance , if the total number of processes is 24 , we could set the layout to be 4 x 6 or the other way around .
+nx = n.xy ( 3 ) to better understand how different process layouts affect the performance , we experiment with several different layouts ( 4 x 6 , 6 x 4 , 3 x 8 , 8 x 3 , 2 x 12 , 12 x 2 , 1 x 24 and 24 x 1 ) on 24 processor cores regarding the same input and simulation settings .
+the performance variance is shown in fig 6 .
+the result is normalized to the layout in its counterpart .
+for instance , compared to the layout of 4 x 6 , the opposite layout improves the performance by almost 8 % .
+the same tendency is observed across all possible layouts in fig 6 , that assigning more processes along the x direction than y direction always leads to better performance .
+especially , the performance benefit becomes larger as the numerical difference between x and y increases .
+10.1371 / journal.pone.0169130.g006 fig 6 impact of layout on performance .
+the performance variance under different layouts on 24 processor cores .
+the result is normalized to its layout counterpart .
+based on the above observation , we propose to use more processes along the longitude than latitude direction in order to improve the performance .
+in addition , the masnum program is implemented using fortran language , with which the arrays are accessed by column first instead of row .
+therefore , the proposed optimization also increases the cache hit ratio since more processes are accessing data in the longitude ( column ) direction .
+moreover , for each grid block , it is easier to communicate with grid blocks in the longitude direction than the ones in the latitude direction .
+as shown in fig 7 , this is because the data transferring is non - blocking in the longitude direction , whereas blocking in the latitude direction .
+thus assigning more processes in the latitude direction reduces the waiting time during the data transferring .
+10.1371 / journal.pone.0169130.g007 fig 7 an example layout of processes .
+6 x 4 layout of processes with 24 processor cores .
+considering that root process performs more work than other processes , specifically generating the netcdf files and initiating the attributes .
+we improve the load distribution algorithm in previous work [ 19 ] through incorporating a control parameter delta as shown in algorithm 3 .
+in the meanwhile , based on the observations in fig 6 , we assign more processes along the longitude ( xproc ) than latitude ( yproc ) direction , optimizing the communication between adjacent grid blocks .
+algorithm 3 load distribution algorithm 1 : // xproc is no less than yproc 2 : navg = ntotal / ( xproc * yproc ) 3 : n0 = delta * navg 4 : nall _ avg = ( ntotal - n0 )/( xproc * yproc - 1 ) 5 : for i = 0 to xproc - 2 do 6 : navg is the average of distributed dots 7 : distributes ni to the column of processes with column index i , ni is not less than navg if navg < nall _ avg , or not more than navg if navg > nall _ avg 8 : end for 9 : distributes the remaining to the number of xproc - 1 10 : for i = 0 to xproc - 1 do 11 : for j = 0 to yproc - 2 do 12 : if i == 0 & j == 0 then 13 : continue : 14 : end if 15 : navg is the average of distributed dots in ni 16 : distributes nj to the column of processes with column index j , nj is not less than navg if navg < nall _ avg , or not more than navg if navg > nall _ avg 17 : end for 18 : distributes the remaining to the number of yproc - 1 19 : end for parallel i / o as illustrated in section "' bottleneck analysis " , sequential i / o becomes a bottleneck as the number of processes increases .
+the more processes there are , the longer time it takes for the processes to write the output file sequentially .
+although zhang et al .
+[ 19 ] proposed to buffer the output and use the root process to write into the disk on behavior of all processes , the performance is still limited by the i / o especially when the volume of output becomes large .
+instead , we replace the sequential i / o by leveraging the library of parallel netcdf [ 21 ] , which allows multiple processes to perform i / o simultaneously .
+in addition , to further speedup the performance during the output stage , we use an in - memory file system called tmpfs [ 22 ] that eliminates the access to hard disk as shown in fig 4 ( 3 ) .
+data access optimization data locality due to the cache effect , accessing data in near locations improves the cache hit ratio .
+therefore , we optimize the masnum program so that the variables calculated in each time step would be accessed in the near future as much as possible .
+since the array in fortran is organized in column major order , it leads to higher cache hit ratio if the array is visited by column .
+we changed the data access pattern in several functions such as the propagat , implsch , mean1 and readwi _ mpi , so that the data locality is improved during the computaion .
+data alignment data alignment is important especially when leveraging the compiler techniques such as auto - vectorization ( with - xhost option ) .
+unaligned accesses lead to ineffective load and store operations in memory .
+thus , we align the data accesses for better performance by using pragmas and directives .
+in masnum , most data is stored in the form of multi - dimension arrays .
+we set the multi - dimension arrays with 64 - byte boundary to perform memory accesses more efficiently on intel xeon processor .
+evaluation experimental setup the node configuration of our experiment cluster is shown in table 1 .
+the cluster is composed of 8 homogenous nodes .
+we evaluate the performance of masnum at different scales when applying the optimizations we proposed .
+the performance is measured as execution time .
+according to our knowledge , [ 19 ] proposed the most recent performance optimization on masnum .
+therefore , we use [ 19 ] as our baseline throughout the evaluation .
+for the ease of comparison , we provide the percent of improvement over [ 19 ] .
+the simulation is setup to predict the ocean surface wave of the western pacific .
+the simulation time is four days long with the time step of five minutes .
+the topography resolution is 0.2 degree .
+the rest of the simulation parameters keep the default .
+all the following experiments use the same simulation setup unless specifically mentioned .
+10.1371 / journal.pone.0169130.t001 table 1 node configuration of the experiment cluster .
+configuration setting cpu 2 x intel xeon e5 - 2680v3 @ 2.5 ghz ( 12 cores ) memory 128gb ddr4 hard disk 2 x 300gb ssd mpi intel mpi version 5.0.3 network mellanox infiniband parallel netcdf version 1.7.0 operation system centos 7.2 x86 _ 64 masnum version 2.2 overall performance improvement first , we evaluate the overall performance improvement of masnum after applying all the optimizations we proposed .
+as shown in fig 8 , the overall performance improvement is quite significant in all scales , ranging from 49 % to 68 % .
+it is also noticed the performance improvement scales linearly as the number of cores increases from 24 to 72 .
+although when the number of cores goes beyond 72 , the performance improvement stays almost constant around 67.6 % .
+the experiments demonstrate the effectiveness of our proposed optimization in improving the performance of masnum .
+in addition , we show in fig 9 the breakdown of performance improvement that each proposed optimization contributes to. the algorithm optimization contributes most to the overall performance improvement when running masnum at small scale , by 43.9 % at 24 cores .
+however , i / o optimization becomes dominate when the number of cores scales , by 51.7 % at 96 cores .
+we also notice that data access optimization including data locality and data alignment optimizations takes an important portion of the overall performance improvement , ranging from 33.3 % to 20.7 % .
+the detailed evaluation of each optimization is provided in the following sections .
+10.1371 / journal.pone.0169130.g008 fig 8 overall performance improvement .
+performance improvement of masnum after applying all the optimizations proposed .
+10.1371 / journal.pone.0169130.g009 fig 9 breakdown of performance improvement .
+the percentage of performance improvement of masnum that each of the proposed optimizations contributes to. algorithm optimization in fig 10 , the performance of propagation function is improved by more than 44 % at all scales .
+the best performance improvement is achieved with 24 cores by 60 % .
+in fact , our optimization for the searching method is more effective than binary search .
+for binary search , the time complexity is o ( logl ) , where l is the length of the array of longitude or latitude .
+the drawback of binary search is that it fails to leverage the ordered elements in the arrays , which our optimization takes advantage of. thus our optimization on searching algorithm always performs better than binary search .
+the slowed down performance improvement as the number of cores increases is because as more processes are launched , the less amount of work is assigned to the propagation function in each process , which diminishes the improvement of our algorithm optimization .
+in general , our algorithm optimization is quite effective to improve the performance of propagation function .
+10.1371 / journal.pone.0169130.g010 fig 10 performance improvement from algorithm optimization .
+the performance improvement of function propagat using algorithm optimization .
+load distribution and data access optimization as shown in fig 11 , after applying the load balance optimization ( lb ) , we achieve 8 % to 13 % performance improvement as the number of cores scales from 24 to 72 .
+in addition to lb optimization , data alignment optimization ( da ) gives another 5 % performance improvement at all scales .
+the best performance improvement is achieved when combining the algorithm optimization ( ao ) from previous section , which increases the performance by 25 % at 24 cores in addition to the former two optimizations .
+furthermore , data locality optimization ( dl ) boosts the performance by additional 10 % at all scales over the combination of lb , da and ao. it is noticed that after the number of cores increases beyond 72 , the percentage of performance improvement decreases apparently .
+the reason can be explained as the number of cores increases , the amount of work assigned to each core becomes less , which undermines the effectiveness of all optimizations. with all optimizations , the percentage of performance improvement ranges from 43 % to 52 % .
+10.1371 / journal.pone.0169130.g011 fig 11 performance improvement from load distribution and data access optimization .
+the performance improvement of masnum using different optimization methods , where lb stands for load balance , da stands for data alignment , ao stands for algorithm optimization and dl stands for data locality .
+i / o optimization the performance improvement through i / o optimization is shown in fig 12 .
+as the number of cores increases from 24 to 96 , the performance improvement scales linearly from 5.6 % to 45.9 % .
+the linear scaling property of i / o optimization is due to the private mpi communication field we create each time to receive the output data .
+in addition , to avoid the overhead of initialization by multiple processes , only one process takes charge of creating the output file and setting up initial attributes .
+thus with more processes created , the performance improves accordingly .
+10.1371 / journal.pone.0169130.g012 fig 12 performance improvement from i / o optimization .
+the performance improvement of masnum using i / o optimization .
+parameter sensitivity to investigate the sensitivity of our optimizations under different parameter settings , we design experiments to evaluate the performance improvement by changing one parameter at a time while keeping the rest constant .
+identified by our empirical study , two parameters including topography resolution and output frequency show strong impact on the performance of masnum simulation .
+during the sensitivity experiment of topography resolution , we change the resolution to be 0.125 , 0.2 , 0.4 and 0.5 degrees respectively .
+the smaller degree means higher resolution .
+similarly , to evaluate the sensitivity of the output frequency , it is set to one hour , two hours , six hours and 24 hours respectively .
+the longer hours means lower output frequency .
+topography resolution as fig 13 shows , the performance improvement increases when the input resolution becomes higher .
+this tendency scales as more cores are used in the simulation .
+the most performance improvement is 71.6 % ( 3.5x speedup ) , which is achieved at 96 cores with the input resolution of 0.125 degree .
+the reason for the higher performance at higher resolution can be attributed to i / o optimization we proposed .
+at high resolution , each process needs to generate more data for the output , deteriorating the performance of previous work with serial i / o. in our i / o optimization , the serial i / o is eliminated by using the library of pnetcdf , which allows multiple processes to write the output file simultaneously .
+the experiments demonstrate our optimizations are capable of improving the performance with increasing topography resolution .
+10.1371 / journal.pone.0169130.g013 fig 13 parameter sensitivity of topography resolution .
+the performance improvement under different topography resolutions .
+output frequency the sensitivity analysis on output frequency is illustrated in fig 14 .
+due to the extremely long execution time with the original implementation , we only include the performance comparison at the output frequency of one per 24 hours .
+in the comparison , the performance is improved by 47.8 % under all scales .
+as the output frequency increases from one per 24 hours to one per hour , the execution time increases by 30 % universally .
+the prolonged execution time can be attributed to the larger amount of i / o under higher output frequency. with the core number increasing from 24 to 96 , the performance is improved by 63.6 % at all output frequencies .
+this demonstrates that our optimizations achieve significant performance improvement under various output frequencies .
+10.1371 / journal.pone.0169130.g014 fig 14 parameter sensitivity of output frequency .
+the performance improvement under different output frequency .
+prediction accuracy due to the round - off difference from the calculation of wave energy spreading and the chaotic nature of the wave dynamics , it is infeasible to provide bit - for - bit ( bfb ) identical results in wave simulations .
+to verify the accuracy of the masnum simulation after applying our optimizations , we calculate the root - mean - square deviation ( rmsd ) [ 23 ] of the results given before and after the optimizations .
+the equation of rmsd is defined in eq 4 , where x0 and x represent the results before and after optimizations , n represents the number of sampling .
+at a given point i , there are series of observations for each variable and k defines the number of variables under observation .
+inspired by [ 24 ] , we validate six representative variables such as zonal wind velocity ( windx ) , meridional wind velocity ( windy ) , significant wave height ( hs ) , mean wave direction ( th ) , spectrum peak wave period ( tp ) and zero - crossing wave period ( tz ) .
+thus k ranges from 1 to 6 .
+rmsd ( x,x0,k )= 1nsumi = 1n ( xik - x0ik ) 2 ( 4 ) in fig 15 , we simulate 38 weeks to verify the accuracy of the above six variables across the time - line .
+the rest of the simulation parameters are the same as those in section "' experimental setup " .
+as shown , the rmsd across all six variables is lower than 0.012 during the whole simulation , which indicates the proposed optimizations do not introduce additional inaccuracy to the simulation .
+for instance , the variable hs representing the significant wave height exhibits the smallest rdsm of less than 0.005 .
+10.1371 / journal.pone.0169130.g015 fig 15 validation of accuracy .
+the accuracy of masnum after applying the proposed optimizations .
+the validation is against six important variables in masnum .
+related work we briefly review the related work from two categories : general efforts to improve the ocean modeling performance and specific ones on the wave modeling .
+in the first category , for reducing the communication overhead , openmp is demonstrated to be effective in improving modeling performance at large core count [ 25 ] .
+land elimination is another approach to reducing the communication overhead and in [ 26 , 27 ] , space - filling curves are used to improve load balance as well as to reduce the amount of communication .
+additionally , in [ 28 ] , the authors proposed to overlap the global communication with the matrix - vector product via a pipelined method that improved the performance of conjugate gradient .
+in [ 29 ] , hu et al. implemented a new solver that reduced the communication overhead as the core count increased , which lead to higher speedup at large scale .
+although previous work is able to effectively improve the performance of ocean modeling , they cannot be directly applied to the optimization of wave modeling .
+for the wave modeling , most of the existing work is developed from third generation numerical wave model [ 15 , 30 ] .
+specifically , the marine science and wave numerical model ( masnum ) was proposed and developed in spherical coordinates in theory [ 12 , 31 ] .
+after that , several optimization work is proposed to wave modeling .
+in [ 16 ] , the parallel version of masnum based on mpi was developed .
+later , zhang et al .
+[ 17 ] optimized the aggregation , data distribution and local blocking method to get higher performance .
+since the matrix segmentation leads to poor load balance , alamos national laboratory introduced the notion of the smallest fundamental block [ 32 , 33 ] .
+in their work , the size of the smallest block is determined first , and then each block is distributed into different regions .
+each process is assigned an equal number of computation regions in order to achieve better load balance .
+later in [ 18 ] , zhao et al. developed a highly efficient parallel numerical surface wave model based on an irregular quasi - rectangular domain decomposition .
+our work is closely related to zhang et al .
+[ 19 ] which focused on load balance , communication and i / o optimization .
+in their load balance optimization , the amount of computation in each process was maintained close to the mean .
+they also proposed new i / o strategy to improve the i / o performance as well as a message packeting method to reduce the communication overhead .
+in comparison , our work optimizes masnum program from multiple aspects such as the algorithm , communication , parallel i / o and data locality , which provides us more opportunities to boost the performance further .
+we also notice that parallel framework mapreduce [ 34 ] has been applied to address the massive i / o problem in scientific computation such as multiple sequence alignment [ 35 , 36 ] .
+conclusion the demand of high - resolution masnum wave simulations has been driven the optimization work from different directions .
+this paper improves the performance of the propagation solver via reducing the redundant computations .
+in addition , we improve the efficiency of communication among processes during the computation .
+furthermore , we eliminate the bottleneck of serial i / o during the output stage using parallel netcdf .
+finally , we enhance the data locality during the calculation for better cache hit ratio .
+our proposed optimizations achieve 3.5x speedup compared to the state - of - the - art work , without degrading the prediction accuracy .
+the parameter sensitivity experiments demonstrate our optimizations are effective under various parameter settings .
+we would like to thank the first institute of oceanography , state oceanic administration of china for its generosity to share the source code as well as the experimental dataset .
+this work is supported by national natural science foundation of china ( grant no .
+61502019 ) and national key research and development program of china ( grant no. 2016yfb1000304 ) .
+references 1 neale rb , chen cc , gettelman a , lauritzen ph , park s , williamson dl , et al. description of the ncar community atmosphere model ( cam 5.0 ) .
+ncar tech note ncar / tn - 486 + str .
+2010. 2 bao q , wu g , liu y , yang j , wang z , zhou t . an introduction to the coupled model fgoals1 .
+1 - s and its performance in east asia . advances in atmospheric sciences .
+2010 ; 27 : 1131 - 1142 . doi : 10.1007 / s00376 - 010 - 9177 - 1 3 donner lj , wyman bl , hemler rs , horowitz lw , ming y , zhao m , et al the dynamical core , physical parameterizations , and basic simulation characteristics of the atmospheric component am3 of the gfdl global coupled model cm3 . journal of climate .
+2011 ; 24 ( 13 ) : 3484 - 3519 . doi : 10.1175 / 2011jcli3955.1 4 jones pw , worley ph , yoshida y , white j , levesque j . practical performance portability in the parallel ocean program ( pop ) . concurrency and computation : practice and experience .
+2005 ; 17 ( 10 ) : 1317 - 1327 . doi : 10.1002 / cpe.894 5 cowles gw . parallelization of the fvcom coastal ocean model . international journal of high performance computing applications .
+2008 ; 22 ( 2 ) : 177 - 193 . doi : 10.1177 / 1094342007083804 6 bonan gb , hartman md , parton wj , wieder wr . evaluating litter decomposition in earth system models with long - term litterbag experiments : an example using the community land model version 4 ( clm4 ) . global change biology .
+2013 ; 19 ( 3 ) : 957 - 974 . doi : 10.1111 / gcb.12031 23504851 7 nitta t , yoshimura k , takata k , o'ishi r , sueyoshi t , kanae s , et al representing variability in subgrid snow cover and snow depth in a global land model : offline validation . journal of climate .
+2014 ; 27 ( 9 ) : 3318 - 3330 . doi : 10.1175 / jcli - d - 13 - 00310.1 8 turner ak , hunke ec . impacts of a mushy - layer thermodynamic approach in global sea - ice simulations using the cice sea - ice model . journal of geophysical research : oceans .
+2015 ; 120 ( 2 ) : 1253 - 1275 . 9 prasad s , zakharov i , bobby p , mcguire p . the implementation of sea ice model on a regional high - resolution scale . ocean dynamics .
+2015 ; 65 ( 9 - 10 ) : 1353 - 1366 . doi : 10.1007 / s10236 - 015 - 0877 - z 10 valcke s . the oasis3 coupler : a european climate modelling community software . geoscientific model development .
+2013 ; 6 ( 2 ) : 373 - 388 . doi : 10.5194 / gmd - 6 - 373 - 2013 11 webb mj , lock ap . coupling between subtropical cloud feedback and the local hydrological cycle in a climate model . climate dynamics .
+2013 ; 41 ( 7 - 8 ) : 1923 - 1939 . doi : 10.1007 / s00382 - 012 - 1608 - 5 12 yang y , qiao f , zhao w , teng y , yuan y . masnum ocean wave numerical model in spherical coordinates and its application . acta oceanol sin .
+2005 ; 27 ( 2 ) : 1 - 7 . 13 yeli y , feng h , zengdi p , letao s . lagfd - wam numerical wave model .
+i : basic physical model . acta oceanologica sinica .
+1991 ; 10 ( 4 ) : 483 - 488 . 14 yeli y , feng h , zengdi p , letao s . lagfd - wam numerical wave model - ii. characteristics inlaid scheme and its application . acta oceanologica sinica .
+1991 ; 11 ( 1 ) : 13 - 23 . 15 booij n , ris r , holthuijsen lh . a third - generation wave model for coastal regions : 1 .
+model description and validation . journal of geophysical research : oceans .
+1999 ; 104 ( c4 ) : 7649 - 7666 . doi : 10.1029 / 98jc02622 16 wang g , qiao f , yang y . study on parallel algorithm for mpi - based lagfd - wam numerical wave model . advances in marine science .
+2007 ; 25 ( 4 ) : 401 . 17 zhang ll , zhao j , jian - ping wu . parallel computing of pop ocean model on quad - core intel xeon cluster . computer engineering and applications .
+2009 ; 45 ( 5 ) : 189 - 192 . 18 zhao w , song z , qiao f , yin x . high efficient parallel numerical surface wave model based on an irregular quasi - rectangular domain decomposition scheme . science china earth sciences .
+2014 ; 57 ( 8 ) : 1869 - 1878 . doi : 10.1007 / s11430 - 014 - 4842 - 3 19 zhang zhiyuan , ll yg , zhou yufeng . performance characterization and efficient parallelization of masnum wave model . journal of computer research and development .
+2015 ; 52 ( 4 ) : 851 - 860 . 20 netcdf : introduction and overview .
+http :// www.unidata.ucar.edu / software / netcdf / docs / .
+21 li j , liao wk , choudhary a , ross r , thakur r , gropp w , et al. parallel netcdf : a high - performance scientific i / o interface .
+in : supercomputing , 2003 acm / ieee conference .
+ieee ; 2003. p. 39 - 39 .
+22 tmpfs wiki .
+https :// wiki.archlinux.org / index.php / tmpfs .
+23 coutsias ea , seok c , dill ka . using quaternions to calculate rmsd . journal of computational chemistry .
+2004 ; 25 ( 15 ) : 1849 - 1857 . doi : 10.1002 / jcc.20110 15376254 24 wang g , zhao c , xu j , qiao f , xia c . verification of an operational ocean circulation - surface wave coupled forecasting system for the china 's seas . acta oceanologica sinica .
+2016 ; 35 ( 2 ) : 19 - 28 . doi : 10.1007 / s13131 - 016 - 0810 - 4 25 worley ph , craig ap , dennis jm , mirin aa , taylor ma , vertenstein m. performance of the community earth system model .
+in : high performance computing , networking , storage and analysis ( sc ) , 2011 international conference for .
+ieee ; 2011. p. 1 - 11 .
+26 dennis jm. inverse space - filling curve partitioning of a global ocean model .
+in : parallel and distributed processing symposium , 2007 .
+ipdps 2007 .
+ieee international .
+ieee ; 2007. p. 1 - 10 .
+27 dennis jm , tufo hm . scaling climate simulation applications on the ibm blue gene / l system . ibm journal of research and development .
+2008 ; 52 ( 1.2 ) : 117 - 126 . doi : 10.1147 / rd.521.0117 28 ghysels p , vanroose w . hiding global synchronization latency in the preconditioned conjugate gradient algorithm . parallel computing .
+2014 ; 40 ( 7 ) : 224 - 238 . doi : 10.1016 / j.parco.2013.06.001 29 hu y , huang x , baker ah , tseng yh , bryan fo , dennis jm , et al. improving the scalability of the ocean barotropic solver in the community earth system model .
+in : proceedings of the international conference for high performance computing , networking , storage and analysis .
+acm ; 2015. p. 42. 30 group tw . the wam model - a third generation ocean wave prediction model . journal of physical oceanography .
+1988 ; 18 ( 12 ) : 1775 - 1810 . doi : 10.1175 / 1520 - 0485 ( 1988 ) 018 % 3c1775 : twmtgo % 3e2.0.co ; 2 31 fangli q . ocean models system and the surface wave - circulation coupled theory . frontier science .
+2007 ; 3 : 017 . 32 kerbyson dj , jones pw . a performance model of the parallel ocean program . international journal of high performance computing applications .
+2005 ; 19 ( 3 ) : 261 - 276 . doi : 10.1177 / 1094342005056114 33 smith r , jones p , briegleb b , bryan f , danabasoglu g , dennis j , et al the parallel ocean program ( pop ) reference manual . los alamos national lab technical report .
+2010 ; 141 . 34 dean j , ghemawat s . mapreduce : simplified data processing on large clusters . communications of the acm .
+2008 ; 51 ( 1 ) : 107 - 113 . doi : 10.1145 / 1327452.1327492 35 zou q , hu q , guo m , wang g . halign : fast multiple similar dna / rna sequence alignment based on the centre star strategy . bioinformatics .
+2015 ; 31 ( 15 ) : 2475 - 2481 . doi : 10.1093 / bioinformatics / btv177 25812743 36 zou q , li xb , jiang wr , lin zy , li gl , chen k . survey of mapreduce frame operation in bioinformatics . briefings in bioinformatics .
+2013 ; p .
+bbs088 .

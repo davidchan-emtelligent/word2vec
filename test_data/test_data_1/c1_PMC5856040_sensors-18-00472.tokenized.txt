@@ -1,0 +1,282 @@
+sensors ( basel ) sensors ( basel ) sensors sensors ( basel , switzerland ) 1424 - 8220 mdpi 29415447 5856040 10.3390 / s18020472 sensors - 18 - 00472 article deep learning - based banknote fitness classification using the reflection images by a visible - light one - dimensional line image sensor pham tuyen danh nguyen dat tien kim wan park sung ho park kang ryoung * division of electronics and electrical engineering , dongguk university , 30 pildong - ro 1 - gil , jung - gu , seoul 100 - 715 , korea ; phamdanhtuyen @ dongguk.edu ( t.d.p ) ; nguyentiendat @ dongguk.edu ( d.t.n. ) ; daiz0128 @ naver.com ( w.k. ) ; 01072669850 @ naver.com ( s.h.p . )
+* correspondence : parkgr @ dongguk.edu ; tel. : + 82 - 10 - 3111 - 7022 ; fax : + 82 - 2 - 2277 - 8735 06 2 2018 2 2018 18 2 472 12 1 2018 01 2 2018 ( c ) 2018 by the authors .
+2018 licensee mdpi , basel , switzerland .
+this article is an open access article distributed under the terms and conditions of the creative commons attribution ( cc by ) license ( http :// creativecommons.org / licenses / by / 4.0 /) .
+in automatic paper currency sorting , fitness classification is a technique that assesses the quality of banknotes to determine whether a banknote is suitable for recirculation or should be replaced .
+studies on using visible - light reflection images of banknotes for evaluating their usability have been reported .
+however , most of them were conducted under the assumption that the denomination and input direction of the banknote are predetermined .
+in other words , a pre - classification of the type of input banknote is required .
+to address this problem , we proposed a deep learning - based fitness - classification method that recognizes the fitness level of a banknote regardless of the denomination and input direction of the banknote to the system , using the reflection images of banknotes by visible - light one - dimensional line image sensor and a convolutional neural network ( cnn ) .
+experimental results on the banknote image databases of the korean won ( krw ) and the indian rupee ( inr ) with three fitness levels , and the unites states dollar ( usd ) with two fitness levels , showed that our method gives better classification accuracy than other methods .
+fitness classification deep learning reflection images of banknote visible - light one - dimensional line image sensor convolutional neural network 1 .
+introduction the functionalities of sorting and classifying paper currency in automated transaction facilities , such as automated teller machines ( atms ) or counting machines consist of the recognition of banknote types , denominations , counterfeit detection , serial recognition , and fitness classification [ 1 ] .
+the fitness classification of banknotes is concerned with the evaluation of the banknotes' physical conditions , such as staining , tearing , or bleaching .
+this task helps not only to determine whether a banknote is suitable for recirculation or should be replaced by a new one , but also to enhance the processing speed and sorting accuracy of the counting system .
+fitness of banknotes is normally classified based on the banknotes' optical characteristics captures by imaging sensors .
+in general , the presentations of banknotes are different among types of banknotes as well as between front and back sides of the banknote itself .
+as a result , fitness classification of banknote proposed in most previous studies was performed under the assumption that the input banknote 's type , denomination , and input direction are known [ 1 ] .
+in the next section , we provide detailed explanations of the related work concerning banknote fitness classification .
+2. related works studies on banknote fitness classification with regard to various paper currencies have been reported .
+according to the research by the dutch central bank , de nederlandsche bank ( dnb ) , based on the evaluation using color imaging , soiling was the predominant reason that degrades the quality of a banknote , and the mechanical defects appeared after the banknote was stained [ 2,3,4 ] .
+therefore , several previous studies use the soiling level as the criterion for judging the fitness for further circulation of a banknote [ 5 ] .
+based on the method of using banknote images captured by single or multiple sensors , these approaches can be divided into two categories : the methods using the whole banknote image and those that use certain regions of interest ( rois ) on the banknote image for the classification of banknote fitness .
+in the method proposed by sun and li [ 6 ] , they considered that the banknotes with different levels of old and new have different gray histograms .
+therefore , they used the characteristics of the banknote images' histogram as the features , dynamic time warp ( dtw ) for histogram alignment , and support vector machine ( svm ) for classifying the banknotes' age .
+histogram features were also used in the research of he et al .
+[ 7 ] , in which they used a neural network ( nn ) as the classifier .
+a nn was also used in the euro banknote recognition system proposed by aoba et al .
+[ 8 ] .
+in this study , the whole banknote images captured by visible and infrared ( ir ) sensors were converted to multiresolutional input values and subsequently fed to the classification part using a three - layered perceptron and the validation part uses the radial basis function ( rbf ) networks [ 8 ] .
+in this system , the new and dirty euro banknotes are classified in the rbf network - based validation part .
+recently , lee et al .
+[ 9 ] proposed a soiled banknote determination based on morphological operations and otsu 's thresholding on contact image sensor ( cis ) images of banknotes .
+in roi - based approaches , certain areas on the banknote images where the degradation can be frequently detected or visualized are selected for evaluating the fitness of the banknote .
+in the studies of geusebroek et al .
+[ 3 ] and balke et al .
+[ 10 ] , from overlapping rectangular regions on the color images of euro banknotes , the mean and standard deviation of the channels' intensity values were calculated and selected as the features for assessing the soiling values of banknotes using the adaboost algorithm [ 3,10 ] .
+mean and standard deviation values of the wavelet - transformed rois were also the classification features in the method proposed by pham el al .
+[ 11 ] .
+in this study , these features were extracted from the little textures containing areas on the banknote images using discrete wavelet transform ( dwt ) and selected based on a correlation with the densitometer data and subsequently used for fitness classification by the svm [ 11 ] .
+the regions with the least amount of textures are also selected for feature extraction in the study proposed by kwon et al .
+[ 12 ] , in which they used both the features extracted from visible - light reflection ( vr ) and near - infrared light transmission ( nirt ) images of the banknotes , and the fuzzy - based classifier for the fitness classification system .
+the methods that are based on certain regions on the banknotes for evaluating the fitness of banknotes have advantages of reduced input data size and processing time .
+however , the selection of rois in the previous fitness classification studies is mostly manual , and the degradation and damage of banknote can occur on the unselected areas .
+the global - feature - based banknote images could help to solve this problem , but since the input features are mostly based on the brightness characteristic of the banknote images , it is much affected by illumination change , wavelength of sensors , and variation in patterns of different banknote types .
+moreover , in fitness classifications , most studies assumed that the input banknote 's type , denomination , and input direction are known [ 1 ] .
+to overcome these shortcomings , we considered a method for classification of banknote fitness based on the convolutional neural network ( cnn ) .
+this nn structure was first introduced by lecun et al. in their studies about handwritten character recognition [ 13,14 ] , and have recently been emerging and attracting research interest [ 15 ] , especially for the image classification of the imagenet large - scale visual recognition challenge ( ilsvrc ) contest [ 16,17,18,19 ] .
+however , little research has been conducted on the automatic sorting of banknotes using cnns .
+ke et al. proposed a banknote image defect detection method using a cnn [ 20 ] ; however , this study had only focused on the recognition of ink dots in banknote image defects , and did not specify the type of experimental banknote image dataset or judge the fitness for recirculation of the examined banknotes .
+another recent cnn - based method proposed by pham et al .
+[ 21 ] aiming to classify banknote type , denomination , and input direction showed good performance even with the mixed dataset from multiple national currencies .
+on the evaluation of a state - of - the - art method , we proposed a deep learning - based banknote fitness - classification method using a cnn on the gray - scale banknote images captured by visible - light one - dimensional line image sensor .
+our proposed system is designed to classify the fitness of banknote into two or three levels including : ( i ) fit and unfit , and ( ii ) fit , normal and unfit for recirculation , depending on the banknote 's country of origin , and regardless of the denomination and input direction of the banknote .
+compared to previous studies , our proposed method is novel in the following aspects : ( 1 ) this is the first cnn - based approach for banknote fitness classification .
+we performed training and testing of a cnn on banknote image databases of three national currencies that consist of 12 denominations , by which the performance of our proposed method is confirmed to be robust to a variety of banknote types .
+( 2 ) our study carried out fitness determination on the united states dollar ( usd ) , the korean won ( krw ) , and the indian rupee ( inr ) , in which three levels of fitness of banknote , namely fit , normal , and unfit cases for recirculation , are considered with the krw and inr , whereas two levels of fit and unfit cases are considered with the usd .
+( 3 ) our fitness recognition system can classify the fitness of banknote regardless of the denomination and direction of the input banknote .
+as a result , the pre - classification of banknote image in the denomination and input direction is not required , and there is only one trained fitness - classification model for each national currency .
+( 4 ) we made our trained cnn model with databases publicly available by other researchers for the fair comparisons with our method and databases .
+table 1 gives a comparison between our research and previous studies .
+the details of the proposed banknote fitness - classification method are presented in section 3 .
+experimental results and conclusions are given in section 4 and section 5 of this paper , respectively .
+3. proposed method 3.1 .
+overview of the proposed method the overall flowchart of the proposed method is shown in figure 1 .
+the input banknote image is captured and pre - processed .
+in this pre - processing step , the banknote region in the captured image by visible - light one - dimensional line image sensor is segmented from the background and resized to achieve the same size of 115 x 51 pixels , because the size of the input image to the cnn should be the same .
+the size - normalized image of the banknote is fed into the pre - trained cnn , and the level of fitness is determined at the output of the network .
+3.2 .
+acquisition and pre - processing of banknote image for banknote image acquisition in this study , we used a commercial banknote counting machine with a visible - light one - dimensional line image sensor that has a resolution of 1584 pixels [ 12,22 ] .
+a line sensor was used instead of the conventional two - dimensional ( area ) image sensors because of the size limitation and the cost of the counting machine .
+when a banknote is input to the system , it will be passed through the rollers inside the machine and illuminated by visible - light light - emitting diode ( led ) , and the line sensor is triggered successively at a high speed to capture the line images of the input banknote .
+the number of trigger times when the input banknote is a krw or inr is 464 , meanwhile that in the case of the usd it is 350. by concatenating the captured line images , the resulting acquired banknote image has a resolution of 1584 x 464 pixels or 1584 x 350 pixels in the case of the krw - inr banknote or the usd banknote , respectively .
+four input directions of the banknotes when being inserted into the counting machine are labeled as a , b , c , and d , which are the front side in the forward direction , front side in the backward direction , back side in the forward direction , and back side in the backward direction , respectively .
+examples of banknote images in the a to d directions in the case of the krw are shown in figure 2 .
+the original banknote image captured by the counting machine includes both the banknote region and surrounding background. by using the corner detection algorithm built into the counting machine , we segment the banknote region from the background to address the area that contains meaningful information of the banknote image , as well as fix the displacement and rotation of the input banknote , as shown in figure 2 .
+the detail explanations of the corner detection algorithm are as follows .
+within the fixed roi of the captured banknote image of figure 2a - d , the upper boundary of banknote is detected by scanning a one - dimensional mask for edge detection based on the 1st order derivative [ 23 ] from upper to lower position per each horizontal position of the roi. from this , the candidate points of upper boundary are detected , and accurate boundary line is determined by line fitting algorithm [ 23 ] with these points .
+same procedure is iterated for detecting lower , left , and right boundaries of banknote .
+left boundary is detected by scanning the same mask from left to right position per each vertical position of roi for detecting left boundary whereas right one is detected by scanning same mask from right to left position per each vertical position of roi for detecting right boundary .
+then , four boundary lines are located , and the four intersected points by these lines are determined as the corner points of banknote .
+the segmented banknote images are then resized equally to achieve the same size of 115 x 51 pixels to be inputted to the cnn in the next step .
+3.3 .
+the cnn architecture the cnn architecture used in our proposed method is shown in figure 3 and table 2 .
+this network structure consists of five convolutional layers , denoted as c1 to c5 , followed by three fully connected layers , denoted as f1 to f3 , which are similar to those in the alexnet architecture [ 16,21 ] .
+for faster training time with gradient descent , rectified linear unit ( relu ) layers are presented at all of the convolutional layers and fully connected layers of the network [ 16 ] .
+using the relu activation function , whose formula is shown in equation ( 1 ) , instead of the standard non - linear function of the sigmoid or hyperbolic tangent , as shown in ( 2 ) and ( 3 ) , respectively , can help to avoid the gradient - vanishing effect [ 24 ] : ( 1 ) f ( x )= max ( x,0 ) ( 2 ) f ( x )= 11 + e - x ( 3 ) f ( x )= tanh ( x ) local response normalization is considered at the first two layers of conv1 and conv2 with cross - channel normalization ( ccn ) layers [ 16,21 ] , whose equation is presented follows : ( 4 ) a'x,yi = ax,yi ( k + alphasumj = max ( 0,i - n2 ) min ( n - 1,i + n2 )( ax,yj ) 2 ) beta where ax,yi is the neuron activity computed by applying the kernel ith at position ( x , y ). with the normalization executed for the adjacent n kernel maps at the same spatial position , the obtained normalized activity value is ax,y'i. in equation ( 4 ) , n is the total number of kernels in the layer .
+we choose a window channel size n of 5 ; k , alpha , and beta are hyper - parameters and are set to 1 , 0.0001 , and 0.75 , respectively .
+in equation ( 4 ) , the term of summation of ( ax,yj ) 2 multiplied by alpha can be zero in case that all the ( ax,yj ) 2 are zero .
+therefore , the off - set value of k is used in order to make the denominator of equation ( 4 ) non - zero .
+alpha is the kind of control parameter .
+for example , if the term of summation of ( ax,yj ) 2 multiplied by alpha is much larger than k , ax,y'i of equation ( 4 ) approximates ax,yi /( the term of summation of ( ax,yj ) 2 multiplied by alpha ) by ignoring k. on the contrary , if the term of summation of ( ax,yj ) 2 multiplied by alpha is much smaller than k , ax,y'i of equation ( 4 ) approximates ax,yi / k by ignoring the term of summation of ( ax,yj ) 2 multiplied by alpha .
+beta is also the kind of control parameter. with larger beta , the ax,y'i becomes smaller whereas the ax,y'i becomes larger with smaller beta .
+the k , alpha , and beta are also called as hyper - parameters based on previous researches [ 16 ] .
+the optimal values ( 1 , 0.0001 , and 0.75 ) of these parameters were experimentally determined with training data .
+following each cnn layer in the first and second convolutional layer is the max pooling layer .
+the max pooling is also adopted in the last convolutional layer ( c5 ) before connecting to the fully connected layer part of the network structure .
+the gray - scale banknote images in our proposed method are resized equally to 115 x 51 pixels using linear interpolation before being fed into the cnn. through each layer of the network structure , feature map size changes are as shown in table 2 according to the following equations [ 21,25 ] : ( 5 ) wi = wi - 1 - wf + 2ps + 1 ( 6 ) hi = hi - 1 - hf + 2ps + 1 ( 7 ) ci ={ ci - 1 for ith pooling layerk for ith convolutional layer where wi , hi , and ci , denoting the width , height , and number of channels , respectively , are the sizes of the feature map in the ith convolutional layer in pixels ; those of its preceding ( i - 1 ) th layer are denoted as wi - 1 , hi - 1 , and ci - 1 ; the ith layer has k filters with the number of weights per filter is ( wf x hf x ci ) , the filtering stride is s pixels , and the zero - padding amount is p pixels .
+the resulting banknote feature map after five convolutional layers has the size of 6 x 2 x 128 = 1536 , as shown in table 2 , and these features are fed into the fully connected layers of the network .
+to prevent the overfitting problem , we inserted a dropout layer between the 2nd and 3rd fully connected layers , as shown in table 2 .
+this is the regularization method that randomly disconnects the neuron unit from the network during training [ 16,26 ] .
+p is the probability of maintaining the connections .
+for example , if there are 100 connections of the neuron unit from the network , 35 connections are randomly disconnected with the p of 0.65 ( the connections of 65 % are maintained ) .
+in this research , we chose p equal to 0.65 .
+the optimal value ( 0.65 ) of p was experimentally determined with training data .
+in order to do so , the input vector y to the network node is element - wise multiplied with a vector r consisting of the independent bernoulli random variables , each of which can be 0 or 1 with the probability p [ 26 ] .
+therefore , r ~ bernoulli ( p ) [ 26 ] .
+for example , if y of equation ( 8 ) has the 100 components of ( y1 , y2 , ... , y100 ) , the r has the 100 components of ( r1 , r2 , ... , r100 ) , also , for the element - wise multiplication of y and r ("*" of equation ( 8 )) .
+if the probability p is 0.65 , 65 components of ( r1 , r2 , ... , r100 ) are 1 and the remained 35 ones are 0 .
+z of equation ( 8 ) stands for the output of feed - forward operation of the neuron unit with dropout , activation function f (.) , weights of w , and bias b : ( 8 ) z = f ( w ( y * r )+ b ) as mentioned above , banknote features are completely extracted at the output of the final 5th convolutional layer .
+the fully connected layers that follow can be considered as the classifier part of the cnn structure .
+the number of network nodes in the three fully connected layers ( f1 to f3 ) in our study is shown in table 2 .
+in this research , we classified banknote fitness to three levels in the case of the krw and inr , and two levels for the usd banknotes .
+as a result , the number of nodes in the last fully connected layer may vary according to the national currency selected .
+at the output stage of the cnn structure , we apply a normalized exponential function ( softmax function ) [ 27 ] that helps to transform the real values at the outputs of the neuron units in f3 to the values in the range of ( 0 , 1 ) .
+these resulting values of the softmax function can be considered as the probability that the input banknote belongs to the fitness classes corresponding to the network outputs .
+the softmax layer can also help to highlight the largest values and suppress the smaller values among the set [ 21 ] .
+the formula of the softmax function applied on the node output values denoted as zi is shown in the following equation ( 9 ) : ( 9 ) pi = ezisumi = 1nezi among n fitness levels , the one corresponding to the maximum value of pi ( i = 1 , ... , n ) is considered as the fitness level of the input banknote image .
+in this research , the training process for the filter parameters of convolutional layers and the network weights of fully connected layers are conducted separately for each national currency of krw , inr , and usd , in combination of all the denominations and input directions of the banknote images. by conducting this training on the cnn model , our proposed fitness - classification method does not require the pre - classification of the denomination type and direction of the banknote .
+the completely trained cnn models are stored in the memory for use in the testing experiments .
+4. experimental results we used banknote fitness databases from three national currencies , which are the krw , inr , and usd , for the experiments using our proposed method .
+the krw banknote image database is composed of banknotes in two denominations , 1000 and 5000 wons .
+the denominations of banknotes in the inr database are 10 , 20 , 50,100 , 500 , and 1000 rupees .
+those for the case of the usd are 5 , 10 , 50 , and 100 dollars .
+three levels of fitness , which are fit , normal , and unfit for recirculation , are assigned for the banknotes of each denomination in the cases of the krw and inr , and two levels including fit and unfit are defined for the usd banknotes in the experimental dataset .
+examples of banknotes assigned to each fitness level are shown in figure 4 , figure 5 and figure 6 .
+the number of banknotes in each fitness level of three national currency databases is given in table 3 .
+we made our trained cnn model with databases publicly available by other researchers through [ 28 ] for the fair comparisons with our method and databases .
+we conducted the experiments using the two - fold cross - validation method .
+therefore , the dataset of banknote images from each national currency was randomly divided into two parts .
+in the first trial , one of the two parts was used for training , and the other was used for testing .
+the process was repeated with these parts of the dataset swapped in the second trial. with the obtained results from two trials , we calculated the overall performance by averaging two accuracies .
+in this research , we trained the network models separately for each national currency dataset without pre - classifying the denomination and input direction of the banknote images in the dataset .
+in each dataset , we performed data augmentation for expanding the number or image for training .
+this process helps to generalize the training data and reduce overfitting [ 21 ] .
+for data augmentation , we randomly cropped the boundaries of the original image in the dataset in the range of 1 to 7 pixels .
+the number of images in the datasets of the krw and inr were increased by multiplication factors of 3 and 6 times , respectively .
+in the case of the usd , the numbers of fit and unfit banknote images were multiplied by 21 and 71 times .
+consequently , the total number of images for training in each national currency dataset was approximately 100,000 images .
+we also listed the number of images in each dataset and each class after augmentation in table 3 .
+in the first experiments of the cnn training , we trained three network models for fitness classification in each of the national currency dataset , and repeated it twice for two - fold cross - validation .
+training and testing experiments were performed using the matlab implementation of the cnn [ 29 ] on a desktop computer equipped with an intel ( r ) core ( tm ) i7 - 3770k cpu @ 3.50 ghz [ 30 ] , 16 - gb memory , and an nvidia geforce gtx 1070 graphics card with 1920 cuda cores , and 8 - gb gddr5 memory [ 31 ] .
+the training method is stochastic gradient descent ( sgd ) , also known as sequential gradient descent , in which the network parameters are updated based on the batch of data points at a time [ 27 ] .
+the cnn training parameters were set as follows : the number of iterations for training is 60 epochs , with the initial learning rate of 0.01 and reduced by 10 % at every 20 epochs .
+the convergence graphs of the average batch loss and accuracy according to the epoch number of the training process on the two subsets of training data in the two - fold cross - validation are shown in figure 7 for each country 's banknote dataset .
+figure 7 shows that the accuracy values increased to 100 % and the loss curves approach zero with the increment of epoch number in all cases .
+in figure 8 , we show the 96 trained filters in the first convolutional layers of the trained cnn models for each national currency dataset using two - fold cross - validation .
+for visualization , the original 7 x 7 x 1 pixel filters were resized by a factor of 5 and the weight values were scaled to the range of unsigned integer number from 0 to 255 , corresponding to the gray - scale image intensity values. with the trained cnn models , we conducted the testing experiments on the datasets of each national currency , in a combination of all the denominations and input directions of the banknote images .
+the experimental results of the two - fold cross - validation using cnn for each dataset are shown in table 4 , table 5 and table 6 , and expressed as the confusion matrices between the desired and predicted outputs , namely the actual fitness levels of the banknotes and the fitness - classification results using the trained cnn models. from the testing results on two subsets , we calculated the average accuracy based on the number of accurately classified cases of each subset as the following formula [ 32 ] : ( 10 ) avr _ acc = ga1 + ga2n with avr _ acc the average testing accuracy of the total n samples in the dataset , and ga1 and ga2 are the number of accurately classified samples ( genuine acceptance cases ) from the 1st and 2nd fold cross validations , respectively .
+table 4 , table 5 and table 6 show that the proposed cnn - based method yields good performance with the average testing accuracy of the two - fold cross - validation of approximately 97 % in the cases of the krw and usd , and more than 99 % in the case of the inr , even with the merged denominations and input directions of banknote images in each dataset .
+in figure 9 , we show the examples of correctly classified cases in the testing results using our proposed method on the krw , inr , and usd datasets .
+figure 9 shows that the degradation degrees in the inr banknotes are clearer to be distinguished among fitness classes of fit , normal , and unfit than that in the case of the krw .
+furthermore , the visible - light banknote images captured in the case of the usd have slightly lower brightness than those of the krw and inr .
+this resulted in the highest average classification accuracy in the testing results using our proposed method on the inr dataset compared to that of the krw and usd .
+examples of error cases are also given in figure 10 , figure 11 and figure 12 for each of the national currency datasets .
+as shown in these figures , there were some cases where the input banknotes were incorrectly segmented from the background , as shown in figure 10a and figure 11d .
+this resulted in the banknotes being classified as the classes of lower fitness level .
+figure 10c and figure 11c show that the stained and soiled areas occurred sparsely on the banknotes and occasionally could not be recognized by using only visible - light images as in our method .
+banknote images in figure 11a,b are from the fit and normal classes , respectively ; however , besides the similar brightness , both of the banknotes were slightly folded on the upper parts , which affected the classification results .
+the fit usd banknote in figure 12a has hand - written marks , whereas the degradation on the unfit banknote in figure 12b is the fading of texture in the middle of the banknote rather than staining or soiling .
+these reasons caused the misclassification of fitness level in these cases .
+in addition , the average classification accuracy of the normal banknotes was the least among the three fitness levels in the case of inr and krw .
+this is because of the fact that , the normal banknotes have the middle quality levels , which consist of stained or partly damaged more than fit banknotes but not enough to be replaces by the new ones as the cases of unfit banknotes .
+this resulted in the largest confusions occurring between normal class and either the fit or unfit classes , and the average classification accuracies in the cases of normal classes in both inr and krw datasets were the least .
+in the subsequent experiments , we compared the performance of the proposed method with that of the previous studies reported in [ 7,11 ] .
+as both of the previous methods required training , we also performed the two - fold cross - validation in the comparative experiments .
+referring to [ 7 ] , we extracted the features from the gray - level histogram of the banknote image and used the multilayered perceptron ( mlp ) network as the classifiers , with 95 network nodes in the input and hidden layers .
+in the case of the comparative experiments using the method in [ 11 ] , we selected the areas that contain less texture on the banknote images as rois , and calculated the means and standard deviation values of the rois' daubechies wavelet decomposition .
+because the fitness classifiers in [ 11 ] are the svm , in the case of the krw and inr datasets that have three fitness levels , we trained the svm models using the one - against - all strategy [ 33 ] .
+the experiments with previous methods were implemented using matlab toolboxes [ 34,35 ] .
+a comparison of the experimental results between our proposed method and those in previous studies are shown in table 7 , table 8 and table 9 , in which the fitness - classification accuracies are calculated separately according to denominations and input directions of the banknote images in each national currency .
+this is because in the previous studies , the fitness - classification models were trained with these manually separated type banknote images .
+therefore , although our proposed method does not require the pre - classification of denominations and input directions of the banknote images , we showed the accuracies separately according to these categories for comparison .
+table 7 , table 8 and table 9 show that the proposed cnn - based fitness classification method outperformed the previous methods in terms of higher average classification accuracy for all the national currency datasets .
+this can be explained by the disadvantages of each method : the histogram - based method used only the overall brightness characteristic of the banknote images for the classification of fitness levels .
+this feature was strongly affected by the capturing condition of the sensors .
+moreover , degradation might occur sparsely on the banknote , therefore it cannot be easily recognized by the brightness histogram only .
+the roi - based method in [ 11 ] relied only on the less textured areas on the banknote images .
+consequently , if the degradation or damage of the banknote occurs on other areas , it will not be as effective as the proposed method .
+the cnn - based method has the advantage of the ability to train not only the classifier in the fully connected layer parts but also the filter weights in the convolutional layers , which can be considered as the feature extraction part .
+as a result , both the feature extraction and classification stages were intensively trained by the training datasets .
+moreover , when the whole banknote image is inputted to the cnn architecture , we can make use of all of the available optical characteristics of the banknote for feature extraction .
+consequently , owning to the advantages in the feature extraction procedure , the proposed fitness - classification method gave better performance compared to previous methods in terms of higher average accuracy using two - fold cross - validation .
+5. conclusions this study proposed a fitness - classification method using visible - light banknote images and cnn .
+the fitness level of the banknotes is assigned to three levels for the cases of the krw and inr , and two levels for the usd banknotes .
+our proposed method is designed to classify fitness level regardless of the denominations and input directions of the banknote images .
+the experimental results on the three datasets of the krw , inr , and usd banknote images with merged denominations and input directions gave good performances , and showed that the proposed method outperformed the methods in the previous studies , in terms of higher average accuracy with two - fold cross - validation .
+for future work , we plan to test the proposed method with banknotes from other countries .
+we also intend to further study the multinational fitness - classification method , which is able to simultaneously recognize the fitness level of banknotes from multiple countries .
+acknowledgments this research was supported by the basic science research program through the national research foundation of korea ( nrf ) funded by the ministry of education ( nrf - 2017r1d1a1b03028417 ) , and by the bio & medical technology development program of the nrf funded by the korean government , msit ( nrf - 2016m3a9e1915855 ) .
+author contributions tuyen danh pham and kang ryoung park designed the overall banknote fitness classification system and cnn architecture .
+in addition , they wrote and revised this paper .
+dat tien nguyen , wan kim , and sung ho park helped with the experiments and analyzed the results .
+conflicts of interest the authors declare no conflict of interest .
+references 1 .
+lee j.w. hong h.g. kim k.w. park k.r. a survey on banknote recognition methods by various sensors sensors 2017 17 313 10.3390 / s17020313 28208733 2 .
+de heij h. durable banknotes : an overview proceedings of the bpc / paper committee to the bpc / general meetingprague , czech republic27 - 30 may 2002 1 12 3 .
+geusebroek j .
+- m. markus p. balke p. learning banknote fitness for sorting proceedings of the international conference on pattern analysis and intelligent roboticsputrajaya , malaysia28 - 29 june 2011 41 46 4 .
+buitelaar t. the colour of soil proceedings of the dnb cash seminaramsterdam , the netherlands28 - 29 february 2008 5 .
+balke p. from fit to unfit : how banknotes become soiled proceedings of the fourth international scientific and practical conference on security printing watermark conference , rostov - on - donrussia21 - 23 june 2011 6 .
+sun b. li j. the recognition of new and old banknotes based on svm proceedings of the 2nd international symposium on intelligent information technology applicationshanghai , china20 - 22 december 2008 95 98 7 .
+he k. peng s. li s. a classification method for the dirty factor of banknotes based on neural network with sine basis functions proceedings of the international conference on intelligent computation technology and automationhunan , china20 - 22 october 2008 159 162 8 .
+aoba m. kikuchi t. takefuji y. euro banknote recognition system using a three - layered perceptron and rbf networks ipsj trans. math. model. appl .
+2003 44 99 109 9 .
+lee s. baek s. choi e. baek y. lee c. soiled banknote fitness determination based on morphology and otsu 's thresholding proceedings of the ieee international conference on consumer electronicslas vegas , nv , usa8 - 10 january 2017 450 451 10 .
+balke p. geusebroek j .
+- m. markus p .
+brain2 - - machine learning to measure banknote fitness proceedings of the optical document security conferencesan francisco , ca , usa18 - 20 january 2012 1 12 11 .
+pham t.d. park y.h. kwon s.y. nguyen d.t. vokhidov h. park k.r. jeong d.s. yoon s. recognizing banknote fitness with a visible light one dimensional line image sensor sensors 2015 15 21016 21032 10.3390 / s150921016 26343654 12 .
+kwon s.y. pham t.d. park k.r. jeong d.s. yoon s. recognition of banknote fitness based on a fuzzy system using visible light reflection and near - infrared light transmission images sensors 2016 16 863 10.3390 / s16060863 27294940 13 .
+lecun y. boser b. denker j.s. henderson d. howard r.e. hubbard w. jackel l.d. back propagation applied to handwritten zip code recognition neural comput .
+1989 1 541 551 10.1162 / neco.1989.1.4.541 14 .
+lecun y. bottou l. bengio y. haffner p. gradient - based learning applied to document recognition proc .
+ieee 1998 86 2278 2324 10.1109 / 5.726791 15 .
+lecun y. bengio y. hinton g. deep learning nature 2015 521 436 444 10.1038 / nature14539 26017442 16 .
+krizhevsky a. sutskever i. hinton g.e. imagenet classification with deep convolutional neural networks proceedings of the advances in neural information processing systemslake tahoe , nv , usa3 - 8 december 2012 17 .
+simonyan k. zisserman a. very deep convolutional networks for large - scale image recognition proceedings of the 3rd international conference on learning representationssan diego , ca , usa7 - 9 may 2015 1 14 18 .
+girshick r. donahue j. darrell t. malik j. rich feature hierarchies for accurate object detection and semantic segmentation proceedings of the ieee conference on computer vision and pattern recognitioncolumbus , oh , usa23 - 28 june 2014 1 21 19 .
+ren s. he k. girshick r. sun j. faster r - cnn : towards real - time object detection with region proposal networks ieee trans .
+pattern anal. mach. intell .
+2017 39 1137 1149 10.1109 / tpami.2016.2577031 27295650 20 .
+ke w. huiqin w. yue s. li m. fengyan q. banknote image defect recognition method based on convolution neural network int. j. secur. appl .
+2016 10 269 280 10.14257 / ijsia.2016.10.6.26 21 .
+pham t.d. lee d.e. park k.r. multi - national banknote classification based on visible - light line sensor and convolutional neural network sensors 2017 17 1595 10.3390 / s17071595 28698466 22 .
+newton available online : http :// kisane.com / our - service / newton /( accessed on 27 december 2017 ) 23 .
+gonzalez r.c. woods r.e. digital image processing3rd ed. pearson education inc .
+upper saddle river , nj , usa 2010 24 .
+glorot x. bordes a. bengio y. deep sparse rectifier neural networks proceedings of the 14th international conference on artificial intelligence and statisticsfort lauderdale , fl , usa11 - 13 april 2011 315 323 25 .
+cs231n convolutional neural networks for visual recognition available online : http :// cs231n.github.io / convolutional - networks /( accessed on 27 december 2017 ) 26 .
+srivastava n. hinton g. krizhevsky a. sutskever i. salakhutdinov r. dropout : a simple way to prevent neural networks from overfitting j. mach. learn. res .
+2014 15 1929 1958 27 .
+bishop c.m. pattern recognition and machine learning springer new york , ny , usa 2006 28 .
+dongguk fitness database ( df - db1 ) & cnn model available online : http :// dm.dgu.edu / link.html ( accessed on 28 december 2017 ) 29 .
+deep learning training from scratch - - matlab & simulink available online : https :// www.mathworks.com / help / nnet / deep - learning - training - from - scratch.html ( accessed on 27 december 2017 ) 30 .
+intel ( r ) coretm i7 - 3770k processor ( 8 m cache , up to 3.90 ghz ) product specifications available online : https :// ark.intel.com / products / 65523 / intel - core - i7 - 3770k - processor - 8m - cache - up - to - 3 _ 90 - ghz ( accessed on 27 december 2017 ) 31 .
+gtx 1070 ti gaming graphics card | nvidia geforce available online : https :// www.nvidia.com / en - us / geforce / products / 10series / geforce - gtx - 1070 - ti /# specs ( accessed on 27 december 2017 ) 32 .
+kohavi r. a study of cross - validation and bootstrap for accuracy estimation and model selection proceedings of the international joint conference on artificial intelligencemontreal , qc , canada20 - 25 august 1995 1137 1145 33 .
+multiclass classification available online : https :// en.wikipedia.org / wiki / multiclass _ classification ( accessed on 27 december 2017 ) 34 .
+function approximation and clustering - - matlab & simulink available online : https :// www.mathworks.com / help / nnet / function - approximation - and - clustering.html ( accessed on 27 december 2017 ) 35 .
+support vector machine classification - - matlab & simulink available online : https :// www.mathworks.com / help / stats / support - vector - machine - classification.html ( accessed on 22 december 2017 ) figure 1 overall flowchart of the proposed method .
+figure 2 example of input banknote images in four directions : original captured banknote image in ( a ) a direction ; ( b ) b direction ; ( c ) c direction ; ( d ) d direction ; ( e - h ) corresponding banknote region segmented from the images in ( a - d ) , respectively .
+figure 3 convolutional neural network ( cnn ) architecture used in our proposed method .
+figure 4 example of banknote images in the krw database with fitness levels of ( a ) fit , ( b ) normal , and ( c ) unfit .
+figure 5 example of banknote images in the inr database with fitness levels of ( a ) fit , ( b ) normal , and ( c ) unfit .
+figure 6 example of banknote images in the usd database with fitness levels of ( a ) fit and ( b ) unfit .
+figure 7 convergence graphs with average accuracies and losses according to the epoch number on two subsets of training data in two - fold cross - validation on each national currency dataset : ( a ) krw ; ( b ) inr ; and ( c ) usd .
+figure 8 visualization of filter parameters in the first convolutional layers of the cnn model in each national currency dataset , in which the left and right images are obtained from the trained models on the first and second subsets for two - fold cross - validation , respectively : ( a ) krw ; ( b ) inr ; and ( c ) usd .
+figure 9 examples of correctly classified cases by our method of the ( a ) krw ; ( b ) inr ; and ( c ) usd datasets .
+in ( a,b ) , upper , middle and lower figures show the cases that are the correctly classified fit , normal , and unfit banknotes , respectively .
+in ( c ) , the upper and lower figures are the correctly recognized fit and unfit banknotes , respectively .
+figure 10 examples of false recognition cases by our method in the krw dataset : ( a ) fit banknote misclassified to normal ; ( b ) normal banknote misclassified to fit ; ( c ) unfit banknote falsely recognized as normal banknote ; and ( d ) normal banknote falsely recognized as unfit banknote .
+figure 11 examples of false recognition cases by our method in the inr dataset : ( a ) fit banknote misclassified to normal ; ( b ) normal banknote misclassified to fit ; ( c ) unfit banknote falsely recognized as normal banknote ; and ( d ) normal banknote falsely recognized as unfit banknote .
+figure 12 examples of false recognition cases by our method in the usd dataset : ( a ) fit banknote misclassified to unfit ; ( b ) unfit banknote misclassified to fit .
+sensors - 18 - 00472 - t001 _ table 1 table 1 comparison of the proposed method and previous works on the fitness classification of banknotes .
+category method advantage disadvantage using certain regions on banknote image using features extracted from various color channels of overlapping regions on banknote images [ 3,10 ] .
+using dwt for feature extraction from rois on visible - light images of banknotes and classifying fitness by svm [ 11 ] .
+using fuzzy system for fitness determination based on rois on vr and nirt images of banknotes [ 12 ] .
+less resource requirement owing to the small sizes of processing areas and features .
+defects and damages can occur on the non - selected regions of the banknote .
+using the whole banknote image using the gray - scale histogram of banknote images and classify fitnessusing dtw and svm [ 6 ] or using an nn [ 7 ] .
+using multiresolutional features of visible and ir images of banknote for recognition [ 8 ] .
+soiling evaluation based on using image morphological operations and otsu 's thresholding on banknote images [ 9 ] .
+make use of all the available characteristics of banknote images for fitness classification .
+- possible data redundancy at the input stage .
+- histogram - based methods are affected by imaging conditions and variations in banknote patterns - pre - classification of banknote 's denomination and input direction is required .
+fitness classification using a cnn ( proposed method ) pre - classification of banknote 's denomination and input direction is not required .
+intensive training of the cnn is required .
+sensors - 18 - 00472 - t002 _ table 2 table 2 structure of cnn used in our proposed method ( unit : pixel ) .
+layer type size of kernel number of stride padding number of filters size of feature map image input layer 115 x 51 x 1 c1 convolutional layer 7 x 7 x 1 2 0 96 55 x 23 x 96 relu layer ccn layer max pooling layer 3 x 3 x 96 2 0 1 27 x 11 x 96 c2 convolutional layer 5 x 5 x 96 1 2 128 27 x 11 x 128 relu layer ccn layer max pooling layer 3 x 3 x 128 2 0 1 13 x 5 x 128 c3 convolutional layer 3 x 3 x 128 1 1 256 13 x 5 x 256 relu layer c4 convolutional layer 3 x 3 x 256 1 1 256 13 x 5 x 256 relu layer c5 convolutional layer 3 x 3 x 256 1 1 128 13 x 5 x 128 relu layer max pooling layer 3 x 3 x 128 2 0 1 6 x 2 x 128 f1 fully connected layer 4096 relu layer f2 fully connected layer 2048 relu layer dropout layer f3 fully connected layer 2 or 3 ( number of fitness levels ) softmax layer sensors - 18 - 00472 - t003 _ table 3 table 3 number of banknote images in each national currency database .
+fitness levels krw inr usd fit number of images 10,084 11,909 2907 number of images after data augmentation 30,252 71,454 61,047 normal number of images 12,430 7952 n / a number of images after data augmentation 37,290 47,712 n / a unfit number of images 11,274 2203 642 number of images after data augmentation 33,822 13,218 45,582 sensors - 18 - 00472 - t004 _ table 4 table 4 confusion matrices of testing results on the krw banknote fitness dataset using the proposed method .
+the 1st testing results and 2nd testing results mean the results of the testing on the 1st and 2nd subsets of banknote images in the two - fold cross - validation method , respectively ( unit : %) .
+1st testing results predicted results fit normal unfit desired outputs fit 98.830 1.170 0.000 normal 3.460 93.610 2.929 unfit 0.035 2.148 97.817 2nd testing results predicted results fit normal unfit desired outputs fit 96.827 3.173 0.000 normal 0.579 98.890 0.531 unfit 0.000 2.677 97.323 average accuracy 97.612 sensors - 18 - 00472 - t005 _ table 5 table 5 confusion matrices of the testing results on the inr banknote fitness dataset using the proposed method .
+the 1st testing results and 2nd testing results mean the same as those in table 4 ( unit : %) .
+1st testing results predicted results fit normal unfit desired outputs fit 99.832 0.168 0.000 normal 0.705 99.094 0.201 unfit 0.000 0.548 99.452 2nd testing results predicted results fit normal unfit desired outputs fit 99.882 0.118 0.000 normal 0.377 99.472 0.151 unfit 0.000 0.000 100.000 average accuracy 99.637 sensors - 18 - 00472 - t006 _ table 6 table 6 confusion matrices of the testing results on the usd banknote fitness dataset using the proposed method .
+the 1st testing results and 2nd testing results mean the same as those in table 4 ( unit : %) .
+1st testing results predicted results fit unfit desired outputs fit 99.724 0.276 unfit 15.142 84.858 2nd testing results predicted results fit unfit desired outputs fit 99.520 0.480 unfit 14.769 85.231 average accuracy 96.985 sensors - 18 - 00472 - t007 _ table 7 table 7 comparison of fitness - classification accuracy by our proposed method with that of previous studies on the krw banknote dataset. denom. and dir. are denominations and directions , respectively .
+the 1st testing results and 2nd testing results mean the same as those in table 4 ( unit : %). denom. dir .
+method based on gray - level histogram and mlp [ 7 ] method based on dwt and svm [ 11 ] proposed method 1st testing accuracy 2nd testing accuracy average accuracy 1st testing accuracy 2nd testing accuracy average accuracy 1st testing accuracy 2nd testing accuracy average accuracy krw 1000 a 55.974 63.459 59.719 68.926 72.682 70.805 94.930 94.536 94.733 b 86.504 68.650 77.577 80.037 78.116 79.077 95.408 96.954 96.181 c 76.631 62.961 69.793 45.625 50.733 48.180 97.521 98.282 97.902 d 78.058 81.823 79.942 56.796 60.640 58.719 96.893 96.946 96.920 krw 5000 a 84.766 96.859 90.814 85.203 85.035 85.119 96.552 99.476 98.014 b 79.472 93.528 86.502 82.734 84.851 83.793 95.683 97.795 96.739 c 78.459 99.072 88.765 70.427 69.777 70.102 98.514 99.536 99.025 d 89.157 86.254 87.705 76.857 80.883 78.871 96.993 98.134 97.564 average accuracy 80.487 72.230 97.162 sensors - 18 - 00472 - t008 _ table 8 table 8 comparison of fitness - classification accuracy by our proposed method with that of previous studies on the inr banknote dataset .
+denom. , dir. , 1st testing results and 2nd testing results mean the same as those in table 7 ( unit : %). denom. dir .
+method based on gray - level histogram and mlp [ 7 ] method based on dwt and svm [ 11 ] proposed method 1st testing accuracy 2nd testing accuracy average accuracy 1st testing accuracy 2nd testing accuracy average accuracy 1st testing accuracy 2nd testing accuracy average accuracy inr 10 a 100.000 100.000 100.000 89.981 91.715 90.848 100.000 100.000 100.000 b 100.000 100.000 100.000 90.559 91.329 90.944 100.000 100.000 100.000 c 100.000 100.000 100.000 96.935 97.323 97.129 100.000 100.000 100.000 d 100.000 100.000 100.000 97.359 99.245 98.302 100.000 100.000 100.000 inr 20 a 92.437 93.855 93.147 84.594 86.592 85.594 100.000 99.441 99.720 b 91.292 93.017 92.157 85.955 87.430 86.695 98.876 99.441 99.160 c 93.277 91.922 92.598 93.277 93.315 93.296 99.720 99.721 99.721 d 92.877 95.184 94.034 92.308 92.068 92.188 99.715 100.000 99.858 inr 50 a 99.346 99.674 99.511 93.464 92.508 92.985 100.000 100.000 100.000 b 99.674 100.000 99.837 90.228 88.312 89.268 100.000 100.000 100.000 c 100.000 100.000 100.000 93.069 93.443 93.257 100.000 100.000 100.000 d 99.676 100.000 99.839 90.939 93.248 92.097 100.000 100.000 100.000 inr 100 a 99.140 98.650 98.895 91.646 89.816 90.731 99.017 99.509 99.263 b 99.026 98.660 98.843 90.012 89.769 89.890 99.513 99.756 99.635 c 97.340 97.582 97.461 89.480 90.085 89.782 99.637 100.000 99.819 d 98.315 98.798 98.557 91.697 90.745 91.221 99.519 99.639 99.579 inr 500 a 88.153 88.353 88.253 86.747 87.952 87.349 99.398 99.598 99.498 b 89.421 88.845 89.133 86.028 86.255 86.142 98.403 99.602 99.003 c 90.041 89.697 89.868 88.211 87.879 88.045 97.967 98.990 98.480 d 85.859 88.531 87.198 88.081 87.726 87.903 99.394 99.396 99.395 inr 1000 a 97.166 95.547 96.356 76.923 76.923 76.923 99.190 99.595 99.393 b 97.590 96.825 97.206 78.715 79.365 79.042 100.000 100.000 100.000 c 96.825 96.047 96.436 88.889 89.723 89.307 100.000 99.605 99.802 d 97.266 98.438 97.852 85.938 85.938 85.938 99.609 100.000 99.805 average accuracy 96.274 89.952 99.637 sensors - 18 - 00472 - t009 _ table 9 table 9 comparison of fitness - classification accuracy by our proposed method with that of previous studies on the usd banknote dataset .
+denom. , dir. , 1st testing results and 2nd testing results mean the same as those in table 7 ( unit : %). denom. dir .
+method based on gray - level histogram and mlp [ 7 ] method based on dwt and svm [ 11 ] proposed method 1st testing accuracy 2nd testing accuracy average accuracy 1st testing accuracy 2nd testing accuracy average accuracy 1st testing accuracy 2nd testing accuracy average accuracy usd 5 a 96.774 82.540 89.600 75.807 76.191 76.000 98.387 96.825 97.600 b 78.723 82.979 80.851 74.468 76.596 75.532 87.234 95.745 91.489 c 81.395 75.000 78.161 44.186 56.818 50.575 95.349 93.182 94.253 d 95.652 89.130 92.391 71.739 76.087 73.913 91.304 100.000 95.652 usd 10 a 80.682 82.022 81.356 88.636 88.764 88.701 96.591 92.135 94.350 b 80.851 92.632 86.772 94.681 94.737 94.709 100.000 100.000 100.000 c 73.973 68.919 71.429 65.753 56.757 61.224 93.151 95.946 94.558 d 93.590 100.000 96.835 89.744 83.750 86.709 94.872 100.000 97.468 usd 50 a 91.358 96.341 93.865 82.716 83.537 83.129 95.062 98.780 96.933 b 99.394 98.795 99.094 93.939 90.964 92.447 96.364 96.988 96.677 c 91.837 92.568 92.203 93.197 92.568 92.881 97.959 96.622 97.288 d 91.156 91.892 91.525 89.796 89.189 89.492 95.918 93.919 94.915 usd 100 a 98.137 96.914 97.523 86.335 86.420 86.378 100.000 98.765 99.381 b 95.513 94.267 94.888 87.820 87.898 87.859 98.718 94.904 96.805 c 92.157 94.771 93.464 90.196 90.196 90.196 99.346 96.732 98.039 d 94.483 87.671 91.065 91.034 90.411 90.722 99.310 98.630 98.969 average accuracy 91.462 85.940 96.985

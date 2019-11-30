@@ -1,0 +1,564 @@
+plos one plos one plos plosone plos one 1932 - 6203 public library of science san francisco , ca usa 25992793 4436344 pone - d - 14 - 35455 10.1371 / journal.pone.0125477 research article fully automated whole - head segmentation with improved smoothness and continuity , with theory reviewed fully automated whole - head segmentation huang yu * parra lucas c. department of biomedical engineering , city college of the city university of new york , new york , ny , usa strack stefan academic editor university of iowa , united states competing interests : the authors have declared that no competing interests exist .
+conceived and designed the experiments : yh lcp .
+performed the experiments : yh. analyzed the data : yh. contributed reagents / materials / analysis tools : yh. wrote the paper : yh lcp .
+* e - mail : yhuang16 @ citymail.cuny.edu 2015 18 5 2015 10 5 e0125477 28 8 2014 24 3 2015 ( c ) 2015 huang , parra 2015 huang , parrathis is an open - access article distributed under the terms of the creative commons attribution license , which permits unrestricted use , distribution , and reproduction in any medium , provided the original author and source are properly credited .
+individualized current - flow models are needed for precise targeting of brain structures using transcranial electrical or magnetic stimulation ( tes / tms ) .
+the same is true for current - source reconstruction in electroencephalography and magnetoencephalography ( eeg / meg ) .
+the first step in generating such models is to obtain an accurate segmentation of individual head anatomy , including not only brain but also cerebrospinal fluid ( csf ) , skull and soft tissues , with a field of view ( fov ) that covers the whole head .
+currently available automated segmentation tools only provide results for brain tissues , have a limited fov , and do not guarantee continuity and smoothness of tissues , which is crucially important for accurate current - flow estimates .
+here we present a tool that addresses these needs .
+it is based on a rigorous bayesian inference framework that combines image intensity model , anatomical prior ( atlas ) and morphological constraints using markov random fields ( mrf ) .
+the method is evaluated on 20 simulated and 8 real head volumes acquired with magnetic resonance imaging ( mri ) at 1 mm3 resolution .
+we find improved surface smoothness and continuity as compared to the segmentation algorithms currently implemented in statistical parametric mapping ( spm ). with this tool , accurate and morphologically correct modeling of the whole - head anatomy for individual subjects may now be feasible on a routine basis .
+code and data are fully integrated into spm software tool and are made publicly available .
+in addition , a review on the mri segmentation using atlas and the mrf over the last 20 years is also provided , with the general mathematical framework clearly derived .
+the funders had no role in study design , data collection and analysis , decision to publish , or preparation of the manuscript.data availabilityall relevant data are within the paper .
+data availability all relevant data are within the paper .
+introduction the increasing availability of magnetic resonance images ( mr images , mri ) at 1 mm3 resolution has made it possible to build realistic high - resolution models of individual human heads .
+accurate segmentations of the whole - head anatomy are important for the " forward modeling " of current flow in electroencephalography ( eeg ) and trancranial electric stimulation ( tes ) , as well as their magnetic equivalents - - meg and tms [ 1 - 8 ] .
+it is becoming increasingly clear that individual anatomy including complete cerebrospinal fluid ( csf ) , skull and scalp are key to obtain meaningful source localization in eeg and targeting of tes for individual subjects [ 1 , 5 , 9 - 12 ] .
+unfortunately , currently available segmentation tools are of limited utility for this purpose .
+statistical parametric mapping version 8 ( spm8 , [ 13 ]) provides segmentation of the brain , csf , skull and scalp using the unified segmentation algorithm [ 14 ] , but its field of view ( fov ) does not cover the whole head .
+fieldtrip [ 15 ] and the brain extraction tool ( bet , [ 16 ]) in the fmrib software library ( fsl , [ 17 ]) can extract the skull and scalp surfaces , but they also only operate on the standard fov ( the brain area only ) .
+the fmrib automated segmentation tool ( fast , [ 18 ]) and integrated registration and segmentation tool ( first , [ 19 ]) are designed , respectively , only for segmentation of brain tissues and subcortical structures .
+freesurfer [ 20 - 23 ] , the expectation - maximization segmentation tool ( ems , [ 24 ]) , the atlas based classification ( abc ) and the emsegmenter [ 25 - 27 ] in 3d slicer [ 28 ] , brainsuite [ 29 , 30 ] , brainvisa morphologist [ 31 , 32 ] , the civet segmentation [ 33 ] , the sub - volume probabilistic atlases segmentation tool ( svpaseg , [ 34 ]) , and the segmentation module in brainvoyager [ 35 , 36 ] also only focus on brain tissues .
+itk - snap [ 37 ] and neuroelectromagnetic forward head modeling toolbox ( nft , [ 38 ]) are semi - automated tools since they need user - specified seed point ( s ) to start .
+commercial software tools , such as asa ( ant software b.v. , enschede , netherlands ) , curry ( compumedics neuroscan , charlotte , nc ) , besa ( besa gmbh , grafelfing , germany ) and scanip ( simpleware ltd , exeter , uk ) , either are semi - automated or cannot generate ( accurate ) segmentation for csf .
+therefore , researchers have attempted several workarounds for the segmentation of the whole head for electromagnetic forward modeling , e.g. , combination of different segmentation tools [ 2 , 39 ] , use of computed tomography ( ct ) images for skull segmentation [ 40 ] , simple heuristics using thresholding and morphological operations [ 10 , 38 ] , addition of dummy model for the lower head and / or the neck [ 3 ] , or manual segmentation [ 1 ] .
+in short , these approaches are either too specific , heuristic , or not fully automated for segmenting out csf , skull , scalp and air cavities .
+in our view , the simplest way to adapt current automated segmentation tools for this purpose is to extend the atlas representing anatomical prior information to include those non - brain tissues and cover the whole head .
+this is implemented in spm8 or in [ 41 ] .
+however , the resulting segmentations still have morphological errors ( gray matter , csf and skull layers are fragmented and some tissue voxels erroneously fall inside other tissues ) and the tissue boundaries are unnecessarily rough making subsequent meshing and forward modeling intractable .
+an automated post - processing routine based on morphological and boolean operations is proposed in [ 41 ] , but the technique is ad hoc with arbitrary parameters .
+since the morphological constraints can be easily encoded by markov random field ( mrf , [ 42 , 43 ]) , here in this work we further improve the method in [ 41 ] by combining the atlas with an mrf prior .
+the goal of this work is to develop an open - source , fully automated segmentation tool for the purpose of forward modeling .
+it can separate the whole head into gray matter ( gm ) , white matter ( wm ) , csf , skull , scalp and air cavities .
+the method combines the atlas and the mrf prior with a finite mixture ( fm ) model [ 44 , 45 ] of image intensities into a single rigorous bayesian framework .
+a variational expectation - maximization ( em ) algorithm is used with an asynchronous updating scheme that guarantees convergence [ 46 ] .
+we extend the potts model [ 47 ] such that its interaction energy encodes all possible combinations of neighboring tissue types to express strict anatomical constraints .
+the core algorithm is implemented in the c programing language and integrated into spm8 , where the image registration and bias - field correction are solved using unified segmentation [ 14 ] .
+evaluation is performed on both simulated and real mr images .
+when comparing to the segmentation tools that are already part of spm8 , we find smoother and less fragmented tissue segmentations without compromising accuracy .
+as another contribution , this paper summarizes the research on mri segmentation using atlas and the mrf over the last two decades and presents the general framework with clear mathematical derivations .
+methods this section only gives an overview of the segmentation algorithm .
+for detailed mathematical derivations , the readers are referred to the appendix , which carefully describes the probabilistic formalism and derives equations that combine spatial and morphological priors .
+the probabilistic approach to automated segmentation aims to fit an fm model [ 45 ] to the mr image ( s ) such that the likelihood of observing the image ( s ) is maximized .
+this maximum likelihood ( ml ) estimation is usually implemented by the em algorithm [ 48 , 49 ] .
+when morphological constraints are incorporated as mrf prior to probability model , an extension of ml known as variational em ( vem ) [ 46 , 50 , 51 ] is used .
+it iterates between estimating the tissue probability for each voxel ( e - step ) and updating the model parameters ( m - step ) .
+the iterative update equation for the e - step is given by q ( xi )= p ( yi | xi,theta ) exp [ 12betasumjinnisumxjq ( xj ) xitjijxj + hitxi ] sumxip ( yi | xi,theta ) exp [ 12betasumjinnisumxjq ( xj ) xitjijxj + hitxi ] .
+( 1 ) here x i is a label indicating the tissue class at voxel i. for mathematical convenience it is expressed as a k - dimensional unit vector with zeros for all k tissues , except for the tissue present in that voxel .
+eq ( 1 ) iterates q ( x i ) , which quantifies the estimated probability of finding label x i. after convergence of this iteration , the estimated probability gives the desired segmentation .
+variable y i represents the image intensity in voxel i ( or several intensities in case of multi - image segmentation ) and p ( y i | x i , theta ) is the probability of finding this intensity for a given tissue class .
+as in many other segmentation algorithms , this probability is assumed to be a gaussian and its parameters theta are adjusted to the image during the segmentation process in the m - step ( eq. 3 ) of the em algorithm .
+ni is the set of neighbors of voxel i. in this work , we consider only the 6 immediate face - connected neighbors in 3d space .
+the two terms in the exponential come from the prior model , with matrix j ij representing the mrf interaction between neigboring voxels and vector h i representing the effect of the atlas on single voxels .
+beta is a weighting constant that adjusts the relative contribution of these two terms and will be tuned using training data ( see evaluation ) .
+the quadratic term here can be seen as an extension to the traditional potts model [ 47 ] , whose neighboring interaction coefficients j ij are given by the identity matrix .
+our implementation distinguishes between tissue class x i and tissue type x - i to allow for several classes to belong to the same tissue ( e.g. skull bone encompasses cortical and cancellous bone , each with different image intensities ) .
+this results in an fm model for each tissue type , which is used in many segmentation algorithms [ 14 , 44 , 49 ] .
+the complete e - step then follows q ( xi,x i )= gammaxx p ( yi | xi,theta ) exp [ 12betasumjinnisumx jq ( x j ) x itjijx j + hitx i ] sumx ip ( yi | x i,theta ) exp [ 12betasumjinnisumx jq ( x j ) x itjijx j + hitx i ] , ( 2a ) q ( x i )= sumxiq ( xi,x i ) .
+( 2b ) here we are interested in the probability of tissue type , i.e. , q ( x - i ) , since we aim to segment out six tissue types : gm , wm , csf , skull , scalp and air .
+the parameters gammaxx - are equivalent to the conventional " mixing proportion " .
+more strictly , they represent the conditional probability of a class belonging to a specific tissue type p ( xi | x - i ) ( see appendix b.8 ) .
+these parameters will also be adjusted to the image in the m - step .
+the complete m - step update equations including the update for the mean , covariance and mixing proportion of the gaussian fm model are given by mux = sumi = 1nq ( xi = x ) yisumi = 1nq ( xi = x ) , ( 3a ) sigmax = sumi = 1nq ( xi = x )( yi - mux )( yi - mux ) tsumi = 1nq ( xi = x ) , ( 3b ) gammaxx = sumi = 1nq ( xi = x,x i = x ) sumi = 1nq ( x i = x ) .
+( 3c ) here x i = x is equivalent to x i = x , representing the tissue class at voxel i ( see appendix b.1 ) .
+the parameters quantifying morphological and spatial priors , j ij and h i , respectively , can be obtained from prior data .
+suppose we have a dataset of validated segmentations for a group of subjects , and these truth data are spatially normalized , then we can easily get cij =< xixjt > , ( 4a ) mi =< xi > , ( 4b ) where <...> refers to the sample average over the subjects , and j in ni. this m i gives the prior probability of observing a specific tissue type at voxel i and is usually referred as " atlas " , or " tissue probability map ( tpm )" .
+c ij describes the joint probability of co - occurrence of tissues in neighboring voxels i and j , and will be referred as " tissue correlation map ( tcm )" in the sequel .
+it is not trivial to compute j ij and h i from c ij and m i. in this work we will use the solution for the most simple case of two sites , n = 2 ( see appendix c ) .
+up to a scalar that can be captured by parameter beta it is given by jij = log [ cij.diag - 1 ( mj )] , ( 5a ) hi = logmi .
+( 5b ) note that the mean value m i is simply the sample estimate of p ( x i ) and the correlation c ij is the sample estimate of p ( x i , x j ) .
+consequently , c ij . diag - 1 ( m j ) is the sample estimate of the conditional p ( x i | x j ) and is column - normalized .
+since the tcm c ij is dependent on locations , it may not be practical .
+first , this local tcm simply requires too much memory ( for a typical 200x200x200 - site lattice , each site having a 6x6 matrix with one of its 6 neighbors , that is 2003 x 63 x 4bytes =~ 6.4gb under 32 - bit precision ) .
+second , unless the database to compute the local tcm is very large , the values will be poorly estimated .
+therefore , we propose a simplified tcm that is independent of locations with c ij = c. furthermore , since we have prior knowledge from neuroanatomy that some combinations of tissue neigboring are not possible ( e.g. , wm cannot be neighbor of scalp ) , we can directly set the corresponding element in c to 0 .
+motivated by the solution for 2 sites , we will also require c to be column - normalized and symmetric .
+therefore , c = gmwmcsfskullscalpairgmwmcsfskullscalpair [ d1c1c2000c1d2c3000c2c3d3c4c5000c4d4c6c700c5c6d5c8000c7c8d6 ] .
+( 6 ) each row in c represents the possible tissue type that voxel i may belong to , given that its neighbor j is one of the six types indicated by the columns of c. each of the diagonal elements d 1 , d 2 , ... , d 6 is simply 1 minus the sum of other elements in the corresponding column since c is column - normalized .
+then there are only 8 free parameters c 1 , c 2 , ... , c 8 ( each one between 0 and 1 ) to be learned from the prior data ( see evaluation for details ) .
+this c will be referred as global tcm .
+a global c is a practical solution to the difficulties of estimating and storing a local tcm , yet it does lose some of the available prior information .
+for instance , in boundary regions where different tissue types are likely to co - occur , the values of c should be quite different from those well inside a tissue ( e.g. , within scalp , or the air outside of head ) where co - occurrence of different tissues is all but impossible .
+for these interior region the identity matrix , c = i , used in the conventional potts model [ 47 ] , is more appropriate as it favors only neighbors with the same class label .
+on the boundary , however , co - occurrence of different tissues is likely and thus a more general c is needed .
+to balance between the encoding of this locality information and the potentially huge memory consumption , we propose a simple variant of global tcm , called regional tcm , which is simply an identity matrix i inside a specific tissue , and the same as global tcm elsewhere .
+to define the inside - tissue regions , we use the tpm as a reference .
+for each tissue type , those voxels that have a probability higher than 0.95 in the tpm are treated as the area inside that tissue .
+in short , cregional ={ i,voxeliwith ( mi ) x > 0.95,for - allxin { 1,2 ,... , k } cglobal,othervoxels .
+( 7 ) note that for global and regional tcm , eq 5a simply changes to j = logc .
+implementation the proposed segmentation algorithm is implemented based on the unified segmentation algorithm of spm8 [ 13 ] .
+spm8 is a software package for matlab ( r2010b , mathworks , natick , ma ) that is freely available and widely used to analyze brain signals .
+it implements an extended version of the unified segmentation ( eus ) algorithm [ 14 ] , which performs bias - field correction and registration with the atlas as part of the segmentation process .
+the actual matlab function for this - - " spm _ preproc8.m " - - is referred to as " new segment " in the spm8 manual .
+it is an extended implementation of unified segmentation allowing the use of multimodal data , and a different treatment of the mixing proportions gamma that is in agreement with the present paper .
+we leverage this capability by initializing the segmentation algorithm with eus .
+therefore , the value of y i is the intensity after the optimal bias - field correction , and the voxel locations i of the prior parameters h i and j ij have been optimally registered to the mri that is to be segmented , and the initial values of posteriors q ( xi,x - i ) and the gaussian fm model parameters mu x , sigma x , gammaxx - are all initialized by the result of eus .
+note the local tcm is registered to the mri using the same algorithm applied by the eus for tpm registration .
+this step is used in general but was omitted in the evaluation of the simulated data from brainweb ( see evaluation ) , which is already aligned to the tpm / tcm .
+the implementation is published as a freely available add - on to spm8 , named morphologically and anatomically accurate segmentation ( mars , available to download at http :// neuralengr.com / mars / , the tpm and tcm used for evaluation in this work are also available there ) .
+the user can configure all the options ( image data , tpm , tcm , running mode , etc. ) in a similar batch editor as that in the eus .
+the evaluation of this algorithm is based on six - class segmentation .
+however , the implementation allows any number of classes provided by the corresponding tpm and tcm .
+in fact , the user can specify any custom tpm / tcm in mars. with different running modes , the user can select running the original eus , the eus with a subsequent mrf - based clean - up ( disabled by default in the latest update of spm8 , but can be enabled to a specific level by the user ) , or eus followed by the present algorithm .
+the e - step ( eq 2a ) is implemented in the c programing language for speed and is integrated with matlab .
+each voxel is accessed and updated sequentially in a checkerboard manner .
+as shown by [ 46 ] , this sequential ( or asynchronous ) updating scheme guarantees both theoretical and practical convergence , i.e. , the free energy of the system will monotonically decrease to a finite value , which is not guaranteed using parallel ( or synchronous ) updating .
+a similar convergence criterion is employed as the one in [ 46 ] , i.e. , the maximal relative change of tissue volumes between consecutive iterations epsilon = maxx | lx ( t ) - lx ( t - 1 )| lx ( t - 1 ) , ( 8 ) where t is the iteration number , and l x is the volume of the xth tissue class , defined by lx = sumi = 1nq ( xi = x ) .
+convergence is declared once epsilon falls below 0.01 % .
+the m - step ( eqs 3a , 3b and 3c ) has a same form as that in [ 14 ] .
+therefore , the same matlab code is used as the implementation for m - step ( mixture coefficient eq 3c is different from that in [ 14 ] , but " spm _ preproc8.m " actually implements eq 3c in this paper ) .
+the total time needed to run the algorithm on a typical t1 - weighted mri of size 256x256x181 and 1 mm3 resolution is about 60 - 75 min , in which 10 - 15 min is consumed by the initialization with eus .
+the peak memory load is approximately 50 gb when using local tcm and 2 gb for the global tcm .
+note all processing time and memory usages in this work were measured on a machine with a 6 - core intel xeon e5645 cpu at 2.4 ghz , and 96 gb physical memory .
+evaluation datasets dataset i consists of 20 - subject simulated mris from brainweb ( http :// brainweb.bic.mni.mcgill.ca / brainweb / , [ 52 ]) .
+they are t1 - weighted images with 256x256x181 matrix and isotropic 1 mm3 voxel size , and simulated for normal brains under a spoiled flash sequence with tr = 22 ms , te = 9.2 ms and 30degrees flip angle .
+dataset ii includes previously published mri data from three adult male individuals [ 5 ] , obtained with permission of the authors ( marom bikson : bikson @ ccny.cuny.edu ) .
+head 1 and 2 were scanned on a 3t siemens trio scanner ( erlangen , germany ) .
+the t1 - weighted images were collected using a gradient echo ( gre ) sequence with te = 4.2 ms , tr = 2250 ms , 256x256x176 matrix for head 1 , and with te = 2.3ms , tr = 1900 ms , 280x320x208 matrix for head 2 .
+head 3 was scanned on a 3t general electric signa excite hd scanner ( fairfield , ct ) .
+the t1 - weighted images were acquired using a gre sequence with te = 2.2 ms , tr = 7.3 ms , 256x256x252 matrix .
+all images have an isotropic resolution of 1 mm3 .
+dataset iii consists of five averaged adult heads from the neurodevelopmental mri database , see [ 53 , 54 ] for detailed parameters on image acquisition .
+it was obtained online at http :// jerlab.psych.sc.edu / neurodevelopmentalmridatabase / with permission of john richards .
+all human mris were obtained as de - identified data and had been collected for previous studies [ 5 , 53 , 54 ] .
+learning of prior model dataset i brainweb also provides for each of the 20 subjects with the hard segmentation , i.e. , each voxel is assigned exclusively to one tissue class .
+the detailed 12 - class hard segmentation was reduced to 6 classes by combining similar tissues together ( e.g. , fat and muscle integrated with skin ) .
+these segmentation ground truth are registered into the same dimension as the mri scans .
+small obvious errors in these hard segmentations were corrected manually in the commercial software scanip ( version 4.2 ) .
+the algorithm was evaluated on this dataset using the leave - one - out scheme .
+at the evaluation for each subject , the hard segmentations from other 19 subjects were used as the prior data to generate the local tcm and tpm using eqs 4a and 4b , respectively , and then the energy terms were calculated by eqs 5a and 5b .
+the mrf weighting constant beta was tuned using the first subject by running the algorithm for different beta and selecting the value with the smallest difference ( least - square sense ) from the known hard segmentation .
+the optimal value , beta = 0.1 , was then used for all the evaluations using the local tcm .
+as to the global tcm , it was learned also using the first subject .
+a general purpose optimization algorithm ( pattern search [ 55 ] , available in matlab ) was used to find the c in eq 6 that gives the segmentation results closest to the true hard segmentations in a least - square sense .
+reasonable c was obtained after 1000 computations of the objective function ( the mean square error between generated segmentations and true segmentations ) , which took approximately 6 days when utilizing the parallel computing ability of matlab .
+the resulting c was then used for the evaluation of the algorithm on the other 19 subjects .
+dataset ii and iii the images in dataset ii were first automatically segmented by the eus , binarized and then manually improved in scanip and used as ground truth .
+as to dataset iii , it provides the truth data with 10 - class labeling , which was reduced to 6 classes by combining similar tissues .
+since the number of subjects is limited , the local tcm and tpm cannot be generated from the true segmentation , we only evaluated the algorithm on the global tcm and used the tpm from our previous work ( see [ 41 ] , the tpm developed by dr. c. rorden ) .
+the global tcm c was learned using head 1 in dataset ii by the same procedure as adopted in dataset i , and then used for the evaluation on the other 7 real mri volumes .
+table 1 shows the learned parameters in the global tcm matrix as in eq 6 .
+10.1371 / journal.pone.0125477.t001 table 1 the optimal values for the parameters in eq 6 , learned from prior data .
+c 1 c 2 c 3 c 4 c 5 c 6 c 7 c 8 simulated dataset 0.31 0.27 0.21 0.16 0.02 0.26 0.17 0.24 real data 0.40 0.20 0.21 0.10 0.001 0.29 0.05 0.30 for the three datasets , the regional tcm was obtained following eq 7 .
+evaluation metrics once the prior model is learned , the algorithm iterates between e - step ( eq. 2 ) and m - step ( eq. 3 ) until convergence .
+the continuous - valued posterior probabilities at convergence are the resulting segmentation and its accuracy was assessed by the fuzzy dice coefficient [ 46 , 56 ] .
+for the xth class , it is given by fdx = 2sumi = 1np ( xi = x ) q ( xi = x ) sumi = 1n [ p ( xi = x )+ q ( xi = x )] , ( 9 ) where q ( x i = x ) is the posterior probability for each tissue on each voxel computed from the algorithm , and p ( x i = x ) is the ground truth .
+for dataset i , the soft tissue segmentation for each head was downloaded from brainweb and used as ground truth to calculate the fuzzy dice .
+the detailed 12 - class soft segmentation was reduced to 6 classes by combining similar tissue together , and these ground truth are registered into the same dimension as the mr images .
+for datasets ii and iii , since the non - binary ground truth is not available , the fuzzy dice was computed using the binary truth .
+the fuzzy dice coefficient measures the overlap between the two probability maps , and a value close to 1 indicates more overlap and thus higher performance of the algorithm , while a value close to 0 denotes bad performance .
+in most , if not all segmentation problems in medical imaging , there is a trade - off between accuracy and smoothness of the segmented surfaces [ 57 ] .
+in our case smoothness is important in order to generate efficient 3d mesh model of the anatomy after segmentation [ 41 ] .
+therefore the smoothness of the segmentation results was also evaluated .
+gaussian curvature , denote as k g , was used to describe the smoothness of each generated tissue segmentation from the algorithm .
+since k g can be either positive or negative depending on the convexity of the surface of the segmentation , an appropriate measure of smoothness can be obtained by taking square of k g at each point and integrating over the entire surface , i.e. , skg = integralintegralskg2ds , ( 10 ) where s is the tissue surface , approximated by the edge of the segmentation extracted by the matlab edge detection function .
+this integral is implemented as a sum of the squared gaussian curvature across all the voxels on the extracted edge .
+gaussian curvature k g can be obtained from the partial derivatives of the surface s [ 58 ] , which are approximated by the central differences method [ 59 ] .
+sk g was computed for each generated tissue segmentation , with a smaller value indicating a more smooth segmentation result .
+another useful figure of merit is the porosity of laminar structures such as csf and skull which are expected to be continuous without any " holes " [ 41 ] .
+to quantify how many holes are there on the surface csf generated from the segmentation algorithm , we performed a morphological close operation on the csf and compared how many voxels are changed before and after this operation .
+more formally , the porosity of the surface csf was evaluated by phi =|( i * b )⊻ i || i | , ( 11 ) where i is the segmented csf image from the algorithm , b is the structure element , * denotes the close operation and ⊻ means exclusive or. since i is non - binary , b is constructed as a non - flat cubic structure element , with a gaussian height with mean of 0 and standard deviation of 1 , and the ⊻ operation is conducted in a more general sense , i.e. , it returns 0 only when the intensities on a specific voxel are exactly the same before and after the close operation .
+b is set as 11 x 11 x 11 mm3 based on visually checking the size of the holes .
+therefore , eq 11 measures the porosity of the surface csf in terms of the ratio of the amount of changed voxels due to the close operation compared to the total number of voxels in the csf image .
+this porosity will tend to be higher if there are many holes on the csf surface and lower if the csf is continuous .
+eq 11 was also used to measure the porosity of the skull .
+results the proposed algorithm was evaluated on both simulated and real mri data .
+for each subject in the simulated data ( dataset i ) , we compared the performance of the proposed algorithm ( with three types of tcm : global , local , regional ) to the performance of the eus in spm8 , and the eus with an mrf - based clean - up provided by spm8 .
+for the real data ( datasets ii and iii ) , same evaluations were conducted except for the local tcm due to limited prior data .
+as two examples , figs 1 and 2 exhibit the 3d renderings of the segmentation results from different methods and for different tissue types .
+fig 1 is the results of subject 3 in dataset i , and fig 2 is of head 3 in dataset ii. the tissue segmentations appear similar across different methods in fig 1 .
+however , the proposed algorithm improves on smoothness ( as indicated by those red circles ) , especially for csf and skull .
+the local tcm is able to remove isolated voxels ( indicated by the red squares ) due to its detailed location - specific neighborhood constraints .
+the difference among methods are more obvious in the real mri ( fig 2 ) , where the proposed algorithm significantly improves smoothness .
+this head is a good example as the original mri contains some artifacts in the air outside of the head , leading to large clusters of disconnected voxels in the csf and skull when using eus .
+this segmentation error is removed by the global tcm in csf , because csf and air cannot be co - located , as dictated by the 0 probability of csf - air in the global tcm ( eq 6 ) .
+however , the probabilities of skull - air and scalp - air are not zero in eq 6 , leading to enhancement of this error in the skull and scalp .
+in fact , the skull can be adjacent with the inner air ( air cavities ) but not the air outside of the head , and the scalp only touches outside air at the scalp surface .
+fortunately , the regional tcm encodes this local property of neighborhood information and removes these errors .
+another important improvement is the continuity of csf , which is crucial in applications involving current flow [ 41 ] .
+fig 3 shows that the proposed algorithm fixes the discontinuity problem in the csf generated by eus , which cannot be corrected by the mrf clean - up. as a matter of fact , the global tcm ( eq 6 ) guarantees that the csf is continuous after segmentation , as indicated by the 0 probability of gm - skull .
+10.1371 / journal.pone.0125477.g001 fig 1 the 3d renderings of the results using different methods on subject 3 in dataset i. from the first row to the last row : gm , wm , csf , skull and scalp .
+the first column is the results by eus , the second column is after the mrf - based clean - up , and the third to the last columns are from the proposed algorithm using different tcms ( global , local , regional ) .
+red circles / squares highlight the areas where improvements can be observed .
+10.1371 / journal.pone.0125477.g002 fig 2 the 3d renderings of the results using different methods on head 3 in dataset ii. from the first row to the last row : gm , wm , csf , skull and scalp .
+the first column is the results by eus , the second column is after the mrf - based clean - up , and the third and fourth column corresponds to the proposed algorithm using different tcms ( global , regional ) .
+10.1371 / journal.pone.0125477.g003 fig 3 axial slices of the csf generated by different methods .
+the first and second row corresponds to subject 3 in dataset i and head 3 in dataset ii , respectively .
+red circles indicate the discontinuities from eus , which cannot be removed by applying the mrf - based clean - up but can be fixed by the tcm ( global , local , or regional ) .
+the quantitative assessment of the results is shown in fig 4 .
+the fuzzy dice coefficient fd , the total squared gaussian curvature sk g , and the porosity phi averaged across subjects for different tissues and methods are plotted in the first , second and third row , respectively .
+the three columns correspond to dataset i , ii and iii , respectively .
+the red error bars indicate the standard deviations of the results across different subjects .
+note that since the first subject in datasets i and ii was used for parameter learning ( see evaluation ) , it is thus excluded in the first two columns in fig 4 .
+the accuracy of each method seems almost the same in the figure ( panels ( a ) , ( b ) , ( c )) , while the smoothness of the segmentation appears improved by the proposed algorithm ( panels ( d ) , ( e ) , ( f )) .
+a two - way ( tissue , method ) repeated measures analysis of variance ( anova ) was conducted on the accuracy and smoothness of dataset i. results show that different methods do not significantly change the accuracy ( f ( 4 , 72 ) = 0.55 , p = 0.70 ) but do have significant effect on the smoothness ( f ( 4 , 72 ) = 1484.83 , p = 0 ) .
+furthermore , a pairwise t - test was conducted between different methods on the tissue - averaged values of sk g. results show that global , local and regional tcm all significantly improve the smoothness of the segmentation results ( p < 0.001 , see inset of panel ( d )) .
+it is obvious that the proposed algorithm gives lower porosity for csf and skull as compared to the methods in spm8 ( panels ( g ) , ( h ) , ( i )) .
+for the porosity results in dataset i , a one - way ( method ) repeated measures anova shows that there is significant difference ( csf : f ( 4 , 72 ) = 494.57 , p = 0 , skull : f ( 4 , 72 ) = 380.93 , p = 0 ) .
+the pairwise t - test indicates that our algorithm ( global , local and regional ) significantly reduces the porosity of the csf and the skull ( p < 0.001 ) , compared to those obtained from spm8 ( eus and eus with mrf clean - up ) .
+see panel ( g ) .
+for datasets ii and iii , no statistical testing was conducted due to limited number of subjects .
+10.1371 / journal.pone.0125477.g004 fig 4 the accuracy , smoothness and porosity of the segmentation results averaged across subjects for dataset i ( subject 2 - 20 , left column ) , dataset ii ( head 2 and 3 , middle column ) , and dataset iii ( head 1 - 5 , right column ) .
+the red error bars indicate standard deviations across subjects .
+the inset in ( d ) shows tissue - averaged quantities .
+all the colors refer to the legend in ( i ) .
+(*** : significant with p < 0.001 ) we also note that the accuracy for dataset iii is generally lower than that of dataset i or ii. it is mainly because the quality of the truth data provided by dataset iii is lower compared to the ground truth we manually improved in datasets i and ii. for example , fig 5 shows the truth images of head 3 in dataset ii and head 1 in dataset iii in the first two rows , respectively .
+it is obvious that the latter has lower quality , as shown in the noisy gm slice , discontinuous csf surface , and incomplete skull volume .
+qualitatively speaking , the results from the proposed algorithm using global tcm on this head are more accurate and realistic than its truth data , as shown in the third row of fig 5 .
+however , we admit that although the ground truth in dataset ii is obtained by manual improvement , it is by no means a gold standard .
+in fact , it has the same origin as the automated results , i.e. , initially generated by the eus in spm8 .
+therefore , it is in some sense biased .
+nevertheless , the main argument here is that based on the same truth , the accuracy is not significantly altered by different methods in dataset i , and meanwhile the proposed algorithm can achieve better smoothness and lower porosity of the segmentation .
+10.1371 / journal.pone.0125477.g005 fig 5 the truth data of head 3 in dataset ii ( first row ) and head 1 in dataset iii ( second row ) .
+as a comparison , the third row shows the results from the proposed algorithm using global tcm on head 1 in dataset iii .
+the columns correspond to axial slices of gm , 3d rederings of the csf and skull , respectively .
+discussion automated mri segmentation combining a probabilistic model for image intensity with an atlas and mrf regularization was first proposed in the late 1990s [ 24 , 26 ] , with implementations in many neuroimaging software tools , such as ems [ 24 ] , abc and emsegmenter [ 25 - 27 ] in 3d slicer , fast [ 18 ] , freesurfer volumetric approach [ 22 , 23 ] , the svpaseg [ 34 ] , and atropos [ 60 ] .
+unfortunately these tools only focus on brain tissues .
+moreover , freesurfer volumetric approach only present a heuristic derivation for its update equations , and does not include any em iteration ( the gaussian parameters are obtained from prior data and never updated ) .
+this limits its use to imaging modalities ( and scanning parameters ) for which calibration data is available .
+in contrast , the em algorithm used here estimates the intensity parameters and can thus be applied to arbitrary image modalities ( t1 , t2 , flair , ct , etc. ) without concern for historical data or even calibration and image intensity artifacts .
+the algorithm implemented in the atropos software is conceptually similar to the present work .
+it is an open - source segmentation tool that combines user - defined atlas , mrf prior and image model into the em iterations .
+in the present work we have focused in addition on smoothness and porosity of the resulting segmentations , which is crucially important for current - flow modeling or lead - field calculations .
+this paper summarizes the framework of probabilistic automated mri segmentation developed over the last two decades and presents it with a systematic mathematical derivation ( see appendix ) .
+when applied to the fm model with an atlas as prior one obtains the update equations used in spm8 (" new segment " function ) .
+when including in addition an mrf as part of the em update we obtain the algorithm of [ 24 ] .
+to our knowledge the present paper provides the first systematic and complete derivations of these update equations .
+the present paper proposes an extension to the conventional energy function of the mrf , namely , an extended potts model that is consistent with the maximum entropy prior that specifies mean and covariance on historical data .
+the method is implemented using an updating scheme that guarantees convergence , and is integrated into spm8 where the bias field correction and image registration are handled by the " new segment " function .
+both simulated and real mri data are used to evaluate the algorithm .
+the proposed method is shown to successfully improve the smoothness and porosity without compromising accuracy .
+more importantly , since the implementation can segment out 6 tissues including csf , skull , scalp and air in an fov covering the whole head , it can be used for forward modeling for tes / tms / eeg / meg .
+smooth segmentations and a csf without any discontinuity are crucial for current - flow modeling , in particular modeling of tes [ 41 ] .
+previously , we achieved this by using morphological and boolean operations as a post - processing step to the segmentation results [ 41 ] .
+such heuristic algorithms have a number of parameters that have to be selected judiciously .
+in this work , we prevent ad hoc procedures with arbitrary parameters by incorporating spatial priors in the tcm ( see eq 6 ) , which regularizes the segmentation at each iteration .
+importantly , by combining morphological priors into the segmentation algorithm , spatial considerations can be taken into account while at the same time respecting the intensity information .
+post - processing operations in contrast typically smooth the segmentation results while entirely ignoring the original image ( s ) .
+the proposed algorithm can generate tissue segmentations with significantly lower porosity compared to those from spm8 .
+therefore , the results from this algorithm can be used for tes modeling directly without any need of automated clean - up or manual correction .
+we would like to point out some differences in the use of the mixing proportion variable gamma in this work and that of [ 14 ]. by enforcing normalization of the mixing proportions gammaxx - for each tissue type x - , we are biasing the segmentation to match the relative volume fractions of the tpm .
+this bias may introduce errors .
+in stroke or geriatric populations , for instance , subjects present typically with substantially larger csf fraction .
+enforcing tissue volume fraction of the normal tpm may not be desired in these populations .
+in such a case , the approach as in eq .
+27 in [ 14 ] may be preferable to our eq 3c .
+[ 14 ] introduces an additional free parameter ( also denoted as gamma in [ 14 ] , but with different meaning ) to globally rescale and re - normalize the atlas , thus accounting for variation of tissue volumes fractions in different individuals .
+interestingly , spm8 implements eq 3c and only spm12 implements as originally proposed in [ 14 ] .
+in order to stay within a strict probabilistic model yet account for different volume fractions , we propose instead to construct an atlas that matches the target population .
+except for spm8 , we did not compare our algorithm with the other software tools mentioned above , simply because they cannot generate segmentations for non - brain tissues in an fov covering the whole head .
+for this comparison , we would need to extend the fov and tissue types for all the candidate tools , which is beyond the scope of this work .
+similarly , except brainweb , we did not use other public datasets that are commonly adopted for evaluations in the neuroimaging community ( e.g. , ibsr , lpba40 [ 61 ] , segmentation validation engine [ 62 ]) , because these datasets do not provide ground truth for non - brain tissues .
+we did however provide results for 8 subjects with non - brain ground truth ( 3 from our lab and 5 from the neurodevelopmental mri database of john richards ) .
+since the tpm provides the anatomical information , and the tcm gives the neighborhood constraints , the accuracy of this algorithm is strongly dependent on the quality of the two maps .
+for reliable estimates , the size of the dataset used to generate these maps may be important , in particular for the tcm .
+in this work , only 19 subjects are available , which is small compared to the 36 x 6 parameters in c ij that are to be estimated for each location ( 6 stands for 6 face - connected neighbors ) .
+additionally , the exact calculation of the mrf parameters j ij , h i from the observed correlations c ij and means m i is an open problem .
+the analytic solution for the trivial 2 - site lattice which we used here likely overestimates the strength of interaction ( as it ignores the indirect influence of distant neighbors and loops ) and thus we had to adjust it by tuning parameter beta .
+the correct solutions should be obtained from solving eq 6 , which is known as the " inverse ising problem " in statistical physics .
+exact solutions are known for dependencies with an acyclic graph structure ( e.g. , tree structure , [ 63 ]) , and approximate analytical solution for network with loops ( e.g. , regular lattice , [ 64 ]) .
+however , these solutions are only available for 2 - state variables of the ising model , where j ij and h i are only scalars .
+in this work , we are dealing with a k - state variable x i , for which theoretical solutions are not yet available .
+thus we have taken a pragmatic approach and have made the parameter j independent of locations ij and tuned it so that we obtain the best possible segmentations on known data .
+finally note that the vem algorithm we used here to compute approximate posterior probabilities may find improvements with newer techniques for computing probabilities in networks with loops such as " loopy belief propagation " and " tree - reweighted message passing " [ 65 ] .
+appendix the probabilistic formalism for image segmentation has a long history starting in the 1980s , if not earlier , and encompasses efforts to include spatial priors through an atlas as well as morphological priors using mrf .
+parameters of the models are adjusted to the images using the em algorithms and variations thereof .
+the earliest work we found on combining morphological and spatial priors in this formalism are [ 24 , 26 ] .
+the goal of this appendix is to summarize this body of work with a consistent notation and provide a complete derivation of the em update equations , which we have not been able to find elsewhere in the literature .
+this appendix starts with a review of work in this field , introduces notation and formalism , derives the em update equations , and discusses a few novel choices of our implementation .
+a review of probabilistic model for image segmentation probabilistic inference techniques have been developed for mri brain segmentation over the years ( e.g. , [ 14 , 18 , 24 , 25 , 34 , 49 , 60 ]) .
+the key idea is to establish a probabilistic model of the image intensity distribution using a finite mixture ( fm ) model [ 45 ] .
+automated segmentation is then a process of fitting the fm model to maximize the likelihood of observing the mr image ( s ) .
+since the true tissue types of voxels are unknown (" missing data ") , this maximum likelihood ( ml ) estimation is usually implemented by the expectation - maximization ( em ) algorithm [ 48 ] .
+early work dates back to [ 49 ] and was reviewed in [ 44 ] .
+in [ 25 ] the em algorithm is also used to correct intensity inhomogeneities and segment the mri iteratively , which was later implemented as the emsegmenter .
+however , such fm models only use intensity and ignore available spatial contextual information , as pointed out by [ 18 ] .
+two approaches have been independently pursued to incorporate prior knowledges into the ml estimation process .
+the first type of prior model is a brain atlas , which quantifies for each voxel location the prior likelihood of observing a given tissue type .
+it is built by registering many mri volumes into a common standard space , assigning a specific tissue type to each voxel and then averaging across these volumes [ 66 , 67 ] .
+such an atlas is also known as tissue probability map ( tpm ) as it quantifies the anatomical prior probability irrespective of the observed intensity in a given image .
+since the atlas is in a standard space , image registration is required in order to map the atlas onto the image that is to be segmented .
+yet , mapping the image requires an estimate of what tissue is contained in each voxel , i.e. an estimated segmentation .
+an integrative approach to resolve this interdependence is the unified segmentation algorithm [ 14 ] , which is now publicly available in the statistical parametric mapping 8 ( spm8 ) software [ 13 ] .
+it combines registration , segmentation as well as bias - field correction into a single optimization problem ( bias - field correction compensates for intensity inhomogeneities often observed in mri ) .
+a similar approach is taken in [ 68 ] and [ 27 ] where the em algorithm is used to optimize segmentation and registration parameters simultaneously , and registration is achieved in a hierarchical manner such that detailed anatomical structures can be recursively differentiated .
+an implementation of this method is made into the emsegmenter in 3d slicer [ 28 ] .
+the second type of prior knowledge that has been leveraged for segmentation is neighborhood relationships ( e.g. , not all tissue types can be adjacent to each other ) .
+these relationships have been quantified using a markov random field ( mrf ) , which assigns an " energy " to combinations of neighboring tissue types [ 42 , 43 ] .
+such an energy effectively provides ( prior ) probabilities making some combinations highly likely ( low energy ) and others very unlikely ( high energy ) , irrespective of image intensity .
+mrf has been widely used to regularize the segmentation to ensure spatial consistency [ 18 , 24 , 26 , 34 , 60 , 69 - 72 ] .
+unfortunately , computing posterior probabilities exactly becomes intractable once the spatial dependencies are introduced into the prior probabilities with an mrf .
+researchers have proposed a variety of solutions to this problem .
+monte carlo simulation by drawing samples from the mrf [ 73 , 74 ] is a classical numerical technique to approximate the posterior probability of the voxel label , but it is not computationally efficient .
+another classical approach , based on the mean - field theory , is to approximate the influence of the neighbors onto a voxel using their mean influence .
+the posterior distribution of voxel labels can then be approximated by the product of voxelwise marginals [ 75 ] .
+this has been successfully applied to mri segmentation [ 24 , 70 , 74 ] .
+a variant of mean - field approximation is proposed by [ 18 ] , where a voxel is affected by the most probable label of each of its neighbors ( the pseudo - likelihood maximization as in [ 47 ]) .
+this has been used in many segmentation tools incorporating the mrf , such as the fmrib automated segmentation tool ( fast ) in fsl [ 17 ] , the civet segmentation [ 33 ] , and atropos [ 60 ] .
+recently , [ 46 ] pointed out that both [ 75 ] and [ 18 ] adopt a synchronous updating scheme which is not guaranteed to converge .
+if instead voxels are updated sequentially ( asynchronous update ) , convergence of the approximated em in [ 75 ] and [ 18 ] is guaranteed .
+finally , we note that the interaction energy used in most mrf are based on the potts model [ 47 ] which cannot express constraints for all possible combinations of neighboring tissue types .
+these two types of priors have also been combined into a single inference framework and implemented in a number of software tools ( see discussion in the main text ) .
+however , there is no publication that summarizes the complete formalism with a consistent notation .
+this is the goal of the next few sections .
+b derivation of the variational em formalism we start this section by introducing notation , and then we provide an outline of the estimation process .
+we will review the ml optimization scheme which is applicable when only an atlas is used as prior .
+to incorporate neighborhood priors we will need an extension of ml known as variational em ( vem ) .
+then we present the probabilistic model for image intensity and prior probabilities. with these we can then derive the entire estimation algorithm .
+b.1 notation consider an isotropic three - dimensional regular lattice system i with n sites which are indexed by i in { 1 , ... , n } .
+an observed image y is defined on this lattice , where each site represents a voxel of intensity y i. note for multimodal data ( t1 , t2 , proton density images , etc. ) , y is a vector field and thus each site contains a vector of voxels y i = ( y i1 , y i2 , ... , y im ) t , where m is the total number of observed images and t is transpose .
+a labeling ( or state ) of the lattice system , i.e. , the hard segmentation , is denoted by x. assuming there are k tissue classes , x assigns each site a specific value x in ( 1 , ... , k ) , which we denote as x i = x. it will also be convenient to express the class label as a k - dimensional unit vector x with a 1 in the xth element and 0 elsewhere , and the assignment of a specific label in location i is denoted as x i = x. we use these two equivalent notation styles interchangeably in this paper .
+a sum over x or a sum over x represents the same sum over k possible values .
+the set of all possible labelings is x. the goal of the segmentation is to estimate the underlying hidden labeling x that generates the observed image ( s ) y. b.2 estimation approach we will formulate a probabilistic model for the observed image intensity p ( y | theta ) , where theta are parameters describing the brightness distribution for each tissue .
+note here theta is a general placeholder , representing mean and standard deviation of the gaussian distribution for each tissue class .
+when the mixture model is introduced for each tissue type ( section b.8 ) , theta also includes the mixing proportions .
+in fact , given knowledge of the tissue within each voxel , the intensity distribution should be more narrowly specified as p ( y | x , theta ) ( see appendix b.5.1 ). of course we do not know the actual tissue class in each location , but we will specify an a priori probability p ( x ) of observing a specific segmentation x so that the probability of observing the image ( s ) is p ( y | theta )= sumxinxp ( y | x,theta ) p ( x ) .
+( 12 ) this expression also defines the likelihood function of the unknown parameters theta .
+to estimate these parameters for a given image y , one often uses ml estimation , i.e. , the estimated parameters theta * are those that maximize eq 12 .
+in principle , once these parameters have been fit to the data by ml estimation , one can then find the best segmentation by maximum a posteriori ( map ) estimation , i.e. , the segmentation x * that maximizes p ( x | y,theta *)= p ( y | x,theta *) p ( x ) sumxinxp ( y | x,theta *) p ( x ) , ( 13 ) unfortunately , with n = 106 voxels and k = 6 tissue classes , it is not feasible in practice to compute this posterior for all possible k n values of x to select the one with the highest probability .
+to make the problem tractable , it is customary to make two important simplifications : 1 ) assume that intensity is not affected by tissues from neighboring voxels ; 2 ) approximate the posterior by a distribution that factorizes over voxels ( known as mean - field approximation [ 75 ]). with these simplifications the posterior factorizes and the sum in eq 12 has a manageable nk terms .
+to make this approximation as tight as possible , the parameters are optimized using a formalism known as vem , which is a generalization of the ml formalism [ 51 ] .
+the resulting posterior represents then the desired segmentation , namely , for every voxel i we will have computed the ( approximate ) probability that this voxel belongs to a particular tissue class x , given the observed image intensities : p ( x i = x | y , theta *) .
+now let us make this overall approach more specific .
+b.3 ml optimization for factorial prior ( spatial prior ) in ml the parameters theta are selected so as to maximize the likelihood of the observed image ( s ) y , or equivalently , the negative log - likelihood is minimized , i.e. , theta *= argmaxthetap ( y | theta )= argmintheta - logp ( y | theta )= argmintheta - logsumxinxp ( y,x | theta ) .
+( 14 ) the sum over the state space x is tractable under the following two assumptions : 1 ) the intensities depend only on the tissue in each voxel , p ( y | x,theta )= producti = 1np ( yi | xi,theta ) , ( 15 ) and 2 ) the prior probability of finding a specific tissue in a voxel is independent of what tissue is in other voxels , p ( x )= producti = 1np ( xi ) .
+( 16 ) we call such a prior an " atlas " , or tpm , since the prior probability of finding a certain tissue depends only on the location of the voxel .
+under these two assumptions the map estimation becomes trivial .
+one only needs to compute the posterior probability for each voxel p ( xi | yi,theta *)= p ( yi | xi,theta *) p ( xi ) sumxip ( yi | xi,theta *) p ( xi ) , ( 17 ) where the sum over x i implies a sum over the k possible values x i = x , and then pick the most probable label for each voxel , or simply use this posterior probability as the desired segmentation .
+so in the case that only an atlas is used as the prior , one can perform exact bayesian inference .
+however , if one would like to use morphological priors , in which the probability of observing a certain tissue class depends on the tissues surrounding that voxel , then the prior can no longer be factorized and eq 13 becomes intractable .
+b.4 variational em for markov random field ( neighborhood prior ) to address this problem , the vem [ 50 , 51 ] introduces an auxiliary probability distribution q ( x ) and defines an upper bound to the negative log - likelihood in eq 14 , known as the free energy function f ( q , theta ) - logp ( y | theta )<= - logp ( y | theta )+ sumxinxq ( x ) logq ( x ) p ( x | y,theta )= f ( q,theta ) .
+( 18 ) the first term in this expression is the negative log - likelihood as before .
+the second term is the kullback - leibler ( kl ) divergence d ( q || p x | y , theta ) which is minimal and equals zero for q ( x ) = p ( x | y , theta ) .
+for this limiting case , maximizing the likelihood is identical to minimizing the free energy .
+more generally , minimizing the free energy f ( q , theta ) will ( approximately ) maximize the likelihood p ( y | theta ) while finding the closest approximation q ( x ) for the posterior probability p ( x | y , theta ) .
+in the vem algorithm one therefore minimizes the free energy , and updates for q and theta in alternating steps : e - step : q ( x )< - - argminqf ( q,theta ) , ( 19a ) m - step : theta < - - argminthetaf ( q,theta ) .
+( 19b ) the key idea in order to simplify the sum over x is to constrain the auxiliary probability distribution to have factorial form q ( x )= producti = 1nq ( xi ) .
+( 20 ) in this scenario , minimizing the kl divergence d ( q || p x | y,theta ) aims to find the closest factorial approximation of the posterior p ( x | y , theta ) .
+this approximation is equivalent to the mean - field approximation [ 46 , 51 , 75 ] where the effects of the neighbors are summarized into a mean effect on the isolated voxel .
+using this approximate posterior in bayes rule ( eq 13 ) is known as approximate bayesian inference [ 51 ] .
+detailed equations for this will be given in appendix b.7 and appendix b.9 after we parametrize the prior probability and the conditional intensity distribution .
+b.5 parametrizations to make further progress we now have to define the prior probability p ( x ) and the conditional intensity distribution p ( y i | x i ) and how these depend on the parameters that are to be fit to a given mr image y. b.5.1 image intensity we will assume that the image intensity is determined , up to the gaussian noise , by the tissue class , p ( yi | xi = x,theta )= 12pisigmax2exp [ - ( yi - mux ) 22sigmax2 ] , ( 21a ) where of all the parameters theta only the mean ( mu x ) and standard deviation ( sigma x ) of the xth tissue class are relevant .
+for multimodal data , the gaussian probability density function has a vector form as p ( yi | xi = x,theta )= 1 ( 2pi ) m | sigmax | exp [ - 12 ( yi - mux ) tsigmax - 1 ( yi - mux )] , ( 21b ) where mu x and sigma x are the mean vector and the covariance matrix .
+b.5.2 the priors generally speaking , both the atlas information and the neighborhood relationships can be expressed as prior probability within the formalism of the mrf .
+first note that , like any other probability , the prior can be defined in terms of a " potential " function u ( x ) as [ 47 ] p ( x )= 1zexp ( - u ( x )) , ( 22 ) where z = sumxinxexp ( - u ( x )) , known as the partition function , is a constant that ensures the probability is properly normalized .
+this potential , known as gibbs potential in the context of statistical mechanics , takes on a particularly simple form if we can assume , as in the mrf , that variables are affected only by a set of neighbors .
+the gibbs potential can be written as the sum over individual voxels and all neighbor pairs [ 43 ] u ( x )= sumi = 1nvi ( xi )+ 12sumi = 1nsumjinnivij ( xi,xj ) , ( 23 ) ni denotes the set of neigbors of voxel i and the factor of 1 / 2 compensates for the double - counting of pairs .
+in this work , we consider only the 6 immediate face - connected neighbors in 3d space .
+in statistical mechanics [ 42 ] , v i ( x i ) is known as the energy of an " external field " acting on individual voxels i , and v ij ( x i , x j ) is the energy of the pairwise interaction between neighboring voxels i and j. the essence of eq 23 is that the joint prior probability factorizes over voxels and pairs of voxels .
+in the previous section we have seen that the spatial prior can be factorized over voxels ( see eq 16 ) .
+if only the external field is acting on the voxels ( i.e. , v ij ( x i , x j ) = 0 ) , then we can identify the first order potential as v i ( x i ) = - logp ( x i ) .
+here p ( x i ) is just the prior probability determined by the atlas ( or tpm ) .
+in order not to confuse the notation in the sequel , we denote the external field with a new symbol ( h i ) x such that ( h i ) x = log p ( x i = x ) , or expressed as a vector for voxel i hi = logp ( xi ) .
+( 24 ) then we can write the first order potential as vi ( xi )= - hitxi .
+( 25 ) eq 25 tells us that the external energy is simply the negative logarithm of the tpm ( when only the external field is presented ) , such that assignments with low probability in the tpm are energetically costly .
+as to the interaction energy v ij , it is often defined in terms of kronecker delta , v ij ( x i , x j ) = - delta ( x i , x j ) , i.e. , the potential is zero unless both voxels have the same class label .
+thus , neighbors with the same class label have a lower energy and are a priori more likely .
+an mrf with this interaction energy is also known as a potts model [ 47 ] .
+sometimes there is also a distance weight included to account for anisotropic images [ 46 , 60 ] .
+however , the standard potts model does not provide enough flexibility to account for different cases of neighboring tissues .
+for example , a voxel with gray matter may be neighbor to a voxel with white matter but it cannot be a neighbor to air , yet in the potts model all neighboring tissues are given the same energetic cost .
+we can incorporate more flexible prior information with an interaction matrix j of size k x k , whose element j xx ' represents the negative interaction energy between tissue class x and x '. with this we can define the second order potential v ij as vij ( xi,xj )= - xitjijxj .
+( 26 ) in conclusion , the two types of priors can be combined into a single joint prior probability p ( x )= 1zexp ( 12sumi = 1nsumjinnixitjijxj + sumi = 1nhitxi ) .
+( 27 ) eq 27 can be thought of as an extended potts model .
+all prior information is now captured by h i and j ij. in next section we will discuss how these parameters can be set based on truth data from existing segmentations : h i will be determined by the probability of observing a tissue in a given location , i.e. , the " tissue probability map ( tpm )" ; j ij will be determined by measuring the co - occurrence of tissues in neigboring locations ; we will refer to this as " tissue correlation map ( tcm )" .
+b.6 model parameters set based on prior segmentations we have argued that the first and second order potentials can be used to define location prior and neighborhood prior .
+here we will discuss how one should select the corresponding parameters h i and j ij to express this prior knowledge .
+prior knowledge is typically available as a set of validated segmentations on historical data .
+in the context of brain segmentation , with fairly reproducible anatomy across subjects , it is customary to warp individual heads into a single model head , so that specific locations can be identified across different heads .
+this process is known as " normalization " and is crucial if we want to use prior information on location for segmentation of a given image [ 66 , 67 ] .
+a popular standard for such a reference today is mni - 152 head which represents an average over 152 heads compiled by the montreal neurological institute [ 67 , 76 ] .
+to explain how these data can serve as prior information to determine h i and j ij , we turn to the concept of maximum entropy .
+assume we are given the mean and correlation of states x across such a " normalized " dataset , i.e. , the first and second order moment mi =< xi > , ( 28a ) cij =< xixjt > , ( 28b ) where <...> refers to the sample average over the observed ( validated ) segmentations , and j in ni. note that this m i and c ij is in fact the tpm and tcm mentioned before .
+to specify this prior information - - and nothing else - - we are interested in the least informative ( maximum entropy ) joint probability p ( x ) that matches these first and second order moments sumxinxp ( x ) xi = mi , ( 29a ) sumxinxp ( x ) xixjt = cij .
+( 29b ) it turns out that this maximum entropy probability distribution has exactly the form of the prior we have selected here as in eq 27 ( following the procedure in [ 77 , 78 ]) .
+more generally , the maximum entropy distribution that constrains first and second order moments does not require any particular markov property .
+the parameters h i and j ij of the extended potts model are in fact the lagrange multipliers to the first and second order constraints for any neighborhood arrangement , including a fully connected lattice .
+given m i and c ij for all i , which we can obtain from prior segmentations , in principle eq 6 can fully specify the values of h i and j ij. the problem is that these equations cannot be solved in closed form , except for a few special cases ( e.g. , [ 78 ]) .
+in most instances one has to rely on numerical techniques instead and these are only tractable for small systems consist of up to n = 100 sites [ 79 ] .
+at present we have an analytical solution for the inversion from c ij to j ij only for the most simple case of two sites , n = 2 ( see appendix c ) jij = log [ cij.diag - 1 ( mj )] , ( 30a ) hi = 12logmi .
+( 30b ) here diag - 1 ( m j ) is the inverse of the diagonal matrix made from vector m j. we have seen that , when interaction between sites is taken into account , the relation between h i and m i is not just a logarithm , but scaled by 0.5 .
+we can imagine for an n - site lattice , the relation would be even more complicated .
+since it is intractable to obtain the analytical solutions for the general n - site case , here in this work we take a pragmatic approach by keeping h i = log m i , but using a free parameter beta before interaction energy j ij to balance the relative contribution of the neighborhood prior versus the atlas .
+therefore , we get eq .
+5 in the main text , and the prior model eq 27 has a scalar beta p ( x )= 1zexp ( 12betasumi = 1nsumjinnixitjijxj + sumi = 1nhitxi ) .
+( 31 ) other parameter settings for the prior model are given by eqs 6 and 7 in the main text .
+b.7 vem updating equations : the e - step with mri intensity distribution and prior model fully parametrized , we are ready to derive the updating equations of the vem algorithm .
+plugging eq 20 into eq 18 , it can be shown ( see appendix d ) that the free energy function can be written as f ( q,theta )= sumi = 1nsumxiq ( xi )[ logq ( xi ) - logp ( yi | xi,theta ) - 12betasumjinnisumxjq ( xj ) xitjijxj - hitxi ]+ logz .
+( 32 ) the e - step requires minimization of eq 32 with respect to q at fixed theta .
+as pointed out by [ 46 ] , the mean - field approximation ( eq 20 ) suggests an incremental way of implementing this minimization , where the free energy is successively minimized for each voxel i , with respect to its corresponding posterior probability q ( x i ) and with all other q ( x j ) , j != i held fixed .
+therefore , the estimate of the approximate posterior is updated one voxel at a time with the following optimization q ( xi )< - - argminq ( xi ) f ( q,theta ) , s.t.sumxiq ( xi )= 1 .
+( 33 ) in contrast to parallel update , where all q ( x i ) are updated at once , this sequential update is guaranteed to converge [ 46 ] .
+the normalization constraint on this optimization ensures that q ( x i ) remains a valid probability function .
+the solution to this constrained optimization problem can be obtained using lagrange multipliers ( see appendix e ) as q ( xi )= p ( yi | xi,theta ) exp [ 12betasumjinnisumxjq ( xj ) xitjijxj + hitxi ] sumxip ( yi | xi,theta ) exp [ 12betasumjinnisumxjq ( xj ) xitjijxj + hitxi ] .
+( 34 ) this is eq 1 in the main text .
+it combines three sources of information : 1 ) the voxel intensities through the conditional ( p ( y i | x i , theta )) , 2 ) the neighborhood prior ( j ij ) obtained from tcm ( eq 30a ) , and 3 ) the anatomical prior ( h i ) computed from tpm ( eq 24 ) .
+beta will be tuned using the data from one subject ( evaluation in the main text ) .
+note that when j ij = 0 , i.e. , no interaction between voxels is assumed , eq 34 is reduced to eq 17 by using eq 24 , which is the updating equation only applying the atlas information [ 14 ] .
+on the other hand , when h i = 0 , i.e. , no anatomical prior is used , eq 34 is the updating equation in most segmentation work involving mrf ( but no atlas ) to ensure spatial consistency ( e.g. , [ 18 , 33 , 46 , 70 , 71 , 74 ]) .
+b.8 tissue mixtures a practical difficulty in mri brain segmentation is the partial volume effect , i.e. , a voxel may contain signals from a number of different tissues .
+most segmentation algorithms account for this effect by explicitly modeling the distribution of the voxel intensities containing multiple tissue fractions [ 29 , 33 , 73 , 80 ] .
+in this paper we adopt the approach as in [ 14 ] , where the partial volume effect is modelled by assuming that a tissue type consists of several similar tissue classes with different mr intensities .
+for example , the skull can contain cancellous and cortical bone , and the soft tissue may contain fat and muscle .
+the atlas usually only provides prior information for the tissue type ( e.g. , skull ) , but not for those detailed tissue classes ( e.g. , different layers of bone ) .
+for electromagnetic forward modeling , we only aim to label tissue types .
+we will use variable x - i to refer to such a tissue type , and distinguish this from variable x i , which still refers to individual tissue class as before .
+the model for the intensity for a given tissue type becomes then p ( yi | x i,theta )= sumxip ( yi,xi | x i,theta )= sumxigammaxx p ( yi | xi,theta ) .
+( 35 ) this can be thought of as gaussian fm model [ 18 , 45 ] where the mixing proportion - - matrix gammaxx - - - represents a parametrization of the conditional probability p ( xi | x - i )= gammaxx - , which is independent of location .
+this model is quite conventional in segmentation and is also used in spm8 .
+however , it deviates from the one presented in [ 14 ] , where the mixing proportion is put before the atlas prior. with this distinction between tissue class labels x for which no prior information is available and tissue type labels x - for which we have a prior p ( x - ) we can redefine the free energy as f ( q,theta )= sumxinxsumx inx q ( x,x ) logq ( x,x ) p ( x,x , y | theta ) .
+( 36 ) in the same manner as above this simplifies to f ( q,theta )= sumi = 1nsumxisumx iq ( xi,x i )[ logq ( xi,x i ) - logp ( yi,xi | x i,theta ) - 12betasumjinnisumxjsumx jq ( xj,x j ) x itjijx j - hitx i ]+ logz .
+( 37 ) the estimate of the posterior is now q ( xi,x i )= gammaxx p ( yi | xi,theta ) exp [ 12betasumjinnisumx jq ( x j ) x itjijx j + hitx i ] sumx ip ( yi | x i,theta ) exp [ 12betasumjinnisumx jq ( x j ) x itjijx j + hitx i ] .
+( 38 ) note here eq 35 is used when deriving the above equation .
+the desired estimate for the probability of tissue type x - i is then q ( x i )= sumxiq ( xi,x i ) .
+( 39 ) eqs 38 and 39 are the eq 2 in the main text .
+b.9 vem updating equations : the m - step the m - step in vem is to minimize the free energy function eq 32 ( or eq 37 if using tissue mixtures ) with respect to theta at fixed q. theta < - - argminthetaf ( q,theta ) , s.t.sumxgammaxx = 1 .
+( 40 ) here theta is the mean , variance and mixing proportion in the gaussian mixture , as shown in eqs 1 and 35 .
+the only constraint is that all the mixing proportions sum to 1 for each tissue type , as dictated by the definition of fm model .
+using lagrange multipliers ( see appendix f ) , we get mux = sumi = 1nq ( xi = x ) yisumi = 1nq ( xi = x ) , ( 41a ) sigmax = sumi = 1nq ( xi = x )( yi - mux )( yi - mux ) tsumi = 1nq ( xi = x ) , ( 41b ) gammaxx = sumi = 1nq ( xi = x,x i = x ) sumi = 1nq ( x i = x ) .
+( 41c ) these are the eq 1 in the main text .
+for the sake of generality we have given the gaussian parameters here for multimodal data .
+the approximate posteriors q ( xi = x,x - i = x - ) for specific tissue type x - and unspecified tissue class x are given by eqs 38 and 39 .
+note that with update eq 41c any parameter of matrix gammaxx - that is initialized with 0 remains 0 during update .
+thus , by initializing matrix gammaxx - with only one non - zero entry for each value x , each hidden tissue class x can only belong to a single specific tissue type x - . this gives the conventional mixture model where the mixture elements only belong to a single mixture .
+c 2 - site problem consider a trivial 2 - site lattice .
+x 1 and x 2 are the class vectors for the two sites .
+according to the prior model eq 27 , we can write the distribution of the lattice configuration as p ( x )= 1zexp ( 12x1tj12x2 + 12x2tj21x1 + h1tx1 + h2tx2 ) .
+( 42 ) to get the expression of j ij and h i in terms of c ij and m i , we need to solve sumxinx [ p ( x ) xixjt ]= cij , ( 43a ) sumxinx [ p ( x ) xi ]= mi .
+( 43b ) for this 2 - site lattice , the sum sumxinx can be expanded and thus the partition function z can be analytically expressed .
+when i = 1 , j = 2 , plugging the p ( x ) in eq 42 into eq .
+43 , we have sumx1sumx2exp ( 12x1tj12x2 + 12x2tj21x1 + h1tx1 + h2tx2 ) x1x2tsumx1sumx2exp ( 12x1tj12x2 + 12x2tj21x1 + h1tx1 + h2tx2 )= c12 , ( 44a ) sumx1sumx2exp ( 12x1tj12x2 + 12x2tj21x1 + h1tx1 + h2tx2 ) x1sumx1sumx2exp ( 12x1tj12x2 + 12x2tj21x1 + h1tx1 + h2tx2 )= m1 .
+( 44b ) note the denominator in eq .
+44 is the expanded partition function z. these two equations can be simplified by using matrix subscripts k and l ( 1 <= k <= k , 1 <= l <= k ) , exp [ 12 ( j12 ) kl + 12 ( j21 ) lk +( h1 ) k +( h2 ) l ] sumksumlexp [ 12 ( j12 ) kl + 12 ( j21 ) lk +( h1 ) k +( h2 ) l ]=( c12 ) kl , ( 45a ) sumlexp [ 12 ( j12 ) kl + 12 ( j21 ) lk +( h1 ) k +( h2 ) l ] sumksumlexp [ 12 ( j12 ) kl + 12 ( j21 ) lk +( h1 ) k +( h2 ) l ]=( m1 ) k .
+( 45b ) by observation , we can immediately get suml ( c12 ) kl =( m1 ) k , ( 46 ) and similarly , sumk ( c12 ) kl =( m2 ) l .
+( 47 ) in order to satisfy eq 45a , we can guess ( h1 ) k = 12log ( m1 ) k , ( 48a ) ( h2 ) l = 12log ( m2 ) l , ( 48b ) ( j12 ) kl = log ( c12 ) klsumk ( c12 ) kl = log ( c12 ) kl ( m2 ) l , ( 48c ) ( j21 ) lk = log ( c21 ) lksuml ( c21 ) lk = log ( c12 ) klsuml ( c12 ) kl = log ( c12 ) kl ( m1 ) k .
+( 48d ) eqs 48c and 48d use the relations in eqs 46 and 47 , and also the fact that ( c 12 ) kl = ( c 21 ) lk. plugging eq .
+48 into the left hand side of eq 45a , combining the sum of logarithms into logarithm of the products , and noticing that the terms ( m 1 ) k , ( m 2 ) l are cancelled out , we finally get ( c12 ) klsumksuml ( c12 ) kl , ( 49 ) which is equal to the right hand side of eq 45a , because sumksuml ( c12 ) kl = 1 by definition .
+therefore , eq .
+48 satisfies eq 45a , and thus the solution to the 2 - site problem is ( jij ) kl = log ( cij ) kl ( mj ) l , ( 50a ) ( hi ) k = 12log ( mi ) k .
+( 50b ) these give eqs 30a and 30b .
+d derivation of the free energy function noticing the fact that the probability distribution q ( x ) sums to 1 , i.e. , sumxinxq ( x )= 1 , we can write the free energy function f ( q , theta ) in eq 18 as f ( q,theta )= sumxinxq ( x ) logq ( x ) p ( x,y | theta ) .
+( 51 ) expanding the complete data likelihood p ( x , y | theta ) into the product of the intensity distribution p ( y | x , theta ) and the prior p ( x ) , and plugging eq 15 , eq 20 and eq 31 into eq 51 , we get f ( q,theta )= sumxinxproductmq ( xm )[ sumilogq ( xi ) - sumilogp ( yi | xi,theta ) - 12betasumisumjinnixitjijxj - sumihitxi + logz ] .
+( 52 ) the above equation can be simplified , for example , sumxinxproductmq ( xm ) sumilogq ( xi )= sumx1sumx2 ... sumxi ... sumxnproductmq ( xm ) sumilogq ( xi )= sumisumx1sumx2 ... sumxi ... sumxnproductmq ( xm ) logq ( xi )= sumisumx1sumx2 ... sumxi - 1sumxi + 1 ... sumxnproductm != iq ( xm ) sumxiq ( xi ) logq ( xi )= sumiproductm != isumxmq ( xm ) sumxiq ( xi ) logq ( xi ) ( 53 ) = sumisumxiq ( xi ) logq ( xi ) .
+( 54 ) the fact that sumxmq ( xm )= 1 is used from eq 53 to eq 54 .
+similarly , we have - sumxinxproductmq ( xm ) sumilogp ( yi | xi,theta )= - sumisumxiq ( xi ) logp ( yi | xi,theta ) , ( 55a ) - sumxinxproductmq ( xm ) sumihitxi = - sumisumxiq ( xi ) hitxi , - 12betasumxinxproductmq ( xm ) sumisumjinnixitjijxj ( 55b ) = - 12betasumisumxiq ( xi ) sumjinnisumxjq ( xj ) xitjijxj .
+( 55c ) plugging eqs 54 and 55 into eq 52 , we get eq 32 .
+e derivation of the updating equation in the e - step with the objective function f ( q , theta ) as in eq 32 and the constraint sumxiq ( xi )= 1 , we introduce a generalized function using the lagrange multipliers lambda i f = f ( q,theta )+ sumilambdai ( sumxiq ( xi ) - 1 ) .
+( 56 ) then we need to minimize f with respect to q ( x i ) .
+to avoid notation confusion , we take derivative of f with respect to q ( z n ) dfdq ( zn )= df ( q,theta ) dq ( zn )+ sumilambdaisumxidelta ( xi,zn )= sumisumxi [ delta ( xi,zn ) logq ( xi )+ delta ( xi,zn )]+ sumisumxidelta ( xi,zn )[ - logp ( yi | xi,theta ) - 12betasumjinnisumxjq ( xj ) xitjijxj - hitxi ]+ lambdan .
+( 57 ) note that q ( x j ) is treated as a constant when the above derivative is taken .
+simplifying eq 57 and setting it to 0 , we can solve q ( z n ) as q ( zn )= p ( yn | zn,theta ) exp [ 12betasumjinnnsumxjq ( xj ) zntjnjxj + hntzn ] xexp ( - lambdan - 1 ) .
+( 58 ) plugging the above solution into sumznq ( zn )= 1 to enforce normalization , and substituting z n with x i , we can get the eq 34 .
+f derivation of the updating equation in the m - step the m - step is to optimize the free energy function f ( q , theta ) with respect to the parameters theta subject to the constraint sumxgammaxx - = 1 .
+for generality , we need to use the one involving tissue mixtures ( eq 37 ) .
+to enforce the constraint we use again the lagrange multipliers lambdax - f = f ( q,theta )+ sumx lambdax ( sumxgammaxx - 1 ) .
+( 59 ) for generality , we consider the case of multimodal data , and thus we need to minimize f with respect to mu x , sigma x and gammaxx - . to avoid confusion , we take derivative with respect to mu z dfdmuz = - sumisumxsumx q ( xi = x,x i = x ) sigmax - 1 ( yi - mux ) deltaxz = - sumisumx q ( xi = z,x i = x ) sigmaz - 1 ( yi - muz ) .
+( 60 ) setting this to 0 , solving for mu z , replacing z with x and using the fact that q ( xi = x )= sumx - q ( xi = x,x - i = x - ) , we get eq 41a .
+similarly , we can obtain the sigma x as in eq 41b .
+to get gammaxx - , we take derivative of eq 59 with respect to gammazz - dfdgammazz = - sumisumxsumx q ( xi = x,x i = x ) deltaxzdeltax z gammaxx + sumx lambdax sumxdeltaxzdeltax z = - 1gammazz sumiq ( xi = z,x i = z )+ lambdaz . ( 61 ) set this to 0 , solve for gammazz - and replace z with x. using the normalization condition sumxgammaxx - = 1 , we find lambdax - = sumisumxq ( xi = x,x - i = x - ) .
+inserting this into gammaxx - and using eq 39 , one obtains eq 41c .
+the authors would like to thank andrea cavagna , irene giardina , and flaviano morone for valuable discussions on statistical physics .
+we also thank clay spence for discussion on model construction and christopher alvino for his help with the evaluation of smoothness .
+we thank john richards for providing segmentation from his neurodevelopmental mri database , and also marom bikson for providing the de - identified mri scans .
+finally we thank john ashburner for pointing us to the work of [ 46 ] and highlighting the importance of accommodating differing volume fractions .
+this work was supported by grants from the national institute of health ( ns076123 and mh - 092926 ) .
+references 1 datta a , bansal v , diaz j , patel j , reato d , bikson m . gyri - precise head model of transcranial dc stimulation : improved spatial focality using a ring electrode versus conventional rectangular pad . brain stimulation .
+2009 10 ; 2 ( 4 ) : 201 - 207 . doi : 10.1016 / j.brs.2009.03.005 20648973 2 gullmar d , haueisen j , reichenbach jr . influence of anisotropic electrical conductivity in white matter tissue on the eeg / meg forward and inverse solution .
+a high - resolution whole head simulation study . neuroimage .
+2010 5 ; 51 ( 1 ) : 145 - 163 . 20156576 3 mendonca me , santana mb , baptista af , datta a , bikson m , fregni f , et al transcranial dc stimulation in fibromyalgia : optimized cortical target supported by high - resolution computational models . the journal of pain : official journal of the american pain society .
+2011 5 ; 12 ( 5 ) : 610 - 617 . doi : 10.1016 / j.jpain.2010.12.015 21497140 4 dannhauer m , lanfer b , wolters ch , knsche tr . modeling of the human skull in eeg source analysis . human brain mapping .
+2011 9 ; 32 ( 9 ) : 1383 - 1399 . doi : 10.1002 / hbm.21114 20690140 5 datta a , truong d , minhas p , parra lc , bikson m . inter - individual variation during transcranial direct current stimulation and normalization of dose using mri - derived computational models . frontiers in psychiatry .
+2012 ; 3 : 91 doi : 10.3389 / fpsyt.2012.00091 23097644 6 lucka f , pursiainen s , burger m , wolters ch . hierarchical bayesian inference for the eeg inverse problem using realistic fe head models : depth localization and source separation for focal primary currents . neuroimage .
+2012 7 ; 61 ( 4 ) : 1364 - 1382 . doi : 10.1016 / j.neuroimage.2012.04.017 22537599 7 dmochowski jp , datta a , huang y , richardson jd , bikson m , fridriksson j , et al targeted transcranial direct current stimulation for rehabilitation after stroke . neuroimage .
+2013 7 ; 75 : 12 - 19 . doi : 10.1016 / j.neuroimage.2013.02.049 23473936 8 akalin acar z , makeig s . effects of forward model errors on eeg source localization . brain topography .
+2013 7 ; 26 ( 3 ) : 378 - 396 . doi : 10.1007 / s10548 - 012 - 0274 - 6 23355112 9 datta a , bikson m , fregni f . transcranial direct current stimulation in patients with skull defects and skull plates : high - resolution computational fem study of factors altering cortical current flow . neuroimage .
+2010 10 ; 52 ( 4 ) : 1268 - 1278 . doi : 10.1016 / j.neuroimage.2010.04.252 20435146 10 lanfer b , scherg m , dannhauer m , knsche t , burger m , wolters c . influences of skull segmentation inaccuracies on eeg source analysis . neuroimage .
+2012 8 ; 62 ( 1 ) : 418 - 431 . doi : 10.1016 / j.neuroimage.2012.05.006 22584227 11 rice jk , rorden c , little js , parra lc . subject position affects eeg magnitudes . neuroimage .
+2013 1 ; 64 : 476 - 484 . doi : 10.1016 / j.neuroimage.2012.09.041 23006805 12 vorwerk j , cho jh , rampp s , hamer h , knsche tr , wolters ch . a guideline for head volume conductor modeling in eeg and meg . neuroimage .
+2014 10 ; 100 : 590 - 607 . doi : 10.1016 / j.neuroimage.2014.06.040 24971512 13 friston kj . statistical parametric mapping : the analysis of funtional brain images .
+amsterdam : elsevier / academic press ; 2007 . 14 ashburner j , friston kj . unified segmentation . neuroimage .
+2005 7 ; 26 ( 3 ) : 839 - 851 . doi : 10.1016 / j.neuroimage.2005.02.018 15955494 15 oostenveld r , fries p , maris e , schoffelen jm . fieldtrip : open source software for advanced analysis of meg , eeg , and invasive electrophysiological data . computational intelligence and neuroscience .
+2011 ; 2011 : 1 - 9 . doi : 10.1155 / 2011 / 156869 21837235 16 smith sm . fast robust automated brain extraction . human brain mapping .
+2002 11 ; 17 ( 3 ) : 143 - 155 . doi : 10.1002 / hbm.10062 12391568 17 smith sm , jenkinson m , woolrich mw , beckmann cf , behrens tej , johansen - berg h , et al advances in functional and structural mr image analysis and implementation as fsl . neuroimage .
+2004 ; 23 suppl 1 : s208 - 219 . doi : 10.1016 / j.neuroimage.2004.07.051 15501092 18 zhang y , brady m , smith s . segmentation of brain mr images through a hidden markov random field model and the expectation - maximization algorithm . ieee transactions on medical imaging .
+2001 1 ; 20 ( 1 ) : 45 - 57 . doi : 10.1109 / 42.906424 11293691 19 patenaude b , smith sm , kennedy dn , jenkinson m . a bayesian model of shape and appearance for subcortical brain segmentation . neuroimage .
+2011 6 ; 56 ( 3 ) : 907 - 922 . doi : 10.1016 / j.neuroimage.2011.02.046 21352927 20 dale am , fischl b , sereno mi . cortical surface - based analysis .
+i : segmentation and surface reconstruction . neuroimage .
+1999 2 ; 9 ( 2 ) : 179 - 194 . doi : 10.1006 / nimg.1998.0395 9931268 21 fischl b , sereno mi , dale am . cortical surface - based analysis .
+ii : inflation , flattening , and a surface - based coordinate system . neuroimage .
+1999 2 ; 9 ( 2 ) : 195 - 207 . doi : 10.1006 / nimg.1998.0396 9931269 22 fischl b , salat dh , busa e , albert m , dieterich m , haselgrove c , et al whole brain segmentation : automated labeling of neuroanatomical structures in the human brain . neuron .
+2002 1 ; 33 ( 3 ) : 341 - 355 . doi : 10.1016 / s0896 - 6273 ( 02 ) 00569 - x 11832223 23 fischl b , van der kouwe a , destrieux c , halgren e , sgonne f , salat dh , et al automatically parcellating the human cerebral cortex . cerebral cortex .
+2004 1 ; 14 ( 1 ) : 11 - 22 . doi : 10.1093 / cercor / bhg087 14654453 24 van leemput k , maes f , vandermeulen d , suetens p . automated model - based tissue classification of mr images of the brain . ieee transactions on medical imaging .
+1999 ; 18 ( 10 ) : 897 - 908 . doi : 10.1109 / 42.811270 10628949 25 wells i w m , grimson wel , kikinis r , jolesz fa . adaptive segmentation of mri data . ieee transactions on medical imaging .
+1996 ; 15 ( 4 ) : 429 - 442 . doi : 10.1109 / 42.511747 18215925 26 kapur t , eric w , grimson l , kikinis r , wells wm . enhanced spatial priors for segmentation of magnetic resonance imagery in : wells wm , colchester a , delp s , editors .
+medical image computing and computer - assisted interventation miccai98. no .
+1496 in lecture notes in computer science .
+springer berlin heidelberg ; 1998 p .
+457 - 468 . 27 pohl km , bouix s , nakamura m , rohlfing t , mccarley rw , kikinis r , et al a hierarchical algorithm for mr brain image parcellation . ieee transactions on medical imaging .
+2007 9 ; 26 ( 9 ) : 1201 - 1212 . doi : 10.1109 / tmi.2007.901433 17896593 28 fedorov a , beichel r , kalpathy - cramer j , finet j , fillion - robin jc , pujol s , et al 3d slicer as an image computing platform for the quantitative imaging network . magnetic resonance imaging .
+2012 11 ; 30 ( 9 ) : 1323 - 1341 . doi : 10.1016 / j.mri.2012.05.001 22770690 29 shattuck dw , sandor - leahy sr , schaper ka , rottenberg da , leahy rm . magnetic resonance image tissue classification using a partial volume model . neuroimage .
+2001 5 ; 13 ( 5 ) : 856 - 876 . doi : 10.1006 / nimg.2000.0730 11304082 30 shattuck dw , leahy rm . brainsuite : an automated cortical surface identification tool . medical image analysis .
+2002 6 ; 6 ( 2 ) : 129 - 142 . doi : 10.1016 / s1361 - 8415 ( 02 ) 00054 - 3 12045000 31 riviere d , regis j , cointepas y , papadopoulos - orfanos d , cachia a , mangin jf. a freely available anatomist / brainvisa package for structural morphometry of the cortical sulci .
+in : proc .
+9th hbm .
+neuroimage 19 ( 2 ) .
+new york ; 2003. p. 934. 32 geffroy d , riviere d , denghien i , souedet n , laguitton s , cointepas y . brainvisa : a complete software platform for neuroimaging in : python in neuroscience workshop .
+paris ; 2011 . 33 tohka j , zijdenbos a , evans a . fast and robust parameter estimation for statistical partial volume models in brain mri . neuroimage .
+2004 9 ; 23 ( 1 ) : 84 - 97 . doi : 10.1016 / j.neuroimage.2004.05.007 15325355 34 tohka j , dinov id , shattuck dw , toga aw . brain mri tissue classification based on local markov random fields . magnetic resonance imaging .
+2010 5 ; 28 ( 4 ) : 557 - 573 . doi : 10.1016 / j.mri.2009.12.012 20110151 35 kriegeskorte n , goebel r . an efficient algorithm for topologically correct segmentation of the cortical sheet in anatomical mr volumes . neuroimage .
+2001 8 ; 14 ( 2 ) : 329 - 346 . doi : 10.1006 / nimg.2001.0831 11467907 36 goebel r . brainvoyager - past , present , future . neuroimage .
+2012 8 ; 62 ( 2 ) : 748 - 756 . doi : 10.1016 / j.neuroimage.2012.01.083 22289803 37 yushkevich pa , piven j , hazlett hc , smith rg , ho s , gee jc , et al user - guided 3d active contour segmentation of anatomical structures : significantly improved efficiency and reliability . neuroimage .
+2006 7 ; 31 ( 3 ) : 1116 - 1128 . doi : 10.1016 / j.neuroimage.2006.01.015 16545965 38 acar za , makeig s . neuroelectromagnetic forward head modeling toolbox . journal of neuroscience methods .
+2010 7 ; 190 ( 2 ) : 258 - 270 . doi : 10.1016 / j.jneumeth.2010.04.031 20457183 39 windhoff m , opitz a , thielscher a . electric field calculations in brain stimulation based on finite elements : an optimized processing pipeline for the generation and usage of accurate individual head models . human brain mapping .
+2011 ; 34 ( 4 ) : 923 - 935 . doi : 10.1002 / hbm.21479 22109746 40 dannhauer m , brooks d , tucker d , macleod r. a pipeline for the simulation of transcranial direct current stimulation for realistic human head models using scirun / biomesh3d .
+in : 34th annual international conference of the ieee engineering in medicine and biology society .
+san diego , ca ; 2012. p. 5486 - 5489 .
+41 huang y , dmochowski jp , su y , datta a , rorden c , parra lc . automated mri segmentation for individualized modeling of current flow in the human head . journal of neural engineering .
+2013 12 ; 10 ( 6 ) : 066004 doi : 10.1088 / 1741 - 2560 / 10 / 6 / 066004 24099977 42 kindermann r , snell jl , society am. markov random fields and their applications .
+ams books online .
+american mathematical society ; 1980 .
+43 geman s , geman d . stochastic relaxation , gibbs distributions , and the bayesian restoration of images . ieee transactions on pattern analysis and machine intelligence .
+1984 11 ; pami - 6 ( 6 ) : 721 - 741 . doi : 10.1109 / tpami.1984.4767596 44 bezdek jc . a review of probabilistic , fuzzy , and neural models for pattern recognition . journal of intelligent and fuzzy systems .
+1993 1 ; 1 ( 1 ) : 1 - 25 . 45 bishop cm . neural networks for pattern recognition .
+new york , ny , usa : oxford university press , inc ; 1995 . 46 roche a , ribes d , bach - cuadra m , krger g . on the convergence of em - like algorithms for image segmentation using markov random fields . medical image analysis .
+2011 12 ; 15 ( 6 ) : 830 - 839 . doi : 10.1016 / j.media.2011.05.002 21621449 47 besag j . spatial interaction and the statistical analysis of lattice systems . journal of the royal statistical society series b .
+1974 ; 36 ( 2 ) : 192 - 236 . 48 dempster ap , laird nm , rubin db . maximum likelihood from incomplete data via the em algorithm . journal of the royal statistical society series b .
+1977 ; 39 ( 1 ) : 1 - 38 . 49 sclove sl . application of the conditional population - mixture model to image segmentation . ieee transactions on pattern analysis and machine intelligence .
+1983 7 ; pami - 5 ( 4 ) : 428 - 433 . doi : 10.1109 / tpami.1983.4767412 50 neal rm , hinton ge . a view of the em algorithm that justifies incremental , sparse , and other variants . learning in graphical models .
+1998 1 ;( 89 ) : 355 - 368 . doi : 10.1007 / 978 - 94 - 011 - 5014 - 9 _ 12 51 beal m. variational algorithms for approximate bayesian inference ; 2003. phd .
+thesis , gatsby computational neuroscience unit , university college london .
+52 aubert - broche b , griffin m , pike gb , evans ac , collins dl . twenty new digital brain phantoms for creation of validation image data bases . ieee transactions on medical imaging .
+2006 11 ; 25 ( 11 ) : 1410 - 1416 . doi : 10.1109 / tmi.2006.883453 17117770 53 sanchez ce , richards je , almli cr . age - specific mri templates for pediatric neuroimaging . developmental neuropsychology .
+2012 ; 37 ( 5 ) : 379 - 399 . doi : 10.1080 / 87565641.2012.688900 22799759 54 fillmore pt , phillips - meek m , richards je . age - specific mri brain and head templates for healthy adults from twenty through eighty - nine years of age . frontiers in aging neuroscience .
+2015 ; 7 : 44 doi : 10.3389 / fnagi.2015.00044 25904864 55 audet c , dennis je . analysis of generalized pattern searches . siam journal on optimization .
+2002 1 ; 13 ( 3 ) : 889 - 903 . doi : 10.1137 / s1052623400378742 56 dice lr . measures of the amount of ecologic association between species . ecology .
+1945 7 ; 26 ( 3 ) : 297 - 302 . doi : 10.2307 / 1932409 57 mumford d , shah j . optimal approximations by piecewise smooth functions and associated variational problems . communications on pure and applied mathematics .
+1989 7 ; 42 ( 5 ) : 577 - 685 . doi : 10.1002 / cpa.3160420503 58 trott m . the mathematica guidebook for graphics .
+springer ; 2004 . 59 levy h , lessman f . finite difference equations .
+courier dover publications ; 1992 . 60 avants bb , tustison nj , wu j , cook pa , gee jc . an open source multivariate framework for n - tissue segmentation with evaluation on public data . neuroinformatics .
+2011 12 ; 9 ( 4 ) : 381 - 400 . doi : 10.1007 / s12021 - 011 - 9109 - y 21373993 61 shattuck dw , mirza m , adisetiyo v , hojatkashani c , salamon g , narr kl , et al construction of a 3d probabilistic atlas of human cortical structures . neuroimage .
+2008 2 ; 39 ( 3 ) : 1064 - 1080 . doi : 10.1016 / j.neuroimage.2007.09.031 18037310 62 shattuck dw , prasad g , mirza m , narr kl , toga aw . online resource for validation of brain segmentation methods . neuroimage .
+2009 4 ; 45 ( 2 ) : 431 - 439 . doi : 10.1016 / j.neuroimage.2008.10.066 19073267 63 mastromatteo i . beyond inverse ising model : structure of the analytical solution for a class of inverse problems . journal of statistical physics .
+2013 2 ; 150 ( 4 ) : 658 - 670 . doi : 10.1007 / s10955 - 013 - 0707 - y 64 ricci - tersenghi f . the bethe approximation for solving the inverse ising problem : a comparison with other inference methods . journal of statistical mechanics : theory and experiment .
+2012 8 ; 2012 ( 08 ) : p08015 doi : 10.1088 / 1742 - 5468 / 2012 / 08 / p08015 65 szeliski r , zabih r , scharstein d , veksler o , kolmogorov v , agarwala a , et al a comparative study of energy minimization methods for markov random fields with smoothness - based priors . ieee transactions on pattern analysis and machine intelligence .
+2008 6 ; 30 ( 6 ) : 1068 - 1080 . doi : 10.1109 / tpami.2007.70844 18421111 66 holmes cj , hoge r , collins l , woods r , toga aw , evans ac . enhancement of mr images using registration for signal averaging . journal of computer assisted tomography .
+1998 4 ; 22 ( 2 ) : 324 - 333 . doi : 10.1097 / 00004728 - 199803000 - 00032 9530404 67 mazziotta j , toga a , evans a , fox p , lancaster j , zilles k , et al a probabilistic atlas and reference system for the human brain : international consortium for brain mapping ( icbm ) . philosophical transactions of the royal society of london series b .
+2001 8 ; 356 ( 1412 ) : 1293 - 1322 . doi : 10.1098 / rstb.2001.0915 11545704 68 pohl km , fisher j , grimson wel , kikinis r , wells wm . a bayesian model for joint segmentation and registration . neuroimage .
+2006 5 ; 31 ( 1 ) : 228 - 239 . doi : 10.1016 / j.neuroimage.2005.11.044 16466677 69 held k , kops e , krause b , wells w , kikinis r , muller - gartner h . markov random field segmentation of brain mr images . ieee transactions on medical imaging .
+1997 ; 16 ( 6 ) : 878 - 886 . doi : 10.1109 / 42.650883 9533587 70 celeux g , forbes f , peyrard n . em procedures using mean field - like approximations for markov model - based image segmentation . pattern recognition .
+2003 1 ; 36 ( 1 ) : 131 - 144 . doi : 10.1016 / s0031 - 3203 ( 02 ) 00027 - 4 71 cuadra m , cammoun l , butz t , cuisenaire o , thiran j . comparison and validation of tissue modelization and statistical classification methods in t1 - weighted mr brain images . ieee transactions on medical imaging .
+2005 ; 24 ( 12 ) : 1548 - 1565 . doi : 10.1109 / tmi.2005.857652 16350916 72 scherrer b , forbes f , garbay c , dojat m . distributed local mrf models for tissue and structure brain segmentation . ieee transactions on medical imaging .
+2009 8 ; 28 ( 8 ) : 1278 - 1295 . doi : 10.1109 / tmi.2009.2014459 19228553 73 van leemput k , maes f , vandermeulen d , suetens p . a unifying framework for partial volume segmentation of brain mr images . ieee transactions on medical imaging .
+2003 ; 22 ( 1 ) : 105 - 119 . doi : 10.1109 / tmi.2002.806587 12703764 74 forbes f , fort g . combining monte carlo and mean - field - like methods for inference in hidden markov random fields . ieee transactions on image processing .
+2007 3 ; 16 ( 3 ) : 824 - 837 . doi : 10.1109 / tip.2006.891045 17357740 75 zhang j . the mean field theory in em procedures for markov random fields . ieee transactions on signal processing .
+1992 10 ; 40 ( 10 ) : 2570 - 2583 . doi : 10.1109 / 78.157297 76 mazziotta j , toga a , evans a , fox p , lancaster j , zilles k , et al a four - dimensional probabilistic atlas of the human brain . journal of the american medical informatics association .
+2001 ; 8 ( 5 ) : 401 - 430 . doi : 10.1136 / jamia.2001.0080401 11522763 77 jaynes et . information theory and statistical mechanics . physical review .
+1957 5 ; 106 ( 4 ) : 620 - 630 . doi : 10.1103 / physrev.106.620 78 bialek w , cavagna a , giardina i , mora t , silvestri e , viale m , et al statistical mechanics for natural flocks of birds . proceedings of the national academy of sciences .
+2012 3 ; 109 ( 13 ) : 4786 - 4791 . doi : 10.1073 / pnas.1118633109 79 tkacik g , schneidman e , berry ii mj , bialek w. spin glass models for a network of real neurons .
+arxiv : 09125409 .
+2009 dec ; .
+80 laidlaw dh , fleischer kw , barr ah . partial - volume bayesian classification of material mixtures in mr volume data using voxel histograms . ieee transactions on medical imaging .
+1998 2 ; 17 ( 1 ) : 74 - 86 . doi : 10.1109 / 42.668696 9617909

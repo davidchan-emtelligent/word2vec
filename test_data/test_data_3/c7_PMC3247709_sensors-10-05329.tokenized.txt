@@ -1,0 +1,318 @@
+sensors ( basel ) sensors ( basel , switzerland ) 1424 - 8220 molecular diversity preservation international ( mdpi ) 22219664 3247709 10.3390 / s100605329 sensors - 10 - 05329 article lazy approaches for interval timing correlation of sensor data streams lee kiseong lee chan - gun * department of cse , chung - ang university , 221 heukseok , dongjak , seoul , korea ; e - mail : goory00 @ gmail.com * author to whom correspondence should be addressed ; e - mail : cglee @ cau.ac.kr ; tel. : + 82 - 2 - 820 - 5829 ; fax : + 82 - 2 - 820 - 5301 .
+2010 27 5 2010 10 6 5329 5345 29 3 2010 20 5 2010 21 5 2010 ( c ) 2010 by the authors ; licensee mdpi , basel , switzerland .
+2010 this article is an open access article distributed under the terms and conditions of the creative commons attribution license ( http :// creativecommons.org / licenses / by / 3.0 /) .
+we propose novel algorithms for the timing correlation of streaming sensor data .
+the sensor data are assumed to have interval timestamps so that they can represent temporal uncertainties .
+the proposed algorithms can support efficient timing correlation for various timing predicates such as deadline , delay , and within .
+in addition to the classical techniques , lazy evaluation and result cache are utilized to improve the algorithm performance .
+the proposed algorithms are implemented and compared under various workloads .
+sensor interval lazy timestamps correlation 1 .
+introduction wireless sensor networks are composed of sensors , embedded computers , and communication devices .
+they can harvest various interesting information such as light , motion , proximity , temperature , and chemical conditions .
+there are many emerging applications utilizing the information from sensors .
+the applications range from simple monitoring systems to sophisticated systems making critical decisions based on the automated analysis of the sensor data .
+in this paper , we propose novel algorithms for the timing correlation of streaming sensor data .
+the sensor data are assumed to have interval timestamps so that they can represent temporal uncertainties .
+the proposed algorithms can support efficient timing correlations for various timing predicates such as deadlines and delays .
+the timing correlation enables the users to extract pairs of streaming data , of which sources are different , satisfying specific timing conditions .
+in some cases , the timestamp of the data from a sensor cannot be modeled as a scalar value .
+there can be various reasons such as inactivity of a sensor due to its battery limitation , granularity difference between heterogeneous sensors , and inaccurate timing behavior of a sensor .
+in addition , the possibility of temporal uncertainty is high because the unexpected hardships can easily happen due to the harsh environments where sensors operate .
+in order to capture the timing uncertainty of the timestamp , adopting a time interval as the timestamp is a common approach [ 1 ] .
+typically , an interval timestamp is composed of two end - time points confining the possible occurrence time .
+in this study we assume that the probability distribution in the interval is uniform .
+in other words , any time point in the interval is assumed to be equally probable .
+in our previous work , we designed an efficient algorithm for the timing correlation by analyzing the upper - bounds and lower - bounds of the satisfaction probability on time intervals .
+we further extend the algorithm by adopting the approaches of the lazy evaluation and the result look - up in this study .
+the extended algorithms show better performance by exploiting unveiled properties of timing correlations presented in this paper .
+we implement various timing correlation algorithms and compare them under various workloads .
+main contributions made in this paper are shown in the following : extending the algorithm by adopting a lazy evaluation approach : we extend the previously designed algorithm by adopting a lazy approach and correlating the sensor data by the blocks .
+extending the algorithm by adding the look - up technique : in order to avoid expensive calculation for satisfaction probability in probe regions , we add an idea of look - up technique based on new observations of the timing correlation .
+the rest of this paper is organized as follows .
+section 2 presents related work .
+in section 3 , we present an overview of timing correlations for sensor data .
+a brief review of the timing correlation is given .
+section 4 presents a review of previously studied algorithms and designs extended versions of the timing correlations .
+in section 5 , we compare the performance of the algorithms under various workloads and analyze the results .
+section 6 presents the future work and summary .
+2. related work there have been many studies on the sensor data processing in recent years .
+one of the most active research areas related to the sensor data processing is stream data management systems ( sdmss ) .
+babcock et al .
+[ 2 ] and golab and ozsu [ 3 ] present extensive surveys on stream data processing and recent advances .
+since we are interested in the timing correlation problem , we shall restrict our discussion to the problem of the correlation of stream data .
+in [ 4 ] , a box figure is used to represent a stream query operator and a link between the boxes connects the output port of a box to the input port of another box .
+the users can express their queries by arranging the query boxes and the links .
+the join operators typically have parameters including join predicates , time window sizes , and ordering information about the streams .
+the ordering information specifies the tolerance of disorder .
+hammad et al .
+[ 5 ] presents bew - join and few - join which are variants of classical sliding window joins .
+one of the different assumptions made in our paper is about the arrival ordering of streaming data .
+hammad assumes that the streaming data are delivered to the system in timestamp - sorted order .
+in other words , there is no out - of - order data .
+they present efficient join algorithms by utilizing this assumption .
+our proposed techniques can handle the cases where there exist out - of - order data .
+there are studies based on the cost analysis of the sliding window joins .
+kang et al .
+[ 6 ] present a unit - time basis cost model for the sliding window joins and propose efficient join strategies based on the analysis .
+in addition , effective resource - allocation schemes for improving the efficiency are proposed .
+in order to handle the streaming data arriving in out - of - order , srivastava and widom [ 7 ] propose the use of heartbeats in the stream processing .
+the meaning of a heartbeat with the timestamp tau from a stream is that there will be no future data with timestamp less than tau from the stream .
+recently wu et al .
+[ 8 ] propose efficient techniques for the memory management in the context of the stream join .
+they point out that the query - driven method is not aware of the input characteristics , thus the data - driven approach , window - oblivious join , is needed .
+none of the above work address the cases of the interval timestamp .
+as stated in introduction , the timestamp of a streaming data from sensors may have temporal uncertainties .
+in order to handle this inherent uncertainties in timestamps , we adopt interval timestamps and assume that the probability distribution in a given interval is uniform .
+dyreson and snodgrass [ 1 ] present solutions in the context of valid - time databases where a data is accompanied with a interval timestamp during which the data is valid .
+they take a probabilistic approach like ours in order to cover indeterminacy in timestamps .
+an algorithm for computing the satisfaction probability of the comparison operator before for interval timestamps is presented .
+our earlier work [ 9 ] address the problem of calculating the satisfaction probability of timing predicates on interval timestamps .
+a timing predicate is defined over interval timestamps with a deadline / delay .
+a timing condition is composed of a timing predicate and its satisfaction probability threshold .
+we extended [ 9 ] to include the pruning algorithms which are useful in monitoring time critical systems in [ 10 ] .
+[ 11 ] focuses on the problem of interval timing correlation. by utilizing the analysis results of the satisfaction probability , it provides efficient techniques for interval timing correlation .
+in this paper , we further extend the algorithms in [ 11 ] by adopting the approaches of the lazy evaluation and the result look - up .
+3. timing correlation for sensor data in this section , we present the problem of the interval timing correlation and review the main findings discussed in the previous studies .
+sensors measure and transmit data to harvesting facilities .
+the harvesting facilities can be another typical sensors or specialized devices .
+finally , the data are sent to a system ( or systems for distributed computing ) taking the role of the data analysis .
+in general the sensor data processors filter out unnecessary data and forward a subset of the data which may be useful to the next data processors for further analysis .
+one of the typical operators used during this phase is the timing correlation .
+the timing correlation operators allow us to collect pairs of data which are satisfying a predefined timing condition .
+for example , a user may want to extract pairs of data such that the time differences of the pairs are within 5 seconds .
+specifically , we are interested in the timing correlation operator which can handle the interval timestamps .
+in order to specify a timing condition over interval timestamps , we take a probabilistic approach .
+the users of the system present an interval timing correlation by defining a timing predicate on interval timestamps .
+the timing predicate can be a form of deadline or delay .
+a deadline constraint requires that a corresponding event should happen provided that a triggering event happen before the timer accompanied with the constraint expires .
+assume that there exists a deadline constraint with a specific time t where e1 is a triggering event and e2 is the corresponding event .
+if there is another deadline constraint with the same time t where e2 is a triggering event and e1 is the corresponding event .
+in that case , we state that a mutual deadline constraint is defined on the events e1 and e2 .
+the mutual deadline is the most popular timing predicate in interval timing correlations .
+hence , most of our examples will be the mutual deadlines .
+a delay constraint requires that the corresponding event should not happen provided that a triggering event happen before the specified time passes .
+an interval timing correlation requires a confidence threshold , which determines the minimum satisfaction probability of the timing predicate .
+typically the interval timing correlation operator produces streams of paired data which satisfy the given interval timing correlation condition .
+in this paper , we adopt the event model proposed in [ 9 ] .
+we shall briefly explain the event model in the following .
+the timestamp is composed of a pair of time values ( min _ time , max _ time ) where min _ time represents the earliest time of the event occurrence .
+the latest time is represented by the max _ time .
+we assume that the probability distribution in the timestamp is uniform .
+in addition , the following notations are used in the remaining of this paper .
+for a timestamp i = ( min _ time , max _ time ) , min ( i ) and max ( i ) extracts the min _ time and max _ time , respectively .
+length ( i ) returns the value max ( i ) - min ( i ) .
+pi and rho represents the longest and the shortest possible length of any timestamp .
+the parameters should be fixed in system design time .
+satisfaction probability prob ( tp ) of a timing predicate tp , is the probability for which tp is satisfied .
+the pair of tp and ct ( tp,ct ) is called a timing condition , where tp is a timing predicate and ct is a confidence threshold requirement for tp. we define that a timing condition ( tp , ct ) is satisfied if prob ( tp ) >= ct and it is violated if prob ( tp ) < ct. in the remainder of this paper , we shall use the symbol "@" to indicate the timestamp of a tuple .
+if the symbol is used in front of a stream name , then it means the timestamp of any tuple sent from the stream .
+for example , @ e represents the timestamp of the tuple e. the timing predicate |@ s1 - @ s2 | <= d means that we want to extract a pair of ( e1 , e2 ) satisfying the mutual deadline d where e1 and e2 are tuples from stream s1 and s2 respectively .
+we derived formula for calculating the satisfaction probabilities of the deadline and delay predicates in our previous work [ 9 ] .
+theorem 1 [ 9 ] given a deadline predicate , c : i1 + d >= i2 where d >= 0 , the satisfaction probability of c , prob ( c ) can be computed by the following expression : prob ( c )= 1len ( i1 ) len ( i2 ) integralmin ( i1 ) max ( i1 ) min ( max ( x + d - min ( i2 ) , 0 ) , len ( i2 )) dxthe satisfaction probability of a delay predicate can be derived similarly .
+in this paper , we assume that any deadlines specified in timing predicates are larger than pi the maximum interval length in the system .
+similarly any delays are smaller than - pi , which means | d | >= | pi | .
+this assumption makes the computation of the mutual deadline predicates simple as shown in the following : corollary 1 [ 11 ] given a mutual deadline predicate , c : | i1 - i2 | <= d , prob ( c ) = prob ( i1 + d >= i2 ) if min ( i1 ) <= min ( i2 ) and | d | >= | pi | .
+the computation of the satisfaction probability of a deadline constraint can be simplified by categorizing the problems into six different cases based on the relations of i1 + d and i2 .
+interested readers are invited to our previous study in [ 10 ] for details .
+4. design of timing correlation operators 4.1 .
+efficient timing correlation throughout this section , we assume that there is an interval timing correlation such that it has a mutual deadline for two events such as |@ s1 - @ s2 | <= d and a confidence threshold ct. in other words , we want to extract a pair of ( e1 , e2 ) satisfying the mutual deadline d and their satisfaction probability should be at least ct. figure 1 illustrates the core results studied in [ 11 ] .
+in the figure , we assume that a base tuple with the timestamp i1 = ( min1 , max1 ) has arrived from stream s1 .
+the graph presents the upper - bounds ( solid lines ) and the lower - bounds ( dotted lines ) of satisfaction probabilities for each possible x = max ( i2 ) where i2 is the timestamp of a tuple in the targets stream ( s2 in this specific example ) .
+a timing correlation process starts upon receiving a tuple from a stream .
+the tuple and the stream is referred to as base tuple and base stream respectively .
+the other stream is called as target stream. by using the information shown in the figure 1 ( a ) , we can efficiently partition the target tuples in order to extract the results satisfying the timing correlation as listed in the following : any target tuple with the timestamp i where max ( i ) in [ ll , rl ] is guaranteed to satisfy the given timing condition .
+any target tuple with the timestamp i where max ( i ) < lh is guaranteed to violate the given timing condition .
+any target tuple with the timestamp i where max ( i ) > rh is guaranteed to violate the given timing condition .
+any target tuple with the timestamp i where max ( i ) in [ lh , ll ) needs an evaluation of the satisfaction probability .
+any target tuple with the timestamp i where max ( i ) in ( rl , rh ] needs an evaluation of the satisfaction probability .
+where ll , rl , lh , rh are the x - axis values of the points crossing with a horizontal line of which y - axis value is ct as shown in figure 1 ( b ) .
+ct is the confidence threshold requirement of the timing condition. from the figure , the above observations are intuitively derived .
+for example , any target tuple with the max ( timestamp ) in [ ll , rl ] is guaranteed to satisfy the given correlation condition ; its minimum satisfaction probability must be greater than or equal to the requested confidence threshold .
+in our previous work [ 11 ] , we presented efficient algorithms for performing interval timing correlations by using the above result .
+in the next subsection , we extend the previous findings and present two new algorithms for interval timing correlations .
+4.2 .
+algorithms for interval timing correlation in this section , we review the algorithms for the interval timing correlation proposed in [ 11 ] and introduce novel algorithms .
+the simple timing correlation is the most simplest one among the algorithms discussed here .
+when a tuple e arrives at the base stream , every tuple in the target stream buffer is examined and the satisfaction probability is calculated .
+while the system is visiting the tuples in the target stream buffer , it marks the obsolete tuples .
+finally the marked tuples are removed from the target stream buffer and e is inserted into the base stream buffer .
+algorithm 1 simpletimingcorrelation ( enew , basestream ) 1 : for all tuple e in the target buffer do 2 : if ( ct <= prob (|@ enew - @ e | <= d )) then 3 : add ( enew , e ) to the result 4 : end if 5 : mark e if it is obsolete .
+6 : end for 7 : remove the marked obsolete tuples in the target buffer .
+8 : insert enew into the end of base buffer .
+the simple - sort ( ssort in short ) timing correlation slightly modifies the simple timing correlation such that it keeps the tuples in order with respect to the max timestamps .
+hence , the algorithm expects longer blocks of obsolete tuples consecutively located than those in the simple timing correlation .
+the eager timing correlation uses the upper - bounds and lower - bounds of the satisfaction probability presented in the previous section .
+every time a tuple e arrives , the system computes lh , ll , rl and rh based on e. as illustrated in the previous section , all tuples belonging to [ ll , rl ] in the target stream buffer are guaranteed to be in the correlation result .
+the tuples belonging to [ lh , ll ) or ( rl , rh ] in the target stream buffer should be probed further .
+to determine the block of invalid tuples , we first set @ einv to ( currenttime - delaybase - pi , currenttime - delaybase ) where delaybase is the maximum delay in the base stream .
+then , we compute lh based on einv .
+the target tuples having the timestamp i such that max ( i ) < max ( lh ( einv )) in the target buffer are guaranteed not to be in the result with any future incoming base tuples .
+hence , they can be removed from the target buffer .
+algorithm 2 eagertimingcorrelation ( enew , basestream ) 1 : compute lh , ll , rl , and rh based on enew 2 : for all tuple e belongs to [ ll , rl ] in the target buffer do 3 : add ( enew , e ) to the result 4 : end for 5 : for all tuple e belongs to [ lh , ll ) or ( rl , rh ] in the target buffer do 6 : probe ( enew , e , d , ct ) 7 : end for 8 : invalidate obsolete tuples in the target buffer by lh ( einv ) .
+9 : insert enew into the base buffer in a sorted order .
+algorithm 3 probe ( enew , e , d , ct ) 1 : if ct <= prob (|@ enew - @ e | <= d ) then 2 : add ( enew , e ) to the result 3 : end if the lazy timing correlation also uses the upper - bounds and the lower - bounds like the eager algorithm ; however , it does not start correlation processing every time a new tuple arrives .
+upon receiving a new tuple , the lazy timing correlation just inserts the tuple into the appropriate stream buffer and waits until its re - evaluation time [ 12 ] .
+when to re - evaluate can be determined either by the number of unprocessed tuples or by a time frequency ( or both ) .
+for example , a system can be designed to re - evaluate whenever there are more than 500 unprocessed tuples or every one second .
+it is noted in [ 12 ] that the lazy correlation is preferable over the eager correlation when the arrival rates of data streams are so high that it is hard to handle the incoming every tuple instantly .
+however , the benefit of the lazy algorithm comes at the expense of the longer response time ; until the re - evaluation condition is met , the already arrived but un - evaluated tuples should wait in the buffers .
+therefore , the re - evaluation condition must be designed carefully not to violate the system performance requirements .
+the algorithm for the lazy timing correlation is presented in algorithms 4 and 5 .
+algorithm 4 lazytimingcorrelation ( enew , basestream ) 1 : insert enew into the end of base buffer .
+2 : if there are " enough " tuples then 3 : call blocktimingcorrelation ( basestream ) 4 : end if algorithm 5 blocktimingcorrelation ( basestream ) 1 : sort the target stream buffer 2 : tpl < - - the first tuple in the unprocessed block in the base stream buffer 3 : tpr < - - the last tuple in the unprocessed block in the base stream buffer 4 : forenew = tpr to tpl in the base stream buffer do 5 : compute lh , ll , rl , and rh based on enew 6 : for all tuple e in [ ll , rl ] in the sorted block of the target stream buffer do 7 : addresult ( enew , e ) 8 : end for 9 : for all tuple e in [ lh , ll ) or ( rl , rh ] in the sorted block of the target stream buffer do 10 : probe ( enew , e , d , ct ) 11 : end for 12 : end for 13 : sort the base stream buffer 14 : invalidate obsolete tuples in the base buffer by lh ( einv ) .
+15 : invalidate obsolete tuples in the target buffer by lh ( einv ) .
+now we extend the lazy timing correlation to use look - up tables in order to perform the probing process more efficiently .
+the following corollary presents properties used in the algorithm .
+corollary 2 assume there are timestamps i1 , ii , and ij where max ( i1 ) <= max ( ii ) <= max ( ij ) and min ( i1 ) <= min ( ii ) <= min ( ij ) .
+if a timing condition ( i1 + d >= ij , ct ) is satisfied then , so is the timing condition ( i1 + d >= ii , ct ) .
+similarly if a timing condition ( i1 + d >= ii , ct ) is violated , then so is ( i1 + d >= ij , ct ) .
+example 1 assume there are timestamps as shown in figure 2 .
+suppose that ( i2 + d >= i11 , ct ) is violated .
+then , by corollary 2 , we can claim that ( i2 + d >= i12 , ct ) and ( i2 + d >= i14 , ct ) are also violated without computing the satisfaction probabilities .
+now suppose that ( i2 + d >= i12 , ct ) is satisfied .
+then , by corollary 2 , we can claim that ( i2 + d >= i11 , ct ) is also satisfied .
+the main idea of the extended algorithm is to reuse the satisfaction probabilities calculated in the probe regions .
+as illustrated in the previous example , while performing an interval timing correlation for two blocks of tuples , there can be cases where we can reuse the previous calculation results and avoid expensive probability computations. by comparing algorithm 6 and the lazy timing correlation , we can notice that the main difference is the way of handling probe regions .
+to process the probe regions , the algorithm first initializes the look - up table after identifying the range of target tuples .
+there are two probing regions but their processes are symmetric ; hence we shall explain only the part handling the left probe region .
+algorithm 6 lazywithlookup - newblock ( basestream ) 1 : sort the target stream buffer 2 : tpl < - - the first tuple in unprocessed block in the base stream 3 : tpr < - - the last tuple in unprocessed block in the base stream 4 : forenew = tpr to tpl in the base stream buffer do 5 : compute ll , rl based on enew 6 : for all tuple e belongs to [ ll , rl ] in the sorted block of the target buffer do 7 : add ( enew , e ) to the result 8 : end for 9 : end for 10 : leftindex < - - the index for lh ( max (@ tpl ) - pi , max (@ tpl )) in the target stream buffer 11 : rightindex < - - the index for ll ( max (@ tpr ) - rho , max (@ tpr )) in the target stream buffer 12 : initialize look - up table ( leftindex , rightindex ) 13 : forenew = tpr downto tpl in the base stream buffer do 14 : compute lh , ll , based on enew 15 : for all tuple e belongs to [ lh , ll ) in the target buffer do 16 : efficientprobe ( enew , e , d , ct , basestream ) 17 : end for 18 : end for 19 : initialize look - up table ( leftindex , rightindex ) 20 : forenew = tpl to tpr in the base stream do 21 : compute rl , rh , based on enew 22 : for all tuple e belongs to ( rl , rh ] in the target buffer do 23 : efficientprobe ( enew , e , d , ct , basestream ) 24 : end for 25 : end for 26 : invalidate obsolete tuples in the base buffer by lh ( einv ) .
+27 : invalidate obsolete tuples in the target buffer by lh ( einv ) .
+the algorithm traverses the base tuples in the unprocessed block in reverse chronological order .
+once we computed prob (|@ eb - @ et | <= d ) where eb is a tuple in the base stream and et is a tuple in the target stream , we store the timestamp of eb as well as the computed satisfaction probability into the look - up table .
+when we compute prob (|@ e'b - @ et | <= d ) where e'b is another tuple in the base stream , we first check whether e'b can use the result computed based on eb. this decision is made by comparing the min values of @ eb and @ e'b. if min (@ e'b ) <= min (@ eb ) , then it means that @ e'b is strictly less than @ eb .
+( we define e'b is strictly less than eb iff min (@ e'b ) <= min (@ eb ) and max (@ t'b ) <= max (@ tb ).) the algorithm traverses the base stream buffer from the tail ; hence , it is trivially true that max (@ e'b ) <= max (@ eb ) .
+in case the @ e'b is strictly less than eb , we can reuse this result ; if the stored value is larger than ct ( the confidence threshold for this timing condition ) , then it should be the case prob (|@ e'b - @ et | <= d ) is no less than ct. hence , the tuple pair ( e'b , et ) must be in the final result .
+even if the stored value is less than ct , it is still possible that ( e'b , et ) can satisfy the interval timing condition .
+so , we compute the satisfaction probability for ( e'b , et ) and store the new result into the look - up table .
+if e'b is not strictly less than eb , then we cannot reuse the stored result ; we compute the satisfaction probability and store it. recall that the primary purpose of using the look - up table is to avoid the " relatively " expensive operation - - the satisfaction probability calculation incurring floating - point operations .
+to minimize the overhead for accessing to the look - up tables , we used array data structure to implement the look - up table .
+hence every access to the look - up table was done via the index to an element in the array .
+algorithm 7 efficientprobe ( enew , e , d , ct , basestream ) 1 : if the result in the look - up table is usable then 2 : c < - - lookup ( e ) 3 : ifc = notinitthen 4 : probe ( enew , e , d , ct ) 5 : setlookup ( prob (|@ enew - @ e | <= d ) , e ) 6 : else 7 : ifc >= ctthen 8 : add ( enew , e ) to the result 9 : else 10 : probe ( enew , e , d , ct ) 11 : end if 12 : end if 13 : else 14 : probe ( enew , e , d , ct ) 15 : setlookup ( prob (|@ enew - @ e | <= d ) , e ) 16 : end if now let us prove the correctness of the look - up technique in the algorithm .
+corollary 3 suppose there are two timestamps i1 and i2 .
+assume that min ( i1 ) <= min ( i2 ) and max ( i1 ) >= max ( i2 ) , i.e. , i1 covers entire i2 .
+then prob (| i1 - i2 | <= d ) = 1 .
+proof : since d >= pi , min ( i1 ) + d >= max ( i1 ). by the assumption , max ( i1 ) >= max ( i2 ) .
+therefore , min ( i1 ) + d >= max ( i2 ) ; hence prob ( i1 + d >= i2 ) = 1. by the assumption , min ( i2 ) >= min ( i1 ) .
+hence , min ( i2 ) + d >= min ( i1 ) + d >= max ( i1 ) .
+therefore , prob ( i2 + d >= i1 ) = 1 .
+therefore , prob (| i1 - i2 | <= d ) = 1 .
+theorem 2 algorithm 6 , the lazy timing correlation with a look - up table , is correct .
+proof : let us first prove that the code block handling the left probe region is correct .
+the main idea of the look - up technique is that we can reuse the result of the timing condition (|@ e - @ elookup | <= d , ct ) in determining (|@ e - @ enew | <= d , ct ) .
+enew is the base tuple currently examined in the code and elookup is the base tuple which was used for calculating prob (|@ e - @ elookup | <= d ) and stored in the look - up table where e is a tuple in the target stream buffer .
+the first line of the efficientprobe function checks whether the tuple enew in the source stream buffer satisfies the condition min (@ enew ) <= min (@ elookup ) .
+first , let us prove that it is always the case that max (@ e ) <= max (@ enew ) <= max (@ elookup ) .
+ll ( max (@ enew )) <= max (@ enew ) always holds .
+e is going to be used in processing enew only when @ e belongs to [ lh (@ enew ) , ll (@ enew )) , i.e. , lh (@ enew ) <= max (@ e ) < ll (@ enew ) .
+since the algorithm traverses the source stream buffer from the end of the unprocessed tuples , it should be always the case that max (@ enew ) <= max (@ elookup ) ; hence max (@ e ) <= max (@ enew ) <= max (@ elookup ) .
+there can be two cases as shown in the following : case min (@ e ) <= min (@ enew ) : in this case it is evident that prob (|@ e - @ enew | <= d ) = prob (@ e + d >= @ enew ) by corollary 1 .
+similarly , prob (|@ e - @ elookup | <= d ) = prob (@ e + d >= @ elookup ). by corollary 2 if (@ e + d >= @ elookup , ct ) is satisfied then so is (@ e + d >= @ enew , ct ) .
+case min (@ e ) > min (@ enew ) : in this case @ enew covers entire @ e. hence , prob (|@ e - @ enew | <= d ) = 1 >= prob (|@ e - @ elookup | <= d ) by corollary 3 .
+in both cases , it was shown that if (@ e + d >= @ elookup , ct ) is satisfied then so is (@ e + d >= @ enew , ct ) .
+the proof for the codes handling the right probe region is similar to this , hence is omitted .
+5. experiment and analysis in this section , we present experiment results showing various aspects of the proposed algorithms presented in the previous section .
+the data show that the lazy - family algorithms ( lazy and lazy with look - up tables ) give higher throughput than the eager algorithm ; however they suffer from slower response time than the eager algorithm .
+we implemented a simple stream simulation system .
+stream providers in the simulation system read the predefined event tuples and transmit them to the correlation algorithms .
+the implementation was done in java .
+an intel xeon 1.8mhz system with 1gb main memory on windows xp professional was used for the experiment .
+5.1 .
+experiment results we prepared the data files r12.dat , r24.dat , ... , and r1600.dat providing data streams of which arrival rates are from 12 tuples / second to 1,600 tuples / second respectively .
+we measured the execution times and the average response times of the correlation algorithms under these workloads .
+the execution time of an algorithm is measured by the total time spent by the algorithm .
+the response time is the summation of the response times for all tuples processed by the algorithm .
+the response time of a tuple ( e1 , e2 ) is computed by the correlation completion time minus max ( max (@ e1 ) , max (@ e2 )) .
+the results are shown in figures 3 and 4 .
+the growth of the execution times of the eager correlation and the lazy correlation family ( lazy algorithm and lazy correlation with look - up tables ) is much slower than those of the simple correlation family ( simple correlation and simple sort correlation ) .
+the primary performance gain is achieved from the bounds analysis of satisfaction probability ; the former algorithms save time by skipping the computation of the satisfaction probabilities for the tuples belonging to the satisfaction and violation regions .
+the simple sort correlation is faster than the simple correlation .
+this is mainly because the invalidation process is much effective in the simple sort correlation. by doing the correlation in bulk , the lazy correlation family shows better performance over the eager correlation .
+it is also observed that the average response time of the eager correlation is better than that of the lazy correlation family .
+in addition , if the stream arrival rate is not so fast ( until 400 tuples / second in this particular setting ) , the simple sort correlation and the simple correlation are better than the lazy correlation family as far as the average response time is concerned .
+the lazy correlation family intentionally delays the processing of incoming tuples ; even in the case where the tuples can be processed right away ; the tuples are waiting in the stream buffer until there are " enough " number of tuples .
+in contrast , the other algorithms process the incoming tuples as soon as they arrive .
+when the processing speed cannot catch up with the stream arrival speed , the response time begins to increase sharply .
+the performance gain in the lazy correlation and the lazy correlation with a look - up table comes at the expense of larger memory usage and longer response time .
+let us show the stream buffer usage of each correlation algorithm .
+figure 5 shows the average lengths of stream buffers for the timing correlation algorithms .
+the length of the buffers for the eager correlation is the shortest .
+the buffer length for the simple sort correlation is shorter than that for the simple correlation .
+this is because the tuples are sorted in the simple sort correlation ; hence , it is easier to find consecutive invalid tuples and remove them .
+in this experiment , we set the enough number of tuple of the lazy correlation to one thousand .
+hence , roughly the length difference between the lazy correlation and the eager correlation is a thousand .
+since the lazy correlation with a look - up table shares the same implementation of the lazy correlation except the probing part , the average buffer length is almost the same .
+note that we also need to consider the size of the look - up table for analyzing the space requirement .
+the size of the look - up table can be as big as the stream buffers .
+now let us show the effectiveness of increasing the block size determining the " enough " number of tuples to run the lazy correlation algorithms .
+figure 6 represents the execution times under different correlation block sizes .
+in this experiment , we used the data file r500.dat ( 500 tuples / second ) with the parameter d = 500 .
+the experiments were done on two confidence threshold values 0.8 and 0.5 .
+it can be observed that as we increase the correlation block size , the execution times tend to decrease , however , the differences are diminishing gradually .
+figure 7 represents the changes of the hit ratios of the look - up tables under different correlation block sizes .
+the hit ratio of the look - up table is computed by the number of tuples in the probe regions which did not need the probability computations divided by the total number of tuples in the probe regions .
+the look - up hit ratios were also gradually improved until they were stabilized at the correlation block size of 1,200 for this experiment .
+note that the hit ratios largely depend on the property of the stream input , e.g. , whether they are roughly sorted or not ; thus , the hit ratios are not much changing in the figure .
+the maximum difference was observed at the transition from the correlation block size 200 to 400 on both cases .
+figure 8 shows the experiment results with the data file seq.dat where all tuples are ordered in their max timestamps .
+in this experiment , we set d = 1 , 000 and ct = 1.0 , 0.7 , 0.4 ; and 0.1 .
+it is shown that the lazy correlation with a look - up table performs the best in all cases .
+however the difference between the lazy correlation and the lazy correlation with a look - up table becomes smaller as we decrease the confidence threshold .
+this is primarily due to the small size of probe regions in low confidence threshold settings ; thus the performance gain achieved by using the look - up table is not significant compared to the cases of the high confidence thresholds .
+we can explain this by the following analysis .
+it turns out the higher confidence threshold requirement , the larger left probe region as shown in figure 9 .
+in contrast , the lower confidence threshold requirement , the larger right probe region .
+an important observation is that the size of the left probe region is likely to be larger than that of the right one .
+the maximum size of the left probe region is d - rho , which must be larger than that of the right region pi. this is because d is much larger than pi in typical cases .
+in the extreme case where ct = 100 % , the right probe region does not exist while the size of the left probe region is maximized .
+in this specific experiment setting , the maximum size of the left probe region is d - rho = 1 , 000 - 20 , and the maximum size of the right probe region is pi - rho = 200 - 20 .
+6. summary in this study , we proposed novel algorithms for the interval timing correlation .
+they can be used for extracting temporally related pairs of streaming sensor .
+in order to handle the uncertainty in timestamps , we adopted interval timestamps and included the confidence thresholds into timing conditions .
+we extended a previously studied algorithm by adopting the approaches of the lazy evaluation and the result look - up. the lazy timing correlation also utilizes the upper - bounds and the lower - bounds .
+it postpones the evaluation until its re - evaluation condition is met and performs the correlation of the tuple blocks .
+in order to reduce the computation overhead of the satisfaction probability in probe regions , we added an idea of look - up technique .
+we measured the effectiveness of the proposed algorithms over the previous algorithms by comparing their performance under various workloads and presented the analysis .
+it turns out that the lazy family algorithms provide better performance with the sacrifice of extra memory for larger buffer and larger response time under slow streaming environment .
+for the future work , the generalization of the proposed techniques for various probability distributions seems interesting .
+for the lazy approach , we need to derive upper - bounds and lower - bounds of the new probability distributions .
+the invalidation operations shown at the end of algorithm 5 should be extended accordingly .
+for the look - up technique , we need an extension of the corollary 2 .
+heterogeneous combinations of probability distributions may require non - trivial extensions .
+similar changes are needed to the algorithm 7 .
+it would be also interesting to apply the proposed techniques to the practical and real situations .
+as the sensor network become wide spread , we are looking forward to testing our algorithms in real life scenarios .
+this research was supported by the chung - ang university research scholarship grants in 2009 .
+references 1 .
+dyreson c.e. snodgrass r.t. supporting valid - time indeterminacy acm trans .
+database syst 1998 23 1 57 2 .
+babcock b. babu s. datar m. motwani r. widom j. models and issues in data stream systems proceedings of the acm sigact - sigmod - sigart symposium on principles of database systemsmadison , wi , usajune 3 - 5 , 2002 1 16 3 .
+golab l. ozsu m.t. issues in data stream management sigmod rec 2003 32 5 14 4 .
+abadi d.j. carney d. cetintemel u. cherniack m. convey c. lee s. stonebraker m. tatbul n. zdonik s.b. aurora : a new model and architecture for data stream management vldb j 2003 12 120 139 5 .
+hammad m.a. aref w.g. elmagarmid a.k. stream window join : tracking moving objects in sensor - network databases proceedings of the 15th international conference on scientific and statistical database managementcambridge , ma , usajuly 9 - 11 , 2003 75 84 6 .
+kang j. naughton j.f. viglas s. evaluating window joins over unbounded streams proceedings of the 19th international conference on data engineeringbangalore , indiamarch 5 - 8 , 2003 341 352 7 .
+srivastava u. widom j. flexible time management in data stream systems proceedings of the acm sigact - sigmod - sigart symposium on principles of database systemsparis , francejune 14 - 16 , 2004 263 274 8 .
+wu j. tan k.l. zhou y. data - driven memory management for stream join inform .
+syst 2009 34 454 467 9 .
+lee c.g. mok a.k. konana p. monitoring of timing constraints with confidence threhold requirements proceedings of ieee real - time systems symposium ( rtss ) cancun , mexicodecember 3 - 5 , 2003 178 187 10 .
+lee c.g. mok a.k. konana p. monitoring of timing constraints with confidence threshold requirements ieee trans .
+comput 2007 56 977 991 11 .
+lee c.g. mok a.k. konana p. online timing correlation of streaming data with uncertain timestamps ieice trans. inform .
+systems 2009 e92 - d 1260 1267 12 .
+golab l. ozsu m.t. processing sliding window multi - joins in continuous queries over data streams proceedings of the international conference on very large data bases ( vldb ) berlin , germanyseptember 9 - 12 , 2003 500 511 figure 1 .
+( a ) the upper - bounds and the lower - bounds of satisfaction probabilities ( b ) efficient filtering process using the bounds .
+figure 2 .
+efficient probing example .
+figure 3 .
+the execution times under various arrival rates .
+figure 4 .
+the average response times under various arrival rates .
+figure 5 .
+average lengths of stream buffers .
+figure 6 .
+the execution times under different correlation block sizes .
+figure 7 .
+the hit ratio of the look - up table under different correlation block sizes .
+figure 8 .
+the execution times under various confidence thresholds .
+figure 9 .
+the interval timing correlation with high and low confidence thresholds .

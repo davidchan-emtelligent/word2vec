@@ -1,0 +1,342 @@
+plos one plos one plos plosone plos one 1932 - 6203 public library of science san francisco , ca usa 26730590 4701467 pone - d - 15 - 31219 10.1371 / journal.pone.0145135 research article dynamics of complex systems built as coupled physical , communication and decision layers dynamics of complex systems built as multilayer systems kuhnlenz florian * nardelli pedro h. j. university of oulu , department of communications engineering , oulu , fi - 90014 , finland wu ye editor beijing university of posts and telecommunications , china competing interests : the authors have declared that no competing interests exist .
+conceived and designed the experiments : fk phjn .
+performed the experiments : fk. analyzed the data : fk. contributed reagents / materials / analysis tools : fk phjn .
+wrote the paper : phjn fk .
+* e - mail : fkhnlenz @ ee.oulu.fi 2016 5 1 2016 11 1 e0145135 16 7 2015 26 11 2015 ( c ) 2016 kuhnlenz , nardelli 2016 kuhnlenz , nardellithis is an open access article distributed under the terms of the creative commons attribution license , which permits unrestricted use , distribution , and reproduction in any medium , provided the original author and source are credited this paper proposes a simple model to capture the complexity of multilayer systems where their constituent layers affect , and are affected by , each other .
+the physical layer is a circuit composed by a power source and resistors in parallel .
+every individual agent aims at maximizing its own delivered power by adding , removing or keeping the resistors it has ; the delivered power is in turn a non - linear function that depends on the other agents' behavior , its own internal state , its global state perception , the information received from its neighbors via the communication network and a randomized selfishness .
+we develop an agent - based simulation to analyze the effects of number of agents ( system size ) , communication network topology , communication errors and the minimum power gain that triggers a behavioral change on the system dynamic .
+our results show that a wave - like behavior at macro - level ( caused by individual changes in the decision layer ) can only emerge for a specific system size .
+the ratio between cooperators and defectors depends on the minimum gain assumed - - lower minimal gains lead to less cooperation , and vice - versa .
+different communication network topologies imply different levels of power utilization and fairness at the physical layer , and a certain level of error in the communication layer induces more cooperation .
+funding support was provided by conselho nacional de desenvolvimento cientifico e tecnologico ( br )[ 312146 / 2012 - 4 ] ( http :// cnpq.br /) ; the academy of finland ( http :// www.aka.fi / en ) ; the joint funded project a theory for sustainable smart grids : combining communication theory , power systems , signal processing and economics from a complexity science perspective ( sustain ) , which covers the authors' salary costs , and the strategic research council / finnish academy bc - dc project ( n.292854 ) .
+the funders had no role in study design , data collection and analysis , decision to publish , or preparation of the manuscript.data availabilitythis research was carried out using different open - source python ( https :// www.python.org ) tools including : numpy ( http :// www.numpy.org ) , ipython ( http :// ipython.org ) , networkx ( http :// networkx.github.io ) and matplotlib ( http :// matplotlib.org ) .
+the code used to perform the simulation scenarios can be found under https :// github.com / tharwan / coopcps .
+data availability this research was carried out using different open - source python ( https :// www.python.org ) tools including : numpy ( http :// www.numpy.org ) , ipython ( http :// ipython.org ) , networkx ( http :// networkx.github.io ) and matplotlib ( http :// matplotlib.org ) .
+the code used to perform the simulation scenarios can be found under https :// github.com / tharwan / coopcps .
+introduction the modernization of large - scale engineering infrastructures introduces new challenges into their already complicated design [ 1 - 3 ] .
+for example , electric power grids are large - scale engineering systems built to generate , transmit and distribute electricity from generators to end - users [ 4 - 6 ] .
+although their technological development has never stopped , a strong political demand for a structural change is taking place .
+such change basically consists in decentralizing generating units ( e.g. from nuclear to solar panels and wind turbines ) , spreading of electric vehicles ( which are mobile batteries and loads ) and controlling demand based on information technologies ; all in all , the traditional consumer is predicted to become a prosumer : a consumer who participate more actively in the grid management either by supplying electricity or decreasing their consumption .
+modern power grids will become more dynamic and distributed .
+this will bring new complexities to their already complex dynamic together with new research challenges to cope with them [ 7 ] .
+the same trends - - although considered in their own context - - can be seen when analysing the modernization of other large - scales systems , from smart cities [ 8 , 9 ] to factories of the future [ 10 ] or the 5 - th generation of cellular systems [ 11 ] .
+as in power grids , new complexities in those systems will emerge followed by a need for a new body of knowledge .
+notwithstanding the unquestionable technical evolution , there is still a limited number of simple analytic models that are able to capture the dynamics of these modern systems , where the physical infrastructure , the information network and regulations affect , and are affected , by each other dynamics .
+in this context the present article proposes a discrete - time agent - based model assuming these three layers as constitutive parts of a multilayer system composed by an electric circuit as the physical infrastructure , a communication network where agents exchange local information and a set of regulations that define the agents' behavior .
+the electric circuit is composed by one constant voltage source including its inner resistance and resistors ( loads ) in parallel [ 12 ] .
+the resistors in parallel are grouped by their controlling agent , as shown in fig 1 .
+every agent may add or remove one of the resistors under its control at every time step .
+one can expect that , the greater the number of active resistors a given agent has , the more power is delivered to it. the actual delivered power is , however , a non - linear , concave , function of the electric current flowing in the circuit ; there exists then a saturation point where adding more resistors will decrease the delivered power for the whole system .
+this behavior is somehow comparable to what happens in real power systems , where overuse leads to a drop in frequency and voltage , reducing the delivered power for all users .
+10.1371 / journal.pone.0145135.g001 fig 1 ( a ) electrical circuit representing the physical layer of the system .
+the circuit is composed by a power source v and rv , and resistors of r in parallel , generating a current i. these resistors are related to n agents that can add , remove or keep the resistors under their control in the circuit .
+the minimum number of resistors an agent can have is one and there is no maximum .
+we also consider n as the size of the system .
+( b ) the agents are connected in a communication network so that a given agent has access to the information related to the previous action of their first - order neighbours .
+in the ring topology illustrated here , every agent is connected with two other agents .
+in this case agent i is connected with agents i - 1 and i + 1 with i = 1 , 2 , ... , n. in the ring topology , agents 1 and n are neighbours .
+( c ) at time step t , the normalized power delivered pall [ t ]/ ptyp to the agents with rising number of resistors n [ t ] in the system , where ptyp = v2rv and pall [ t ]= sumiinapi [ t ] with pi [ t ] given by eq ( 1 ) .
+looking at the whole system , a " tragedy of the commons " kind of problem arises [ 13 ] , where adding a resistor is individually beneficial , while socially harmful .
+however , in our case , the resource recovers very quickly .
+the agent 's decision regarding the resistors ( adding , subtracting or maintaining ) is built upon the following criteria : the behavior of the agent 's neighbors at the last time step , the previous state of the whole system and its own selfishness gene .
+as we will discuss later , this interactive decision procedure resembles the prisoners dilemma [ 14 - 16 ] .
+in this case , the agents' neighborhood is defined by the communication network ( where links can be in error ) , while the selfishness genes of the agents are independent and identically distributed random variables .
+complexity sciences before we start presenting our contribution in more detail , it is worth indicating the theoretical ground that supports our findings : complexity sciences .
+complexity is a term used in several diverse research fields [ 17 - 19 ] , from theoretic physics to social sciences and biology , to characterize a state that is neither completely deterministic nor random .
+the so - called complex behavior emerges in systems whose elements interact ; they may be heterogeneous and may also adapt their relation rules in accordance to internal and / or external factors .
+in his extensive work [ 20 , 21 ] , wolfram has shown that simple interaction rules applied in one - dimensional cellular automata may lead to unexpected intricate patterns - - defined therein as complex - - over time .
+this work tells us that , when looked at a higher level , the spatial - temporal dynamics of a fairly simple deterministic system composed by homogeneous agents that follow fixed interrelation rules may generate complexity .
+this fact suggests that decentralized systems , based only in local information , might be functional without any controlling entity .
+in wolfram 's case the spatial - temporal pattern is determined by the interaction rule .
+following his classification , four kind of behaviors can emerge in the one - dimensional automata , namely homogeneous , periodic , chaotic and complex [ 18 , 20 ] .
+for some researchers , this fact indicates the system is able to self - organize without any explicit centralized controller .
+we can cite here few illustrative examples regarded as self - organized [ 17 ] : ants working in colonies [ 22 ] , neurons building a capable brain [ 17 , 23 ] and birds flying in groups [ 24 ] or criticality in plasma turbulence [ 25 ] .
+as an interesting counter point to this perspective , one may argue that the interaction rule that the agents follow is per se a kind of central control or a strict regulative force [ 26 ]. by using this view , many questions may be posed : where do the interaction rules come from ? are they evolving ? are they changing in a much slower time - scale that can be considered as given ?
+these questions in fact still cause hot philosophical debates among biologists , economists , social scientists and other theorists concerning who controls the " invisible hand " of the system [ 27 ] .
+when dealing with large - scale engineering systems , these questions seem to have clear answers as far as it is designed and follows predefined requirements .
+this is true for some systems , but it is far from being a universal feature , mainly when the infrastructure is heavily dependent on human actions and interactions .
+road networks provide an educative example when one tries to understand the formation of traffic jams [ 28 , 29 ] .
+without going into further details , the key for solving the traffic puzzle is not found by looking at what happens in individual cars or in the design of the whole transportation infrastructure .
+while these aspects are necessary conditions to the formation of the jam , they are not sufficient to explain the phenomenon .
+the most accepted theory is built upon the interactions between cars and reactions to the individual behaviors within a specific region of the road network : one car slowing down in highly dense highway causes other nearby cars to slow down as well to avoid collisions , which may trigger a traffic jam that will fade away after some time .
+this simple example identifies few important characteristics of complex phenomena : they are spatial and temporal , they never reach stable equilibrium states , the context where the individuals interact and their perception are important to individual decisions , and one individual action might cause a local change that might also trigger changes in the global state of the system .
+the so - called complexity sciences tries to deal with phenomena that present such characteristics [ 30 ] .
+it is also worth pointing out that simplified models for the power grid ( like the " dc power flow " [ 31 ]) have a long - standing tradition in the literature [ 32 , 33 ] .
+while they were initially constructed to cope with available computational power limitation , their use is still widespread nowadays with much more powerful computers [ 34 ] .
+for instance , simplified models for the synchronization in the grid as in [ 35 ] are an active focus of the research community ( e.g. [ 36 - 38 ]) .
+such models are able to predict the stability of the network against perturbations , showing ways to optimize its underlying topology [ 39 ] .
+the study of cascade effects [ 40 , 41 ] to understand the propagation of blackouts and to find the critical links in the grid can be seen as another , more recent , development based on simplified power system models [ 42 , 43 ] .
+an agent - based approach ( as in the present work ) can be also employed to model a wide range of aspects in the power grid , going from electricity market simulations [ 44 ] to very specific appliance usage behavior [ 45 ] or even the smart grid system as a whole [ 46 ] .
+we follow here the idea of using simplified models to understand the complex behavior that arises in the power grid .
+however , in contrast to the engineering - focused models as in [ 47 - 50 ] , we concentrate more on the higher level interactions across the different layers of the system .
+consequently , we have chosen a model that keeps essential features of the system without having a detailed specification of its entities .
+for this reason , the nature of our work can be seen as " exploratory " , rather than " performance - optimizer " ( in the engineering sense ) [ 51 ] .
+contributions motivated by a growing literature in complexity sciences in general and their application in engineering systems in specific , this articles presents a new perspective to analyze multilayered , strongly coupled , systems .
+we construct a simple , while illustrative , multilayer model composed by agents that control a set of resistors in an electrical circuit .
+these agents play an evolutionary " prisoners' dilemma " style of game to decide if they should collaborate or not , based on the local information gathered from their communication network , the estimated state of the whole system and their own random selfishness .
+our results indicate that : ( i ) a wave - like behavior at macro - level spatial - temporal dynamics , which is caused by changes in individual behaviors at the decision layer , can only emerge for a specific system size , ( ii ) the ratio between cooperators and defectors depends on the minimum gain assumed - - lower minimal gains lead to less cooperation and vice - versa , ( iii ) different communication network topologies - - ring , watt - strogatz - graph and barabasi - albert - graph [ 52 ] - - imply different levels of power utilization and fairness at the physical layer , and ( iv ) a certain level of error in the communication layer induces more cooperative behavior at the decision layer , affecting the physical layer dynamics in terms of power utilization and fairness accordingly .
+results before starting , we think it is worth describing the key aspects of the proposed model that will help to understand our results .
+we also systematized some useful notation in table 1 .
+more details about the multilayer system proposed here can be found in the methods section .
+the implementation of our model can be found under [ 53 ] .
+10.1371 / journal.pone.0145135.t001 table 1 notations .
+notation meaning tinz discrete time a ={ 1,2 ,... , n } set of all agents , where n is the size of the system a \{ i } set of all agents without agent i iina agent i nisubseta neighborhood set of agent i n [ t ] in { n , n + 1 , ...} active number of resistors in the system at time t ai [ t ] inn + active resistors of agent i ri [ t ] = n [ t ] - ai [ t ] active resistors excluding agent i pi [ t ] > 0 consumed power of agent i [ in units of power ] lambdai [ t ] inr gain in power of agent i lambdamininr system - wide predefined minimum gain si [ t ] in { - 1,0 , + 1 } state of agent i : + 1 ( defect ) , 0 ( ignore ) , or - 1 ( cooperate ) si in [ 0 , 1 ] selfishness gene of agent i perr in [ 0 , 1 ] error probability in a communication link agents' decision process we assume a discrete - time system such that the changes in the agent behavior occur in time - steps , denoted by tinz .
+at every time - step t , each agent wants to maximize its own power , so their interactions can be then viewed as a round - based game [ 15 ] .
+to achieve that goal , the agent has three options : add a resistor ( defecting ) , remove it ( cooperating ) , or do nothing ( ignoring ) .
+to make a decision at time t , every agent i looks at its gain from the previous strategy si [ t - 1 ] in order to decide its new state si [ t ] .
+the decision process for the agent i is the following .
+if the gain lambdai [ t - 1 ] is greater than or equal to a system - wide pre - defined minimum lambdamin , the agent sticks to its ( successful ) strategy at time t , i.e. si [ t ] = si [ t - 1 ] .
+if lambdai [ t ]< lambdamin , then agent i compares its strategy with its neighborhood ni , which will be defined later in this section .
+if the majority is cooperative , then sumjinnisj [ t - 1 ]< 0 and the agent under analysis will also cooperate , leading to si [ t ] = - 1 .
+otherwise , the agent draws a random number between 0 and 1 to be compared to its own selfishness gene si ( which is also randomly generated as discussed later ) in order to decide whether it will start cooperating .
+if it does not cooperate , it again draws a random number to be compared to the selfishness gene si , but now to decide if stays inactive ( i.e. si [ t ] = 0 ) or adds another load in the circuit ( i.e. si [ t ] = + 1 ) .
+the agent decision procedure is shown in fig 2 .
+10.1371 / journal.pone.0145135.g002 fig 2 schematic of agent i 's decision procedure .
+communication network in the multilayer system proposed here , agent i knows the state sj [ t - 1 ] of the agents jinni through a communication network .
+we assume that agent j always transmits its actual state sj [ t ] to agent i. the neighborhood ni of agent i is defined as the agents jina \{ i } that are directly linked with it. in the case of ring topology , the cardinality of ni is 2 for all agents iina .
+for more complex network topologies , ni will be characterized differently [ 52 ] , as discussed later .
+the communication links can also experience errors .
+an error event means the received message by agent i contains a different information than agent j has sent .
+let sj - - > i [ t - 1 ] = sj [ t - 1 ] be the state information transmitted from j to i at time - step t and s ^ j - - > i [ t - 1 ] be the information received by i. we consider that error events are independent and identically distributed such that the probability of the event : pr [ s ^ j - - > i [ t - 1 ]!= sj - - > i [ t - 1 ]]= perr for all tinz , iina and jinni , where pr [.] refers to the probability that a given event occurs .
+it is worth mentioning that the network is a bidirectional graph so that an error event at i - - > j does not imply an error event at j - - > i , and vice - versa .
+if an error event happens , the received information s ^ j - - > i [ t - 1 ] will be uniformly and identically distributed between the other possible states .
+for example , if sj - - > i [ t - 1 ] = - 1 and error happens , then s ^ j - - > i [ t - 1 ]= 0 or s ^ j - - > i [ t - 1 ]=+ 1 will happen with 50 % chance each .
+physical system for the physical systems presented in fig 1 , there exists a certain number of resistors that leads to the maximum power gain in the system .
+if the delivered power is below the maximum on the right , then there will be a gain by removing a resistor until the system has reached such point .
+conversely , if it is below on the left , then there will be a gain by adding a resistor .
+in this case , one may ask the following question : is it possible for the agents to reach the optimal point while fairly delivering power among them ( i.e. they indiviadually consume about the same amount of power ) ?
+in the presence of a central control unit this would be a fairly easy problem .
+first , we need to find the number of resistors that lead to optimal power to then fairly allocate them among the agents by some kind of centralized coordination mechanism .
+this kind of solution resembles time division schemes in computer networks or cellular systems [ 54 ] .
+for example , if there are ten agents and the optimal number of resistors is twenty , then the central control coordinates the behavior such that all ten agents have two active resistors , summing up to twenty .
+however , as discussed before , our model does not consider the presence of a central control and the agents have a limited knowledge about other agents .
+at time - step t , the power each agent consumes pi [ t ] with iina ={ 1 ,... , n } and is given by : pi [ t ]= ptypai [ t ] mu ( aavg [ t ]+ mu ) 2 , ( 1 ) where ptyp = v2rv , mu = rrv , ai [ t ] is the number of active resistors the agent i possesses , ri [ t ] is the number of active resistors in the system excluding the source resistor rv and the ones controlled by agent i , and aavg [ t ] = ( ai [ t ]+ ri [ t ])/ n. the physical system is then described by its size n , the ratio mu of the resistance values and the power source v. the resistors are scaled so that the optimal average number of resistors ( aavg *) is independent of n while the voltage might be scaled with n to have a constant ratio of power per agent , as explained later on. the gain that agent i experiences at time - step t is then defined as : lambdai [ t ]= pi [ t ] - pi [ t - 1 ] pi [ t - 1 ]= deltapipi [ t - 1 ] .
+( 2 ) this implies that the agents only use the information about the previous time - step t - 1 .
+if we expand eq ( 2 ) using eq ( 1 ) , the resulting equation that determines lambdai [ t ] becomes more complicated .
+to make the analysis clearer , we choose to apply the following approximation ( more details in the methods section ) : lambdai [ t ]=~ dpipi [ t ]=~ deltaai [ t ] ai [ t ] - 2n1aavg [ t ]+ mu ( deltari [ t ]+ deltaai [ t ]) , ( 3 ) such that the gain lambdai [ t ] is now a function of the variations in agent i 's own number of resistors deltaai [ t ] = ai [ t ] - ai [ t - 1 ] and in the number of resistors controlled by other agents deltari [ t ] = ri [ t ] - ri [ t - 1 ] , as well as the average number of resistors aavg [ t ] and the system parameters n and mu. numerical results let ctsubset / equala be the cooperative agents at time - slot t. in this case , #( ct )<=#( a )= n where #(.) is the cardinality of the set .
+the spatial - temporal average number of cooperators in the system ( cavg ) is then : cavg = 1nlimt - - > infinity1tsumt = 0t - 1 #( ct ) .
+( 4 ) fig 3 shows the change of the system behavior with varying size n. the left side shows the changes in the spatial - temporal average number of cooperators in the system cavg as a function of the system size n , while the right side shows a representation of a typical spatial - temporal system behavior for three different sizes n. in the latter , each line of vertical pixels represents the state of the system for one time - step : white means cooperation , red means defection and black means doing nothing .
+10.1371 / journal.pone.0145135.g003 fig 3 on the left : change in the average cooperation cavg depending on the system size n. on the right : examples of a typical system behavior as a function of time t where the points ( pixels ) represent the agent state si [ t ] such that red means defection , white cooperation , and black doing nothing for n = 1000 ( top ) , n = 100 ( middle ) and n = 10 ( bottom ) .
+the system parameters are : lambdamin = 0.0005 , rv = 2omega , r0 = r / n = 200omega , perr = 0.01 and v = 1 v. the communication network is configured as a ring .
+for small sizes ( as when n = 10 ) , one can see a kind of checkerboard pattern where cooperators and defectors alternate on time and space axes .
+for middle - sized systems ( as when n = 100 ) , the most striking feature is that there exist certain points in time when sudden changes in the behavior happen .
+the system seems to move closer and closer to a global cooperation state until suddenly it falls back to a state with much less cooperation .
+such pattern becomes even more pronounced for a meshed communication network built as a watts - strogatz graph [ 52 ] , as seen in fig 4 .
+for larger systems ( as when n = 1000 ) , one can see that a pattern where cooperation is dominant and only few stripes of defecting appear .
+as we will see next , this behavior is not due to simple scaling effects in the system variables , but rather it results from inherent scaling effects within the physical layer .
+in other words , certain behaviors can be only observed for certain system sizes n. therefore , for a given n , one cannot pre - set the system variables expecting a certain kind of behavior .
+rather , the size of the system is itself a variable that influences its own macro - level behavior .
+10.1371 / journal.pone.0145135.g004 fig 4 on the left : change in the average cooperation cavg depending on the system size n. on the right : examples of a typical system behavior as a function of time t where the points ( pixels ) represent the agent state si [ t ] such that red means defection , white cooperation , and black = doing nothing for n = 1000 ( top ) , n = 100 ( middle ) and n = 10 ( bottom ) .
+the system parameters are : lambdamin = 0.0005 , rv = 2omega , r0 = r / n = 200omega , perr = 0.01 and v = 1 v. the communication network is configured as watts - strogatz graph .
+fig 5 shows how the minimal gain lambdamin affects the agents' behavior quantified by average number of cooperators in the system cavg for two different system size n. one can see that bigger values of lambdamin lead to more cooperation in the system and different behavior patterns .
+but only in mid - sized systems ( as when n = 100 ) one can see wave - like patterns for certain ranges .
+we can then infer that the system is dominated by the agent behaviors for high and low thresholds of lambdamin , while complex behavior only emerges in few cases where a proper interplay between the layers occurs .
+10.1371 / journal.pone.0145135.g005 fig 5 influence of minimal gain lambdamin on system behavior for ( a ) n = 100 and ( b ) n = 500 .
+bigger minimum gains leads to more cooperation while smaller ones lead to defection .
+more complex behavior can be observed for values close to lambdamin = 0.0001 in mid sized systems .
+the systems parameters are rv = 2omega , r0 = r / n = 200omega , perr = 0.01 and v = 1 v. the communication network is configured as a ring .
+to have a better understanding on how the minimal gain influences the behavior , we need to analyze eq ( 3 ) .
+we find that the upper limit for the tipping point is given by 1lambdamin ( more details in methods section ) , meaning that after such a point the gain of adding another resistor for a single agent becomes too small .
+this stands in contrast to the global optimum , which represents the tipping point after which another resistor added to the system as a whole will result in reduced power delivered to the agents .
+only in the case that all agents behave equally at every point in time , i.e. ai [ t ]= aavg [ t ] for - alliina , the tipping point for each agent also becomes the global optimum of aavg [ t ] = mu. as the system grows , the feedback that each agent can infer is then reduced , so is its influence on the system as a whole .
+for large systems the deviation of a single agent from the average of the rest of the system has little influence on the average of the whole system .
+this reduced feedback leads to a situation where agents will become trapped in a state of what we call cooperative solidarity .
+agents in this trapped state have reduced their number of resistors to minimum ( i.e. only one active resistor ) , while having still not seen a positive gain .
+consequently , they remain cooperative as do their neighbours .
+in this scenario , all resources of the system will be used by the agents that are not yet trapped , leading to high inequality levels .
+for large systems the feedback about individual behaviors are so small that the only way to skip from this solidarity trap is , surprisingly , through communication errors .
+in this case , the trapped agents ( wrongly ) believe that some neighbours stopped cooperating .
+for middle - sized systems , however , the gain may become large enough if a sufficient number of agents synchronize in reducing their number of resistors .
+this results in a positive gain to all the trapped agents since the system recovers from a state of overusing .
+this positive gain then leads to agents that no longer seek cooperation as they are already in the lowest state possible and the system has recovered .
+this in turn explains the wave - like behavior in mid - size systems .
+fig 6 shows the system from a different perspective .
+let us first define the power utilization putil as the fraction of power that is utilized by the system and the available power : putil = 4ptypsumiinapi,avg , ( 5 ) where pi,avg is the time average power of agent i computed as : pi,avg = limt - - > infinity1tsumt = 0t - 1pi [ t ] .
+( 6 ) by looking at the power utilization putil and the average number of resistors aavg , one can see that both are related to each other .
+note that all systems in this example are stable in the sense that number of resistors varies within a certain range and does not diverge .
+this is not necessarily true .
+depending on the choices of mu and lambdamin the system can behave differently , e.g. all agents remain with only one resistor , or end up collecting more and more resistors .
+how close the system can operates to the optimum wildly varies between the different system sizes .
+the only system that can operate very close to the optimum is the very small system with a size of only five agents ( n = 5 ) .
+we also see the sudden jumps in behavior for mid - size systems , while large ones appear to be the most stable .
+10.1371 / journal.pone.0145135.g006 fig 6 typical behavior of very small ( n = 5 ) , small ( n = 10 ) , medium ( n = 100 ) and large systems ( n = 1000 ) .
+the small systems can operate much closer to the optimum , while mid - size systems show big jumps after stable periods .
+the system parameters are lambdamin = 0.005 , rv = 2omega , r0 = r / n = 200omega , perr = 0.01 and v = 1 v. the communication network is configured as a ring .
+to better understand what happens in large systems , we analyze fig 7 , which illustrates the changes in power utilization and inequality ( fairness ) in power usage between the agents depending on the size of the system n and different topologies of communication network .
+the inequality ( fairness ) is measured here by the gini index [ 55 ] : g = 2n ( sumiinaipi,avgsumiinapi,avg ) - n + 1n , ( 7 ) where pi,avg <= pi + 1,avg such that full equality is g = 0 and the highest level of inequality is g = 1 .
+10.1371 / journal.pone.0145135.g007 fig 7 power utilization putil ( top ) and gini index g ( bottom ) as a measure of inequality of power distribution , where g = 1 representing the biggest inequality .
+the watt - strogatz - graph ( ws ) setting is : mean degree k = 4 , rewiring probability beta = 0.5 .
+barabasi - albert - graph ( ba ) setting is : number of nodes to attach to m = 2,4 .
+the system parameters are : lambdamin = 0.005 , rv = 2omega , r0 = r / n = 200omega , perr = 0.01 and v = 1 v. we see that , for small systems , the results are very close together specially for the complex network watt - strogatz and barabasi - albert [ 52 ] .
+when the system size increases , on the other hand , one can see a growing difference between the results of different topologies , suggesting that the communication layer plays a big role in the system dynamics .
+one can also see a drastic change for the barabasi - albert network with m = 4 that shows a much lower power utilization than all other networks .
+this is due to the fact that the probability that a node with a degree lower than four exists is very low .
+this means that , for a given agent breaking free from the solidarity trap , at least four communication errors must happen , instead of two in the ring topology or only one in watt - strogatz ( for the nodes with a degree of one ) .
+therefore , the power is underutilized for the barabasi - albert network .
+the gini index analysis indicates , that when the system size grows , few agents receive most of the power , which from a global perspective makes the system very stable .
+we also see how the outcome is dominated by the structure of the communication network when large systems are considered .
+fig 8 presents more evidence on how the communication system starts dominating the system dynamics when the system size n grows .
+for small systems , one can only see a small reaction with a lot of scattering when rising the communication error probability .
+surprisingly we can see global maxima appearing for mid - size and large systems .
+this fact may indicate that the communication error probability has a similar effect on our systems as temperature on the susceptibility of physical systems [ 56 ] .
+when perr = 0 , the system can become trapped in a state of solidarity with 100 % cooperation ( minimal power consumption ). with increasing the error probability , the system has a random aspect that allows for agents to defect .
+however , if the error probability becomes too high , the state information exchange becomes worthless and the system is dominated by the randomness .
+10.1371 / journal.pone.0145135.g008 fig 8 influence of communication error probability perr on systems with different sizes n. the parameters are lambdamin = 0.005 , rv = 2omega , r0 = r / n = 200omega and v = 1 v. the communication network is configured as a ring .
+discussions we believe that our proposed multilayer system can indeed emulate features of real - world systems with coupled physical , communication and decision layers .
+nonetheless , our framework has not been developed to model any specific infra - structure .
+our idea is to construct a toy - model where the components are rather simple and easy to understand , but where unpredictable behavior can emerge in certain circumstances , resembling real - world phenomena as modern power grids [ 5 ] or cities [ 9 ] .
+as previously mentioned , large - scale systems built upon those layers are getting more and more usual .
+in any case , we believe that it is also worth discussing the design of the components employed herein .
+let us first deal with the rules the agents follow .
+one might compare the agents to humans or machines acting in behalf of humans .
+in either case , the possible variety of behaviors may be as large as infinite .
+the same can be said for the interactions that occur between the agents .
+in this work , the decision procedure and the communication network connections have been arbitrarily chosen to be understandable and justifiable .
+although our simulation assumes the network topology and the decision rules ( including the selfishness gene and the minimal power gain ) as given , both of them could be evolved as part of the simulation .
+we could argue that our model allows for complete explanations in the sense that we need not to find explanations that are external to the system ; everything can be constructed within the system domain .
+this , however , might mask the results by , for example , slowing down changes in behavior [ 26 ] .
+for the basic agent principle of maximizing power , it is important to remember that usually power consumption is just a by - product of making life more comfortable and less manual labour intensive by using more loads in the electricity power grid .
+similarly to humans , the agents assumed here are most of the time reluctant to remove a resistor once it is installed .
+they only consider to do so when they did not had a large enough gain from adding a resistor ( which means that the system might be overused ) or when the social pressure is too much ( by being non - cooperative in a cooperative neighbourhood ) .
+to further justify the concept of cooperative solidarity , one has to understand the prisoners - dilemma - type of situations [ 16 ] .
+it is also worth noting that is has been shown that cooperation arises in the evolution of social systems [ 57 , 58 ] .
+if the system is close to the optimal point , the agents see a very low gain so that they would have to change their strategy .
+if most of them reduce their number of resistors , they might receive a little less power ( in the case of the system being on the left side of the optimum ) or they receive a little more by getting closer to the optimum .
+however , if only a certain percentage of them reduces their number of resistors while others raise their numbers , the latter gain more power even if the system is very overused .
+if most of them add resistors , however everyone is worse off than before , which resembles the tragedy of the commons [ 13 ] .
+one of the core findings of this report is that , not only is it possible to create systems with complex behavior through a combination of a few simple parts [ 20 ] , but indeed every layer influences the systems behavior in nontrivial ways. and in some cases , one layer can even dominate the global system behavior .
+a special note should be taken in the strong size - dependency of the model , since as far as real - world engineering systems are always subject to changes in the number of users after the initial deployment , leading to unforeseen situations ( e.g. power grids [ 5 ] , cities [ 9 ] or highways [ 28 ]) .
+another interesting aspect can be found in the system behavior in response to communication errors .
+as was shown in fig 8 , a sharp peak exists for the number of cooperators in the system for a communication error probability of about 1 %. from an engineering standpoint , one might prefer a system without errors , which ( ideally ) leads to a stable and a more predictable behavior .
+however , the existence of even a small amount of errors leads to a significant change in the behavior and sometimes it might even be desired ( e.g. to unfreeze the system from solidarity trap ) .
+let us assume that the system should work on a state of very high cooperation .
+our results indicate that an external attacker trying to disturb the system does not have to shut down the whole communication network to break the dominant cooperative state of the whole system .
+rather , it would suffice to generate a small amount of randomly - generated erroneous messages as this will unfreeze the system , which might create a new system dynamic .
+for an attacker , this would then mean that he does not have to capture the whole communication network to disturb the desired behavior , due to the coupled nature of the system as a whole .
+consequently , security precautions should be designed accordingly .
+all in all , the present research shall open several options for future work .
+for example , the inclusion of multiple power sources would be used to simulate a more decentralized power grid topology .
+the power source could be added as an active agent in the system , having a role of similar to a central controller .
+it would be also possible to model additional layers like a market where the price for the demanded power ( consumed energy ) would be set .
+methods physical layer the physical layer used in this paper is depict in fig 1 .
+the value of the resistors r that are under the control of the agents iina should be scaled with the number of agents in the system so that r = nr0 , ( 8 ) where r0 is a constant value , arbitrarily chosen , independent from the system size .
+if all agents have in total k appliances , the equivalent resistance of the system is req = rk , i.e. k resistors of r in parallel [ 12 ] .
+the system starts with the different agents having a random number of resistors so that the equivalent resistance is above the system - wide optimal point req *= rv , computed in terms of power consumed by the agents .
+let us now describe the system from the point of view of a single agent iina .
+for agent i , all the other individual agents can be combined at time - slot t into rsys,i [ t ]= rri [ t ] , ( 9 ) where ri [ t ] stands for the number of resistors in the system that do not belong to agent i. the agent itself is then described by ri [ t ]= rai [ t ] .
+( 10 ) we can then derive the power pi [ t ] that agent i consumes at time - slot t by pi [ t ]=( vn - irv ) 2ri [ t ]= ptypai [ t ] mun2 ( ai [ t ]+ ri [ t ]+ nmu ) 2 , ( 11 ) where v is the voltage source , i is the electric current passing through the source resistor rv , ptyp = v2rv and mu = rrv .
+note that we scale the voltage with the square - root of the system size so that the power available for the agents stays constant .
+we could then write pi as pi [ t ]= ptypai [ t ] mu ( aavg [ t ]+ mu ) 2 , ( 12 ) where aavg [ t ] = ( ai [ t ]+ ri [ t ])/ n. communication layer the communication layer allows for exchange of information between the agents , which is a necessary condition to coordinate their actions in the system .
+in this case , we need to describe what kind of information is sent by the agents and how they build links creating then their neighbourhood set .
+every agent iina sends to their neighbours ( to be defined next ) a message containing its own state in that time step t such that si [ t ] in { - 1,0 , + 1 } .
+the transmitted message may be in error with a given error probability perr in [ 0 , 1 ] , which is independent from anything else and uniformly distributed .
+if an error event happens , the receiving agent sees one of the two other possible states ( instead of the transmitted one ) with the same probability .
+the error probability perr is the only parameter we control .
+it is worth mentioning that , although we assume perr as given , it in fact is a result of the communication strategy used [ 54 ] .
+nevertheless , we believe that this more realistic approach goes beyond the focus of this work .
+the topology of the communication network defines the neighbourhood set of the agents .
+in this report we focused on three classes of graphs : ring , watts - strogatzs ( ws ) and barabasi - albert ( ba ) [ 52 ] .
+the ring network is defined in a way that agent i is connected with to the agents i - 1 and i + 1 ( refer to fig 1 ) .
+in this case , agent 1 is connected to agent n and vice - versa , so the graph topology resembles a ring to define more complex neighbourhoods , we employ the watts - strogatzs ( ws ) and the barabasi - albert ( ba ) graphs for social networks .
+the ws graph is constructed as follows .
+the graph starts with a regular lattice where each node has exactly k neighbours .
+the links are then rewired with probability beta resulting in a more random structure .
+the ba graph is formed by adding the desired number of nodes step - by - step , starting with a small initial set .
+each new node is then preferably connected to nodes with an already high degree ( k ) , with probability pi such that pi = kisumjkj , ( 13 ) generating then a network whose degree distribution is given by a power law .
+agent behavior we explain here the behavior of the agents and its relation to the physical and communication layers previously defined .
+let us start in the scenario where none of the neighbours of agent i , defined by the neighbourhood set ni , is cooperative .
+this is the default state in the beginning .
+agent i will then behave randomly according to its selfishness gene si. the selfishness gene is a random number with uniform distribution assigned to every agent iina before start the system simulation itself .
+the decision procedure is the following : a random number xi is drawn .
+if xi > si , agent i will switch to the cooperative mode and remove one resistor .
+otherwise , it will switch to one of the non - cooperative modes .
+this means that , when si is big , agent i is more selfish .
+conversely , agent i is more cooperative when si is small for the non - cooperative modes , the agent will again draw a random number do decide if it will add a resistor if xi < si or do nothing otherwise .
+the decision process is consistent , but depends on random variables .
+therefore the higher the selfishness , the higher the probability that an agent starts accumulating resistors .
+the agent behavior also depends on the minimal gain lambdamin that the agents needs to stick to their strategy .
+we assume that lambdamin is fixed and pre - defined before the simulation .
+the gain lambdai [ t ] that agent i has at time - slot t is computed as lambdai [ t ]= pi [ t ] - pi [ t - 1 ] pi [ t - 1 ]= deltapi [ t ] pi [ t - 1 ] .
+( 14 ) let us now assume that the functions of t are continuous so that we can use the total derivative rule as follows : dpi = ptyp [ mu ( aavg [ t ]+ mu ) 2dai - 2naimu ( aavg [ t ]+ mu ) 3dai - 2naimu ( aavg [ t ]+ mu ) 3dri ] .
+( 15 ) now returning to the discrete domain , we consider deltapi [ t ]=~ dpi , deltaai [ t ]=~ dai , deltari [ t ]=~ dri and pi [ t ]=~ pi [ t - 1 ] .
+then , the gain lambdai [ t ] can be evaluated as lambdai [ t ]=~ dpipi [ t ]=~ deltaai [ t ] ai [ t ] - 2n1aavg [ t ]+ mu ( deltari [ t ]+ deltaai [ t ])= deltaai [ t ] ai [ t ] - 2aavg [ t ]+ mudeltaaavg [ t ] .
+( 16 ) the advantage of proceeding in this way is that one can see that the that the gain not only depends on the amount of resistors agent i possesses and the behavior of the system , but also on the system size n. the higher the number of resistors agent i has , the smaller the first term is since deltaai [ t ] can only be - 1 , 0 , or + 1 .
+for a very large system ( n - - > infinity ) and agent i non - cooperative ( i.e. deltaai [ t ] = 1 ) , agent i reaches the minimum gain when it reaches amax = 1lambdamin .
+( 17 ) for example , the minimal gain lambdamin = 0.0005 used for most of the simulation scenarios leads to amax = 2000 , which is far above the optimal point aavg *= mu = 100 .
+the second term , which has a negative leading sign , provides feedback .
+we can then split the term in the feedback from individual actions deltaai [ t ] and external actions deltari [ t ] .
+the negative leading sign means that this term will reduce the gain in case of rising amount of resistors ( deltaai [ t ] = 1 ) or will deliver a positive gain in case of cooperation deltaai [ t ] = - 1 or keep its state by doing nothing deltaai [ t ] = 0 .
+in any case , the effect of such feedback will diminish with rising system size n. supporting information s1 file understanding the feedback of the physical layer on the agents behavior .
+( pdf ) click here for additional data file .
+we would like to acknowledge the computing facilities of csc - - it center for science ltd .
+( finland ) that was used to run the simulation scenarios .
+references 1 helbing d . globally networked risks and how to respond . nature .
+2013 ; 497 ( 7447 ) : 51 - 59 . doi : 10.1038 / nature12047 23636396 2 nikolic i. co - evolutionary method for modelling large scale socio - technical systems evolution .
+tu delft , delft university of technology ; 2009 .
+3 dam v , et al agent - based modelling of socio - technical systems. vol. 9 springer science & business media ; 2012 . 4 kremers ea . modelling and simulation of electrical energy systems through a complex systems approach using agent - based models .
+kit scientific publishing ; 2013 . 5 nardelli phj , et al models for the modern power grid . the european physical journal special topics .
+2014 ; 223 ( 12 ) : 2423 - 2437 . doi : 10.1140 / epjst / e2014 - 02219 - 6 6 bush sf . smart grid : communication - enabled intelligence for the electric power grid .
+john wiley & sons ; 2014 . 7 bale cs , varga l , foxon tj . energy and complexity : new ways forward . applied energy .
+2015 ; 138 : 150 - 159 . doi : 10.1016 / j.apenergy.2014.10.057 8 batty m . cities and complexity : understanding cities with cellular automata , agent - based models , and fractals .
+the mit press ; 2007 . 9 batty m . the new science of cities .
+the mit press ; 2013 . 10 herrmann c , et al sustainability in manufacturing and factories of the future . international journal of precision engineering and manufacturing - green technology .
+2014 ; 1 ( 4 ) : 283 - 292 . doi : 10.1007 / s40684 - 014 - 0034 - z 11 hossain e , et al evolution toward 5g multi - tier cellular wireless networks : an interference management perspective . ieee wireless commun .
+2014 ; 21 ( 3 ) : 118 - 127 . doi : 10.1109 / mwc.2014.6845056 12 dorf rc , svoboda ja . introduction to electric circuits .
+john wiley & sons ; 2010 . 13 hardin g . the tragedy of the commons . science .
+1968 12 ; 162 ( 3859 ) : 1243 - 8 . doi : 10.1126 / science.162.3859.1243 5699198 14 szabo g , fath g . evolutionary games on graphs . physics reports .
+2007 ; 446 ( 4 ) : 97 - 216 . 15 archetti m , scheuring i . review : game theory of public goods in one - shot social dilemmas without assortment . journal of theoretical biology .
+2012 ; 299 : 9 - 20 . doi : 10.1016 / j.jtbi.2011.06.018 21723299 16 gianetto da , heydari b . network modularity is essential for evolution of cooperation under uncertainty . scientific report .
+2015 ; 5 . 17 mitchell m . complexity : a guided tour .
+oxford university press ; 2009 . 18 furtado ba , sakowski pam . complexity : a review of the classics . policy and complex systems .
+fall 2014 ; 1 ( 2 ) : 3 - 18 . 19 ott e . chaos in dynamical systems .
+cambridge university press ; 2002 . 20 wolfram s . a new kind of science .
+wolfram media ; 2002 . 21 wolfram s . universality and complexity in cellular automata . physica d : nonlinear phenomena .
+1984 ; 10 ( 1 ) : 1 - 35 . doi : 10.1016 / 0167 - 2789 ( 84 ) 90245 - 8 22 wang dq , gong qg , shen xf . an improved personnel evacuation cellular automata model based on the ant colony optimization algorithm in : applied mechanics and materials. vol. 513 trans tech publ ; 2014 p .
+3287 - 3291 . 23 iarosz k , et al the influence of connectivity on the firing rate in a neuronal network with electrical and chemical synapses . physica a : statistical mechanics and its applications .
+2012 ; 391 ( 3 ) : 819 - 827 . doi : 10.1016 / j.physa.2011.09.014 24 vicsek t , czirok a , ben - jacob e , cohen i , shochet o . novel type of phase transition in a system of self - driven particles . physical review letters .
+1995 ; 75 ( 6 ) : 1226 doi : 10.1103 / physrevlett.75.1226 10060237 25 dos santos lima g , et al self - organized criticality in mhd driven plasma edge turbulence . physics letters a .
+2012 ; 376 ( 5 ) : 753 - 757 . doi : 10.1016 / j.physleta.2011.12.026 26 hodgson gm . from pleasure machines to moral communities : an evolutionary economics without homo economicus .
+university of chicago press ; 2012 . 27 hodgson gm . economics and evolution : bringing life back into economics .
+university of michigan press ; 1997 . 28 helbing d . traffic and related self - driven many - particle systems . reviews of modern physics .
+2001 ; 73 ( 4 ) : 1067 doi : 10.1103 / revmodphys.73.1067 29 abramson g , semeshenko v , iglesias jr . cooperation and defection at the crossroads . plos one .
+2013 4 ; 8 ( 4 ) : e61876 available from : http :// dx.doi.org / 10.1371 % 2fjournal.pone.0061876 doi : 10.1371 / journal.pone.0061876 23610596 30 arthur wb . complexity and the economy .
+oxford university press ; 2014 . 31 stott b , jardim j , alsac o . dc power flow revisited . ieee transactions on power systems .
+2009 ; 24 ( 3 ) : 1290 - 1300 . doi : 10.1109 / tpwrs.2009.2021235 32 hahn w . load studies on the dc calculating table . general electric review .
+1931 ; 34 : 444 . 33 casazza j , ku w. the co - ordinated use of ac and dc network analyzers .
+in : proceedings of american power conference. vol. 16 ; 1954 .
+34 purchala k , et al. usefulness of dc power flow for active power flow analysis ; .
+35 filatrella g , nielsen ah , pedersen nf . analysis of a power grid using a kuramoto - like model . the european physical journal b .
+2008 ; 61 ( 4 ) : 485 - 491 . available from : http :// www.springerlink.com / index / 10.1140 / epjb / e2008 - 00098 - 8 doi : 10.1140 / epjb / e2008 - 00098 - 8 36 rohden m , sorge a , witthaut d , timme m . impact of network topology on synchrony of oscillatory power grids . chaos : an interdisciplinary journal of nonlinear science .
+2014 ; 24 ( 1 ) : 013123 available from : http :// arxiv.org / abs / 1305.1634 $\ delimiter " 026e30f $ nhttp :// scitation.aip.org / content / aip / journal / chaos / 24 / 1 / 10.1063 / 1.4865895 doi : 10.1063 / 1.4865895 37 florian d , bullo f. synchronization and transient stability in power networks and non - uniform kuramoto oscillators .
+2010 ; p .
+930 - 937 .
+38 nishikawa t , motter ae . comparative analysis of existing models for power - grid synchronization . new journal of physics .
+2015 1 ; 17 ( 1 ) : 015012 available from : http :// stacks.iop.org / 1367 - 2630 / 17 / i = 1 / a = 015012 ? key = crossref.64c23e9d1bbe3eaad717d9306453ddf9 doi : 10.1088 / 1367 - 2630 / 17 / 1 / 015012 39 menck pj , et al how dead ends undermine power grid stability . nature communications .
+2014 6 ; 5 available from : http :// www.nature.com / doifinder / 10.1038 / ncomms4969 doi : 10.1038 / ncomms4969 40 bak p , tang c , wiesenfeld k . self - organized criticality : an explanation of the 1 / f noise . physical review letters .
+1987 ; 59 ( 4 ) : 381 doi : 10.1103 / physrevlett.59.381 10035754 41 carreras ba , et al evidence for self - organized criticality in a time series of electric power system blackouts . ieee transactions on circuits and systems i : regular papers .
+2004 ; 51 ( 9 ) : 1733 - 1740 . available from : http :// ieeexplore.ieee.org / lpdocs / epic03 / wrapper.htm ? arnumber = 1333223 doi : 10.1109 / tcsi.2004.834513 42 holmgren aj . using graph models to analyze the vulnerability of electric power networks . risk analysis : an official publication of the society for risk analysis .
+2006 ; 26 ( 4 ) : 955 - 969 . available from : http :// www.ncbi.nlm.nih.gov / pubmed / 16948688 doi : 10.1111 / j.1539 - 6924.2006.00791.x 16948688 43 huang z , et al. modeling cascading failures in smart power grid using interdependent complex networks and percolation theory .
+2013 ieee 8th conference on industrial electronics and applications ( iciea ) .
+2013 ; p .
+1023 - 1028 .
+available from : http :// ieeexplore.ieee.org / lpdocs / epic03 / wrapper.htm ? arnumber = 6566517 44 krause sm , boerries s , bornholdt s. econophysics of adaptive power markets : when a market does not dampen fluctuations but amplifies them .
+2013 ; 012815:5 .
+available from : http :// arxiv.org / abs / 1303.2110 45 kremers e , et al emergent synchronisation properties of a refrigerator demand side management system . applied energy .
+2013 ; 101 : 709 - 717 . doi : 10.1016 / j.apenergy.2012.07.021 46 kremers e , gonzalez de durana j , barambones o . multi - agent modeling for the simulation of a simple smart microgrid . energy conversion and management .
+2013 ; 75 : 643 - 650 . doi : 10.1016 / j.enconman.2013.07.050 47 pipattanasomporn m , et al multi - agent systems in a distributed smart grid : design and implementation . control .
+2009 ; p .
+1 - 8 . 48 hernandez l , et al a multi - agent system architecture for smart grid management and forecasting of energy demand in virtual power plants . ieee communications magazine .
+2013 ; 51 ( 1 ) : 106 - 113 . doi : 10.1109 / mcom.2013.6400446 49 ramchurn sd , et al. agent - based control for decentralised demand side management in the smart grid .
+2011 ; p .
+5 - 12 .
+50 divenyi d , dan am . agent - based modeling of distributed generation in power system control . ieee transactions on sustainable energy .
+2013 ; 4 ( 4 ) : 886 - 893 . doi : 10.1109 / tste.2013.2253811 51 schuster p . models : from exploration to prediction : bad reputation of modeling in some disciplines results from nebulous goals . complexity .
+2015 9 ; 21 ( 1 ) : 6 - 9 . available from : http :// arxiv.org / abs / 1103.4838http :// dx.doi.org / 10.1002 / cplx.20234http :// doi.wiley.com / 10.1002 / cplx.21729 doi : 10.1002 / cplx.21729 52 newman m , barabasi al , watts dj . the structure and dynamics of networks .
+princeton university press ; 2006 . 53 python implementation available at : https :// github.com / tharwan / coopcps 54 marsic i . computer networks : performance and quality of service .
+rutgers university ; 2010 . 55 gini c . variabilita e mutabilita . memorie di metodologica statistica .
+1912 ; p .
+156 . 56 wolf wp . the ising model and real magnetic materials . brazilian journal of physics .
+2000 ; 30 ( 4 ) : 794 - 810 . doi : 10.1590 / s0103 - 97332000000400030 57 miranda l , et al complex transition to cooperative behavior in a structured population model . plos one .
+2012 6 ; 7 ( 6 ) : e39188 available from : http :// dx.doi.org / 10.1371 % 2fjournal.pone.0039188 doi : 10.1371 / journal.pone.0039188 22761736 58 traag va , van dooren p , de leenheer p . dynamical models explaining social balance and evolution of cooperation . plos one .
+2013 4 ; 8 ( 4 ) : e60063 available from : http :// dx.doi.org / 10.1371 % 2fjournal.pone.0060063 doi : 10.1371 / journal.pone.0060063 23634204

@@ -1,0 +1,253 @@
+plos one plos one plos plosone plos one 1932 - 6203 public library of science san francisco , ca usa 27054567 4824530 10.1371 / journal.pone.0153202 pone - d - 15 - 55392 research articlemedicine and health sciencessurgical and invasive medical proceduresendoscopyresearch and analysis methodsimaging techniquesphysical sciencesmathematicsprobability theoryrandom variablescovariancephysical sciencesphysicsclassical mechanicsdeformationphysical sciencesphysicsclassical mechanicsdamage mechanicsdeformationbiology and life sciencesanatomydigestive systemgastrointestinal tractcardiamedicine and health sciencesanatomydigestive systemgastrointestinal tractcardiamedicine and health sciencessurgical and invasive medical proceduresdigestive system proceduresresearch and analysis methodsimaging techniquescomputer imagingengineering and technologyequipmentoptical equipmentcameras homographic patch feature transform : a robustness registration for gastroscopic surgery a research on hpft for image registration hu weiling 12 zhang xu 34 wang bin 34 liu jiquan 34 * duan huilong 34 dai ning 12 si jianmin 12 * 1 department of gastroenterology sir run run shaw hospital , zhejiang university , hangzhou , china 2 institute of gastroenterology , zhejiang university , hangzhou , china 3 college of biomedical engineering & instrument science , zhejiang university , hangzhou , china 4 key laboratory of biomedical engineering , ministry of education , zhejiang university , hangzhou , china green john editor university hospital llandough , united kingdom competing interests : the authors have declared that no competing interests exist .
+conceived and designed the experiments : jl hd js. performed the experiments : wh xz nd. analyzed the data : wh xz bw. wrote the paper : wh xz bw .
+* e - mail : liujq @ zju.edu.cn ( jl ) ; jianmin _ si @ zju.edu.cn ( js ) 7 4 2016 2016 11 4 e0153202 23 12 2015 24 3 2016 ( c ) 2016 hu et al 2016 hu et althis is an open access article distributed under the terms of the creative commons attribution license , which permits unrestricted use , distribution , and reproduction in any medium , provided the original author and source are credited .
+image registration is a key component of computer assistance in image guided surgery , and it is a challenging topic in endoscopic environments .
+in this study , we present a method for image registration named homographic patch feature transform ( hpft ) to match gastroscopic images .
+hpft can be used for tracking lesions and augmenting reality applications during gastroscopy .
+furthermore , an overall evaluation scheme is proposed to validate the precision , robustness and uniformity of the registration results , which provides a standard for rejection of false matching pairs from corresponding results .
+finally , hpft is applied for processing in vivo gastroscopic data .
+the experimental results show that hpft has stable performance in gastroscopic applications .
+1. zhejiang province key science and technology innovation team ( 2013td13 ) ( http :// www.zjkjt.gov.cn /) .
+2. natural science foundation of zhejiang province ( ly14h160029 ) ( http :// www.zjnsf.gov.cn /) .
+3. the national natural science foundation of china ( no .
+31470955 )( http :// www.nsfc.gov.cn /). data availabilityall relevant data are available via github ( https :// github.com / jiquan / data4pone - d - 15 - 55392.git ) .
+data availability all relevant data are available via github ( https :// github.com / jiquan / data4pone - d - 15 - 55392.git ) .
+1. introduction registration of endoscopic images plays an increasingly important role in endoscopic surgeries [ 1 ] .
+for example , the registration technique can be applied to real 3d depth recovery [ 2 ] , lesion tracking [ 3 , 4 ] , endoscopic image mosaicking [ 5 ] , and other augmented reality view generation [ 6 ] .
+registration techniques can also be utilized to guide interventions in minimally invasive surgery ( mis ) , such as reducing post - surgical trauma and reducing recovery time for patients [ 7 ] .
+moreover , image registration is widely used in biopsy monitoring [ 8 ] , follow - up examination [ 9 ] and therapy planning [ 10 ] .
+many researchers have focused on medical image registration in the past few decades .
+mikolajczyk [ 11 ] evaluated the performance of different image registration detectors in the computer vision field .
+oliveira [ 12 ] made comments on the main contributions , advantages and drawbacks of classical and novel medical image registration methods .
+despite the development of a wide range of registration methods , most of the current registration methods are applicable only in static scenes ( e.g. , sinus surgery and skull surgery ) or scenes with periodic deformations [ 13 ] .
+in static scenes , the transformation between endoscopic images is caused by the motion of the camera , which may be considered global rigid motion .
+the motion is estimated by reliable corresponding features [ 14 ] .
+for periodic deformation scenes , several methods have been proposed to estimate the periodic parameters of the motion , which were used as motion compensation to extend the registration method from a static scene to a periodic deformation scene [ 15 ] .
+although deformable registration methods have been developed in recent years [ 16 ] , their direct application to free - form tissue deformation remains an unsolved problem due to complicated motion and changing visual appearances [ 17 , 18 ] .
+additionally , there are also some difficulties and under - determined problems in gastroscopic image registration .
+first , gastric inflation and endoscopic interaction can lead to serious deformation of the stomach , which is usually problematic for the subsequent registration procedure in which the features of interest will change dramatically or disappear from the endoscope view [ 19 ] .
+second , the effects of specular reflection , the shadow appearances and the paucity of reliable salient features lead to difficulties in detecting accurate features for image registration .
+several studies have focused on endoscopic image registration and tracking by optical flow [ 20 ] , which may result in an incorrect registration because of non - normalized lighting conditions .
+some other studies attempted to utilize an illumination invariance feature detector in endoscopic images [ 21 ] , but the detected sparse features were not suitable for real clinical practice .
+third , endoscopists may operate the endoscope with a large twisting angle , which leads to content discontinuity in successive image sequences and makes registration even more difficult .
+some researchers attempted to solve this problem by marking anatomical landmarks ( e.g. , skin markers , screw markers , dental adapters , etc. ) or by introducing extrinsic features , rigidly positioned with respect to the patient [ 22 ] .
+however , these are not automatic methods and are not widely used .
+although gastroscopic image registration is challenging , it is one of the key links for computer aided diagnosis ( cad ) .
+for example , with accurate and robust matching results , lesion tracking can be developed during surgery [ 23 ] , which is very helpful for intraoperative localization and navigation .
+furthermore , the narrow field of view ( fov ) of a gastroscope always limits gastroscopist operations. with accurate and density matched points , researchers can reconstruct gastric internal surfaces in a 3d view and panoramic view , which can provide a sufficient fov for gastroscopists [ 2 , 24 ] .
+the goal of this study is to develop a new registration method ( named homographic patch feature transform ( hpft )) that can detect features in gastroscopic image sequences with robustness , precision and uniformity .
+considering the smooth surface of the stomach , we assume that the points in a local patch of the gastric internal surface share a common plane in the real world. with this homographic hypothesis , these patches can be detected using hpft .
+moreover , if the local patches are not under the condition of homographic theory , a patch - split scheme can be performed to detect further homographic relationships in an iterative way .
+lastly , an overall evaluation scheme is proposed to validate the precision , uniformity and robustness of hpft by comparison with other registration methods .
+in the authors' opinion , hpft offers three main contributions .
+first , the problem of corresponding gastroscopic images being presented densely can be solved with hpft , which is very important for clinical practice ( e.g. , mis , non - invasion biopsy , and virtual gastroscopy ) .
+second , this method can be directly applied to currently implemented gastroscopy devices without any extra instruments ( e.g. , position sensors and feature markers ) .
+third , hpft can be applied to other abdominal or thoracic soft tissue organs ( e.g. , heart , lung , and liver ) , which also have smooth surfaces .
+2. methods 2.1 method overview the processing flow of hpft is shown in fig 1 .
+the inputs are sequences of real gastroscopic images .
+the large distortion of the radial and tangential lens in the endoscope needs to be rectified with a camera calibration method before acquisition of the gastroscopy sequences , and the reflection region should be detected before registration .
+10.1371 / journal.pone.0153202.g001 fig 1 hpft workflow .
+to obtain the initial feature set and generate local patches , the gastroscopic images are processed by a suitable point feature - based method .
+in this study , some widely used feature detectors are evaluated , and the scale invariance feature transform ( sift ) local descriptor is adopted due to its excellent performance in illumination and scale changes [ 25 ] .
+subsequently , the epipolar constraint is calculated , and then the initial matching pairs are clustered into small groups by the delaunay triangulation method .
+each triangle represents a local patch on the gastric internal surface .
+we hypothesized that the gastric internal surface is composed of many small homographic patches , and an iterative matching detection algorithm is proposed to detect triangular patches and verify whether they meet the homographic theory or not .
+if yes , these patches are marked as matching patches .
+otherwise , they are split into smaller patches by their internal circle centers and are then verified with the homographic hypothesis in the next loop .
+2.2 pre - processing and initial feature detection of gastroscopic images to obtain a sufficient field of view during examination , gastroscopes are always equipped with fisheye cameras .
+unfortunately , the generated gastroscopic images differ from their actual appearance due to serious distortion , as described in reference [ 26 ] .
+in this study , zhang 's camera calibration method [ 27 ] is employed and improved [ 2 ] to correct the distorted images .
+the method starts with establishing initial correspondences between gastroscopic image sequences .
+because the endoscope can move flexibly in the stomach and acquire images at any viewpoint , the adopted descriptor should be robust with respect to rotation and scale .
+some commonly used point feature methods ( sift , fast , surf , and star ) are estimated , and an estimation framework named forward - backward error ( fb error ) [ 28 ] is applied to select the most suitable detection method .
+during the estimation , the selected registration methods are applied to the first frame of the native gastroscopic images , and the detected features are matched from the first frame to the last frame .
+afterwards , the features are detected and matched from the last frame to the first frame in reverse .
+finally , a feature 's location will be the same as its initial location in the first frame if it was detected and matched accurately .
+otherwise , the fb error is calculated as the deviation between the initial location and the tracked location .
+we processed the estimation and showed the results in [ 23 ] , proving that sift has higher accuracy than other methods .
+thus , we adopt sift as the initial registration method to detect initial point features for further detection .
+to accelerate performance , we simplify the original sift vector to a 32 element vector and implement it in the gpu architecture .
+2.3 homographic registration the initial matching pairs are clustered into small groups using delaunay triangulation , and each matching triangle contains three matching pairs .
+luong and faugeras [ 29 ] suggested that if two sets of the image points , m and m ' , are the projections of a 3d plane in space , the matching relationship can be represented as a homographic transformation and can be conducted as : m '= rhohm ( 1 ) where rho represents an arbitrary non - zero scalar , and h is a 3 * 3 matrix .
+the registration approach assumes that the area of the triangular patch is small enough to be consistent with the homographic theory , in which the h matrix has only six unknowns [ 30 ] .
+under the homographic assumption , h can be estimated by three vertices of the patches .
+once , h is determined , every point in the patch of an image should be wrapped and aligned in the corresponding patch of the other image .
+normalized cross correlation ( ncc ) contributes to validation of the homographic assumptions .
+considering ( v1 , v2 , v3 ) as the coordinates of the vertex of the patch , all interior points of the triangle can be represented in barycentric coordinates .
+once a point in the reference triangle is given by ( s , t ) , an interior point 's coordinate in the patch can be presented as : p ( s,t )= sv1 + tv2 +( 1 - s - t ) v3 ( 2 ) where 0 < s < 1 , 0 < t < 1 , s + t < 1 .
+the intensity value of the point ( s , t ) is described as i ( s , t ) .
+the validation of the homographic hypothesis for each matching patch is defined as the ncc of the intensity : difh = integrals = 01integralt = 01i ( s,t ) i ( rhoeta ( s,t )) integrals = 01i ( s,t ) integralt = 01i ( rhoeta ( s,t )) ( 3 ) the value of difh represents a similarity of two matching patches .
+the closer the value is to 1 , the higher the similarity of the two matching patches and the more reasonable the homographic assumption of the matched patches .
+in contrast , if the difh is far away from 1 , the interior pixels of the triangular patches cannot be matched .
+the most common case is that the matching triangle is not small enough , so the corresponding gastric internal surface cannot be considered a plane in the real 3d space .
+2.4 iterative registration for clarity , we name the matching image pair the reference image and the target image .
+the iterative process can be described as follows : step 1 the features and matching pairs are detected between the reference image and the target image , and the matching results are recorded in the matching points set .
+step 2 the matching points are clustered into triangular patches , and the patches are matched by the method described in section 2.3 .
+the matching patches are recorded in the matching patches set .
+step 3 patches that cannot be matched in step 2 are selected , and their internal circle center points in the reference image are marked .
+subsequently , the center points are matched with the points on the line determined by the epipolar line and the corresponding triangular region in the target image ( fig 2 ) .
+the estimation of the matching pairs is described as the euclidean distance of the points' sift feature : vi = sumi = 132 ( ei - ei ') 2 ( 4 ) where ei and ei ' represent two normalized vector elements of a matching pair 's sift descriptor in the reference image and target image , respectively .
+10.1371 / journal.pone.0153202.g002 fig 2 the search line ( from a to b in the left image ) determined by epipolar constraint and homographic constraint .
+step 4 during the process of matching a pixel in the reference image with the points on the line segment in the target image , the alterative matching results are considered a vector : [ v1 , v2 , v3 ...
+vi ] ( i represents the total point number on the line segment ) .
+the most reliable matching pair should meet two conditions : if vmin / vsecond - min > 0.8 , there is no real matching pair due to the uncertainty of the matching process .
+suppose e is a global parameter for evaluating vmin , and only when vmin < e will the corresponding possible matching pair be considered a real matching pair .
+( v1,v2,v3 ,... vi ) min < epsilon ( 5 ) the e can avoid misjudging a corresponding pair when there is no matching pair .
+step 5 the internal circle center points of un - matched patches in the target image are selected and matched to the reference image reversely , which is a symmetrical operation of step 3 and step 4 .
+step 6 the matching points are recorded in the matching pairs set .
+step 2 is repeated until no new matching points and no new matching patches are detected .
+3. matching evaluation 3.1 evaluation overview the registration results include the matching points and matching patches .
+it is difficult to evaluate the matching results due to the absence of a gold criterion in an endoscopic environment .
+some studies undertake evaluations by human assessments ; for example , a feature matching method used in mis was also proposed in [ 31 ] , and the matching results were evaluated by clinical experts .
+thus , the clinical experts' interventions ensured that the final assessments were in accordance with real clinical requirements , which is of great significance to endoscopists and real clinic practice .
+however , human assessments are not suitable for large amounts of test data .
+in this study , hpft is aimed at applications in future image guided technologies ( gastroscopic image mosaicking and gastric depth recovery ) in which precision , uniformity and robustness are very important factors .
+consequently , an overall matching evaluation scheme to assess the precision , uniformity and robustness of the registration findings is presented .
+3.2 precision estimation precision estimation primarily evaluates inaccurate detections in the registration results .
+the main problem for precision estimation is related to the lack of ground truth data .
+here , we use a kullback - leibler divergence ( dkl ) method to evaluate the matching fb trajectory error .
+in information theory , kullback - leibler divergence is a measurement of the difference between two probability distributions .
+for example , the dkl of q from p , denoted by dkl ( p || q ) , is a measurement of information loss when q is an approximation to p , and dkl is a non - symmetric operation .
+to evaluate the precision of hpft , the distributions of the matching pairs in forward and backward trajectories are considered discrete random variables and defined as pforward and pbackward , respectively .
+the distributions are compared by measuring the kullback - leibler divergence : dkl1 ( pbackward ( x )|| pforward ( x ))= sumxinxpbackward ( x ) ln [ pbackward ( x ) pforward ( x )] ( 6 ) dkl2 ( pforward ( x )|| pbackward ( x ))= sumxinxpforward ( x ) ln [ pforward ( x ) pbackward ( x )] ( 7 ) the variable x in eqs ( 6 ) and ( 7 ) denotes the coordinates of the matching pairs .
+according to the definition of the forward - backward method , if the matching precision is high , the matching trajectories in the forward process and backward process should be similar , and the dkls are small and of the same order .
+3.3 robustness estimation in statistical analysis , the covariance matrix can represent the correlation of variables .
+zhang , hartley and zisserman et al .
+[ 32 ] found that the covariance matrix can characterize the uncertainty of the fundamental matrix .
+as a derivation , baptiste allain et al .
+[ 33 ] employed this method to determine the accuracy of tracking the biopsy site under different noise environments .
+in the subsequent analysis , the covariance matrix of the matching site is used to estimate the robustness of the registration method .
+a pixel in the reference image is denoted as p , and the registration site in the target image is denoted as p ' .
+in different registration scenes ( e.g. , different noise and different brightness ) , p ' may be located in different sites , and the covariance matrix of p ' is defined as : covp '= e [( p ' - e [ p ']).( p ' - e [ p '] t )] ( 8 ) if p ' can be represented by ( x ' , y ') , the following equation can be derived as : cov ( x ' , y ')=( varx'x'covx'y'covx'y'vary'y ') ( 9 ) according to the well - known large number law in the statistical field , if we assume a large number of samples of p ' exist , e [ p '] can be approximated by the sample mean : em [ p '( k )]= 1m.sumk = 1mp '( k ) ( 10 ) where m is the number of the samples set , p '( k ) is the kth sample in the set .
+the covariance matrix can be approximated by ( 11 ) : covp '=[ 1 ( m - 1 )]. sumk = 1m [( p '( k ) - em [ p '( k )]).( p '( k ) - em [ p '( k )]) t ] ( 11 ) during the gastroscopy procedure , if the registration algorithm is run m times in each acquired image , the covariance of p ' can be computed statistically , and it can be considered a robust registration method in endoscopic surveillance .
+however , it requires the endoscope to remain still during the running process .
+obviously , this is not practical during an endoscopic procedure .
+to estimate the uncertainty statistically , a series of standard gaussian noises are added with different scalars to the original gastroscopy images for m times as a simulation .
+4. experiments and results to evaluate the performance of our method in real gastroscopy procedures , the method was applied to the real gastroscopy image data from sir run run shaw hospital in zhejiang province in china , and the matching results were compared with other registration methods .
+all 60 patients provided written informed consent for evaluation and follow - up using medical records .
+our research was approved by the ethics committee of sir run run shaw hospital , school of medicine , zhejiang university .
+the gastroscopy video was acquired at 25 fps .
+to ensure confidentiality , the examination information ( e.g. , examination date and patient 's name ) was removed from the original gastroscopy images .
+the processed image sizes were 560 * 480 .
+fig 3 shows the workflow for the pyloric sites by the proposed method .
+10.1371 / journal.pone.0153202.g003 fig 3 workflow of the registration on the pylorus .
+hpft finished after 36 iterations .
+the blue points indicate matching points , and the green triangles indicate matching patches .
+to evaluate the uniformity of the registration results , we selected seven gastroscopy sequences randomly , and each of them was acquired from an anatomical site ( pylorus , cardia , angularis , antral anterior wall , antral posterior wall , lesser curvature of the gastric body , and greater curvature of the gastric body ) .
+first , hpft and the other registration methods were applied to detect features from the first frame of the seven gastric sequences .
+then , the features were matched forward to the last frame and then matched from the last frame to the first frame .
+the features' tracking trajectories were estimated .
+4.1 effectiveness of the evaluation scheme we evaluated the registration result by the proposed evaluation scheme .
+as a consequence , the effectiveness of the evaluation scheme was demonstrated .
+the common method for this entails applying the evaluation scheme to existing datasets , which have inherent validity for the matching process .
+thus , by comparison with the existing datasets , we could draw a conclusion on the proposed scheme .
+there are several public matching evaluation datasets ; for example , in [ 34 ] , an available image database is provided , and the samples in this dataset contain rotation and deformation that can be used for image classification , recognition and other image processing tasks ; however , this image dataset does not contain endoscopic image cases .
+in [ 35 ] , an endoscopic image dataset is provided , however , the images were used in laparoscopic cases , and they are not suitable for a gastroscopy environment .
+as a result , we estimated an effective evaluation framework , and we took advantage of the gastroenterologists' experiments to make the estimation .
+first , hpft was applied to the test data , and we evaluated the matching results with the proposed evaluation scheme and employed three experienced gastroenterologists separately .
+the gastroenterologists provided credible matching evaluations , from which we computed the recall percentage and accuracy percentage of our automatic evaluation scheme ( table 1 ) .
+10.1371 / journal.pone.0153202.t001 table 1 the recall and precision percentages of the pvaluation .
+pylorus cardia angularis antral posterior wall gastric body lesser curvature gastric body greater curvature recall 0.85 0.88 0.81 0.87 0.91 0.90 precision 0.92 0.95 0.87 0.92 0.94 0.88 as can be seen in table 1 , the recall percentage and precision percentage were both larger than 0.8 , which indicated the proposed matching evaluation rationality .
+compared with the gastroenterologists' evaluations , the proposed evaluation scheme can run automatically , and in section 4.2 , we evaluate hpft matching results using the proposed evaluation scheme .
+4.2 automatic matching evaluation during the experiment , the number of the initial detected features for the test methods was limited to 200 .
+if the number of the initial features was larger than 200 , we randomly selected 200 features as the initial detected set .
+moreover , if the initial detected features were located freely in the reference images , the features may be missing in the target image due to changes in the endoscope 's view during gastroscopy .
+to solve this problem , before the experiment , we set a region of interest ( roi ) in the first frame , ensuring that the roi appeared in all of the following frames , and also ensured that the initial features in the roi were detected with all registration methods .
+the testing image sequences were encoded with an mpeg2 standard ; the duration was 60.0 s , and the frame number was 1,500 .
+because the content of adjacent frames was very similar , we did not need to match all of the frames of the testing image sequences .
+in this experiment , only the i and p frames were considered testing frames , and the actual testing frame number was 500 .
+before evaluating the dkl of the feature tracking trajectories , we estimated the fb error of the feature point trajectories .
+we considered the distance of fb errors lower than 4 pixels to be reliable pairs .
+the matching result 's precision percentage was defined as in ( 12 ) , and table 2 shows the fb error curves for the testing sequences .
+precision percent validation ( ppv )= matchingnumber ( fberror <= 4 ) initialfeaturenumbers ( 200 ) ( 12 ) 10.1371 / journal.pone.0153202.t002 table 2 the precision percent validation ( ppv ) .
+hpft original sift fast surf star pylorus 0.85 0.63 0.33 0.57 0.51 cardia 0.83 0.65 0.31 0.52 0.47 angularis 0.82 0.78 0.42 0.67 0.53 antral anterior wall 0.62 0.47 0.28 0.53 0.34 antral posterior wall 0.77 0.43 0.37 0.47 0.34 gastric body lesser curvature 0.76 0.59 0.11 0.32 0.27 gastric body greater curvature 0.69 0.57 0.25 0.41 0.43 it can be seen from table 2 that hpft was significantly better than the other registration methods .
+the second best method was the original sift , which was not simplified by the method proposed in this study .
+compared with the original sift 's ppv , hpft had an improvement of more than 70 % in the antral and gastric body , which illustrated that the surface of the anatomical site was flat and that hpft had good performance in detecting homographic matching .
+for an angularis site , the fold and bending made homographic matching difficult , and the improvement was not significant , which was consistent with results shown in table 2 .
+we found that the least time was required by fast on average and that it detected as many matching pairs as hsift and sift for some anatomical sites .
+unfortunately , almost 60 % of the matching pairs were false pairs .
+in addition , hpft ran much faster than sift ( for a 560 * 480 image , hpft took 0.3 s , and sift took 1.1 s ) and the matching results were good .
+this indicated that the simplified sift had a reasonably faster performance than the original method , without loss of accuracy .
+although fb error was an easily implemented estimation method , an additional precision analysis should be utilized to evaluate the fb error estimation 's confidence .
+as explained in section 3.1 , we applied dkl to hpft 's feature estimation results , which were evaluated by fb error .
+every feature 's tracking trajectory was considered a random distribution , and the forward distribution and backward distributions were identical if dkl1 < 0.1 , dkl2 < 0.1 and dkl1 and dkl2 were of the same order .
+in table 3 , the dkl column indicates estimations by dkl on the fb error estimation results ; the ' fb error ' column indicates estimations by fb error , and it corresponded to the ' hpft ' column in table 2 .
+the ' dkl / fb error ' column indicates the similarity of the dkl estimation and fb error estimation .
+if the two estimation results were almost identical , the value of ' dkl / fb error ' should be close to 1 , and the precision estimation of hpft was considered reliable .
+otherwise , the two estimation results were totally different and the precision estimation was suspect .
+as seen from table 3 , all ' dkl / fb error ' values of the testing image sequences ' , except for ' angularis ' , were higher than 0.9 , and we considered the precision of hsift for these anatomical sites reliable .
+however , the ' dkl / fb error ' of ' angularis' was 0.79 , indicating that the precision of hsift for ' angularis' was not very high .
+in the authors' opinion , this was due to the narrow nature of the angularis .
+when the endoscope acquired images from the angularis , the content change was larger than expected between frames .
+in this case , hpft had a higher probability of false matching .
+however , compared with other methods , hpft was also more reliable in identifying precision matching pairs for the angularis .
+10.1371 / journal.pone.0153202.t003 table 3 dkl estimation of hpft for different anatomical sites .
+dkl fb error dkl / fb error pylorus 165 170 0.97 cardia 154 166 0.93 angularis 131 164 0.79 antral anterior wall 118 124 0.95 antral posterior wall 142 154 0.93 gastric body lesser curvature 139 152 0.91 gastric body greater curvature 125 138 0.91 to evaluate the robustness of hpft , we added a series of gaussian noise to the gastroscopy image sequences and evaluated the robustness of the precision estimation results .
+the most robust registration method should generate the most identical registration results under different gaussian noise environments , and the consistency can be evaluated by the covariance matrix , as expressed in eq ( 11 ) .
+if the covariance matrix ( covp ') was close to one , the registration results were not violated by the noise , and we considered covp '> 0.8 a robust registration result .
+for different methods , the robustness percent validation ( rpv ) was defined as : robustness percent validation ( rpv )= matchingnumber ( cov >= 0.8 ) ppv ( 13 ) rpvs for different registration methods are shown in fig 4 .
+it can be seen from fig 4 , that hpft and sift had similar robustness estimation results .
+the other registration results had poorer robustness than sift and hpft .
+10.1371 / journal.pone.0153202.g004 fig 4 robustness estimation for different registration methods .
+rpv > 0.7 was considered robust ( dashed line ) .
+the uniformity of the matching results was assessed by the squared difference of the matching pair coordinates .
+the statistics of 200 initial feature distributions by different registration methods are shown in fig 5 .
+10.1371 / journal.pone.0153202.g005 fig 5 initial feature distributions of x and y coordinates .
+because the initial test feature number for all registration methods was 200 , obviously , the lower squared difference value corresponded to the more uniform distribution .
+the squared differences are shown in table 4 .
+10.1371 / journal.pone.0153202.t004 table 4 the squared difference of registration results .
+hpft sift fast surf star pylorus 15.02 19.14 34.28 14.19 32.61 cardia 8.79 10.17 13.3 12.11 36.53 as seen in table 4 , hpft and surf had reasonable uniformity , and fast and star 's features were relatively concentrated .
+5. conclusion in this study , an iterative method for registration during gastroscopic processes was presented .
+a local feature descriptor was used to detect the initial matching pairs .
+epipolar geometry and homographic transformation were considered for further matching based on the initial matching pairs .
+the final registration results were composed of the independent matching point pairs and the matching patches .
+an overall estimation method was proposed to determine the precision of the registration .
+experimental results using real gastroscopic images showed that the method has promising performance ability .
+the gastric internal surface is always covered with mucus , so matching errors will easily occur from the specular reflection .
+the integration of other visual cues , such as shading , in response to soft - tissue deformation can improve the registration results .
+another limitation of this method is that the transformation between patches is always considered to be a homographic transformation .
+in the future , non - rigid transformations ( e.g. , radial basis function kernel ) should be considered to exploit more potential matching patches .
+references 1 bai w , brady sm . motion correction and attenuation correction for respiratory gated pet images . medical imaging , ieee transactions on .
+2011 ; 30 ( 2 ) : 351 - 365 . 2 wang b , liu j , zong y , duan h . dynamic 3d reconstruction of gastric internal surface under gastroscopy . journal of medical imaging and health informatics .
+2014 ; 4 ( 5 ) : 797 - 802 . 3 atasoy s , glocker b , giannarou s , mateus d , meining a , yang g - z , et al probabilistic region matching in narrow - band endoscopy for targeted optical biopsy medical image computing and computer - assisted intervention - miccai 2009 : springer ; 2009 p .
+499 - 506 . 4 ye m , giannarou s , patel n , teare j , yang g - z . pathological site retargeting under tissue deformation using geometrical association and tracking medical image computing and computer - assisted intervention - miccai 2013 : springer ; 2013 p .
+67 - 74 . 5 miranda - luna r , daul c , blondel wc , hernandez - mier y , wolf d , guillemin f . mosaicing of bladder endoscopic image sequences : distortion calibration and registration algorithm . biomedical engineering , ieee transactions on .
+2008 ; 55 ( 2 ) : 541 - 553 . 6 wang x , zhang q , han q , yang r , carswell m , seales b , et al endoscopic video texture mapping on pre - built 3 - d anatomical objects without camera tracking . medical imaging , ieee transactions on .
+2010 ; 29 ( 6 ) : 1213 - 1223 . 7 feuerstein m , mussack t , heining sm , navab n . intraoperative laparoscope augmentation for port placement and resection planning in minimally invasive liver resection . medical imaging , ieee transactions on .
+2008 ; 27 ( 3 ) : 355 - 369 . 8 sun d , hu w , wu w , liu j , duan h , si j . design of the image - guided biopsy marking system for gastroscopy . journal of medical systems .
+2012 ; 36 ( 5 ) : 2909 - 2920 . doi : 10.1007 / s10916 - 011 - 9769 - z 21870031 9 liu j , wang b , hu w , zong y , si j , duan h . a non - invasive navigation system for retargeting gastroscopic lesions . bio - medical materials and engineering .
+2014 ; 24 ( 6 ) : 2673 - 2679 . doi : 10.3233 / bme - 141084 25226971 10 zhang l , suo s , lu x , li y , chen l , zhang s , editors .
+free - form deformation based non - rigid registration on breast cancer mr imaging .
+fifth international conference on digital image processing ; 2013 : international society for optics and photonics .
+11 mikolajczyk k , schmid c . a performance evaluation of local descriptors . pattern analysis and machine intelligence , ieee transactions on .
+2005 ; 27 ( 10 ) : 1615 - 1630 . 12 oliveira fp , tavares jmr . medical image registration : a review . computer methods in biomechanics and biomedical engineering .
+2014 ; 17 ( 2 ) : 73 - 93 . doi : 10.1080 / 10255842.2012.670855 22435355 13 tavares jmr . analysis of biomedical images based on automated methods of image registration advances in visual computing : springer ; 2014 p .
+21 - 30 . 14 burschka d , li m , ishii m , taylor rh , hager gd . scale - invariant registration of monocular endoscopic images to ct - scans for sinus surgery . medical image analysis .
+2005 ; 9 ( 5 ) : 413 - 426 . 16009593 15 hu m , penney g , rueckert d , edwards p , figl m , pratt p , et al a novel algorithm for heart motion analysis based on geometric constraints medical image computing and computer - assisted intervention - miccai 2008 : springer ; 2008 p .
+720 - 728 . 16 crum wr , hartkens t , hill d . non - rigid image registration : theory and practice . the british journal of radiology .
+2014 . 17 sotiras a , davatzikos c , paragios n . deformable medical image registration : a survey . medical imaging , ieee transactions on .
+2013 ; 32 ( 7 ) : 1153 - 1190 . 18 oliveira fp , tavares jmr . enhanced spatio - temporal alignment of plantar pressure image sequences using b - splines . medical & biological engineering & computing .
+2013 ; 51 ( 3 ) : 267 - 276 . 23135784 19 sun d , liu j , linte ca , duan h , robb ra . surface reconstruction from tracked endoscopic video using the structure from motion approach augmented reality environments for medical imaging and computer - assisted interventions : springer ; 2013 p .
+127 - 135 . 20 leitner r , de biasio m , arnold t , dinh cv , loog m , duin rp . multi - spectral video endoscopy system for the detection of cancerous tissue . pattern recognition letters .
+2013 ; 34 ( 1 ) : 85 - 93 . 21 selka f , nicolau s , bessaid a , soler l , marescaux j . performance evaluation of simultaneous rgb analysis for feature detection and tracking in endoscopic images medical image understanding and analysis 2012 p .
+249 - 254 . 22 zitova b , flusser j . image registration methods : a survey . image and vision computing .
+2003 ; 21 ( 11 ) : 977 - 1000 . 23 wang b , hu w , liu j , si j , duan h . gastroscopic image graph : application to noninvasive multitarget tracking under gastroscopy . computational and mathematical methods in medicine .
+2014 ; 2014 : 1 - 9 . 24 liu j , wang b , hu w , sun p , li j , duan h , et al global and local panoramic views for gastroscopy : an assisted method of gastroscopic lesion surveillance . biomedical engineering , ieee transactions on .
+2015 ; 62 ( 9 ) : 2296 - 2307 . 25 mikolajczyk k , schmid c . scale & affine invariant interest point detectors . international journal of computer vision .
+2004 ; 60 ( 1 ) : 63 - 86 . 26 duane cb . close - range camera calibration . photogram eng remote sens .
+1971 ; 37 : 855 - 866 . 27 zhang z , editor flexible camera calibration by viewing a plane from unknown orientations .
+computer vision , 1999 the proceedings of the seventh ieee international conference on ; 1999 : ieee .
+28 kalal z , mikolajczyk k , matas j , editors .
+forward - backward error : automatic detection of tracking failures .
+pattern recognition ( icpr ) , 2010 20th international conference on ; 2010 : ieee .
+29 luong q - t , faugeras od . the fundamental matrix : theory , algorithms , and stability analysis . international journal of computer vision .
+1996 ; 17 ( 1 ) : 43 - 75 . 30 chum o , pajdla t , sturm p . the geometric error for homographies . computer vision and image understanding .
+2005 ; 97 ( 1 ) : 86 - 102 . 31 puerto - souza g , mariottini g - l . a fast and accurate feature - matching algorithm for minimally - invasive endoscopic images . medical imaging , ieee transactions on .
+2013 ; 32 ( 7 ) : 1201 - 1214 . 32 zhang z . determining the epipolar geometry and its uncertainty : a review . international journal of computer vision .
+1998 ; 27 ( 2 ) : 161 - 195 . 33 allain b , hu m , lovat lb , cook rj , vercauteren t , ourselin s , et al re - localisation of a biopsy site in endoscopic images and characterisation of its uncertainty . medical image analysis .
+2012 ; 16 ( 2 ) : 482 - 496 . doi : 10.1016 / j.media.2011.11.005 22197442 34 feature detectors and descriptors : the state of the art and beyond [ internet ] .
+2009 [ cited 2015 ] .
+available from : http :// kahlan.eps.surrey.ac.uk / featurespace / web / .
+35 hamlyn centre laparoscopic / endoscopic video datasets [ internet ] .
+2011 [ cited 2015 ] .
+available from : http :// hamlyn.doc.ic.ac.uk / vision / .

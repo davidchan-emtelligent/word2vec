@@ -1,0 +1,346 @@
+plos one plos one plos plosone plos one 1932 - 6203 public library of science san francisco , ca usa 29121044 5679622 pone - d - 17 - 21309 10.1371 / journal.pone.0187431 research articlephysical sciencesphysicsthermodynamicsentropycomputer and information sciencesinformation theoryinformation entropyengineering and technologysignal processingwhite noisephysical sciencesphysicsclassical mechanicscontinuum mechanicsfluid mechanicsfluid dynamicsflow ratephysical sciencesmathematicsprobability theoryrandom variablesphysical sciencesmathematicsstatistics ( mathematics ) statistical noisegaussian noisecomputer and information sciencesnetwork analysismetabolic networksbiology and life sciencesbiochemistrybiochemical simulationsbiology and life sciencescomputational biologybiochemical simulations information - theoretic analysis of the directional influence between cellular processes information - theoretic analysis of the directional influence between cellular processes lahiri sourabh writing - original draftwriting - review & editing1 nghe philippe writing - original draftwriting - review & editing2 tans sander j. writing - original draftwriting - review & editing3 rosinberg martin luc writing - original draftwriting - review & editing4 http :// orcid.org / 0000 - 0002 - 5735 - 4657 lacoste david writing - original draftwriting - review & editing1 * 1 gulliver laboratory , psl research university , espci , 10 rue de vauquelin , 75231 paris cedex 05 , france 2 laboratory of biochemistry , psl research university , espci , 10 rue de vauquelin , 75231 paris cedex 05 , france 3 fom institute amolf , science park , 104 , 1098 xg amsterdam , the netherlands 4 laboratoire de physique theorique de la matiere condensee , universite pierre et marie curie , cnrs umr 7600 , 4 place jussieu , 75252 paris cedex 05 , france grima ramon editor university of edinburgh , united kingdom competing interests : all the authors have declared that no competing interests exist .
+* e - mail : david.lacoste @ espci.fr 2017 9 11 2017 12 11 e0187431 4 6 2017 19 10 2017 ( c ) 2017 lahiri et al 2017 lahiri et althis is an open access article distributed under the terms of the creative commons attribution license , which permits unrestricted use , distribution , and reproduction in any medium , provided the original author and source are credited .
+inferring the directionality of interactions between cellular processes is a major challenge in systems biology .
+time - lagged correlations allow to discriminate between alternative models , but they still rely on assumed underlying interactions .
+here , we use the transfer entropy ( te ) , an information - theoretic quantity that quantifies the directional influence between fluctuating variables in a model - free way .
+we present a theoretical approach to compute the transfer entropy , even when the noise has an extrinsic component or in the presence of feedback .
+we re - analyze the experimental data from kiviet et al .
+( 2014 ) where fluctuations in gene expression of metabolic enzymes and growth rate have been measured in single cells of e. coli .
+we confirm the formerly detected modes between growth and gene expression , while prescribing more stringent conditions on the structure of noise sources .
+we furthermore point out practical requirements in terms of length of time series and sampling time which must be satisfied in order to infer optimally transfer entropy from times series of fluctuations .
+institute of complex systems , idf lahiri sourabh labex celtisphybioanr - 10 - lbx - 0038http :// orcid.org / 0000 - 0002 - 5735 - 4657 lacoste david s.l. thanks the institute of complex systems ( isc - pif ) , the region ile - de - france , and the labex celtisphybio ( no. anr - 10 - lbx - 0038 ) part of the idex psl ( no. anr - 10 - idex - 0001 - 02 psl ) for financial support ( to dl ) .
+the funders had no role in study design , data collection and analysis , decision to publish , or preparation of the manuscript.data availabilityall relevant data are within the paper .
+data availability all relevant data are within the paper .
+introduction quantifying information exchange between variables is a general goal in many studies of biological systems because the complexity of such systems prohibits mechanistic bottom - up approaches .
+several statistical methods have been proposed to exploit either the specific dependence of the covariances between input and output variables with respect to a perturbation applied to the network [ 1 ] , or the information contained in 3 - point correlations [ 2 ] .
+these methods are potentially well suited for datasets obtained from destructive measurements , such as rna sequencing or immunohistochemistry .
+however , none of these methods exploits the information contained in time - lagged statistics , which is provided for instance by non - destructive measurements obtained from time - lapse microscopy of single cells .
+such experimental data should be quite relevant to understand functional relationships since they merely reflect the time delays present in the dynamics of the system .
+time - delayed cross - correlations between gene expression fluctuations have indeed been shown to discriminate between several mechanistic models of well characterized genetic networks [ 3 ] .
+however , such methods become difficult to interpret in the presence of feedback .
+this situation is illustrated in reference [ 4 ] where the fluctuations in the growth rate and in the expression level of metabolic enzymes have been measured as a function of time by tracking single cells of e. coli with time - lapse microscopy .
+the interplay between these variables has been characterized using cross - correlations as proposed in [ 3 ] .
+to circumvent the difficulty of discriminating between many complex and poorly parametrized metabolic models , the authors reduced functional relations to effective linear responses with a postulated form of effective couplings .
+in the present work , we instead use a time - lagged and information - based method to analyze the interplay between the two fluctuating variables .
+a crucial feature in this method is that it is model - free and it is able to disentangle the two directions of influence between the two variables , unlike the cross - correlations discussed above .
+this type of approach was first proposed by granger [ 5 ] in the field of econometrics and found applications in a broader area .
+more recently , transfer entropy [ 6 ] , which is a non - linear extension of granger causality , has become a popular information - theoretic measure to infer directional relationships between jointly dependent processes [ 7 ] .
+it has been successfully applied to various biomedical time series ( see for instance [ 8 ]) and used extensively in the field of neurobiology , as shown in ref .
+[ 9 ] and in references therein .
+this is the tool that will be used in this work .
+the plan of this paper is as follows .
+we first introduce two measures of information dynamics , transfer entropy ( te ) and information flow ( if ) .
+we then illustrate our numerical method on a well controlled case , namely a simple linear langevin model , and show that we can properly estimate these quantities from the generated time series .
+we then analyze experimental data on the fluctuations of metabolism of e. coli taken from ref .
+[ 4 ] .
+we provide analytical expressions for the transfer entropy and information flow rates for the model proposed in that reference .
+after identifying a divergence in one te rate as the sampling time goes to zero , we introduce a simplified model which is free of divergences while still being compatible with the experimental data .
+we conclude that the inference of information - theoretic dynamical quantities can be helpful to build physically sound models of the various noise components present in chemical networks .
+information theoretic measures unlike the mutual information i ( x : y ) that only quantifies the amount of information exchanged between two random variables x and y as defined in the section on methods , the transfer entropy ( te ) is an asymmetric measure that can discriminate between a source and a target [ 6 ] .
+consider two sampled time series {.. xi - 1 , xi , xi + 1. .} and {.. yi - 1 , yi , yi + 1. .} , where i is the discrete time index , generated by a source process x and a target process y. the transfer entropy tx - - > y from x to y is a conditional , history - dependent mutual information defined as tx - - > y = sump ( yi + 1,yi ( k ) , xi ( l )) lnp ( yi + 1 | yi ( k ) , xi ( l )) p ( yi + 1 | yi ( k )),= sumi [ h ( yi + 1 | yi ( k )) - h ( yi + 1 | yi ( k ) , xi ( l ))] ( 1 ) where yi ( k )={ yi - k + 1 ,... , yi } and xi ( l )={ xi - l + 1 ,... , xi } denote two blocks of past values of y and x of length k and l respectively , p ( yi + 1,yi ( k ) , xi ( l )) is the joint probability of observing yi + 1,yi ( k ) , xi ( l ) , and p ( yi + 1 | yi ( k ) , xi ( l )) , p ( yi + 1 | yi ( k )) are conditional probabilities .
+in the second line , h (.|.) denotes the conditional shannon entropy ( see section on methods for definition ) .
+in the first equation , the summation is taken over all possible values of the random variables yi + 1,yi ( k ) , xi ( l ) and over all values of the time index i. to put it in simple terms , tx - - > y quantifies the information contained from the past of x about the future of y , which the past of y did not already provide [ 7 , 8 ] .
+therefore , it should be regarded as a measure of predictability rather than a measure of causality between two time - series [ 10 ] .
+for instance , when xi ( l ) does not bring new information on yi + 1 , then p ( yi + 1 | yi ( k ) , xi ( l ))= p ( yi + 1 | yi ( k )) and the transfer entropy vanishes because the prediction on yi + 1 is not improved. with a similar definition for ty - - > x , one can define the net variation of transfer entropy from x to y as deltatx - - > y = tx - - > y - ty - - > x. the sign of deltatx - - > y informs on the directionality of the information transfer .
+the statistics required for properly evaluating the transfer entropy rapidly increases with k and l , which in practice prohibits the use of large values of k and l. the most accessible case thus corresponds to k = l = 1 , which we denote hereafter as t x - - > y. this quantity is then simply defined as t x - - > y = sumi [ h ( yi + 1 | yi ) - h ( yi + 1 | yi,xi )] , ( 2 ) when the dynamics of the joint process { x , y } is markovian , one has p ( yi + 1 | yi ( k ) , xi ( l ))= p ( yi + 1 | yi,xi ) and since h ( yi + 1 | yi ( k ))<= h ( yi + 1 | yi ) one has t x - - > y >= tx - - > y ( see ref. [ 11 ]) .
+therefore , t x - - > y represents an upper bound on the transfer entropy .
+in the case of stationary time series , which is the regime we consider in this work , it is natural to also introduce the te rate t x - - > y = limtau - - > 0h ( yt + tau | yt ) - h ( yt + tau | xt,yt ) tau = limtau - - > 0i ( yt + tau : yt,xt ) - i ( yt + tau : yt ) tau , ( 3 ) where the continuous time variable t replaces the discrete index i. in practice t x - - > y ~ t x - - > y / tau , but only for sufficiently small time step tau .
+the most direct strategy to evaluate eq ( 1 ) would be to construct empirical estimators of the probabilities from histograms of the data .
+although this procedure works well for evaluating other quantities , for instance the entropy production in small stochastic systems [ 12 ] , it completely fails in the case of transfer entropy .
+indeed , such a method leads to a non - zero te even between uncorrelated signals , due to strong biases in standard estimators based on data binning .
+in order to overcome this problem , we used the kraskov - stogbauer - grassberger ( ksg ) estimator which does not rely on binning , as implemented in the software package jidt ( java information dynamics toolkit ) [ 13 ] .
+using estimators of this kind is particularly important for variables that take continuous values .
+in the following , the inference method will be applied to time series generated by diffusion processes .
+it will then be interesting to compare the te rate t x - - > y to another measure of information dynamics , the so - called information flow [ 14 - 16 ] ( also dubbed learning rate in the context of sensory systems [ 11 , 17 ]) , which is defined as the time - shifted mutual information [ 18 ] ix - - > yflow = limtau - - > 0i ( yt : xt ) - i ( yt : xt + tau ) tau .
+( 4 ) in the special case where the two processes x and y experience independent noises ( the system is then called bipartite ) [ 15 ] , one has the inequality ix - - > yflow <= tx - - > y [ 17 ] , which in turn implies that ix - - > yflow <= t x - - > y ( 5 ) when the joint process is markovian .
+observing a violation of this inequality is thus a strong indication that the noises on x and y are correlated .
+as will be seen later , this is indeed the situation in biochemical networks , due the presence of the so - called extrinsic noise generated by the stochasticity in the cell and in the cell environment [ 19 ] which acts on all chemical reactions within the cell , and thus induces correlations .
+results test of the inference method on a langevin model in order to benchmark our inference method and perform a rigorous test in a controlled setting , we first applied it on times series generated by a simple model for which the transfer entropy and the information flow can be computed analytically .
+the data were obtained by simulating the two coupled langevin equations mv. = - gammav - ay + xi,taury. = v - y + eta ( 6 ) that describe the dynamics of a particle of mass m subjected to a velocity - dependent feedback that damps thermal fluctuation [ 16 , 20 , 21 ] ( in these equations , the dependence of the variables on the time t is implicit ) .
+here , xi ( t ) is the noise generated by the thermal environment with viscous damping gamma and temperature t , while eta ( t ) is the noise associated with the measurement of the particle 's velocity v ( t ) .
+the two noises are independent and gaussian with zero - mean and variances < xi ( t ) xi ( t ')> = 2gammakbtdelta ( t - t ') and < eta ( t ) eta ( t ')> = sigma2 delta ( t - t ') .
+a is the feedback gain and taur is a time constant .
+the two langevin equations were numerically integrated with the standard heun 's method [ 22 ] using a time step deltat = 10 - 3 , and the transfer entropy in the steady state was estimated from 100 time series of duration t = 2000 with a sampling time ( i.e. , the time between two consecutive data points ) tau = deltat .
+we first checked that the te in the direction y - - > v does vanish in the absence of feedback , i.e. for a = 0 , whereas it is non - zero as soon as a > 0 .
+we then tested the influence of the measurement error sigma2 for a fixed value of the gain a. as can be seen in fig 1 , tv - - > y diverges as sigma2 - - > 0 , a feature that will play an important role in our discussion of the model for the metabolic network .
+in the figure , the color of the symbols correspond to three different values of the parameter k which represents the history length in the definition of the transfer entropy ( see eq ( 1 )) .
+one can see that the estimates of tv - - > y for k = 1 are in very good agreement with the theoretical prediction for t v - - > y ( upper solid line ) .
+moreover , the estimates decrease as k is increased from 1 to 5 , and one can reasonably expect that the theoretical value of tv - - > y ( lower solid line ) computed in ref .
+[ 16 ] and given by eq ( 21 ) in the section on methods would be reached in the limit k - - > infinity .
+10.1371 / journal.pone.0187431.g001 fig 1 transfer entropy ty - - > v for the feedback model governed by eq ( 6 ) as a function of the noise intensity sigma2 for k = 1 ( blue circles ) , k = 3 ( green circles ) and k = 5 ( red circles ) .
+the parameter l present in the definition of eq ( 1 ) is fixed to 1 .
+the lower red ( resp. upper blue ) solid line represents the value of ty - - > v ( resp .
+t y - - > v ) obtained by multiplying the theoretical rate ty - - > v ( resp. t y - - > v ) given by eq ( 21 ) ( resp .
+eq ( 23 ) by the sampling time tau = 10 - 3 .
+the parameters of the model are t = 5 , gamma = m = 1 , taur = 0.1 , and a = 8 .
+finally , by estimating the information flow and the transfer entropy , we checked that inequality ( 5 ) holds , as a result of the independence of the two noises xi and eta ( see section on methods ) .
+analysis of stochasticity in a metabolic network experimental time series we are now in position to analyze the fluctuations in the metabolism of e. coli at the single cell level obtained in ref .
+[ 4 ] using the information - theoretic notions introduced and tested in the previous section .
+since there are a multitude of reactions and interactions involved in the metabolism of e. coli , a complete mechanistic description is not feasible , and our model - free inference method has a crucial advantage .
+in ref .
+[ 4 ] , the length of the cells was recorded as a function of time using image analysis , and the growth rate was then obtained by fitting this data over subparts of the cell cycle .
+in the same experiment , the fluorescence level of gfp , which is co - expressed with growth enzymes lacy and lacz was recorded .
+three set of experiments were carried out corresponding to three levels of an inducer iptg : low , intermediate and high .
+the two time series have a branching structure due to the various lineages , which all start from a single mother cell as shown in fig 2 .
+the experimental data thus come in the form of a large ensemble of short times series which represent a record of all the cell cycles .
+there are about ~ 3000 time series , with 2 to 8 measurement points in each of them which are represented as colored points in fig 2 .
+in order to correctly estimate the transfer entropy from such data , we have analyzed the multiple time series as independent realizations of the same underlying stochastic process .
+for the present analysis , we fix the history length parameters k and l to the value k = l = 1 , which means that we focus on t rather than t. we infer the values of t in the two directions , from growth ( denoted mu ) to gene expression ( denoted e ) and vice versa .
+the results obtained for the three concentrations of iptg are represented in table 1 .
+the negative value of t mu - - > e which is found in the intermediate case is due to the numerical inference method and should be regarded as a value which cannot be distinguished from zero .
+10.1371 / journal.pone.0187431.g002 fig 2 pedigree tree representing the evolution of the colony of e. coli .
+studied in ref .
+[ 4 ] .
+the splitting of the branches corresponds to cell division events , each colored point is associated to a measurement of a single cell and the colors represent the growth rates as shown in the bar in the lower part of the figure .
+10.1371 / journal.pone.0187431.t001 table 1 inferred values of the transfer entropies in the directions e - - > mu and mu - - > e , and the difference deltat e - - > mu = t e - - > mu - t mu - - > e for low , medium and high concentrations of iptg based on the data of ref .
+[ 4 ] .
+the te are given in nats. conc. of iptg low intermediate high t e - - > mu 2.35 . 10 - 2 1.37 . 10 - 2 1.06 . 10 - 3 t mu - - > e 2.16 . 10 - 2 - 4.08 . 10 - 3 9.94 . 10 - 3 deltat e - - > mu 1.84 . 10 - 4 1.78 . 10 - 2 - 8.88 . 10 - 3 based on this analysis , we conclude that the influence between the variables is directed primarily from enzyme expression to growth in the low and intermediate iptg experiments , while it mainly proceeds in the reverse direction in the high iptg experiment .
+such results are in line with the conclusions of ref .
+[ 4 ] based on the measured asymmetry of the time - lagged cross - correlations .
+moreover , the present analysis provides an estimate of the influence between the two variables separately in the two directions from e to mu and from mu to e. in particular , we observe for the low experiment that the values of te in the two directions are of same order of magnitude , whereas in the intermediate experiment the te from e to mu is larger , a feature which could not have been guessed from measured time delays .
+theoretical models we now turn to the analysis of the model proposed in ref .
+[ 4 ] to account for the experimental data .
+the question we ask is whether the model correctly reproduces the above results for the transfer entropies , in particular the change in the sign of deltat e - - > mu for the high concentration of iptg .
+the central equation of the model describes the production of the enzyme as e. = p - mu.e , ( 7 ) where e is the enzyme concentration , p its production rate , and mu the rate of increase in cell volume .
+although the function p is typically non - linear , its precise expression is irrelevant because ( 7 ) is linearized around the stationary point defined by the mean values e = e0 and mu = mu0 .
+this linearization then yields deltae. = deltap - deltamue0 - mu0deltae , ( 8 ) in terms of perturbed variables deltax ( t ) = x ( t ) - x0 , where x0 denotes the mean of x. the model of ref .
+[ 4 ] is essentially phenomenological in nature because it approximates the noises as gaussian processes .
+although this approximation is often done in this field , it may not always hold since fluctuations due to low copy numbers are generally not gaussian [ 23 ] .
+in any case , the model contains three gaussian noises : ng is a common component while ne and nmu are component specific to e and mu. these noises are assumed to be independent ornstein - uhlenbeck noises with zero mean and autocorrelation functions < ni ( t ) ni ( t ')>= etai2e - betai | t - t '| ( i = e , mu , g ) .
+as commonly done , the three ornstein - uhlenbeck noises are generated by the auxiliary equations n.i = - betaini + xii , ( 9 ) where the xii 's are zero - mean gaussian white noises satisfying < xii ( t ) xij ( t ')>= thetai2delta ( t - t ') deltaij with thetai = etai2betai .
+introducing the constant logarithmic gains txy that represent how a variable x responds to the fluctuations of a source y , the equations of the model read [ 4 ] deltape0mu0 = teedeltaee0 + tegng + ne,deltamumu0 = tmuedeltaee0 + tmugng + nmu , ( 10 ) where specifically temu = - 1 and tmug = 1 .
+then , eliminating deltap from eqs ( 8 ) and ( 10 ) , one obtains the coupled equations x. = mu0 [( tee - 1 ) x + temuy + tegng + ne ] y = tmuex + tmugng + nmu , ( 11 ) where we have defined the reduced variables x = deltae / e0 , y = deltamu / mu0 .
+we stress that ng is an extrinsic noise that affects both the enzyme concentration and the growth rate , whereas ne ( resp. nmu ) is an intrinsic noise that only affects e ( resp. mu ) .
+note that the two effective noises tegng + ne and tmugng + nmu acting on x. and y are colored and correlated , which makes the present model more complicated than most stochastic models studied in the current literature .
+in fact , since we are mainly interested in the information exchanged between x and y , it is convenient to replace one of the noises , say ng , by the dynamical variable y. differentiating the second equation in eq ( 11 ) , using eq ( 9 ) and performing some simple manipulations , one then obtains a new set of equations for the four random variables x , y , u = ne , v = nmu : x. = a1x + a2u + a3v + a4yy. = b1x + b2u + b3v + b4y + xiyu. = - betaeu + xiev. = - betamuv + ximu , ( 12 ) where the coefficients aj and bj ( j = 1 ... 4 ) are defined by eq ( 24 ) in the section on methods and xiy = ximu + xig is a new white noise satisfying < xiy ( t ) xiy ( t ')>=( thetamu2 + thetag2 ) delta ( t - t ') and < xiy ( t ) ximu ( t ')>= thetamu2delta ( t - t ') .
+the calculation of the transfer entropy rate t x - - > y ( which coincides with t e - - > mu since the te is invariant under the change of variables from e to x and mu to y ) is detailed in the section on methods , together with the calculation of the information flows .
+the final expression reads t x - - > y = 14 ( betamuetamu2 + betagetag2 ) integraldxdyp ( x,y )[ g y2 ( x,y ) - g y2 ( y )] ( 13 ) where p ( x , y ) is the steady state probability distribution and the functions g y and g y are defined in eqs ( 40 ) and ( 43 ) , respectively .
+this result agrees with that obtained in refs .
+[ 11 , 18 ] and in [ 24 ] in special cases .
+in table 2 , we show the results of the analysis of the time series generated by eq ( 12 ) using our numerical inference method with a sampling time tau = 1min ( equal to the time step deltat used to numerically integrate the model ) .
+one can see that the estimates of t e - - > mu are in good agreement with the predictions of eq ( 13 ) , with the values of the model parameters taken from table s1 in ref .
+[ 4 ] .
+note that the negative number given by the inference method in the high iptg experiment signals that the actual value of t e - - > mu cannot be distinguished from zero , which is indeed the theoretical prediction .
+in contrast , the estimated and theoretical results for t mu - - > e do not agree , as the inference method yields finite values in all cases whereas the theoretical values diverge .
+10.1371 / journal.pone.0187431.t002 table 2 comparison between the theoretical values of the transfer entropy rates t e - - > mu and t mu - - > e for the model of ref .
+[ 4 ] and the values inferred from simulation data .
+averages are taken over 100 times series of duration 106 min , sampled every 1 min. conc. of iptg low intermediate high t e - - > mu ( in h - 1 ) ( theo . )
+0.033 0.034 0 t e - - > mu ( simul . )
+0.031 0.034 - 0.011 t mu - - > e ( theo. ) infinity infinity infinity t mu - - > e ( simul . )
+0.202 0.123 0.347 this behavior is due to the absence of a white noise source directly affecting the dynamical evolution of x in the set of eq ( 12 ) .
+indeed , as pointed out in ref .
+[ 6 ] and also observed above in fig 1 , a te rate diverges when the coupling between the variables is deterministic .
+in the model of ref .
+[ 4 ] , this feature can be traced back to the fact that the noise ne affecting the enzyme concentration is colored with a finite relaxation time betae - 1 .
+therefore , when taking the limit tau - - > 0 in eq ( 3 ) , one explores a time interval tau < betae - 1 where ne is not really random .
+this is illustrated in fig 3a that corresponds to the low iptg experiment : we see that the estimate of t mu - - > e with the inference method is indeed diverging when the sampling time tau approaches zero .
+on the other hand , as expected , t e - - > mu remains finite and the points nicely lie on the plateau determined by eq ( 13 ) .
+10.1371 / journal.pone.0187431.g003 fig 3 transfer entropy rates t e - - > mu and t mu - - > e in the low iptg experiment .
+( a ) original model of ref .
+[ 4 ] ( b ) modified model where ne is a white noise .
+the symbols are the estimates from the inference method when varying the sampling time tau , and the solid lines are the theoretical predictions from eq ( 13 ) in ( a ) and from eq ( 60 ) in ( b ) .
+note that t mu - - > e diverges as tau goes to zero in ( a ) but not ( b ) .
+the obvious and simplest way to cure this undesirable feature of the original model is to treat ne as a purely white noise , which amounts to taking the limit betae - 1 - - > 0 .
+in fact , it is noticeable that the values of betae - 1 extracted from the fit of the correlation functions in ref .
+[ 4 ] ( resp. betae - 1 = 10.7,9.9 and 8.15 min for the low , intermediate , and high iptg concentrations ) are significantly smaller than the time steps tauexp used for collecting the data ( resp. tauexp = 28 , 20 and 15.8 min ) .
+therefore , it is clear that the experimental data are not precise enough to decide whether ne is colored or not .
+this issue does not arise for the other relaxation times in the model , betamu - 1 = betag - 1 and mu0 - 1 , which are much longer ( at least for the low and intermediate iptg concentrations ) , and can be correctly extracted from the experimental data .
+we thus propose to modify the model of ref .
+[ 4 ] by describing ne as a gaussian white noise with variance < ne ( t ) ne ( t ')> = 2dedelta ( t - t ') and the same intensity as the colored noise in the original model , i.e. de = etae2 / betae ( which yields de =~ 0.188h , 0.100h , 0.031h for the three iptg concentrations ) .
+unsurprisingly , this modification does not affect the auto and cross - correlation functions used to fit the data , as shown in fig 4 ( see also section on methods for a detailed calculation ) .
+on the other hand , the values of t e - - > mu are changed ( compare tables 2 and 3 ) and , more importantly , t mu - - > e , given by eq ( 60 ) is now finite .
+as a result , the model predicts that the difference deltat e - - > mu = t e - - > mu - t mu - - > e is positive at low and intermediate iptg concentrations and becomes negative at high concentration , which is in agreement with the direct analysis of the experimental data in table 1 .
+in contrast , deltat e - - > mu was always negative in the original model as t mu - - > e is infinite .
+10.1371 / journal.pone.0187431.g004 fig 4 ( a ) autocorrelation function rmumu ( tau ) for the three iptg concentrations .
+black lines : original model of ref .
+[ 4 ] , red circles : simplified model where ne is a white noise .
+( b ) same as ( a ) for ree ( tau ) .
+( c ) same as ( a ) for remu ( tau ) .
+10.1371 / journal.pone.0187431.t003 table 3 theoretical values of the transfer entropy rates t e - - > mu and t mu - - > e and their difference in the modified model. conc. of iptg low intermediate high t e - - > mu ( h - 1 ) 1.23 . 10 - 2 8.2 . 10 - 3 0 t mu - - > e ( h - 1 ) 1.9 . 10 - 3 5 . 10 - 4 2.97 . 10 - 2 deltat e - - > mu ( h - 1 ) 1.04 . 10 - 2 7.7 . 10 - 3 - 2.97 . 10 - 2 this new behavior of the te rates is also manifest when the inference method is applied to the time series generated by the model and the sampling time tau is varied .
+as observed in fig 3b , the inferred value of t mu - - > e no longer diverges as tau - - > 0 ( compare the vertical scale with that in fig 3a ) .
+the estimates of t e - - > mu and t mu - - > e are also in good agreement with the theoretical predictions , except for the shortest value of tau which is equal to the time step deltat = 1 min used to numerically integrate the equations .
+it worth mentioning , however , that the error bars increase as tau is decreased .
+while the change in the sign of deltat e - - > mu is now confirmed by the model , which is the main outcome of our analysis , one may also wonder whether the numerical values in table 1 are recovered .
+this requires to multiply the rates in table 3 by the experimental sampling times tauexp which are different in each experiment , as indicated above .
+one then observes significant discrepancies for the low and intermediate iptg experiments .
+we believe that the problem arises from the presence of many short time series in the set of experimental data .
+this is a important issue that needs to be examined in more detail since it may be difficult to obtain long time series in practice .
+to this aim , we have studied the convergence of the estimates of deltat e - - > mu to the exact asymptotic value as a function of n , the length of the time series generated by the model in the stationary regime .
+as shown in fig 5 , the convergence with n is slow , which means that one can make significant errors in the estimation of deltat e - - > mu if n is small .
+on the other hand , the convergence can be greatly facilitated by choosing a value of the sampling time which is not too short ( but of course shorter than the equilibration time of the system ) , for instance tau = 6min instead of 1 min in the case considered in fig 5 .
+the important observation is that the sign of deltat e - - > mu is then correctly inferred even with n =~ 1000 .
+in contrast , with tau = 1min , this is only possible for much longer series , typically n =~ 50000 .
+this is an encouraging indication for experimental studies , as the overall acquisition time of the data can be significantly reduced .
+10.1371 / journal.pone.0187431.g005 fig 5 inferred values of deltat e - - > mu for the low iptg experiment as a function of the length n of the time series generated by the modified model .
+panels ( a ) and ( b ) correspond to sampling times tau = 6 min and tau = 1 min , respectively .
+deltat e - - > mu ( infinity ) is the exact asymptotic value .
+finally , we briefly comment on the results for the information flows ie - - > muflow and imu - - > eflow .
+as already pointed out , the fact that the noises acting on the two random variables are correlated invalidates inequality ( 5 ) .
+this is indeed what is observed in table 4 .
+it is also noticeable that ie - - > muflow != - imu - - > eflow , except in the high iptg experiment where tmue = 0 .
+10.1371 / journal.pone.0187431.t004 table 4 comparison between the theoretical values of the te rates and the information flows for the modified model and the values inferred from simulation data ( all quantities are expressed in h - 1 ) .
+the analysis was performed with a sampling tau = 6 min and 100 time series of 106 points. conc. of iptg low intermediate high t e - - > mu , analytical 0.0123 0.0082 0 t e - - > mu , simulation 0.0128 +/ - 6 . 10 - 4 0.0064 +/ - 6 . 10 - 4 - 0.0002 +/ - 5 . 10 - 4 t mu - - > e , analytical 0.0019 0.0005 0.0297 t mu - - > e , simulation 0.0023 +/ - 6 . 10 - 4 0.0012 +/ - 6 . 10 - 4 0.0215 +/ - 7 . 10 - 4 ie - - > muflow , analytical 0.0751 0.092 - 0.0214 ie - - > muflow , simulation 0.076 +/ - 10 - 3 0.09 +/ - 8 . 10 - 4 - 0.018 +/ - 8 . 10 - 4 imu - - > eflow , analytical 0.0455 0.0743 0.0214 imu - - > eflow , simulation 0.047 +/ - 10 - 3 0.072 +/ - 10 - 3 0.015 +/ - 10 - 3 discussion and conclusion a challenge when studying any biochemical network is to properly identify the direction of information .
+in this work , using the notion of transfer entropy , we have characterized the directed flow of information between the single cell growth rate and the gene expression , using a method that goes beyond what could be obtained from correlation functions , or from other inference techniques which do not exploit dynamical information .
+another crucial challenge in the field is to properly model the various noise components .
+it turns out that biological systems are generally non - bipartite due the presence of an extrinsic component in the noise .
+the present work provides on the one hand analytical expressions for the magnitude of the transfer entropy ( or at least an upper bound on it ) and of the information flow when the system is not bipartite , and , on the other hand a numerical method to infer the te in all cases .
+furthermore , we have shown that one can correctly infer the sign of the te difference even with short time series by properly choosing the sampling time ( see ref .
+[ 25 ] for more details on the dependence of te on the sampling time ) .
+to conclude , we would like to emphasize that the transfer entropy is a general tool to identify variables which are relevant for time series prediction [ 26 ] .
+as such , the method has a lot of potential beyond the particular application covered in this paper : predicting the current or future state of the environment by sensing it is an adaptation strategy followed by biological systems which can be understood using information - theoretic concepts [ 11 , 27 ] .
+similarly , during evolution , biological systems accumulate information from their environment , process it and use it quasi - optimally to increase their own fitness [ 28 , 29 ] .
+in this context , transfer entropy - based methods have the potential to identify the directional interactions in co - evolution processes , which could be for instance the genomic evolution of a virus compared to that of its antigenes [ 30 ]. with the recent advances in high - throughput techniques and experimental evolution , we might soon be able to predict reliably the evolution of biological systems [ 31 ] , and without doubt tools of information theory will play a key role in these advances .
+methods in this section , we provide a detailed analysis of the information - theoretic quantities for the various models considered in this paper .
+the section is organized as follows : basic information - theoretic measures transfer entropy and information flow in the feedback cooling model transfer entropy rates and information flows in the model of ref .
+[ 4 ] for a metabolic network transfer entropy rates and information flows in the modified model for the metabolic network basic information - theoretic measures below we briefly recall some definitions and properties of the information - theoretic measures .
+a fundamental quantity is the shannon entropy which quantifies the uncertainty associated with the measurement x of a random variable x : h ( x )= - sumxp ( x ) lnp ( x ) , ( 14 ) where p ( x ) is the probability that event x is realized , given an ensemble of possible outcomes. with this convention , the entropy is measured in nats .
+similarly , for two random variables x and y , one defines the joint shannon entropy h ( x,y )= - sumx,yp ( x,y ) lnp ( x,y ) , ( 15 ) and the conditional shannon entropy h ( x | y )= - sumx,yp ( x,y ) lnp ( x | y ) , ( 16 ) where p ( x , y ) and p ( x | y ) are joint and conditional probability distribution functions , respectively .
+the mutual information i ( x : y ) is then a symmetric measure defined as i ( x : y )= sumx,yp ( x,y ) lnp ( x,y ) p ( x ) p ( y ),= h ( x ) - h ( x | y )= h ( y ) - h ( y | x ) , ( 17 ) which quantifies the reduction of the uncertainty about x ( resp .
+y ) resulting from the knowledge of the value of y ( respx ) .
+the more strongly x and y are correlated , the larger i ( x : y ) is. these notions can be readily extended to random processes x = { xi } and y = { yi } viewed as collections of individual random variables sorted by an integer time index i. the mutual information between the ordered time series { xi } and { yi } , realizations of x and y , is then defined as i ( x : y )= i ( y : x )= sum { xi,yi } p ( xi,yi ) lnp ( xi,yi ) p ( xi ) p ( yi ) , ( 18 ) and characterizes the undirected information exchanged between the two processes .
+the conditional mutual information is defined similarly .
+in contrast , the transfer entropy tx - - > y is a information - theoretic measure that is both asymmetric and dynamic as it captures the amount of information that a source process x provides about the next state of a target process y. more precisely , as defined by eq ( 1 ) in the introduction , tx - - > y = sumi [ i ( yi + 1 : xi ( l ) , yi ( k )) - i ( yi + 1 : yi ( k ))] , ( 19 ) where k and l define the lengths of the process histories , i.e. , yi ( k )={ yi - k + 1 ,... , yi } and xi ( l )={ xi - l + 1 ,... , xi } .
+in this work , we have focused on a history length of 1 ( i.e. k = l = 1 ) and denoted the corresponding te by t x - - > y. hence , t x - - > y = sumi [ h ( yi + 1 | yi ) - h ( yi + 1 | xi,yi )] , which is an upper bound to tx - - > y ( k , l ) for l = 1 when the joint process { x , y } obeys a markovian dynamics [ 11 ] .
+on the other hand , the information flow from x to y is defined as the time - shifted mutual information ix - - > yflow = sumi [ i ( yi : xi ) - i ( yi : xi + 1 )] , ( 20 ) and informs on the reduction of uncertainty in yi when knowing about xi + 1 as compared to what we had with xi only .
+in practice , ix - - > yflow can be obtained by shifting in time one time series with respect to the other one .
+contrary to the transfer entropy which is always a positive quantity , the information flow ix - - > yflow may be negative or positive , depending on whether x sends information to y ( or x gains control of y ) , or y sends information to x ( or x looses control over y ) .
+in a bipartite system one has ix - - > yflow = - iy - - > xflow in the stationary regime .
+this is no longer true when the system is non - bipartite .
+transfer entropy and information flow in the feedback cooling model we first recall the theoretical expressions of the transfer entropy rates and the information flows for the feedback - cooling model described by eq ( 6 ) .
+these quantities were computed in ref .
+[ 16 ] .
+the transfer entropy rates in the stationary state are given by tv - - > y = gamma2m ( 1 + 2tgammasigma2 - 1 ) ty - - > v = 12taur ( 1 + a2sigma22gammat - 1 ) .
+( 21 ) note that 2t /( gammasigma2 ) is the signal - to - noise ratio that quantifies the relative size of the measurement accuracy to the thermal diffusion of the velocity .
+accordingly , the te rate tv - - > y diverges when the control is deterministic .
+the information flow iv - - > yflow is given by iv - - > yflow = gammam ( t < y2 > m | sigma | - 1 ) ( 22 ) where | sigma | is the determinant of the covariance matrix .
+the analytical expressions of the elements of the matrix , < v2 > , < y2 > and < vy > , are given by eqs ( a2 ) in ref .
+[ 16 ] .
+in contrast with tv - - > y , the information flow iv - - > yflow remains finite as the noise intensity vanishes .
+the upper bounds to the transfer entropies ( see eq ( 2 )) were computed in ref .
+[ 24 ] in the general case of coupled linear langevin equations .
+for the feedback cooling model , one obtains t v - - > y = 12sigma2 < y2 >| sigma | t y - - > v = a24gammakbt < v2 >| sigma | .
+( 23 ) as shown in fig 1 , the estimate of the transfer entropy obtained by the inference method is in good agreement with the theoretical value ( we stress that the figure shows the rates multiplied by the sampling time tau = 10 - 3 ) .
+in fig 6 , we also obtain satisfactory agreement between inferred value of the information flow iv - - > yflow and theoretical value , when representing these quantities against the noise intensity sigma2 .
+these results of this figure confirm the inequalities iv - - > yflow <= tv - - > y <= t v - - > y .
+10.1371 / journal.pone.0187431.g006 fig 6 tv - - > y,t v - - > y and iv - - > yflow as a function of the noise intensity sigma2 .
+the parameters of the model are t = 5 , gamma = m = 1 , taur = 0.1 and a = - 0.7 .
+transfer entropy rates and information flows in the model of ref .
+[ 4 ] for a metabolic network stationary distributions and correlation functions we first compute the stationary probability distributions ( pdfs ) associated with eq ( 12 ) were the coefficients aj and bj are given by a1 = - [ mue + mu0tmue ( teg - 1 )] a2 = mu0a3 = - mu0tega4 = mu0 ( teg - 1 ) b1 = tmue [ betag - mue - mu0tmue ( teg - 1 )] b2 = mu0tmueb3 = betag - betamu - mu0tmuetegb4 = mu0tmue ( teg - 1 ) - betag .
+( 24 ) we recall that mue = mu0 ( 1 + tmue - tee ) sets the timescale of e - fluctuations [ 4 ] .
+since eq ( 12 ) describe a set of coupled markovian ornstein - uhlenbeck processes , the stationary pdf pxuvy ( x , u , v , y ) is gaussian and given by pxuvy ( x,u,v,y )= 1 ( 2pi ) 2 | sigma | e - 12 ( x,u,v,y ). sigma - 1. ( x,u,v,y ) t , ( 25 ) where sigma is the covariance matrix which obeys the lyapunov equation [ 32 ] asigma + sigmaat = 2d , ( 26 ) where a =( - a1 - a2 - a3 - a40betae0000betamu0 - b1 - b2 - b3 - b4 ) , andd =( 00000betaeetae20000betamuetamu2betamuetamu200betamuetamu2betagetag2 + betamuetamu2 ) .
+the solution of eq ( 26 ) reads sigma11 = mu02mue [ etae2mue + betae + etamu2mue + betamu +( teg - 1 ) 2mue + betagetag2 ] sigma12 = sigma21 = mu0mue + betaeetae2sigma13 = sigma31 = - mu0mue + betamuetamu2sigma14 = sigma41 = mu0mue [ mu0tmuemue + betaeetae2 +( mu0tmue - mue ) mue + betamuetamu2 +( teg - 1 )[ mu0tmue ( teg - 1 )+ mue ] mue + betagetag2 ] sigma22 = etae2sigma23 = 0sigma24 = sigma42 = mu0tmuemue + betaeetae2sigma33 = etamu2sigma34 = sigma43 = mue + betamu - mu0tmuemue + betamuetamu2sigma44 = mu02tmue2mue ( mue + betae ) etae2 +[( mu0tmue - mue ) 2 + muebetamu ] mue ( mue + betamu ) etamu2 + mu02tmue2 ( teg - 1 ) 2 + mue [ mue + betag ] mue ( mue + betag ) etag2 + 2mu0tmue ( teg - 1 )] mue ( mue + betag ) etag2 ( 27 ) from this we can compute all marginal pdfs , in particular pxy ( x,y )= 12pisigma11sigma44 - sigma142e - 12sigma44x2 - 2sigma14xy + sigma11y2sigma11sigma44 - sigma142 , ( 28 ) and px ( x )= 12pisigma11e - x22sigma11py ( y )= 12pisigma44e - y22sigma44 .
+( 29 ) as an illustration , the steady - state pdf p ( mu )= 1mu0py ( y = mu - mu0mu0 ) is plotted in fig 7 for the three different iptg concentrations ( low , intermediate , and high ) .
+the agreement with the experimental curves displayed in fig 1d of ref .
+[ 4 ] is satisfactory .
+10.1371 / journal.pone.0187431.g007 fig 7 steady - state probability distribution of the growth rate for the three iptg concentrations : low ( black ) , intermediate ( red ) , high ( blue ) .
+for completeness , we also quote the expressions of rpp ( 0 ) and rpmu ( 0 ) ( properly normalized ) obtained from the definition deltap /( mu0e0 )= deltae. /( mu0e0 )+ deltamu / mu0 + deltae / e0 =( tee - tegtmue ) x + u - teg ( v - y ) : rpp ( 0 )=( tee - tegtmue ) 2sigma11 + sigma22 + teg2 ( sigma33 + sigma44 )+ 2 ( tee - tegtmue )[ sigma12 + teg ( sigma14 - sigma13 )]+ 2tegsigma24 - 2teg2sigma34 ( 30 ) rpmu ( 0 )=( tee - tegtmue ) sigma14 + sigma24 + teg ( sigma44 - sigma34 ) rpp ( 0 ) rmumu ( 0 ) ( 31 ) with rmumu ( 0 ) = sigma44 .
+the correlation functions rmumu ( tau ) , ree ( tau ) , and remu ( tau ) , obtained by taking the inverse fourier transform of eqs ( 6 ) in the supplementary information of [ 4 ] are plotted in fig 4 .
+in passing , we correct a few misprints in these equations : i ) the correct expression of rmumu ( tau ) is obtained by replacing ae ( tau ) by ree ( tau ) in the first term of eq ( 12 ) in the supplementary information of [ 4 ] .
+ii ) eq ( 10 ) corresponds to remu ( tau ) and not to rmue ( tau ) = remu ( - tau ) .
+eq ( 8 ) then gives the correct expression of remu ( tau ) ( and not of rmue ( tau )) provided the function ax ( tau ) defined in eq ( 10 ) is altered .
+for tau >= 0 , one should have ax ( tau )= thetax2mu02betax ( betax + mue ) e - betaxt .
+( 32 ) transfer entropy rates we now address the computation of the conditional probabilities px'y'y ( y,t + tau | x ' , y ' , t ) and py'y ( y,t + tau | y ' , t ) at first order in tau .
+this will allow us to obtain the expressions of the upper bounds to the transfer entropy rates defined by t x - - > y = limtau - - > 0i [ yt + tau : xt,yt ] - i [ yt + tau : yt ] taut y - - > x = limtau - - > 0i [ xt + tau : xt,yt ] - i [ xt + tau : xt ] tau , ( 33 ) where i is the mutual information , for instance i [ yt + tau : xt,yt ]= integraldydx'dy'px'y'y ( y,t + tau ; x ' , y ' , t ) ln [ px'y'y ( y,t + tau ; x ' , y ' , t )/[ py ( y ) pxy ( x ' , y ')] in the steady state ( where pxy ( x ' , y ') and py ( y ) become time independent pdfs ) .
+therefore , t x - - > y = limtau - - > 01tauintegraldydx'dy'px'y'y ( y,t + tau ; x ' , y ' , t ) xlnpx'y'y ( y,t + tau | x ' , y ' , t ) py'y ( y,t + tau | y ' , t ) t y - - > x = limtau - - > 01tauintegraldydx'dy'px'y'x ( x,t + tau ; x ' , y ' , t ) xlnpx'y'x ( x,t + tau | x ' , y ' , t ) px'x ( x,t + tau | x ' , t ) .
+( 34 ) note that the actual transfer entropy rates are defined as tx - - > y = limtau - - > 0i [ yt + tau : xt ,{ yt '} t '<= t ] - i [ yt + tau :{ yt '} t '<= t ] tauty - - > x = limtau - - > 0i [ xt + tau :{ xt '} t '<= t,yt ] - i [ xt + tau :{ xt '} t '<= t ] tau .
+( 35 ) where { xt '} t '<= t and { yt '} t '<= t denote the full trajectories of xt and yt in the time interval [ 0 , t ] .
+since the present model is not bipartite , the calculation of these quantities is a nontrivial task that is left aside .
+the two - time distributions px'y'y ( y,t + tau ; x ' , y ' , t ) and px'y'x ( x,t + tau ; x ' , y ' , t ) are given by px'y'y ( y,t + tau ; x ' , y ' , t )= integraldxdudvdu'dv'pz'z ( z,t + tau | z ' , t ) pxuvy ( z ') px'y'x ( x,t + tau ; x ' , y ' , t )= integraldydudvdu'dv'pz'z ( z,t + tau | z ' , t ) pxuvy ( z ') ( 36 ) where pz'z ( z,t + tau | z ' , t ) is the transition probability from the state z '=( x ' , u ' , v ' , y ') at time t to the state z =( x,u,v,y ) at time t + tau. from the definition of the fokker - planck operator lfp associated with the 4 - dimensional diffusion process described by eq ( 12 ) , the transition probability for small times is given by [ 32 ] pz'z ( z,t + tau | z ' , t )=[ 1 + taulfp ( z,t )+ o ( tau2 )] delta ( z - z ')= delta ( z - z ') - tausumi = 14dzi [ gi ( z ') - sumjthetai,j22dzj ] delta ( z - z ') ( 37 ) where gi ( z ) is the drift coefficient in the equation for zi ( with z1 = x , z2 = u , z3 = v , z4 = y ) , theta2,2 = thetae,theta3,3 = theta3,4 = thetamu,theta4,4 = thetamu2 + thetag2 and all other thetai , j being equal to 0 .
+let us first consider the calculation of t x - - > y. by integrating pz'z ( z,t + tau | z ' , t ) over x , u , and v , we readily obtain pz'y ( y,t + tau | z ' , t )= delta ( y - y ') - taudy [ gy ( z ') - betamuetamu2dv - ( betamuetamu2 + betagetag2 ) dy ] delta ( y - y ')+ o ( tau2 ) where the terms involving dx , du , dv cancel due to natural boundary conditions .
+hence , pz'y ( y,t + tau ; z ' , t )= pz'y ( y,t + tau | z ' , t ) pxuvy ( z ')= delta ( y - y ') p ( z ') - taupxuvy ( z ') xdy [ gy ( z ') - betamuetamu2dv - ( betamuetamu2 + betagetag2 ) dy ] delta ( y - y ') , ( 38 ) which yields px'y'y ( y,t + tau ; x ' , y ' , t )= delta ( y - y ') pxy ( x ' , y ') - taupxy ( x ' , y ') dy [ g y ( x ' , y ') - ( betamuetamu2 + betagetag2 ) dy ] delta ( y - y ') .
+( 39 ) after integration over u ' and v ' , where we have defined the averaged drift coefficient g y ( x,y )= 1pxy ( x,y ) integraldudvgy ( z ) pxuvy ( z ) .
+( 40 ) we thus finally obtain px'y'y ( y,t + tau | x ' , y ' , t )= delta ( y - y ') - taudy [ g y ( x ' , y ') - ( betamuetamu2 + betagetag2 ) dy ] delta ( y - y ')+ o ( tau2 ) .
+( 41 ) similarly , by also integrating pz'y ( y,t + tau ; x ' , y ' , t ) over x ' , we obtain py'y ( y,t + tau | y ' , t )= delta ( y - y ') - taudy [ g y ( y ') - ( betamuetamu2 + betagetag2 ) dy ] delta ( y - y ')+ o ( tau2 ) .
+( 42 ) where g y ( y )= 1py ( y ) integraldxdudvgy ( z ) pxuvy ( z )= 1py ( y ) integraldxg y ( x,y ) pxy ( x,y ) .
+( 43 ) due to the linearity of eq ( 12 ) and the gaussian character of the pfds , one simply has g y ( x,y )= ax + by and g y ( y )= cy , where a , b , c are complicated functions of the model parameters which we do not display here .
+eq ( 41 ) ( resp. eq ( 42 )) merely shows that px'y'y ( y,t + tau | x ' , y ' , t ) ( resp .
+py'y ( y,t + tau | y ' , t )) at the lowest order in tau is identical to the transition probability associated with an ornstein - uhlenbeck process with drift coefficient g y ( x,y ) ( resp .
+g y ( y )) and diffusion coefficient betamuetamu2 + betagetag2 .
+to proceed further , it is then convenient to use to the fourier integral representation of the delta function and re - express px'y'y ( y,t + tau | x ' , y ' , t ) and py'y ( y,t + tau | y ' , t ) for small times as px'y'y ( y,t + tau | x ' , y ' , t )= 12pi ( betamuetamu2 + betagetag2 ) taue - 14 ( betamuetamu2 + betagetag2 ) tau [ y - y ' - taug y ( x ' , y ')] 2 ( 44 ) and py'y ( y,t + tau | y ' , t )= 12pi ( betamuetamu2 + betagetag2 ) taue - 14 ( betamuetamu2 + betagetag2 ) tau [ y - y ' - taug y ( y ')] 2 .
+( 45 ) up to corrections of the order tau2 [ 32 ] .
+this leads to lnpx'y'y ( y,t + tau | x ' , y ' , t ) py'y ( y,t + tau | y ' , t )= 14 ( betamuetamu2 + betagetag2 )[ 2 ( y - y ') - tau [ g y ( x ' , y ')+ g y ( y ')]] x [ g y ( x ' , y ') - g y ( y ')] , ( 46 ) and from eq ( 39 ) and the definition of the transfer entropy rate [ eq ( 34 )] , 4 ( betamuetamu2 + betagetag2 ) t x - - > y = limtau - - > 01tauintegraldydx'dy'px'y'y ( y,t + tau ; x ' , y ' , t )[ 2 ( y - y ') - tau [ g y ( x ' , y ')+ g y ( y ')]][ g y ( x ' , y ') - g y ( y ')]= limtau - - > 01tauintegraldydx'dy'pxy ( x ' , y ')[ delta ( y - y ') - taudy [ g y ( x ' , y ') - ( betamuetamu2 + betagetag2 ) dy ] delta ( y - y ')] x [ 2 ( y - y ') - tau [ g y ( x ' , y ')+ g y ( y ')]][ g y ( x ' , y ') - g y ( y ')] ( 47 ) we then use integraldy ( y - y ')[ delta ( y - y ') - taudy [ g y ( x ' , y ') - ( betamuetamu2 + betagetag2 ) dy ] delta ( y - y ')]= taug y ( x ' , y ') , ( 48 ) and integraldx'pxy ( x ' , y ') g y ( x ' , y ')= py ( y ') g y ( y ')= integraldx'pxy ( x ' , y ') g y ( y ') , ( 49 ) to finally arrive at eq ( 13 ) , namely t x - - > y = 14 ( betamuetamu2 + betagetag2 ) integraldxdypxy ( x,y )[ g y2 ( x,y ) - g y2 ( y )] .
+( 50 ) a similar expression can be found in ref .
+[ 11 ] ( see eq ( a.31 ) in that reference ) .
+note also that the result given in ref .
+[ 24 ] is obtained as a special case .
+inserting into eq ( 13 ) the values of the parameters given in table s1 of ref .
+[ 4 ] , we obtain the values given in table 2 .
+note that t e - - > mu = 0 for the high iptg concentration because tmue = 0 , and therefore mu ( t ) no longer depends on e ( t ) as can be seen from eq ( 10 ) .
+there is no need to detail the calculation of t mu - - > e ( i.e. t y - - > x ) because it goes along the same line , with y replaced by x. the crucial difference is that there is no white noise acting on x. .
+therefore , the denominator in eq ( 13 ) , which is the variance of the noise xiy , is replaced by 0 .
+this implies that t mu - - > e is infinite .
+information flows the information flows ix - - > yflow and iy - - > xflow are derived from the time - shifted mutual informations i [ xt + tau : yt ] and i [ yt + tau : xt ] .
+specifically , ix - - > yflow = limtau - - > 0i [ xt : yt ] - i [ xt + tau : yt ] tauiy - - > xflow = limtau - - > 0i [ yt : xt ] - i [ yt + tau : xt ] tau .
+( 51 ) let us first consider the second flow iy - - > xflow which requires the knowledge of px'y ( y,t + tau ; x ' , t ) whose expression is obtained by integrating eq ( 39 ) over x ' .
+this yields px'y ( y,t + tau ; x ' , t )= pxy ( x ' , y ) - taudy [ g y ( x ' , y ) - ( betamuetamu2 + betagetag2 ) dy ] pxy ( x ' , y )+ o ( tau2 ) .
+( 52 ) hence i [ yt + tau : xt ]= integraldx'dypx'y ( y,t + tau ; x ' , t ) xlnpx'y ( y,t + tau ; x ' , t ) py ( y ) px ( x ')= i [ yt : xt ] - tauintegraldxdydy [ g y ( x,y ) - ( betamuetamu2 + betagetag2 ) dy ] pxy ( x,y ) lnpxy ( x,y ) py ( y ) px ( x ) .
+( 53 ) we finally obtain iy - - > xflow = integraldxdydy [ g y ( x,y ) pxy ( x,y ) - ( betamuetamu2 + betagetag2 ) dypxy ( x,y )] lnpxy ( x,y ) py ( y ) px ( x ) .
+( 54 ) a similar calculation yields ix - - > yflow = integraldxdydx [ g x ( x,y ) pxy ( x,y )] lnpxy ( x,y ) py ( y ) px ( x ) , ( 55 ) where g x ( x,y )= 1pxy ( x,y ) integraldudvgx ( z ) pxuvy ( z ) ( 56 ) is an averaged drift coefficient .
+contrary to the case of the transfer entropy rate t y - - > x , the absence of a white noise acting on x. does not lead to an infinite result for iy - - > xflow .
+in fact , one has the symmetry relation ix - - > yflow = - iy - - > xflow , ( 57 ) which is readily obtained by noting that pxy ( x , y ) , the stationary solution of the fokker - planck equation , satisfies the equation dx [ g x ( x,y ) pxy ( x,y )]+ dy [ g y ( x,y ) pxy ( x,y )] - ( betamuetamu2 + betagetag2 ) d2dy2pxy ( x,y )= 0 .
+( 58 ) inserting the numerical values of the parameters given in table s1 of ref .
+[ 4 ] , we obtain the values given in table 5 below .
+interestingly , ie - - > muflow decreases as the iptg concentration increases and that it becomes negative at high concentration .
+10.1371 / journal.pone.0187431.t005 table 5 theoretical values of ix - - > yflow = - iy - - > xflow in the original model of ref .
+[ 4 ]. conc. of iptg low intermediate high ie - - > muflow ( in h - 1 ) 0.0148 0.0088 - 0.0243 transfer entropy rates and information flows in the modified model for the metabolic network we now repeat the above calculations for the modified model where ne is treated as a white noise .
+eliminating again the variable w ( i.e. ng ) in favor of y , the new set of equations that describe the stochastic dynamics and replace eq ( 12 ) reads x. = - [ mue + mu0tmue ( teg - 1 )] x - mu0tegv + mu0 ( teg - 1 ) y + xixv. = - betamuv + ximuy. = tmue [ betag - mue - mu0tmue ( teg - 1 )] x +[ betag - betamu - mu0tmueteg ] v +[ mu0tmue ( teg - 1 ) - betag ] y + xi ~ y , ( 59 ) where we have defined the white noises xix = mu0ne and xi ~ y = xiy + tmuexix satisfying < xix ( t ) xix ( t ')>= 2demu02delta ( t - t ') and < xi ~ y ( t ) xi ~ y ( t ')>=( thetamu2 + thetag2 + 2demu02tmue2 ) delta ( t - t ') , respectively .
+these two noises are correlated , with < xix ( t ) xi ~ y ( t ')>= 2demu02tmuedelta ( t - t ') .
+the pdfs and the correlation functions can be computed as before .
+in fact , it is clear that this simply amounts to taking the limit betae - - > infinity with de = etae2 / betae finite in the previous equations ( for instance in eq ( 27 ) for the covariances ) .
+the new correlation functions are plotted in fig 4 .
+as expected , they are almost indistinguishable from those obtained with the original model and they fit the experimental data just as well ( this of course is also true for the pdfs ) .
+much more interesting are the results for the transfer entropy rates and the information flows .
+again , there is no need to repeat the calculations as they follow the same lines as before .
+we now obtain t x - - > y = 14 ( betamuetamu2 + betagetag2 + demu02tmue2 ) xintegraldxdypxy ( x,y )[ g y2 ( x,y ) - g y2 ( y )] ( 60 ) t y - - > x = 14demu02integraldxdypxy ( x,y )[ g x2 ( x,y ) - g x2 ( x )] , ( 61 ) where g x ( x,y )= 1pxy ( x,y ) integraldugx ( x,v,y ) pxvy ( x,v,y ) ( 62 ) g y ( x,y )= 1pxy ( x,y ) integraldugy ( x,v,y ) pxvy ( x,v,y ) , ( 63 ) and g x ( x )= 1px ( x ) integraldyg x ( x,y ) pxy ( x,y ) ( 64 ) g y ( y )= 1py ( y ) integraldxg y ( x,y ) pxy ( x,y ) .
+( 65 ) ( again , gx ( x , v , y ) and gy ( x , v , y ) denote the drift coefficients in eq ( 59 )) .
+the crucial difference with the results for the original model is that t y - - > x is now finite .
+similarly , we have i.x - - > yflow = integraldxdydx [ g x ( x,y ) pxy ( x,y ) - demu02dxpxy ( x,y )] lnpxy ( x,y ) py ( y ) px ( x ) ( 66 ) i.y - - > xflow = integraldxdydy [ g y ( x,y ) pxy ( x,y ) - ( betamuetamu2 + betagetag2 + demu02tmue2 ) dypxy ( x,y )] xlnpxy ( x,y ) py ( y ) px ( x ) .
+( 67 ) the numerical values of t e - - > mu and t mu - - > e are given in table 3 .
+for completeness , we also compare these values with the estimates obtained by the inference method in table 4 .
+we see that satisfactory results are obtained by properly choosing the sampling time tau .
+this is also true for the information flows ie - - > muflow and imu - - > eflow .
+it is worth noting that the symmetry relation i.e - - > muflow = - i.mu - - > eflow no longer holds , except for the high iptg concentration ( as tmue = 0 ) .
+this contrasts with the preceding case where ne was modeled by an ornstein - uhlenbeck noise .
+we also observe that the information flows are not always smaller than the transfer entropy rates , contrary to what occurs in bipartite systems .
+therefore , the concept of a " sensory capacity " as introduced in ref .
+[ 11 ] is here ineffective .
+we acknowledge j. lizier for many insightful comments regarding the numerical evaluation of transfer entropies , and l. peliti for stimulating discussions .
+s.l. thanks the institute of complex systems ( isc - pif ) , the region ile - de - france , and the labex celtisphybio ( no. anr - 10 - lbx - 0038 ) part of the idex psl ( no. anr - 10 - idex - 0001 - 02 psl ) for financial support .
+references 1 prill rj , vogel r , cecchi ga , altan - bonnet g , stolovitzky g . noise - driven causal inference in biomolecular networks . plos one .
+2015 ; 10 ( 6 ) : e0125777 doi : 10.1371 / journal.pone.0125777 26030907 2 affeldt s , verny l , isambert h . 3off2 : a network reconstruction algorithm based on 2 - point and 3 - point information statistics . bmc bioinformatics .
+2016 ; 17 ( s2 ) .
+doi : 10.1186 / s12859 - 015 - 0856 - x 3 dunlop mj , cox rs , levine jh , murray rm , elowitz mb . regulatory activity revealed by dynamic correlations in gene expression noise . nat genet .
+2008 ; 40 ( 12 ) : 1493 - 1498 . doi : 10.1038 / ng.281 19029898 4 kiviet dj , nghe p , walker n , boulineau s , sunderlikova v , tans sj . stochasticity of metabolism and growth at the single - cell level . nature .
+2014 ; 514 : 376 doi : 10.1038 / nature13582 25186725 5 granger cwj . investigating causal relations by econometric models and cross - spectral methods . econometrica .
+1969 ; 37 ( 3 ) : 424 - 438 . doi : 10.2307 / 1912791 6 schreiber t . measuring information transfer . phys rev lett .
+2000 ; 85 : 461 doi : 10.1103 / physrevlett.85.461 10991308 7 wibral m , pampu n , priesemann v , siebenhuhner f , seiwert h , lindner m , et al measuring information - transfer delays . plos one .
+2013 ; 8 : e55809 doi : 10.1371 / journal.pone.0055809 23468850 8 pahle j , green ak , dixon cj , kummer u . information transfer in signaling pathways : a study using coupled simulated and experimental data . bmc bioinformatics .
+2008 ; 9 ( 1 ) : 139 doi : 10.1186 / 1471 - 2105 - 9 - 139 18318909 9 vicente r , wibral m , lindner m , pipa g . transfer entropy - - a model - free measure of effective connectivity for the neurosciences . journal of computational neuroscience .
+2011 ; 30 ( 1 ) : 45 - 67 . doi : 10.1007 / s10827 - 010 - 0262 - 3 20706781 10 lizier tj , prokopenko m . differentiating information transfer and causal effect . eur phys j b .
+2010 ; 73 ( 4 ) : 605 - 615 . doi : 10.1140 / epjb / e2010 - 00034 - 5 11 hartich d , barato ac , seifert u . sensory capacity : an information theoretical measure of the performance of a sensor . phys rev e .
+2016 ; 93 : 022116 doi : 10.1103 / physreve.93.022116 26986297 12 tusch s , kundu a , verley g , blondel t , miralles v , demoulin d , et al energy versus information based estimations of dissipation using a pair of magnetic colloidal particles . phys rev lett .
+2014 ; 112 : 180604 doi : 10.1103 / physrevlett.112.180604 24856685 13 lizier jt. jidt : an information - theoretic toolkit for studying the dynamics of complex systems .
+frontiers in robotics and ai .
+2014 ; 1:11 ( 11 ) .
+14 parrondo jmr , horowitz jm , sagawa t . thermodynamics of information . nature physics .
+2015 ; 11 : 131 doi : 10.1038 / nphys3230 15 horowitz jm , esposito m . thermodynamics with continuous information flow . phys rev x .
+2014 ; 4 : 031015 . 16 horowitz jm , sandberg h . second - law - like inequalities with information and their interpretations . new j phys .
+2014 ; 16 : 125007 doi : 10.1088 / 1367 - 2630 / 16 / 12 / 125007 17 hartich d , barato ac , seifert u . stochastic thermodynamics of bipartite systems : transfer entropy inequalities and a maxwell 's demon interpretation . j stat mech .
+2014 ; 2014 ( 2 ) : p02016 doi : 10.1088 / 1742 - 5468 / 2014 / 02 / p02016 18 allahverdyan ae , janzing d , mahler g . thermodynamic efficiency of information and heat flow . j stat mech .
+2009 ; 2009 ( 09 ) : p09011 doi : 10.1088 / 1742 - 5468 / 2009 / 09 / p09011 19 bowsher cg , swain ps . identifying sources of variation and the flow of information in biochemical networks . proc natl acad sci usa .
+2012 ; 109 ( 20 ) : e1320 - e1328 . doi : 10.1073 / pnas.1119407109 22529351 20 kim kh , qian h . entropy production of brownian macromolecules with inertia . phys rev lett .
+2004 ; 93 : 120602 doi : 10.1103 / physrevlett.93.120602 15447247 21 munakata t , rosinberg ml . feedback cooling , measurement errors , and entropy production . j stat mech .
+2013 ; 2013 ( 06 ) : p06014 doi : 10.1088 / 1742 - 5468 / 2013 / 06 / p06014 22 sauer t . computational solution of stochastic differential equations . wiley interdisciplinary reviews : computational statistics .
+2013 ; 5 ( 5 ) : 362 - 371 . doi : 10.1002 / wics.1272 23 monteoliva d , diambra l . information propagation in a noisy gene cascade . phys rev e .
+2017 ; 96 : 012403 doi : 10.1103 / physreve.96.012403 24 ito s , sagawa t . maxwell 's demon in biochemical signal transduction with feedback loop . nat commun .
+2014 ; 6 : 7498 doi : 10.1038 / ncomms8498 25 barnett l , seth ak . detectability of granger causality for subsampled continuous - time neurophysiological processes . journal of neuroscience methods .
+2017 ; 275 : 93 - 121 . doi : 10.1016 / j.jneumeth.2016.10.016 27826091 26 tishby n , pereira fc , bialek w. the information bottleneck .
+arxiv preprint physics / 0004057 .
+2000 ; .
+27 tostevin f , ten wolde pr . mutual information between input and output trajectories of biochemical networks . phys rev lett .
+2009 ; 102 : 218101 doi : 10.1103 / physrevlett.102.218101 19519137 28 kobayashi t , sughiyama y . fluctuation relations of fitness and information in population dynamics . phys rev lett .
+2015 ; 115 : 238102 doi : 10.1103 / physrevlett.115.238102 26684143 29 halabi n , rivoire o , leibler s , ranganathan r . protein sectors : evolutionary units of three - dimensional structure . cell .
+2009 ; 138 ( 4 ) : 774 - 786 . doi : 10.1016 / j.cell.2009.07.038 19703402 30 smith dj , lapedes as , de jong jc , bestebroer tm , rimmelzwaan gf , osterhaus adme , et al mapping the antigenic and genetic evolution of influenza virus . science .
+2004 ; 305 ( 5682 ) : 371 - 376 . doi : 10.1126 / science.1097211 15218094 31 lassig m , mustonen v , walczak am . predicting evolution . nat ecol evol .
+2017 ; 1 ( 0077 ) : 1 - 9 . 28812620 32 risken h . the fokker - planck equation .
+springer ; 1989 .

@@ -1,0 +1,325 @@
+plos one plos one plos plosone plos one 1932 - 6203 public library of science san francisco , usa 23505538 3591369 pone - d - 12 - 24824 10.1371 / journal.pone.0058583 research articlebiologybiochemistryproteinsprotein interactionsprotein structurebiomacromolecule - ligand interactionssmall moleculesbiophysicsbiomacromolecule - ligand interactionscomputational biologymacromolecular structure analysismacromolecular complex analysisprotein structuremedicinedrugs and devicesdrug research and developmentdrug discovery predicting where small molecules bind at protein - protein interfaces small molecule binding at protein interfaces walter peter metzger jennifer thiel christoph helms volkhard * center for bioinformatics , saarland university , saarbrucken , germany gursoy attila editor koc university , turkey * e - mail : volkhard.helms @ bioinformatik - uni - saarland.de competing interests : the authors have declared that no competing interests exist .
+conceived and designed the experiments : pw jm vh. performed the experiments : pw jm. analyzed the data : pw jm vh. contributed reagents / materials / analysis tools : pw ct. wrote the paper : pw jm vh .
+2013 7 3 2013 8 3 e58583 17 8 2012 7 2 2013 ( c ) 2013 walter et al 2013 walter et althis is an open - access article distributed under the terms of the creative commons attribution license , which permits unrestricted use , distribution , and reproduction in any medium , provided the original author and source are properly credited .
+small molecules that bind at protein - protein interfaces may either block or stabilize protein - protein interactions in cells .
+thus , some of these binding interfaces may turn into prospective targets for drug design .
+here , we collected 175 pairs of protein - protein ( pp ) complexes and protein - ligand ( pl ) complexes with known three - dimensional structures for which ( 1 ) one protein from the pp complex shares at least 40 % sequence identity with the protein from the pl complex , and ( 2 ) the interface regions of these proteins overlap at least partially with each other .
+we found that those residues of the interfaces that may bind the other protein as well as the small molecule are evolutionary more conserved on average , have a higher tendency of being located in pockets and expose a smaller fraction of their surface area to the solvent than the remaining protein - protein interface region .
+based on these findings we derived a statistical classifier that predicts patches at binding interfaces that have a higher tendency to bind small molecules .
+we applied this new prediction method to more than 10 000 interfaces from the protein data bank .
+for several complexes related to apoptosis the predicted binding patches were in direct contact to co - crystallized small molecules .
+the authors have no support or funding to report .
+introduction protein - protein interactions play important roles in most cellular processes [ 1 ] , [ 2 ] .
+in the yeast s. cerevisiae , for example , interaction partners have been reported for more than 5 000 of the 6 000 yeast proteins [ 3 ] .
+in human cells , protein interactions are involved , among others , in signaling processes , such as in the mapk cascade , and in regulatory processes , such as the g - protein activated processes of hormone detection .
+therefore , protein interactions are of vital interest for pharmaceutical intervention .
+currently , the main approach for designing inhibitors and modulators of protein - protein interactions aims at designing peptidomimetics that compete with the natural partner protein for the same interface [ 4 ] .
+as some of these binding interfaces can also bind small molecule ligands , modulating the activities of protein - protein complexes by competitive or allosteric small molecule protein - protein inhibitors ( smppis ) has become an area of very active interest in current pharmaceutical research [ 5 ] , [ 6 ] .
+although rational design of smppis still presents a considerable challenge [ 5 ] , promising progress has been made in several cases towards finding small molecules that efficiently inhibit protein - protein interactions .
+a prominent example is the p53 - mdm2 system that is a promising putative target for cancer therapy [ 7 ] .
+our structural understanding of how proteins interact with other proteins and with small molecule ligands is largely based on the atomistic three - dimensional protein structures deposited in the protein data bank ( pdb ) [ 8 ] .
+statistical analysis of these complexes has allowed deriving some general principles about the binding interfaces of protein complexes .
+for example , permanent complexes tend to have large and hydrophobic interfaces whereas transient interactions often involve binding via smaller and more polar interfaces [ 9 ] .
+besides , some binding interfaces resemble an o - ring where a hydrophobic interior is surrounded by a ring formed of polar and charged residues [ 10 ] .
+protein binding interfaces are rather flat , on average , particularly when compared to those involved in binding small ligands that often bind into pronounced clefts on the protein surface .
+yet , binding of ligands and / or the natural conformational dynamic fluctuations of proteins may induce the formation of binding pockets of suitable size and polarity as shown for several systems such as il2 - il2 - r , p53 - mdm2 , and bcl - xl [ 5 ] , [ 11 ] .
+interestingly , not all interface residues play the same role for the stability ( binding affinity ) of the complex .
+there often exists a subset of interface residues , the so - called hot spots , that are mainly responsible for the binding affinity [ 10 ] , [ 12 ] and may be promising locations for binding of small molecules .
+moreover , these hot spot residues are generally not spread over the entire interface but are located in clusters [ 13 ] , [ 14 ] .
+thus , one could expect that successful smppis preferentially bind in regions where hot spots residues are enriched .
+besides experimental information on the location of hot spots , several fast computational prediction - algorithms are available for predicting hot spot residues at protein - protein interfaces [ 15 ] , [ 16 ] with about 70 % accuracy [ 17 ] .
+kozakov et al. have recently demonstrated for 15 ppi target proteins that druggable sites comprise a cluster of binding hot spots with rather concave topology [ 18 ] .
+in general , the binding pockets were formed by a mosaic - like pattern of hydrophobic and polar amino acids so that they could accommodate well a mixture of 16 organic probe molecules in a procedure termed ' computational solvent mapping ' .
+furthermore , metz et al. selected promising configurations for ligand docking from an ensemble of protein conformations [ 19 ] based on predicted hot spot residues from mm - pbsa calculations .
+very few studies have compared the general properties of protein - protein and protein - ligand complexes [ 7 ] , [ 20 ] - [ 22 ] .
+the timbal database contains structural data for a small number of protein - protein complexes and their complementary protein - ligand inhibitor complexes [ 23 ] .
+davis and sali [ 24 ] compiled a large dataset of protein - protein and protein - ligand complexes .
+they classified surface residues at the binding interface into ' bifunctional sites' that contain residues that bind to other proteins as well as to small - molecule ligands , and ' mono - functional sites' that only interact with other proteins .
+bifunctional sites can be predicted with high accuracy by a homology transfer algorithm termed homolobind when homologous template binding sites are known [ 25 ] .
+koes and camacho predicted so - called ' small - molecule inhibitor starting points' ( smisps ) on the surface of the protein binding partner [ 26 ] .
+their statistical classifier achieved 70 % leave - one - complex - out cross - validation accuracy .
+similar to these two works , we analyze here pp : pl pairs in which a ligand lj and a second protein pi2 compete for the same binding interface on the surface of the first protein pi1 / pi3 .
+for these interfaces , our method predicts ' where at the binding interface small - molecule ligands will bind most likely ' .
+materials and methods compilation of non - redundant dataset all interface data and features were retrieved from our abcsquare database [ 27 ] that is based on the structures of biomolecular protein - protein and protein - ligand complexes taken from the pdb database [ 8 ] .
+for each complex , the abcsquare database provides a list of interface residues that were identified using a distance based approach .
+any surface residue is considered as interface residue if at least one residue from the binding partner can be found within a radius of 5 a. the main dataset for this study ( see table s1 ) contains a list of pp : pl pairs where one protein may bind either a second protein or a small molecule ligand at the same interface .
+at first , we compiled a non - redundant set of tuples ( pi1 , pi2 ):( pi3 , lj ) where pi1 , pi2 and pi3 are three proteins and lj is a small molecule ligand .
+precisely , we considered small molecules that are defined as ' hetatoms' in the pdb file except for ions and water molecules .
+valid tuples were required to fulfil the following four conditions : pi1 and pi2 are members of a protein - protein complex that is deposited in the pdb .
+pi3 and lj are members of a protein - ligand complex that is deposited in the pdb .
+pi1 and pi3 share at least 40 % sequence identity .
+the aligned positions in the binding interfaces of pi1 - pi2 and pi3 - lj have at least two residues in common .
+in the following we denote pi1 and pi3 as reference proteins as they determine the relation between the tuples ( pi1 , pi2 ) and ( pi3 , lj ) .
+for checking the last condition , the sequences of the reference proteins were aligned to each other .
+this resulted in a mapping of the respective interface regions .
+residue pairs of proteins pi1 and pi3 that belong both to the pi1 - pi2 as well as to the pi3 - lj interface were termed ' overlapping ' residues .
+the remaining interface residues of pi1 were termed ' non - overlapping ' residues , see fig. 1. we did not consider pp : pl pairs that contained only one overlapping residue as this marginal overlap was considered being too small for deriving a meaningful statistical classifier .
+this procedure resulted in a dataset of about 10 000 pairs of complexes .
+10.1371 / journal.pone.0058583.g001 figure 1 schematic representation of a pp complex ( left ) and a pl complex ( right ) .
+pp and pl share an identical or similar ' reference protein ' .
+the interface areas shown in light grey were determined using a distance criterion as described in the methods section .
+overlap residues form contacts in the pp complex as well as in the pl complex whereas non - overlapping residues form contacts only in one of the complexes .
+however , this dataset may also contain pp : pl pairs where the ligand does not actually compete with the second protein for the interface on protein pi1 , but both lj and pi2 may bind simultaneously , possibly in a cooperative manner .
+as this work focuses on identifying competitive binders , the reference proteins pi3 were geometrically mapped onto the reference proteins pi1 using structural superposition using the program vmd [ 28 ] , see fig. 2. the resulting transformation and rotation matrices were then applied to the ligand lj. if any of the distances between the heavy atoms of lj and pi2 was shorter than the sum of the two atomic radii this indicated a collision .
+in that case , lj and pi2 are not likely to bind simultaneously to the same binding region on pi1 .
+all other pairs of complexes were deleted from the list .
+this led to about 1 000 pairs of pp and pl interfaces in total .
+10.1371 / journal.pone.0058583.g002 figure 2 identification of competitive pp : pl pairs using structural superposition .
+in order to remove sequence redundancy among the pp : pl pairs we clustered the reference proteins pi1 of the remaining pp interfaces using the cd - hit program [ 29 ] with a sequence identity cut - off of 40 % .
+this resulted in about 300 clusters .
+every cluster contained one or several pp : pl pairs with homologous reference proteins .
+we did not want to consider short peptide fragments as representatives for the proteins pi2 as such peptides may only cover parts of the full pp interface .
+therefore , we excluded a cluster entirely if it contained only small peptides shorter than 5 residues as pi2 structures .
+another requirement was that the two interfaces of a pp : pl pair should be similar to each other .
+to this end , we calculated the sequence identity for the sequence stretches of corresponding interface residues consisting of a combination of overlapping and non - overlapping residues for the pp complex and the pl complex , respectively .
+within each cluster we selected the representative with the highest identity of interface residues .
+the final dataset comprises 175 pp : pl tuples .
+these are listed in the supplementary material .
+computation of interface features for all pp complexes of the final dataset , we computed structural and sequence features of the interfaces that reflect the role of individual residues in the complex ( all in all 5815 residues ) .
+( 1 ) the evolutionary conservation score for a single residue was obtained from consurf - db that provides pre - calculated normalized conservation scores for all pdb structures [ 30 ] .
+these scores are based on multiple sequence alignments using psi - blast and muscle , respectively , and on calculating the evolutionary conservation of each amino acid position in the alignment using the rate4site algorithm .
+according to this score , well conserved sequence positions have negative scores and flexible ones have positive scores .
+( 2 ) a measure for the energetic contribution of the residues at the binding interface was obtained from a hotspot prediction using an in - house implementation of two knowledge - based prediction algorithms [ 15 ] , [ 16 ] in our abcsquare database .
+benchmarking this approach on a representative set of protein - protein interactions yielded a very similar accuracy ( 71 %) as the webserver implementation by keskin and co - workers [ 15 ] ( 70 % for our test data set ) .
+besides , we computed several structural features of the binding interfaces that characterize their packing density and curvature .
+( 3 ) a measure representing the level of burial or exposal of residues was quantified by the protrusion value .
+for this , we used the implementation from ref .
+31 that calculates a protrusion value for the ith atom in a molecular structure as : here , vatoms denotes the volumes of the atoms within 10 a radius around atom i and vempty represents the value of the remaining empty space in this sphere .
+an atomic protrusion value of 0 refers to fully buried atoms .
+the larger the value , the more exposed the atom is to the solvent .
+the protrusion value for an entire amino acid was computed as the average of the values over all atoms of this residue .
+figure s1 in the supporting information shows an example of protrusion values that are visualized using different colors .
+( 4 ) the contact density of residue i was computed following illingworth et al .
+[ 32 ] as the average contact density of its surface accessible heavy atoms according to : where contacts ( atomij ) is the number of contacts between a surface accessible heavy atom j of residue i and other heavy atoms belonging to residues of the same chain within a radius of 5a and totalatomsi denotes the number of all heavy atoms in residue i .
+( 5 ) also , for all interface residues i the relative surface fraction was calculated using the program naccess [ 33 ] : here , the solvent accessible surface area ( sasa ) was calculated by naccess for an individual residue i in a pp complex , whereby the total surface is the surface area of that residue located in the center of a tripeptide and surrounded by two alanines .
+next , we considered the direct neighbors of the residue of interest forming a small surface patch on the interface region .
+this approach was inspired by the work of thornton et al .
+[ 34 ] , [ 35 ] .
+a patch is made up of n surface residues , which consist of one central residue and n - 1 neighboring residues .
+thus , a patch describes the microenvironment for a central residue with respect to geometric parameters or physico - chemical properties .
+we applied a reimplementation of the algorithm in ref .
+34 and calculated patches for every surface residue in our dataset with sizes between 5 and 8. fig. 3 outlines the construction of surface patches .
+10.1371 / journal.pone.0058583.g003 figure 3 construction of a surface patch .
+( a ) shown is a pre - patch of size n = 5 , consisting of a central surface residue ( dark grey ) and n - 1 = 4 nearest neighbors residues ( light grey ) .
+( b ) using the coordinates of the calpha - atoms of the residues , the center of mass ( com ) for this pre - patch is calculated .
+for any surface residue including the central residue , a solvent vector is defined using the coordinates of its calpha - atom and the com .
+( c ) the final surface patch contains the central residue and the closest n - 1 surface residues ( grey ) for which the angle alphai between their solvent vector and the solvent vector for the central residue is between 0degrees and 110degrees .
+training of statistical classifier the binary statistical classification of overlapping and non - overlapping residues was based on the random forests method [ 36 ] using the randomforest package from breiman and cutler implemented in r [ 37 ] .
+a random forest is a fast classifier consisting of a collection of decision trees , where each tree classifies a residue separately .
+the idea of such an ensemble classifier is to combine a number of weak learners to create a single strong learner .
+to obtain a single prediction , a majority vote is performed at the end .
+each tree is trained using a different bootstrap sample from the original dataset ( which is obtained by random sampling with replacement ) .
+for each node of a tree a subset of the available features is randomly selected and the best split on these is chosen according to the training set by using the gini impurity criterion .
+the gini impurity is a measure of how often a randomly chosen residue from the training set would be incorrectly classified if it were randomly classified according to the distribution of the two classes in the subset .
+each tree is fully grown and not pruned .
+because of the bootstrap sampling , about one - third of the original cases are left out of the training set of a specific tree and thus , they are not used in the construction of that tree .
+this data is used to get a running unbiased estimate of the classification error as trees are added to the forest .
+it is also used to obtain estimates for the importance of individual features .
+because of that , there is no need for cross - validation or a separate test set to obtain an unbiased estimate of the test set error in random forests .
+in our study the random forests were trained with the five most promising features identified during this work ( see above ) .
+the default parameters were employed for the number of trees and the number of features at each node .
+because of the large imbalance between the number of overlapping and non - overlapping residues in our dataset ( see table 1 ) , we obtained a highly unbalanced prediction error between the two classes when using the whole dataset .
+in order to balance the two class error rates , we applied a down sampling procedure to our dataset .
+we randomly drew the same number of data points from the majority class as from the minority class to obtain training datasets .
+this was repeated 1 000 times .
+10.1371 / journal.pone.0058583.t001 table 1 confusion matrix for our prediction .
+observed overlap observed non - overlap predicted overlap tp : 672 fp : 1533 predicted non - overlap fn : 424 tn : 3186 here , tp ( true positive ) and tn ( true negative ) denote the number of correctly predicted overlap residues and the correctly predicted non - overlap residues respectively .
+fp ( false positive ) and fn ( false negative ) refer to wrong predictions of overlap and non - overlap residues .
+results and discussion this study aims at characterizing the nature of protein residues at overlapping protein - protein and protein - ligand binding interfaces .
+more precisely , given the three - dimensional structure of such a protein - protein interface , we aimed at developing a method for predicting where small molecule ligands would most likely bind at this interface .
+in a drug design project targeting a known protein interface , such a method would allow focusing the virtual or experimental screening efforts on ligands with physico - chemical properties that are complementary to the predicted binding patch at the protein interface .
+statistics of the dataset as explained in the materials and methods section , we derived a dataset of 175 tuples ( pi1 , pi2 ) : ( pi3 , lj ) , where pi1 , pi2 and pi3 are three proteins and lj is a small molecule ligand , pi1 and pi3 share at least 40 % sequence identity , and the aligned positions in the binding interfaces of pi1 - pi2 and pi3 - lj have at least two residues in common. fig. 4 shows four representative examples of such tuples .
+a list of all 175 pairs is available in supplementary table s1 .
+in the pp : pl complex pair 1mbq - 1bzx , for example , the digestion enyzme trypsin is either bound to the small - molecule ligand benzamidine in the pl complex ( fig. 4b ) or to the native protein inhibitor bovine pancreatic trypsin inhibitor ( bpti ) in the pp complex ( fig. 4a ) .
+the pair 1gzr - 2dsq refers to interactions of the insulin growth factor protein with an igf - binding protein ( pp , fig. 4c ) or with a detergent molecule ( pl , fig. 4d ) .
+here , the pp structure contains further protein chains that are colored grey in the figure , forming a multimeric complex with four chains .
+the pp : pl pair 1goy - 1x1u involves the well - known barnase - barstar system .
+here , the functional roles of ligand and partner protein are reversed .
+in the pl interaction , the ribonuclease barnase is bound to its natural ligand , the tri - nucleotide gmp ( fig. 4f ) , whereas the protein binding partner barstar acts as inhibitor in the pp complex ( fig. 4e ) .
+in the automatic derivation of the dataset the biological function of the ligand was not considered because we assume that , irrespective of the functional relationship , already the mere existence of a binding site for a small ligand provides valuable information for finding potential drug targets .
+10.1371 / journal.pone.0058583.g004 figure 4 pairs of protein - protein complexes and the related protein - ligand complexes .
+( a ) and ( b ) show trypsin bound to the native protein inhibitor bovine pancreatic trypsin inhibitor ( bpti ) ( a , pdb code 1bzx e : i ) or to the small - molecule ligand benzamidine ( b , 1mbq a : ben ) .
+here , the identifiers denote the chains and ligands used .
+the chain identifiers of the reference proteins are marked in bold .
+( c ) and ( d ) show insulin growth factor protein bound to an igf - binding protein ( c , 2dsq i : g ) or to a detergent molecule ( d , 1gzr b : c15 ) .
+( e ) and ( f ) show barnase bound to the protein inhibitor barstar ( e , 1x1u a : d ) or to its natural ligand rna , in this case the tri - nucleotide gmp ( f , 1goy a : 3gp ) .
+( g ) and ( h ) display a sugar binding protein and its natural ligand n - acetylglucosamine ( h , 1dbn a : nag ) or when it forms a quaternary homomeric structure ( g , 2dvg c : b ) .
+the last example in fig. 4 , 1dbn - 2dvg , illustrates another class of pp : pl pairs in our dataset .
+in this case , the pl pair is formed by a sugar binding protein and its natural ligand n - acetylglucosamine ( fig. 4h ) .
+additionally , the pl complex contains a second chain of the sugar binding protein forming a homodimer and the ligand is integrated into the binding interface of the homodimer .
+the corresponding pp complex was extracted from a quaternary homomeric structure ( fig. 4g ) .
+both pdb files thus contain an equivalent protein - protein complex .
+the collision filter used in our workflow also picked up this kind of pairs because the ligand is so tightly embedded in the interface area ( see methods section ) .
+our final dataset contains about 20 of such cases .
+although we could have manually removed these structures , such data arguably also provides valid information for the derivation of the desired prediction approach so that we kept these structures .
+the geometric relation between a pp : pl pair is illustrated in more detail in fig. 5 on the example of the well - known trypsin - benzamidine complex introduced before .
+the left picture shows how native bpti binds to trypsin and blocks access to its active site .
+the right picture shows how a small benzamidine molecule binds into the active - site cavity at the trypsin - bpti interface and thereby blocks the binding interface for trypsin inhibitor proteins .
+10.1371 / journal.pone.0058583.g005 figure 5 pp : pl pair 1bzx e : i ( left ) and 1mbq a : ben ( right ) .
+the reference proteins are marked in dark grey , the ligand and the binding protein partner in light grey .
+additionally , the overlapping residues on the surface of the reference proteins are marked as bright spheres .
+the corresponding regions are circled .
+the paired pp and pl interfaces in our dataset involve on average 35.5 +/ - 24.0 pi1 residues ( pp ) and 8.7 +/ - 6.1 pi3 residues ( pl ) .
+on average , only 25 % of the residues in a pp interface participate in the overlapping region whereas 79 % of the residues of the corresponding pl interface belong to the overlap region .
+in fact , 64 pl interfaces out of the 175 pp : pl pairs ( 37 %) were fully covered by the overlapping area compared to none of the pp interfaces .
+concerning the size of the ligand , we found somehow unexpectedly that the number of ligand atoms was not related to the size of the ligand binding interface ( pearson correlation coefficient equals - 0.07 ) .
+on the other hand , fig. 6 plots the numbers of overlap residues relative to the total number of interface residues for pp and pl complexes , respectively .
+for the pp interfaces , no relation is found between the total number of interface residues and the number of overlap residues ( - 0.06 pearson ) .
+in contrast , the number of overlap residues for pl interfaces is strongly correlated with the total number of interface residues ( 0.86 pearson ) .
+10.1371 / journal.pone.0058583.g006 figure 6 interface statistics .
+shown is the total number of interface residues against ( a ) the number of overlap residues for pp interfaces and ( b ) the number of overlap residues for pl interfaces .
+distribution of interface features for deriving the statistical classifier , we needed to identify features of the residues at binding interfaces that display different distributions for residues in the overlapping part of pp : pl interfaces and for non - overlapping residues .
+for this , we tested several structural and evolutionary features of the interfaces that were discussed previously in the literature .
+due to their importance for the stability of the complex , residues at binding interfaces generally represent essential functional areas and thus may be potentially preserved during evolution .
+however , it is yet an unsettled issue whether binding interfaces are generally more conserved than the rest of the protein surface [ 38 ] - [ 40 ] .
+interestingly , we found that residues in the overlapping part of the protein - protein and protein - ligand interfaces are more conserved than non - overlapping residues , see fig. 7. this finding differs from those reported by davis and sali who observed a lower conservation for overlap residues in comparison with non - overlap residues [ 24 ] .
+davis and sali first removed redundant binding sites that shared more than 90 % of their corresponding alignment positions by grouping them together and choosing randomly a representative member .
+this procedure is certainly different from the one used here .
+moreover , they quantified the conservation of each alignment position using either the number of residue types that occurred at the position or a shannon entropy - like score .
+both approaches assigned lower conservation to ' bi - functional ' residues .
+in contrast , the rate4 site algorithm [ 41 ] used by consurf - db assigns the conservation score at a site as the evolutionary rate of this site by considering the stochastic processes underlying sequence evolution within protein families and the phylogenetic tree of the proteins in the family .
+thus , also the way of computing conservation differs between our approach and that of davis and sali .
+10.1371 / journal.pone.0058583.g007 figure 7 distribution of conservation ranges obtained from the consurf webserver .
+conservation scores are shown separately for overlap ( black line ) and non - overlap ( grey line ) residues for pp interfaces .
+as a reference , the conservation of all residues on the protein surface ( dotted line ) is plotted .
+negative values indicate residues that are more conserved .
+using the welch t - test the two classes showed a statistically significant difference ( p - value < 2.2e - 16 ) .
+also koes and camacho found a slight preference for predicted smisps to be less conserved than the rest of the interface .
+[ 26 ] these smisp residues are defined as residues of the partner protein pi2 that overlap with a high - affinity ligand in a corresponding protein : ligand structure .
+obviously , the conservation of pi2 residues may differ from that of pi1 residues that are considered here .
+as a reference point , we also computed the conservation of the overall protein surfaces in our data set ( see fig. 7 ) .
+this distribution is highly similar to that for the non - overlap residues at the interfaces .
+secondly , as mentioned in the introduction , there often exists a small subset of residues , termed hot - spots , that has a larger contribution to the binding affinity than the remaining amino acids of the binding interface .
+we found that predicted hot spots are underrepresented in the non - overlap regions of protein - protein interfaces ( 37 % hot - spot , 63 % non hot - spot ) whereas they are equally abundant as non - hot spot residues in the overlap regions ( 48 % hot - spot , 52 % non hot - spot ) .
+this observation can be interpreted that due to their relatively small size , ligands are engaged in a relatively larger number of contacts with energetically important residues than corresponding protein binding partners .
+the protrusion index , computed on the basis of the pi1 - pi2 complex structure , also shows clearly distinct distributions for overlapping and non - overlapping residues , see fig. 8. in agreement with previous results [ 18 ] , [ 42 ] , the comparatively smaller values found for overlapping residues reflect that they tend to be located in concave structural clefts at the binding interfaces .
+in contrast , non - overlapping residues tend to have larger protrusion values indicative of exposed locations .
+10.1371 / journal.pone.0058583.g008 figure 8 binned distribution of the protrusion index for overlap and non - overlap residues of pp interactions .
+values close to zero indicate buried residues .
+using the welch t - test the two classes showed a statistically significant difference ( p - value < 2.2e - 16 ). fig. 9 shows the relative surface fractions for overlap and non - overlap residues .
+residues in the overlapping region have a statistically significant tendency for low surface accessibility .
+this matches their higher preference of being located in pocket regions as indicated by the protrusion index just discussed .
+koes and camacho found on their dataset that the difference in sasa was the most informative feature for their statistical classifier [ 26 ] .
+10.1371 / journal.pone.0058583.g009 figure 9 distribution of surface fractions for overlap and non - overlap residues for pp interfaces .
+using the welch t - test the two classes showed a statistically significant difference ( p - value = 6.373e - 11 ) .
+the contact density of a residue , that is the average contact density of its solvent accessible heavy atoms , was computed following the work of illingworth et al. [ 32 ] .
+they reported that residues within ligand binding sites tend to have a higher frequency of contact neighbors than surface residues in general and the density values for hot - spot residues were significantly higher than for non hot - spot residues [ 16 ] .
+also in our case , the overlap residues show a 0.97 higher contact density than the non - overlap residues in the dataset .
+the two density distributions ( not shown ) were statistically significantly different ( p - value < 1.812e - 10 ) using the welch t - test .
+performance of statistical classifier based on these five features ( conservation score , hot spots , protrusion index , surface fraction , contact density ) we constructed a statistical classifier using random forests [ 36 ] .
+in order to improve our predictions we used the concept of surface patches as described in the materials and methods section to include the properties of neighboring residues for the prediction of a central residue .
+our final classifier utilizes the surface fraction and contact density of the central residue , the protrusion index and conservation scores of the five nearest residues ( including the central residue ) and the relative frequency of predicted hot - spots in a surface patch of size 8. fig. 10 shows the importance of individual features for the construction of the decision tree .
+shown is the mean decrease of the accuracy of the predictor if randomly shuffled values were used for a particular feature in the testing phase .
+for example , using shuffled values for the protrusion of the central residue ( protru1 ) affects the prediction accuracy by more than 40 % relative to the performance with the correct values for this feature .
+in summary , the protrusion index , the conservation score and surface fraction turned out as promising features for distinguishing overlap ( o ) and non - overlap ( n ) residues .
+the accuracy of single residues according to this o / n classification was higher ( 67 %) than the random value ( 50 %) for a binary decision between two classes of the same size ( see methods ) .
+table 1 provides an overview of the assigned classifications .
+10.1371 / journal.pone.0058583.g010 figure 10 significance of interface features for predicting overlap residues .
+meandecreaseaccuracy reflects the suitability of a feature as a reliable predictor .
+precisely , it reflects how much the average prediction accuracy decreased when randomly shuffled values were used for a particular feature in the testing phase .
+in the diagram , this quality measure decreases from top to bottom .
+cons # n refers to the conservation score of the n - th nearest surface residue starting from the central residue ( n = 1 : central residue itself ) .
+analogously , protru # n refers to the protrusion value of the n - th nearest residue starting from the central residue ( n = 1 : central residue itself ) .
+density and surfacefraction describe the contact density and the surface fraction of the central residue .
+hsfpatch8 denotes the relative frequency of predicted hot - spots in a surface patch of size 8 .
+subsequently , we tested whether the values of neighboring individual residues can be used in a ' patch ' analysis to boost the accuracy of the prediction for the central residue of this patch .
+for this , we measured the coherence of overlapping regions at pp interfaces .
+to this end , for every pp interface , the euclidian distances between the heavy atoms of all residues were calculated and assigned to clusters .
+a cluster consists of a set of residues in which every residue has at least one neighboring residue in the same set within a distance of 5 a. we found that 82 % of the overlapping regions contained only one cluster , 13 % contained two clusters , and the remaining 5 % contained three clusters .
+this observation indicates that , as expected , overlap residues are not spread out over the interface but are located close to each other .
+thus , we applied surface patches as described in the methods section as a further means for characterizing this class of residues .
+we tested patches of n = 5 to 8 residues around all central residues that were predicted as overlap residue (' o ') .
+consequently , the patches may contain o /( o + n ) fractions of 1 / n to n / n ' o ' residues. fig. 11 shows the frequency of 7 - residue patches with different o /( o + n ) ratios and the achieved coverage .
+the respective statistics for the other patch sizes are available as supporting information ( figs. s2 - s5 ) .
+10.1371 / journal.pone.0058583.g011 figure 11 surface - patch based predictions .
+the dark grey bars indicate the fraction of positive classifications for 7 - residues - patches with increasing proportion of predicted overlap residues ( 1 out of 7 to 7 out of 7 predicted overlap residues ) .
+the light grey line represents the absolute frequency for every patch , e.g. there are about 300 patches for which 5 out of 7 residues in the patch were predicted as ' overlap '. fig. 11 shows that a large frequency of predicted overlap residues in a patch increases the probability of true positive hits and thus reduces the risk of misclassifications .
+patches appear thus as a suitable method to improve the accuracy of the prediction .
+examples for structures in which central residues of patches with o /( o + n ) ratio of 1 actually predict true overlap residues are 1y48 e : i , 1oo9 a : b and 1fak h : i. all of these pairs describe a complex between a protein and its protein inhibitor .
+in the corresponding pl complexes , the inhibiting protein is replaced by a small molecule taking over the same role .
+among the few incorrect predictions with a o /( o + n ) ratio of 1.0 , the pair 2ol4 b : jpn and 1nhg b : d turned out to be a special case .
+examining the pp structure revealed that the protein chains b and d were apparently split into two chains making it appear as a complex because no electron density could be detected for the intervening residue stretch .
+however , the protein naturally occurs as a single chain monomer .
+the prediction process thus recognized four patches with o /( o + n ) ratios of 1 that were all wrong .
+leaving out this pair improves the fraction of true positives for the maximum overlap up to 67 % .
+for the 175 pp : pl tuples considered , 99 ( or about 60 %) contained patches with 0.86 or 1.0 ratio .
+practical case study ' apoptosis' we then applied the prediction algorithm to the entire dataset of 48 440 interfaces that is currently stored in our abcsquare database .
+to this end , we defined one chain for every interface as reference protein .
+we then generated surface patches of size 7 for the interface residues of the reference protein and focused on patches where the center residue is predicted as overlap and the total number of overlap residues is at least 5 .
+altogether we found 54 809 such patches belonging to 10 156 interfaces .
+( the entire list is provided in supporting table s2 ) .
+note that these patches all have different central residues but may be overlapping otherwise .
+the distribution of surface patches is shown in fig. 12. 10.1371 / journal.pone.0058583.g012 figure 12 distribution of the number of 7 - residue surface patches per protein - protein binding interface .
+the central residue must be predicted as ' overlap ' and at least 4 of the 6 remaining residues must be predicted as ' overlap ' as well .
+for characterizing these interfaces with respect to their biological role , we clustered the corresponding sequences from all reference proteins to exclude redundancy above 30 % sequence identity and to get an overview to which sorts of proteins the ones with overlap patches at the interface belong .
+the non - redundant set of sequences was analyzed regarding the gene ontology ( go ) - terms for the involved proteins using the abcsquare database .
+in tables 2 , s3 , s4 we list the most frequent go - terms found for the three go categories .
+the p - values reported for the go terms were computed in r using fisher 's exact test against the background of 48 440 interfaces in the entire dataset and the benjamini - hochberg correction [ 43 ] was applied to account for multiple testing .
+10.1371 / journal.pone.0058583.t002 table 2 go biological process : term frequencies of non - redundant set and p - values against the entire dataset ( fisher 's exact test , benjamini - hochberg correction ) .
+biological process frequency p - value signal transduction 39 3.212e - 01 blood coagulation 32 4.789e - 05 positive regulation of cell proliferation 20 1.515e - 02 platelet activation 20 1.224e - 02 transcription , dna - dependent 19 2.092e - 02 protein phosphorylation 18 1.0 transcription from rna polymerase ii promoter 17 7.883e - 01 apoptosis 16 3.573e - 03 proteolysis 16 3.558e - 06 protein homotetramerization 16 2.805e - 01 complete lists are available in the supporting information ( table s5 - s7 ) .
+naturally , the dominating functional annotations are ' protein binding ' and ' protein homodimerization activity ' ( see table s3 ) .
+no preference for a particular cellular compartment was observed ( see table s4 ) .
+most interesting for medical applications is table 2 showing the most frequently annotated biological processes .
+for a practical case study , we selected all terms from the biological process category containing the expression ' apoptosis ' , see table s8 , as these terms may be related to cancer therapy and collected all corresponding interfaces with their predicted overlap residues .
+this term is significantly enriched ( corrected p - value 0.004 ) .
+such a list may be a useful source for identifying potential drug targets .
+table 3 lists all pdb entries that contain at least three terms related to ' apoptosis' and contain predicted overlap patches on one of the protein chains .
+interestingly , all but the glyoxalase protein refer to very prominent proteins with central roles in the apoptosis machinery .
+based on the reported accuracy for 5 / 7 patches shown in fig. 11 , the ratio of true positive ligand binding patches among the predicted interface residues should be at least 0.4 .
+10.1371 / journal.pone.0058583.t003 table 3 pdb entries containing ' overlap ' surface patches that contain at least 3 of the terms related to ' apoptosis' listed in table s8 .
+pdb + chain protein name term frequency 1pq1a apoptosis regulator bcl - x 9 1re1b caspase - 3 9 1olga tumor suppressor p53 7 2c2zb caspase - 8 p10 subunit 7 2tnfb tumor necrosis factor alpha 5 1du3d apo2l / trail 3 1bh5b glyoxalase i 3 1pyod caspase - 2 3 fig. 13 visualizes the predicted ' overlap ' surface patches for the eight complexes listed in table 3 .
+most of the predicted residues form a coherent area on the surface region .
+only 1pyod exhibits a cluster of overlap residues and a single overlap residue .
+the size of the overlap region ranges from rather small and compact as in 1pq1a to large as shown in 1olga .
+interestingly , some of the complexes also contain small ligands .
+in 1re1b and 2c2zb , a small molecule binds to the predicted overlap regions supporting the reliability of the prediction method .
+in the latter complex the small molecules beyond the overlap area are located in the border region of the protein - protein complex .
+in 1bh5b , the predicted overlap region does not correspond to the binding site for the small molecules .
+however , this does of course not exclude the possibility that other ligand molecules may bind to the predicted overlap region .
+10.1371 / journal.pone.0058583.g013 figure 13 visualization of complexes related to apoptosis .
+predicted overlap residues are colored in dark grey whereas all other surface residues appear in light grey .
+( a ) 1pq1a , ( b ) 1re1b , ( c ) 1olga , ( d ) 2c2zb , ( e ) 2tnfb , ( f ) 1du3d , ( g ) 1bh5b , ( h ) 1pyod .
+we emphasize that such predictions do not require the availability of a crystal structure of a given protein - protein complexes .
+experimental knowledge about the binding interface , e.g. from chemical shift mapping by nmr or from accessibility measurements is a sufficient basis as input for a prediction by our method .
+as a caveat to this analysis we note that this analysis is of course limited by the amount of structural data on protein - protein and protein - ligand complexes currently available .
+this particularly affects the definition of non - overlap residues .
+it is clearly possible that these residues could be involved in binding alternative , possibly larger ligands .
+however , the clearly distinguishable properties of overlap and non - overlap residues derived in this study suggest that there may be only relatively few such cases .
+concluding remarks we have presented a new method that analyzes structural and physiochemical features of protein - protein binding interfaces .
+when given the three - dimensional structure of a protein - protein complex or the structure of a single protein with annotated pp interface , the method is able to identify to which parts of the pp interface small molecules will likely bind .
+in this regard our method differs from a related method recently presented by davis [ 24 ] that transfers observed ligand positions bound to one protein to the surfaces of related , homologous proteins that may also bind other proteins .
+we make available predictions for more than 10 000 protein - protein interfaces that can aid researchers to focus their attention on particular portions of these interfaces .
+supporting information figure s1 protein chain surface colored according to protrusion values .
+blue colors were used for atoms that are more exposed to the outside ; red refers to atoms that are buried in the structure .
+( tif ) click here for additional data file .
+figure s2 maximum overlap patch for patch size 5 .
+( tif ) click here for additional data file .
+figure s3 maximum overlap patch for patch size 6 .
+( tif ) click here for additional data file .
+figure s4 maximum overlap patch for patch size 7 .
+( tif ) click here for additional data file .
+figure s5 maximum overlap patch for patch size 8 .
+( tif ) click here for additional data file .
+table s1 dataset of pp : pl pairs .
+( doc ) click here for additional data file .
+table s2 dataset of predicted overlap residues ( predictedoverlapresidues.txt ) .
+the first column contains the pdb identifier and the chain name , the second column contains the position number of the residue that represents the central residue of the patch and is predicted as ' overlap ' .
+( txt ) click here for additional data file .
+table s3 term frequencies for go function .
+( doc ) click here for additional data file .
+table s4 term frequencies for go cellular component .
+( doc ) click here for additional data file .
+table s5 go function terms + frequency that are found in the dataset of predicted overlap residues ( predictiongofunction.txt ) .
+( txt ) click here for additional data file .
+table s6 go biological process terms + frequency that are found in the dataset of predicted overlap residues ( predictiongoprocess.txt ) .
+( txt ) click here for additional data file .
+table s7 go cellular component terms + frequency that are found in the dataset of predicted overlap residues ( predictiongocellcomp.txt ) .
+( txt ) click here for additional data file .
+table s8 biological process go terms referring to apoptosis .
+( doc ) click here for additional data file .
+references 1 jones s , thornton jm ( 1996 ) principles of protein - protein interactions . proc nat acad sci usa 93 : 13 - 20 . 8552589 2 nooren ima , thornton jm ( 2003 ) structural characterisation and functional significance of transient protein - protein interactions . j mol biol 325 : 991 - 1018 . 12527304 3 yamada t , bork p ( 2009 ) evolution of biomolecular networks - lessons from metabolic and protein interactions . nat rev mol cell biol 10 : 791 - 803 . 19851337 4 klebe g ( 2009 ) wirkstoffdesign : entwurf und wirkung von arzneistoffen , spektrum akademischer verlag 2nd ed .
+5 wells ja , mcclendon cl ( 2007 ) reaching for high - hanging fruit in drug discovery at protein - protein interfaces . nature 450 : 1001 - 1009 . 18075579 6 geppert t , reisen f , pillong m , hahnke v , tanrikulu y , et al ( 2012 ) virtual screening for compounds that mimic protein - protein interface epitopes . j comput chem 33 : 573 - 579 . 22162049 7 fry dc , vassilev lt ( 2005 ) targeting protein - protein interactions for cancer therapy . j mol med 83 : 955 - 963 . 16283145 8 berman hm , westbrook j , feng z , gilliland g , bhat tn , et al ( 2000 ) the protein data bank . nucl ac res 28 : 235 - 242 . 9 keskin o , gursoy a , ma b , nussinov r ( 2008 ) principles of protein - protein interactions : what are the preferred ways for proteins to interact ?
+chem rev 108 : 1225 - 1244 . 18355092 10 bogan aa , thorn ks ( 1998 ) anatomy of hot spots in protein interfaces . j mol biol 280 : 1 - 9 . 9653027 11 eyrisch s , helms v ( 2007 ) transient pockets on protein surfaces involved in protein - protein interaction . j med chem 50 : 3457 - 3464 . 17602601 12 moreira is , fernandes pa , ramos mj ( 2007 ) hot spots - a review of the protein - protein interface determinant amino - acid residues . proteins 68 : 803 - 812 . 17546660 13 keskin o , ma b , nussinov r ( 2005 ) hot regions in protein - protein interactions : the organization and contribution of structurally conserved hot spot residues . j mol biol 345 : 1281 - 94 . 15644221 14 reichmann d , rahat o , albeck s , meged r , dym o , schreiber g ( 2005 ) the modular architecture of protein - protein binding interfaces . proc natl acad sci usa 102 : 57 - 62 . 15618400 15 tuncbag n , gursoy a , keskin o ( 2009 ) identification of computational hot spots in protein interfaces : combining solvent accessibility and inter - residue potentials improves the accuracy . bioinformatics 25 : 1513 - 1520 . 19357097 16 cho ki , kim d , lee d ( 2009 ) a feature - based approach to modeling protein - protein interaction hot spots . nucleic acids res 37 : 2672 - 2687 . 19273533 17 tuncbag n , keskin o , gursoy a ( 2010 ) hotpoint : hot spot prediction server for protein interfaces . nucleic acids res 38 : w402 - w406 . 20444871 18 kozakov d , hall dr , chuang g - y , cencic r , brenke r , et al ( 2011 ) structural conservation of druggable hot spots in protein - protein interfaces . proc nat acad sci usa 108 : 13528 - 13533 . 21808046 19 metz a , pfleger c , kopitz h , pfeiffer - marek s , baringhaus k - h , gohlke h ( 2012 ) hot spots and transient pockets : predicting the determinants of small - molecule binding to a protein - protein interface . j chem inf model 52 : 120 - 133 . 22087639 20 zhong sj , macias at , mackerell ad ( 2007 ) computational identification of inhibitors of protein - protein interactions . curr top med chem 7 : 63 - 82 . 17266596 21 sugaya n , ikeda k ( 2009 ) assessing the druggability of protein - protein interactions by a supervised machine - learning method . bmc bioinformatic 10 : 263 . 22 schmidtke p , barril x ( 2010 ) understanding and predicting druggability .
+a high - throughput method for detection of drug binding sites . j med chem 53 : 5858 - 5867 . 20684613 23 higueruelo ap , schreyer a , bickerton gr , pitt wr , groom cr , blundell tl ( 2009 ) atomic interactions and profile of small molecules disrupting protein - protein interfaces : the timbal database . chem biol drug des 74 : 457 - 467 . 19811506 24 davis fp , sali a ( 2010 ) the overlap of small molecule and protein binding sites within families of protein structures . plos comput biol 6 : e1000668 . 20140189 25 davis fp ( 2011 ) proteome - wide prediction of overlapping small molecule and protein binding sites using structure . mol biosyst 7 : 545 - 557 . 21103609 26 koes dr , camacho cr ( 2012 ) small - molecule inhibitor starting points learned from protein - protein interaction inhibitor structure . bioinformatics 28 : 784 - 791 . 22210869 27 walter p , ansari s , helms v ( 2007 ) the abc ( analysing biomolecular contacts ) - database . j integr bioinf 4 : 50 . 28 humphrey w , dahlke a , schulten k ( 1996 ) vmd : visual molecular dynamics . j mol graph 14 : 33 - 38 . 8744570 29 huang y , niu bf , gao y , fu lm , li wz ( 2010 ) cd - hit suite : a web server for clustering and comparing biological sequences . bioinformatics 26 : 680 - 682 . 20053844 30 ashkenazy h , erez e , martz e , pupko t , ben - tal n ( 2010 ) consurf 2010 : calculating evolutionary conservation in sequence and structure of proteins and nucleic acids . nucleic acids res 38 suppl : w529 - 533 31 pintar a , carugo o , pongor s ( 2002 ) cx , an algorithm that identifies protruding atoms in proteins . bioinformatics 18 : 980 - 984 . 12117796 32 illingworth cjr , scott pd , parkes keb , snell cr , campbell mp , et al ( 2010 ) connectivity and binding - site recognition : applications relevant to drug design . j comput chem 31 : 2677 - 2688 . 20839295 33 hubbard s , thornton j ( 1996 ) naccess version 2.1.1 .
+department of biochemistry and molecular biology , university college london 34 jones s , thornton jm ( 1997 ) prediction of protein - protein interaction sites using patch analysis . j mol biol 272 : 133 - 143 . 9299343 35 jones s , thornton jm ( 1997 ) analysis of protein - protein interaction sites using surface patches . j mol biol 272 : 121 - 132 . 9299342 36 breiman l ( 2001 ) random forests . machine learning 45 : 5 - 32 . 37 liaw a , wiener m ( 2002 ) classification and regression by randomforest . r news 2 : 18 - 22 . 38 caffrey dr , somaroo s , hughes jd , mintseris j , huang es ( 2004 ) are protein - protein interfaces more conserved in sequence than the rest of the protein surface ?
+protein sci 13 : 190 - 202 . 14691234 39 choi ys , yang js , choi y , ryu sh , kim s ( 2009 ) evolutionary conservation in multiple faces of protein interaction . proteins 77 : 14 - 25 . 19350617 40 gruber j , zawaira a , saunders r , barrett cp , noble mem ( 2007 ) computational analyses of the surface properties of protein - protein interfaces . acta crystallogr d biol crystallogr 63 : 50 - 57 . 17164526 41 mayrose i , graur d , ben - tal n , pupko t ( 2004 ) comparison of site - specific rate - inference methods for protein sequences : bayesian methods are superior . mol biol evol 21 : 1781 - 1791 . 15201400 42 laurie atr , jackson rm ( 2005 ) q - sitefinder : an energy - based method for the prediction of protein - ligand binding sites . bioinformatics 21 : 1908 - 1916 . 15701681 43 benjamini y , hochberg y ( 1995 ) controlling the false discovery rate : a practical and powerful approach to multiple testing . j royal statist soc b 57 : 289 - 300 .

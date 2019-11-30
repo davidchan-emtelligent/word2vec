@@ -1,0 +1,199 @@
+plos comput biol plos comput .
+biol plos ploscomp plos computational biology 1553 - 734x 1553 - 7358 public library of science san francisco , usa 25058338 4109841 pcompbiol - d - 14 - 00146 10.1371 / journal.pcbi.1003738 educationbiology and life sciencesbiochemistryproteinsprotein structureprotein foldingbiophysicsbiophysical simulationscomputational biology web - based computational chemistry education with charmming ii : coarse - grained protein folding pickard frank c. iv 1 miller benjamin t .
+1 schalk vinushka 2 lerner michael g .
+3 woodcock h. lee iii 4 brooks bernard r .
+1 * 1 laboratory of computational biology , national heart , lung , and blood institute , national institutes of health , bethesda , maryland , united states of america 2 department of natural sciences , new college of florida , sarasota , florida , united states of america 3 department of physics and astronomy , earlham college , richmond , indiana , united states of america 4 department of chemistry , university of south florida , tampa , florida , united states of america cui qiang editor university of wisconsin - madison , united states of america * e - mail : brb @ nih.gov the authors have declared that no competing interests exist .
+7 2014 24 7 2014 10 7 e1003738 2014 this is an open - access article distributed under the terms of the creative commons public domain declaration , which stipulates that , once placed in the public domain , this work may be freely reproduced , distributed , transmitted , modified , built upon , or otherwise used by anyone for any lawful purpose .
+web - based computational chemistry education with charmming i : lessons and tutorial .
+web - based computational chemistry education with charmming iii : reduction potentials of electron transfer proteins .
+a lesson utilizing a coarse - grained ( cg ) g - like model has been implemented into the charmm interface and graphics ( charmming ) web portal ( www.charmming.org ) to the chemistry at harvard macromolecular mechanics ( charmm ) molecular simulation package .
+while widely used to model various biophysical processes , such as protein folding and aggregation , cg models can also serve as an educational tool because they can provide qualitative descriptions of complex biophysical phenomena for a relatively cheap computational cost .
+as a proof of concept , this lesson demonstrates the construction of a cg model of a small globular protein , its simulation via langevin dynamics , and the analysis of the resulting data .
+this lesson makes connections between modern molecular simulation techniques and topics commonly presented in an advanced undergraduate lecture on physical chemistry .
+it culminates in a straightforward analysis of a short dynamics trajectory of a small fast folding globular protein ; we briefly describe the thermodynamic properties that can be calculated from this analysis .
+the assumptions inherent in the model and the data analysis are laid out in a clear , concise manner , and the techniques used are consistent with those employed by specialists in the field of cg modeling .
+one of the major tasks in building the g - like model is determining the relative strength of the nonbonded interactions between coarse - grained sites .
+new functionality has been added to charmming to facilitate this process .
+the implementation of these features into charmming helps automate many of the tedious aspects of constructing a cg g model .
+the cg model builder and its accompanying lesson should be a valuable tool to chemistry students , teachers , and modelers in the field .
+this research was supported by the intramural research program of the national heart , lung , and blood institute , nih .
+the funders had no role in the study design , data collection and analysis , decision to publish , or preparation of the manuscript .
+introduction to function properly , most proteins must fold [ 1 ] .
+determining the structure and understanding the mechanisms responsible for folding are active areas of biophysical research , as gleaning this information may provide critical insights towards fighting diseases that have been linked to protein structure , such as alzheimer 's [ 2 ] , [ 3 ] .
+experimental determinations of protein structure are typically performed using x - ray diffraction of crystallized proteins or using nmr spectroscopy .
+both techniques provide important information about a protein 's native folded structure , yet both methods are not without their drawbacks .
+the process of crystallizing a protein is labor intensive , and structural information from a crystallized sample comes from a nonbiological environment .
+nmr studies on an aqueous sample yield time - averaged results and are unable to resolve many important dynamic details .
+considering the limitations of these techniques , computer simulations are an important tool to supplement and interpret information provided through direct experiment .
+one way theoretical studies may lead to a better understanding of experimental results is by providing simple models with verifiable results .
+computer models can be constructed at a variety of scales or resolutions ( figure 1 ) .
+many simulation techniques represent each atom as a single interaction center .
+the interactions between beads can then be evaluated using a force field .
+however , it is possible to construct a coarse - grained ( cg ) model , in which multiple atoms are represented by a single center ( as in the right - hand panel of figure 1 ) .
+these types of models can be useful theoretical tools because they can be specifically designed for a system or process of interest. by providing a simplified view of a complex molecular process , important physical details are retained in the model , while superfluous details are ignored .
+the resulting cg model distills the essence of the biophysical process into its most important physical details , allowing the computational scientist a fundamental understanding of the process .
+10.1371 / journal.pcbi.1003738.g001 figure 1 the native structure of the ga module of an albumin binding domain .
+three representations of the structure are shown .
+the left panel shows the backbone of the native fold as a ribbon , which highlights the helical nature of the secondary structure .
+the center panel shows the aa structure , which is used to build the kt g model ( right panel ) .
+the success of cg models in representing a variety of biological phenomena is widely acknowledged .
+starting from the earliest protein folding simulations [ 4 ] , to more recent studies on membranes [ 5 ] and transmembrane proteins [ 6 ] , cg models have been applied to diverse phenomena such as protein aggregation [ 7 ] , vesicle fusion [ 8 ] , protein structure refinement [ 9 ] , and the thermodynamics of rna folding [ 10 ] , among many other topics .
+for a thorough discussion of the many diverse applications of cg models , please see the recent review literature [ 11 ] - [ 13 ] .
+besides their simplification of complex biological phenomena , another attractive feature of cg models is their inexpensiveness relative to all - atom ( aa ) models .
+the computational cost of performing a classical molecular mechanics simulation is typically dominated by the calculation of nonbonded forces ( electrostatic and van der waals interactions ) , as the number of interaction pairs is proportional to the square of the number of particles present in the model system .
+for example , one of the most widely - used aa water models , tip3p [ 14 ] , represents a water molecule as three interaction sites. by comparison , the martini model [ 5 ] represents four water molecules using a single cg site , an effective reduction of 12 sites into one .
+if a ten - to - one mapping is assumed for an entire cg model , the number of required nonbonded interactions to be computed is reduced by roughly two orders of magnitude .
+one commonly used cg model is the g - like model [ 15 ] .
+in this type of model , an aa crystal structure is used not only to build the coordinates and topology of the cg model ( as is the case with most cg models ) but also to build the parameters for the non - bonded interactions .
+the assumption underlying the g model is that the native state below the melting temperature () is the global free energy minimum .
+we know that the protein folds into a given crystal structure ; therefore , we assign parameters to always reproduce the experimentally known fold .
+because we know the native state is stable , we know that native contacts are more stable than non - native contacts .
+therefore we assign an attractive interaction potential to native contacts , and a short range repulsive interaction potential to non - native contacts .
+while the g model is not based on first principles , nor is it transferable ( like the aa protein charmm force field ) [ 16 ] , these simulations reach equilibrium ( for small globular proteins ) , allowing for direct comparison between simulation and experiment [ 17 ] - [ 20 ] .
+g - like models have been used to describe the kinetic features of protein folding [ 21 ] .
+among the systems studied are the trp - cage fast folder [ 22 ] , the villin headpiece [ 23 ] , ribosomal protein s6 [ 24 ] , and c - src sh3 and ci2 [ 25 ] .
+various physical insights have been gained from these studies ; however , the performance of a particular model depends upon how accurately it can reproduce aa kinetics .
+some investigation of optimal parameters has been made [ 26 ] .
+an accurate g - like model can provide these insights at a much smaller computational cost than its aa counterpart at the expense of transferability and fine - grained insights into structural behavior .
+a consequence of coarse - graining the molecular model is the smoothing of the interaction potential .
+this cg potential has two important implications : larger integration time step and accelerated dynamics .
+in the reductive mapping process , many lighter particles are lumped together to form massive interaction centers ; this effectively integrates out the fastest moving degrees of freedom , allowing the usage of a longer integration time without incurring integration errors ( phantom heating ) .
+for example , in aa simulations the hydrogen stretching motions occur at , dictating an integration time step of 1 or 2 fs. by removing this high - frequency motion , one may safely use a longer time step .
+this allows a total dynamics simulation time one order of magnitude longer than that of an aa model over the same number of energy and force evaluations .
+the smoother interaction potential also indirectly accelerates md by removing degrees of freedom , causing energetic barriers between conformations to disappear .
+this effect can accelerate the rate of biophysical processes by another factor of two [ 12 ] .
+taken together , these effects can facilitate the simulation of many biological processes , such as protein folding , that would be impossible to rapidly simulate using aa dynamics .
+cg models are therefore very attractive in an educational environment , as they retain the qualitative features of their aa counterparts and can be performed cheaply and rapidly , leading to a far more interactive experience with the students .
+in this lesson , we will use a g - like model in which each amino acid is mapped into two cg sites , one located at the alpha carbon () and one located at the side - chain center of mass ( sc ) .
+many g - like models only provide for one interaction site per residue .
+one such popular model has been developed by karanicolas and brooks [ 27 ] , [ 28 ] .
+a web server that generates charmm input files for this model is available .
+users are not able to perform test runs of their models through the server itself , and there are no interactive lessons , making it less comprehensive than the current charmming implementation .
+however , some tutorial materials are available from the multiscale modeling tools for structural biology ( mmtsb ) website [ 29 ] .
+in the remainder of this work we describe some of the details underlying both the bonded and non - bonded forces in the g model potential .
+we also discuss the details of the dynamics simulations performed by charmming [ 30 ] ( www.charmming.org ) using the charmm simulation package [ 31 ] .
+a procedure for extracting thermochemical values from the raw dynamic trajectories is also given .
+we then outline step - by - step directions for setting up , performing , and analyzing the dynamics simulation using charmming .
+this manuscript will give a basic description of the procedure suitable for undergraduate students .
+new sections have been added to the charmm tutorial available at www.charmmtutorial.org with more in - depth descriptions of the methodology , and these are referenced within this work .
+finally , we discuss the utility of this lesson both as an educational tool and as a research aid .
+methods two cg protein models have been implemented into charmming [ 30 ] .
+the one described in this manuscript is a two - site g model based on the work of klimov and thirumalai and described further in this section [ 18 ] .
+the second model characterizes the chemical properties of residues and defines interactions accordingly .
+for the g model , the bonded and nonbonded parameters are explicitly constructed to bias the protein towards the experimental crystal structure .
+however , the inclusion of a sc particle serves to hinder the progress down the folding funnel and frustrate the folding process .
+this creates a better balance between the folded and unfolded states than is typical in one - site g models such as the model of karanicolas and brooks referenced above , allowing for a more accurate description of folding thermodynamics .
+further modifications to the standard g model allow the cg model to incorporate hydrogen bonding and secondary structure into the parameterization process .
+the bonded and nonbonded force field terms of the two - site g model use the same functional form as those used in the aa charmm force field [ 16 ] .
+however , the model must be re - parameterized to account for the fact that each amino acid is only represented by two cg beads .
+this parameterization exploits the nontransferability of the model ; parameters are designed to reproduce the secondary and tertiary structure of the aa system .
+the default parameters for the model are described in detail on charmmtutorial.org ; interested readers are encouraged to consult this page ( http :// charmmtutorial.org / index.php / coarse _ grained _ go _ models ) for more information and default values of these parameters .
+those readers wishing to learn about the functional form of the charmm force field may visit http :// charmmtutorial.org / index.php / the _ energy _ function .
+the bonded parameters for adjacent backbone atoms are modified based on the secondary structure ( as determined by the stride program [ 32 ]) of the aa model .
+however , the bond strength is somewhat weaker than would be found between backbone atoms of an aa model since these " bonds " actually represent more flexible linkages between residues .
+in addition , because the entirety of the backbone is represented by a single bead per amino acid , there is little to prevent 180 degree rotations of the side - chain that , in an aa representation , would correspond to a chiral flip .
+this is a rare occurrence in nature because of the energy barrier involved , and therefore , the model adds a strong improper dihedral term to mimic this barrier .
+all nonbonded interactions between sites on non - adjacent amino acids are described by a 12 - 6 lennard - jones ( lj ) potential .
+there are no direct electrostatic components to the energy , however electrostatic effects are incorporated indirectly as will be discussed below .
+the lj parameters used for sc particles depend on whether they form a native contact within the crystal structure , defined as occurring when their positions are within 4.5 a of one another .
+the objective of any g - like model is to preserve such contacts while discouraging others .
+so in this case the lj potential is attractive , with the minimum energy occurring when the sc beads are at the same distance as the sc centers of mass in the original crystal structure .
+the strength of the attraction is determined by an experimentally derived contact potential , the most widely used of which was developed by miyazawa and jernigan [ 33 ] ( however , charmming supports other contact potentials as well ) .
+this contact potential is how electrostatics are taken indirectly into account .
+all other sc - sc interactions are modeled with a non - attractive lj potential , following the fundamental assumption of g - like models that the native structure is most stable .
+all - and - sc interactions are also modeled non - attractively to account for volume exclusion , unless they take part in hydrogen bonding , in which case , the potential is slightly attractive .
+this method of simulating hydrogen bonds has been shown to produce qualitatively correct results for cg water [ 5 ] .
+one of the parameters of the klimov - thirumalai g - like model is the relative strength of the nonbonded versus the bonded interactions .
+the motivation behind this parameter , as described in the supporting information of [ 20 ] , is that the strength of the native contacts must be scaled in order to provide a physiologically realistic melting temperature ; however , the scale factor ( nscale ) is not known a priori .
+in the charmming implementation , the user may specify nscale or ask the interface to estimate it. our method of estimating nscale is to run temperature replica exchange [ 34 ] , which gives a boltzmann ensemble of the structure at a range of different temperatures. from these ensembles , a fraction of native contacts can be calculated , which can be used to plot a melting curve ( see below ) , allowing the melting temperature () to be estimated .
+if is close to a physiological value for the system of interest , then nscale is considered correct .
+otherwise , it is strengthened or weakened depending on whether is too low or too high .
+a full discussion of temperature replica exchange is beyond the scope of this manuscript , but interested readers may consult http :// charmmtutorial.org / index.php / temperature _ replica _ exchange .
+if a user asks charmming to determine nscale for them , the software takes an initial guess ( the default being 1 , no scaling ) , runs a brief temperature replica exchange simulation , and adjusts nscale upwards or downwards based on the calculated from that simulation .
+the process is repeated until an nscale is found that yields a physiological . electrostatic interactions are not explicitly present in this model ( they are accounted for implicitly through the lj potential ) ; commonly used implicit solvent schemes ( e.g. , generalized born ) are fundamentally incompatible with this implementation of the g model .
+solvation effects are incorporated into this model via langevin dynamics ( ld ) [ 35 ] .
+both friction and knocking effects are approximately accounted for in this manner .
+charmming allows the user to specify a collision frequency ( damping coefficient ) , but is employed in our lesson so as not to inhibit conformational transitions .
+the parameter files produced by charmming set nonbonded cutoffs to 23 a , with the standard charmm switching function operating beyond 18 a [ 36 ] .
+data analysis when analyzing trajectory data , an important consideration is the choice of reaction coordinate employed in data analysis .
+as illustrated in table 1 , the choice of reaction coordinate can have an uncomfortably large effect upon the computed properties of the simulation .
+the choice of a reaction coordinate is very complex and depends heavily on what scientific questions are being asked about the system under study .
+users are encouraged to consult the literature broadly when choosing a reaction coordinate for a new system .
+in this lesson , we will consider the fraction of native contacts ( q ) , a reaction coordinate which has been shown to be robust [ 37 ] .
+this reaction coordinate is often used when mapping the thermodynamic landscape of various folding pathways of a protein .
+when , a protein is considered folded ; when , a protein is considered unfolded .
+the of a protein occurs when it is equally likely to be folded as unfolded .
+figure 2 shows an example trajectory of a protein below its melting point. from the relative frequencies of folded versus unfolded structures , we can calculate . furthermore , by considering how changes with respect to temperature , we can plot a melting curve and apply the gibbs - helmholtz equation to determine the protein 's heat capacity () and enthalpy of fusion () ( see equation below ) .
+figure 3 gives an illustrative example of a computed melting curve .
+10.1371 / journal.pcbi.1003738.g002 figure 2 an example trajectory .
+the fraction of native contacts are plotted as a function of time. by inspecting the histogram at the right , we observe that this trajectory was simulated below , as the protein is folded for 62 % of the simulation .
+10.1371 / journal.pcbi.1003738.g003 figure 3 an example melting curve .
+each point on the plot represents calculated from a full trajectory .
+occurs when , and the curvature of the plot is related to . 10.1371 / journal.pcbi.1003738.t001 table 1 1prb thermochemistry. coord. expt .
+[ 44 ] expt .
+[ 45 ] a comparison of three reaction coordinates , radius of gyration () , backbone root mean squared deviation () , and fraction of native contacts () , with experimental results [ 44 ] , [ 45 ] .
+all results computed using . the coarse - grained lesson in this lesson , we consider the protein g related albumin - binding domain ( pdb code : 1prb ) .
+this is a small globular protein that has been extensively studied , both experimentally and theoretically [ 37 ] - [ 39 ] .
+experiment has shown that this protein folds near the semi - empirical speed limit of [ 40 ] .
+in solution , 1prb forms a three - helix bundle ( figure 1 ) ; it readily interconverts between its folded and unfolded states , allowing rapid convergence of its thermodynamic properties .
+these features , taken together , make it an ideal candidate to demonstrate the efficacy of cg methodologies in an educational environment .
+the sequence of steps that are carried out by the lesson , along with their inputs and outputs , are shown in figure 4 .
+10.1371 / journal.pcbi.1003738.g004 figure 4 the workflow of the kt g model lesson .
+blue boxes represent the steps described in the text .
+yellow boxes show the inputs and outputs of each step .
+note that the charmm protein structure file is only built when a calculation is performed ( minimization , in this case ) .
+q is the fraction of native contacts as defined in the text .
+steps 1 and 2 : upload a protein to charmming and build the cg structure first charmming must be directed to obtain an aa crystal structure for our protein of interest .
+the user must navigate to the " submit structure " page from the main menu .
+he or she selects " retrieve a pdb using a pdb id " , and enters the pdb code " 1prb " into the text box .
+for " what lesson is this structure associated with ?" , " lesson 5 " should be selected from the drop - down menu .
+the user then submits the structure .
+charmming will now redirect to the page entitled " build / select working structure. " on the " build / select working structure " page , an arbitrary name may be provided at the user 's discretion to label the working structure .
+next , the user must select what type of structure charmming should build , select the radio button next to " a klimov - thirumalai style g model " and indicate that the " a - pro " segment should be used to build the model by selecting the appropriate box .
+these options tell charmming to construct a g model with the appropriate cg topology , representing 1prb .
+also on this page , the user must tell charmming how to generate parameters for the model system .
+we will use the miyazawa - jernigan statistical potential as the basis for generating the strengths of the native contact interactions .
+under the " contact types " heading , the " mj " radio button should be selected .
+next , the nscale parameter must be assigned ; for 1prb the optimal value is 0.91 .
+it is important to note that the user would normally need to tune this value manually , as described above .
+the user can leave all other parameters at their default values and click " submit. " step 3 : light minimization although the native crystal structure is determined to be at the free - energy minimum , we still ask the user to do a short energy minimization .
+this serves two purposes : firstly , it removes any minor issues with the geometry of the constructed structure , such as suboptimal non - native contacts or imperfect secondary structure , and secondly , it allows the user to verify that the model has been successfully built .
+in order to accomplish this , the user must go to the " minimization " page and request ten steps of steepest descent minimization and 100 steps of adopted basis newton - raphson minimization .
+the process of minimization is described more extensively in the first article of this series and on charmmtutorial.org .
+because a coarse - grained model has no high frequency motions , shake , an algorithm used to constrain rapid bond and angle vibration [ 41 ] , may be turned off .
+step 4 : run the langevin dynamics simulation once minimization is done , the user must go to the " langevin dynamics " page .
+as described above , langevin dynamics mimics the frictional effects of solvent .
+charmming is limited to 1,000 steps of dynamics , as described in the first article of this series .
+however , users have the option of downloading all generated inputs and running them locally , assuming that they have a charmm license .
+when submitting the langevin dynamics calculation , the user is instructed to set the " fbeta " value to five .
+this controls the simulated collision frequency used in the dynamics , which simulates the jostling effects of solvent and also serves to couple the system to a heat bath ( in charmming , this is always set at 300 k ) .
+charmming uses a 1 fs time step for all dynamics calculations ; for a production run this may be increased for the reasons given above .
+step 5 : perform data analysis one of the most reliable metrics for gauging whether a protein is in a folded or unfolded state is the fraction of native contacts that are present ( q - - see above for details ) .
+we have developed a native contacts calculator for g models in charmming , and as the final step of the lesson , the user must use it to see how the fraction changes .
+because the simulation is so short , native contacts are unlikely to change much , if at all ; however , this is still a useful exercise since the same analysis can be applied to production simulations .
+the user is directed to visit the " kt - go native contacts " page .
+once he or she navigates to it , a table showing q every 50 steps is displayed immediately ; in the present version , no form needs to be filled in and submitted .
+at this point , all calculations for the lesson have been completed , and the user should have gained a very basic understanding of the methods and results .
+discussion and conclusion cg models are widely used in the study of biophysics because of their ability to efficiently simulate biomolecules and qualitatively test hypotheses .
+the same attributes that make them suitable as research tools ( their speed and their qualitative nature ) also make them suitable as an education tool .
+while building and running cg models in simulation software previously required the expertise of a specialist in the field , this is no longer true , as the charmming web portal to charmm now automates many of the tasks required to build a g model , allowing this class of cg models to be used in the classroom .
+cg g models and other reduced lattice models also have tremendous applications for research into the folding of small globular proteins , as they can correctly predict their thermodynamic properties [ 37 ] , qualitative folding pathways [ 42 ] , and ensembles of partially folded structures in the presence of various denaturing agents such as heat and chemicals [ 20 ] .
+the current work allows for the automation of the tedious process of parameter generation and model building for g models .
+analogous tools for aa simulation have proven very valuable to the modeling community [ 43 ] .
+references 1 fersht ar ( 1999 ) structure and mechanism in protein science : a guide to enzyme catalysis and protein folding .
+2nd edition .
+new york : freeman .
+2 chiti f , dobson cm ( 2006 ) protein misfolding , functional amyloid , and human disease . annu rev biochem 75 : 333 - 366 . 16756495 3 thirumalai d , klimov d , dima r ( 2003 ) emerging ideas on the molecular basis of protein and peptide aggregation . curr opin struct biol 13 : 146 - 159 . 12727507 4 levitt m , warshel a ( 1975 ) computer simulation of protein folding . nature 253 : 694 - 698 . 1167625 5 marrink sj , de vries ah , mark ae ( 2004 ) coarse grained model for semiquantitative lipid simulations . j phys chem b 108 : 750 - 760 . 6 bond pj , sansom msp ( 2006 ) insertion and assembly of membrane proteins via simulation . j am chem soc 128 : 2697 - 2704 . 16492056 7 bieler ns , knowles tpj , frenkel d , vacha r ( 2012 ) connecting macroscopic observables and microscopic assembly events in amyloid formation using coarse grained simulations . plos comput biol 8 : e1002692 . 23071427 8 marrink sj , mark ae ( 2003 ) the mechanism of vesicle fusion as revealed by molecular dynamics simulations . j am chem soc 125 : 11144 - 11145 . 16220905 9 delarue m , dumas p ( 2004 ) on the use of low - frequency normal modes to enforce collective movements in refining macromolecular structural models . proc natl acad sci u s a 101 : 6957 - 6962 . 15096585 10 denesyuk na , thirumalai d ( 2013 ) coarse - grained model for predicting rna folding thermodynamics . j phys chem b 117 : 4901 - 4911 . 23527587 11 tozzini v ( 2005 ) coarse - grained models for proteins . curr opin struct biol 15 : 144 - 150 . 15837171 12 saunders mg , voth ga ( 2013 ) coarse - graining methods for computational biology . annu rev biophys 42 : 73 - 93 . 23451897 13 chan hs , zhang z , wallin s , liu z ( 2011 ) cooperativity , local - nonlocal coupling , and nonnative interactions : principles of protein folding from coarse - grained models . annu rev phys chem 62 : 301 - 326 . 21453060 14 jorgensen wl , chandrasekhar j , madura jd , impey rw , klein ml ( 1983 ) comparison of simple potential functions for simulating liquid water . j chem phys 79 : 926 - 935 . 15 ueda y , taketomi h , go n ( 1978 ) studies on protein folding , unfolding , and fluctuations by computer simulation. ii. a. three - dimensional lattice model of lysozyme . biopolymers 17 : 1531 - 1548 . 16 mackerell ad jr ( 2005 ) chapter 7 : empirical force fields for proteins : current status and future directions .
+in : spellmeyer dc , editor .
+annual reports in computational chemistry .
+volume 1 .
+atlanta : elsevier. pp .
+91 - 102 .
+available : http :// www.sciencedirect.com / science / article / pii / s1574140005010078 .
+accessed 25 june 2014 .
+doi : http :// dx.doi.org / 10.1016 / s1574 - 1400 ( 05 ) 01007 - 8 .
+17 veitshans t , klimov d , thirumalai d ( 1997 ) protein folding kinetics : timescales , pathways and energy landscapes in terms of sequence - dependent properties . fold des 2 : 1 - 22 . 9080195 18 klimov dk , thirumalai d ( 1998 ) linking rates of folding in lattice models of proteins with underlying thermodynamic characteristics . j chem phys 109 : 4119 - 4125 . 19 klimov dk , thirumalai d ( 2000 ) mechanisms and kinetics of beta - hairpin formation . proc natl acad sci u s a 97 : 2544 - 2549 . 10716988 20 o'brien ep , ziv g , haran g , brooks br , thirumalai d ( 2008 ) effects of denaturants and osmolytes on proteins are accurately predicted by the molecular transfer model . proc natl acad sci u s a 105 : 13403 - 13408 . 18757747 21 hills rd , brooks iii cl ( 2009 ) insights from coarse - grained gomodels for protein folding and dynamics . int j mol sci 10 : 889 - 905 . 19399227 22 linhananta a , boer j , mackay i ( 2005 ) the equilibrium properties and folding kinetics of an all - atom gomodel of the trp - cage . j chem phys 122 : 114901 . 15836251 23 faccioli p , sega m , pederiva f , orland h ( 2006 ) dominant pathways in protein folding . phys rev lett 97 : 108101 . 17025856 24 wu l , zhang j , wang j , li wf , wang w ( 2007 ) folding behavior of ribosomal protein s6 studied by modified go - like model . phys rev e 75 : 031914 . 25 cho ss , levy y , wolynes pg ( 2006 ) p versus q : structural reaction coordinates capture protein folding on smooth landscapes . proc natl acad sci u s a 103 : 586 - 591 . 16407126 26 sulkowska ji , cieplak m ( 2008 ) selection of optimal variants of go - like models of proteins through studies of stretching . biophys j 95 : 3174 - 3191 . 18567634 27 karanicolas j , brooks iii cl ( 2002 ) the origins of asymmetry in the folding transition states of protein l and protein g . protein sci 11 : 2351 - 2361 . 12237457 28 karanicolas j , brooks iii cl ( 2003 ) improved go - like models demonstrate the robustness of protein folding mechanisms towards non - native interactions . j mol biol 334 : 309 - 325 . 14607121 29 feig m , karanicolas j , brooks iii cl ( 2004 ) mmtsb tool set : enhanced sampling and multiscale modeling methods for applications in structural biology . j mol graph model 22 : 377 - 395 . 15099834 30 miller bt , singh rp , klauda jb , hodoscek m , brooks br , et al ( 2008 ) charmming : a new , flexible web portal for charmm . j chem inf model 48 : 1920 - 1929 . 18698840 31 brooks br , brooks iii cl , mackerell ad , nilsson l , petrella rj , et al ( 2009 ) charmm : the biomolecular simulation program . j comput chem 30 : 1545 - 1614 . 19444816 32 heinig m , frishman d ( 2004 ) stride : a web server for secondary structure assignment from known atomic coordinates of proteins . nucleic acids res 32 : w500 - w502 . 15215436 33 miyazawa s , jernigan rl ( 1996 ) residue - residue potentials with a favorable contact pair term and an unfavorable high packing density term , for simulation and threading . j mol biol 256 : 623 - 644 . 8604144 34 sugita y , okamoto y ( 1999 ) replica - exchange molecular dynamics method for protein folding . chem phys lett 314 : 141 - 151 . 35 leach ar ( 2001 ) molecular modelling : principles and applications .
+2nd edition .
+harlow , essex : pearson education limited .
+388 - 389 pp .
+36 brooks br , bruccoleri re , olafson bd , states dj , swaminathan s , et al ( 1983 ) charmm : a program for macromolecular energy , minimization , and dynamics calculations . j comput chem 4 : 187 - 217 . 37 best rb , hummer g ( 2010 ) coordinate - dependent diffusion in protein folding . proc natl acad sci u s a 107 : 1088 - 1093 . 20080558 38 takada s ( 2001 ) protein folding simulation with solvent - induced force field : folding pathway ensemble of three - helix - bundle proteins . proteins 42 : 85 - 98 . 11093263 39 wang t , zhu y , gai f ( 2004 ) folding of a three - helix bundle at the folding speed limit . j phys chem b 108 : 3694 - 3697 . 40 hagen sj , hofrichter j , szabo a , eaton wa ( 1996 ) diffusion - limited contact formation in unfolded cytochrome c : estimating the maximum rate of protein folding . proc natl acad sci u s a 93 : 11615 - 11617 . 8876184 41 ryckaert jp , ciccotti g , berendsen hj ( 1977 ) numerical integration of the cartesian equations of motion of a system with constraints : molecular dynamics of n - alkanes . j comput phys 23 : 327 - 341 . 42 kmiecik s , kolinski a ( 2008 ) folding pathway of the b1 domain of protein g explored by multiscale modeling . biophys j 94 : 726 - 736 . 17890394 43 vanommeslaeghe k , hatcher e , acharya c , kundu s , zhong s , et al ( 2010 ) charmm general force field : a force field for drug - like molecules compatible with the charmm all - atom additive biological force fields . j comput chem 31 : 671 - 690 . 19575467 44 rozak da , orban j , bryan pn ( 2005 ) g148 - ga3 : a streptococcal virulence module with atypical thermodynamics of folding optimally binds human serum albumin at physiological temperatures . bba - proteins proteom 1753 : 226 - 233 . 45 zhu y , fu x , wang t , tamura a , takada s , et al ( 2004 ) guiding the search for a protein 's maximum rate of folding . chem phys 307 : 99 - 109 .

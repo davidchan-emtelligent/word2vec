@@ -1,0 +1,624 @@
+sensors ( basel ) sensors ( basel ) sensors ( basel , switzerland ) 1424 - 8220 molecular diversity preservation international ( mdpi ) 24834909 4063070 10.3390 / s140508547 sensors - 14 - 08547 article a comparative study of registration methods for rgb - d video of static scenes morell - gimenez vicente saval - calvo marcelo azorin - lopez jorge garcia - rodriguez jose cazorla miguel * orts - escolano sergio fuster - guillo andres institute for computing research , university of alicante , p.o. box 99 , alicante , spain ; e - mails : vmorell @ dccia.ua.es ( v.m. - g. ) ; msaval @ dtic.ua.es ( m.s. - c. ) ; jazorin @ dtic.ua.es ( j.a. - l. ) ; jgarcia @ dtic.ua.es ( j.g. - r. ) ; sorts @ dtic.ua.es ( s.o. - e. ) ; fuster @ dtic.ua.es ( a.f. - g. ) author contributions vicente morell - gimenez , sergio orts - escolano , miguel cazorla and jose garcia - rodriguez performed experiments from the scene reconstruction part .
+marcelo saval - calvo , jorge azorin - lopez and andres fuster - guillo focused on the same part for the object reconstruction .
+all authors specified the comparative study , discussed the results and developed the final conclusions .
+* author to whom correspondence should be addressed ; e - mail : miguel.cazorla @ ua.es ; tel. : + 34 - 965 - 903 - 400 ; fax : + 34 - 965 - 903 - 902 .
+5 2014 15 5 2014 14 5 8547 8576 26 12 2013 05 5 2014 08 5 2014 ( c ) 2014 by the authors ; licensee mdpi , basel , switzerland .
+2014 this article is an open access article distributed under the terms and conditions of the creative commons attribution license ( http :// creativecommons.org / licenses / by / 3.0 /) .
+the use of rgb - d sensors for mapping and recognition tasks in robotics or , in general , for virtual reconstruction has increased in recent years .
+the key aspect of these kinds of sensors is that they provide both depth and color information using the same device .
+in this paper , we present a comparative analysis of the most important methods used in the literature for the registration of subsequent rgb - d video frames in static scenarios .
+the analysis begins by explaining the characteristics of the registration problem , dividing it into two representative applications : scene modeling and object reconstruction .
+then , a detailed experimentation is carried out to determine the behavior of the different methods depending on the application .
+for both applications , we used standard datasets and a new one built for object reconstruction .
+rgb - d sensor registration robotics mapping object reconstruction classification pacs 42.30.tz 1 .
+introduction registration of multiple 3d datasets is a fundamental problem in many areas , such as computer vision , medical imaging [ 1 ] , object reconstruction , mobile robotics , augmented reality [ 2 ] , etc .
+due to the increasing usage of current low - cost rgb - d sensors , this technology has opened new lines of research .
+three - dimensional data can be obtained from different devices : 3d lasers , stereo cameras , time - of - flight cameras , rgb - d cameras , etc .
+depending on the input sensor , some algorithms provide better results than others .
+3d lasers are usually active , non - contact sensors .
+they emit a pulse of light and measure the time spent by the light to return to the device .
+others 3d lasers use a triangulation using a camera to measure the deviation of the light depending on the depth of the object from which the light was reflected .
+some 3d laser systems do not provide color information , so algorithms that need visual features are not suitable .
+other 3d lasers systems provide color information ( using different approaches to incorporate color to the depth information ) , but their cost is prohibitive .
+stereo cameras use two or more conventional cameras to obtain the disparity ( the difference of position from one camera to the others , usually by correlation ) and , from it , the depth ( objects close to the camera have less disparity than farther ones ) .
+however , stereo cameras suffer from the lack of textures : image areas without texture do not provide depth information .
+another sensor is the photonic mixer device ( pmd ) ( also known as time - of - flight cameras ) , which measures distances directly for a two - dimensional field of pixels , based on the time of flight of modulated infrared light .
+the visual information of pmd cameras , like sr4000 , is infrared .
+it is affected by natural light and , normally , is noisy .
+in our previous work [ 3 ] , we performed some experiments using the sift visual feature method [ 4 ] with this kind of camera .
+as the sr4000 camera provided noisy images , the repeatability of the sift feature was low .
+low - cost rgb - d sensors , such as microsoft kinect , primesense carmine ( http :// www.primesense.com ) or asus xtion ( http :// www.asus.com / multimedia / xtion pro ) , introduce a great advance to the robotics area .
+they are composed of two sensors : an ir ( infrared ) projector , an ir cmos camera and an rgb camera .
+the ir sensor provides the depth information .
+the ir projector sends out a fixed pattern of bright and dark speckles .
+using structured light techniques ; depth is calculated by triangulation against a known pattern from the projector .
+the pattern is memorized at a known depth , and then , for each pixel , a correlation between a known pattern and the current pattern is done , providing the current depth at this pixel .
+in this work , we have used the kinect camera for experiments .
+the kinect camera has a resolution of 640 x 480 ( 307,200 pixels ) and a working range between 1 and 8 m , approximately providing a frame rate up to 30 fps .
+a detailed analysis of the accuracy and resolution of this camera can be found in [ 5 ] .
+in this paper , we are focusing on low - cost rgb - d sensors .
+for the rest of the paper , when we mention rgb - d sensors or data , we are referring to the low - cost ones. with these specific kinds of sensors , we are interested in the study of the behavior of different registration methods for incremental video reconstruction of scenes and small objects .
+the work focuses on the registration of subsequent frames of a slowly moving kinect camera in a static lambertian scene .
+the registration problem could be addressed in two ways .
+first is searching the solution in the correspondence space .
+in this case , the problem is comprised of two related sub - problems : correspondence selection and motion ( or transformation ) estimation .
+in the former , candidate correspondences between datasets are chosen , while in the latter , transformation minimizing the distances between corresponding points are estimated .
+second is searching the solution in the transformation space .
+an objective function is defined ( for example , the distance between two datasets ) , and a search using different transformations to find the transformation that minimize the objective function is performed .
+several reviews related to the registration problem can be found in the literature .
+in [ 6 ] , a complete color image registration survey is presented .
+tam et al .
+[ 7 ] made a survey of registration methods for rigid and non - rigid point clouds and meshes .
+in [ 8 ] , a comparison among different iterative closest point ( icp ) methods is presented , while in [ 9 ] , a similar study is proposed , but with real - world datasets .
+in this paper , we are focused on an experimental review of state - of - the - art rigid registration methods using rgb - d images .
+therefore , our main contributions are : a study of the most used approaches to register static environments using rgb - d sensors and testing different methods using a state - of - the - art dataset .
+a study of the current methods for object reconstruction and a discussion of the problems of registering small objects using low - cost rgb - d sensors and also the creation of a new real - world dataset. with respect to registration methods , ransac ( random sample consensus ) [ 10 ] usually works with features ( visual or 3d ) .
+since the global properties of objects are vulnerable to occlusions and clutter in the scene [ 11 ] , local invariant features are used for this purpose .
+moreover , local features could be used with non - rigid objects in scenarios , i.e. , articulated or deformable objects .
+ransac is faster than other methods , and it allows a proper registration in the presence of noisy data .
+however , it depends on the ratio between inliers and outliers .
+if there are many more outliers than inliers and the number of inliers is low , the probability of finding the best solution is low .
+furthermore , if the number of matched features is low , there is a high probability of obtaining a small number of inliers .
+iterative closest point ( icp [ 12,13 ]) uses all of the points in the scene .
+icp needs an initial alignment to register the scene .
+however , for small and smooth camera or scene motion in rigid scenes , incremental methods , such as icp , achieve good results .
+icp is more suitable for the local motion of noisy surfaces , while ransac achieves better results for global motion with precise correspondences containing outliers .
+there exist several variants of the icp method that are more quickly calculated by reducing the amount of points or by extracting less features .
+in this work , we have compared the original icp only considering a kd - tree to speed - up correspondence searching .
+due to the high variety of methods , we have made a study of the registration methods that use rgb - d sensors in static scenarios .
+in order to review and describe the state - of - the - art of the rigid registration approaches , we decided to classify them into coarse and fine methods .
+following the definition of salvi et al .
+[ 14 ] , coarse and fine registration mainly differs in the accuracy of the provided solution .
+coarse registration aims at computing an initial estimation of the rigid motion between data points .
+the robustness of these methods may highly vary in measure , where in theory , low accuracy increases their speed .
+most of coarse registration methods are iterative , despite the existence of linear approaches .
+it is important to highlight that many coarse approaches use a subset of the data ( downsampling or keypoints ) in order to reduce the computational cost .
+fine registration , on the other hand , is focused on providing the most accurate solution .
+these methods generally use a roughly initial estimation to unify all views in a common coordinate system ( avoiding falling in local minima ) and then refining the initial solution .
+in [ 14 ] , a table is presented where important aspects of coarse and fine registration methods are classified : kind of correspondences , motion estimation , robustness and registration strategy .
+this classification is used in [ 14,15 ] , but many others can be found in the literature , such as dense / sparse , intrinsic / extrinsic , etc .
+despite this classification , most of the registration methods use a hybrid approach to firstly coarse register pre - aligning the data into a global coordinate system and , next , refining the result using fine registration methods .
+in order to analyze the performance and accuracy of the reviewed methods , we have divided the experiments into two categories .
+the first one is the scene reconstruction .
+it is often used to perform map building .
+the mapping problem consists of registering the point sets obtained by the robot at different positions in order to get a map of the environment around the robot .
+the second one is the object reconstruction , very similar to the previous one , but focused on object reconstruction , like sculptures , tools , plants , etc .
+we will develop a detailed experimentation to determine the best methods to solve both problems .
+this paper does not intend to be an exhaustive review of the state - of - the - art , but a comparative study among different approaches to estimate registration , tested in two important and representative applications in which registration is used as a part of the general process : scene mapping and object reconstruction .
+these applications cover most of the expected requirements for the output of a registration process .
+specifically , they allow one to reach important conclusions about the performance of registration methods using rgb - d sensors .
+the remainder of this paper is organized as follows ; section 2 presents the review of the state - of - the - art , presenting first the registration problem .
+then , the two frameworks used to make the comparison ( scene and object reconstruction ) and the metrics used to compare them are presented in section 3 .
+results are presented , and a discussion is given in section 4 .
+finally , conclusions are drawn in section 5 .
+2. related work since registration has played an important role in many areas ( including computer vision , medical imaging , image processing , etc ) , this task assumes different requirements depending on the scope .
+it could be analyzed from different perspectives .
+in medical imaging , it is usual to register images acquired by different kind of sensors , for example mapping an mri image onto a ct scan .
+in image processing , registration is used to match images taken , for example , at different times or from different viewpoints .
+in general , it could be analyzed as the process of aligning different sets of data into one coordinate system .
+figure 1 shows an example of a scene registration .
+on the left , we show the two point clouds provided by the kinect camera , which are shown in a common reference system .
+as both point clouds were taken from different view points , objects appear repeated .
+on the right , we show both registered point clouds together with the initial position ( red pyramid ) and the estimated one ( green pyramid ) of the camera .
+irrespectively , if the registration task is considered as a mapping , matching or aligning process of sets of data , data are usually a set of two - dimensional ( e.g. , images ) or three - dimensional points .
+in this paper , we are interested in the registration process aimed at aligning a set of 3d points .
+therefore , we can define the registration problem approached in this work as the process of transforming different sets of 3d data into the same coordinate system .
+this means finding the transformation needed to align one new dataset , s , to a reference dataset , m. formally , the transformation , t , that minimizes the distance between the transformed points s = { s } and the reference points m = { m } is obtained by minimizing : ( 1 ) t *= argmintinvsumsinssumminmwsm || m - t ( s )|| where m is the point that matches with the point , s , || . || is the distance measure between points , usually euclidean distance , v = { t } is the set of all the possible transformations and wsm is the probability that the point , s , matches with the point , m. the problem can be simplified when the correspondence pairs between scene and model are known , ( 2 ) t *= argmintinvsumi = 1n || mi - t ( si )|| where n is the number of correspondence pairs and mi is the point of the model set which has a correspondence with the scene point , si. according to the transformation , t , applied to the set , s , rigid and non - rigid registrations could be obtained .
+a rigid registration transform the s points by a rotation and a translation preserving the distance between every pair of points in s. rigid transformations are usually applied to static scenarios .
+however , non - rigid registrations are obtained to align the set , s , onto the reference points , m , when both datasets have non - linear geometric differences .
+in this case , non - rigid registrations are used to register deformations of objects ( e.g. , elastic surface deformation of an object ) or articulated objects ( e.g. , human body movements ) .
+an interesting review could be found in the work written by crum et al .
+[ 16 ] .
+as we are focused on static scenarios , non - rigid transformations are out of the scope of this paper .
+according to the set of points to be registered , a wide or small baseline registration problem has to be dealt with .
+for wide baseline settings , the set of points , m and s , have been acquired from very different viewpoints ( position and orientation of the camera ) having a few overlap data between them .
+registering laser scans from entirely different positions or registering two separate object reconstructions with a hand - held kinect are examples of wide - baseline requirements for registration .
+usually , methods try to detect invariant features from data to match the datasets using descriptors that look the same when a transformation , t , is applied .
+additionally , other robust features are calculated ( e.g. , robust with respect to the lighting ) that use only a local image region , so that feature - based registrations can work also with large parts of the dataset occluded , their relative order swapped , with dynamic objects , etc .
+on the other hand , small baseline settings assume data from close viewpoints having a larger overlapped areas in both datasets .
+this data can be obtained from a 3d image or a video acquisition system .
+for video acquisition systems , registration is usually carried out frame to frame .
+depending on the frame rate , sometimes registration can deal with neglectable video motion , having very close viewpoints between frames .
+as a consequence , all those above feature properties for wide - baseline registration are useless in subsequent video frames of static scenes , because everything looks almost identical .
+another important aspect related to the set of points to be registered is the source of the points that conform the datasets , s and m. in general , s and m contains points from a viewpoint .
+registration of two single views is usually considered a pairwise registration .
+when more than two views are taken into account into the process , a multiview registration is performed .
+in this case , the dataset , m , contains more than one view .
+it could contain a meta - view composed of raw views or a model of the scene previously registered being able to perform an incremental registration , aligning new views to the model , even already registered views can be registered again .
+applications discussed in this comparative study ( mapping for robotics and small object reconstruction ) of registration methods using rgb - d video deal with static scenarios .
+hence , we are going to focus on rigid registration methods .
+moreover , since the low - cost rgb - d cameras allow the capture of reasonably accurate mid - resolution depth and appearance information at high frame rates [ 17 ] , the set of points to be registered have small baseline settings .
+as a consequence , the problem of rigid registration for small baseline settings using rgb - d video is going to be analyzed .
+there are several approaches to solve the frame - to - frame registration problem in rgbd video sequences , but all of them could be fitted in a general scheme .
+figure 2 shows the main steps of a complete registration process .
+these steps are : pre - and post - processing are phases where smoothing or noise rejection techniques are applied to enhance the result of the registration .
+the model data source is the module where the information from the output of the process is stored .
+it could contain the previous data and / or the obtained transformations .
+these data could be used to obtain the current registration : the previous data ( 3d data ) as the current model ; the previous estimated transformation as the initial transformation as , e.g. , for the icp .
+the output of the process could be just the transformation or the registered model .
+however , not always are these steps carried out .
+focusing on the coarse and fine registration phases , the preprocessing phase could be omitted when views are close enough to each other , and an initial alignment step is not needed .
+the post - processing phase could be avoided if the demanded accuracy is not high and accurate enough results were provided by the coarse registration phase .
+furthermore , there exists different techniques to apply the registration process , such as multi - view , where one dataset is registered against a group of datasets and not only against a single view .
+regarding time performance , coarse registration methods could be faster than fine methods , due to them not needing to find the best solution , as well as the use of features from the scene , reducing the amount of data to be registered .
+however , they need additional time to calculate features and to match them .
+generally speaking , generic algorithms that were conceived of to be used with different 3d sensors ( stereo , laser , etc ) , e.g. , icp for fine registration and ransac for coarse registration , have not been developed considering temporal constraints .
+despite the icp having several variants , including the use of a kd - tree to search the closest pair of points or reducing the number of noises by rejecting wrong data , even uniformly downsampling the original data , it is still a slow algorithm .
+furthermore , ransac is time consuming in those cases where the number of tested random samples is too large , and then , several iterations of the algorithm have to be executed .
+however , implementations able to work at video frequency can be found in the literature for both methods [ 8,18 ] .
+specific methods designed for rgbd cameras , including icp for refinement , as kinectfusion [ 19 ] , dense visual odometry ( dvo ) [ 20 ] and rgbdemo [ 21 ] , were developed to work with cameras that provide about 30 fps , such as the microsoft kinect .
+2.1 .
+coarse methods in contrast to the methods based on the calculation of distances between pairs of points , the coarse methods commonly do not use all available data , but the downsampling of the data .
+feature - based methods can be used , which try to reduce the amount of points from both sets ( model and scene ) using a given detection and description feature method to represent the input data .
+a feature has a position and a descriptor ( the information around the position is described ) .
+features can come from the image ( visual features ) or directly from 3d data ( 3d features ) .
+irrespective of the kind of feature used , the steps of the registration methods are : feature detection / description , feature matching and transformation model estimation .
+these steps are shown in figure 3 .
+the feature detection step tries to detect salient and distinctive parts of an object ( shapes , closed regions , contours , lines , line intersections , etc. ) in the datasets using a feature detection method and then represent the detected part as a set of values , normally called the feature descriptor .
+this step can be directly applied to the 3d data or to the 2d image ( when using rgb - d cameras ) and then assigning their 3d information .
+thus , the number of elements is reduced extremely ( from 340000 to less than 1000 in the case of a kinect camera ) .
+there are several feature detectors and descriptors that work with 2d data .
+one of the most used is the sift ( scale invariant features transforms ) [ 4 ] , which provides both feature detection and description .
+the surf feature ( sped up robust features ) [ 22 ] is similar , but faster than sift .
+for a deep study of the different visual features , see [ 23 ] .
+only a few general purpose pure 3d feature detectors / descriptors have been presented .
+some extensions of the well - known 2d harris detector are proposed in [ 24 ] .
+a pure 3d descriptor is presented in [ 25 ] .
+it is called the fast point feature histograms ( fpfh ) , and it is based on a histogram of the differences of angles between the normals of the neighbor points of the source point .
+johnson [ 26 ] proposes a representation of a 3d surface for matching .
+a planar patches feature extraction process is applied to the raw 3d data in order to obtain a complexity reduction in [ 27,28 ] .
+koser and koch [ 29 ] normalized rgbd data to a frontal view to obtain perspectively invariant surface features , while wu et al .
+[ 30 ] rectified large planar regions to obtain perspective invariance , and zeisl et al .
+[ 31 ] uses orthographic projection of rgb - d data to simplify matching .
+the most used method for finding the transformation between correspondences is based on the ransac algorithm [ 10 ] , since the matching step usually yields a lot of outliers .
+it is an iterative method that estimates the parameters of a mathematical model from a set of observed data , which contains outliers .
+in our case , we look for a 3d transformation ( our model ) which best explains the data ( matches between 3d features ) .
+at each iteration of the algorithm , a subset of data elements ( matches ) is randomly selected .
+these elements are considered as inliers .
+a model ( 3d transformation ) is fitted to those elements .
+remaining data are then tested against the fitted model and included as inliers if its error is below a given threshold .
+if the estimated model is reasonably good ( its error is low enough and it has enough matches ) , it is considered as a good solution .
+this process is repeated a number of times , and then , the best solution is returned .
+other registration methods are based on genetic algorithms ( ga ) , as in [ 32 ] .
+using these strategies , the problem of registration is dealt with as a search / optimization problem .
+the final transformation is generated using a genetic algorithm , getting some information of pairs to estimate the best transformation of all the transformations generated by the ga. stuckler and behnke [ 33 ] use a multi - resolution surfel ( surface element ) representation of the rgb - d images .
+this approach uses shape descriptors of the surfels similar to [ 25 ] and color histograms in a cielab ( chromatic model close to the human perception ) space .
+it uses these feature descriptors and the spatial properties of the multi - resolution octree to get the surfels correspondences .
+the method iterates to get the estimated transformation in a similar way to icp .
+2.2 .
+fine methods fine registration methods are commonly used to refine a nearly close registration .
+in contrast to coarse methods , fine methods usually use all the available information in order to get the correct transformation between datasets .
+they usually follow an iterative method to incrementally refine the estimated registration due to the amount of data used .
+nowadays , one of the most used methods is the iterative closest points [ 12,13 ] and its variants .
+warping image methods were used in the past to register [ 34 ] colored stereo images .
+color is used to constrain the search for the closest points in [ 35 ] .
+recently , kerl et al .
+[ 36 ] presented a 3d colored variation of the method in order to register consecutive rgb - d images .
+2.2.1 .
+iterative closest point and variations some of the 2d / 3d registration methods use the distance information between the matched points to calculate the global transformation that best explains the change of the position of two datasets .
+in this kind of method , the registration solves two problems iteratively : ( 1 ) finding the correspondence ( or matching ) between points ; and ( 2 ) estimating the transformation that best explains the correspondences .
+the most used of these methods is the iterative closest point , which was introduced in [ 12,13 ] .
+the structure of the icp method is shown in figure 4 .
+one of the datasets is the model , and the other one is called the scene .
+the icp starts with a given initial transformation and , then , continues iterating in two consecutive steps .
+first , scene points are processed using the current transformation .
+after that , the correspondence pairs are calculated using the scene and model points .
+at the end of each iteration and using the correspondence pair information , the transformation that best explained the correspondences is calculated .
+the base scheme of the icp normally gets a local optimum solution for the registration , depending on the initial transformation given to the icp method .
+this is the basic structure of the icp , from which a lot of variations have emerged , which seek to change or improve any of the steps of the classical icp .
+the initial icp [ 12 ] uses all of the points of the scene and model sets , matching the points with the least euclidean distance .
+there are several methods that try to improve this time consuming step .
+for example , turk [ 37 ] uses a uniform sub - sampling method to reduce the amount of points of the datasets .
+another approach is the random selection of points [ 38 ] , which quickly reduces the number of points , at the risk of losing some parts of the structure of the datasets .
+the method proposed by weik [ 39 ] uses additional information to find the correspondences , like point color or intensity changes .
+other methods use a kd - tree or a closest - point cache system [ 40 ] in order to speed up the search process .
+other papers , like [ 41 ] , weights the correspondence pairs with respect to their distance , giving less weight to pairs with higher distance or also depending on the difference between the normal of the points .
+another criteria for weighting the matching step is to assign different weights with respect to the noise model of the sensors .
+for example , if it is known that the camera produces more noisy data for distant points , give them less weight than the closest points to the camera .
+another approach [ 42 ] proposes rejecting a percentage of the worst matches , according to some criterion , usually distance from the points .
+other variants , such as [ 38 ] , reject the pairs whose distance is higher than a multiple of the standard deviation of the distances .
+some papers , like [ 8,43 ] , presented a collection of variations of the classical icp in order to make it more robust and efficient .
+iterative closest methods are also used in current systems .
+the method proposed by zhang et al .
+[ 44 ] searches multiple nearest points , then discards the correspondences with a larger distance than a computed threshold and only takes the correspondences that are bi - unique ( i.e. , only uses a correspondence if its model point has only one correspondence with the scene points ) .
+in [ 17 ] , henry et al. present a hybrid approach of icp and visual features .
+this modification of the original icp makes use of sift visual features [ 4 ] and ransac [ 10 ] to get an initial guess transformation and then applies the icp iterations , but instead of just getting the estimation that reduces the nearest neighbor distance of the points ; it also uses the distances between the selected visual features using a parameter to weight both distances .
+this weighted system allows the icp to align the two datasets using both the color of the visual features and the geometric information of the point cloud .
+other variations of the icp are based on kinectfusion [ 19 ] , which builds a model of the scene , while it computes the positions of the camera .
+this model is internally represented as a volumetric truncated signed distance function ( tsdf ) .
+tsdf and the depth data integration comes from [ 45 ] .
+each point in the space has stored the distance against the closest surface ( positive if it is outside or negative if it is inside ) and some weight value .
+this representation model allows the system to fuse the following depth images into one model , getting a smooth model .
+this registration against a model instead of the last frame images or point clouds allows the system to avoid the drift in the registration and gets smoother maps and camera trajectories compared to previous approaches .
+some different modifications of the original kinectfusion appeared .
+kintinuous [ 46 ] presents a modification that allows the kinectfusion to work on bigger environments by shifting the model volume and saving the triangulation mesh that is removed from the working volume .
+in [ 47 ] , they presented an integration of the kintinuous with a color fast feature system based on [ 48 ] .
+another extension of the kintinuous [ 49 ] uses surf features and constructs a pose graph to perform the loop closure to correct camera trajectories .
+2.2.2 .
+warping image methods warping image methods are based on the photo - consistency of the image pixels .
+lucas - kanade [ 34 ] presented a image registration method that uses the spatial intensity gradient at each point to modify the current estimated transformation and uses a newton - raphson iteration method to converge to better transformations .
+following the same idea , koch [ 50 ] used this approach to efficiently estimate the transformation of a textured model onto an image .
+this method is based on minimizing the photometric error between the observed and the synthesized image , where this synthesized image is generated by a 3d transformation of the 3d projected pixels of the image and then projecting again the transformed 3d points to a 2d image .
+comport et al .
+[ 51 ] used this approach to estimate the camera position over consecutive stereo images due to the slightly movement of the camera .
+this approach has been adapted to rgb - d sensors in [ 20,52 ] , where they show good registration results and camera position estimations using kinect images .
+recently , kerl et al .
+[ 36 ] presented a refined approach of their dense visual odometry ( dvo ) method , where they use a weight system of residuals images ( differences of the image 's gradients ) in order to gain robustness against noise and large residual values .
+3. comparison framework in this section , we present the comparison framework , including the considered scenarios ( section 3.1 ) , to evaluate some of the aforementioned methodologies for different situations , and the metrics ( section 3.2 ) used to evaluate the results .
+3.1 .
+considered scenarios in order to evaluate the different methodologies presented in the previous sections , we studied different scenarios that represent mainly the wide range of registration problems that can be considered for many applications , including full scene and small objects reconstruction .
+moreover , we present here the specific methods we are going to evaluate that are the most relevant in this area .
+3.1.1 .
+scene reconstruction in order to register large scenes , several rgb - d datasets have to be registered into a common coordinate system .
+most of the scene mapping methods use a simultaneous location and mapping ( slam ) [ 53 - 56 ] scheme in order to get the registration of consecutive rgb - d datasets .
+slam methods use a global rectification method in order to reduce the incremental error of the consecutive estimations .
+we implemented some of the state - of - the - art registration methods in order to test and compare their results on representative scene rgb - d datasets .
+the methods tested are visual features , dense visual odometry and the kinectfusion .
+the visual features method is a hybrid system , which uses the features from accelerated segment test ( fast ) detector [ 57,58 ] and the binary robust independent elementary features ( brief ) descriptor [ 59 ] and then a ransac algorithm to estimate the correspondences and the transformation between the features of scene and model datasets .
+in order to refine the final estimation results , we also applied an iterative closest point algorithm .
+the fast detector and the brief descriptor are implemented in the opencv library ( http :// opencv.org /) .
+the ransac and icp methods are implemented in the point cloud library ( pcl ) ( http :// pointclouds.org ) .
+we also implemented some variations of this method in order to see the difference of applying individually visual features or icp to estimate the transformation .
+the dense visual odometry method is provided as a package in the robot operating system ( ros ) system ( http :// vision.in.tum.de / data / software / dvo ) .
+finally , the kinectfusion method is also provided by the pcl .
+kinectfusion was not originally implemented to register large scenarios , but pcl has a modification of this algorithm to extract the model as a polygon mesh and update the model .
+in order to test the implemented scene mapping systems on large scenarios , we used the technische universitat munchen ( tum ) rgb - d dataset [ 60 ] .
+this dataset provides rgb - d and ground - truth data with the goal of evaluating the visual odometry and visual slam systems .
+the dataset contains the color and depth images of a microsoft kinect sensor along the ground - truth trajectory of the sensor .
+it provides images at a full frame rate ( 30 hz ) and sensor resolution ( 640 x 480 ) .
+the ground - truth trajectory was obtained from a high - accuracy motion - capture system with eight high - speed tracking cameras ( 100 hz ) .
+further , it provides the accelerometer data from the kinect .
+this original dataset contains 39 sequences recorded in two different scenarios .
+the " fr1 " datasets are recorded on a typical office environment and the " fr2 " datasets are recorded in a large industrial hall .
+furthermore , some sequences are recorded using a hand - held kinect and the rest using a kinect mounted on a wheeled robot .
+later , this dataset was extended with more sequences in order to test scenarios with different texture and structure appearances or scenes with dynamic objects .
+figure 5 shows an example of the first 200 ground - truth positions of the camera as a yellow line and the reconstructed map .
+table 1 shows the average translation and rotation velocities of the different datasets .
+we observe that some datasets , like " fr1 xyz " , " fr2 xyz " , " fr2 desk " or all of " fr3 " , have slow velocities .
+other datasets , like " fr1 desk " and " fr1 desk2 " , have high translations , so the movement between frames is higher .
+the " fr1 360 " has slow translational velocity , but it has high rotational movement that also has influence on the registration results .
+the authors concluded from their calibration measures that the relative error of the kinect camera position on a frame - to - frame basis in the ground - truth data is lower than 1 mm .
+3.1.2 .
+small object reconstruction the problem of object reconstruction is a well - known topic in computer vision [ 61 ] , but with the appearance of the low - cost rgb - d sensors , a wide variety of approaches have been proposed .
+object reconstruction covers from objects with big volumes , such as chairs or tables , to small and intricate ones , like plants , tools , etc .
+related to the size of the object , the resolution of the rgb - d devices is an important aspect that affects the acquisition and , hence , the registration and reconstruction .
+the depth resolution expresses the minimum difference in depth that the camera is able to distinguish .
+the resolution is affected by the noise of the data .
+as the level of noise is increased , the performance of the registration methods decreases .
+regarding big elements , traditional algorithms could be used for registering the views , because each view has a large number of object points .
+moreover , this sort of object is fairly described with visual and 3d features , making easier the pre - alignment by using ransac techniques for a coarse registration .
+nevertheless , small objects have different aspects to be considered , i.e. , size and geometry .
+related to the size , object reconstruction is performed with a subset of the points .
+irrespective of the size of the object , rgb - d sensors only work properly in a certain range of depth .
+then , at least a minimum distance has to be preserved , and the object only will be represented with a part of the possible data .
+thereby , the smaller the objects are , the less data that is available .
+another important issue is the object surface geometry .
+due to the technique used by the low - cost rgb - d sensors , smooth surfaces are better estimated than rough ones .
+in scene mapping , the signal - to - noise ratio ( snr ) is high due to the fact that scenes usually have big smooth surfaces ( roof , floor , walls , etc. ) that are well extracted , and then , the registration methods obtain a good transformation to align the views .
+however , objects do not always follow this kind of geometry .
+normally , big objects have regions of smooth surfaces , except those intricate ones , such as trees .
+nevertheless , when the target is small , less smooth surfaces appear ; therefore , the snr decreases .
+hence , traditional techniques cannot be applied directly to the point cloud .
+in this section , five different registration techniques are tested for object reconstruction acquired using rgb - d sensors : coarse registration ( section 2.1 ) : a feature - based approach has been evaluated using ransac .
+the number of features in objects is small compared to the scene case .
+3d features are time - consuming techniques , and also , due to the noise of the rgb - d sensors , they are not usually reliable ; hence , visual features are more often used .
+we use the sift feature extraction and description , as it is one of the most used algorithms in object reconstruction .
+ransac is used to estimate the best translation that registers the sift descriptors of two views .
+fine registration ( section 2.2 ) : in this section , the registration is performed with the well - known iterative closest point .
+in particular , the chen and medioni icp variant with edge rejection has been tested .
+in order to be able to use fine registration directly , several views , close to each other , are registered .
+a combination of coarse and fine registration methods is applied to evaluate a common process of pre - alignment and refinement .
+a well - known implementation for reconstruction with rgb - d sensors is kinectfusion [ 19,62 ] .
+this method was developed for environments , not for objects .
+it tends to smooth the objects by using a truncate signed distance function ( tsdf ) and a model of the scene , which makes shapes rounded or even disappear when they are too small .
+the last presented method is the rgbdemo [ 21 ] , which has been specifically developed for object reconstruction using rgb - d sensors .
+it uses color markers ( artoolkit markers ) to make an initial coarse registration .
+once the initial alignment is done , an icp and then a subsampling process return the final result .
+figure 6 shows different objects with specific features associated with their shapes , which affect the registration .
+the dataset has been created for this experimentation , due to the lack of a dataset of objects acquired using rgb - d sensors , where kinectfusion and rgbdemo results are presented .
+they have been acquired using a microsoft kinect on a turntable .
+three hundred twenty views have been acquired of each element around them ( about 1.13 degrees per step ) in order to use the fine registration method without pre - alignment .
+the distance that separates sensor and objects is a meter , and the camera is placed diagonal - upper to allow the markers of rgbdemo to be visible .
+the first one , figure 6a , is a taz toy of 15 cm in height with a large variety of colors .
+the second object ( figure 6b ) is a wooden cube of 8 cm3 , which has faces where a knot appears and others , less varied in color .
+in the third column , a tool ( figure 6c ) is presented .
+it is 30 cm - long ; the thinnest part is 0.5 cm , and the widest is 2.8 cm. the last object is a bomb toy shown in figure 6d with 8 cm height and 5 cm width .
+it has different colors , thin parts , such as the white one on the top , the body part with a smooth curve and the back part with a key attached .
+a previous segmentation of the region of interest has been performed in order to isolate the object .
+a segmentation combining color and depth information has been used to extract the object from the scene for icp and ransac algorithms .
+the background of the scene has been carefully established using blue chroma .
+moreover , the distance from camera to object is previously known .
+regarding rgbdemo , the method uses a white floor with specific markers ( printed in white paper ) to localize the space where the object is placed .
+rgbdemo uses only that region in the registration process ( markers for coarse registration and icp for fine registration ) .
+however , kinectfusion works with the whole data supplied by the camera having as a consequence two different motions : moving parts as the object on the turntable and static parts as the rest of the scene .
+3.2 .
+metrics and performance measures as previously mentioned , we used the tum rgb - d dataset [ 60 ] for scene reconstruction .
+this dataset proposes some evaluation measures based on the comparison of the estimated trajectories of the camera and the ground - truth ones .
+the relative pose error measures the local accuracy of the trajectory over a fixed time interval , delta .
+therefore , the relative pose error corresponds to the drift of the trajectory , which is useful for the evaluation of visual odometry systems .
+the dataset authors define the relative pose error at time step i as : ( 3 ) ei :=( qi - 1qi + delta ) - 1 ( pi - 1pi + delta ) from a sequence of n camera poses , we obtain in this way m = n - delta individual relative pose errors along the sequence. from these errors , they propose to compute the root mean squared error ( rmse ) over all time indices of the translational component as : ( 4 ) rmse ( e1 : n,delta ):=( 1msumi = 1m || trans ( ei )|| 2 ) 1 / 2where trans ( ei ) refers to the translational components of the relative pose error , ei. the time parameter , delta , needs to be chosen .
+for visual odometry systems that match consecutive frames , delta = 1 is an intuitive choice ; rmse ( e1 : n ) then gives the drift per frame that we will use to measure the quality of the implemented systems .
+for object reconstruction , we will use visual appearance analysis , due the non - existence of a common dataset and its correspondent ground - truth .
+4. results and discussion in this section , we present the results of the experiments done for both scene and object reconstruction .
+for each part , we discuss the obtained results .
+4.1 .
+scene reconstruction we have performed two different experiments to evaluate scene registration methods .
+in the first one , we analyze the results of each method on the different scene sequences .
+in order to improve clarity , some " y - axes " are trimmed , because there are some high error values that represent a totally misalignment or registration error .
+moreover , some graphs are not complete , since the implementation fails , and it is not able to recover or register the following frames .
+the blue lines represents the translational error .
+the ground - truth translational magnitude ( in meters ) is included on the following graphics as red lines and reflects the relative error with respect to the real translation .
+following the considerations of the dataset authors' evaluation method , we do not show the rotational error , because the camera is in continuous motion ; an error in the rotation estimation involves an error in the translational error .
+figure 7 shows the results of the kinectfusion implementation .
+we observe that kinectfusion fails in the " fr1 desk " and " fr1 360 " datasets .
+the rest of the results looks quite smooth , despite some high errors .
+some of these datasets have parts where there is a lack of geometry , so the method gets a high error or it gets lost .
+according to the real relative movement of the camera represented with red lines , the " fr1 xyz " dataset has continuous changes in velocity and direction .
+in the " fr2 - desk " dataset , the camera described sudden / abrupt movements .
+these movements are caused by a lack of ground - truth information , so the distance between " consecutive " frames is relatively high .
+dense visual odometry results are shown in figure 8 .
+we observe that dvo has more variability in the " fr1 xyz " caused by sudden direction changes .
+dvo gives good results on the datasets with smooth movements , like " fr2 desk " .
+the " fr1 360 " dataset presents high errors caused by the high rotational camera motion .
+in general , the dvo method works better than the kinectfusion , except on the " fr2 xyz " .
+visual features with icp refinement results , showed in figure 9 , have mostly the same or higher errors as the ones in dvo and kinectfusion .
+there are no relatively high errors on most of the datasets .
+the " fr2 desk " dataset shows higher error in one of the last frames ( frame 659 ) .
+the " fr2 xyz " dataset presents a high error due to the error introduced by the localization of visual features , which is not corrected by the icp refinement .
+the results of the visual features method ( figure 10 ) show a similar structure than the visual + icp method , but the errors are higher in almost all the cases .
+we now observe the difference of applying the icp refinement step .
+in general , the visual features method without the icp refinement has higher errors .
+figure 11 shows the results of the iterative closest point method .
+we observe similar errors as the ones obtained with the visual features method , but it also has some high errors , like at the beginning of the " fr1 desk2 " and in the " fr2 desk " .
+as expected , icp gets better results than visual features in the datasets with less movement , since the frames to register are initially very close .
+in the " fr1 360 " dataset with high rotational movements , the icp gets several high errors .
+in general , we can observe that the visual features with icp refinement works better than both methods individually .
+the implementations of the visual features and icp methods have no correction , and that is why high errors are obtained that make no sense for a particular application , such as scene reconstruction .
+these errors can be detected and corrected or discarded by a simply movement boundary limitation , like the one that kinectfusion and dvo use .
+to summarize , figure 12 shows the average errors and the standard deviation of the five tested systems on the different datasets .
+we observe that the datasets with lower velocities (" fr1 xyz " and " fr2 xyz ") have less error values .
+in " fr1 360 " , we spot the influence of the rotational velocities on the registration methods .
+despite it having a low translational velocity ( 0.21 m / s ) , its rotational velocity increases the error values of the methods , as can be observed in the error bars and their standard deviation .
+in general , we observe the improvement of the visual features method with the icp refinement .
+this improvement is particularly noticeable in the " fr1 360 " dataset .
+we conclude that the dense visual odometry method is one of the most robust methods , and it provides low errors .
+finally , figure 13 shows the error in the camera pose of the kinectfusion , dvo and visual features + icp methods over the " fr1 desk2 " dataset .
+due to the incremental estimation of the camera pose , a high error in one estimation can lead to a totally misaligned trajectory .
+this is the case of the kinectfusion .
+when a high error is detected , an additional method should be implemented in order to discard the frame and use the previous correct position .
+in the second experiment , we focus on the analysis of the results of the three main tested methods in scenarios with special features .
+the tum dataset has a special " fr3 " set of scenes where different combinations of texture and geometry appearance are presented .
+we use four different combinations of texture and structure appearance .
+the first column of table 2 shows some of the used scenes .
+table 2a represents a scene with detailed texture and geometry appearance .
+table 2b shows an empty and white floor , so it represents a non - texture and non - structure information dataset .
+table 2c only has some posters in a wall , so it represents the texture and non - structure information situation .
+the last dataset , table 2d , represents the non - texture and structure information situation .
+to improve the interpretation of the results we did not include the icp and visual feature methods in this experiment .
+furthermore , the first experiment showed that the combined features with icp refinement worked better than the two methods separately .
+table 2 shows the relative pose translational errors of the three tested methods .
+the results show a general poor registration , since most of the errors are higher than the real translational movement .
+however , the errors are mostly lower than 2 cm. despite the simplicity of the scenes , we observe a high error in most of the scenes with different methods .
+in the datasets with a lack of structure information table 2b,c , the results of the three methods are similar .
+in general , we observe that the kinectfusion method gets the best results with the exception of the dataset with texture , but no structure information , where the visual features with icp refinement gets the best results .
+figure 14 shows the average errors and the standard deviation of the five tested methods on the different datasets .
+we can observe that the dense visual odometry method is getting the biggest errors on these datasets .
+the kinectfusion method ( kinfu ) gets the best results on the datasets with geometry information and gets results closest to the best on the other two datasets .
+4.2 .
+small object reconstruction for small object reconstruction , we have made an experiment using some representative methods of objects in figure 6 .
+figure 15 shows the result of the different registration algorithms .
+the first row has the coarse registration results ; the second one presents the icp results .
+in the third , a combination of coarse pre - alignment and fine registration using the ransac and icp methods is shown .
+the fourth row presents kinectfusion 's results .
+lastly , figure 15q - t shows the rgbdemo results .
+figure 15a - d shows the coarse registration of the objects with ransac and visual sift features .
+figure 15a has been well registered in the front part , where a large variety of colors appear .
+however , the error in the back part produces the wrong final result .
+the cube in figure 15b shows some views that are bent , caused by features in the top matched with others in the lateral part , due to the similarity , causing a bad registration .
+in figure 15c,d , the error in the registration is caused because these shapes have few features , and it is not possible to register them properly .
+the fine registration icp applied to the test objects ( figure 15e - h ) shows that , in general , the results are better than in coarse registration , but still with a considerable error .
+these errors are caused by the low snr , mainly in thin or sharp parts , where the rgb - d sensor cannot return the depth information accurately .
+the registration results of combining ( figure 15i - l ) pre - alignment using ransac and refinement with icp shows how if the wrong pre - alignment is achieved , icp cannot return a proper registration .
+kinectfusion results show that it does not work properly in object reconstruction .
+for example , the cube in figure 15n , where the edges of the shape are rounded .
+in addition , thin parts close to each other are joined , making them distorted .
+this method uses only 3d information ; hence , in objects , such as the bomb toy , where the shape is rounded , the method cannot put the different views in the right place .
+finally , the tool ( figure 15o ) is joined to the floor , due to its thin geometry .
+figure 16 shows different moments of the reconstruction , where step by step , the algorithm mixes the object and the floor .
+rgbdemo algorithm results are presented in figure 15q - t. the taz toy ( figure 15q ) and cube ( figure 15r ) are well registered .
+the cube has the edges rounded due to the subsampling .
+the tool in figure 15s is well registered in the thickest part , but the thin part disappeared , due to different aspects .
+one is the subsampling , but the main reason is the way in which low - cost rgb - d sensors recover the depth information .
+they use a correlation window ( http :// wiki.ros.org / kinect calibration / technical ) to estimate the depth information .
+in case the window of 9 x 7 speckles ( they use speckle pattern ) had more points in the floor than in the object , the floor depth information will be dominant .
+figure 17 shows the color ( figure 17a ) , depth ( figure 17b ) and infra - red ( figure 17c ) images of the tool acquired with the rgb - d sensor .
+the depth image has no information , because the speckles that reach the object are not enough to estimate the profundity .
+the bomb toy in figure 15t is properly registered at the top part , but the low part of the body is incomplete .
+this is produced by self - occlusion .
+rgbdemo uses visual markers , which have to be always visible .
+in case the full object has to be fully reconstructed , it should be acquired from different positions , and finally , all registration results aligned together .
+according to the four objects that have been selected to evaluate different aspects of the registration methods , the analysis shows that as the taz toy is the largest object and has several colors , enough visual features can be found for the ransac algorithm .
+it also has a varied geometry what allows icp - based methods to align the views properly .
+despite these features , the traditional methods ( ransac , ransac + icp and icp ) cannot achieve an accurate final result , due to the cumulative error between views , producing the final wrong closure .
+kinectfusion obtains a reasonable result , despite the fact that it joins several parts , due to the smoothing characteristics of the method .
+the cube is a low textured object , making difficult the feature extraction in some of its faces .
+then , both methods based on ransac cannot achieve good results .
+on the other hand , despite the geometry being simple , the rgb - d sensors provide noisy data , mainly in edges , which makes it difficult to evaluate the point cloud correspondence and general transformation between two consecutive views .
+for that reason , the icp cannot obtain a final proper registration .
+kinectfusion tends to smooth surfaces , because it uses a model of the scene and a tsdf method for point - to - model correspondence estimation , which produces the rounded edges .
+the tool has been selected due to the thin and low textured shape .
+neither enough features could have been extracted nor are there geometry aspects suitable for traditional algorithms .
+thus , ransac and icp cannot register the views .
+kinectfusion does not work properly due to the aforementioned smoothing characteristics of the method , producing a non - accurate final reconstruction .
+finally , the bomb toy is a small object with different areas .
+there are parts having color feature areas and others with varied geometry .
+these features produce good results for ransac when the featured parts are registered , but fail in the rest .
+on the other hand , icp works properly with the back part , where a keypoint is attached to the object , but fails when the round part of the bomb is aligned .
+kinectfusion cannot achieve a good result due to the lack of geometry .
+different conclusions can be extracted analyzing the above experimentation results .
+in general , regarding the size of the object , all methods find more difficulties in registering views from small objects , because either few features appear or the noise becomes more relevant. that is the reason why the best result in general terms is achieved by the rgbdemo algorithm , using external visual markers in order to help the registration .
+the coarse alignment is based on these visual markers ; then the lack of texture does not affect it , and the fine registration works properly , because of the good coarse pre - alignment .
+for thin and small objects , such as the tool and the bomb toy , a slight filtering process should be used in order to avoid over - rejection of data when those objects are commonly originally represented with few data .
+despite the rgbdemo presenting good results , there is still work to do in order to allow different angles of the sensor against the object to minimize self - occlusions .
+there exist new proposals focused on this problem , such us [ 63 ] , where a model - based multi - view registration method is presented for 3d markers to allow the registration of objects .
+5. conclusions in this paper , we have first made a description of different registration methods using low - cost rgb - d sensors , dividing them into coarse and fine methods .
+this classification facilitates the description of the main features of the algorithms .
+then , we have developed an experimental validation of different registration methods in two representative applications : scene and object reconstruction .
+for scene registration , we have tested five different registration methods and quantitatively measured the error in the pose estimation using a state - of - the - art rgb - d dataset for visual odometry and slam systems .
+using the evaluation measures and tools provided by the dataset , we analyzed the results of the tested methods , which are the kinectfusion , the dense visual odometry , the icp , a visual feature - based method and visual features with the icp refinement method .
+results showed that the dvo method gets the lowest registration error , and it is the most robust .
+kinectfusion does not work properly with datasets where frames have a lack of geometry .
+for object registration , we have tested also five different registration methods and qualitatively measured the error using a new rgb - d dataset created for this evaluation ; specifically , a visual feature - based method using sift and ransac , the icp variant of chen and medioni , the visual features with icp refinement method and the new methods , kinectfusion and rgbdemo .
+kinectfusion is one of the most used methods for object reconstruction .
+however , rgbdemo is a very different approach , due to the use of artoolkit markers .
+results show that traditional algorithms did not provide accurate results , while visual marker - based methods obtain better registrations .
+different areas of research still remain a challenge in this topic , such as better techniques focused on registering objects acquired with low - cost rgb - d sensors .
+as future work , we plan to continue comparing new methods and analyzing new rgb - d sensors for these problems .
+moreover , quantitative techniques to evaluate object registration error have to be enhanced , since they are the most used for object registration and reconstruction visual inspection .
+this work has been supported by a grant from the spanish government , dpi2013 - 40534 - r , university of alicante projects gre11 - 01 and a grant from the valencian government , gv / 2013 / 005 .
+conflict of interest the authors declare no conflict of interest .
+references 1 .
+yang f. ding m. zhang x. wu y. hu j. two phase non - rigid multi - modal image registration using weber local descriptor - based similarity metrics and normalized mutual information sensors 2013 13 7599 7617 23765270 2 .
+duan l. guan t. yang b. registration combining wide and narrow baseline feature tracking techniques for markerless ar systems sensors 2009 9 10097 10116 22303164 3 .
+cazorla m. viejo d. pomares c. study of the sr4000 camera proceedings of xi workshop of physical agents fisicosvalencia , spainseptember 2010 4 .
+lowe d.g. distinctive image features from scale - invariant keypoints int. j. comput. vis .
+2004 60 91 110 5 .
+khoshelham k. elberink e.o. accuracy and resolution of kinect depth data for indoor mapping applications sensors 2012 2 1437 1454 22438718 6 .
+zitov b. flusser j. image registration methods : a survey image vis. comput .
+2003 21 977 1000 7 .
+tam g. cheng z.q. lai y.k. langbein f. liu y. marshall d. martin r. sun x.f. rosin p. registration of 3d point clouds and meshes : a survey from rigid to nonrigid ieee trans. vis. comput. gr .
+2013 19 1199 1217 8 .
+rusinkiewicz s. levoy m. efficient variants of the icp algorithm proceedings of the 3rd international conference on 3 - d digital imaging and modelingquebec city , qc , canada28 may - 1 june 2001 145 152 9 .
+pomerleau f. colas f. siegwart r. magnenat s. comparing icp variants on real - world data sets auton .
+robots 2013 34 133 148 10 .
+fischler m.a. bolles r.c. random sample consensus : a paradigm for model fitting with applications to image analysis and automated cartography commun .
+acm 1981 24 381 395 11 .
+hetzel g. leibe b. levi p. schiele b .
+3d object recognition from range images using local feature histograms proceedings of the 2001 ieee computer society conference on computer vision and pattern recognitionkauai , hi , usa8 - 14 december 2001 volume 2 394 399 12 .
+chen y. medioni g. object modeling by registration of multiple range images proceedings of 1991 ieee international conference on robotics and automationsacramento , ca , usa9 - 11 april 1991 volume 3 2724 2729 13 .
+besl p. mckay n. a method for registration of 3 - d shapes ieee trans .
+pattern anal. mach. intell .
+1992 14 239 256 14 .
+salvi j. matabosch c. fofi d. forest j. a review of recent range image registration methods with accuracy evaluation image vis. comput .
+2007 25 578 596 15 .
+campbell r.j. flynn p.j. a survey of free - form object representation and recognition techniques comput. vis .
+image underst .
+2001 81 166 210 16 .
+crum w.r. hartkens t. hill d.l.g. non - rigid image registration : theory and practice br. j. radiol .
+2004 77 s140 s153 15677356 17 .
+henry p. krainin m. herbst e. ren x. fox d. rgb - d mapping : using depth cameras for dense 3d modeling of indoor environments experimental robotics springer berlin heidelberg , germany 2014 477 491 18 .
+raguram r. frahm j.m. pollefeys m. a comparative analysis of ransac techniques leading to adaptive real - time random sample consensus proceedings of the 10th european conference on computer visionmarseille , france12 - 18 october 2008 500 513 19 .
+izadi s. kim d. hilliges o. molyneaux d. newcombe r.a. kohli p. shotton j. hodges s. freeman d. davison a.j. kinectfusion : real - time 3d reconstruction and interaction using a moving depth camera proceedings of the 24th annual acm symposium on user interface software and technologyhonolulu , hi , usa 2011 559 568 20 .
+steinbrucker f. sturm j. cremers d. real - time visual odometry from dense rgb - d images proceedings of 2011 ieee international conference on computer vision workshops ( iccv workshops ) barcelona , spain6 - 13 november 2011 719 722 21 .
+kramer j. burrus n. echtler f. parker m. herrera c.d. object modeling and detection hacking the kinect apress new york , ny , usa 2012 chapter 9 173 206 22 .
+bay h. ess a. tuytelaars t. gool l.v. speeded - up robust features ( surf ) comput. vis .
+image underst .
+2008 110 346 359 23 .
+gil a. mozos o. ballesta m. reinoso o. a comparative evaluation of interest point detectors and local descriptors for visual slam mach. vis. appl .
+2010 21 905 920 24 .
+gomb p. detection of interest points on 3d data : extending the harris operator computer recognition systems 3 kurzynski m. wozniak m. springer berlin heidelberg , germany 2009 volume 57 103 111 25 .
+rusu r. blodow n. beetz m. fast point feature histograms ( fpfh ) for 3d registration proceedings of ieee international conference on robotics and automationkobe , japan12 - 17 may 2009 3212 3217 26 .
+johnson a. spin - images : a representation for 3 - d surface matching phd thesis robotics institute , carnegie mellon university pittsburgh , pa , usa 1997 27 .
+viejo d. cazorla m .
+3d model based map building proceedings of comunicacin presentada en el ix workshop de agentes fsicosvigo , spain11 - 12 september 2008 28 .
+viejo d. cazorla m. a robust and fast method for 6dof motion estimation from generalized 3d data auton .
+robots 2014 36 295 308 29 .
+koser k. koch r. perspectively invariant normal features proceedings of ieee 11th international conference on computer visionrio de janeiro , brazil14 - 20 october 2007 1 8 30 .
+wu c. clipp b. li x. frahm j.m. pollefeys m .
+3d model matching with viewpoint - invariant patches ( vip ) proceedings of ieee conference on computer vision and pattern recognitionanchorage , al , usa24 - 26 june 2008 1 8 31 .
+zeisl b. koser k. pollefeys m. automatic registration of rgbd scans via salient directions proceedings of ieee 16th international conference on computer visionsydney , australia3 - 6 december 2013 32 .
+brunnstrom k. eklundh j. uhlin t. active fixation for scene exploration int. j. comput. vis .
+1996 17 10.1007 / bf00058749 33 .
+stuckler j. behnke s. model learning and real - time tracking using multi - resolution surfel maps proceedings of the 26th aaai conference on artificial intelligencetoronto , on , canada22 - 26 july 2012 34 .
+lucas b.d. kanade t. an iterative image registration technique with an application to stereo vision proceedings of the 7th international joint conference on artificial intelligencesan francisco , ca , usa24 - 28 august 1981 volume 2 674 679 35 .
+druon s. aldon m.j. crosnier a. color constrained icp for registration of large unstructured 3d color data sets proceedings of 2006 ieee international conference on information acquisitionshandong , china20 - 23 august 2006 249 255 36 .
+kerl c. sturm j. cremers d. robust odometry estimation for rgb - d cameras proceedings of the ieee international conference on robotics and automation ( icra ) karlsruhe , germany6 - 10 may 2013 37 .
+turk g. levoy m. zippered polygon meshes from range images proceedings of the 21st annual conference on computer graphics and interactive techniquesorlando , fl , usa24 - 29 july 1994 311 318 38 .
+masuda t. sakaue k. yokoya n. registration and integration of multiple range images for 3 - d model construction proceedings of the 1996 international conference on pattern recognition ( icpr ' 96 ) vienna , austria29 august 1996 volume 1 879 39 .
+weik s. registration of 3 - d partial surface models using luminance and depth information proceedings of international conference on recent advances in 3 - d digital imaging and modelingottawa , on , canada12 - 15 may 1997 93 100 40 .
+simon d.a. fast and accurate shape - based registration phd thesis carnegie mellon university pittsburgh , pa , usa 1996 41 .
+godin g. rioux m. baribeau r. three - dimensional registration using range and intensity information proceedings of photonics for industrial applications .
+international society for optics and photonicsboston , massachusetts31 october - 4 november 1994 279 290 42 .
+pulli k. multiview registration for large data sets proceedings of the 2nd international conference on 3 - d digital imaging and modelingottawa , on , canada4 - 8 october 1999 160 168 43 .
+zinsser t. schmidt j. niemann h. a refined icp algorithm for robust 3 - d correspondence estimation proceedings of 2003 international conference on image processingbarcelona , spain14 - 18 september 2003 695 698 44 .
+zhang l. choi s.i. park s.y. robust icp registration using biunique correspondence proceedings of 2011 international conference on 3d imaging , modeling , processing , visualization and transmission ( 3dimpvt ) hangzhou , china16 - 19 may 2011 80 85 45 .
+curless b. levoy m. a volumetric method for building complex models from range images proceedings of the 23rd annual conference on computer graphics and interactive techniquesnew orleans , la , usa4 - 9 august 1996 303 312 46 .
+whelan t. kaess m. fallon m. johannsson h. leonard j. mcdonald j. kintinuous : spatially extended kinectfusion proceedings of rss workshop on rgb - d : advanced reasoning with depth camerassydney , australia9 - 10 july 2012 47 .
+whelan t. johannsson h. kaess m. leonard j. mcdonald j. robust real - time visual odometry for dense rgb - d mapping proceedings of ieee international conference on robotics and automationkarlsruhe , germany6 - 10 may 2013 48 .
+huang a.s. bachrach a. henry p. krainin m. maturana d. fox d. roy n. visual odometry and mapping for autonomous flight using an rgb - d camera proceedings of international symposium on robotics research ( isrr ) flagstaff , az , usa28 august - 1 september 2011 49 .
+whelan t. kaess m. leonard j. mcdonald j. deformation - based loop closure for large scale dense rgb - d slam proceedings of ieee / rsj international conference on intelligent robots and systems ( iros ) tokyo , japan3 - 8 november 2013 50 .
+koch r. dynamic 3d scene analysis through synthesis feedback control ieee trans .
+pattern anal. mach. intell .
+1993 15 556 568 51 .
+comport a. malis e. rives p. accurate quadrifocal tracking for robust 3d visual odometry proceedings of 2007 ieee international conference on robotics and automationroma , italy10 - 14 april 2007 40 45 52 .
+audras c. comport a. meilland m. rives p. real - time dense rgb - d localisation and mapping proceedings of australian conference on robotics and automationmelbourne , australia7 - 9 december 2011 53 .
+dissanayake m. newman p. clark s. durrant - whyte h. csorba m. a solution to the simultaneous localization and map building ( slam ) problem ieee trans. robot. autom .
+2001 17 229 241 54 .
+endres f. hess j. engelhard n. sturm j. cremers d. burgard w. evaluation of the rgb - d slam system proceedings of the ieee international conference on robotics and automation ( icra ) st. paul , mn , usa14 - 18 may 2012 55 .
+chang p. shen j. cheung s.c. a robust rgb - d slam system for 3d environment with planar surfacess proceedings of the ieee international conference on image processingmelbourne , australia15 - 18 september 2013 56 .
+shen j. su p.c. cheung s. zhao j. virtual mirror rendering with stationary rgb - d cameras and stored 3 - d background ieee trans .
+image process .
+2013 22 3433 3448 23782808 57 .
+rosten e. drummond t. fusing points and lines for high performance tracking proceedings of ieee international conference on computer visionbeijing , china17 - 20 october 2005 volume 2 1508 1511 58 .
+rosten e. drummond t. machine learning for high - speed corner detection proceedings of european conference on computer visiongraz , austria7 - 13 may 2006 volume 1 430 443 59 .
+calonder m. lepetit v. ozuysal m. trzcinski t. strecha c. fua p. brief : computing a local binary descriptor very fast ieee trans .
+pattern anal. mach. intell .
+2012 34 1281 1298 60 .
+sturm j. engelhard n. endres f. burgard w. cremers d. a benchmark for the evaluation of rgb - d slam systems proceedings of the international conference on intelligent robot systems ( iros ) vilamoura , algarve , portugal7 - 12 october 2012 61 .
+chane c.s. schtze r. boochs f. marzani f.s. registration of 3d and multispectral data for the study of cultural heritage surfaces sensors 2013 13 1004 1020 23322103 62 .
+newcombe r.a. izadi s. hilliges o. molyneaux d. kim d. davison a.j. kohli p. shotton j. hodges s. fitzgibbon a.w. kinectfusion : real - time dense surface mapping and tracking proceedings of 2011 10th ieee international symposium on mixed and augmented reality ( ismar ) basel , switzerland26 - 29 october 2011 127 136 63 .
+saval - calvo m. azorin - lopez j. fuster - guillo a. model - based multi - view registration for rgb - d sensors proceedings of the 12th international work - conference on artificial neural networks ( iwann 2013 ) tenerife , spain12 - 14 june 2013 496 503 figure 1 .
+( left ) two non - aligned point clouds .
+( right ) both point clouds aligned and the estimated and reference positions of the camera .
+figure 2 .
+general scheme of the registration process .
+figure 3 .
+basic scheme of the feature registration model .
+figure 4 .
+basic scheme of the iterative closest point algorithm .
+figure 5 .
+example of the ground - truth point cloud reconstruction of the first 200 frames of the " fr1 desk " sequence ; the yellow line represents the movement of the camera .
+figure 6 .
+objects used for experimentation .
+( a ) taz toy ; ( b ) cube ; ( c ) tool ; and ( d ) bomb toy .
+figure 7 .
+blue : kinectfusion relative pose translational errors ( y - axis , meters ) on the selected datasets ( x - axis , frames ) .
+red : relative ground - truth motion ( meters ) .
+figure 8 .
+dense visual odometry relative pose translational errors ( y - axis , meters ) on the selected datasets ( x - axis , frames ) .
+figure 9 .
+visual features + icp relative pose translational errors ( y - axis , meters ) on the selected datasets ( x - axis , frames ) .
+figure 10 .
+visual features relative pose translational errors ( y - axis , meters ) on the selected datasets ( x - axis , frames ) .
+figure 11 .
+icp relative pose translational errors ( y - axis , meters ) on the selected datasets over all the frames ( x - axis , frames ) .
+figure 12 .
+error means ( bars ) and the standard deviations ( error lines ) of the five different methods applied to the selected datasets .
+figure 13 .
+trajectories estimated on the dataset " fr1 desk2 " by the kinectfusion ( a ) , the dense visual odometry ( b ) and the visual features + icp ( c ) methods .
+figure 14 .
+error means ( bars ) and the standard deviations ( error lines ) of the five different methods applied to the different texture and structures datasets .
+figure 15 .
+object registration results of the tested methods .
+first row : ransac with sift features registration .
+second row : icp registration .
+the third row shows the result of the ransac and icp combination .
+the fourth row presents the results of kinectfusion .
+finally , the fifth row presents the rgbdemo results .
+figure 16 .
+different moments of the tool reconstruction with kinectfusion .
+the objects is mixed progressively with the floor .
+figure 17 .
+the color , depth and infra - red images obtained by the camera .
+using the infra - red speckles , the depth is obtained with a structured light technique .
+in this case , the object has thin parts that not enough speckles reach , and no depth information can be obtained .
+table 1 .
+the number of frames and the average translation and rotation velocities of the used datasets .
+dataset number of frames average translational velocity ( m / s ) average rotational velocity ( deg / s ) fr1 xyz 780 0.24 8.92 fr1 desk 595 0.41 23.33 fr1 360 739 0.21 41.6 fr1 desk2 631 0.43 29.31 fr2 xyz 3,594 0.06 1.72 fr2 desk 2,234 0.19 6.34 fr3 structure and texture 904 0.193 4.323 fr3 no structure and no texture 451 0.196 2.712 fr3 no structure and texture 447 0.299 2.890 fr3 structure and no texture 791 0.166 4.00 table 2 .
+relative pose translational errors in blue color ( y - axis , meters ) on the fr3 datasets ( x - axis , frames ) of the dense visual odometry , kinectfusion and visual features with icp refinement methods .
+red color values represent the ground - truth pose movement .
+images belong to the dataset ; ( a ) structure and texture .
+( b ) no structure and no texture .
+( c ) no structure and texture .
+( d ) structure and no texture .
+example image dense visual odometry kinectfusion visual features + icp

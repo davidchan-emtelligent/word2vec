@@ -1,0 +1,326 @@
+sci rep sci rep scientific reports 2045 - 2322 nature publishing group 27562653 4999880 srep31730 10.1038 / srep31730 article complete de novo assembly of monoclonal antibody sequences tran ngoc hieu 1 * rahman m. ziaur 12 * he lin 2 * xin lei 2 shan baozhen 2 li ming a1 1 david r. cheriton school of computer science , university of waterloo , waterloo , ontario , canada 2 bioinformatics solutions inc. , waterloo , ontario , canada a mli @ uwaterloo.ca * these authors contributed equally to this work .
+26 08 2016 2016 6 31730 18 04 2016 20 07 2016 copyright ( c ) 2016 , the author ( s ) 2016 the author ( s ) this work is licensed under a creative commons attribution 4.0 international license .
+the images or other third party material in this article are included in the article 's creative commons license , unless indicated otherwise in the credit line ; if the material is not included under the creative commons license , users will need to obtain permission from the license holder to reproduce the material .
+to view a copy of this license , visit http :// creativecommons.org / licenses / by / 4.0 / de novo protein sequencing is one of the key problems in mass spectrometry - based proteomics , especially for novel proteins such as monoclonal antibodies for which genome information is often limited or not available .
+however , due to limitations in peptides fragmentation and coverage , as well as ambiguities in spectra interpretation , complete de novo assembly of unknown protein sequences still remains challenging .
+to address this problem , we propose an integrated system , alps , which for the first time can automatically assemble full - length monoclonal antibody sequences .
+our system integrates de novo sequencing peptides , their quality scores and error - correction information from databases into a weighted de bruijn graph to assemble protein sequences .
+we evaluated alps performance on two antibody data sets , each including a heavy chain and a light chain .
+the results show that alps was able to assemble three complete monoclonal antibody sequences of length 216 - 441 aa , at 100 % coverage , and 96.64 - 100 % accuracy .
+monoclonal antibodies are playing highly successful roles in therapeutic strategies due to their mechanisms of variations1 .
+however , it is such variations that also have defied us from an automated system to sequence them till now .
+each monoclonal antibody ( mab ) sequence is a novel protein that requires de novo sequencing with no resembling proteins ( for the variable regions ) in the databases .
+beginning from the low - throughput sequencing methods using edman degradation2 , significant progress has been made in the past decades .
+especially , liquid chromatography coupled with tandem mass spectrometry ( lc - ms / ms ) has become a routine technology in peptide / protein identification .
+the high throughput sequencing requires computational approaches for the data analysis , including de novo sequencing directly from tandem mass spectra345 and database search methods that use existing protein sequence databases6789101112 .
+more specifically , various versions of shotgun protein sequencing ( sps ) used cid / hcd / etd13141516171819 fragmentation methods and other techniques to increase the coverage , and have achieved significant progress in attempt to fully sequence proteins , especially antibodies .
+other methods have assumed the existence of similar proteins20 , a known genome sequence21 , or combined top - down and bottom up approaches22 .
+in spite of these efforts , full - length de novo sequencing from tandem mass spectra of unknown proteins such as antibodies remains a challenging open problem1617 .
+two hundred and eighty years ago , leonhard euler wondered how he could cross the pregel river traveling through each of the seven bridges of konigsberg exactly once .
+euler 's idea has been widely adopted in the concept of de bruijn graph that plays the central role in the problem of sequence assembly23 .
+the powerful performance of de bruijn graph has been demonstrated in major genome and transcriptome assemblers such as velvet24 , trinity25 , and others .
+in the field of de novo protein sequencing , the idea of de bruijn graph has been used for spectral alignment ( a - bruijn ) in ref .
+18 , and recently has been extended to top - down mass spectra ( t - bruijn ) 19 .
+however , incomplete peptide fragmentation , missing or low coverage , and ambiguities in spectra interpretation still pose challenges to existing tools to achieve full - length de novo assembly of protein sequences .
+the best result in existing literatures can only produce contigs as long as 200 aa at up to 99 % accuracy16 .
+our paper settles this open problem by introducing a comprehensive system , alps , which integrates de novo sequencing peptides , their intensity and positional confidence scores , and error - correction information from database and homology search into a weighted de bruijn graph to assemble protein sequences .
+alps overcomes de novo peptides sequencing limitations and , for the first time , is able to automatically assemble full - length contigs of three mab sequences of length 216 - 441 aa , at 100 % coverage , and 96.64 - 100 % accuracy .
+more details of the alps system and the performance evaluation on two antibody data sets are described in the following sections .
+results our alps system is outlined in fig. 1. briefly , antibody samples were first prepared according to the procedure described in methods .
+raw lc - ms / ms data were then imported into peaks studio 7.5 for preprocessing ( precursor mass correction , ms / ms de - isotoping and deconvolution , peptide feature detection ) .
+subsequently , three following lists of peptides were generated for the assembly task .
+the first peptides list , psm - dn , was generated from peaks de novo sequencing with precursor and fragment error tolerance as 10 ppm and 0.02 da , respectively .
+carbamidomethylation ( cys ) was set as a fixed modification and oxidation ( met ) and deamidation ( asn / gln ) as variable modifications .
+at most three variable modifications per peptide were allowed .
+next , peaks db was used to identify peptide spectrum matches ( psms ) from existing protein databases .
+first , the data sets were searched against the uniprot database26 to identify the species and then a second search was performed against the in - house antibody database assembled for the identified species .
+based on the current database search results and the de novo sequencing results from the first stage , a hybrid psm set was generated as the second peptides list , psm - dd , according to three criteria : 1 ) the scores of the psms identified by peaks db must be higher than a specified threshold ( in our case , which was selected with a false discovery rate ( fdr ) 1.0 %) ; 2 ) the psms that were mapped to contaminant proteins must be filtered out ; and 3 ) the average local confidence ( alc ) scores of psms identified from peaks de novo sequencing must be higher than 50 and the peptide sequence cannot be mapped a contaminant protein with more than seven amino acid residues .
+the motivation of using such a hybrid psm set was to take advantage of database information to resolve amino acid assignment ambiguities of de novo sequencing peptides .
+to take into account potential mutations in de novo sequencing peptides , the data sets were searched against the corresponding antibody database by using peaks spider27 .
+spider tries to match de novo sequence tags with the database proteins and reconstructs a true sequence to minimize the sum of de novo errors and homology mutations between the true sequence and the one recorded in the database when a significant similarity is found .
+finally , a hybrid psm set containing psms from peaks de novo sequencing , peaks db , and spider were generated as our third peptides list , psm - dds .
+more details of the database search parameters can be found in methods .
+three lists of peptides , psm - dn , psm - dd , and psm - dds were then imported into the de bruijn graph assembler .
+in addition to the peptide sequences , we also incorporated peptides confidence scores and peptides intensities ( feature areas ) to form a weighted de bruijn graph ( equation ( 1 ) , methods ) .
+our experiments showed that those weight information played a crucial role to select the right paths for contigs extension and substantially improve the assembly quality .
+here we report our de novo assembly results for two datasets of monoclonal antibody sequences , each including a light chain and a heavy chain , hence a total of four samples .
+the first dataset , wigg1 , was generated from the lc - ms / ms analysis of the intact mab mass check standard purchased from waters .
+it is an intact mouse antibody purified by protein - a with known molecular weights and amino acid sequences of both the light and heavy chains .
+the molecular weight and the target sequences can be readily used for the evaluation of our pipeline performance .
+the other dataset , human ( igg1 ) was generated from purified human antibody sample .
+this purified antibody sample has no amino acid sequences provided when purchased from sigma - aldrich .
+to evaluate our pipeline , we manually worked out the amino acid sequences from the lc - ms / ms data with the assistance of peaks 7.5 .
+the coverage and accuracy of both two target sequences were 100 % guaranteed by the validation with three strict criteria : 1 ) the false discovery rate ( fdr ) at the peptide spectrum match ( psm ) level was less than 0.1 % ; 2 ) each amino acid was supported by at least 20 psms ; 3 ) each amino acid was supported by a pair of its fragmental ion peaks with at least 5 % relative intensity .
+the light chain lengths are in the range of 211 - 219 aa , while the heavy chains of iggs are much longer , around 450 aa , and hence more challenging for the assembly task .
+for each sample , we prepared three lists of peptides psm - dn , psm - dd , and psm - dds , as described earlier , and then performed the assembly on each list .
+to evaluate the assembly results , we performed blast alignments of assembled contigs against the corresponding target sequences and then measured the coverage and accuracy .
+the assembly results are presented in tables 1 and 2 and figs 2 , 3 and 4 .
+assembly results for dataset wigg1 the light chain of this dataset has 219 aa. the de bruijn assembly result from list psm - dn with k = 6 is summarized in the blast alignment in fig. 2a .
+we found that the first two contigs seq0 and seq1 retrieved from the de bruijn assembler , with lengths 109 and 93 respectively , together covered 202 aa of the target light chain .
+the 17 - aa gap between them is covered by some other lower - ranking contigs ( for simplicity , only seq4 is shown in fig. 2a ) .
+our further investigation found that missing or low signal - to - noise of de novo peptides in that region prevented extension walks in the de bruijn graph and thus produced such gaps .
+in particular , fig. 2b shows the detailed alignment at that 17 - aa gap .
+seq0 could not be further extended to the right due to the missing of the 5 - mer " lelkr " in list psm - dn. on the other hand , seq1 was wrongly extended to the left after the 5 - mer " ltsgg " due to an error of de novo spectra interpretation where " eq " was wrongly interpreted as " daa " in several de novo peptides .
+such limitations of de novo peptides can be handled by incorporating information from the database and homology search and using hybrid psms as described earlier .
+indeed , from both lists psm - dd and psm - dds , our de bruijn assembler with k = 7 was able to retrieve the full - length contig of the wigg1 light chain .
+figure 2c shows the blast alignment of our assembled contig against the target sequence with 100 % coverage and nine mismatches .
+the alignment details in fig. 2d further show that all nine mismatches are i - to - l amino acids which have the same mass .
+thus , our assembled contig also achieved 100 % accuracy .
+for k = 6 , the de bruijn assembler made a wrong branching and hence caused a 2 - aa deletion in the output contig ( supplementary figure s1 ) .
+the wigg1 heavy chain is 441 - aa long , more than twice the light chain , and hence is more difficult for the assembly task .
+in fig. 3a , we reported a few top contigs from the de bruijn assembly result from list psm - dn. the longest contig was 219 - aa and covered two segments of total length 194 aa , that is , 43.99 % of the target sequence .
+other contigs also provided additional coverage .
+however , as can be seen from fig. 3a , the problems of missing coverage and fragmentation were far more complicated for this heavy chain than for the light chain that we have seen earlier , and could not be solved by simply using de novo peptides alone .
+hence , it is essential to include additional information from the database and homology search .
+surprisingly , our de bruijn assembler was able to assemble a 442 - aa contig from list psm - dds that fully covered the target heavy chain ( figure 3b ) .
+to the best of our knowledge , this is the longest ever antibody sequence that has been automatically reconstructed in form of a single full - length contig from de novo peptides by using de bruijn graph - based techniques .
+the alignment details in fig. 3c further show that our assembled contig from list psm - dds has one single insertion and twenty - four mismatches .
+sixteen mismatches are i - to - l amino acids with the same mass .
+the consecutive insertion and mismatch at position 103 actually corresponds to one error of de novo spectra interpretation q - to - ga. this would give our assembled contig an accuracy of 98.19 % ( 433 / 441 ) .
+however , we have strong evidence to believe that the target sequence provided by waters has errors at positions 49 - 50 , 68 , 70 and our assembled contig indeed gives the correct amino acids at those positions .
+more explanations are available in supplementary figure s3 .
+hence , the accuracy of our assembled contig for the wigg1 heavy chain is 99.09 % ( 437 / 441 ) .
+the result from list psm - dd , however , is slightly worse with a 12 - aa insertion as the de bruijn assembler made a wrong branching due to low signal - to - noise ( supplementary figure s2 ) .
+assembly results for dataset human for the human light chain of length 216 aa , our de bruijn assembler again was able to obtain the full - length contig from the two lists psm - dd and psm - dds at 100 % accuracy .
+if only de novo peptides in list psm - dn were used , the longest contig in the de bruijn assembly result was 175 - aa long , covering 170 aa ( 78.70 %) of the target light chain ( supplementary figure s4 ) .
+the human heavy chain is 446 - aa long and was the most difficult among four sequences for our assembly task .
+our best de bruijn assembly result was obtained from list psm - dds and included three contigs of length 346 , 92 , 67 , which together fully covered the target heavy chain ( fig. 4a ) .
+even additional information from the database and homology search was not enough for our de bruijn assembler to resolve the problems of missing coverage and low signal - to - noise of peptides and to produce a single full - length contig .
+hence , we further combined the contigs retrieved from the de bruijn graph by aligning them to a template protein sequence from the database that is most closely matched to those contigs .
+based on that alignment and the positional confidence scores of the contigs , we merged them into the final sequence of length 454 aa. as shown in fig. 4b,c , our assembled sequence has 9 mismatches two of which are i - to - l amino acids .
+the assembled sequence also has a 8 - aa insertion at position 102 .
+hence , the accuracy of our assembled sequence is 96.64 % ( 431 / 446 ) for this human heavy chain .
+our further investigation found that the region of that 8 - aa insertion is quite difficult to recover due to missing peptides coverage , even in the database and homology search .
+assembly results for dataset of chicken lysozyme and dataset of 6 - protein mixture in addition to antibodies , we also evaluated the performance of alps on other types of proteins .
+it should be noted that the following proteins are known proteins and their sequences already exist in many databases , e.g. uniprot .
+since our tool uses information from database and homology search , to avoid bias in the evaluation , we removed all those protein sequences and their homologs from the uniprot database before the experiment .
+the homolog protein groups were identified in peaks based on the parsimony principle .
+we first tested alps on a small dataset of chicken lysozyme20 .
+the protein sequence is 147 - aa long , of which the first 18 aa were cleaved - off in processing , leaving the target sequence of length 129 aa20 .
+our tool was able to assemble a contig of length 130 aa that fully covered the target sequence at 100 % accuracy .
+next , we tested alps on a more complicated dataset , a mixture of 6 proteins : murine leptin , human kallikrein - related peptidase , e. coli groel , horse heart myoglobin , bovine aprotinin , and horseradish peroxidase .
+more details of ms / ms experiments can be found in the original study16 .
+our assembly results from list psm - dds with k = 7 are summarized in table 3 and supplementary figure s5 .
+the lengths of 6 protein sequences are from 100 - 548 aa. the lengths of the longest contig assembled for each target protein sequence are from 65 - 444 aa. the sequencing coverage is from 65 - 99.4 % and the sequencing accuracy is from 95.3 - 99.8 % .
+in table 3 we also compared our assembly results with those reported by meta - sps in the original study16 .
+in general , our tool was able to assemble longer contigs ( for 5 / 6 proteins ) , while the sequencing coverage and accuracy are comparable .
+this demonstrates the advantage of our integrated system to generate long contigs for the de novo assembly of protein sequences .
+discussion de novo assembly of novel protein sequences is one of the most challenging problems in mass spectrometry - based proteomics .
+the main difficulties of this assembly task include limitations in peptides fragmentation and coverage , as well as ambiguities in spectra interpretation .
+to solve this problem , we proposed the integrated system alps to combine de novo sequencing peptides , their intensities and positional confidence scores , and error - correction information from database and homology search into a weighted de bruijn graph to assemble protein sequences .
+we further demonstrated that such an integrated system indeed was able to overcome the aforementioned limitations and achieve the complete assembly goal .
+we evaluated alps on two antibody data sets , each including a light chain and a heavy chain .
+as summarized in table 1 , we obtained three full - length contigs from the de bruijn assembler for three of the four antibody sequences .
+the assembled contigs for the two light chains ( with lengths 219 and 216 aa , respectively ) achieved 100 % accuracy , while the contig for the wigg1 heavy chain ( length 441 aa ) achieved 99.09 % accuracy .
+for the remaining human heavy chain ( length 446 aa ) , we obtained three contigs of lengths 346 , 92 , 67 , which together fully covered that heavy chain .
+the final sequence combined from those three contigs achieved 96.64 % accuracy .
+in addition , we summarized in table 2 that the de novo assembly results were substantially improved by integrating the information from database and homology search together with de novo peptides and their positional confidence scores .
+finally , we tested alps on a dataset of chicken lysozyme and a dataset of 6 - protein mixture and showed that alps was also applicable to a variety of proteins other than antibodies .
+the de bruijn graph is a state - of - the - art approach for sequence assembly and it has been widely used in high - throughput sequencing .
+the application of de bruijn graph in proteomics , however , has been focusing on spectra alignment to address the challenge of spectra interpretation .
+keeping tracks of spectra , however , has limited the ability of de bruijn graph to extend the contigs .
+in our approach , we apply de bruijn graph directly to peptide sequences rather than the spectra .
+all spectra information , together with additional information from database and homology search , are processed earlier at the de novo peptide sequencing step .
+then , the input to de bruijn graph includes peptides sequences and their positional confidence scores .
+this is the same concept as the case of high - throughput sequencing dna / rna reads and their base quality ( phred ) scores .
+as a result , our tool alps is able to assemble longer contigs than previous works , and can achieve full - length contigs that span the entire target sequences .
+in conclusion , our alps system has solved the problem of automated and complete de novo assembly of monoclonal antibody sequences .
+furthermore , we believe that alps can be further generalized for the de novo assembly of any novel proteins with appropriate databases and experiments setting .
+the performance of alps can be affected by the lack of overlapping peptides and the errors in de novo peptide sequencing .
+however , given the rapid advance of mass - spectrometry technologies , the peptide sequencing coverage and accuracy will be continuously improved , making alps a great resource for the de novo assembly of protein sequences .
+methods sample preparation sds - page the heavy and light chains of an antibody were separated by sds polyacrylamide gel electrophoresis ( sds - page ) .
+briefly , 0.5 mug of the antibody was placed , reduced , and denatured in gel loading buffer .
+the sample was subsequently loaded into three wells that contained a 10 % precast gel ( biorad ) .
+the gel was subjected to 180 constant volts for 50 minutes .
+following this , the gel was stained with coomassie blue .
+gel bands that contained the antibody were excised .
+deglycosylation and endoprotease digestion each excised band was reduced with dithiothreitol ( dtt ) .
+free cysteine residues were then alkylated using iodoacetamide .
+the heavy chain bands were deglycosylated with pngase f ( roche diagnostics ) overnight using the manufacturer 's protocol .
+the ph was adjusted for each protease and three enzyme digestions were carried out overnight according to the manufacturer 's ( roche ) instructions : 1 ) asp n , 2 ) chymotrypsin , 3 ) trypsin .
+the peptides were extracted from the gel bands , desalted using c18 zip - tips ( r ) ( millipore ) and dried in a speed - vac .
+lc - ms / ms analysis the desalted peptides were suspended in 0.1 % formic acid and 1 / 10 of each of the digests were subjected to lc - ms / ms analysis on a thermo - fisher scientific q - exactive ( q - e ) orbitrap mass spectrometer .
+the gradient was supplied using a thermo - fisher easy nlc - 1000 uhplc system and consisted of 0 to 40 % acetonitrile in 0.1 % formic acid over 1 hour at 250 nl per minute .
+the q - e was run in a data dependent mode with 10 ms / ms events per cycle .
+the parent ion resolution was 70,000 fwhm and the fragment ion resolution was 17,500 fwhm .
+the 12 resulting raw data files ( 6 for each antibody , 3 for the light chain and 3 for the heavy chain ) were used for data analysis .
+ms / ms data analysis our alps system is outlined in fig. 1. more details of each analysis stage are described in the following sections .
+data processing and cleaning the raw data were first imported into peaks studio 7.5 , preprocessed ( precursor mass correction , ms / ms de - isotoping and deconvolution , peptide feature detection ) , and analyzed to generate three following lists of peptides for the subsequent assembling .
+psm - dn : results from de novo sequencing the first stage was de novo sequencing from tandem mass spectra .
+peaks de novo sequencing was performed with precursor and fragment error tolerance as 10 ppm and 0.02 da , respectively .
+carbamidomethylation ( cys ) was set as a fixed modification and oxidation ( met ) and deamidation ( asn / gln ) as variable modifications .
+at most three variable modifications per peptide were allowed .
+the peptide sequences identified by the de novo sequencing analysis were exported along with their feature areas and positional confidence scores .
+psm - dd : results from de novo sequencing and peaks db peaks db6 , the database search module in peaks studio 7.5 , was then used in the second stage to identify peptide spectrum matches ( psms ) from existing protein databases .
+to determine a confidence threshold for psms , the peaks - embedded target - decoy approach , " decoy fusion " 6 , was used to estimate the false discovery rate ( fdr ) of the peaks db result .
+in our experiments , we assumed the species of the samples were unknown .
+therefore , the data sets were searched first against the uniprot database26 to identify the species .
+once the species was confirmed , a second database search was performed on the data sets against the in - house antibody database assembled for the identified species .
+note that the antibody database used in the peaks db search also includes 329 commonly observed contaminant proteins .
+this contaminant database contains proteins from the crap contaminant database28 , the maxquant contaminant database29 , and a few contaminants used in abrf iprg 2012 study .
+more specifically , the wigg1 data sets were searched against the mouse antibody database and the human igg1 data sets were searched against the human antibody database in our experiments .
+other search parameters were kept the same as used in the respective de novo sequencing analysis .
+based on the current database search results and the de novo sequencing results from the previous stage , a hybrid psm set was generated for the subsequent antibody sequencing assembling according to three criteria : ( 1 ) the scores of the psms identified by peaks db must be higher than a specified threshold ( in our case , which was selected with fdr 1.0 %) ; ( 2 ) the psms that were mapped to contaminant proteins must be filtered out ; and ( 3 ) the average local confidence ( alc ) scores of psms identified from peaks de novo sequencing must be higher than 50 and the peptide sequence cannot be mapped a contaminant protein with more than seven amino acid residues .
+each psm in the hybrid set was also accompanied by its feature area and positional confidence scores for the subsequent assembling .
+the motivation of using such a hybrid psm set was to take advantage of database information to resolve amino acid assignment ambiguities of de novo sequencing peptides .
+psm - dds : results from de novo sequencing and peaks db and spider biological samples for antibody sequencing commonly contain proteins with slightly different sequences to the ones recorded in the existing protein databases .
+ignoring those mutated peptides can potentially lead to errors in the complete and accurate antibody sequencing .
+to detect amino acid variants , the data sets were searched by the spider27 , integrated in peaks software , against the given antibody database .
+spider tries to match the de novo sequence tags with the database proteins and reconstructs a true sequence to minimize the sum of de novo errors and homology mutations between the true sequence and the one recorded in the database when a significant similarity is found .
+the psms reported by spider are then filtered at 1.0 % fdr .
+similarly to the aforementioned hybrid psm set in the previous stage , a psm set containing psms from peaks de novo sequencing , peaks db , and spider were exported for the subsequent assembling .
+weighted de bruijn graph construction and contigs assembly the three lists of peptides together with their intensities ( feature areas ) and positional confidence scores were obtained from peaks as described in the previous procedures .
+subsequently , all possible k - mers were extracted from the peptides .
+each k - mer was further split into two overlapping substrings of length k - 1 , called left and right ( k - 1 ) - mers .
+the left and right ( k - 1 ) - mers represent nodes in the de bruijn graph while the k - mer corresponds to a directed edge in the graph , pointing from the left to the right ( k - 1 ) - mer .
+our experimental results suggest that k = 6 or k = 7 are optimal for the assembly of antibody sequences .
+using shorter k - mers will encounter the issue of repetitiveness in target sequences , while using longer k - mers will not have enough peptides coverage for the assembly task .
+we found that the peptides' intensities and positional confidence scores provide more useful information and substantially improve the assembly quality from the de bruijn graph .
+in particular , we define the confidence score of each ( k - 1 ) - mer as the weighted geometric mean of its amino acids' confidence scores .
+the weight of each ( k - 1 ) - mer was then calculated as the product of its confidence score and the intensity of the peptide from which the ( k - 1 ) - mer was extracted .
+since a ( k - 1 ) - mer can appear in multiple peptides , its weight was accumulated over the processing of all those peptides .
+our formulation of the node weights is defined in the following equation : after the de bruijn graph was constructed , contigs were assembled by performing greedy walks through the graph as following .
+step 1 : select the ( k - 1 ) - mer with the highest weight as the seed for the new contig .
+step 2 : extend the seed in both forward and backward directions by selecting the neighbors with the highest weights and concatenating the new amino acids to the current contig .
+this step was repeated until no further extension was possible .
+after a ( k - 1 ) - mer had been used for seed or extension , it was discarded from graph .
+step 3 : repeat steps 1 and 2 until the graph became empty or a desired number of contigs had been generated .
+the assembly output was a list of contigs in the order that they were extracted from the graph .
+in addition , each contig was accompanied by positional confidence scores for its residues .
+final protein sequence if the de bruijn assembler produced a few contigs rather than a single full - length one to cover the target sequence , the contigs were combined into the final sequence by using a template alignment .
+a template sequence that is most closely matched to the contigs was obtained from the database .
+subsequently , the contigs were aligned to the template sequence to determine their relative positions to each other .
+finally , the contigs were merged to one single sequence and their overlapping regions were resolved by using the corresponding positional confidence scores .
+data availability the raw files of two antibody datasets can be downloaded from the database massive with accession number msv000079801 .
+the datasets of chicken lysozyme and 6 - protein mixture can be obtained from the respective papers .
+all target sequences , antibody database , assembler tool , and assembly results are included in supplementary materials .
+more details are available in supplementary information .
+additional information how to cite this article : tran , n. h. et al. complete de novo assembly of monoclonal antibody sequences. sci. rep .
+6 , 31730 ; doi : 10.1038 / srep31730 ( 2016 ) .
+supplementary material supplementary information assembly results this work was partially support by nserc ogp0046506 , the canada research chair program , and china 's national key research and development program under grant 2016yfb1000902 .
+the authors thank dr. paul taylor and dr. jonathan krieger of sparc biocentre at the hospital for sick children , toronto , ontario , canada for generating the lc - ms / ms data .
+maggon k. monoclonal antibody " gold rush " . curr. med. chem .
+14 , 1978 - 1987 ( 2007 ) .
+17691940 pham v .
+.
+de novo proteomic sequencing of a monoclonal antibody raised against ox40 ligand . anal. biochem .
+352 , 77 - 86 ( 2006 ) .
+16545334 ma b .
+.
+peaks : powerful software for peptide de novo sequencing by tandem mass spectrometry . rapid commun.mass spectrom .
+17 ( 20 ) , 2337 - 2342 ( 2003 ) .
+14558135 chi h .
+.
+pnovo : de novo peptide sequencing and identification using hcd spectra . j. proteome res .
+9 ( 5 ) , 2713 - 2724 ( 2010 ) .
+20329752 frank a .
+& pevzner p. pepnovo : de novo peptide sequencing via probabilistic network modeling . anal. chem .
+77 ( 4 ) , 964 - 973 ( 2005 ) .
+15858974 zhang j .
+.
+peaks db : de novo sequencing assisted database search for sensitive and accurate peptide identification . mol. cell .
+proteomics 10.1074 / mcp.m111.010587 ( 2011 ) .
+eng j. k. , mccormack a. l. & yates j. r. an approach to correlate tandem mass spectral data of peptides with amino acid sequences in a protein database . j. am. soc .
+mass spectrom .
+5 ( 11 ) , 976 - 989 ( 1994 ) .
+24226387 cottrell j. s. & london u. probability - based protein identification by searching sequence databases using mass spectrometry data . electrophoresis 20 ( 18 ) , 3551 - 3567 ( 1999 ) .
+10612281 geer l. y. .
+open mass spectrometry search algorithm . j. proteome res .
+3 ( 5 ) , 958 - 964 ( 2004 ) .
+15473683 craig r .
+& beavis r. c. tandem : matching proteins with tandem mass spectra . bioinformatics 20 ( 9 ) , 1466 - 1467 ( 2004 ) .
+14976030 cox j .
+.
+andromeda : a peptide search engine integrated into the maxquant environment . j. proteome res .
+10 ( 4 ) , 1794 - 1805 ( 2011 ) .
+21254760 xu t .
+.
+prolucid , a fast and sensitive tandem mass spectra - based protein identification program . molecular & cellular proteomics 5 , s174 - s174 ( 2006 ) .
+bandeira n .
+, tang h .
+, bafna v .
+& pevzner p. shotgun protein sequencing by tandem mass spectra assembly . anal. chem .
+76 , 7221 - 7233 ( 2004 ) .
+15595863 bandeira n .
+, tsur d .
+, frank a .
+& pevzner p. a. protein identification by spectral networks analysis . proc. natl. acad. sci. usa 104 , 6140 - 6145 ( 2007 ) .
+17404225 bandeira n .
+, pham v .
+, pevzner p .
+, arnott d .
+& lill j. r. automated de novo protein sequencing of monoclonal antibodies . nat. biotechnol .
+26 , 1336 - 1338 ( 2008 ) .
+19060866 guthals a .
+, clauser k. r. , frank a. m. & banderira n. sequencing - grade de novo analysis of ms / ms triplets ( cid / hcd / etd ) from overlapping peptides . j. proteome res .
+12 , 2846 - 2857 ( 2013 ) .
+23679345 guthals a .
+, clauser k. r. & bandeira n. shotgun protein sequencing with meta - contig assembly . mol. cell. proteomics .
+11 ( 10 ) , 1084 - - 1096 ( 2012 ) .
+22798278 bandeira n .
+, clauser k. r. & pevzner p. a. shotgun protein sequencing : assembly of peptide tandem mass spectra from mixtures of modified proteins . mol. cell. proteomics .
+6 ( 7 ) , 1123 - 1134 ( 2007 ) .
+17446555 vyatkina k .
+.
+de novo sequencing of peptides from top - down tandem mass spectra . j. proteome res .
+14 ( 11 ) , 4450 - 4462 , ( 2015 ) .
+26412692 liu x .
+, han y .
+, yuen d .
+& ma b. automated protein ( re ) sequencing with ms / ms and a homologous database yields almost full coverage and accuracy . bioinformatics .
+25 ( 17 ) , 2174 - 2180 ( 2009 ) .
+19535534 castellana n. e. , pham v .
+, arnott d .
+, jill j. r. & bafna v. template proteogenomics : sequencing whole proteins using an imperfect database . mol. cell. proteomics .
+9 ( 6 ) , 1260 - 1270 ( 2010 ) .
+20164058 liu x .
+.
+de novo protein sequencing by combining top - down and bottom - up tandem mass spectra . j. proteome res .
+13 ( 7 ) , 3241 - 3248 ( 2014 ) .
+24874765 compeau p. e. , pevzner p. a. & tesler g. how to apply de bruijn graphs to genome assembly . nat. biotechnol .
+29 , 987 - 991 ( 2011 ) .
+22068540 zerbino d. r. & birney e. velvet : algorithms for de novo short read assembly using de bruijn graphs . genome res .
+18 ( 5 ) , 821 - 829 , ( 2008 ) .
+18349386 grabherr m. g. .
+full - length transcriptome assembly from rna - seq data without a reference genome . nat. biotechnol .
+29 , 644 - 652 ( 2011 ) .
+21572440 uniprot swiss - prot , 25 / 03 / 2016 .
+http :// www.uniprot.org / uniprot / .
+han y .
+, ma b .
+& zhang k. spider : software for protein identification from sequence tags containing de novo sequencing error . j. bioinform. comput. biol .
+3 ( 3 ) , 697 - 716 ( 2005 ) .
+16108090 the common repository of adventitious proteins ( crap ) , 25 / 03 / 2016 .
+ftp :// ftp.thegpm.org / fasta / crap.maxquant contaminant database , 25 / 03 / 2016 .
+http :// maxquant.org / contaminant.zip .
+author contributions l.h. , m.z.r. and n.h.t. designed the alps system .
+n.h.t. implemented the de bruijn graph assembler .
+l.h. , m.z.r. and n.h.t. performed the data analysis .
+l.x. , b.s. and m.l. designed and oversaw the project .
+all authors wrote the manuscript .
+figure 1 alps system for automated and complete de novo assembly of monoclonal antibody sequences .
+figure 2 assembly results for the wigg1 light chain .
+( a ) blast alignment of the top assembled contigs from list psm - dn against the target light chain .
+( b ) zoom - in details of the alignment in ( a ) .
+( c ) blast alignment of the full - length contig assembled from list psm - dd against the target light chain .
+( d ) details of the alignment in ( c ) .
+figure 3 assembly results for the wigg1 heavy chain .
+( a ) blast alignment of the top assembled contigs from list psm - dn against the target heavy chain .
+( b ) blast alignment of the full - length contig assembled from list psm - dds against the target heavy chain .
+( c ) details of the alignment in ( b ) .
+figure 4 assembly results for the human heavy chain .
+( a ) blast alignment of the top assembled contigs from list psm - dds against the target heavy chain .
+( b ) blast alignment of the template - alignment - based merging of psm - dds contigs against the target heavy chain .
+( c ) details of the alignment in ( b ) .
+table 1 summary of alps de novo assembly results on antibody datasets .
+wigg1 - light ( 219 aa ) wigg1 - heavy ( 441 aa ) human - light ( 216 aa ) human - heavy ( 446 aa ) assembly results full - length contig from de bruijn assembler full - length contig from de bruijn assembler full - length contig from de bruijn assembler 3 contigs ( lengths 346 , 92 , 67 ) from de bruijn assembler ; complete sequence merged from 3 contigs target sequence coverage (%) 100.00 100.00 100.00 100.00 target sequence accuracy (%) 100.00 99.09 100.00 96.64 the target sequence coverage was calculated as the percentage of amino acids of the target sequence that were covered by at least one contig .
+the target sequence accuracy was calculated as the percentage of matched amino acids .
+i - to - l were not considered as mismatched .
+table 2 length ( aa ) , number of amino acids recovered ( aa ) , target sequence coverage (%) , and contig assembly accuracy (%) of the longest contigs for antibody datasets .
+wigg1 - light ( 219 aa ) wigg1 - heavy ( 441 aa ) human - light ( 216 aa ) human - heavy ( 446 aa ) psm - dn with frequencies 114 ; 109 ; 49.77 ; 95.61 143 ; 129 ; 29.25 ; 90.21 175 ; 170 ; 78.70 ; 97.14 98 ; 74 ; 16.59 ; 75.51 psm - dn with weights 109 ; 109 ; 49.77 ; 100.00 219 ; 194 ; 43.99 ; 88.58 175 ; 170 ; 78.70 ; 97.14 154 ; 121 ; 27.13 ; 78.57 psm - dd 219 ; 219 ; 100.00 ; 100.00 453 ; 441 ; 100.00 ; 97.35 216 ; 216 ; 100.00 ; 100.00 346 ; 344 ; 77.13 ; 99.42 psm - dds 219 ; 219 ; 100.00 ; 100.00 442 ; 441 ; 100.00 ; 99.77 216 ; 216 ; 100.00 ; 100.00 346 ; 344 ; 77.13 ; 99.42 the target sequence coverage was calculated as the percentage of amino acids of the target sequence that were covered by the respective longest contig .
+the contig assembly accuracy was calculated as the percentage of correct amino acids of the longest contig that were aligned to the respective target sequence .
+table 3 summary of de novo assembly results on 6 - protein mixture dataset .
+leptin ( 167 aa ) kallikrein ( 261 aa ) groel ( 548 aa ) myoglobin ( 154 aa ) aprotinin ( 100 aa ) peroxidase ( 353 aa ) meta - sps ( with kappa >= 1 ) longest contig ( aa ) 93 134 194 80 59 58 sequencing coverage (%) 86.2 87.7 92.5 92.2 64.0 67.4 sequencing accuracy (%) 100.0 98.5 97.7 99.3 80.0 100.0 alps ( with list psm - dds , 7 - mers ) longest contig ( aa ) 131 77 444 118 65 92 sequencing coverage (%) 87.4 83.5 99.1 99.4 65.0 66.6 sequencing accuracy (%) 98.6 96.8 99.8 98.0 95.4 95.3 sequencing coverage was calculated as the percentage of amino acids of the protein sequence that were covered by at least one contig .
+sequencing accuracy was calculated as the percentage of all annotated sequence calls that were labeled correct .
+the meta - sps results were reported in ref .
+16 .

@@ -1,0 +1,390 @@
+sensors ( basel ) sensors ( basel ) sensors ( basel , switzerland ) 1424 - 8220 molecular diversity preservation international ( mdpi ) 27879884 3675550 10.3390 / s8053384 sensors - 08 - 03384 article sar system for uav operation with motion error compensation beyond the resolution cell gonzalez - partida jose - tomas 1 * almorox - gonzalez pablo 1 burgos - garcia mateo 1 * dorta - naranjo blas - pablo 2 1 universidad politecnica de madrid .
+departamento de senales , sistemas y radiocomunicaciones , av. complutense s / n , 28040 madrid , spain ; e - mail : almorox @ gmr.ssr.upm.es 2 universidad de las palmas de gran canaria .
+departamento de senales y comunicaciones .
+edificio de electronica y telecomunicaciones , 35017 campus universitario de tafira , las palmas de gran canaria , spain ; e - mail : pdorta @ dsc.ulpgc.es * authors to whom correspondence should be addressed ; e - mails : joseto @ gmr.ssr.upm.es ; mateo @ gmr.ssr.upm.es 5 2008 23 5 2008 8 5 3384 3405 12 3 2008 14 5 2008 ( c ) 2008 by the authors ; licensee molecular diversity preservation international , basel , switzerland .
+2008 this article is an open - access article distributed under the terms and conditions of the creativecommons attribution license ( http :// creativecommons.org / licenses / by / 3.0 /) .
+this paper presents an experimental synthetic aperture radar ( sar ) system that is under development in the universidad politecnica de madrid .
+the system uses linear frequency modulated continuous wave ( lfm - cw ) radar with a two antenna configuration for transmission and reception .
+the radar operates in the millimeter - wave band with a maximum transmitted bandwidth of 2 ghz .
+the proposed system is being developed for unmanned aerial vehicle ( uav ) operation .
+motion errors in uav operation can be critical .
+therefore , this paper proposes a method for focusing sar images with movement errors larger than the resolution cell .
+typically , this problem is solved using two processing steps : first , coarse motion compensation based on the information provided by an inertial measuring unit ( imu ) ; and second , fine motion compensation for the residual errors within the resolution cell based on the received raw data .
+the proposed technique tries to focus the image without using data of an imu .
+the method is based on a combination of the well known phase gradient autofocus ( pga ) for sar imagery and typical algorithms for translational motion compensation on inverse sar ( isar ) .
+this paper shows the first real experiments for obtaining high resolution sar images using a car as a mobile platform for our radar .
+unmanned aerial vehicle ( uav ) synthetic aperture radar ( sar ) motion compensation range alignment phase gradient autofocus ( pga ) 1 .
+introduction synthetic aperture radars ( sar ) typically provide a two - dimensional representation of the scatterers over an extensive area that has been illuminated with microwaves .
+these two dimensions are called slant range and azimuth resolution .
+it is known that sar systems obtain high range resolution transmitting signals with a large bandwidth .
+for very high resolution sar systems , the movement errors could be large enough to shift the detected target to other range cells due to non - ideal motion .
+these error corrections are critical for achieving the required quality of the final sar product .
+focusing sar images with movement errors beyond the resolution cell has been addressed in the specialized literature [ 1 , 2 ] .
+typically , proposed techniques are based on two - step procedures .
+the first step consists of coarse motion compensation with resolution cell accuracy .
+information provided by an inertial measuring unit ( imu ) is usually available for this purpose .
+the second step consists of fine motion compensation based on the received raw data .
+this fine correction is usually based on signal based motion compensation ( sbmc ) techniques , and their mission is to carry out a phase correction for auto - focusing the images .
+currently , the miniaturization of sar systems is a very important objective because there are many applications in which the weight and size of the system are critical , for example uav operation .
+our research group is developing a miniaturized system for this purpose. from the perspective of miniaturization , it is useful that the radar system operates at very high carrier frequency , that is , millimeter - wave band ( ka band , 34 ghz ) [ 3 ] .
+thus , circuits and antennas are smaller and mmic technology has just been made available .
+furthermore , a large bandwidth can be more easily transmitted working in the millimeter - wave band , because the relative bandwidth is lower .
+the sar system described in this paper transmits to 2 ghz of bandwidth , which corresponds to range resolution of 7.5 cm [ 4 ] .
+this high resolution is a problem from the point of view of motion errors , because the motion errors could be larger than the resolution cell in uav operation .
+a potential solution to this problem consists of range aligning the target response for each pulse , thus removing the range shift .
+this solution is only feasible for far scenes with a narrow swath , that is , with a range curvature that is very similar for all the targets in the scene .
+this is not valid for nearer or wider scenes due to the range curvature .
+the range curvature is different for each target because it depends on its position at the scene .
+this range curvature is generated by the ideal motion of the platform .
+the range migration algorithm ( rma ) is known to be able to focus sar images with high and different range curvatures within the swath of interest .
+however , rma can not compensate for the range cell shift due to the non - ideal motion of the platform , which results in defocusing .
+an additional technique to correct these effects is needed .
+another solution is to use the motion information provided by an imu to align the target response for each pulse , removing the range shift .
+however , the system might not have available data on this motion because the addition of an imu increases the weight and size of the sar system , which might not be tolerable for some uavs .
+this paper describes a method for focusing sar images with movement errors larger than the resolution cell , without using an imu .
+this method is based on a combination of the well known phase gradient autofocus ( pga ) for sar imagery [ 5 , 6 , 7 ] , with typical algorithms for translational motion compensation on inverse sar ( isar ) , such as envelope correlation ( ec ) [ 8 , 9 ] and global range alignment ( gra ) [ 10 ] .
+the main characteristics of the proposed motion compensation method are summarized as follows : - it does not require imu or sensor movements .
+- it requires prominent scatters within the swath to collect the phase error using pga .
+- it does not compensate the range curvature due to the ideal trajectory of the platform .
+therefore , it can be used in combination with algorithms that focus sar images with different range curvatures , e.g. , rma .
+- it is valid for stripmap - mode sar operation .
+this paper is arranged as follows : section two describes the different subsystems of the radar that have been developed .
+specific measurements of each subsystem are presented .
+section three describes the sar signal processing chain , emphasizing the motion compensation algorithm .
+simulated data are presented to shown the performance of this technique for uav applications .
+the last section shows two real sar images using the proposed system in a ground sar system with a car as the mobile platform .
+these are the first experiments to prove the feasibility of our radar in a sar application .
+2. system description nowadays , there is a great interest in using high resolution radar [ 11 ] , because targets can not only be detected , but can also be classified and identified .
+to achieve high resolution , it is necessary to transmit a large bandwidth .
+the range resolution is inversely proportional to the rf transmitted bandwidth .
+the system works in the millimeter - wave band .
+thus , a large bandwidth can be more easily transmitted because the relative bandwidth is low .
+the peak power provided by commercial amplifiers in the millimeter - wave band is low .
+the proposed sensor has a continuous wave ( cw ) configuration in order to increase the mean power and thus the maximum range [ 12 ] .
+the radar transmits a linear frequency modulated ( lfm ) signal .
+lfm systems obtain range information from beat frequencies .
+the receiver has a homodyne structure that implements a matched receiver based on correlations .
+lfm - cw signal facilitates system miniaturization and requires low power operation , which makes it possible to install the system in an uav .
+2.1 .
+general scheme figure 1 illustrates the block diagram , while figure 2 presents several pictures of the system .
+the rf sensor dimensions are 24x16x9 cm , and its weight is 2.5 kg. the received signals are down - converted to base - band mixing the echoes from the targets with a coupled sample of the transmitted signal ( homodyne architecture ) .
+the isolation between the transmitter and receiver is achieved using two separate antennas for transmission and reception , which are standard rectangular horns with a beamwidth of 6degrees and 8degrees , and a gain of 24 db ( figure 2a ) .
+the signal generation is obtained with a closed - loop scheme .
+a phase locked loop ( pll ) generates the tuning signal to a voltage controlled oscillator ( vco ) using as a reference a strictly linear frequency ramp obtained thanks to a direct digital synthesizer ( dds ) , which is controlled by a personal computer ( pc ) .
+this pc also has an acquisition board to sample the beating frequencies , and to store them .
+the sar signal processing is carried out by this pc ( figure 2b ) .
+the most important operation characteristics are summarized in table 1 : central frequency , fc , 34 ghz ( lambda = 8.8 mm ) , and the maximum transmitted bandwidth ( brf ) , 2 ghz .
+the system transmits a continuous train of linear frequency ramps with a maximum pulse repetition frequency ( prf ) of 5 khz .
+to avoid aliasing in the doppler spectrum the maximum azimuthal sampling interval is determined to be 2.1 cm .
+2.2 .
+signal generation subsystem the signal generation subsystem consists of a pll that compares the output signal of the vco with a strictly linear frequency modulated signal generated by a dds .
+the vco frequency , around 8 ghz , is divided with a n1 divider ( n1 = 80 ) to compare it in the pll .
+the lfm - cw linear ramp of the vco is multiplied with a n2 multiplier factor ( n2 = 4 ) to obtain the desired transmitting millimeter - wave signal .
+figure 3 shows the measurement of a 1.6 ghz bandwidth and 34 ghz carrier frequency signal , which was measured with a 4 db loss cable .
+in this case , the lfm generated with the dds has a central frequency of 106.25 mhz and a bandwidth of 5 mhz .
+2.3 .
+transmitter subsystem the transmitter ( tx ) block is composed of a medium power amplifier ( mpa ) , a high power amplifier ( hpa ) and a 30 db coupler .
+the measured gain of the block was around 30 db , and the 1 db compression point , p1db , is 31 dbm .
+2.4 .
+receiver subsystem the coupled sample of the tx block , using the 30 db coupler , was amplified with a mpa and used as the local oscillator ( lo ) signal in the receiver .
+the rf echoes were amplified with a low noise amplifier ( lna ) before mixing them with the lo. the base - band signal was amplified 20 db before filtering it. the noise figure of the receiver is 5.2 db .
+2.5 .
+if subsystem and acquisition subsystem the intermediate frequency ( if ) block consists of an amplifier and a band - pass if filter .
+this filter must be designed for a concrete application and is used to reduce the if bandwidth to be sampled , and to improve the signal to noise ratio ( snr ) .
+there are several ways to tune the range interval to be acquired .
+in other works [ 13 ] , a heterodyne receiver with fixed if frequency and a variable mixer was used .
+in our sensor , a fixed central frequency if filter and a variable prf were used to tune the different range limits .
+the technique is explained in detail in [ 3 , 4 ] but a short summary is given here .
+the received signal from a target is demodulated with a coupled version of the transmitted signal to produce a beat signal , with frequency fb : ( 1 ) fb = 2rcgamma =~ 2rc ~ brf.prf the beat frequency is directly proportional to the target range r. a fixed if bandwidth fl < | f | < fh allows collecting data from a range interval rmin < r < rmax : ( 2 ) rmin = c2brf.prffl,rmax = c2brf.prffh the system can be tuned to different range intervals varying the prf with the advantage of using a same if filter .
+also , the system can make a band - pass sampling .
+the band - pass theorem [ 14 ] states that a band - pass signal that has a nonzero spectrum only over the frequency interval fl < | f | < fh can be reproduced from sampled values if the sampling frequency fs satisfies the relationships : ( 3 ) 2fhn <= fs <= 2fl ( n - 1 ) , 2 <= n <= fhfh - flwithninz the sampling rate reduction allows use of a cheaper analogue to digital converter ( adc ) , and reduces the memory and cpu requirements .
+3. lfm - cw sar signal processing chain the radar receives a delayed echo of the transmitted signal , equation ( 4 ) , for each scatter in the scene .
+this signal is given by equation ( 5 ) , where ns is the number of scatters in the scene , and r ( k,t ) the range to the scatter kth .
+this range has two components : the range ri ( k,t ) due to the ideal trajectory of the platform and the range rerr ( k,t ) due to the movement errors of the platform .
+( 4 ) stx ( t ^ , t )= rect ( tpri ) exp [ j ( omegact + pigammat2 )] where c is the speed of light , omegac is the carrier pulsation , pri = 1 / prf , gamma =~ brf / pri , t is the fast time and t is the slow time .
+( 5 ) srx ( t ^ , t )= sumk = 1nsa ( k,t ^). rect ( t - tr ( k,t ^) pri ) exp [ j ( omegac ( t - tr ( k,t ^))+ pigamma ( t - tr ( k,t ^)) 2 )] where tr ( k,t ^)= 2r ( k,t ^) c = 2 ( ri ( k,t ^)+ rerr ( k,t ^)) c , and a ( k,t ) is the backscattering coefficient of the kth scatter .
+the received signal , equation ( 5 ) , is demodulated with the complex conjugate of the transmitted signal , equation ( 4 ) .
+the result of this operation is the signal given by equation ( 6 ) , which is band - pass filtered and sampled , resulting the digital signal shown in equation ( 7 ) .
+( 6 ) sd ( t ^ , t )= sumk = 1nsa ( k,t ^). rect ( t - tr ( k,t ^) pri ) exp [ - j ( omegactr ( k,t ^)+ 2pigammatr ( k,t ^) t - pigammatr2 ( k,t ^))] ( 7 ) ss ( m,n )= sumk = 1nsa ( k,m ). rect ( nts1 - tr ( k,m ) pri ) xexp [ - j ( omegactr ( k,m )+ 2pigammatr ( k,m ) nts1 - pigammatr2 ( k,m ))] where the fast time is sampled with a sampling period ts1 , ( t = nts1 ) , and the slow time is sampled at prf rate , ( t = m . pri ) , and m and n are integer indexes with values m = 0 ,... , m - 1 and n = 0 ,... , n - 1 .
+after sampling , the signal given by equation ( 7 ) was demodulated with a digital reference signal , equation ( 8 ) , and low - pass filtered .
+this reference signal is the echo that would have been received from a target at the centre range of the swath ( range r0 ) .
+( 8 ) sref ( m,n )= exp ( j ( 2pigammat0nts1 + omegact0 - pigammat02 )) , wheret0 = 2r0c this operation has two consequences .
+first , the band - pass signal is converted to a low - pass signal .
+second , the reference signal makes motion compensation to a line , which is necessary to use rma as the image formation process ( ifp ) [ 7 , 15 ] .
+at this point , the signal is a low - pass signal that can be resampled to fulfill the nyquist sampling rate .
+this resampling , with a period ts2 , reduces the number of samples and therefore the computational burden .
+the resampled signal , equation ( 9 ) , still has three error terms : a phase error phierr ( m ) , a frequency shift ( equivalent to a range shift ) and the known residual video phase ( rvp ) [ 7 ] .
+( 9 ) sresam ( m,n )= sumk = 1nsa ( k,m ). rect ( nts2 - tr ( k,m ) pri ) xxexp [ - j ( 4pigammac ( fcgamma + nts2 - t0 )( ri ( k,m ) - r0 )+ 4pigammac2 ( r ( k,m ) - r0 ) 2 } rvp ++ 4pigammac ( fcgamma - t0 ) rerr ( k,m )} phierr ( m )+ 4pigammacrerr ( k,m ). nts2 } rangeshift +)] the phase error phierr ( m ) and the range shift were estimated and corrected using an autofocus technique .
+pga , which has been extended to stripmap mode , is the chosen algorithm to estimate and correct the motion errors .
+the implemented algorithm is explained in the next section .
+the rvp term can be removed by means of the technique known as range deskew [ 7 ] .
+after these corrections , the signal given by equation ( 10 ) is obtained .
+this is the signal desired by rma to obtain a perfectly focused sar image [ 7 ] .
+( 10 ) scorr ( m,n )= sumk = 1nsa ( k,m ). rect ( nts2 - t0pri ) exp ( - j ( 4pigammac ( fcgamma + nts2 - t0 )( ri ( k,m ) - r0 ))) 4 .
+motion error compensation 4.1 .
+phase gradient autofocus ( pga ) this subsection only shows an overview of the pga algorithm .
+the detailed description can be found in [ 5 , 6 , 7 ] .
+pga is able to estimate and remove arbitrary phase errors in sar images .
+the right operation of spotlight pga is based on three hypotheses : - the phase error must be spatially invariant over the entire image , that is , all the scatters in a scene must share the same phase error history .
+- targets must exist with phase error information over the entire data set .
+- the raw data signal must be related to the sar image by means of a two - dimensional fourier transform .
+this condition is always fulfilled in spotlight sar , because the data are usually motion compensated to a point .
+however , our radar is going to operate at stripmap - mode to maximize the coverage of the scene .
+the next four points summarize spotlight pga : circular shifting : the input to pga is the complex sar image .
+the first step is to choose the strongest target for each range bin and circularly shift it to the azimuthal origin .
+this shift removes the doppler frequency offset of these scatters .
+therefore , pga can not estimate linear phase errors in the doppler history .
+windowing : each selected scatter is windowed azimuthally .
+windowing isolates the phase error information contained at the dominant scatter from other scatters at the same range bin that could interfere with the phase error estimation .
+phase gradient estimation : the circular shifted and windowed data are inversely fourier transformed along azimuth to the range - compressed domain .
+let us denote s ( m,n ) as the signal associated with the windowed target from the nth range bin , i.e. , the windowed and shifted fourier transform across the columns of s ( m,n ) : ( 11 ) s ( m,n )=| s ( m,n )| exp ( j [ phierr ( m )+ theta ( m,n )]) where phierr ( m ) is the phase error ( spatially invariant ) and theta ( m,n ) is the scatter - dependent phase function for the chosen target in the nth range bin .
+the linear unbiased minimum variance estimate of the gradient phase error is given by : ( 12 ) < phierr '( m )> lumv = sumnim { s *( m,n ) s '( m,n )} sumn | s ( m,n )| 2where s '( m,n ) is the first derivative along columns of s ( m,n ) .
+there are other phase gradient estimators that produce good results in combination with circular shifting and windowing [ 5 , 7 , 16 ] .
+iterative phase correction : the estimated phase gradient has to be integrated to obtain the phase error .
+any constant or linear term of the phase error is removed .
+after the integration , the phase error is corrected multiplying the range - compressed data with a complex exponential function whose phase is the inverse of the phase error estimate .
+then the corrected data are fourier transformed to the image domain , leading to a more focused image .
+all the described steps are iteratively repeated until some convergence criterion is reached [ 5 , 7 ] .
+basic spotlight pga is based on the three fundamental hypotheses that have been explained above .
+the proposed sar signal processing chain implements a stripmap - mode with motion compensation to a line .
+the first difference is referred to the azimuthal resolution limit and the scene coverage .
+in stripmap - mode , the antenna beamwidth limits the azimuthal resolution , and data collection length determines azimuthal scene size .
+however , in spotlight - mode , data collection length determines azimuthal resolution and antenna beamwidth limits the azimuthal scene size .
+both modes usually use the same transmitted signal and a dechirp - on receive procedure [ 7 ] .
+however , the second difference is the reference signal used for dechirping .
+stripmap - mode uses compensation to a line that preserves the azimuthal chirp , while spotlight - mode uses motion compensation to a point that removes this azimuthal chirp [ 7 ] .
+the proposed stripmap pga implements different strategies to fulfill these pga hypotheses .
+the implemented algorithm is described in the next subsections .
+the movement error that has been estimated by pga is used in a two step correction method : a coarse correction that removes the range shift , and a fine correction that focuses the target within the resolution cell .
+4.2 .
+stripmap to spotlight conversion spotlight pga needs a raw signal data that can be compressed by means of a two dimensional fourier transform to form a sar image .
+however , stripmap data preserve the azimuthal chirp and a linear range migration , that is , a single scatter is detected at different range bins for each pulse of the data set .
+these stripmap characteristics do not allow compression of the image using a two - dimensional fourier transform .
+to solve this problem , the proposed algorithm converts stripmap data to spotlight data .
+the conversion consists of a change of the reference signal .
+stripmap data have been motion compensated with a fixed reference range r0 , while spotlight data were motion compensated with a different reference range rc ( m ) for each pulse .
+the stripmap to spotlight conversion removes the stripmap motion compensation and applies motion compensation to the scene center .
+this is equivalent to multiply each pulse with a complex exponential given by equation .
+( 13 ) : ( 13 ) sst2sp ( m,n )= exp [ j ( 4pilambda ( r0 - rc ( m ))+ 4pigammac ( r0 - rc ( m )). n.ts2 + 4pigammac2 ( rc2 ( m ) - r02 ))] where lambda is the wavelength .
+this conversion removes the azimuthal chirp without modifying the phase error that must be estimated [ 7 ] .
+pga needs targets with phase error information over the entire data collection range .
+in spotlight - mode , the phase history of any point covers the entire data set .
+however , in stripmap - mode the phase history of any scatter is limited by the antenna beamwidth and is contained only in a portion of the data set .
+a solution was proposed in [ 17 ] .
+it consists of dividing the complete data collection into azimuthal data segments .
+our proposed pga uses this philosophy and independently converts each segment from stripmap to spotlight mode .
+furthermore , this minimizes range migration even in the case of squinted stripmap data .
+both spotlight and stripmap data with dechirp - on receive have a rvp term .
+in both modes , rvp can be removed using the range deskew filter given by equation ( 14 ) [ 7 ] .
+( 14 ) hrd ( f )= exp ( - jpigammaf2 ) 4.3 .
+range alignment previous to the phase estimation for each azimuthal data segment , some prominent scatters must be selected to estimate the phase error due to the non - ideal movement .
+this selection can be done in the range compressed domain .
+several methods to choose prominent scatters in the range compressed domain have been proposed in the specialized literature about isar [ 19 , 20 ] .
+for our purpose , the most appropriate algorithm is based on the minimal normalized variance criteria .
+it computes the normalized variance for each range bin ( column of the range compressed map ) .
+the range bin n with the minimal normalized variance is chosen .
+the formulation is given by equation ( 15 ) : ( 15 ) n ^= argnmin [ v ( n )] withv ( n )= summ = 0m - 1 [| s ( m,n )| - s ( n )] 2summ = 0m - 1 | s ( m,n )| 2ands ( n )= 1msumm = 0m - 1 | s ( m,n )| where s ( m,n ) is the range compressed map , with m azimuthal cells ( rows ) , and n range bins ( columns ) .
+in this way , we achieve selected targets that are located in an azimuthal coordinate quite centered respect to the middle of the azimuthal data segment .
+taking short enough azimuthal data segments , we can avoid the linear range migration due to the ideal motion of the platform .
+it means that a selected target has remained in the same range cell for the major part of the azimuthal data segment and , therefore , this range column is the most appropriate to extract the movement error .
+unfortunately , the range migration cell due to non - ideal motion is still present in the range compressed domain .
+the selected range column could be processed by the typical pga to extract the movement error .
+however , the range column does not have information in zones where the movement error was larger than the range resolution , because the target has suffered a range shift .
+one way to overcome this drawback is range aligning the history of the target in the range compressed domain .
+there are several isar techniques that make this correction .
+also , we have to take into account that this range alignment is usually the first step for motion compensation in isar .
+for example , ec [ 8 , 9 ] or gra [ 10 ] are robust techniques for aligning the history of a target in the same range column in presence of noise and clutter .
+to avoid the interference of other targets in the range compressed domain , we can compress the image azimuthally via a fourier transform and isolate the selected prominent scatter in the image domain using a window .
+this technique is used in isar processing [ 21 ] .
+the complete procedure is illustrated in figure 4 .
+after the range alignment , the column can be processed by the basic pga to estimate the phase error due to non - ideal motion .
+4.4 .
+phase gradient estimation only the scatters that are illuminated during all the acquisition time have complete phase error information .
+the geometry of stripmap - mode does not allow collection of data from the same scatter all the time .
+returns from a target are only received for a limited number of pulses .
+the number of received pulses is determined by the antenna beamwidth .
+this is a drawback , because pga needs targets with phase error information over the entire data set .
+the solution proposed in [ 17 ] consists of dividing the data set into shorter azimuthal data segments .
+after this division , each azimuthal data segment is independently converted from stripmap to spotlight - mode in the manner described above .
+each segment is range compressed via a fourier transform .
+for each segment , several columns containing prominent targets are selected using minimal normalized variance .
+the history of these targets is range aligned as previously explained .
+then , basic spotlight pga is independently applied to each column to obtain a phase error estimate .
+final phase error of the segment will be an average of these independent estimations .
+it is known that pga can not estimate linear phase errors .
+thus , the phase error estimation of each segment could exhibit a different linear component .
+to avoid discontinuities in the phase error estimation between consecutive segments , in [ 17 ] it is proposed to remove the mean of the phase gradient before combining and integrating the phase error segments .
+however , this procedure leads to large errors because the segments are small , and the linear component of the actual phase error is , in fact , different from zero and also different from one segment to another .
+an estimate of the second derivative of the phase error has the advantage of forcing the mathematical continuity between consecutive segment estimations .
+the second derivative estimate of the phase error from all the segments is integrated together yielding the phase error gradient without any discontinuity over the complete data set .
+the mean of the whole phase gradient was then removed before integrating again to get the complete phase error .
+the first hypothesis of pga is that the phase error must be spatially invariant over the entire image , i.e. all the scatters in a scene must share the same phase error .
+traditional pga algorithm assumes that the phase error is constant with range .
+however , with wide swaths or short ranges , the incidence angle is highly varied and the phase error due to the movement exhibits range dependence .
+two alternatives have been proposed : the first one consists of dividing the data set into narrow range subswaths .
+the subswath width has to be chosen to guarantee high correlation of the phase error within the subswath .
+the division is carried out with the range compressed data , after azimuthal segmentation and stripmap to spotlight conversion .
+the previously described pga procedure is independently applied to each subswath .
+the selected targets of one subswath will have very similar phase errors , and the pga correction will be appropriate to all the targets within the subswath .
+the second alternative is to estimate the range dependence of the error to correlate different subswaths .
+this method is based on the phase weighted estimation pga ( pwe - pga ) described in [ 18 ] .
+this method improves the performance of pga , but increases its computational complexity .
+4.5 .
+coarse movement correction once the phase error due to non - ideal motion has been estimated , the movement error can be extracted using the phase information .
+usually t0 is negligible in comparison with fc / gamma and , therefore , rerr ( m ) can be approximated by : ( 16 ) rerr ( m )=~ - lambda4piphierr ( m ) where phierr ( m ) is the estimated phase error and rerr ( m ) is the estimated motion error on the slant plane .
+this estimate is valid to correct the range shifts due to the movement errors .
+the range shift can be removed using the original stripmap raw data .
+the procedure consists of shifting each received pulse the quantity given by rerr ( m ) .
+the shift can be performed by multiplying each mth pulse of the raw matrix s ( m,n ) with a complex exponential given by ( 17 ) .
+( 17 ) gcoarse ( m,n )= exp ( j.4pigammacrerr ( m ). nts2 ) after this correction , the movement errors that are larger than the resolution cell have been compensated , i.e. the range shift due to non - ideal motion has been removed .
+however , the range curvature due to ideal motion that is different for each scatter still remains .
+this range curvature will be compensated using rma [ 7 , 15 ] .
+the range error estimated by ( 16 ) is extracted from the phase information .
+this range information is only valid if the estimated phase error can be unwrapped , i.e. if the phase difference between two consecutive pulses is lower than pi radians : ( 18 ) 4pilambda | rerr ( m ) - rerr ( m - 1 )|< pi equation ( 18 ) imposes a limit for the maximum instantaneous radial velocity error ( projected over slant plane velocity ) that can be corrected .
+using equation ( 19 ) , for our system the instantaneous maximum radial velocity error will be 11 m / s , which is a high value .
+( 19 ) | vslant |< lambda4prf 4.6 .
+fine movement correction the coarse correction removes the range shift , but a fine correction is still necessary , i.e. the typical phase correction of pga .
+once the phase error component has been estimated and the range shift removed , the corrected stripmap data set can be fourier transformed to the range domain , and the phase error estimation can be removed for each range bin .
+let s ( m,n ) be the range compressed data of s ( m,n ) .
+the correction consists of multiplying each column ( range bin ) of the matrix s ( m,n ) with a complex exponential given by equation ( 20 ) : ( 20 ) gfine ( m )= exp ( j.phierr ( m )) finally , the range compressed data are inversely fourier transformed again to the time domain .
+this data matrix contains the stripmap signal in the format required by rma , without motion error and without rvp .
+4.7 .
+movement error analysis let there be a trajectory error with z and y direction components , see figure 5 .
+these movements , y ( m ) and z ( m ) , induce a phase error and a range shift on the slant plane that depends on the range to the targets yk. the proposed algorithm can correct range dependencies due to non - planar movement of the platform .
+the phase error can be written as : ( 21 ) phierr,k ( m )= - 4pilambda [ y ( m ). sinthetak - z ( m ). costhetak ]= phiy ( m ). sinthetak + phiz ( m ). costhetak for a target located in the center of the kth range bin the incidence angle thetak is : ( 22 ) thetak = cos - 1 ( hrmin + k.deltar ) where deltar is the range resolution of the image the phiy ( m ) and phiz ( m ) phase error components do not depend on thetak and , therefore , they are the same for all the range bins .
+this is exploited by pwe - pga , described in [ 18 ] .
+therefore , this non - ideal motion can be compensated by the proposed autofocus algorithm described above .
+variations in along - track speed result in non - uniform spacing of the radar pulses .
+this non - uniform sampling of the doppler spectrum results in erroneous calculations of the doppler phase history .
+traditionally , the data are interpolated in the azimuthal direction to correct the velocity variations across the synthetic aperture [ 2 ] .
+this interpolation is based on the measured data of an imu .
+our system does not have an available imu , therefore , this kind of error can not be compensated .
+however , our autofocus is able to correct constant deviations respect to the nominal velocity , that is , the mean velocity error .
+a constant deviation of the speed generates a phase error that produces defocus and distortion in the image .
+an analytic study of this phase error can be obtained with a simple geometrical development .
+suppose a target located on the ground in a position with coordinates ( xp , yp ) .
+the phase of the received signal for each pulse is directly proportional to the distance between the platform and the target rp ( t ) : ( 23 ) phi ( t ^)= - 4pilambda.rp ( t ^) where t is the slow time and lambda is the wavelength of the transmitted signal .
+the range between the platform and the target varies for each pulse if the platform moves at different speed from the nominal one .
+suppose a nominal velocity of the platform , va , this range is given by : ( 24 ) rp ( t ^)= rp2 +( xp - va.t ^) 2where rp = h2 + yp2 is the distance between platform and target projected over the y - z plane .
+supposing xp and va . t < rp , equation ( 24 ) can be approximated by : ( 25 ) rp ( t ^)= rp +( xp - va.t ^) 22.rp now , suppose that the platform moves with a constant deviation velocity , deltava , over the nominal speed va. the new range between the platform and the target , rbias ( t ) , is given by : ( 26 ) rbias ( t ^)= rp2 +( xp - ( va + deltava ). t ^) 2 supposing xp and ( va + deltava ). t << rp , equation ( 26 ) can be approximated by : ( 27 ) rbias ( t ^)= rp +( xp - ( va + deltava ). t ^) 22.rp using equation ( 23 ) that relates range with phase , the phase error due to a non - zero mean velocity error is given by : ( 28 ) phierr ( t ^)= - 4pilambda. ( rbias ( t ^) - rp ( t ^)) developing : ( 29 ) phierr ( t ^)= - 2pilambda.deltava. ( deltava + 2.va ) rp.t ^ 2 + 4pilambda.xp.deltavarp.t ^ the phase error consists of two different components .
+the first term is a quadratic error .
+this error produces a loss of resolution .
+the second term is a linear error which produces an azimuthal shift of the image .
+the quadratic error depends on the projected distance over the y - z plane , rp. therefore , this error is different for each range bin , because it depends on the position of the target in z and y. however , this kind of error can be compensated by the autofocus , because it perfectly matches with the error model of the method pwe - pga described in [ 18 ] .
+the linear phase error cannot be corrected .
+it is space variant because depends on the projected distance over the y - z plane , rp , and the azimuthal coordinate of the target xp. therefore , this error distorts the image .
+the permitted distortion gives the maximum allowed velocity deviation , deltava .
+4.8 .
+simulated results the algorithm was tested with simulated stripmap - mode data .
+the simulated system has the same parameters as our real lfm - cw sar system .
+the nominal resolution cell chosen for this experiment is 15 cm ( 24 cm with windowing ) .
+the simulation evaluated the degradation of the impulse response of the sar system .
+the measured parameters were azimuth and slant range resolution at - 3 db and - 9 db respect to the main lobe level , and azimuth and slant range pslr ( peak side - lobe ratio ) with respect to the main lobe level .
+the simulated scene consists of several corner reflectors uniformly distributed in a swath of 45x80 m. the swath is 2500 m away from the radar .
+the movement error consists of random shifts in the y - z plane , see figure 5 .
+the combination of these errors generated a range shift in the slant plane larger than the range resolution .
+this motion error is shown in figure 6g .
+also , the estimated motion error by the autofocus is shown in figure 6g .
+our algorithm appears to have good accuracy .
+the residual error is linear and can not be compensated by the autofocus .
+however , it is not important because these errors do not result in image defocusing [ 7 ] .
+figure 6a shows the sar image and figure 6b shows the detail of the system impulse response without applying any autofocus technique .
+the image is completely defocused .
+figure 6c illustrates a more focused sar image .
+this is the result of applying the autofocus only with fine correction , without coarse correction .
+the detail of the system impulse response can be seen in figure 6d .
+figure 6e and 6f respectively show the sar image and the detailed system impulse response applying the complete autofocus .
+thanks to the novel coarse compensation we can appreciate a resolution improvement of 7 % in slant range , and 11 % in azimuth .
+also a slight increment of the pslr is achieved .
+table 2 gives the exact measured values .
+5. real data using a ground mobile platform the lfm - cw radar has been installed in a car that has been used as mobile platform , see figure 7 .
+two real experiments have been carried out to evaluate the performance of our radar as sensor of a sar system .
+the nominal square resolution cell is 30 cm. the first experiment consists of obtaining a high resolution sar image of a zone with man - made objects and vegetation .
+figure 8 illustrates the sar image that has been achieved and an optical image to compare .
+most of the objects can be detected thanks to the high resolution .
+we can observe that many shadowing effects are presented because the system was being operating at ground level .
+furthermore , the noise level was high , but it is interesting to remark that the incidence angle was near to 90 degrees , that is , the waves were almost tangent to the terrain surface .
+therefore , the backscattering from the scene was very low .
+these two effects will not appear in uav or airborne operations .
+furthermore , this image has been processed without motion compensation because the movement errors were negligible .
+the second experiment consisted of illuminating a rustic scene with the radar .
+previously , one corner reflector was placed in the zone to measure the real impulse response of the system .
+this target was labeled c in figure 9a that shows an optical image of the zone .
+the point spread function ( psf ) of the system can be estimated by measuring the impulse response of the system to this reflector .
+figure 9a shows the optical image .
+figure 9b illustrates the movement error estimated by the proposed algorithm .
+figure 9c shows the sar image of the scene without motion compensation .
+also , a detail of the measured psf without motion compensation is shown in figure 9d .
+figure 9e shows the sar image of the scene with our motion compensation .
+the detail of the measured psf with motion compensation is shown in figure 9f .
+after motion compensation , the estimated psf shows that the system has a square resolution cell around the nominal ( 30 cm ) , and a pslr larger than 20 db. these two experiments have proved the feasibility and the right performance of the complete system , hardware and software , to use our miniaturized radar as a sar sensor in uav applications .
+4. conclusions a millimeter - wave lfm - cw radar has been described .
+some measurements of the subsystems have been presented .
+this sensor is modular , compact and lightweight , so it is very attractive for use in portable applications like uav operation .
+the radar has a cw configuration to provide enough power to operate at medium range .
+it works in millimeter - wave band , so a large rf bandwidth is transmitted and a high range resolution is achieved .
+this work is the first step towards proving the feasibility of our millimeter - wave lfm - cw radar as a sar sensor .
+the sensor has been integrated in a ground sar system using a car as mobile platform .
+ground sar systems have more shadowing effects , worse snr and smaller coverage than airborne systems .
+however , two high resolution ground sar images have been presented to demonstrate the performance of the system and the feasibility for uav applications .
+furthermore , an autofocus algorithm has been developed to correct movement errors larger than the resolution cell for uav applications .
+the paper describes the algorithm and shows the obtained results .
+this work has been supported by the project tec2005 - 07010 - c02 of the spanish national board of scientific and technology research .
+the optical images have been extracted from the spanish ministerio de medio ambiente y medio rural y marino 's farming land geographical information system ( sigpac ) .
+references 1 .
+moreira a. huang y. airborne sar processing of highly squinted data using a chirp scaling approach with integrated motion compensation ieee trans. geosci .
+remote sens .
+1994 32 1029 1040 2 .
+zaugg e.c. long d.g. full motion compensation for lfm - cw synthetic aperture radar proceedings of the ieee international geoscience and remote sensing symposiumbarcelona , spainjuly 2007 5198 5201 3 .
+almorox gonzalez p. gonzalez partida j.t. burgos garcia m. morena alvarez palencia c. arche andradas l. dorta naranjo b.p. portable high resolution lfm - cw radar sensor in millimeter - wave band proceedings of the international conference on sensor technologies and applicationsvalencia , spainoctober 2007 5 9 4 .
+gonzalez partida j.t. almorox gonzalez p. burgos garcia m. dorta naranjo b.p. ground sar system with tunable distance limits and low sampling rate proceedings of the iet international conference on radar systemsedinburgh , uk,october 2007 5 .
+wahl d.e. eichel p.h. ghiglia d.c. jakowatz c.v. phase gradient autofocus - a robust tool for high resolution sar phase correction ieee trans. aerosp. electron. syst .
+1994 30 827 835 6 .
+eichel p.h. ghiglia d.c. jakowatz c.v. speckle processing method for synthetic - aperture - radar phase correction opt. lett .
+1989 14 1 3 19749803 7 .
+carrara w.g. goodman r.s. majewski r.m. spotlight synthetic aperture radar : signal processing algorithms artech house london , uk 1995 8 .
+delisle g.y. haiqing wu. moving target imaging and trajectory computation using isar ieee trans. aerosp. electron. syst .
+1994 30 887 899 9 .
+munoz ferreras j.m. perez martinez f. extended envelope correlation for range bin alignment in isar proceedings of the iet international conference on radar systemsedinburgh , ukoctober 2007 10 .
+junfeng w. kasilingam d. global range alignment for isar ieee trans. aerosp. electron. syst .
+2003 39 351 357 11 .
+wehner d.r. high - resolution radar2nd ed. artech house boston , usa 1995 12 .
+skolnik m. radar handbook mcgraw - hill new york , ny , usa 1970 13 .
+asensio lopez a. blanco del campo a. gismero menoyo j. ramirez moran d. torregrosa penalva g. dorta naranjo b.p. carmona - duarte c. high range - resolution radar scheme for imaging with tunable distance limits electron. lett .
+2004 40 1085 1086 14 .
+brigham e.o. the fast fourier transform and its applications prentice hall englewood cliffs , nj : new york , ny , usa 1988 15 .
+cafforio c. prati c. rocca f. sar data focusing using seismic migration techniques ieee trans. aerosp. electron. syst .
+1991 27 194 207 16 .
+van rossum w.l. otten m.p.g. van bree r.j.p. extended pga for range migration algorithms ieee trans. aerosp. electron. syst .
+2006 42 478 488 17 .
+thompson d.g. bates j.s. arnold d.v. long d.g. extending the phase gradient autofocus algorithm for low - altitude stripmap mode sar proceedings of the ieee international geoscience and remote sensing symposiumhamburg , germanyjune - july 1999 564 566 18 .
+thompson d.g. bates j.s. arnold d.v. long d.g. robertson a. range dependent phase gradient autofocus proceedings of the ieee international geoscience and remote sensing symposiumseattle , wa , usajuly 1998 2634 2636 19 .
+zhishun s. zhaoda z. detecting the strong scatterers of target with isar proceedings of the ieee aerospace and electronics conferencedayton , oh , usamay 1995 992 995 20 .
+haiqing w. grenier d. delisle g.y. da - gang f. translational motion compensation in isar image processing ieee trans .
+image process .
+1995 4 1561 1571 18291988 21 .
+munoz - ferreras j.m. perez - martinez f. non - uniform rotation rate estimation for isar in case of slant range migration induced by angular motion iet proc .
+- radar sonar navig .
+2007 1 251 260 figure 1 .
+sar system block diagram .
+figure 2 .
+sensor pictures a ) rf subsystem b ) control subsystem .
+figure 3 .
+lfm - cw ( fc = 34 ghz , brf = 1.6 ghz ) measured in the transmitter subsystem .
+figure 4 .
+range alignment procedure .
+figure 5 .
+range dependant error due to non - ideal motion .
+figure 6 .
+simulated motion compensation : a ) sar image without motion compensation ; b ) detail of a target without motion compensation ; c ) sar image only with fine correction ; d ) detail of a target with only fine correction ; e ) sar image with coarse and fine correction ; f ) detail of a target with coarse and fine correction ; g ) movement errors .
+figure 7 .
+automobile sar system .
+figure 8 .
+area with man - made objects and vegetation a ) optical image b ) high resolution sar image .
+figure 9 .
+rustic area with corner reflector c a ) optical image b ) estimated motion error c ) sar image without motion compensation d ) detail of the corner reflector c response ( psf ) without motion compensation e ) sar image with motion compensation f ) detail of the corner reflector c response ( psf ) with motion compensation .
+table 1 .
+sar system parameters .
+parameters values central frequency fc 34 ghz transmitted power ptx 30 dbm waveform chirp maximum rf bandwidth brf 2 ghz sampling frequency fs 200 mhz antenna beamwidth theta3db ( azimuth , elevation ) ( 6 degrees , 8 degrees ) maximum azimuthal sampling interval deltax 2.1 cm maximum prf 5 khz maximum chirp rate gamma 10 mhz / mus table 2 .
+sar system impulse response measurements .
+coarse correction azimuth resolution ( cm ) slant range resolution ( cm ) azimuth pslr ( db ) slant range pslr ( db ) - 3 db - 9 db - 3 db - 9 db no 26.4 45.3 31.0 52.8 - 23.8 - 50 yes 24.4 41.8 27.7 46.8 - 24.4 - 50

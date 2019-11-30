@@ -1,0 +1,296 @@
+sensors ( basel ) sensors ( basel ) sensors ( basel , switzerland ) 1424 - 8220 mdpi 23877128 3758651 10.3390 / s130709321 sensors - 13 - 09321 article three dimensional gait analysis using wearable acceleration and gyro sensors based on quaternion calculations tadano shigeru 1 * takeda ryo 1 miyagawa hiroaki 2 1 division of human mechanical systems and design , faculty of engineering , hokkaido university , sapporo 060 - 8628 , japan ; e - mail : r.takeda @ eng.hokudai.ac.jp 2 division of human mechanical systems and design , graduate school of engineering , hokkaido university , sapporo 060 - 8628 , japan ; e - mail : vil.shineanyallright @ gmail.com * author to whom correspondence should be addressed ; e - mail : tadano @ eng.hokudai.ac.jp ; tel. / fax : + 81 - 11 - 706 - 6405 .
+7 2013 19 7 2013 13 7 9321 9343 03 6 2013 11 7 2013 17 7 2013 ( c ) 2013 by the authors ; licensee mdpi , basel , switzerland .
+2013 this article is an open access article distributed under the terms and conditions of the creative commons attribution license ( http :// creativecommons.org / licenses / by / 3.0 /) .
+this paper proposes a method for three dimensional gait analysis using wearable sensors and quaternion calculations .
+seven sensor units consisting of a tri - axial acceleration and gyro sensors , were fixed to the lower limbs .
+the acceleration and angular velocity data of each sensor unit were measured during level walking .
+the initial orientations of the sensor units were estimated using acceleration data during upright standing position and the angular displacements were estimated afterwards using angular velocity data during gait .
+here , an algorithm based on quaternion calculation was implemented for orientation estimation of the sensor units .
+the orientations of the sensor units were converted to the orientations of the body segments by a rotation matrix obtained from a calibration trial .
+body segment orientations were then used for constructing a three dimensional wire frame animation of the volunteers during the gait .
+gait analysis was conducted on five volunteers , and results were compared with those from a camera - based motion analysis system .
+comparisons were made for the joint trajectory in the horizontal and sagittal plane .
+the average rmse and correlation coefficient ( cc ) were 10.14 deg and 0.98 , 7.88 deg and 0.97 , 9.75 deg and 0.78 for the hip , knee and ankle flexion angles , respectively .
+gait analysis acceleration sensor gyro sensor quaternion lower limb joint angle 1 .
+introduction gait analysis is commonly done with an optical tracking system such as the vicon motion analysis system ( vicon motion systems , inc. , los angeles , ca , us ) .
+camera recordings of markers attached to a person are used to calculate three dimensional positions of body segments during gait .
+however , such systems are usually used indoors in controlled environments , and the camera capture range must be taken into consideration .
+an alternative is to use acceleration or angular velocity data measured from small inertial sensors attached directly to the body [ 1 - 4 ] .
+this method has the advantage of identifying human motion in a wide variety of environments .
+this method does not directly measure position , only acceleration or angular velocity data of body segments they are attached to , therefore , a major challenge is to translate these data into meaningful three dimensional positional data , such as the joint angles of the lower limbs during gait .
+this can then be used for evaluating differences in the gait ; for example patients with acl related injuries [ 5 ] .
+in theory it is possible to integrate angular velocity or double integrate acceleration data to calculate the orientation and position of an inertial sensor .
+tong and granat calculated lower limb body segments' orientations by integrating measured angular velocity from gyro sensors strapped to the thigh and shank [ 6 ] .
+however , it was reported that noise in the angular velocity data resulted in integration errors .
+this is believed to be caused by signal noises included in the raw acceleration or the angular velocity data .
+any small amount of signal noise will accumulate over time when integrated .
+this accumulation will cause the calculated results to deviate from the true value and is thus often referred to as drift .
+as a countermeasure , some have used the cyclical properties of gait for developing signal filters and algorithms .
+liu et al. developed a gait phase detection algorithm by using acceleration data to calculate the inclination of lower body segments during mid - stance of gait and corrected the gyro sensor drift [ 7 ] .
+takeda et al. developed an algorithm to obtain the gravitational acceleration component from cyclic patterns in acceleration data during gait [ 8 ] .
+this was then used to calculate the inclination of the sensors attached to the body segments .
+sabatini et al. , proposed using quaternions for calculating body segment orientations from angular velocity data of a body mounted gyroscope [ 9 ] .
+however , the proposed method used the cyclic properties of gait to compensate for drift .
+favre et al. used acceleration data to compensate for this drift in the angular velocity data but this compensation could only be implemented in situations where gravitational acceleration is the only component measured [ 10 ] .
+an alternative method , not using assumptions based on the cyclical properties of gait , is to estimate the acceleration signal output at the center of rotation of the knee from two inertial sensors attached to the thigh and shank [ 11,12 ] .
+this method proved useful in obtaining accurate knee joint measurements and was expanded to calculating three dimensional positions of the hip , knee and ankle joint centers in a global coordinate system [ 13 ] .
+though very accurate in calculating flexion - extension movements of the knee and hip as well as adduction - abduction movements of the hip , these methods did not consider the internal - external rotation of the leg .
+the issue of measuring internal - external rotation of the leg is not only a problem with wearable sensors but with cameras as well .
+however , recently a sensor system , mtx ( xsens technologies b.v. , enschede , netherlands ) , consisting of 3d gyro sensors , 3d acceleration sensors and 3d magnetic sensors , has been made commercially available .
+acceleration data and angular velocity in combination with the direction of the earth 's magnetic north is used to calculate the tri - axial orientation of the sensor , thus enabling calculation of all degrees of freedom ( dofs ; in the leg including internal - external rotation .
+picerno et al. reported the high reliability and accuracy in using such sensor systems for gait analysis with specific anatomical calibration of the lower limbs [ 14 ] .
+in addition , acceleration gyro and magnetic sensors proved useful in calculating the kinematics of the arm [ 15,16 ] .
+however , brodie et al. reported that when compared with a camera based analysis , three dimensional orientation accuracy errors existed , even during static states [ 17 ] .
+avoiding such errors required recalibration of the sensors on a regular basis , and required a homogeneous magnetic environment which is not realistic for monitoring gait in everyday situations .
+the work presented here is a pilot study on a new theoretical approach for calculating the 3 - dimensional orientation of various body segments of the lower limb during gait using quaternions .
+the proposed approach developed a calibration method for deriving the relationship between the sensor coordinate system and the body segment coordinate system to minimize sensor attachment errors .
+in addition , the unique properties of quaternion allowed 3 - dimensional lower limb orientation calculations , not possible in previous studies [ 11 - 13 ] .
+the method only required the acceleration and angular velocity data measured from wearable sensor units , and did not rely on external sources such as magnetic fields .
+five healthy volunteers participated in the experiment and their gait motion was measured using the proposed method and a commercially available motion analysis system .
+2. method this method defines the gait posture as a product of initial posture and the subsequent angular displacement .
+first , the direction of gravitational acceleration , measured by acceleration sensors , was used to calculate initial posture of body segments .
+then , the angular displacement after initial posture was estimated using angular velocity measured by gyro sensors .
+signal processing was implemented on the raw angular velocity data to remove noise , consequently reducing drift .
+here , the angular displacement was expressed using a quaternion based posture expression .
+finally , the characteristic gait motion established by this work was displayed using a three dimensional wire frame model .
+2.1 .
+sensor system seven sensor units ( waa - 006 , wireless technologies , inc. , tokyo , japan ) were used for measuring linear acceleration and angular velocity .
+each sensor unit was 39 mm x 44 mm x 12 mm in dimension , weighed 20 g and could operate for 6 hours on a rechargeable internal lithium battery .
+the measurement range of the acceleration sensor was +/ - 2 g / 4 g in all axes with accuracies of 0.001 g / 0.002 g respectively .
+the gyro sensor range was +/ - 500 deg / s for the x , y axes with accuracies of 1.46 deg / s , and +/ - 300 deg / s for the z axis with an accuracy of 4.37 deg / s. the maximum sampling rate was 500 hz and the measured data could be transferred wirelessly ( bluetooth ver.2.0 + edr ) to a laptop computer in real time .
+2.2 .
+wire frame gait model a wire frame model of a volunteer is created to visually confirm the lower limb motion of gait and calculate joint angles .
+the model uses the orientations of each body segment and specific body measurements such as ; bicristal breadth , iliospinale breadth , iliospinale height , tibiale height and sphyrion height .
+sensor units are placed on seven predefined segments of a volunteer : pelvis ( pe ; posterior center point between the left and right iliac crest ) both thighs ( rt , lt ; top of the center of the quadriceps ) , both shanks ( rs , ls ; anterior side of the tibia bone ) , both feet ( rf , lf ; dorsum side of the foot ) .
+these locations were chosen to minimize the effects of muscle movement to the sensor units .
+three different coordinate systems were used ( figure 1 ) .
+first , the sensor coordinate system represents the three orthogonal axes in which the acceleration and angular velocity are measured .
+second is the segment coordinate system for the body segments that each sensor is attached to and last is the global coordinate system .
+2.3 .
+calibration of the coordinate systems a calibration procedure for establishing the relationship of the sensor coordinate system to the body segment coordinate system was conducted .
+previously , dejnabadi et al. used still camera images and markers , attached to anatomically characteristic locations of the lower limb , to estimate the coordinates of wearable sensors [ 18 ] .
+this work used a similar but more refined procedure to obtain the rotation matrix for converting the sensor to body segment coordinate system .
+the procedure was conducted as follows : first , the volunteers were asked to do a static calibration procedure of standing upright and sitting with outstretched legs where the gravitational acceleration vector gstand and gsit for the respective positions were measured ( figure 2a ) .
+in order to conduct a calibration for all sensors at once , the volunteers were instructed to stand up straight with their toes aligned and their feet in parallel for the standing posture .
+this procedure was conducted to align all the sensor units in 2 - d sagittal plane and minimize their attachment errors , caused by misalignments of coordinate systems between the sensor and body segments .
+for the sitting posture , volunteers were asked to put their hips on the edge of their chair while maintaining their knee and ankle joint angle the same for the standing posture .
+since gstand and gsit will differ in the sensor coordinate system between the two positions , as shown in figure 2b , the axes for the global coordinate system were defined as : z axis being the opposite direction of gstand , y axis the cross product of gstand and gsit , x axis as the cross product of z and y. as a result , a rotation matrix rsg for converting the three orthogonal axes of the sensor coordinate system to the global coordinate system was obtained .
+second , measurements of the lower limbs were required to calculate the body segment coordinate system .
+reflective markers were attached to anatomical characteristic positions of the lower limbs , and still digital images were taken from the front and side of the volunteer ( figure 2c ) .
+the 18 anatomical locations used for this method were : posterior iliac crest ( 2 ) , anterior superior iliac spine ( 2 ) , greater trochanter ( 2 ) , lateral epicondyle of femur ( 2 ) , medial epicondyle of femur ( 2 ) , lateral side of ankle ( 2 ) , medial side of ankle ( 2 ) and heel and toe ( 4 ). from the images , another rotation matrix rgb for converting the global to the body segment coordinate system was defined .
+finally by using the two rotation matrices , a rotation matrix rsb for converting the sensor to body segment coordinate system was established : ( 1 ) rsb = rsgrgb 2.4 .
+orientation calculation the orientation of a sensor unit thetat can be calculated by adding the initial orientation theta0with the subsequent angular displacement omega .
+therefore , the following equation can be used : ( 2 ) thetat = theta0 + integral0tomegadt 2.4.1 .
+initial sensor orientation using acceleration data the initial sensor orientation is calculated using the acceleration data as a measure for inclination .
+the acceleration measured by an acceleration sensor can be expressed by the following : ( 3 ) si = alphai - gi s being the sensor output , alpha the translational acceleration and g the gravitational acceleration along axis i ( i = x , y , z ) .
+during a static state , such as standing upright , alpha is 0 and only g is present : ( 4 ) thetai0 = arccosgi || g || equation ( 4 ) can be used to calculate the initial inclination thetai0 of axis i , thus giving initial orientation ( g is the resultant vector of gravitational acceleration ) .
+2.4.2 .
+angular displacement measurement using quaternion three dimensional rotation using quaternions can be expressed as follows [ 19 ] : ( 5 ) q = cosphi2 + nsinphi2 ( 6 ) r '= qrq * here q is the quaternion and empty the rotation of angle around unit vector n. q * is the conjugated quaternion of q and r ' is the vector after the rotation applied to ordinary vector r. in this work , the rotation around a given axis will be calculated from the angular velocity : ( 7 ) phi =|| omega || deltat in equation ( 7 ) , it is presumed that omega is the angular velocity vector calculated from the gyro sensor data at time deltat .
+if this is inserted into equation ( 5 ) we get the following : ( 8 ) q = cos || omega || deltat2 + omega || omega || sin || omega || deltat2 by continuously calculating q for each sampling rate after the initial orientation , the angular displacement is obtained .
+2.4.3 .
+noise reduction and signal filtering one of the major drawbacks of integration of angular velocity data from gyro sensors is drift .
+the noise included in the raw gyro sensor data accumulates over time with integration .
+in order to quantify the amount of drift , a simple bench - top procedure was conducted on the sensors .
+the bench - top calibration procedure involved a single link pendulum with the wearable sensors and optical tracking markers attached to the swing link .
+an infrared ccd camera was used to record the optical tracking markers to give the reference angle of the pendulum .
+the angular velocity and pendulum angle was calculated and the results are shown in figure 3a .
+the angular velocity showed high agreement with the reference ( correlation coefficient ( cc ) : 0.98 , rmse : 0.31 deg / s ) .
+however , when integrating the angular velocity of the gyro sensors to calculate the pendulum angle , angular drift was present ( figure 3b ) .
+the angle drifted 4.47 deg in 14 s and the rmse was over 2.67 deg .
+even though the measurement time was short , drift had appeared .
+in this work , an iir ( infinite impulse response ) digital 4th order butterworth filter was used to remove noise from the raw gyro sensor data .
+this low pass filter was implemented using matlab , where the cutoff frequency was set to 12 hz through experimental rule .
+the filter was applied in both the forward and backward direction to cancel out any phase lag .
+in addition to this , an offset value was found in the gyro sensor data .
+when the sensors were kept at a static state , the measured data showed values near but not exactly at zero .
+therefore , the mode value of the gyro sensor data at a static state was calculated and subtracted from the measured data for each individual axis of each sensor unit .
+the effect of this noise reduction and signal filtering is shown in figure 3c,d .
+2.5 .
+visualization of gait motion an animation was created to visualize gait motion using the wire frame model for both this method and the camera based method for comparison .
+the process flow of this visualization is shown in figure 4 .
+firstly , the gait experiment provided the acceleration and angular velocity required for calculating the sensor orientation .
+secondly , the rotation matrix rsb , obtained using the method in section 2.3 , was used for converting the sensor orientation into the body segment coordinate system .
+finally , the gait motion , calculated from the method described in section 2.4 , along with the individual body measurements of a volunteer , will let us create a moving lower limb wire frame model in the global coordinate system .
+the anatomical characteristic points as seen in figure 2c were used in this process .
+after the visualization of gait was completed for this method , a similar model was created by using the camera based tracking method as well .
+3. experiments experiments were conducted indoors on a straight flat floor with five healthy volunteers with no history of physical disabilities or injuries .
+all volunteers gave informed consent for participation in the gait experiment and the information of each volunteer is shown in table 1 .
+the volunteers were asked to perform the calibration procedure of section 2.3 , then afterwards do one gait trial consisting of : standing still , walking in a straight line and then standing still again .
+elastic bands were used to fix the sensor units on top of the skin of seven body segments .
+reflective markers were placed on 18 anatomical characteristic positions ( the same position as those mentioned in section 2.3. ) of the lower limb and a camera based tracking system ( dipp - motion pro , ditect co. , ltd. , tokyo , japan ) was used to record the volunteer 's motion .
+this system consisted of six high speed ccd cameras connected to a workstation with motion analysis software [ 8,10,20 ] .
+the software included in this system automatically detects and gives the 3 - dimensional coordinate data of each marker .
+these coordinate data were then used to create a comparative wire frame model and calculate the joint angles .
+the cameras were operating at 30 fps , and walking distance was restricted to approximately 5 m due to the range of the cameras .
+the measurements from the cameras and the sensor units were synchronized using the acceleration data by detecting the heel contact timing of the first step of the volunteers' gait .
+4. results the wire frame representations of a volunteer 's gait using this method and camera system are shown in figure 5i .
+the wire frame models show an overlapping plot at 5 hz intervals .
+the wire frame representations of both methods are quite similar , however differences can be seen in the pelvis segment where the camera method is tilted more inwards .
+the amount of overlap is greater in this method due to longer measurement time than the camera .
+the hip joint center estimation was based on the method by leardini et al .
+[ 21 ] , the knee joint center was assumed to be the midpoint between the lateral and medial epicondyles , and the ankle joint center was assumed to be the midpoint between the lateral and medial ankle anatomical landmarks .
+figure 5ii,iii show the comparison between this method and camera system for the trajectories of the left and right great trochanter , knee joint center and ankle joint center in the sagittal plane .
+the results of this method seems to be shifted more to the positive z direction than the camera method , however the overall tendency is basically the same .
+in addition , the trajectories of this method show that the results for the right and left leg are symmetric .
+the comparison for the knee joint center and ankle joint center trajectories projected on the x - y plane are shown in figure 5iv,v , respectively .
+both sagittal and horizontal trajectories are of one gait cycle plotted at 20 hz. the results of this method seems to be shifted more to the positive x direction than the camera , however the length and width of the trajectories are almost the same .
+the knee and ankle joint angles during one gait cycle , for both camera and this method , are shown in figure 6 , respectively .
+the vertical axis represents angles in degrees while the horizontal axis represents the percentage of one gait cycle .
+table 2 shows the root mean square error ( rmse ) and correlation coefficient ( cc ) between the joint angles calculated using this method and that of camera system .
+the results are for all five volunteers and for one gait cycle of each leg .
+the average rmse and cc for each joint of both legs were ; hip = 10.14 deg and 0.98 , knee = 7.88 deg and 0.97 , ankle = 9.75 deg and 0.78 respectively .
+5. conclusions and outlook high cc was observed for all volunteers , however there was variation in the rmse .
+high cc can be interpreted as the method presented here being high in reliability .
+the variation in the rmse is believed to be caused by inaccuracies in calculating the lower limb measurements from camera images .
+this is because the calculating rotation matrix rsb relies on still camera images and acceleration data only .
+the underlining assumption in this calibration was that the sensors will only rotate orthogonally to the sagittal plane of the volunteer during the sitting and standing positions .
+if any other rotations , such as internal - external rotation of the hip and knee , are different in the two postures it would result in errors in the calibration .
+another observation is that the cc for the ankle joint was lower than those of the hip or knee joint .
+there are two possible reasons for this : inaccuracies in the camera or the sensors .
+since the accuracy of camera based tracking relies on the pixel resolution , the bigger the field of view the more information one pixel will hold , thus lowering the measurement accuracy .
+in addition , often the most distal segments of the limb move the most during gait , therefore they are more likely to have the images distorted when they are photographed at the edge of the lens .
+another , reason may be because the camera based motion tracking was done at 30 hz , which may have been too low .
+though not present in the figures , the angular velocities were more problematic as the sensors were placed at the distal parts of the limbs .
+this is due to the fact that as the angular velocities detected on the rf and lf were much higher than those attached to the rt , lt , rs , ls velocities .
+therefore rf and lf are more vulnerable to errors during gait motion .
+the larger angular velocity detected on the rf and lf are believed to be caused by the heel contact and toe off timing of the stance phase .
+during heel contact the ankle quickly does a planar flexion motion to flatten out the foot .
+during toe off the ankle again does a quick planar flexion motion to push the foot off into the swing phase .
+these results seem to concur with previous findings , where it was reported that the foot angular velocity was higher than those of the shank or the thigh [ 22,23 ] .
+this effect can also be seen in the differences in the ankle joint trajectories in the horizontal plane in figure 5v .
+one of the improvements that the implementations of quaternions allowed for was the representation of three dimensional rotations while avoiding singularities .
+previously , the calculation of internal - external hip joint rotation was not possible [ 8,13 ] .
+therefore , quaternions allowed for a more accurate representation of joint motion .
+instead of directly comparing the internal - external rotation angles of each joint between this method and the camera , the authors believed that the horizontal trajectory representation will be more useful in recognizing the abnormalities in gait .
+the results from figure 5iv,v shows that this method can even detect differences in the joint trajectories between the left and right leg of healthy volunteers .
+for example , the onset of knee osteoarthritis ( oa ) can change the varus - valgus characteristic during gait [ 24,25 ] .
+since varus - valgus motion in the knee will affect the horizontal trajectory of the ankle , this system may enable clinicians to quantify the severity of oa. for clinical purposes it is preferable to make the results available in real time such as those proposed by kavanagh et al .
+[ 26 ] .
+however , currently the proposed method takes up to 2 hours to complete .
+in the future , we would like to shorten this time by pruning and simplifying the experimental procedures .
+the gait trials in this work were limited to only 5 m due to the capture range of the cameras .
+the work presented here is still in the pilot stages and the 5 m trials were only intended to verify how this method compares to a reference camera based capture system .
+this method has implemented sensor attachment error calibration ( section 2.3 ) and signal filtering ( section 2.4.3 ) to minimize the effects of sensor drift .
+however with all these precautions in place , there were differences to the camera based results .
+in particular the ankle joint angles showed significantly lower cc and larger rmse .
+this paper was not intended to propose a method for completely removing the sensor drift , but to just minimize its effects .
+since gait trials reported here are only conducted for 5 m , the drift effect might not have been apparent .
+application to longer distance gait trials is still unknown and this underlying limitation will have to be investigated to better assess the accuracy and repeatability .
+recently , there has also been a trend to use state observers and kalman filters in combination with inertial sensors for motion analysis [ 27 ] .
+the key to further increasing the measurement accuracy and shortening the calculation time may also lie here , however these methods require a good model of the expected motion to produce reliable results .
+even though vicon motion analysis systems are considered the gold standard for 3 - d motion tracking , there are many papers reporting its accuracy errors [ 28,29 ] .
+thus , the necessity of investigating the absolute accuracy for a wearable sensor system was in question .
+it is true that a wearable sensor system also suffers from many factors , such as : sensor attachment errors , regular calibration maintenance , external signal noise , signal filtering errors and integration drift .
+even the commercially available mtx system is reported to have significant errors [ 30,31 ] .
+therefore wearable sensor systems may never become more accurate than a camera based system .
+the objective of this study was to provide a fairly simple and relatively accurate method for quantifying gait .
+the proposed method showed that it can provide quantitative information such as differences in left / right hip , knee or ankle joint trajectories and the flexion / extension joint angles during a gait cycle .
+in addition , the gait wire frame model and the horizontal knee and ankle trajectories can identify abnormalities during gait .
+therefore , the next step is to evaluate the potential of the proposed method in clinical applications with a larger number of volunteers .
+the authors would like to thank hokkaido research organization / industrial research institute ( sapporo , japan ) for their support in the camera based tracking system .
+conflict of interests the authors declare no conflict of interest .
+references 1 .
+morris j.r.w. accelerometry - - a technique for the measurement of human body movements j. biomech .
+1973 6 729 736 4757490 2 .
+veltink p.h. bussmann h.b.j. de vries w. martens w.l.j. van lummel r.c. detection of static and dynamic activities using uniaxial accelerometers ieee trans. rehabil. eng .
+1996 4 375 385 8973963 3 .
+bouten c.v.c. koekkoek k.t.m. verduin m. kodde r. janssen j.d. a triaxial accelerometer and portable data processing unit for the assessment of daily physical activity ieee trans. biomed. eng .
+1997 44 136 147 9216127 4 .
+foerster f. smeja m. fahrenberg j. detection of posture and motion by accelerometry : a validation study in ambulatory monitoring comput. hum. behav .
+1999 15 571 583 5 .
+georgoulis a.d. ristanis s. moraiti c.o. paschos n. zampeli f. xergia s. georgiou s. patras k. vasiliadis h.s. mitsionis g. acl injury and reconstruction : clinical related in vivo biomechanics orthop. traumatol. surg. res .
+2010 96 119 128 6 .
+tong k. granat m.h. a practical gait analysis system using gyroscopes med. eng. phys .
+1999 21 87 94 10426508 7 .
+liu t. inoue y. shibata k. development of a wearable sensor system for quantitative gait analysis measurement 2009 42 978 988 8 .
+takeda r. tadano s. todoh m. morikawa m. nakayasu m. yoshinari s. gait analysis using gravitational acceleration measured by wearable sensors j. biomech .
+2009 42 223 233 19121522 9 .
+sabatini a.m. quaternion based attitude estimation algorithm applied to signals from body - mounted gyroscopes electron. lett .
+2004 40 584 586 10 .
+favre j. jolles b.m. siegrist o. animian k. quaternion - based fusion of gyroscopes and accelerometers to improve 3d angle measurement electron. lett .
+2006 42 612 614 11 .
+dejnabadi h. jolles b.m. casanova e. fua p. aminian k. estimation and visualization of sagittal kinematics of lower limbs orientation using body - fixed sensors ieee trans. biomed. eng .
+2006 53 1385 1393 16830942 12 .
+favre j. jolles b.m. aissaoui r. aminian k. ambulatory measurement of 3d knee joint angle j. biomech .
+2008 41 1029 1035 18222459 13 .
+takeda r. tadano s. natorigawa a. todoh m. yoshinari s. gait posture estimation using wearable acceleration and gyro sensors j. biomech .
+2009 42 2486 2494 19682694 14 .
+picerno p. cereatti a. cappozo a. joint kinematics estimate using wearable inertial and magnetic sensing modules gait posture 2008 28 588 595 18502130 15 .
+luinge h.j. veltink p.h. baten c.t.m. ambulatory measurement of arm orientation j. biomech .
+2007 40 78 85 16455089 16 .
+cutti a.g. giovanardi a. rocchi l. davalli a. sacchetti r. ambulatory measurement of shoulder and elbow kinematics through inertial and magnetic sensors med. biol. eng. comput .
+2008 46 169 178 18087742 17 .
+brodie m.a. walmsely a. page w. the static accuracy and calibration of inertial measurement units for 3d orientation .
+comput method. biomech. biomed. eng .
+2008 11 641 648 18 .
+dejnabadi h. jolles b.m. aminian k. a new approach to accurate measurement of uniaxial joint angles based on a combination of accelerometers and gyroscopes ieee trans. biomed. eng .
+2005 52 1478 1484 16119244 19 .
+altmann s.l. rotations , quaternions , and double groups clarendon press oxford , uk 1986 20 .
+sato y. aoki s. yanagihara d. gait modification during approach phase when stepping over an obstacle in rats neurosci. res .
+2012 72 263 269 22178543 21 .
+leardini a. cappozzo a. catani f. toksvig - larsen s. petitto a. sforza v. cassanelli g. giannini s. validation of a functional method for the estimation of hip joint centre location j. biomech .
+1999 32 99 103 10050957 22 .
+winter d.a. biomechanics and motor control of human movement john wiley & sons waterloo , on , canada 1990 23 .
+winter d.a. foot trajectory in human gait : a precise and multifactorial motor control task phys. ther .
+1992 72 45 53 1728048 24 .
+van der esch m. steultjens m. harlaar j. wolterbeek n. knol d. dekker j. varus - valgus motion and functional ability in patients with knee osteoarthritis ann. rheum. dis .
+2008 64 471 477 17604283 25 .
+creaby m.w. bennell k.l. hunt m.a. gait differs between unilateral and bilateral knee osteoarthritis arch. phys. med. rehabil .
+2012 93 822 827 22385873 26 .
+kavanagh j.j. morrison s. james d.a. barrett r.s. reliability of segmental accelerations measured using a new wireless gait analysis system j. biomech .
+2006 39 2863 2872 16253263 27 .
+cooper g. sheret i. mcmillian l. silverdis k. sha n. hodgins d. kenney l. howard d. inertial sensor - based knee flexion / extension angle estimation j. biomech .
+2009 42 2678 2685 19782986 28 .
+dorociak r.d. cuddeford t.j. determining 3 - d system accuracy for the vicon 370 system gait posture 1995 3 88 29 .
+windolf m. gotzen n. morlock m. systematic accuracy and precision analysis of video motion capturing systems - - exemplified on the vicon - 460 system j. biomech .
+2008 41 2776 2780 18672241 30 .
+brodie m.a. walmsely a. page w. dynamic accuracy of inertial measurement units during simple pendulum motion comput. method. biomech. biomed. eng .
+2008 11 235 242 31 .
+godwin a. agnew m. stevenson j. accuracy of inertial motion sensors in static , quasistatic , and complex dynamic motion j. biomech. eng .
+2009 131 10.1115 / 1.4000109 figure 1 .
+gait wire frame model and coordinate systems .
+the x , y , z coordinates represent the global coordinate system , where the x axis is the walking direction , the y axis is the left - lateral direction , and the z axis the direction opposite to gravity .
+pe , rt , lt , rs , ls , rf and lf represent the lower limb body segments .
+x , y , z represents the body segment coordinate system and xs , ys , zs represents the sensor coordinate system .
+figure 2 .
+sensor and global coordinate system calibration for lt .
+( a ) gravitational acceleration gstand and gsit are measured from acceleration sensors attached to a volunteer from two different postures .
+( b ) the axes for the global coordinate system are defined as : z the opposite direction of gstand , y the cross product of gstand and gsit and x the cross product of z and y .
+( c ) sensor attachment location and gait wire frame model .
+the wire frame model is created by connecting characteristic positions of the lower limb .
+sensor units are attached to seven body segments of the lower limb .
+figure 3 .
+sensor calibration results and signal filtering for noise reduction .
+( a ) comparison of the angular velocity results calculated from the gyro sensor and the reference ccd camera for a single link pendulum test .
+the vertical axis represents angular velocity while the horizontal axis represents the time .
+( b ) comparison of the pendulum link angle between gyro sensor and the ccd camera .
+the vertical axis represents angle while the horizontal axis represents the time .
+( c ) a raw gyro sensor before any signal filtering .
+( d ) the same gyro sensor data after applying an iir digital butterworth filter .
+the vertical axis represents angular velocity while the horizontal axis represents the time for both ( c,d ) .
+figure 4 .
+the process flow of gait experiment for visualization of gait motion using a gait wire frame model .
+acceleration and angular velocity data from the sensor coordinate system are converted to be expressed in the body segment coordinate system using rotation matrix rsb .
+gait motion on the wire frame model is constructed by segment orientation and length .
+figure 5 .
+the figures on the left are the results obtained using this method and the right are those of the camera system .
+( i ) the wire frame model representing gait of volunteers ( a - e ) .
+the plot of the greater trochanter ( gt ) , knee joint center and ankle joint center for the right leg ( ii ) and left leg ( iii ) during one gait cycle in the sagittal plane .
+the vertical axis represents the z axis and the horizontal axis represents the x axis in the global coordinate system .
+the plot of the knee joint center ( iv ) and ankle joint center ( v ) during one gait cycle in the horizontal plane .
+the vertical axis represents the x axis and the horizontal axis represents the y axis in the global coordinate system .
+the left knee is shown in red and the right in blue , the grey lines emanating from these lines represents the direction of the foot segment with respect to the ankle joint .
+figure 6 .
+comparison of the hip flexion / extension angle ( i ) , the knee flexion angle ( ii ) and ankle dorsi / plantar flexion angle ( iii ) during one gait cycle for volunteers ( a - e ) .
+the red line is the result obtained from this study and the dotted line is the results from the camera .
+for ( i ) and ( ii ) the vertical axis shows the flexion / extension angle , where 0 is the angle in the upright position and flexion is positive .
+for ( iii ) the vertical axis shows the dorsi / plantar flexion angle , where 0 is the angle in the upright position and dorsiflexion is positive .
+the horizontal axis shows the percentage of one gait cycle .
+table 1 .
+information of the volunteers .
+age , gender , past injuries , height , weight , bicristal breadth , iliospinale breadth , iliospinale height , tibiale height and sphyrion height are listed .
+volunteer ( a ) ( b ) ( c ) ( d ) ( e ) age 24 23 22 27 23 gender male male male male male past injuries none none none none none height ( cm ) 180.0 169.0 172.0 170.0 178.0 weight ( kg ) 67.0 62.0 61.0 62.0 69.0 bicristal breadth ( cm ) 29.7 28.9 29.9 29.9 29.6 iliospinale breadth ( cm ) 27.5 27.3 28.2 28.1 28.0 iliospinale height ( cm ) 98.5 92.0 96.0 92.2 103.3 tibiale height ( cm ) 46.5 45.5 44.1 42.0 46.7 sphyrion height ( cm ) 6.0 5.0 6.9 6.2 6.8 table 2 .
+analytical results of the joint angles obtained from this study and camera system .
+the root mean square error ( rmse ) in degrees and correlation coefficient are shown for the resultant angles of the hip , knee and ankle joint angles .
+the results are for all five volunteers and for one gait cycle of each leg .
+volunteer joint left leg right leg rmse ( deg ) cc rmse ( deg ) cc ( a ) hip 6.00 0.98 6.30 1.00 knee 4.10 1.00 9.80 1.00 ankle 6.90 0.83 9.60 0.85 ( b ) hip 8.20 0.99 14.60 0.96 knee 7.80 0.95 8.60 0.93 ankle 11.20 0.75 4.10 0.89 ( c ) hip 10.60 0.98 8.10 0.96 knee 8.00 0.98 5.20 0.98 ankle 6.60 0.76 8.10 0.44 ( d ) hip 4.20 0.97 6.80 0.99 knee 10.70 0.96 11.20 0.97 ankle 8.40 0.70 5.80 0.88 ( e ) hip 15.90 0.98 20.70 0.99 knee 4.90 0.98 8.50 0.98 ankle 23.40 0.83 13.40 0.83 average hip 8.98 0.98 11.30 0.98 knee 7.10 0.97 8.66 0.97 ankle 11.30 0.77 8.20 0.78

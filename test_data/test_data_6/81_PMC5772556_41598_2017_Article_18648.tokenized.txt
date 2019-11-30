@@ -1,0 +1,246 @@
+sci rep sci rep scientific reports 2045 - 2322 nature publishing group uk london 29343727 5772556 18648 10.1038 / s41598 - 017 - 18648 - 5 article predcrp : predicting and analysing the regulatory roles of crp from its binding sites in escherichia coli tsai ming - ju 1 wang jyun - rong 1 yang chi - dung 23 kao kuo - ching 1 huang wen - lin 4 huang hsi - yuan 5 tseng ching - ping 2 huang hsien - da 12 ho shinn - ying syho @ mail.nctu.edu.tw 12 1 0000 0001 2059 7017grid.260539.binstitute of bioinformatics and systems biology , national chiao tung university , hsinchu , taiwan 2 0000 0001 2059 7017grid.260539.bdepartment of biological science and technology , national chiao tung university , hsinchu , taiwan 3 0000000406229172grid.59784.37institute of population health sciences , national health research institutes , miaoli , taiwan 4 grid.440374.0department and institute of industrial engineering and management , minghsin university of science and technology , hsinchu , taiwan 5 0000 0004 0572 9415grid.411508.9department of laboratory medicine , china medical university hospital , taichung , taiwan 17 1 2018 17 1 2018 2018 8 951 4 7 2017 13 12 2017 ( c ) the author ( s ) 2018 open access this article is licensed under a creative commons attribution 4.0 international license , which permits use , sharing , adaptation , distribution and reproduction in any medium or format , as long as you give appropriate credit to the original author ( s ) and the source , provide a link to the creative commons license , and indicate if changes were made .
+the images or other third party material in this article are included in the article 's creative commons license , unless indicated otherwise in a credit line to the material .
+if material is not included in the article 's creative commons license and your intended use is not permitted by statutory regulation or exceeds the permitted use , you will need to obtain permission directly from the copyright holder .
+to view a copy of this license , visit http :// creativecommons.org / licenses / by / 4.0 / .
+cyclic amp receptor protein ( crp ) , a global regulator in escherichia coli , regulates more than 180 genes via two roles : activation and repression .
+few methods are available for predicting the regulatory roles from the binding sites of transcription factors .
+this work proposes an accurate method predcrp to derive an optimised model ( named predcrp - model ) and a set of four interpretable rules ( named predcrp - ruleset ) for predicting and analysing the regulatory roles of crp from sequences of crp - binding sites .
+a dataset consisting of 169 crp - binding sites with regulatory roles strongly supported by evidence was compiled .
+the predcrp - model , using 12 informative features of crp - binding sites , and cooperating with a support vector machine achieved a training and test accuracy of 0.98 and 0.93 , respectively .
+predcrp - ruleset has two activation rules and two repression rules derived using the 12 features and the decision tree method c4.5 .
+this work further screened and identified 23 previously unobserved regulatory interactions in escherichia coli .
+using quantitative pcr for validation , predcrp - model and predcrp - ruleset achieved a test accuracy of 0.96 (= 22 / 23 ) and 0.91 (= 21 / 23 ) , respectively .
+the proposed method is suitable for designing predictors for regulatory roles of all global regulators in escherichia coli .
+predcrp can be accessed at https :// github.com / nctuiclab / predcrp .
+issue - copyright - statement ( c ) the author ( s ) 2018 introduction cyclic amp receptor protein ( crp ) is one of the most important transcription factors ( tfs ) in escherichia coli ( e. coli ) .
+crp was the first purified1 , crystallised2 , and the most well - studied tf in e .
+coli3 - 9 .
+crp regulates more than 180 genes10 by cooperating with camp .
+the latter transduces intracellular signals by changing its intracellular concentration in response to environmental signals .
+once the concentration of intracellular camp changes , the production of the camp - crp complex will be affected10 - 14 .
+when the camp - crp complex acts on a binding site for gene regulation , it has one of two opposing regulatory roles : activation or repression15 .
+the crp - regulated genes are typically involved in energy - related metabolic pathways , such as galactose metabolism , citrate metabolism , and the phosphoenolpyruvate group translocation system16 .
+to predict the regulatory roles of crp , we first needed to know more about the crp - binding site .
+there are two categories of methods to identify the binding site of a specific tf. one category consists of the low - throughput methods such as the electrophoretic mobility shift assay and the dnase i footprinting assay17 .
+the other category comprise high - throughput methods such as the chromatin immunoprecipitation ( chip ) assay , a sequencing - based method ( chip - seq ) 18 and elegant computational methods focusing on predicting tf - binding sites19 - 21 .
+once information on the crp - binding sites has been obtained , we can further predict the regulatory roles of crp .
+there are two approaches to determining regulatory roles of a tf. one is a low - throughput approach such as the promoter - lacz fusion17 and quantitative pcr ( qpcr ) 22 .
+the other consists of a high - throughput approach such as gene expression analysis using rna - seq23 or microarray data .
+however , gene expression analysis has a limit in determining indirect effects such as co - expressed but not co - regulated genes24 .
+currently , the identification of directly co - regulated genes is particularly challenging24 .
+these observations imply that the determination of the regulatory roles of a tf on co - regulated genes is also a challenging problem .
+few methods are available for predicting the regulatory roles of a global tf from tf - binding sequences .
+the widely used 3 - class rules state that if a crp - binding site satisfies some conditions , crp tends to be an activator .
+the class i rule states that if the crp - binding site is located at position - 61.5 , then crp tends to be an activator25 - 27 .
+the class ii rule states that if the crp - binding site is located at position - 41.5 , then crp tends to be an activator25 - 27 .
+the class iii rule states that if a crp - dependent promoter has two or more crp - binding sites , then the promoter tends to be an activator25,27 .
+at present , there is no rule linking conditions in the camp - crp complex to it acting as a repressor25 - 27 .
+hence , we propose an accurate method , predcrp , to derive an optimised model ( named predcrp - model ) and a set of four interpretable rules ( named predcrp - ruleset ) for predicting and analysing the regulatory roles of crp from given sequences of crp - binding sites .
+the design of predcrp includes four parts ( see fig. 1 ) : ( 1 ) establishment of a dataset consisting of 169 crp - binding sites with regulatory roles strongly supported by evidence , ( 2 ) feature extraction from the crp - binding sites , ( 3 ) feature selection in cooperation with a support vector machine ( svm ) , and ( 4 ) rule acquisition based on the decision tree method c4.5 .
+more information about feature extraction , feature selection , and rule acquisition are found in the materials and methods section .
+figure 1 components for developing and evaluating the proposed predcrp method .
+( 1 ) establishment of the crps dataset consisting of 169 crp - binding sites with regulatory roles supported by strong evidence , ( 2 ) feature extraction from the training dataset cprs - trn , ( 3 ) feature selection in cooperation with an svm , ( 4 ) predcrp - ruleset obtained based on the decision tree method c4.5 , ( 5 ) predcrp - model evaluated by crp - binding sties with weak evidence ( the crpw dataset ) and ( 6 ) the qpcr experimental validation on the regulatory roles of crp .
+as a result , a set of 12 informative features was identified from 380 candidate features of crp - binding sites using an inheritable bi - objective combinatorial genetic algorithm ( ibcga ) 28 ( see the materials and methods section ) .
+various prediction models were evaluated to examine both prediction accuracy and interpretation ability .
+predcrp - model achieved a training and test accuracy of 0.98 and 0.93 , respectively .
+predcrp - ruleset covered 88 % of the crp - binding sites and achieved a training accuracy of 0.95 .
+among the four interpretable rules , the covered binding regions of two activation rules contain the regions of the widely used class i and ii rules of crp .
+the other two rules for the repression role are novel and describe the condition relating to the crp - binding site 's locations and sequence composition .
+furthermore , we used predcrp - model and predcrp - ruleset to screen and identify 23 previously unobserved regulatory interactions in e. coli and validated these regulatory roles using qpcr experiments .
+experimental results showed that 22 and 21 of the 23 interactions were correct using predcrp - model and predcrp - ruleset , respectively .
+results evaluation of predcrp - model twelve informative features were selected using the ibcga , which include eight of the 256 4 - mer motifs in the composition descriptor ( aacg , catt , gaac , gagc , tgcg , ttac , ttat , and tttt ) and four features in the location - dependent descriptor : ( 1 ) l3 : the size of the overlap region between the crp - binding site and the region from - 35 to - 10 ; ( 2 ) l6 : the size of the overlap region between the crp - binding site and the region from - 10 to 2 ; ( 3 ) l12 : the size of the overlap region between the crp - binding site and the region from - 60 to 60 ; and ( 4 ) l15 : the size of the overlap region between the crp - binding site and the region from - 95 to - 35 .
+tables 1 and 2 show the performance comparison among various feature sets with the svm classifier on the training ( crps - trn ) and test ( crps - tst ) datasets , respectively .
+the parameter settings of the svms for various feature sets except for predcrp - model were determined by a grid search method .
+the positive and negative sites are the binding sites on which crp act as a repressor and an activator , respectively .
+the all - feature svm model works as a baseline model .
+predcrp - model with the 12 informative features was significantly better than svms with various feature sets for both the training and test datasets ( tables 1 and 2 ) .
+predcrp - model achieved test acc and mcc values of 0.93 and 0.79 , respectively .
+the feature selection of predcrp enhanced the svm classifier with all features by test acc 0.13 (= 0.93 - 0.80 ) and mcc 0.53 (= 0.79 - 0.26 ) .
+the additional dataset ( named crps - tst - 2 ) was used to evaluate predcrp - model in this study .
+predcrp - model achieved test acc and mcc values of 0.97 and 0.91 , respectively .
+table 1 prediction performance comparisons between predcrp - model and the svm - based methods with various feature sets on the crps - trn dataset .
+feature set no. of features spe sen mcc acc predcrp - model 12 1.00 0.92 0.95 0.98 informative 4 - mer motifs 8 0.99 0.38 0.52 0.86 informative location features 4 1.00 0.29 0.49 0.85 all features ( baseline ) 380 0.98 0.29 0.41 0.83 composition descriptor 320 0.98 0.17 0.26 0.81 location - dependent descriptor 17 0.99 0.29 0.45 0.84 location - independent descriptor 363 0.99 0.17 0.31 0.81 table 2 prediction performance comparisons between predcrp - model and the svm - based method with various feature sets on the crps - tst dataset .
+feature set no. of features spe sen mcc acc predcrp - model 12 0.95 0.83 0.79 0.93 informative 4 - mer motifs 8 0.97 0.25 0.36 0.82 informative location features 4 0.98 0.25 0.36 0.82 all features ( baseline ) 380 0.98 0.17 0.26 0.80 composition descriptor 320 0.93 0.33 0.33 0.80 location - dependent descriptor 17 1.00 0.08 0.26 0.80 location - independent descriptor 363 0.93 0.33 0.33 0.80 to avoid threshold setting bias , we further compared performance in terms of the area under the receiver operating characteristic ( roc ) curve ( auc ) .
+as shown in fig. 2 , predcrp - model has the auc value of 0.90 with the test dataset , which is better than the svm method with other feature sets : 0.71 for eight informative 4 - mer motifs , 0.73 for four informative location features , 0.79 for all features , 0.61 for composition features , 0.79 for location - dependent features , and 0.70 for location - independent features .
+figure 2 roc curves of various methods using the crps - tst dataset .
+the aucs of predcrp - model and svms with informative 4 - mer motifs , informative location features , all features , composition feature , location - dependent feature , and location - independent feature were 0.71 , 0.73 , 0.90 , 0.79 , 0.61 , 0.79 , and 0.70 , respectively .
+the svms with the eight motif features and four location features yielded test accuracy of 0.82 and 0.82 , respectively .
+this result reveals that the use of the 4 - mer motifs or location features only cannot produce satisfactory prediction results .
+furthermore , the use of a combination of informative motif and location features is important for accurate prediction .
+predcrp - model makes the best use of both the informative 4 - mer motifs and location features .
+evaluation of predcrp - ruleset predcrp - ruleset has two activation rules and two repression rules obtained from the decision tree method c4.5 , along with the 12 informative features .
+each extracted interpretable rule corresponds to a specific path from the root to a specific leaf of the decision tree .
+each rule has its own cover ratio on the crps dataset consisting of 133 activators and 36 repressors .
+figure s1 shows the extracted rules for activators and repressors .
+after careful inference of the location and motif features , two activation rules and two repression rules with high cover ratios were derived , as shown in fig. 3. the detailed inference procedure is presented in supporting information , and the location criteria of activation rules 1 and 2 , and repression rules 1 and 2 are shown in the supplementary figures ( figures s2 , s3 , s4 , and s5 ) .
+figure 3 four interpretable rules for illustrating the regulatory roles of crp acting on the binding region .
+activation rule 1 the activation rule 1 ( a1 ) states that if a crp - binding site is located in binding regions denoted as location variable region , where region <= - 49.5 and region >= 49.5 , and the number of tttt motifs is smaller than or equal to 2 in a crp - binding site , then crp generally acts as an activator .
+a1 covers 66.2 % (= 88 / 133 ) of activators in the crps dataset and shows an accuracy of 93.6 % (= 88 / 94 ) .
+furthermore , the binding regions of a1 contain the region of the widely used class ii rule of crp .
+the region <= - 49.5 of a1 covers 87 activators and the region >= 49.5 covers only one activator .
+activation rule 2 the activation rule 2 ( a2 ) states that if a crp - binding site is located in the binding region of - 70.5 to - 28.5 and there is no aacg motif in the crp - binding site , then crp generally acts as an activator .
+a2 covers 23.3 % (= 31 / 133 ) of activators in the crps dataset and shows accuracy of 96.8 % (= 31 / 32 ) .
+furthermore , the binding region of a2 contains the region of the widely used class i rule of crp .
+repression rule 1 the repression rule 1 ( r1 ) states that if a crp - binding site is located in the binding regions , where 2 < region < 70.5 and - 49.5 <= region < - 10 , and there is no ttac motif in the crp - binding site , then crp generally acts as a repressor .
+r1 covers 38.9 % (= 14 / 36 ) of repressors in the crps dataset and shows accuracy of 93.3 % (= 14 / 15 ) .
+the binding region ( - 49.5 to - 10 ) strongly overlaps with the rna polymerase - binding site ( - 35 to - 10 ) .
+on the other hand , the binding region ( 2 to 70.5 ) is located downstream of the transcription start site .
+therefore , when crp binds to these regions , it may block the transcription process .
+the 2 < region < 70.5 of r1 covers five repressors , and the - 49.5 <= region < - 10 covers nine repressors .
+repression rule 2 the repression rule 2 ( r2 ) states that if a crp - binding site is located in the binding region of - 31 to 23 and if neither ttac nor gagc motif is present in this crp - binding site , then crp generally acts as a repressor .
+r2 covers 19.4 % (= 7 / 36 ) of repressors in the crps dataset and shows accuracy of 100 % (= 7 / 7 ) .
+this binding region of - 31 to 23 also strongly overlaps with the rna polymerase - binding site ( - 35 to - 10 ) .
+hence , when crp binds to the region ( - 31 to 23 ) , it may block the transcription process .
+validation of the predicted regulatory roles of crp by quantitative pcr experiments this work utilised the interpretable rules to predict the regulatory roles of crp acting on 23 crp - binding sites with weak evidence .
+the predicted roles of crp were validated by quantitative pcr experiments .
+the results show that the prediction accuracy of predcrp - model is as high as 0.96 (= 22 / 23 ) .
+the only wrong prediction of crp - binding sites occurred on the ldtb gene in which crp acts as a repressor based on qpcr validation , but predcrp - model predicted an activator role .
+on the other hand , the prediction accuracy of the predcrp - ruleset is 0.91 (= 21 / 23 ) .
+the wrong prediction of crp - binding sites occurred on the ldtb and exut genes .
+based on the qpcr validation , the regulatory roles of crp acting on the ldtb and exut genes are repressor and activator , respectively , which predcrp - ruleset predicted to have opposite roles .
+the results of the qpcr experiments are shown in fig. 4 and table s2 , and the inference of relative quantity in qpcr is in the supporting information .
+figure 4 the quantitative pcr experiments for determining the regulatory roles of crp on the 23 previously unobserved regulatory interactions in e. coli .
+the y - axis represents the relative quantity .
+the whiskers are the standard deviation of relative quantity .
+the black bars belong to the control group ( 0 mm camp concentration ) , and the white bars belong to the case group ( 1 mm camp concentration ) .
+discussion considering the trade - off between prediction accuracy and interpretation ability , both an svm model and a set of interpretable rules were proposed .
+predcrp - model had a higher accuracy of 0.96 (= 22 / 23 ) but with less interpretation ability .
+predcrp - ruleset obtained satisfactory accuracy of 0.91 (= 21 / 23 ) and also provides a cover ratio that biologists can easily analyse for the regulatory roles of crp - binding sites .
+the regulatory role of crp acting on ldtb was wrongly predicted using predcrp - model .
+on the other hand , the regulatory roles of crp acting on both ldtb and exut were wrongly predicted using predcrp - ruleset .
+the crp - binding site of ldtb has no informative 4 - mer motifs ( aacg , catt , gaac , gagc , tgcg , ttac , ttat , or tttt ) , which satisfies the motif conditions of the four rules .
+nonetheless , its location satisfies the a2 rule only .
+the ldtb gene is annotated with the following go terms : go : 0006508 ( proteolysis ) , go : 0009252 ( peptidoglycan biosynthetic process ) , go : 0043164 ( gram - negative - bacterium - type cell wall biogenesis ) , and go : 0030288 ( outer membrane - bounded periplasmic space ) .
+these processes take place in the outer - membrane - bounded periplasmic space and may involve more complex regulatory mechanisms rather than the simple blocking mechanism suggested by our two repression rules .
+on the other hand , both the informative 4 - mer motifs tttt and catt appeared once on the crp - binding site of exut .
+similarly , exut is also annotated with membrane - related go terms ( go : 0055085 - transmembrane transport , go : 0015736 - hexuronate transport , and go : 0005886 - plasma membrane ) .
+we assume that exut may involve more complex activation mechanisms rather than class i and ii mechanisms .
+the predcrp method can be applied to predict the regulatory roles of other global regulators in e. coli .
+first , one can download the dataset of tf - binding sites from regulondb , and use the feature extraction programme from https :// github.com / nctuiclab / predcrp .
+this programme can retrieve the tfs of interest with a given evidence level ( strong or weak ) .
+consequently , one can use a similar process like that described in the materials and methods section to train a predictor of regulatory roles .
+materials and methods figure 1 illustrates the main components of predcrp , consisting of an accurate model ( predcrp - model ) and a set of interpretable rules ( predcrp - ruleset ) , including ( 1 ) establishment of datasets of crp - binding sites , ( 2 ) feature extraction from crp - binding sites , ( 3 ) feature selection in cooperation with an svm , ( 4 ) predcrp - ruleset based on the decision tree method c4.5 , ( 5 ) an accurate predcrp - model and ( 6 ) experimental validation of the regulatory roles of crp .
+to provide the crp prediction service to the scientific community , predcrp - model can be accessed and downloaded at https :// github.com / nctuiclab / predcrp .
+datasets of crp - binding sites a dataset ( named crps ) consisting of 169 crp - binding sites with regulatory roles supported by strong evidence was established to train and evaluate this work .
+the crps dataset was retrieved from the regulondb database ( version 8.8 ) 29 , containing up - to - date information on e. coli .
+the retrieval procedure of crps was given as follows : step 1 : retrieve tf - binding sites where the " tf name " column was annotated with ' crp ' from the regulondb database .
+step 2 : categorise crp - binding sites into strong and weak evidence groups using the " evidence " property obtained from the regulondb database .
+step 3 : remove redundant crp - binding sites with the same transcription start site by checking the leftmost and rightmost positions in the genome .
+step 4 : filter out the crp - binding sites with lengths not equal to 22 base pairs .
+the strong - evidence group in the regulondb v8.8 database is the set of sites selected by performing mutation experiments on tf - binding sites29 .
+as a result , the crps dataset consisting of 169 crp - binding sites was randomly divided into training and test datasets in a ratio of 2:1 , referred to as crps - trn and crps - tst , respectively .
+crps - trn consists of 24 repression sites and 89 activation sites , while crps - tst consists of 12 repression sites and 44 activation sites .
+the crps dataset was subsequently used to design and evaluate this work .
+an additional dataset ( crps - tst - 2 ) was used as an independent test for evaluating the predcrp - model .
+the crps - tst - 2 dataset consists of the strong evidence crp - binding sites that appeared in version 9.4 but not version 8.8 of the regulondb database .
+crps - tst - 2 contains 12 sites of activation and 8 sites of repression .
+to explore the regulatory roles of crp on all crp - regulated genes , we enumerated all possible crp - binding sites and screened putative ones using interpretable rules .
+the possible crp - binding sites were first retrieved from the regulondb database with weak - evidence annotation ( crpw ) .
+the weak evidence was annotated using the following methods29 : ( 1 ) binding in cellular extracts , ( 2 ) gene expression analysis , ( 3 ) similarity to consensus sequences , ( 4 ) reaction blocked in a mutant , ( 5 ) inferred by a curator , ( 6 ) inferred from a mutant phenotype , and ( 7 ) prediction results .
+the conserved sequence of crp - binding sites , - nnntg5tg7annnnnntc16ac18annn - , a well - known palindromic sequence , is bound by crp25 - 27 .
+in this consensus sequence , the nucleic acid g at positions 5 and 7 and the nucleic acid c at positions 16 and 18 play crucial roles in providing binding free energy between crp and the crp - binding site30 - 32 .
+the detailed crp - binding ability in these four positions is provided in supporting information .
+the consensus sequence criterion can help to determine whether a site is a binding site or not but cannot determine the regulatory roles of crp directly .
+we selected only the four important sites in which the nucleic acids at positions 5 , 7 , 16 and 18 were g , g , c , and c , respectively .
+consequently , 23 previously unobserved , putative crp - binding sites with regulatory roles predicted by predcrp - model and predcrp - ruleset were identified .
+although the 23 putative crp - binding sites have high probability to be crp - binding sites according to the consensus sequence criterion , we further proved the 23 sites as crp - binding sites by referring to the ecocyc database ( see supporting information ) .
+the 23 predicted crp - regulated interactions are given in figure s6 , which were validated by qpcr experiments .
+feature extraction from crp - binding sites a comprehensive feature set of crp - binding sites was established , comprising 380 features , including 17 features from a location - dependent descriptor ( table s3 ) 18 , three features from a physicochemical property descriptor , 320 features from the composition descriptors ( 256 features of 4 - mer motif composition descriptor and 64 features of the 3 - mer motif composition descriptor ) , and 40 features from a global sequence descriptor .
+this work extended the length of crp - binding sites from 22 to 42 base pairs by respectively adding k base pairs of flanking nucleotides to the regions upstream and downstream of a crp - binding site for considering interactions within a cis - regulatory region18 .
+in this work , k = 10 was used .
+the detailed feature extraction is given in supplementary information .
+feature selection in cooperation with a support vector machine selecting a minimal set of m informative features from n = 380 features while maximising the prediction accuracy of the svm classifier using these m features is a bi - objective combinatorial optimisation problem c ( n , m ) .
+to deal with this large parameter optimisation problem , the inheritable bi - objective combinatorial genetic algorithm ( ibcga ) was used28 .
+the ibcga , using an intelligent evolutionary algorithm33 , can simultaneously obtain a set of solutions , sr , where r = rstart , rstart + 1 , ... , rend in a single run using an inheritance mechanism to efficiently search for the solution sr + 1 to c ( n , r + 1 ) by inheriting a good solution sr to c ( n , r ) .
+sm is the best solution among solutions sr. the ibcga can efficiently solve large - scale feature selection problems and is useful for deriving an optimised svm model34,35 .
+the intelligent evolutionary algorithm is good at solving large parameter optimisation problems , such as inferring roles within a large - scale quantitative gene regulatory work36 .
+the optimised svm classifier with the m selected informative features is evaluated using the following measurements : prediction accuracy ( acc ) , sensitivity ( sen ) , specificity , and matthews 's correlation coefficient37 .
+to provide prediction service to the scientific community , we developed a user - friendly tool based on the svm model .
+the detailed algorithm is shown in supporting information .
+the parameter settings of the feature selection module are shown in table s4 .
+predcrp - ruleset based on c4.5 the m informative features for predicting the regulatory roles of crp and crps were utilised to develop a rule acquisition method based on the decision tree method c4.538 .
+a set of if - then rules for distinguishing activators from repressors can be derived from the established decision tree .
+the interpretable if - then rules are used to further elucidate the regulatory roles of crp .
+an accurate model predcrp - model in this work , the fitness function of the ibcga is the prediction accuracy of k - fold cross - validation .
+the numbers of repressors and activators for training the svm model are 24 and 89 , respectively .
+to maximise the number of training repressors used , k = 24 was used in this study .
+the input of the ibcga is n - dimensional feature vectors of crp - binding sites with regulatory roles in crps - trn , and the output contains a set of m selected features and an svm - based classifier with associated parameter settings of gamma and c. predcrp - model is the optimised svm classifier with the m selected informative features .
+predcrp - model is evaluated using the following measurements : prediction accuracy ( acc ) , sensitivity ( sen ) , specificity , and matthews 's correlation coefficient37 .
+experimental validation of the regulatory roles of crp experimental design of quantitative pcr experiments crp is a well - known tf governing carbohydrate metabolism39 .
+when e. coli grows in a medium containing glucose , the intracellular camp concentration is low40 .
+the dna - binding ability of crp is regulated by the camp concentration39,41 .
+a quantitative measurement of crp - mediated transcriptional regulation was performed by measuring the gene expression level in an e. coli k12 strain lacking the cyaa gene producing endogenous camp42 , under various camp concentrations .
+mutant strains used were e. coli bw25113 derivatives generated from the keio collection system and provided by the national institute of genetics of japan43 .
+the regulatory roles of crp on a crp - regulated gene can be determined using the difference between the expression levels of the wild type with the camp concentrations of 0 and 1 mm. quantitative measurement of gene expression levels the quantitative pcr method can obtain expression profiles of genes of interest in a high - throughput and accurate manner22 .
+in this work , the same experimental conditions were used44 .
+rna isolation was based on the suggested protocol in the tri reagent - rna kit ( molecular research center , cincinnati , oh , usa ) .
+rna samples for quantitative pcr were pre - treated with dnase i ( promega , madison , wi , usa ) .
+the dna primers used in the quantitative pcr were designed by primer express software ( applied biosystems , foster city , ca , usa ) and their complements ( table s5 ) .
+dna was synthesised using superscript iii reverse transcriptase ( invitrogen , carlsbad , ca , usa ) .
+the quantitative pcr experiments were conducted in an abi prism ( r ) 7000 instrument ( applied biosystems , foster city , ca , usa ) using the sybr premix ex taq reagent ( takara , tokyo , japan ) .
+all quantitative pcr experiments were performed with two replicates .
+electronic supplementary material supporting information electronic supplementary material supplementary information accompanies this paper at 10.1038 / s41598 - 017 - 18648 - 5 .
+publisher 's note : springer nature remains neutral with regard to jurisdictional claims in published maps and institutional affiliations .
+acknowledgements this work was funded by the ministry of science technology , r.o.c. under the contract number most - 105 - 2221 - e - 009 - 138 - my2 , most - 105 - 2627 - m - 009 - 007 , most - 106 - 2627 - m - 009 - 002 , most - 106 - 2319 - b - 400 - 001 , most - 106 - 2633 - b - 009 - 001 , most - 106 - 3114 - e - 029 - 001 , most - 105 - 2218 - e - 009 - 034 - and most - 105 - 2627 - m - 009 - 008 and supported by " aiming for the top university program " of the national chiao tung university and ministry of education , taiwan , r.o.c. under the contract number mohw106 - tdu - b - 212 - 144005 and 105w962 .
+author contributions m.j.t. , j.r.w. and s.y.h. designed this research .
+c.d.y. , h.d.h. , and c.p.t. designed and performed the qpcr experiments .
+m.j.t. , j.r.w. , h.s.h. , and k.c.k. performed the computational experiments .
+m.j.t. , j.r.w. , c.d.y. , k.c.k. , w.l.h. , h.s.h. , c.p.t. , h.d.h. , and s.y.h. participated in manuscript preparation .
+all authors have read and approved the final manuscript .
+competing interests the authors declare that they have no competing interests .
+references 1 .
+zubay gsd beckwith j mechanism of activation of catabolite - sensitive genes : a positive control system proceedings of the national academy of sciences of the united states of america 1970 66 104 110 10.1073 / pnas.66.1.104 4320461 2 .
+mckay db steitz ta structure of catabolite gene activator protein at 2.9 a resolution suggests binding to left - handed b - dna nature 1981 290 744 749 10.1038 / 290744a0 6261152 3 .
+fic e camp receptor protein from escherichia coli as a model of signal transduction in proteins - a review journal of molecular microbiology and biotechnology 2009 17 1 11 10.1159 / 000178014 19033675 4 .
+won hs lee ys lee sh lee bj structural overview on the allosteric activation of cyclic amp receptor protein biochimica et biophysica acta - proteins and proteomics 2009 1794 1299 1308 10.1016 / j.bbapap.2009.04.015 5 .
+deutscher j the mechanisms of carbon catabolite repression in bacteria current opinion in microbiology 2008 11 87 93 10.1016 / j.mib.2008.02.007 18359269 6 .
+shimada , t. , fujita , n. , yamamoto , k .
+& ishihama , a. novel roles of camp receptor protein ( crp ) in regulation of transport and metabolism of carbon sources .
+plos one6 ( 2011 ) .
+7. wu , r. et al. direct regulation of the natural competence regulator gene tfox by cyclic amp ( camp ) and camp receptor protein ( crp ) in vibrios .
+scientific reports5 ( 2015 ) .
+8. yang cd chen yh huang hy huang hd tseng cp crp represses the crispr / cas system in escherichia coli : evidence that endogenous crispr spacers impede phage p1 replication molecular microbiology 2014 92 1072 1091 10.1111 / mmi.12614 24720807 9 .
+patterson ag chang jt taylor c fineran pc regulation of the type i - f crispr - cas system by crp - camp and gaim controls spacer acquisition and interference nucleic acids research 2015 43 6038 6048 10.1093 / nar / gkv517 26007654 10 .
+hantke k winkler k schultz je escherichia coli exports cyclic amp via tolc journal of bacteriology 2011 193 1086 1089 10.1128 / jb.01399 - 10 21183666 11 .
+busby s ebright rh transcription activation at class ii cap - dependent promoters molecular microbiology 1997 23 853 859 10.1046 / j.1365 - 2958.1997.2771641.x 9076723 12 .
+harman jg allosteric regulation of the camp receptor protein biochimica et biophysica acta - protein structure and molecular enzymology 2001 1547 1 17 10.1016 / s0167 - 4838 ( 01 ) 00187 - x 13 .
+kolb a busby s buc h garges s adhya s transcriptional regulation by camp and its receptor protein annual review of biochemistry 1993 62 749 795 10.1146 / annurev.bi.62.070193.003533 8394684 14 .
+krueger s entropic nature of the interaction between promoter bound crp mutants and rna polymerase biochemistry 2003 42 1958 1968 10.1021 / bi026755v 12590582 15 .
+mori k aiba h evidence for negative control of cya transcription by camp and camp receptor protein in intact escherichia - coli - cells journal of biological chemistry 1985 260 4838 4843 16 .
+saier mh multiple mechanisms controlling carbon metabolism in bacteria biotechnology and bioengineering 1998 58 170 174 10.1002 /( sici ) 1097 - 0290 ( 19980420 ) 58:2 / 3 < 170 : : aid - bit9 > 3.0.co ; 2 - i 10191387 17 .
+manso i garcia jl galan b escherichia coli mhpr gene expression is regulated by catabolite repression mediated by the camp - crp complex microbiology - sgm 2011 157 593 600 10.1099 / mic.0.043620 - 0 18 .
+van hijum saft medema mh kuipers op mechanisms and evolution of control logic in prokaryotic transcriptional regulation microbiology and molecular biology reviews 2009 73 481 - + 10.1128 / mmbr.00037 - 08 19721087 19 .
+mendoza - vargas , a. et al. genome - wide identification of transcription start sites , promoters and transcription factor binding sites in e. coli .
+plos one4 , 10.1371 / journal.pone.0007526 ( 2009 ) .
+20. stormo gd dna binding sites : representation and discovery bioinformatics 2000 16 16 23 10.1093 / bioinformatics / 16.1.16 10812473 21 .
+hallikas o genome - wide prediction of mammalian enhancers based on analysis of transcription - factor binding affinity cell 2006 124 47 59 10.1016 / j.cell.2005.10.042 16413481 22 .
+vandesompele j accurate normalization of real - time quantitative rt - pcr data by geometric averaging of multiple internal control genes genome biology 2002 3 12 10.1186 / gb - 2002 - 3 - 7 - research0034 23 .
+bar - joseph z gitter a simon i study designs studying and modelling dynamic biological processes using time - series gene expression data nature reviews genetics 2012 13 552 564 10.1038 / nrg3244 22805708 24 .
+imam , s. , noguera , d. r. & donohue , t. j. an integrated approach to reconstructing genome - scale transcriptional regulatory networks .
+plos computational biology11 , 10.1371 / journal.pcbi.1004103 ( 2015 ) .
+25. savery nj transcription activation at class ii crp - dependent promoters : identification of determinants in the c - terminal domain of the rna polymerase alpha subunit the embo journal 1998 17 3439 3447 10.1093 / emboj / 17.12.3439 9628879 26 .
+zheng d constantinidou c hobman jl minchin sd identification of the crp regulon using in vitro and in vivo transcriptional profiling nucleic acids res .
+2004 32 5874 5893 10.1093 / nar / gkh908 15520470 27 .
+busby s ebright rh transcription activation by catabolite activator protein ( cap ) journal of molecular biology 1999 293 199 213 10.1006 / jmbi.1999.3161 10550204 28 .
+ho sy chen jh huang mh inheritable genetic algorithm for biobjective 0 / 1 combinatorial optimization problems and its applications ieee transactions on systems man and cybernetics part b - cybernetics 2004 34 609 620 10.1109 / tsmcb.2003.817090 29 .
+salgado h regulondbv8.0 : omics data sets , evolutionary conservation , regulatory phrases , cross - validated gold standards and more nucleic acids research 2013 41 d203 d213 10.1093 / nar / gks1201 23203884 30 .
+gartenberg mr crothers dm dna sequence determinants of cap - induced bending and protein binding affinity nature 1988 333 824 829 10.1038 / 333824a0 2838756 31 .
+gunasekera a ebright yw ebright rh dna sequence determinants for binding of the escherichia coli catabolite gene activator protein j. biol. chem .
+1992 267 14713 14720 1321815 32 .
+yao ef denison ms dna sequence determinants for binding of transformed ah receptor to a dioxin - responsive enhancer biochemistry 1992 31 5060 5067 10.1021 / bi00136a019 1318077 33 .
+ho sy shu ls chen jh intelligent evolutionary algorithms for large parameter optimization problems ieee transactions on evolutionary computation 2004 8 522 541 10.1109 / tevc.2004.835176 34 .
+tung cw ho sy popi : predicting immunogenicity of mhc class i binding peptides by mining informative physicochemical properties bioinformatics 2007 23 942 949 10.1093 / bioinformatics / btm061 17384427 35 .
+wang jr esa - ubisite : accurate prediction of human ubiquitination sites by identifying a set of effective negatives bioinformatics 2017 33 661 668 28062441 36 .
+chen yh yang cd tseng cp huang hd ho sy genosa : inferring and experimentally supporting quantitative gene regulatory networks in prokaryotes bioinformatics 2015 31 2151 2158 10.1093 / bioinformatics / btv075 25717191 37 .
+kalir s ordering genes in a flagella pathway by analysis of expression kinetics from living bacteria science 2001 292 2080 2083 10.1126 / science.1058758 11408658 38 .
+jr , q .
+c4.5 : programs for machine learing .
+( morgan kaufmann publishers , 1993 ) .
+39. kolb a busby s buc h garges s adhya s transcriptional regulation by camp and its receptor protein annual review of biochemistry 1993 62 749 795 10.1146 / annurev.bi.62.070193.003533 8394684 40 .
+lawson cl catabolite activator protein : dna binding and transcription activation current opinion in structural biology 2004 14 10 20 10.1016 / j.sbi.2004.01.012 15102444 41 .
+blaszczyk u polit a guz a wasylewski z interaction of camp receptor protein from escherichia coli with camp and dna studied by dynamic light scattering and time - resolved fluorescence anisotropy methods journal of protein chemistry 2001 20 601 610 10.1023 / a : 1013708000833 11890200 42 .
+aiba h the complete nucleotide sequence of the adenylate cyclase gene of escherichia coli nucleic acids research 1984 12 9427 9440 10.1093 / nar / 12.24.9427 6393056 43 .
+baba , t. et al. construction of escherichia coli k - 12 in - frame , single - gene knockout mutants : the keio collection. mol. syst. biol .
+2 , 2006 0008 , doi : msb4100050 ( 2006 ) .
+44. lin , h. h. et al. negative effect of glucose on ompa mrna stability : a potential role of cyclic amp in the repression of hfq in escherichia coli. j. bacteriol .
+193 , 5833 - 5840 , doi : jb.05359 - 11 ( 2011 ) .

@@ -1,0 +1,140 @@
+eurasip j bioinform syst biol eurasip j bioinform syst biol eurasip journal on bioinformatics and systems biology 1687 - 4145 1687 - 4153 biomed central 23046488 3605143 1687 - 4153 - 2012 - 15 10.1186 / 1687 - 4153 - 2012 - 15 research fastbreak : a tool for analysis and visualization of structural variations in genomic data bressler ryan 1 ryan.bressler @ systemsbiology.org lin jake 1 jake.lin @ systemsbiology.org eakin andrea 1 andrea.eakin @ systemsbiology.org robinson thomas 1 thomas.robinson @ systemsbiology.org kreisberg richard 1 dick.kreisberg @ systemsbiology.org rovira hector 1 hector.rovira @ systemsbiology.org knijnenburg theo 12 taknijnenburg @ gmail.com boyle john 1 john.boyle @ systemsbiology.org shmulevich ilya 1 ilya.shmulevich @ systemsbiology.org 1 institute for system biology , 401 terry avenue north , seattle , wa , 98109 - 5234 , usa 2 division of molecular carcinogenesis , netherlands cancer institute , plesmanlaan 121 , amsterdam , 1066cx , the netherlands 2012 9 10 2012 2012 1 15 15 16 1 2012 24 9 2012 copyright ( c ) 2012 bressler et al ; licensee springer .
+2012 bressler et al ; licensee springer.this is an open access article distributed under the terms of the creative commons attribution license ( http :// creativecommons.org / licenses / by / 2.0 ) , which permits unrestricted use , distribution , and reproduction in any medium , provided the original work is properly cited .
+genomic studies are now being undertaken on thousands of samples requiring new computational tools that can rapidly analyze data to identify clinically important features .
+inferring structural variations in cancer genomes from mate - paired reads is a combinatorially difficult problem .
+we introduce fastbreak , a fast and scalable toolkit that enables the analysis and visualization of large amounts of data from projects such as the cancer genome atlas .
+cancer genomics structural variation translocation introduction genomic analysis of cancer and other genetic diseases is changing from the study of individuals to the study of large populations .
+this is exemplified by large scale projects such as the cancer genome atlas ( tcga ) , a multi - institution consortium working to build a comprehensive compendium of genomic information that promises to reveal the molecular basis of cancer , and lead to new discoveries and therapies .
+currently , tcga centers are targeted to undertake the integrated analysis of 20 - 25 cancer types using more than twenty thousand samples [ 1,2 ] .
+this endeavor provides investigators with an unprecedented view of the genomic aberrations that define many human cancers [ 3 ] .
+cancer cells display diverse genetic structure even within a single individual [ 4 ] .
+analysis of these structural variations ( svs ) across thousands of individuals requires tools that must execute quickly and minimize systematic bias and errors .
+structural variants can be inferred from mapped mate - pair sequencing data by analyzing read pairs that have unlikely positions or orientations relative to each other and several methods and applications for this purpose have been presented [ 5,6 ] .
+however , identifying groups of unlikely reads that support a particular structural variation can involve computations that become combinatorially complex as the number of reads increases .
+algorithms such as breakdancer [ 6 ] that make pairwise comparisons between reads have running times that scale nonlinearly with input size and are thus expensive to apply to large data sets consisting of many high coverage genomes .
+we present fastbreak , a toolset that has been designed to enable efficient and parallelizable sv analysis of next - generation sequencing data .
+the algorithm and associated tools are available as open source software at http :// code.google.com / p / fastbreak / and incorporates several features : scalable rule - based approach : the system uses a set of rules designed to detect the signatures of svs in a single pass over the data and accumulate this information in efficient , parallelizable data structures .
+these rules can be further tailored to focus on the signature of cancer - associated svs , greatly reducing false positives ( see rules used in sample analysis ) .
+robust analysis : because of variations in coverage and quality in the large amounts of data available , the software chains together different tools and statistical methods to identify both statistically anomalous files and those sections of the data that are free from systematic bias ( see robustness of analysis and quality assurance of data ) .
+visual data mining : the tool incorporates a set of novel visualizations allowing for interactive exploration and the presentation of the results at different scales ( see interaction visual representation ). by incorporating these features , fastbreak has been used for detecting svs in hundreds of tcga samples and found to execute quickly and produce conservative results ( figures 1 and 2 ) .
+figure 1 separation of tumor from blood by fastbreak ( left ) and breakdancer ( right ) .
+the separation of the tissue type ( cancer versus blood ) , showing kernel density estimates along the first coordinate of a multidimensional scaling ( mds ) solution derived from the mutual information distance [ 7 ] between samples , demonstrates that fastbreak is robust against sample collection and instrumentation biases .
+the blood sample densities are shown in green , while the pooled cancer samples are shown in grey .
+for fastbreak ( left ) the blood samples show a high c - index [ 8 ] for the blood cluster ( 0.97 ) and no significant correlation ( - 0.01 ) between svs detected in genes and their corresponding coverage ; for breakdancer [ 6 ] , the blood samples show a lower c - index for the blood cluster ( 0.68 ) and a weak correlation ( 0.28 ) between svs detected in genes and their corresponding coverage , an undesired confounding property .
+both applications were run only on samples and regions that passed our qa process .
+without this restriction , variation along the primary coordinate of mds is dominated by batch effects unrelated to tissue type .
+figure 2 kernel density estimates of cancer type samples ( glioblastoma versus ovarian cancer ) along the first coordinate of a multidimensional scaling solution derived from the mutual information distance between samples as analyzed by fastbreak ( left ) and breakdancer ( right ) .
+the gbm cancer patient distribution is shown in red ( with a c - index of 0.8 for fastbreak and 0.94 for breakdancer [ 8 ]) , and the ovarian distribution ( with a c - index of 0.7 for fastbreak and 0.95 breakdancer ) in blue .
+the results show that fastbreak can distinguish cancer types without exhibiting strong batch effects .
+some of breakdancer 's separation of samples can be attributed to batch effects , as shown in figure 1 , due to differential coverage between the two cancers .
+fastbreak 's rule based approach both allows the running time to scale linearly with input size and is linearizable in the sense that the analysis of a single file can be distributed across a number of commodity servers enabling rapid analysis of large datasets .
+analysis of a single sample can take hours on a single machine .
+the analysis of a large data set can be distributed by sample , producing linear speedups .
+in our own testing we were able to efficiently utilize approximately 80 cores in this manner , allowing us to process hundreds of files in days .
+beyond this point , we found that the analysis was bottlenecked by the speed of our file server .
+if more machines are available , the linearizable nature of the analysis allows it to be further distributed using google 's mapreduce paradigm ( as implemented by apache hadoop ) providing further log - linear speedups and eliminating the bottleneck of a single file server .
+running times for various files and a comparison to breakdancer are provided in table 1 .
+table 1 running times in minutes for fastbreak , fastbreak on hadoop on a 9 server cluster , and breakdancer bam file fastbreak ( both passes ) fastbreak on hadoop ( pass1 + pass2 ) breakdancer 9 gb tumor 80 4 + 25 785 20 gb tumor 91 8 + 40 812 40 gb blood 163 9 + 110 449 hadoop running times are dominated by the time it takes the longest reducer to finish , meaning most of the cluster is unused for most of the time allowing greater throughput when processing many files .
+breakdancer running times appear to scale with the number of abnormal reads , not the file size ; it performs faster on the larger " blood " files than it does on the smaller " tumor " files .
+the linear scaling and linearizability of the fastbreak algorithm are both due to the use of efficient spatial data structures to accumulate counts of the read pairs that satisfy a set of rules in a single pass over the data .
+a second set of rules is then applied to all of the regions in the spatial data structure to calculate the confidence that structural variation has affected that region .
+the data structures are implemented for accumulating both one dimensional ( the position of a single read ) and two dimensional ( such as the positions of two paired reads ) genetic data in coarse ( 1000 bp ) bins .
+the first set of rules describes what may be considered an abnormal read pair and the data structure accumulates both the density of normal and abnormal read pairs in one and two dimensions .
+the second set of rules identifies , classifies and scores possible structural variations based on the size of abnormal read pair clusters and the local coverage as represented in these densities .
+the rules are described in detail in rules used in sample analysis .
+prior to analysis , a qa procedure is applied , which also produces a nonparametric estimate of the distribution of read pair distances ( figure 3 ) that can be used to fine - tune the rule system .
+common problems identified by this process involve issues of erroneous read groups within samples and coverage depth discrepancies ( see robustness of analysis and quality assurance of data ) due to changes in protocol and platforms ( e.g. , during the early stages of tcga ) .
+the rule - based system can then be optimized by executing a first pass analysis to identify which parameters give reasonable differences between paired normal / cancer samples or across other sets of related samples ( see robustness of analysis and quality assurance of data ) .
+to remove biases due to coverage differences across a large sample set , a biclustering algorithm [ 9 ] is used to select subgroups of genes / patients for direct comparison .
+an analysis of the genes disrupted across hundreds of ovarian cancer and glioblastoma samples ( figure 4 ) shows that the fastbreak results can be used to distinguish between tumor and blood samples and , to a lesser extent , disease types and to identify strong similarities in the types of gene function and pathways that are disrupted by structural variation ( robustness of analysis and quality assurance of data ) .
+figure 3 example output from fastbreak showing a density plot of the distances between paired - end read mapped positions .
+the red line represents cancer samples while blue represents the blood samples from the same patients .
+across all the samples , distances between mate pairs of 1000 and 7000 base pairs were found to be more highly prevalent in tumor samples than in corresponding blood samples .
+figure 4 distance distributions of clusters of read pairs of varying sizes.fastbreak also generates statistics that can be used to determine thresholds for the minimum number of supported reads required to identify features .
+the plots above show how larger clusters of abnormal read pairs are significantly more prevalent in tumor samples .
+this information is used to define the rule that a minimum of two supporting reads is required to identify abnormal behavior .
+because it is difficult to represent such a large data set statically , we developed a dynamic web application that visualizes the results of fastbreak at different scales , using a set of custom visualization components .
+this allows researchers to explore the effects of structural variation on a genetic level across the entire data set .
+the local genetic topology of a disrupted gene is a hierarchical structure of contiguous regions that may be visualized as a tree branching to different regions and chromosomes ( figure 5 ) .
+the similarity ( as measured by mutual information ) of svs between genes within a disease defines a network that can be visualized using an interactive circular plot ( figure 6 ) .
+comparisons between the most frequently disrupted genes in different diseases can be explored dynamically using an interactive parallel coordinates plot ( figure 5 ) .
+figure 5 screen shot of interactive visualization of the local genetic topology of a gene in a single sample highlights links between regions and chromosomes .
+figure 6 gbm plot highlights genes with informative occurrences of structural variation across the entire cancer as measured by mutual information .
+the plot is rendered using visquick [ 10 ] which allows interactive exploration of the data .
+rules used in sample analysis the fastbreak system uses sets of rules , designed to detect genetic structural variations in high throughput sequence data .
+for analysis of glioblastoma ( gbm ) and ovarian cancer , these rules have been further refined to detect features that occur prevalently in disease ( cancer ) samples .
+to detect these structural variations , rules have been developed to identify three different sorts of abnormal read pairs : those with an abnormal distance between mapped positions ; those with inconsistent orientation ; and those mapped to different chromosomes .
+the algorithm compiles a list of such abnormal (" odd ") reads in a linear time pass over the data .
+these reads are stored in a spatial data structure allowing us to identify groups of similar odd read pairs that meet our criteria in a second linear time pass over the filtered data .
+this data structure uses a system of bins that limits the resolution of the data , but provides significant speed advantages .
+in mate pair sequence data , the resolution at which breakpoints can be confidently detected is dictated by the longest distance between mate - paired reads that can be considered normal .
+in the non - disease ( blood ) samples that were analyzed , only 0.1 % of the reads had mapped distances of more than 1000 base pairs .
+fastbreak uses this length to define the size of the bins in its internal data structure so that most normal read pairs will fall within a single bin .
+this eliminates the combinatorial difficulty of identifying clusters of abnormal read pairs and is one of the key optimizations that allow the algorithm 's running time to scale linearly with data size .
+the rule set used in the analysis of the cancer samples was developed to identify clusters of abnormal read pairs that appear as part of a signature present in the majority of tumor samples within a set of matched ( from the same patient ) tumor and blood samples .
+fastbreak was used to identify the common signature of abnormal read pairs found in tumor samples .
+the analysis to determine the best rule set is run separately for each disease , and across all the tumors there was found to be an enrichment of mate - pair distances between 1000 - 7000 bp ( see figure 3 ) .
+pair distances greater than 7000 bp are not significantly enriched in tumor samples , indicating that they are caused primarily by random noise or by structural variations present in the normal tissue relative to the reference genome used for mapping .
+this upper limit of this window is on the same order as the fall off of structural variations longer than 2000 bp observed by clark et al. through the deep sequencing of a gbm cell line [ 11 ] .
+for the comparative cancer analysis , the rule system was designed to detect structural variations supported by orientation chromosome or pair distance in this 1000 - 7000 bp window .
+because some of these reads will be the product of random noise , an additional analysis is done to determine how many reads and what percent of the total coverage of a region are needed to conservatively identify a structural variation .
+these rules can be shown to maximize the difference between the distance distributions of tumor and blood samples ( figure 4 ) .
+to account for differences in mapping quality of reads , each inferred feature is assigned a score which aggregates the mapping quality assigned to all supporting reads using a probabilistic interpretation , so that the score assigned to the feature is the probability that not all of the reads were mismapped .
+this provides a score for each identified feature that increases with both the number of supporting reads and their mapping quality .
+for the analysis presented , we specified that , for us to consider a cluster of abnormal reads a structural variation , the number of reads that show unusual characteristics must be greater than two , and must account for more than 5 % of the local coverage .
+we found that these rules are well suited to the exome sequenced samples that we analyzed , but more or less conservative rules can be used depending on the quality and coverage of the data available .
+robustness of analysis and quality assurance of data fastbreak helps to formulate rules for the identification of biologically relevant features that are robust against false positives due to differences in coverage and other batch effects .
+in addition to sequencing errors , automated analyses need to remove coverage bias and sample anomalies .
+to minimize the effects of disparate coverage levels between samples and genes , a biclustering method has been integrated to identify a subgroup of genes and samples with relatively consistent coverage .
+erroneous individual samples are removed by use of an internal qa process that analyses different read groups within a sample to find anomalies .
+matched pairs that pass the qa tests are then processed for secondary analysis .
+the example analysis here involves the identification of structural variants across different cancer types .
+the analysis used a data set of 172 gbm patients and 132 ovarian cancer patients. of these , fewer than 50 % ( 96 gbm samples and 38 ovarian samples ) passed the qa test process ( see below ) .
+the parameters of the tests can be changed to include more patients , either through analysis of fewer chromosome regions , or by lowering the quality / coverage thresholds .
+the qa process is designed to identify biases across and within samples , and identify chromosome regions across patients that can be compared .
+the system identifies regions that have sufficient coverage across patients , so that biases due to coverage depth are minimized .
+batch effects can be studied by looking for correlations between coverage and identified features ( a generally undesired property ) , and by comparing across samples ( see figures 1 and 2 ) .
+as fastbreak can be optimized to identify features using rules specific to the system under study , and can compensate for differences in coverage , it shows some robustness to changes in conditions and corresponding batch effects .
+the functional significance of the analysis is suggested by the enrichment of genes related to functions such as extracellular matrix and focal adhesion in the list of most disrupted genes ( see tables 2 and 3 ) .
+complete details of the samples used and a complete list of disrupted genes are given on the accompanying web site .
+the functional significance of the disrupted genes identified is shown in table 3 .
+the gene disruptions can be mined using the interactive web application outlined in interaction visual representation ( http :// fastbreak.systemsbiology.net ) .
+all code associated with the web application , and analysis systems , is made freely available under an open source public license .
+table 2 most disrupted genes across the ovarian cancer and glioblastoma cancer data sets gene name number of disrupted gbm samples gene name number of disrupted ovarian cancer samples dnah9 43 kalrn 17 syne1 42 mtor 17 syne2 40 tg 16 tg 40 pappa2 15 kalrn 38 syne1 15 trrap 38 trio 15 mll3 37 cacna2d3 14 pkhd1 27 tecta 14 reln 37 ank1 13 dnah8 36 cit 13 table 3 functional enrichment of most structurally disrupted genes in pooled gbm and ovarian cancer samples functional group enrichment extracellular matrix 7e - 6 focal adhesion 2e - 5 phospoprotein 3e - 5 guanyl - nucelotide exchange factor 5e - 4 cell morphogensis 7e - 4 axonogenesis 1e - 3 the analysis was performed using the nih david tool [ 12,13 ] ( march 2011 ) , with the background population being those identified through the biclustering step of the fastbreak analysis .
+the p - values are multi - test corrected using the default nih david method ( benjamini - hochberg correction ) .
+interactive visual representation a web application providing visualizations of fastbreak analysis results was developed to enable an end - user to explore the data in an intuitive manner .
+the application allows a user to view data at three different levels , as well as search specific regions by chromosome coordinates or gene names .
+to explore similarities or differences between cancers , genes that have high structural variation are visualized in a parallel coordinates plot on the cancer comparator tab ( see figure 7 ) .
+mouse - over events and an alternate table view allow the user to view specific information regarding points on the plot and number of disruptions found for a particular gene .
+figure 7 cancer comparator interactive parallel coordinates plot allows the user to explore the relative rank of genes with structural variations across colon adenocarcinoma ( coad ) , glioblastoma multiforme ( gbm ) and ovarian cancer ( ov ) .
+gene behaviors within a cancer type can be explored by selecting the ov ( ovarian ) or gbm ( glioblastoma ) tab on the left side of the application ( see figure 6 ) .
+the cancer specific visualization level shows mutual information distances between genes across all patients as a circular plot .
+again , mouse - over events and alternate table views can be used to view the data in more detail .
+the third level of visualization allows a user to view structural variations at a specific location for a selected patient sample .
+comparisons between tissues ( tumor and blood ) and patients can be done at this level of the application .
+selection of patients and chromosome location can be done in the " data and range selection " window , while selection of parameters specific to the visualization can be altered in the " advanced parameters " window .
+a depth - first graph traversal of the structural variant data is used as the underlying data of the visualization .
+results are drawn as a cyclic tree such that each contiguous region is represented by a pair of orthogonal branches .
+gene location is shown along the base and branches of the trees while coverage information is displayed below the tree .
+the thickness of the branches indicates the number of supporting reads for the particular structural variation event .
+mouse - over and click events are also implemented to view more information regarding a specific sv event .
+the organic structure of this visualization allows the viewer to quickly distinguish between different topologies based on qualitative differences in tree appearances ( figure 5 ) .
+the web application described above may be viewed and explored at http :// fastbreak.systemsbiology.net .
+a download of the underlying data and web application are also available on the site .
+conclusions the approach implemented has several advantages over existing approaches .
+fastbreak 's rule - based algorithm can be used to reliably and conservatively identify structural variants of biological significance in the tcga data set .
+in terms of resistance to bias correlated with the diverse levels of coverage seen in the exome data , our results improve upon those produced by breakdancer [ 5 ] , which was not designed with exome data in mind ( see figures 1 and 2 ) .
+we have further shown that this approach can be easily parallelized across commodity servers , allowing the rapid analysis of petabyte - scale data sets and provided a new tool for dynamically visualizing and exploring the genetic topology of cancer samples inferred by fastbreak .
+the combination of these approaches allows one to produce a novel population - scale view of genetic structural variation within and across cancers ( figure 8 ) .
+figure 8 the genes that are most commonly disrupted in glioblastoma ( a ) and ovarian cancer ( b ) .
+genes are arranged in order by chromosome and position and only well covered genes are indicated .
+however , fastbreak provides only a coarse view of structural variation .
+it can be used to identify the regions that have been affected by structural variation , but does not attempt to describe precisely what variation has occurred .
+it is our hope that future tools might use fastbreak - like data structures and approaches to parallelization to accelerate more precise algorithms .
+competing interests the author ( s ) declare that they have no competing interests .
+acknowledgements the algorithm was developed with input and advice from sheila reynolds and jared roach .
+all data were acquired from the cancer genome atlas at http :// cancergenome.nih.gov / .
+this work was supported by the national cancer institute [ u24ca143835 ] .
+the funders had no role in study design , data collection and analysis , decision to publish , or preparation of the manuscript .
+cancer genome atlas research network comprehensive genomic characterization defines human glioblastoma genes and core pathways nature 2008 455 1061 1068 10.1038 / nature07385 18772890 cancer genome atlas research network integrated genomic analyses of ovarian carcinoma nature 2011 474 609 615 10.1038 / nature10166 21720365 collins fs barker ad mapping the cancer genome .
+pinpointing the genes involved in cancer will help chart a new course across the complex landscape of human malignancies sci 2007 296 3 50 57 10.1038 / scientificamerican0307 - 50 nowak ma komarova nl sengupta a jallepalli pv shih l vogelstein b lengauer c the role of chromosomal instability in tumor initiation pnas 2002 99 25 16226 16231 10.1073 / pnas.202617399 12446840 feuk l carson ar scherer sw structural variation in the human genome nat reviews genetics 2006 7 85 97 chen k wallis jw mclellan md larson de kalicki jm pohl cs mcgrath sd wendl mc zhang q locke dp shi x fulton rs ley t wilson rk li d mardis er breakdancer : an algorithm for high - resolution mapping of genomic structural variation nat. methods 2009 6 677 681 10.1038 / nmeth.1363 19668202 clark mj homer n o'connor bd chen z eskin a lee h merriman b nelson sf biodist : different distance measuresr package version 1.16.0 hubert l schultz j quadratic assignment as a general data - analysis strategy br 1976 29 190 241 10.1111 / j.2044 - 8317.1976.tb00714.x van uitert m meuleman w wessels l biclustering sparse binary genomic data j 2008 10 1329 1345 kreisberg r visquick , javascript project providing a library of configurable svg and canvas - based visual toolshttp :// code.google.com / p / visquick / clark mj homer n o'connor bd chen z eskin a u87mg decoded : the genomic sequence of a cytogenetically aberrant human cancer cell line plos genet 2010 6 1 e1000832 10.1371 / journal.pgen.1000832 20126413 huang dw sherman bt lempicki ra systematic and integrative analysis of large gene lists using david bioinformatics resources nature protoc 2009 4 1 44 57 19131956 huang dw sherman bt lempicki ra bioinformatics enrichment tools : paths toward the comprehensive functional analysis of large gene lists nucleic acids res 2009 37 1 1 13 10.1093 / nar / gkn923 19033363

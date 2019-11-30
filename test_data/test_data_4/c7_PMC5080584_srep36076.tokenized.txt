@@ -1,0 +1,207 @@
+sci rep sci rep scientific reports 2045 - 2322 nature publishing group 27782180 5080584 srep36076 10.1038 / srep36076 article hase : framework for efficient high - dimensional association analyses roshchupkin g. v. 12 adams h. h. h. 13 vernooij m. w. 13 hofman a .
+3 van duijn c. m. 3 ikram m. a. a134 * niessen w. j. b125 * 1 department of radiology and nuclear medicine , erasmus mc , rotterdam , netherlands 2 department of medical informatics , erasmus mc , rotterdam , netherlands 3 department of epidemiology , erasmus mc , netherlands 4 department of neurology , erasmus mc , rotterdam , netherlands 5 faculty of applied sciences , delft university of technology , delft , netherlands a m.a.ikram @ erasmusmc.nl b w.niessen @ erasmusmc.nl * these authors jointly supervised this work .
+26 10 2016 2016 6 36076 09 06 2016 10 10 2016 copyright ( c ) 2016 , the author ( s ) 2016 the author ( s ) this work is licensed under a creative commons attribution 4.0 international license .
+the images or other third party material in this article are included in the article 's creative commons license , unless indicated otherwise in the credit line ; if the material is not included under the creative commons license , users will need to obtain permission from the license holder to reproduce the material .
+to view a copy of this license , visit http :// creativecommons.org / licenses / by / 4.0 / high - throughput technology can now provide rich information on a person 's biological makeup and environmental surroundings .
+important discoveries have been made by relating these data to various health outcomes in fields such as genomics , proteomics , and medical imaging .
+however , cross - investigations between several high - throughput technologies remain impractical due to demanding computational requirements ( hundreds of years of computing resources ) and unsuitability for collaborative settings ( terabytes of data to share ) .
+here we introduce the hase framework that overcomes both of these issues .
+our approach dramatically reduces computational time from years to only hours and also requires several gigabytes to be exchanged between collaborators .
+we implemented a novel meta - analytical method that yields identical power as pooled analyses without the need of sharing individual participant data .
+the efficiency of the framework is illustrated by associating 9 million genetic variants with 1.5 million brain imaging voxels in three cohorts ( total n = 4,034 ) followed by meta - analysis , on a standard computational infrastructure .
+these experiments indicate that hase facilitates high - dimensional association studies enabling large multicenter association studies for future discoveries .
+technological innovations have enabled the large - scale acquisition of biological information from human subjects .
+the emergence of these big datasets has resulted in various ' omics' fields .
+systematic and large - scale investigations of dna sequence variations ( genomics ) 1 , gene expression ( transcriptomics ) 2 , proteins ( proteomics ) 3 , small molecule metabolites ( metabolomics ) 4 , and medical images ( radiomics ) 5 , among other data , lie at the basis of many recent biological insights .
+these analyses are typically unidimensional , i.e. studying only a single disease or trait of interest .
+although this approach has proven its scientific merit through many discoveries , jointly investigating multiple big datasets would allow for their full exploitation , as is increasingly recognized throughout the ' omics' world5678 .
+however , the high - dimensional nature of these analyses makes them challenging and often unfeasible in current research settings .
+specifically , the computational requirements for analyzing high - dimensional data are far beyond the infrastructural capabilities for single sites .
+furthermore , it is incompatible with the typical collaborative approach of distributed multi - site analyses followed by meta - analysis , since the amount of generated data at every site is too large to transfer .
+some studies have attempted to combine multiple big datasets58910 , but these methods generally rely on reducing the dimensionality or making assumptions to approximate the results , which leads to a loss of information .
+here we present the framework for efficient high - dimensional association analyses ( hase ) , which is capable of analyzing high - dimensional data at full resolution , yielding exact association statistics ( i.e. no approximations ) , and requiring only standard computational facilities .
+additionally , the major computational burden in collaborative efforts is shifted from the individual sites to the meta - analytical level while at the same time reducing the amount of data needed to be exchanged and preserving participant privacy .
+hase thus removes the current computational and logistic barriers for single - and multi - center analyses of big data .
+results overview of the methods the methods are described in detail in the methods .
+essentially , hase implements a high - throughput multiple linear regression algorithm that is computationally efficient when analyzing high - dimensional data of any quantitative trait .
+prior to analysis , data are converted to an optimized storage format to reduce reading and writing time .
+redundant calculations are removed and the high - dimensional operations are simplified into a set of matrix operations that are computationally inexpensive , thereby reducing overall computational overhead .
+while deriving summary statistics ( e.g. , beta coefficients , p - values ) for every combination in the high - dimensional analysis would be computationally feasible at individual sites with our fast regression implementation , it would be too large to share the intermediate results (> 200 gb per thousand phenotypes ) in a multi - center setting .
+therefore , extending from a recently proposed method , partial derivatives meta - analysis11 , we additionally developed a method that generates two relatively small datasets ( e.g. 5 gb for genetics data of 9 million variants and 20 mb of thousand phenotypes for 4000 individuals ) that are easily transferred and can subsequently be combined to calculate the full set of summary statistics , without making any approximation .
+this meta - analysis method additionally reduces computational overhead at individual sites by shifting the most expensive calculation to the central site .
+the total computational burden thus becomes even more efficient relative to conventional methods with additional sites .
+the hase software is freely available from our website www.imagene.nl / hase / .
+comparison of complexity and speed we compared the complexity and speed of hase with a classical workflow , based on linear regression analyses with plink ( version 1.9 ) 12 followed by meta - analysis with metal13 ; two of the most popular software packages for these tasks .
+table 1 shows that hase dramatically reduces the complexity for the single site analysis and data transfer stages .
+for conventional methods , the single site analysis and data transfer have a multiplicative complexity ( dependent on the number of phenotypes and determinants ) , whereas this is only additive for hase .
+our approach requires 3.500 - fold less data to transfer for a high - dimensional association study .
+additionally , the time for single site analysis does not increase significantly from analyzing a single phenotype to a million phenotypes ( table 1 ) .
+this is due to the fact that speed is determined by the highest number of either the determinants or phenotypes .
+therefore , in this case with nine million genetic variants , the complexity of o ( ninp ) is the primary factor influencing the speed , whereas o ( nint ) plays a secondary role .
+this drastic increase in performance is made possible through the shift of the computationally most expensive regression operation to the meta - analytical stage .
+for the meta - analytical stage , the hase complexity is therefore slightly higher .
+however , it outperforms the classical meta - analysis using metal ( total computation time reduced 35 times ) , owing to the efficient implementation of our algorithm .
+additionally , hase can be used as a standard tool for high - dimensional association studies of a single site , i.e without subsequent meta - analysis or to prepare summary statistics for sharing with the central site as in a classical workflow .
+although plink is a very popular tool for association analysis , it is not optimized for high - dimensional data sets .
+therefore we compared the speed of such analyses to the recently developed tool regscan14 , which was developed for doing gwas on multiple phenotypes and outperformed state - of - the - art methods .
+we conducted several experiments within the rotterdam study by varying the number of phenotypes and subjects , while keeping the number of variants fixed at 2.172.718 since the complexity of both programs is linear with respect to number of variants .
+hase outperformed regscan and the difference becomes larger for increasing numbers of subjects and phenotypes ( fig. 1 ) .
+application to real data we used hase to perform a high - dimensional association study in 4,034 individuals from the population - based rotterdam study .
+in this proof of principle study , we relate 8,723,231 million imputed genetic variants to 1,534,602 million brain magnetic resonance imaging ( mri ) voxel densities ( see supplementary note ) .
+the analysis was performed on a small cluster of 100 cpus and took 17 hours to complete .
+to demonstrate the potential of such high - dimensional analyses , we screened all genetic association results for both hippocampi ( 7,030 voxels ) and identified the voxel with the lowest p - value .
+the most significant association ( rs77956314 ; p = 3 x 10 - 9 ) corresponded to a locus on chromosome 12q24 ( fig. 2 ) , which was recently discovered in a genome - wide association study of hippocampal volume encompassing 30,717 participants15 .
+additionally , we performed the high - dimensional association studies separately in three subcohorts of the rotterdam study ( rsi = 841 , rsii = 1003 , rsiii = 2190 , supplementary notes ) and meta - analyzed the results using the hase data sharing approach , as a simulation of a standard multicenter association study .
+this experiment required two steps .
+first , for each subcohort we generated intermediate data ( matrices a , b and c from the methods section ) .
+it took on average 40 minutes on a single cpu for all genetic variants and voxels .
+second , the meta - analysis , which consist of merging intermediate data and running regressions , was performed on the same cluster and took 17 hours to complete using 100 cores .
+we compared the association results of the pooled analysis with the meta - analysis .
+figure 3 shows that the results are identical as it was predicted by theory ( see methods ) .
+we would like to point out that for the classical approach with inverse - variance meta - analysis such an experiment would be not possible to conduct , as it would require generating and sharing hundreds of terabytes of summary statistics .
+discussion we describe a framework that allows for ( i ) computationally - efficient high - dimensional association studies within individual sites using standard computational infrastructure and ( ii ) facilitates the exchange of compact summary statistics for subsequent meta - analysis for association studies in a collaborative setting .
+using hase , we performed a genome - wide and brain - wide search for genetic influences on voxel densities ( more than 1.5 million gwas analysis in total ) , and illustrate both its feasibility and potential for driving scientific discoveries .
+a large improvement in efficiency comes from the reduced computational complexity .
+high - dimensional analyses contain many redundant calculations , which were removed in the hase .
+also , we were able to further increase efficiency by simplifying the calculations to a set of matrix operations , which are computationally inexpensive , compared to conventional linear regression algorithms .
+furthermore , the implementation of partial derivatives meta - analysis allowed us to greatly reduce the size of the summary statistics that need to be shared for performing a meta - analysis .
+another advantage of this approach is that it only needs to calculate the partial derivatives for each site instead of the parameter estimates ( i.e. , beta coefficients and standard errors ) .
+this enabled us to develop within hase a reduction approach that encodes data prior to exchange between sites , while yielding the exact same results after meta - analysis as if the original data were used .
+the encoding is performed such that tracing back to original data is impossible .
+this guarantees protection of participant privacy and circumvents restrictions on data sharing that are unfortunately common in many research institutions .
+when using hase , it is first necessary to convert the multi - dimensional data to << hdf516 >> format that is optimized for fast reading and writing .
+this particular format is not dependent on the architecture of the file system and can therefore be implemented on a wide range of hardware and software infrastructures .
+to facilitate this initial conversion step , we have built - in tools within the hase framework for processing common file format of such big data .
+hdf5 allows direct access to the data matrix row / column from the disk through an index without reading the whole file ( s ) into memory .
+additionally , it requires much less disk space to store data ( supplementary notes ) .
+this is easily generalizable to other large omics datasets in general and we foresee this initial conversion step not to form an obstacle for researchers to implement hase .
+alternative methods for solving the issues with high - dimensional data take one of two approaches .
+one approach is to reduce the dimensionality of the big datasets by summarizing the large amount of data into fewer variables2 .
+although this increases the speed , it comes at the price of losing valuable information , which these big data were primarily intended to capture .
+the second approach is to not perform a full analysis of all combinations of the big datasets , but instead make certain assumptions ( e.g. , a certain underlying pattern , or a lack of dependency on potential confounders ) that allow for using statistical models that require less computing time .
+again , this is a tradeoff between speed and accuracy , which is not necessary in the hase framework , where computational efficiency is increased without introducing any approximations .
+unidimensional analyses of big data , such as genome - wide association studies , have already elucidated to some extent the genetic architecture of complex diseases and other traits of interest1171819 , but much remains unknown .
+cross - investigations between multiple big datasets potentially hold the key to fulfill the promise of big data in understanding of biology7 .
+using the hase framework to perform high - dimensional association studies , this hypothesis is now testable .
+methods hase in high - dimensional associations analyses we test the following simple regression model : where y is a ni x np matrix of phenotypes of interest , nidenotes the number of samples in the study , np the number of phenotypes of interest , and epsilon denotes the residual effect .
+x is a three dimensional matrix ni x nc x nt of independent variables , with nc representing the number of covariates , such as the intercept , age , sex and , for example genotype as number of alleles , and ntthe number of independent determinants .
+in association analyses we are interested in estimating the p - value to test the null hypothesis that beta = 0 .
+the p - values can be directly derived from the t - statistic of our test determinants .
+we will rewrite the classical equation for calculating t - statistics for our multi - dimensional matrices , which will lead to a simple matrix form solution for high - dimensional association analysis : where t is np x nc x nt matrix of t - statistics and df is degree of freedom of our regression model .
+let 's define , , so that we can write our final equation for t - statistics : the result of this derivation is that , rather than computing all combinations of covariates and independent determinants , we only need to know three matrices : a , b and c , to calculate t - statistics and perform the full analysis .
+these results will be used in the section about meta - analysis .
+the most computationally expensive operations here are the two multi - dimensional matrix multiplications ( a - 1b ) and ( bta - 1b ) , where a - 1 is a three dimensional matrix nc x nc x nt and is three dimensional matrix nc x np x nt. without knowledge of the data structure of these matrices , the simplest way to write the results of their multiplication would be to use einstein 's notation for tensor multiplication : where as you can see , the result is two matrices of nc x np x nt and np x nt elements respectively .
+despite the seemingly complex notation , the first matrix just represents the beta coefficients for all combinations of covariates ( nc by np x nt combinations ) and the second is fitting values of the dependent variable for every test ( np x nt independent determinants ) .
+however , insight into the data structure of a and b can dramatically reduce the computational burden and simplify operations .
+first of all , matrix a depends only on the covariates and number of determinants , making it unnecessary to compute it for every phenotype of interest , so we just need to calculate it once .
+additionally , only the last covariate ( i.e. , the variable of interest ) is different between tests , meaning that the ( np - 1 ) x ( np - 1 ) x nt part of matrix a remains constant during high - dimensional analyses .
+matrix b consists of the dot product of every combination of the covariate and phenotype of interest .
+however , as we mentioned before , there are only ( nt + nc 1 ) different covariates , and thus we can split matrix b in two low dimensional matrices : the first includes dot products of non - tested covariates - ( nc - 1 ) x np elements ; the second includes the dot products only of the tested covariates - np x nt elements .
+removing all these redundant calculations reduces the complexity of this step from o ( nc2 . ni . np . nt ) to o ( np . nt ) .
+all this allows us to achieve a large gain in computational efficiency and memory usage .
+in fig. 3 we show a 2d schematic representation of these two matrices for standard genome association study with the covariates being an intercept , age , sex , and genotype .
+this example could be easily extrapolated to any linear regression model .
+applying the same splitting operation to bt it is possible to simplify tensor multiplication equation ( 8 , 9 ) to a low - dimensional matrix operation and rewrite the equation for t - statistics : then , to compute t - statistics for high - dimensional association analyses we just need to perform several matrix multiplications .
+meta - analysis in classical meta - analysis , summary statistics such as beta coefficients and p - values are exchanged between sites .
+for 1.5 million phenotypes , this would yield around 400tb of data at each site , making data transfer to a centralized site impractical .
+in the previous section we showed that , to compute all statistics for an association study , we just need to know the a , b and c matrices .
+as we demonstrated before11 , by exchanging these matrices between sites , it is possible to gain the same statistical power as with a pooled analysis , without sharing individual participant data , because these matrices consist of aggregate data ( fig. 4 ) .
+however , in high - dimensional association analyses , matrix b grows very fast , particularly the part that depends on the number of determinants and phenotypes ( b4 in fig. 3 ) .
+if y is a ni x np matrix of phenotypes of interest and g is a ni x nt matrix of determinants which we want to test ( e.g. , a genotype matrix in gwas ) , then b4 = yt x g. these two matrices , y and g , separately are not so large , but their product matrix has np x nt elements , which in a real application could be 106 x 107 = 1013 elements and thus too large to share between sites .
+we propose to create a random ni x ni nonsingular square matrix f and calculate its inverse matrix f - 1 .
+then by definition f x f - 1 = i , where i is a ni x ni elements identity matrix with ones on main diagonal and zeros elsewhere .
+using this property , we can rewrite the equation for b4 : where yf and gf are matrices carrying phenotypic and deeterminant information in encoded form respectively therefore , instead of transferring tbs of intermediate statistics ( b4 ) , each side just needs to compute a , c , yf and gf. sharing just the encoded matrices does not provide information on individual participants and without knowing matrix f it is impossible to reconstruct the real data .
+however , it will be possible to calculate b4 , perform a high - dimensional meta - analysis , and avoid problems with data transfer .
+additionally , this method dramatically reduces computation time by shifting all complex computations to central site , where the hase regression algorithm should be used to handle the association analysis in time efficient way .
+availability framework for efficient high - dimensional association analyses ( hase ) , https :// github.com / roshchupkin / hase / ; description of the framework and protocol for meta - analysis , www.imagene.nl / hase .
+additional information how to cite this article : roshchupkin , g. v. et al. hase : framework for efficient high - dimensional association analyses. sci. rep .
+6 , 36076 ; doi : 10.1038 / srep36076 ( 2016 ) .
+publisher 's note : springer nature remains neutral with regard to jurisdictional claims in published maps and institutional affiliations .
+supplementary material supplementary information the generation and management of gwas genotype data for the rotterdam study are supported by the netherlands organization of scientific research nwo investments ( nr. 175.010.2005.011 , 911 - 03 - 012 ) .
+this study is funded by the research institute for diseases in the elderly ( 014 - 93 - 015 ; ride2 ) , the netherlands genomics initiative ( ngi )/ netherlands organization for scientific research ( nwo ) project nr. 050 - 060 - 810 .
+the rotterdam study is funded by erasmus medical center and erasmus university , rotterdam , netherlands organization for the health research and development ( zonmw ) , the research institute for diseases in the elderly ( ride ) , the ministry of education , culture and science , the ministry for health , welfare and sports , the european commission ( dg xii ) , and the municipality of rotterdam .
+mai is supported by zonmw grant number 916.13.054 .
+hhha is supported by the van leersum grant of the royal netherlands academy of arts and sciences .
+the research is supported by the imagene programme of stw , the society for technical scientific research in the netherlands .
+this project has received funding from the european research council ( erc ) under the european union 's horizon 2020 research and innovation programme ( grant agreement no. 678543 ) .
+further support was obtained through the joint programme - neurodegenerative disease research working group on high - dimensional research in alzheimer 's disease ( zonmw grant number 733051031 ) .
+wood a. r. .
+defining the role of common variation in the genomic and biological architecture of adult human height . nat. genet .
+46 , 1173 - 1186 ( 2014 ) .
+25282103 goel p .
+, kuceyeski a .
+, locastro e .
+& raj a. spatial patterns of genome - wide expression profiles reflect anatomic and fiber connectivity architecture of healthy human brain . hum .
+brain mapp .
+35 , 4204 - 4218 ( 2014 ) .
+24677576 stunnenberg h. g. & hubner n. c. genomics meets proteomics : identifying the culprits in disease . hum. genet .
+133 , 689 - 700 ( 2014 ) .
+24135908 krumsiek j .
+.
+mining the unknown : a systems approach to metabolite identification combining genetic and metabolic information . plos genet .
+8 , e1003005 ( 2012 ) .
+23093944 parmar c .
+.
+radiomic feature clusters and prognostic signatures specific for lung and head & amp ; neck cancer . sci. rep .
+5 , 11044 ( 2015 ) .
+26251068 medland s. e. , jahanshad n .
+, neale b. m. & thompson p. m. whole - genome analyses of whole - brain data : working within an expanded search space . nat. publ. gr .
+17 , 791 - 800 ( 2014 ) .
+robinson m. r. , wray n. r. & visscher p. m. explaining additional genetic variation in complex traits . trends genet .
+30 , 124 - 132 ( 2014 ) .
+24629526 zou f .
+.
+brain expression genome - wide association study ( egwas ) identifies human disease - associated variants . plos genet .
+8 , e1002707 ( 2012 ) .
+22685416 stein j. l. .
+voxelwise genome - wide association study ( vgwas ) . neuroimage 53 , 1160 - 1174 ( 2010 ) .
+20171287 huang m .
+.
+fvgwas : fast voxelwise genome wide association analysis of large - scale imaging genetic data . neuroimage 118 , 613 - 627 ( 2015 ) .
+26025292 adams h. h. h. .
+partial derivatives meta - analysis : pooled analyses without sharing individual participant data . biorxiv ( 2016 ) .
+purcell s .
+.
+plink : a tool set for whole - genome association and population - based linkage analyses . am. j. hum. genet .
+81 , ( 2007 ) .
+willer c. j. , li y .
+& abecasis g. r. metal : fast and efficient meta - analysis of genomewide association scans . bioinformatics 26 , 2190 - 2191 ( 2010 ) .
+20616382 haller t. regscan : a gwas tool for quick estimation of allele effects on continuous traits and their combinations . brief. bioinform .
+16 , 39 - 44 ( 2013 ) .
+24008273 hibar d. p. .
+common genetic variants influence human subcortical brain structures . nature 8 ( 2015 ). the hdf5 group , " hdf5 file format specification version 3.0 " ( 2006 ) https :// support.hdfgroup.org / hdf5 / doc / h5.format.html .
+locke a. e. .
+genetic studies of body mass index yield new insights for obesity biology . nature 518 , 197 - 206 ( 2015 ) .
+25673413 purcell s. m. .
+common polygenic variation contributes to risk of schizophrenia and bipolar disorder . nature 460 , 748 - 752 ( 2009 ) .
+19571811 polychronakos c .
+& alriyami m. diabetes in the post - gwas era . nat. genet .
+47 , 1373 - 1374 ( 2015 ) .
+26620109 wjn is co - founder and shareholder of quantib bv. none of the other authors declare any competing financial interests .
+author contributions g.v.r. and h.h.h.a. jointly conceived of the study , participated in its design , performed the statistical analysis , interpreted the data , and drafted the manuscript .
+g.v.r. additionally developed the software .
+m.w.v. , a.h. and c.m.v.d. acquired data and revised the manuscript critically for important intellectual content .
+m.a.i. and w.j.n. participated in its design , interpreted the data , and revised the manuscript critically for important intellectual content .
+all authors read and approved the final manuscript .
+figure 1 analysis time ( hase versus regscan ) with 2.172.718 variants .
+( a ) - for 1 phenotype ; ( b ) - for 100 phenotypes ; ( c ) - for 1000 phenotypes .
+figure 2 manhattan plot of the hippocampus voxel with the most significant association after screening all 7030 hippocampal voxels .
+the most significant association ( rs77956314 ; p = 3 x 10 - 9 ) corresponded to a previously identified locus on chromosome 12q24 .
+such voxel - wise hippocampus screening would take less than 8 hours on standard laptop .
+figure 3 correlation plot of voxel gwas t - statistic estimated from pooled together data and voxel gwas t - statistic estimated from meta - analysis of partial derivatives and encoded matrix .
+it took 40 min for single site to pre - compute data instead of 280 years to compute summary statistics .
+figure 4 explanation of the achieved speed reduction in hase framework by removing redundant computations .
+in hase multi - dimensional ( a,b ) matrices need to be calculated to perform gwas studies .
+in the figure grey color means elements are parts of the matrix that are not necessary to calculate , as the a matrix is symmetric .
+the green color indicates elements that need to be calculated only once .
+blue elements only have to be calculated for every snp and yellow only for every phenotype .
+the red color indicates the most computationally expensive element , which needs to be calculated for every combination of phenotype and genotype .
+n denotes the number subjects in study .
+table 1 comparison of complexity and speed between the hase framework and a classical workflow .
+stage complexityc timea,b ( hours ) classical workflow hase np = 1 np = 106 classical workflow hase classical workflow hase single site analysis o ( ninpnt ) max ( o ( ninp ) , o ( nint )) 2.46 0.63 2.46 x 106 0.70 data transfer o ( npnt ) o ( ninp + nint ) 0.04 0.07 * 4 x 104 11.6 meta - analysis o ( npnt ) o ( ninpnt ) 0.06 0.03 6 x 104 1.7 x 103 abased on a model with three covariates and 9 million genetic variants , for a total of 4034 participants from three sites .
+for the classical workflow we used the plink software for single site analysis and metal for the meta - analysis .
+bfor single site analysis and meta - analysis the time is given in cpu hours ; for the data transfer stage this is in hours using an average network speed of 10 mbps .
+ccomplexity for cpu hours is given in terms of classical computation time complexity ; complexity for data transfer is shown in terms of how the size of the to be transferred data depends on the size of the input data .
+* this time is derived from the transfer of partial derivatives only , because for an association analysis with relatively few phenotypes it is not necessary to transfer encoded data .
+ni - number of individuals in the study ; np - number of phenotypes of interest ; nt - number of tests ( genetic variants ) ; ns - number of sites in the meta - analysis .
+in standard analysis ni << np and ni << nt .

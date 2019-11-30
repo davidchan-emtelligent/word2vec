@@ -1,0 +1,353 @@
+sensors ( basel ) sensors ( basel ) sensors ( basel , switzerland ) 1424 - 8220 mdpi 24013490 3821311 10.3390 / s130911797 sensors - 13 - 11797 article automatic determination of validity of input data used in ellipsoid fitting marg calibration algorithms olivares alberto 1 * ruiz - garcia gonzalo 2 olivares gonzalo 2 gorriz juan manuel 1 ramirez javier 1 1 department of signal theory , telematics and communications , citic - university of granada , calle periodista rafael gomez montero , 2 , e - 18071 granada , spain ; e - mails : gorriz @ ugr.es ( j.m.g. ) ; javierrp @ ugr.es ( j.r . )
+2 department of computer architecture and computer technology , citic - university of granada , calle periodista rafael gomez montero , 2 , e - 18071 granada , spain ; e - mails : gruiz @ ugr.es ( g.r. - g. ) ; gonzalo @ ugr.es ( g.o . )
+* author to whom correspondence should be addressed ; e - mail : aolivares @ ugr.es ; tel. : + 34 - 958 - 241 - 777 .
+9 2013 05 9 2013 13 9 11797 11817 29 7 2013 29 8 2013 03 9 2013 ( c ) 2013 by the authors ; licensee mdpi , basel , switzerland .
+2013 this article is an open access article distributed under the terms and conditions of the creative commons attribution license ( http :// creativecommons.org / licenses / by / 3.0 /) .
+ellipsoid fitting algorithms are widely used to calibrate magnetic angular rate and gravity ( marg ) sensors .
+these algorithms are based on the minimization of an error function that optimizes the parameters of a mathematical sensor model that is subsequently applied to calibrate the raw data .
+the convergence of this kind of algorithms to a correct solution is very sensitive to input data .
+input calibration datasets must be properly distributed in space so data can be accurately fitted to the theoretical ellipsoid model .
+gathering a well distributed set is not an easy task as it is difficult for the operator carrying out the maneuvers to keep a visual record of all the positions that have already been covered , as well as the remaining ones .
+it would be then desirable to have a system that gives feedback to the operator when the dataset is ready , or to enable the calibration process in auto - calibrated systems .
+in this work , we propose two different algorithms that analyze the goodness of the distributions by computing four different indicators .
+the first approach is based on a thresholding algorithm that uses only one indicator as its input and the second one is based on a fuzzy logic system ( fls ) that estimates the calibration error for a given calibration set using a weighted combination of two indicators .
+very accurate classification between valid and invalid datasets is achieved with average area under curve ( auc ) of up to 0.98 .
+calibration accelerometer magnetometer marg mems automatic validation fuzzy fls thresholding 1 .
+introduction the use of microelectromechanical ( mems ) magnetic , angular rate and gravity ( marg ) sensors has exponentially increased during recent years , leading to an estimated $ 3 , 500m business in 2013 and a predicted $ 9 , 000m business by 2017 [ 1 ] .
+many commercial electronic devices such as smartphones , tablets , gps navigators , watches and videogame peripherals include accelerometers and magnetometers that are used to estimate the orientation of a body in space [ 2 - 4 ] , compute trajectories [ 5 - 7 ] , analyze motion [ 8 - 10 ] , and other innovative measurement applications such as 3d scanning [ 11 ] .
+mems marg sensors need to be calibrated in order to transform measured raw data into meaningful physical units and / or to compensate for a series of undesired effects .
+calibration is , thus , a very important step to improve the accuracy of the measurements and , consequently , to increase the quality and efficiency of the system in which the sensors are embedded .
+a large amount of works regarding accelerometer and magnetometer calibration algorithms has been published over the last decade .
+some representative examples can be found in [ 12 - 20 ] .
+most calibration algorithms are based on 3 - d ellipsoid fitting methods , which minimize a cost function to estimate the value of a set of calibration parameters that define the sensors model [ 21 ] .
+once the calibration parameters are estimated , they are substituted in the general equation that models the sensor to obtain the calibrated measurement .
+every calibration algorithm requires the operator to carry out a set of maneuvers to gather the necessary data for the minimization process .
+these maneuvers usually require placing the sensor in multiple random positions in the space trying to cover the locus of a sphere , which has a radius equal to the norm of the physical magnitude being used as a reference ( earth 's magnetic and gravitational fields or a constant angular speed ) .
+the resulting 3d representation of the gathered points is shaped as an ellipsoid since the intrinsic errors in the sensor 's output distort the ideal sphere .
+covering all the positions to define a perfectly populated ellipsoid is not a straightforward task as it is complicated to keep a visual record of all the positions that have already been swept .
+as a consequence , it is usual to gather sets of points that are ill - distributed and lack important parts of the ellipsoid .
+on the other hand , some navigation systems recalibrate their sensors periodically .
+if the vehicle in which the navigation system is installed has not covered enough positions relative to a reference frame , then the data that are continuously being gathered can lead to an erroneous calibration .
+lotters et al .
+[ 22 ] presented an in - use calibration algorithm , which periodically recalibrated an inertial measurement unit ( imu ) attached to a human body .
+it lacked from a mechanism of validation of the distribution of the data being gathered so as the authors acknowledge , if a certain number of positions of the body had not been covered , the resulting calibration error was very high .
+figure 1 shows a properly distributed set of magnetometer data , and an incomplete set resulting from an erroneous performance of the calibration maneuvers .
+ill - distributed calibration sets result in a less defined ellipsoid which , in turn , results in a suboptimal set of calibration parameters estimated by the ellipsoid fitting algorithm [ 22 ] .
+it is then very important to use properly distributed calibration sets to ensure the correct estimation of the calibration parameters and an efficient calibration process of marg sensors .
+therefore , it is also desirable to have a system that constantly analyzes the distribution of the data that will be used to recalibrate the parameters and only enable the calibration process when a low error is guaranteed .
+camps et al .
+[ 23 ] proposed a solution to help the operator carrying out the calibration maneuvers .
+they developed a data visualization tool , which depicted in real time the value of the spherical coordinates phi and theta as it is depicted in the right column of figure 1 .
+this way , the operator has instant feedback on which areas have not yet been covered and can , therefore , place the sensor in the remaining positions .
+this is a simple and valid solution if there is a base station to which the sensor sends the calibration data in real time .
+however , what happens if we want to gather in - field calibration data and we do not have any equipment to act as a base station ?
+what happens if imu , or the development board containing the sensors , stores the data locally and does not have the ability to transfer data in real time ?
+in these two cases , the feedback visualization tool would be of no help .
+a possible solution is to develop an automatic algorithm that is able to determine the validity of the calibration dataset by analyzing the spatial distribution of the data while it is being gathered .
+to do so , we will need to identify a series of indicators that can link the spatial distribution of input calibration data to the resultant calibration error that would be obtained if such a dataset was provided to the calibration algorithm .
+the calibration error can be defined in many ways , e.g. , the error of the estimated calibration parameters with respect to the optimal ones , or the error of the norm of the calibrated measured physical magnitude with respect to the norm of a known reference .
+in this work , we opted to use the latter definition as it will be further detailed in the experiments section .
+1.1 .
+objectives the main objectives of this work are listed below : find a series of indicators that contain information about the spatial distribution of the input calibration data of marg sensors .
+develop an automatic system that uses one or a combination of various indicators to validate the calibration dataset and ensure a proper calibration process .
+1.2 .
+paper structure the paper is structured as follows .
+section 2 includes the basics of ellipsoid - fitting calibration algorithms as well as models used to describe the output of marg sensors .
+section 3 presents the selection of indicators and the proposal of two algorithms , one using a single input and based on a simple threshold comparison , and another one using a multiple input and based on a fuzzy system .
+section 4 includes all the experiments that were carried out to test the proposed approaches and a selection of the most significant results .
+section 5 contains a discussion of the obtained results and the validity of the developed system .
+finally , conclusions are drawn in section 6 .
+2. ellipsoid - fitting calibration algorithms ellipsoid fitting algorithms are a recurring solution [ 24 - 26 ] to calibrate marg sensors .
+these algorithms are applied to estimate a set of parameters that model the output of the sensor and its intrinsic errors .
+a simple and commonly used model that maps the raw output of a triaxial marg sensor to the actual value of the measured physical magnitude ( acceleration , magnetic field or angular rate ) is as follows , ( 1 ) ( vxvyvz )=( kx000ky000kz )( uxuyuz )+( oxoyoz ) where vi represents the raw sensor output , ki is the scale factor ( or sensor gain ) , ui is the value of the physical magnitude that we wish to estimate and oi is the offset of axis i = { x , y , z } .
+this equation can be expressed in a more compact way using matrix notation , ( 2 ) v = ku + o this model can be complicated by adding other parameters that model undesired effects such as the orthogonality error between sensor axes , i.e. , the non - orthogonality between the sensor triplet , or the misalignment error between the axes of the sensor and the reference axes of the boar , and / or the box in which it is mounted .
+the following model proposed by [ 25 ] includes the orthogonality and misalignment errors , ( 3 ) v = ktmu + owhere v , k and o , u are again the raw measurements vector , the scale factor matrix , the offset vector and the actual measurement value , respectively .
+t and m are the non - orthogonality matrix and misalignment matrix and can be expressed as follows , ( 4 ) tk =[ 100cosalphak10cosbetakcosgammak1 ] where alpha represents the displacement angle of y ' axis with respect to x axis , beta the displacement angle of z ' axis with respect to x axis and gamma the displacement angle of z ' axis with respect to y axis .
+in a nutshell , the orthogonalization matrix tk transforms the vector expressed in the orthogonal sensor reference frame xy z into the vector expressed in the non - orthogonal sensor reference frame xyz ' .
+the misalignment matrix mk is a rotation matrix , composed of three individual axis rotation matrices , which converts the frame xcyczc in a rotated frame xpypzp .
+both effects are depicted in figure 2 .
+( 5 ) mk =[ 1000cosphiksinphik0 - sinphikcosphik ][ costhetak0 - sinthetak010sinthetak0costhetak ][ cospsiksinpsik0 - sinpsikcospsik0001 ] mk =[ costhetacospsikcosthetaksinpsik - sinthetaksinphiksinthetakcosphik - cosphiksinpsiksinphiksinthetaksinpsik + cosphikcospsiksinphikcosthetakcosphiksinthetakcospsik + sinphiksinpsikcosphiksinthetaksinpsik + sinphikcospsikcosphikcosthetak ] where phik , thetak and psik are the rotation angles around x ' , y ' and z ' axes respectively .
+now , knowing that the norm of the actual measurement u is constant under stable magnetic conditions ( in the case of the magnetometer ) , quasi - static conditions ( in the case of the accelerometer ) , constant turning rate ( in the case of the gyroscope ) , we obtain , ( 6 ) u2 = ux2 + uy2 + uz2where u is the norm of the magnetic , angular rate or acceleration reference .
+substituting equation ( 1 ) in equation ( 6 ) , we get ( 7 ) u2 =( vx - oxkx ) 2 +( vy - oyky ) 2 +( vz - ozkz ) 2which happens to be the equation of an ellipsoid with center o + epsilon and semiaxes kx , ky and kz. the goal of ellipsoid - fitting algorithms is to estimate the set of parameters defined in the sensor model in order to compute the value of the calibrated measurement in equation ( 1 ) or ( 3 ) .
+the estimation of the parameters p = ( kx , ky , kz , ox , oy , oz , ...) is usually done by minimizing the mean square error e ( p ) between the norm of the estimated calibrated measurement u and the norm of the actual measurement u , ( 8 ) e ( p )= 1nsumn = 1n (|| u || - || u ^( p )||) 2where n is the total number of measurements used for the calibration process ( which will we later refer as to the " input calibration dataset ") .
+the norm of the actual measurement || u || is a known magnitude and takes the following value depending on the sensor being calibrated : magnetometer : u is equal to the norm of the earth 's magnetic field in the location in which the sensor is being calibrated .
+accelerometer : u is equal to the norm of the earth 's gravitational field in the location in which the sensor is being calibrated .
+this value is usually normalized to 1 if acceleration is measured in g units .
+gyroscope : u is equal to the value of a constant angular rate to which the sensor is subject , e.g. , using a rate table .
+the minimization process can be carried out using linear or non - linear optimization algorithms .
+another way to estimate the parameters in equation ( 7 ) is to use an enclosing ellipsoid algorithm such as the one in [ 27 ] .
+3. validation algorithms now that we have briefly revised the basic principles of marg sensor modeling and ellipsoid - fitting calibration algorithms , we can proceed to present the core of our work .
+3.1 .
+selection of indicators as aforementioned , the main goal of our work is to develop an algorithm that links the spatial distribution of input calibration data to the error obtained after the calibration process .
+therefore , we need to analyze the calibration input data to obtain a reliable verdict of the suitability of their spatial distribution .
+to do so , we need to select a set of indicators that contain relevant information about the spatial distribution of data .
+we have selected four parameters that we originally thought would provide useful information .
+the chosen indicators are : indicator a : sum of the difference of the third quartile ( q3 ) and the first quartile ( q1 ) of spherical coordinates phi and theta .
+a large difference between q3 and q1 indicates that data cover a wider region of space and , thus , are not concentrated in a limited region .
+if the values taken by both phi and theta are homogeneously distributed within [ - 180degrees , 180degrees ] and [ - 90degrees , 90degrees ] respectively , the value of the indicator will take a high value in the [ 0degrees , 540degrees ] range .
+therefore , indicator a can be computed as follows , ( 9 ) ia =( q3theta - q1theta )+( q3phi - q1phi ) indicator b : sum of the number of empty bins in the histograms of spherical coordinates phi and theta .
+based on the premise of the work carried out by [ 23 ] , we considered that the analysis of the distribution of the histograms could be a significant indicator .
+ideally , an optimal calibration data distribution should contain a large number of well distributed points .
+then , the associated phi and theta histograms should contain a reduced number of empty bins .
+indicator b can be expressed as , ( 10 ) ib =#{ bthetai /# bthetai = 0 }+#{ bphii /# bphii = 0 } , i = 1 ,... , nwhere # is the cardinality of a set ( number of elements of the set ) , bthetai and bphii are the elements of the sets btheta and bphi composed of the histogram bins of theta and phi respectively , and n is the total number of histogram bins .
+indicator c : sum of the euclidean distance between the maximum and minimum values of each of the gathered data components , i.e. , the sum of the lengths of axes of the ellipsoid defined by the gathered data .
+indicator c is computed using , ( 11 ) ic = d ( max ( gx ) , min ( gx ))+ d ( max ( gy ) , min ( gy ))+ d ( max ( gz ) , min ( gz )) where gk is the set of values gathered by the sensor in axis k = { x , y , z } and defining the set g. indicator d : volume of the convex hull defined by the dataset .
+the convex hull of a set of g points in the euclidean space is defined as the smallest convex set that contains g. therefore , we will be computing the volume contained in the smallest quadric surface defined by the points in the dataset .
+indicator d is defined as , ( 12 ) id = v ( qhull ( g )) where g is the set defined by the gathered points , qhull stands for the quick hull algorithm developed by barber et al .
+[ 28 ] , and v stands for the volume .
+the quick hull algorithm is available for many programming platforms and languages such as c ++ , matlab , r , gnu octave , among others .
+practical implementation information can be found in [ 29 ] .
+3.2 .
+single - indicator thresholding approach the first approach that comes to mind is to individually use each one of the selected indicators to check their relation to the calibration error .
+this approach consists of computing the indicator that is best linked to the calibration error and apply a thresholding algorithm .
+the thresholding algorithm compares the value of the selected indicator with an empirically predefined threshold and will only validate the calibration dataset if it exceeds it ( in the case of indicators a , c and d ) or it is under it ( indicator b ) .
+( 13 ) ifii >= alphai ; thensigma = 1where ii is the dataset indicator for i = { a , b , c , d } , alphai is the predefined threshold associated to that indicator and zeta is the validation flag ( zeta = 1 if dataset is valid , zeta = 0 if not ) .
+a series of experiments are needed to check the strength of the relation of each one of the proposed indicators with the calibration error and their suitability as validators of the goodness of the calibration dataset .
+in addition , such experiments will also reveal the optimal value of the predefined thresholds .
+experiments carried out with this purpose are later explained in section 4 .
+3.3 .
+multiple - indicator fuzzy approach in general , indicators extracted from each set of calibration points are not directly related to the error value , i.e. , there is no functional relation between the calibration error and the indicators' values .
+this means that two different sets of calibration measured points , which may have very similar values for all four geometrical and statistical indicators defined in previous sections , may not have associated error values close to each other .
+moreover , it can occur that two calibration sets deriving in similar calibration errors have significantly different indicator values .
+despite this non - functional relation between the value of the indicators and the calibration error , it is intuitive and reasonable to think that there exists a fuzzy relation between them .
+for example , as it will be later demonstrated , a dataset having a large value for the volume comprised by the convex hull and a large distance between components would lead to a low calibration error .
+the fuzzy relationship between these two indicators ( convex hull and distance between components ) could be stated as follows , ( 14 ) ificis high andidis high then calibration error is low.consequently , ( 15 ) ificis low andidis low then calibration error is high .
+rules like equations ( 14 ) and ( 15 ) can be defined combining all different indicators and defining a complete set of rules .
+so , if we consider a set of m indicators as the input vector , the calibration error as the scalar output and k sets of calibration points , it is possible to propose a multiple - input single - output function estimation problem from a given set of k input - output pairs .
+more precisely , for the calibration set k , k = 1 , ... , k , let us write each input - output pair as ( xk ; zk ) , where x - - > k =( x1k,x2k ,... , xmk ) is the input vector comprised by the m values of the indicators and zk is the calibration error .
+in this work we opted to use a zero - order takagi - sugeno - kang ( tsk ) fuzzy logic system ( fls ) , defined by a complete set of rules [ 30 ] as , ( 16 ) ifx1isx1i1andx2isx2i2 ... andxmisxmimthenz = ri1i2 ... imwhere xmimin { xm1,xm2 ,... , xmnm } are the nm fuzzy sets of input m , and ri1i2 ... im is the i1i2 ... im scalar consequent of the rule .
+choosing the product as the t - norm operator , and denoting muxmim as the membership function of input m to the set xmim , the fls output can be expressed as follows : ( 17 ) f ~( x - - > k )= sumi1 = 1n1sumi2 = 1n2 ... sumim = 1nm ( ri1i2 ... improductm = 1mmuxmim ( x - - > mk )) sumi1 = 1n1sumi2 = 1n2 ... sumim = 1nm ( productm = 1mmuxmim ( x - - > mk )) defining such a fuzzy system would require the following : choosing the number of inputs ( m ) ; choosing the number of membership functions ( mfs ) as well as their type and parameters ; and selecting the scalar consequents for each rule .
+although it is possible to perform all this design manually choosing the value of each parameter , it would be very time expensive , suboptimal and strongly influenced by the designer 's subjective criterion .
+thus , to avoid these issues , an automatic approach has been selected in this work in order to create an adaptive and nearly optimum fls .
+first of all , we have decided to use triangular mfs comprising a complete partition in the input space [ 30 ] .
+this is a typical choice when designing fuzzy systems [ 30 - 32 ] as it has two main advantages : on the one hand , it avoids the existence of input points that do not activate any rule and cause the fls to be ill - defined by making the denominator in equation ( 17 ) equal to zero ; on the other hand , such a partition makes this denominator always equal to one , which results in a much computationally simpler fls .
+the remaining design decisions are those related to the mfs parameters , i.e. , the location of the centers , and the scalar consequents of each rule .
+as the system will be adaptive , the mfs' centers will change their position , so it is only necessary to specify their initial location .
+all mfs will shape an equidistant and complete triangular partition .
+this way , the first and last mfs' centers will coincide with the ends of the input intervals and they will not be selectable parameters as their position is fixed .
+finally , the matrix of rule consequents will be initialized to all zeros , and it will change its values in each iteration to reduce the training error , epsilontrain , defined in the following way , ( 18 ) epsilontrain = epsiloncalib - f ~ where incalib is the actual calibration error that we wish to estimate , which is known during the training process , and f is the output of the fls computed using equation ( 17 ) .
+in general terms , the adaptive strategy adopted in this work is the same as in [ 32,33 ] .
+the consequents matrix r is adapted in each iteration following a reward / penalty policy , which changes the values of the consequents of those rules that have a higher responsibility of the present error ; whereas the mfs' centers vary according to a gradient descent algorithm , modified by a saturation function .
+more precisely , the employed error function is as follows , ( 19 ) j ( r,c )= sumk = 1k ( f ( x - - > k ) - f ~( x - - > k ; r,c )) 2which shows the dependency of j on the matrix r and the mfs' centers , noted cmim to indicate the center of the im triangular mf of input m , which form c. if we consider the quantity f ( xk ) - f ( xk ; r , c ) , it must be noted that , if positive , the output of the fls should have been greater , whereas if negative , it should have been lower .
+therefore , this quantity indicates the magnitude and direction ( increase or decrease ) that should be applied to each of the consequents of the rules that are responsible for the present value .
+the rules are not all rewarded / penalized in the same way ; but the more active a rule becomes , the greater correction it will receive .
+considering that , ( 20 ) alphai1i2 ... im ( x - - >)= productm = 1mmuxmim ( x - - > m ) is defined as the firing strength or activation degree of a rule , each rule consequent will be modified by the quantity given by , ( 21 ) deltari1i2 ... im = c.alphai1i2 ... im ( x - - >)( f ( x - - > k ) - f ~( x - - > k ; r,c )) where c is a design parameter [ 33 ] that is used in fls to compensate for the different scales of the approximated system input control signal u ( k ) and the output function y ( k ) that is used to compute the error .
+it is usually expressed as , ( 22 ) c =| umax - uminymax - ymin | however , in this work , the approximated signal is the same as the signal used to compute the error , so we used c = 1 .
+in the case of the mfs' centers , a similar correction strategy is adopted , this time based on a modified gradient descent algorithm , i.e. , ( 23 ) deltacmim = - etamimdj ( r,c ) dcmim | dj ( r,c ) dcmim |+ lmimwhere lmim is a learning parameter used to increase the speed of convergence , and , ( 24 ) etamim ={ cmim - cmim - 12,ifdj ( r,c ) dcmim >= 0 ; cmim + 1 - cmim2,ifdj ( r,c ) dcmim < 0 ; this algorithm prevents the centers from changing their order , which in turn prevents the loss of their linguistic meaning .
+this updating method uses a saturation function based on the gradient magnitude , so the centers can move , at most half the distance from their immediate neighbors .
+finally , it is important to highlight three important issues : first , because of the cumbersomeness of the maneuvers to gather each set of calibration points , the total number of input - output pairs available is not very high ( around 50 ) .
+such a limited number of points would lead to a very poor fuzzy training .
+thus , to avoid this from happening , these 50 points have been used up to 10 several times to provide the fuzzy system with at least 500 hundred points to learn the fuzzy relation .
+despite re - usage of these points will not add new information , an artificially larger dataset provides the algorithm with more iterations to improve its convergence .
+the second issue to be highlighted is that this training phase would likely need to be computed offline ( depending on the power of the processor embedded in the mimu ) , presumably in a computer .
+however , the evaluation function found after the training process can be easily included in the embedded firmware and executed online as it is not computationally expensive .
+the third issue to highlight is that although it would have been possible to use optimal consequents adaptation ( as in [ 33 ]) , or even a more complex fls , it would have not improved the general performance of the validator .
+proposing a more complex and capable fls would only result in a system achieving a lower training error at a higher computational cost , which would neither be able to eliminate unpredictable errors in the output as the relation between markers and calibration error would still be not functional .
+4. experiments we have carried out two sets of experiments , one for each of the proposed approaches .
+we will start by describing the datasets gathered to train and test the validators .
+we have gathered two groups of calibration distributions ; the first one is composed of 27 data distributions and we will refer to it as " dataset 1 " ; the second group is composed of 55 distributions and we will name it " dataset 2 " .
+both datasets contain ill - distributed and well distributed input calibration data .
+figure 3 depicts the boxplot of each one of the sensing axis ( hi , i = { x , y , z }) of a magnetometer for both datasets .
+this figure reflects the value of the median ( circled point ) , distance between third and first quartiles ( length of the thick blue line ) and the outliers ( red points ) .
+it can be seen at a glance the different statistical nature of the gathered distributions .
+once the data to be used are ready , we apply the following pre - processing steps for each one of the calibration distributions : ( i ) compute all four indicators ( a , b , c and d ) .
+( i ) execute the ellipsoid - fitting calibration algorithm presented in [ 23 ] to estimate the calibration parameters , i.e. , scale factors , biases and orthogonality matrix ( see [ 23 ] for more details ) .
+( i ) apply the computed calibration parameters to calibrate the input calibration data .
+( i ) compute the norm of the calibrated data and calculate the error with respect to the value of the norm of earth 's magnetic field in our location ( 0.432 gauss [ 34 ]) .
+we will refer to this error as the " calibration error " .
+( i ) build a vector containing the calibration errors for each one of the distributions of both datasets .
+( i ) select a maximum error tolerance ( inmax ) from which the associated input calibration distribution will be considered as ill - distributed .
+( i ) build a validation binary marker associated to both datasets , which is set to 1 if the distribution is valid and to 0 if not .
+figures 4 and 5 show the value of all four indicators versus the calibration error for datasets 1 and 2 respectively .
+calibration error has been normalized to the maximum value of the indicator to improve the visibility .
+the maximum calibrated error is the threshold indicating the maximum tolerated error that was used during the training process and to label the distributions as valid or invalid .
+now , once all the auxiliary parameters are ready , the experiments carried out to test the single - indicator thresholding validator are very straightforward .
+as we explained in section 3 , we compare the value of each one of the indicators with a threshold .
+imagine that indicator c has a value of 500 empty bins for distribution n. so , if we consider that any distribution having less than , let 's say , 1000 bins , will be valid as it will result in a value lower than the maximum tolerated error , then , distribution n is marked as valid .
+proceeding this way for the n distributions of the dataset , we will also build an estimated validation binary marker that is subsequently compared with the actual validation marker .
+this comparison is carried out by computing the receiver operating characteristic ( roc ) curve [ 35 ] and the area under the curve ( auc ) , which are the standard indicators of the performance of binary classifiers .
+the value of the predefined threshold has to be set empirically and , in order to find the value resulting in the optimal roc , we have carried out a grid search .
+this can be considered as the training process and it has the following steps : ( i ) build a vector containing the initial threshold , the step and the final threshold values for each one of the four indicators .
+( i ) apply an iterative process in which every value of the threshold is applied to the indicator in order to build and estimated validation marker and compute the roc values .
+( i ) find the threshold values resulting in the best roc values i.e. , those that maximize the value of the auc .
+the selection of the values of the threshold vectors depend on the characteristics of the employed sensor .
+in our case , we employed the triaxial magnetometer included in a wagyromag imu [ 36 ] .
+the measured data are digitalized using a 10 bit adc , so the range of the measurements is [ 0 , 1023 ] .
+the threshold values used for the experiment are listed below .
+notice that these values will differ depending on the hardware characteristics of the device being employed .
+indicator a (( q3theta - q1theta ) + ( q3phi - q1phi )) : as explained in section 3 , the values of phi and theta are distributed within [ - 180degrees , 180degrees ] and [ - 90degrees , 90degrees ] respectively .
+therefore , the possible values of the indicator , and analogously the values of the threshold , are bounded in [ 0degrees , 540degrees ] .
+indicator b ( total number of empty bins in phi and theta histograms ) : since phi and theta can take up to 1,024 values each , the total number of empty bins will be in the [ 0 , 2047 ] range .
+therefore , this will also be the vector of possible threshold values .
+indicator c ( sum of the euclidean distance between the maximum and minimum gathered components ) : ideally , the radius of the sphere will be in the [ 0 , 512 ] range .
+therefore , the sum of the three ellipsoid axes will be in [ 0 , 3072 ] range and so will be the threshold vector .
+indicator d ( volume of the convex hull ) : given that the volume of a reference well distributed and highly populated raw calibration set is around 5 x 108 , while the volume of a poorly distributed set is in the order of 107 , then the threshold vector will be set to [ 1 x 106 , 6 x 108 ] .
+the selection of a grid - search parameter optimization strategy over any other error minimization algorithm is well justified in this case since the number of possible values the parameters can take is known and limited .
+moreover , the grid - search ensures finding the optimal parameters and presents no problems of convergence to local minima as the gauss - newton and levenberg - mardquart algorithms .
+the maximum tolerated calibration error inmax was chosen by visually inspecting the error vector of both datasets ( as depicted in figures 4 and 5 ) and choosing the largest between the group of low errors considerable as acceptable .
+we chose inmax1 = 0.0273 gauss and inmax2 = 0.0262 gauss for datasets 1 and 2 respectively .
+table 1 shows the optimal threshold values obtained for each one of the indicators for both datasets as well as the associated roc values .
+after the training process , we need to check the validity of the computed parameters using dataset 1 by applying them over dataset 2 and viceversa .
+table 2 shows the results derived from this process .
+the second part of the experiments is conducted to test the performance of the multiple - indicator fuzzy validator .
+we trained the fls with all the possible input combinations of two indicators and then tested it over the dataset that was not used for the training .
+the output of the fls is an estimation of the calibration error values that would be obtained for each one of the input calibration distributions .
+the estimated calibration error also needs to be compared with a predefined error tolerance , which should ideally be equal to inmax .
+expecting some deviation of the estimated error with respect to the actual error , we also built a vector of error tolerances and carried out a grid - search to find the optimal value obtaining the best roc parameters .
+figure 6 shows the outcome of the training process using dataset 1 and its application to dataset 2 , as well as the estimated actual binary validation markers .
+table 3 reflects the roc parameters for each one of the combinations together with the optimal error threshold which , as can be seen at a glance , is very close to the actual value ( inmax ) .
+5. results discussion when analyzing the results obtained by the single - indicator thresholding validator , we see that for dataset 1 it was possible to find a threshold for all indicators , which ensured perfect classification , i.e. , the estimated validation marker was equal to the actual marker .
+on the other hand , for dataset 2 , which included twice the number of distributions , the percentage of correct decisions slightly decreases .
+however it is still very close to the optimal situation .
+regarding the performance of each indicator we observe that : indicator a : it shows the poorest results of all indicators .
+the sum of the difference between q3 and q1 does not consider the possible outliers ( extreme values , see figure 3 ) which also may contain information about the existence of less populated areas that contribute to cover the complete locus of the sphere and reduce the calibration error .
+then , if a distribution contains one or more regions with high density of points and other less populated but still covered areas , the indicator will penalize it although it will likely result in a low calibration error .
+indicator b : counting the number of empty bins in the histograms offers an acceptable precision but it can be an ambiguous indicator .
+having , for example , two distributions containing a similar number of points , the number of empty bins can be very similar or even identical .
+however , if one of the distributions covers the complete surface of the ellipsoid with a low density of points , while the other one covers only a limited region of the surface with a high density of points , the calibration error will be very different .
+the less populated distribution will achieve a lower error since it gives better information to the fitting algorithm about the shape of the ellipsoid .
+this indicator is only trustable when we set a very strict threshold , i.e. , when the number of permitted empty bins is very low (~ 10 % out of the total ). by setting a very strict threshold , we can guarantee that the calibration process will yield good results .
+however , this restriction eliminates valid distributions that have a much lower number of points but offer good performance .
+in other words , a restrictive threshold causes no false positives ( ill - distributed calibration sets being validated ) but it may generate a large number of false negatives ( well - distributed calibration sets being discarded ) .
+if , on the other hand , we set a less restrictive threshold , the number of false negatives will decrease but the number of false positives will increase ( which is a less desirable situation ) .
+indicator c : the sum of the euclidean distance between the maximum and minimum values gathered in each axis of the sensor has shown to be the second best indicator among the tested ones .
+this indicator shows if axis antipodal areas are covered .
+then , if it has a high value , it indicates that we have at least covered the three ellipses around the three axes .
+however , this indicator does not provide further information about the number and density of points in other areas located outside the ellipsoid main axes .
+the fitting calibration algorithm may have trouble converging to optimal parameters if only points in the axes are provided .
+in an extreme case in which we only have points contained in the three ellipses around the axes , the indicator will present a high value and tag the distribution as valid while it would actually result in the estimation of erroneous calibration parameters .
+however , since this is a very extreme and rare case , we can conclude that indicator c is a good indicator of the validity of the input calibration set .
+indicator d : the volume contained by the smallest surface wrapping the data points ( the convex hull ) has revealed to be the best of the tested indicators as it contains trustful information about the proper distribution of the calibration sets .
+it achieved perfect classification for both datasets in the training process ( i.e. , it was possible to find a threshold value that perfectly distinguished between valid and invalid distributions ) and an almost perfect classification in the test process , which was only partially distorted by a reduced number of false negatives ( which are less critical than false positives ) .
+the computation of the volume solves the situation explained in the previous point in which data points are only contained in the ellipses around the axes .
+if this is the case , the approximated convex hull will present sharper and more abrupt edges and , hence , the volume will be lower and the set will be penalized .
+figure 7 shows a well distributed and highly populated set and a set in which the points are only contained in ellipses around the axes triplet .
+distances between maximum and minimum components as well as the estimated convex hull are also plotted to see the aforementioned problem .
+the value of the indicators is cwell = 3113 , cill = 2954 , dwell = 4.9196 x 108 and diill = 3.9166 x 108 .
+notice how the difference between dwell and dill is more accentuated as the difference between cwell and cill , hence , the better discrimination ability of indicator d. the multiple - indicator fuzzy approach was developed to test the performance of a decision system using combinations of weighted indicators as input .
+the fls showed its power to obtain an estimation of the calibration error using only the indicators as the input during the training phase .
+the success of the testing phase varied depending on the employed combination of indicators .
+the combination of indicators a and b achieved the poorest performance with an average auc of 0.8963 +/ - 0.0105 ( table 2 ) .
+on the other hand , as it was expected , the joint use of indicators c and d obtained an almost perfect decision rate with an average auc of 0.9861 +/ - 0.0197 ( table 2 ) showing the best performance of all tested approaches .
+indicators c and d have been proved to contain more relevant information about the goodness of the spatial distribution of the input calibration datasets .
+the fls approach is also easier to tune , as the output is an estimate of the calibration error , so the threshold can be directly set according to the desired degree of calibration error tolerance .
+on the other hand , it is harder to regulate ( manually set ) the value of the indicators' threshold when using the single - indicator approach since the relationship between the value of the indicator and the calibration error is not functional and therefore , not evident .
+6. conclusions and future work in this work , we have presented the problems derived from the use of ill - distributed datasets as the input of ellipsoid fitting algorithms used to calibrate marg sensors .
+we have presented two different systems that monitor and assess the goodness of the spatial distribution of data being gathered during the calibration maneuvers and , therefore , validate them only when a low calibration error is ensured .
+both approaches are based on the computation and analysis of four distribution indicators , namely the sum of the difference of the third quartile and the first quartile of spherical coordinates phi and theta ( indicator a ) ; the sum of the number of empty bins in the histograms of spherical coordinates phi and theta ( indicator b ) ; the sum of the euclidean distance between the maximum and minimum values of each of the gathered data components ( indicator c ) and the volume of the convex hull defined by the dataset ( indicator d ) .
+the first approach , referred to as the " single - indicator thresholding approach " is based on comparing the value of a single indicator with a predefined threshold from which it is considered that the error will be low .
+we carried out a grid - search training process that revealed the optimal value of the threshold of each indicator .
+for indicator d , we found a threshold value that ensured perfect classification , i.e. , the estimated validation marker was identical to the actual marker .
+after finding the optimal threshold values , we tested them in a dataset different from the one used for the training .
+again , marker d obtained the best performance with an average roc of 1.0000 +/ - 0.0000 in the first dataset and 0.8889 +/ - 0.1571 in the second dataset .
+the second approach was designed to use weighted combinations of two indicators as the input .
+we designed a tsk fuzzy logic system with 10 membership functions that was used to infer the relationship between the indicators and the calibration error .
+results showed that the estimation of the error was very accurate and an average auc of 0.9861 +/ - 0.0197 was obtained using parameters c and d as the input .
+results have been obtained for a triaxial magnetometer since the data gathering process is faster than for the accelerometer .
+accelerometers need to be placed in quasi - static positions to avoid the linear acceleration from distorting the gravity , which is used as the reference .
+this fact considerably increases the duration of the calibration maneuvers to obtain the same number of points as with the magnetometer .
+results are generalizable since when using ellipsoid fitting algorithms the only difference comes from the physical magnitude used as a reference ( norm of earth 's magnetic field , norm of earth 's gravitational field or a constant known angular rate ) .
+it has been shown that the calibration error of ellipsoid fitting algorithms can be predicted by analyzing the spatial distribution of the input datasets .
+the system we propose could be used to improve the performance of automatic in - use calibration algorithms that periodically recalibrate marg sensors , as well as to ease the calibration maneuvers carried out by in - field operators .
+in addition , in case that the imu being calibrated had local processing capabilities , our algorithm could be included in the firmware and send an alert to the operator ( through an led , playing a sound or with any other kind of actuator ) whenever the calibration dataset is well distributed , to inform the operator that no further maneuvers are required .
+future work will be oriented to implement an algorithm to detect and reject outliers in data distributions caused by magnetic distortions to improve the performance of our system when applied to magnetometers .
+measurements of magnetometers can be disrupted by external magnetic fields other than the earth's. if the mimu is used in a very unstable magnetic environment , the magnetometer 's output will be distorted and the indicators may get erroneous values , which may fool the detection system .
+we will also evaluate other alternatives to the fls such as neural networks and multifactor regression to reduce the computational load of the training process .
+this work was partly supported by the micinn under the tec2012 - 34306 project , the meec under the tin2012 - 32039 ( hpmoon ) and the consejeria de innovacion , ciencia y empresa ( junta de andalucia , spain ) under the excellence projects p09 - tic - 4530 and p11 - tic - 7103 .
+conflicts of interest the authors declare no conflict of interest .
+references 1 .
+yole developpement - - mems reports available online : http :// www.i - micronews.com / mems / reports /( accessed on 4 september 2013 ) 2 .
+tilt sensing using linear accelerometers ( freescale semiconductor application note ) available online : http :// goo.gl / 0dulq ( accessed on 14 january 2013 ) 3 .
+implementing a tilt - compensated ecompass using accelerometer and magnetometer sensors ( freescale semiconductor application note ) available online : http :// goo.gl / pgmfx ( accessed on 14 january 2013 ) 4 .
+luczak s. advanced algorithm for measuring tilt with mems accelerometers recent advances in mechatronics springer berlin / heidelberg , germany 2007 511 515 5 .
+krach b. robertson p. integration of foot - mounted inertial sensors into a bayesian location estimation framework proceedings of the 5th workshop on positioning , navigation and communicationhannover , germany27 march 2008 55 61 6 .
+skog i. nilsson j.o. handel p. evaluation of zero - velocity detectors for foot - mounted inertial navigation systems proceedings of the 2010 international conference on indoor positioning and indoor navigation ( ipin ) zurich , switzerland15 - 17 september 2010 1 6 7 .
+park s.k. suh y.s. a zero velocity detection algorithm using inertial sensors for pedestrian navigation systems sensors 2010 10 9163 9178 22163402 8 .
+susi m. renaudin v. lachapelle g. motion mode recognition and step detection algorithms for mobile phone users sensors 2013 13 1539 1562 23348038 9 .
+gonzalez - villanueva l. cagnoni s. ascari l. design of a wearable sensing system for human motion monitoring in physical rehabilitation sensors 2013 13 7735 7755 23774987 10 .
+chung p. ng g. comparison between an accelerometer and a three - dimensional motion analysis system for the detection of movement physiotherapy 2012 98 256 259 22898584 11 .
+grivon d. vezzetti e. violante m.g. development of an innovative low - cost { marg } sensors alignment and distortion compensation methodology for 3d scanning applications robot. auton. syst .
+2013 10.1016 / j.robot.2013.06.003 12 .
+batista p. silvestre c. oliveira p. cardeira b. accelerometer calibration and dynamic bias and gravity estimation : analysis , design , and experimental evaluation ieee trans .
+control syst. technol .
+2011 19 1128 1137 13 .
+shi z. yang j. yue p. cheng z. a discrimination method for accelerometer static model parameter based on nonlinear iterative least squares estimation proceedings of the ieee 2010 3rd international symposium on systems and control in aeronautics and astronautics ( isscaa ) harbin , china8 - 10 june 2010 963 966 14 .
+zhang x. gao l. a novel auto - calibration method of the vector magnetometer proceedings of the ieee , 9th international conference on electronic measurement & instruments 2009 .
+icemi ' 09beijing , china16 - 19 august 2009 145 150 15 .
+frosio i. pedersini f. borghese n.a. autocalibration of mems accelerometers ieee trans. instrum. meas .
+2009 58 2034 2041 16 .
+skog i. handel p. calibration of a mems inertial measurement unit proceedings of the xvii imeko world congressrio de janeiro , brazil17 - 22 september 2006 17 .
+petrucha v. kaspar p. calibration of a triaxial fluxgate magnetometer and accelerometer with an automated non - magnetic calibration system proceedings of the 2009 ieee sensorschristchurch , new zealand25 - 28 october 2009 1510 1513 18 .
+sahawneh l. jarrah m.a. development and calibration of low cost mems imu for uav applications proceedings of the 5th international symposium on mechatronics and its applicationsamman , jordan27 - 29 may 2008 1 9 19 .
+dorveaux e. vissiere d. martin a.p. petit n. iterative calibration method for inertial and magnetic sensors proceedings of the 48th ieee conference on decision and control , 2009 held jointly with the 2009 28th chinese control conferenceshanghai , china15 - 18 december 2009 8296 8303 20 .
+renaudin v. afzal m.h. lachapelle g. new method for magnetometers based orientation estimation proceedings of the ieee position location and navigation symposium ( plans ) , 2010 ieee / ionindian wells / palm springs , usa3 - 6 may 2010 348 356 21 .
+gietzelt m. wolf k.h. marschollek m. haux r. performance comparison of accelerometer calibration algorithms based on 3d - ellipsoid fitting methods comput .
+methods progr. biomed .
+2013 111 62 71 22 .
+lotters j. schipper j. veltink p. olthuis w. bergveld p. procedure for in - use calibration of triaxial accelerometers in medical applications sens .
+actuators a phys .
+1998 68 221 228 23 .
+camps f. harasse s. monin a. numerical calibration for 3 - axis accelerometers and magnetometers proceedings of the ieee international conference on electro / information technologywindsor , on , canada7 - 9 june 2009 217 221 24 .
+timo p. automatic and adaptive calibration of 3d field sensors appl. math. model .
+2008 32 575 587 25 .
+jurman d. jankovec m. kamnik r. topic m. calibration and data fusion solution for the miniature attitude and heading reference system sens .
+actuators a phys .
+2007 138 411 420 26 .
+bonnet s. bassompierre c. godin c. lesecq s. barraud a. calibration methods for inertial and magnetic sensors sens .
+actuators a phys .
+2009 156 302 311 27 .
+todd m.j. yildirim e.a. on khachiyan 's algorithm for the computation of minimum - volume enclosing ellipsoids discrete appl. math .
+2007 155 1731 1744 28 .
+barber c.b. dobkin d.p. huhdanpaa h. the quickhull algorithm for convex hulls acm trans. math. softw .
+1996 22 469 483 29 .
+qhull code for convex hull , delaunay triangulation , voronoi diagram , and halfspace intersection about a point available online : http :// www.qhull.org /( accessed on 4 september 2013 ) 30 .
+lee c.c. fuzzy logic in control systems : fuzzy logic controller .
+ii ieee trans. syst .
+man cybern .
+1990 20 419 435 31 .
+cara a. pomares h. rojas i. a new methodology for the online adaptation of fuzzy self - structuring controllers ieee trans .
+fuzzy syst .
+2011 19 449 464 32 .
+carmona a.b.c. new methodologies for the design of evolving fuzzy systems for online intelligent control ph.d. thesis university of granada granada , spain 2012 33 .
+pomares h. rojas i. ortega j. gonzalez j. prieto a. a systematic approach to a self - generating fuzzy rule - table for function approximation ieee trans. syst .
+man cybern .
+part b cybern. publ .
+ieee syst .
+man cybern. soc .
+2000 30 431 447 34 .
+center n.g.d. ngdc geomagnetic calculators .
+noaa 's national geophysical data center and the collocated world data centers , boulder , operated by noaa / nesdis / ngdc , archive and make available geomagnetic data and information relating to earth 's magnetic field and earth - sun environment , including current declination , geomagnetic field models and magnetic indices , geomagnetic observatory data , and geomagnetic surveys .
+35. introduction to roc curves available online : http :// gim.unmc.edu / dxtests / roc1.htm ( accessed on 4 september 2013 ) 36 .
+olivares a. olivares g. mula f. gorriz j. ramirez j. wagyromag : wireless sensor network for monitoring and processing human body movement in healthcare applications j. syst. archit .
+2011 57 905 915 figure 1 .
+gathered input magnetometer calibration datasets : well distributed ( top row ) , ill - distributed ( bottom row ) .
+3d representation ( left column ) and projection of spherical coordinates ( right column ) .
+figure 2 .
+representation of a non - orthogonal sensor triplet ( left ) and representation of a misaligned circuit board with respect to the imu 's external box ( right ) .
+figure 3 .
+boxplot of gathered magnetic field components ( hx , hy and hz ) : dataset 1 ( left column ) , dataset 2 ( right column ) .
+x axis displays the distribution number .
+figure 4 .
+dataset 1 : indicators vs. normalized calibration error .
+figure 5 .
+dataset 2 : indicators vs. normalized calibration error .
+figure 6 .
+fls training using dataset 1 ( top ) , test using dataset 2 ( center ) and final validation ( bottom ) .
+figure 7 .
+well distributed dataset : euclidean distances ( a ) , convex hull ( b ) .
+ill - distributed dataset : euclidean distances ( c ) , convex hull ( d ) .
+table 1 .
+results of the training process of the single - indicator thresholding validator .
+training set indicator max .
+error tol .
+( inmax ) .
+optimal threshold sensitivity specifity auc average auc 1 a 0.0273 59.0000 1.0000 1.0000 1.0000 0.9648 +/ - 0.0497 2 a 0.0262 109.0000 0.9231 0.9310 0.9297 1 b 0.0273 1.3530e + 3 1.0000 1.0000 1.0000 0.9947 +/ - 0.0075 2 b 0.0262 1.3040e + 3 0.9615 1.0000 0.9894 1 c 0.0273 2.3810e + 3 1.0000 1.0000 1.0000 0.9987 +/ - 0.0019 2 c 0.0262 2.2440e + 3 0.9615 1.0000 0.9973 1 d 0.0273 1.1030 + e8 1.0000 1.0000 1.0000 1.0000 +/ - 0.0000 2 d 0.0262 9.8000 + e7 1.0000 1.0000 1.0000 table 2 .
+results of the test procedure of the single - indicator thresholding validator .
+training set indicator optimal threshold sensitivity specifity average roc 1 a 59.0000 1.0000 0.7241 0.8620 +/ - 0.1951 2 a 109.0000 0.6667 1.0000 0.8333 +/ - 0.2357 1 b 1.3530e + 03 0.9615 0.8966 0.9290 +/ - 0.0459 2 b 1.3040e + 03 0.8333 1.000 0.9166 +/ - 0.1179 1 c 2.3810e + 03 0.9231 1.0000 0.9616 +/ - 0.0544 2 c 1.2440e + 03 1.0000 0.7778 0.8889 +/ - 0.1571 1 d 1.1030e + 08 1.0000 1.0000 1.0000 +/ - 0.0000 2 d 9.8000e + 07 1.0000 0.7778 0.8889 +/ - 0.1571 table 3 .
+results of the test procedure of the multiple - indicator fuzzy validator .
+datasets 1 and 2 .
+training set indicators max .
+error tol .
+( inmax ) .
+optimal thr .
+sensitivity specifity auc average auc 1 a & b 0.0262 0.0250 1.0000 0.8276 0.9038 0.8963 +/ - 0.0105 2 a & b 0.0273 0.0220 0.7778 1.0000 0.8889 1 a & c 0.0262 0.0230 0.9615 0.8966 0.8893 0.9168 +/ - 0.0390 2 a & c 0.0273 0.0230 0.8889 1.0000 0.9444 1 a & d 0.0262 0.0310 0.9615 0.9310 0.9198 0.9460 +/ - 0.0371 2 a & d 0.0273 0.0250 0.9444 1.0000 0.9722 1 b & c 0.0262 0.0360 0.9615 0.8621 0.8548 0.9274 +/ - 0.1027 2 b & c 0.0273 0.0490 1.0000 1.0000 1.0000 1 b & d 0.0262 0.0260 0.9615 0.7931 0.7858 0.8790 +/ - 0.1318 2 b & d 0.0273 0.0240 0.9444 1.0000 0.9722 1 c & d 0.0262 0.0250 1.0000 1.0000 1.0000 0.9861 +/ - 0.0197 2 c & d 0.0273 0.0220 0.9444 1.0000 0.9722

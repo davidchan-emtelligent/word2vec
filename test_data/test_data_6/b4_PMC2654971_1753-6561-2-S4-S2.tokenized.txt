@@ -1,0 +1,204 @@
+bmc proc bmc proceedings 1753 - 6561 biomed central 19091049 2654971 1753 - 6561 - 2 - s4 - s2 proceedings towards structured output prediction of enzyme function astikainen katja 1 astikain @ cs.helsinki.fi holm liisa 2 liisa.holm @ helsinki.fi pitkanen esa 1 esa.pitkanen @ cs.helsinki.fi szedmak sandor 3 szs @ ecs.soton.ac.uk rousu juho 1 juho.rousu @ cs.helsinki.fi 1 department of computer science , po box 68 , fi - 00014 university of helsinki , finland 2 institute of biotechnology , p.o. box 56 , fi - 00014 university of helsinki , finland 3 electronics and computer science , university of southampton , so17 1bj , uk 2008 17 12 2008 2 suppl 4 selected proceedings of machine learning in systems biology : mlsb 2007florence d'alche - buc and louis wehenkel s2 s2 copyright ( c ) 2008 astikainen et al ; licensee biomed central ltd .
+2008 astikainen et al ; licensee biomed central ltd .
+this is an open access article distributed under the terms of the creative commons attribution license () , which permits unrestricted use , distribution , and reproduction in any medium , provided the original work is properly cited .
+background in this paper we describe work in progress in developing kernel methods for enzyme function prediction .
+our focus is in developing so called structured output prediction methods , where the enzymatic reaction is the combinatorial target object for prediction .
+we compared two structured output prediction methods , the hierarchical max - margin markov algorithm ( hm3 ) and the maximum margin regression algorithm ( mmr ) in hierarchical classification of enzyme function .
+as sequence features we use various string kernels and the gtg feature set derived from the global alignment trace graph of protein sequences .
+results in our experiments , in predicting enzyme ec classification we obtain over 85 % accuracy ( predicting the four digit ec code ) and over 91 % microlabel f1 score ( predicting individual ec digits ) .
+in predicting the gold standard enzyme families , we obtain over 79 % accuracy ( predicting family correctly ) and over 89 % microlabel f1 score ( predicting superfamilies and families ) .
+in the latter case , structured output methods are significantly more accurate than nearest neighbor classifier .
+a polynomial kernel over the gtg feature set turned out to be a prerequisite for accurate function prediction .
+combining gtg with string kernels boosted accuracy slightly in the case of ec class prediction .
+conclusion structured output prediction with gtg features is shown to be computationally feasible and to have accuracy on par with state - of - the - art approaches in enzyme function prediction .
+24 - 25 september 2007machine learning in systems biology : mlsb 2007evry , france background enzymes are the workhorses of living cells , producing energy and building blocks for cell growth as well as participating in maintaining and regulation of the metabolic states of the cells .
+reliable assignment of enzyme function , that is , the biochemical reactions ( fig. 1 ) catalyzed by the enzymes , is a prerequisite of high - quality metabolic reconstruction and the analysis of metabolic fluxes [ 1 ] .
+figure 1 a chemical reaction catalyzed by the enzyme serine deaminase .
+protein function taxonomies such as gene ontology [ 2 ] and mips cygd [ 3 ] classify proteins according to many aspects , only one of them being the exact function exact ( biochemical reaction catalyzed ) .
+correspondingly , there are several different machine learning settings an approaches to protein function prediction .
+some works concentrate in predicting the top level of the taxonomies , in other words they aim to predict the main categories .
+for example , lanckriet et al .
+[ 4 ] use kernel methods to combine multiple data sources to predict membership of yeast proteins in the 13 top level classes in the mips cygd database [ 3 ] .
+borgwardt et al .
+[ 5 ] use graph kernels to predict the 6 top level enzyme classes in the enzyme commission taxonomy .
+finally , cai et al .
+[ 6 ] predict membership in enzyme families one family at a time with support vector machines .
+our aim differs from the above approaches in that we are interested in predicting the membership of enzymes in the whole taxonomy .
+thus the prediction problem is to output for each concept in the taxonomy whether the protein belongs to the concept or not .
+our methods are so called structured output prediction methods , meaning that both learning and prediction happens simultaneously for the whole taxonomy .
+in this paper we concentrate in hierarchical taxonomies , although our methods generalize to general graph structures .
+in particular , we use ec hierarchy and the gold standard hierarchy [ 7 ] .
+in literature , the works that come close to our setting include the following .
+clare and king [ 8 ] use decision trees to predict the membership in all classes in the mips taxonomy .
+barutcuoglu et al .
+[ 9 ] combine bayesian networks with a hierarchy of support vector machines to predict gene ontology , go classification .
+their work concentrate on the biological process sub - taxonomy of go rather than the functional class .
+blockeel et al .
+[ 10 ] use multilabel decision tree approaches to functional class classification according to the mips funcat taxonomy .
+we compare two kernel - based structured output prediction methods , hierarchical max - margin markov , hm3 [ 11 ] and maximum margin regression , mmr [ 12 ] .
+the former is a method specifically designed for hierarchical multilabel classification , the latter can be seen as a generalization of one - class support vector machine to structured output domains .
+as input features for these algorithms we use difference string kernel variants and the so called gtg features that can be seen as predicted conserved residues .
+polynomial and gaussian kernels are used to construct higher - order features from the base kernels .
+we experiment with two datasets , a sample from kegg ligand database ( called ec dataset subsequently ) and the recently introduced gold standard ( gs ) dataset [ 7 ] .
+results and discussion comparing the polynomial and the gaussian kernels in preliminary tests with mmr we compared the polynomial and gaussian kernels with varying kernel parameter values on top the gtg kernel .
+increasing the degree of the polynomial kernel turned out to monotonically increase the accuracy , the increase being more slow and continuing further on the ec dataset than on the gs dataset .
+for both the gaussian and polynomial kernels the best accuracy was almost the same ( figure 2 ) .
+for subsequent experiments we chose the polynomial kernel due to its simplicity in interpretation in contrast to the gaussian kernel .
+figure 2 effect of kernel parameters to predictive accuracy .
+microlabel f1 scores using mmr methods for ec and gold standard datasets are depicted .
+in the figure on the left , we progressively increase the width of the gaussian kernel .
+in the figure on the right the polynomial degree is progressively increased .
+results in ec class prediction here we report on experiments in predicting the ec - hierarchy with mmr and hm3 using different sequence kernel combinations , with polynomial kernel applied on top .
+we run 5 - fold cross - validation tests and report the 0 / 1 loss and the microlabel f1 score .
+a typical training run with mmr on this data took around 30 minutes .
+in contrast , hm3 training time range was 1 - 24 hours , depending on the kernel .
+our preliminary experiments indicated that gtg kernel is the only single kernel reaching microlabel f1 above 80 % .
+hence , in studying the kernel combinations we concentrated on augmenting gtg kernel with the different string kernels .
+tables 1 and 2 shows the results of this comparison .
+as comparison we use a kernel nearest neighbor ( nn ) : retrieving the training sequence si with highest ( sequence ) kernel value k ( si , t ) with the test sequence t and predicting the associated function yi of the training sequence .
+table 1 ec : f1 score over all microlabel predictions with different kernel combinations combined with linear or degree 51 polynomial kernel .
+sequence kernel nearest neighbor ( std ) mmr linear ( std ) mmr poly - 51 ( std ) hn3 poly - 51 ( std ) gtg 89.3 88.3 ( 0.9 ) 89.4 ( 0.8 ) 89.3 ( 0.8 ) gtg + str5 91.7 90.0 ( 0.5 ) 91.7 ( 0.4 ) 91.7 ( 0.4 ) gtg + gap611 90.9 86.0 ( 0.6 ) 90.9 ( 0.3 ) 90.9 ( 0.3 ) table 2 ec : 01 - loss over all microlabel predictions with different kernel combinations combined with linear or degree 51 polynomial kernel .
+sequence kernel nearest neighbor ( std ) mmr linear ( std ) mmr poly - 51 ( std ) hm3 poly - 51 ( std ) gtg 16.8 ( 0.9 ) 18.6 ( 0.8 ) 16.7 ( 0.9 ) 16.7 ( 0.9 ) gtg + str5 14.2 ( 0.5 ) 16.9 ( 0.5 ) 14.2 ( 0.5 ) 14.2 ( 0.5 ) gtg + gap611 14.8 ( 0.6 ) 19.7 ( 0.6 ) 14.8 ( 0.5 ) 14.8 ( 0.5 ) overall predictive accuracy of all methods turns our to be very good .
+in all experiments , hm3 , mmr and the nearest neighbor classifier are practically equal in accuracy , but only when polynomial kernel of high - degree ( here d = 51 ) is used .
+mmr results with the linear kernel are clearly inferior and hm3 turned out to perform even worse ( data not shown ) .
+we notice that combining a string kernel ( str5 ) with gtg features is in most cases beneficial for all the methods .
+however , allowing gaps in subsequences ( gap611 ) does not seem to help .
+results in gold standard prediction in gold standard classification , gtg features turned out to be the only representation that had predictive value .
+string kernels and combinations of gtg and string kernels produced poor results .
+consequently , we report here results with gtg features only .
+in tables 3 and 4 the microlabel f1 scores and 0 / 1 losses are reported .
+here , hm3 obtains the best microlabel f1 scores and mmr comes close second .
+for mmr , though , polynomial kernel is required to get the best performance .
+nearest neighbor trails both the structured prediction methods , thus indicating that the structured prediction methods can utilize the superfamily information to obtain better predictions .
+table 3 gold standard : f1 score and standard deviation over all microlabel predictions with gtg kernel combined with linear or degree 51 polynomial kernel .
+sequence kernel nearest neighbor ( std ) mmr linear ( std ) mmr poly - 51 ( std ) hm3 linear ( std ) hm3 poly - 51 gtg 88.0 ( 1.0 ) 81.9 ( 1.4 ) 89.3 ( 0.9 ) 90.2 ( 0.8 ) 89.6 ( 0.8 ) table 4 gold standard : 0 / 1 - loss over all microlabel predictions with gtg kernel combined with linear or degree 51 polynomial kernel .
+sequence kernel nearest neighbor ( std ) mmr linear ( std ) mmr poly - 51 ( std ) hm3 linear ( std ) hm3 poly - 51 gtg 24.1 ( 1.9 ) 36.3 ( 2.8 ) 21.4 ( 1.8 ) 23.3 ( 2.0 ) 21.6 ( 1.7 ) effects of the nearest neighbor distance and the changing size of training set in the final experiment , we aimed get some insight to when and why structured prediction methods work better than the nearest neighbor classifier .
+we wanted to check the effect of training set size with - the expectation being that small training set sizes would favor structured prediction as fewer close sequence neighbors were present .
+also we wanted to check the effect of how similar sequence neighbor exists in the training set - the expectation being that nearest neighbor classifier would benefit from existence of close sequence neighbors .
+figure 3 depicts a heat map of mmr microlabel f1 score on the gs ( left ) and ec datasets ( right ) when the training set size is varied .
+the test set is divided along the vertical axis by the closest sequence neighbor in the dataset .
+it can be seen that on the gs data , the predictive accuracy improves by the increasing training set size , and the improvement is more clear for enzymes whose closest neighbor is at medium distance .
+on the ec dataset , the microlabel f1 is high even with small training set size and increasing the training set size affects the accuracy only a little , except for the enzymes with only distant neighbors .
+figure 4 depicts a heat map of the difference in microlabel f1 score between mmr and nn. red color indicates small difference , yellow indicates a larger difference in favor of mmr .
+on the gs dataset ( figure 4 , left ) , both of the initial expectations turned out to be wrong : mmr works the better compared to nn the larger the training set and the closer are the nearest sequence neighbors .
+on the ec dataset ( figure 4 , right ) , almost no difference can be seen irrespective of training set size or the closeness of sequence neighbors .
+figure 3 effect of training set size and nearest neigbor distance to mmr accuracy .
+depicted on the left is the mmr gold standard classification f1 - score when trainingset size m and the kernel value between test example and trainingset nearest neighbor are increasing .
+on the right the same information is given for ec dataset .
+values in parenthesis are average numbers of test examples with given training set size and kernel value interval .
+figure 4 the advantage of mmr over the nn classifier with different training set sizes and nearest neighbor distances .
+depicted on the left is the difference in mmr and nn gold standard classification f1 - score when trainingset size m and the kernel value between test example and trainingset nearest neighbor are increasing on the gs dataset .
+on the right same information is given for the ec dataset .
+discussion in machine learning it is well accepted that finding good input representations govern the learning performance much more than the particular learning algorithm that is being used .
+this view is reaffirmed in the experiments shown in this paper : irrespective of learning algorithm , good predictive accuracy depended on the use of the gtg features .
+combination with polynomial kernel was useful for all sturcutred output methods and combination with string kernels had minor synergistic role in the case of ec dataset , and in fact a detrimental effect on the gs dataset .
+another main finding was that the ability of the structured output methods to overperform the simple nearest neighbor classifier is dependent on the output structure : with ec hierarchy the structured output methods at best could match the nearest neighbor accuracy .
+moreover , this required the use of high degree polynomials in the input side , which means that the best performing input kernels were sparse and emphasizing large kernel values and can thus be interpreted as approximating the nearest neighbor classifier in a sense .
+in conclusion , it seems that the parent - child information contained in the ec hierarchy does not seem to aid function prediction .
+an explanation for this may lie in the conceptualization in the ec hierarchy ; it hierarchically divides the function space based on the properties of chemical reactions ( e.g. types of bonds manipulated ) not the properties of the enzymes ( e.g. types of 3d folds ) .
+the gs hierarchy , on the other hand , is designed more from the point of view of enzyme evolution .
+the superfamily - family relations seem to aid the structured output methods in generalizing from the training data .
+another possible explanation for the good behavior of the nearest neighbor is a data quality issue .
+we speculate that many of the functions in the ec dataset may have been originally acquired via ' blast nearest neighbor ' prediction , followed by wet lab verification .
+this approach obviously would miss any function not possessed by the nearest neighbor enzyme .
+overall , the predictive accuracy obtained in this paper is competitive with the state - of - the - art .
+for example borgwardt et al .
+[ 5 ] report on 90.8 % accuracy in predicting the top level membership of the ec hierarchy only , which is in the similar region as the microlabel f1 score obtained in this study , although their dataset was different .
+note here that microlabel f1 contains prediction results of all nodes in the hierarchy , and is likely to be lower than top level accuracy .
+elsewhere , syed and yona [ 13 ] report 89 % accuracy in ec code prediction using a hmm based model , however , with a dataset restricted to 122 enzyme families with a large number of homologous sequences .
+for research in structured output learning , it is noteworthy that mmr obtains the same level of accuracy as hm3 , despite that mmr does not explicitly maximize the loss - scaled margins between the true output and competing outputs , the approach taken in most structured prediction methods .
+this difference makes mmr efficient learning approach , for example extensive parameter tuning is possible with mmr but starts to be tedious with loss - scaled margin maximization approaches even on medium - sized datasets .
+conclusion in this paper we have studied the utility of structured output prediction methods to enzyme function prediction .
+according to our experiments , structured output prediction is beneficial for predicting superfamily - family membership , but in predicting the ec classification , a nearest neighbor classifier does equally well .
+overall predictive accuracy that is on par with the state - of - the - art results , is obtained by using the gtg sequence feature set and the polynomial kernel over the inputs .
+methods learning task our objective is to learn a function that , given ( a feature representation ) of a sequence , can predict ( a feature representation ) of an enzymatic reaction .
+learning algorithms that are designed for structured prediction tasks like the above , are many .
+we concentrate on kernel methods , that let us utilize high - dimensional feature spaces without computing the feature maps explicitly .
+structured svm [ 14 ] , max - margin - markov networks [ 15 ] , output kernel trees [ 16 ] , and maximum - margin regression ( mmr ) [ 12 ] are learning methods falling into this category .
+we consider a training set of ( sequence , reaction ) - pairs {( xi,yi )| xiinx,yiiny } i = 1m drawn from an unknown joint distribution p ( x,y ) .
+a pair ( xi , y ) , where xi is a input sequence and y in y is arbitrary , is called a pseudo - example in order to denote the fact that the output may or may not have been generated by the distribution generating the training examples .
+for sequences and reactions , respectively , we assume feature mappings phi : x | - > fx and psi : y | - > fy , mapping the input and output objects into associated inner product spaces fx and fy. the kernels kx ( x , x ') = < phi ( x ) , phi ( x ')> and ky ( y , y ') = < psi ( y ) , psi ( y ')> defined by the feature maps are called the input and output kernel , respectively .
+below , we discuss particular choices for the feature mappings and the kernels .
+in structured prediction models based on kernels , the associations between the inputs and outputs are typically represented by a joint kernel , defined by some feature map joint for inputs and outputs .
+in this paper we use a joint feature map phi ( x , y ) : x x y | - > f x (*) y , where the joint map phi ( x , y ) = phi ( x ) (*) ( y ) , is defined by the tensor product , thus consisting of all pairwise products phij ( x ) psik ( y ) between inputs and output features .
+this choice gives us the joint kernel representation as elementwise product of the input and output kernels kxy ( x , y ; x ' , y ') = kx ( x , x ') ky ( y , y ') .
+in this paper we apply the hierarchical max margin markov ( hm3 ) [ 11 ] and max margin regression [ 12 ] algorithms , the first being a structured prediction method specifically designed for hierarchical multilabel classification , and the latter being a very efficient generalization of one - class svm to structured output spaces .
+hierarchical max - margin markov algorithm the hierarchical max - margin markov algorithm , hm3 [ 11 ] is a variant of the max - margin markov network ( m3n ) structured output learning framework [ 15 ] , tailored for hierarchical multilabel classification tasks .
+it learns a linear score function f ( w , x , y ) = < w , phi ( x , y )> = < w , phi ( x ) (*) psi ( y )> in the joint tensor product space .
+the model 's prediction y ^( x ) corresponds to highest scoring output y : y ^ ( x ) = a r g m a x y f ( w , x , y ) . as in most structured prediction frameworks , the criteria for learning the parameters w is to maximize the minimum loss - scaled margin ( 1 ) wt ( phi ( xi , yi ) - phi ( xi , y )) - l ( yi , y ) over all pseudoexamples ( xi , y ) .
+it is advisable to use a loss function that is smoothly increasing so that we can make a difference between ' nearly correct ' and ' clearly incorrect ' multilabel predictions .
+hamming loss l delta ( y , u ) = sum j [ y j != u j ] , has this property and is a typical first choice for its simplicity and ease of computation .
+for hierarchical classification , it is also possible to devise loss functions that are hierarchy - aware ( c.f. [ 11,17 - 20 ]) .
+in this paper , for simplicity and transparency , we resort to hamming loss , however .
+as with svms , to make the optimization problem solvable , there is a need to relax the margin constraints by allowing some slack .
+allotting a slack variable xii for each example , the primal soft - margin optimization problem gets the form ( c.f [ 11,14,15 ]) ( 2 ) min w 1 2 || w || 2 + c sum i = 1 m xi i s . t . w t ( phi ( x i , y i ) - phi ( x i , y ) ) >= l ( x i , y ) - xi i , for - all i , y . and the corresponding lagrangian dual is given by the quadratic programme ( 3 ) min alpha >= 0 sum i , y alpha ( i , y ) l ( y i , y ) - 1 2 sum i , y sum j , y ' alpha ( i , y ) k ( x i , y ; x j , y ' ) alpha ( i , y ' ) s . t . sum y alpha ( i , y ) <= c , for - all i , where k ( i , y ; j , y ') = deltaphi ( i , y ) t deltaphi ( j , y ') , is the joint kernel defined on features deltaphi ( i , y ) = phi ( xi , yi ) - phi ( xi , y ) , that is , joint feature difference vectors between the true ( yi ) and a competing output ( y ) .
+neither the primal nor the dual are amenable to solve with off - the - shelf qp solvers as both have exponential size in the output dimension , the primal has a large constraint set and the dual has correspondingly large dual variable set .
+there is a significant amount of research done on how to make optimizing the primal or the dual practical for realistic data sets [ 11,14,15,21 ] .
+hm3 [ 11 ] is a marginal dual method ( c.f. [ 15 ]) , that translates the exponential - sized dual problem into an equivalent polynomially - sized form by considering the edge - marginals ( 4 ) mu ( i , e , v ) = sum y in y [ psi e ( y ) = v ] alpha ( i , y ) , where e in e is an edge in the output hierarchy and v in { 00 , 01 , 10 , 11 } is a possible labeling ( class membership of either the parent node , the child node or both ) for the edge .
+using the marginal dual representation , we can state the dual problem ( 3 ) in equivalent form as ( for details , see [ 11 ]) : ( 5 ) max mu in m sum i , e , u mu ( i , e , u ) l ( i , e , u ) - 1 2 sum i , j sum e in e sum u , v mu ( i , e , u ) k e ( i , u ; j , v ) mu ( j , e , v ) , . where m denotes the marginal polytope , the set of all combinations of marginal variables ( 4 ) that have a counterpart in the dual feasible set in ( 3 ) , and ke contains the joint kernel values pertaining to edge e. this problem is a quadratic programme with a number of variables linear in both the size of the output hierarchy and the number of training examples .
+thus , there is an exponential reduction in the number of dual variables from the original dual ( 3 ) .
+the marginal dual problem is solved by the conditional gradient algorithm ( c.f .
+[ 22 ]) that iteratively the best feasible direction given the current gradient and uses line search to locate the optimal point in that direction .
+the feasible ascent directions turn out to correspond to pseudo - examples ( i , y ) that violate their margins ( 1 ) the most .
+making use of the of hierarchical structure , the margin violators and consequently the feasible ascent directions are found in linear time by dynamic programming implementation of message - passing inference over the hierarchy [ 11 ] .
+max margin regression algorithm like hm3 , max - margin regression ( mmr ) [ 12 ] also learns a linear function .
+f ( w , x , y ) = < w , phi ( x , y )> in the joint feature space given by the tensor product phi ( x , y ) = phi ( x ) (*) psi ( y ) .
+we note szedmak et al .
+[ 12 ] define mmr with a bias term b , here we have adopted the equivalent convention that the bias term is subsumed into phi and w. the main difference between the two algorithms is in the learning criterion .
+mmr aims to separate the training data phi ( xi , yi ) from the origin of the joint feature space with maximum margin , thus it can be seen analogous to the one - class svm [ 23 ] .
+the primal form of the mmr optimization problem can be written as ( 6 ) min 1 2 || w || 2 + c sum i xi i s . t . < w , phi ( x i , y i ) > >= 1 - xi i xi i >= 0 , i = 1 , ...
+, m . the dual form of the mmr problem can be expressed as ( 7 ) max sum i = 1 m alpha i - 1 2 sum i , j = 1 m alpha i alpha j k y ( x i , x j ) k y ( y i , y j ) s . t . 0 <= alpha i <= c , i = 1 , ...
+, m . it is noteworthy that the dimension of the output space does not affect the size of dual problem .
+another difference between mmr and most structured output prediction methods , including hm3 is that there is no need to solve the loss - augmented inference problem ( 1 ) as part of the training .
+although for hierarchies this problem can be solved in linear time , this is still a bottleneck in training the methods .
+mmr , due to its simple form , can be optimized with much faster algorithms .
+the present implementation uses the augmented lagrangian ( c.f. [ 22 ]) algorithm .
+data in this paper , we use two datasets .
+* ec dataset is a sample of 5934 enzymes from the kegg ligand database [ 24 ] .
+the ec hierarchy to be predicted has four levels plus root and has size 1634 ( 1376 leaves , 258 internal nodes ) .
+in this version of the data , only single function per enzyme is reported .
+* gold standard dataset contains 3090 proteins which are classified into superfamily and family classes by their function [ 7 ] .
+the hierarchy to be predicted has two levels plus root and has size 493 ( 487 families , 5 superfamilies ) .
+input feature representations kernels for sequences have been actively developed during recent years [ 25 - 27 ] .
+we selected the following representations for these trials : substring spectrum kernels [ 25 ] are sometimes referred simply to as string kernels .
+they induce a feature space where each substring of predefined length p is allocated a dimension , and the feature values are counts of these feature values .
+in the experimental section we refer as strp the length - p substring spectrum kernel .
+the string kernels can be computed in linear time via the use of suffix trees or suffix arrays [ 28 ] .
+gaps or mismatches [ 26 ] can be allowed in substring occurrences .
+gaps can be be restricted in number , length or both , or long gaps can be penalized by down - weighting [ 25 ] .
+in addition , gaps can be restricted to certain positions of the substring .
+in our experiment we refer as gapxyz a kernel defined on length - x substrings where at most y mismatches ( out of x ) of length at most z is allowed .
+gappy substring kernels take generally a quadratic time in the length of the compared sequences to compute [ 25 ] .
+gtg kernel .
+the so called alignment trace graph [ 29,30 ] is an approach to find residues that potentially are well conserved and thus may be a part of the active center .
+the gtg ( global trace graph ) kernel obtained from this method is defined on features phiaa , c ( s ) = 1 denoting a ( potentially conserved ) residue of type aa in cluster c ( potential location within active center ) in sequence s. the gtg representation comes as explicit sparse feature vectors .
+a benefit of kernel methods is that in dual representation , features can be combined without significant extra cost .
+the polynomial kernel kpoly ( x , x ') = ( k ( x , x ') + c ) d , efficiently computes a d - degree polynomial features out of the original features , in time linear in the kernel matrix size .
+thus , working in high - dimensional feature spaces becomes computationally feasible .
+in the case of the above base kernels , the polynomial feature space consists of occurrences of all combinations of up to d subsequences ( in the case of string kernels ) or conserved residues ( in the case of the gtg kernel ) .
+the gaussian kernel k g a u s s i a n ( x , x ' ) = exp ( - || x - x || 2 2 sigma 2 ) can be seen as the infinite dimensional polynomial kernel , with high polynomial degree terms exponentially down - weighted .
+the width of the gaussian s corresponds to the degree of the polynomial , small values of sigma corresponding to high - degree delta [ 31 ] .
+output feature representation for representing hierarchies , the mmr algorithm and hm3 use different encodings .
+hm3 uses edge labeling indicators ( fig. 5c ) figure 5 representations of enzyme function .
+schematic representation of enzymatic reaction in the ec - hierarchy is shown in ( a ) .
+different feature representations are depicted : node indicators ( b ) , edge labeling indicators ( c ) , and reaction kernel ( d ) .
+phi e , y e ( rho ) = [ given rho , e should be labeled as y e ] the benefit of this representation is in that dependencies between parent and child can be encoded in the feature map , which may ease learning correlations between the inputs and outputs .
+in mmr , it is possible also to use node indicators ( fig. 5b ) phiv ( rho ) = [ rho belongs to node v ] , that simply state whether given node is part of the multilabel or not .
+this representation does not contain any information of the hierarchy , however .
+feature embedding can be made hierarchy - specific by replacing the indicators with real valued functions that depend on the location in the hierarchy .
+for example , phiv ( y ) = gamma - 1 [ rho belongs to node v ] , where gamma > 1 and d is the depth of the node , will emphasize the importance of nodes deep in the hierarchy , and thus concentrate the learning algorithms effort to getting the difficult deep nodes correct .
+in our experiments with the mmr algorithm we use this embedding with gamma = 10 .
+as mmr is not tied to hierarchical outputs , in principle it would be possible to use any kernel on the enzyme function .
+in fig. 5d ) , one alternative , a subgraph spectrum of the reactant molecule set is depicted .
+measuring success of prediction we use two measures to characterize the performance of the compared learning approaches * zero - one loss is the proportion of examples for which the predicted labeling ( vector ) is incorrect : l0 / 1 = 1msumi [ y ^ i != yi ] * microlabel f1 score is obtained by pooling together all individual predictions y ^ ij of labels of node j in v in example xi , i = 1 ,... , m , computing the precision prec = tptp + fp and recall rec = tptp + fn where tp , fp , fn denote the number of true positive , false positive and false negative predictions in the pool .
+microlabel f1 is then given by f 1 = 2 p r p r + r e c . competing interests the authors declare that they have no competing interests .
+authors' contributions jr and ss are the main architects of the machine learning methods .
+jr and ka have designed the experiments and written the article .
+ka has participated in developing the methods and has conducted the experiments .
+lh has participated in developing the research ideas and contributed the gtg data .
+ep has participated in development of the methods and preparing the experiments .
+acknowledgements this paper has benefited from discussions with john shawe - taylor , charanpal dhanjal and craig saunders , as well as the comments of the anonymous referees .
+the funding by academy of finland under the masi programme ( grant 110514 , ur - enzymes ) and the centre of excellence algodan ( grant 118653 ) is gratefully acknowledged .
+this work was also supported in part the ist programme of the european community , under the pascal2 network of excellence , ict - 216886 - pascal2 .
+this article has been published as part of bmc proceedings volume 2 supplement 4 , 2008 : selected proceedings of machine learning in systems biology : mlsb 2007 .
+the full contents of the supplement are available online at . palsson b systems biology : properties of reconstructed networks 2006 cambridge university press new york , ny , usa ashburner m ball c blake j botstein d butler h cherry j davis a dolinski k dwight s eppig j gene ontology : tool for the unification of biology nature genetics 2000 25 25 29 10802651 guldener u munsterkotter m kastenmuller g strack n van helden j lemer c richelles j wodak s garcia - martinez j perez - ortin j cygd : the comprehensive yeast genome database nucleic acids research 2005 d364 15608217 lanckriet g deng m cristianini n jordan m noble w kernel - based data fusion and its application to protein function prediction in yeast proceedings of the pacific symposium on biocomputing 2004 2004 borgwardt km ong cs schonauer s vishwanathan svn smola aj kriegel hp protein function prediction via graph kernels bioinformatics 2005 21 i47 i56 15961493 cai cz han ly ji zl chen yz enzyme family classification by support vector machines proteins 2004 55 66 76 14997540 brown s gerlt j seffernick j babbitt p a gold standard set of mechanistically diverse enzyme superfamilies genome biol 2006 7 r8 16507141 clare a king r machine learning of functional class from phenotype data bioinformatics 2002 18 160 166 11836224 barutcuoglu z schapire r troyanskaya o hierarchical multi - label prediction of gene function bioinformatics 2006 22 830 836 16410319 blockeel h schietgat l struyf j dzeroski s clare a decision trees for hierarchical multilabel classification : a case study in functional genomics proceedings of principles and practise of knowledge discovery in databases 2006 springer 18 29 rousu j saunders c szedmak s shawe - taylor j kernel - based learning of hierarchical multilabel classification models the journal of machine learning research 2006 7 1601 1626 szedmak s shawe - taylor j parado - hernandez e learning via linear operators : maximum margin regression tech rep , pascal research reports 2005 syed u yona g samudrala r , mcdermott j , bumgarner r enzyme function prediction with interpretable models computational systems biology 2008 humana press tsochantaridis i hofmann t joachims t altun y support vector machine learning for interdependent and structured output spaces international conference on machine learning 2004 acm press new york , ny , usa taskar b guestrin c koller d max - margin markov networks neural information processing systems 2003 2004 geurts p wehenkel l d'alche buc f kernelizing the output of tree - based methods proceedings of the 23rd international conference on machine learning 2006 345 352 hofmann t cai l ciaramita m learning with taxonomies : classifying documents and words nips workshop on syntax , semantics , and statistics 2003 cai l hofmann t hierarchical document categorization with support vector machines 13 acm cikm 2004 dekel o keshet j singer y large margin hierarchical classification icml'04 2004 209 216 cesa - bianchi n gentile c tironi a zaniboni l incremental algorithms for hierarchical classification neural information processing systems 2004 bartlett pl collins m amd d mcallester bt exponentiated gradient algorithms for large - margin structured classification neural information processing systems 2004 bertsekas d nonlinear programming 1999 athena scientific scholkopf b platt j shawe - taylor j smola aj williamson rc estimating the support of a high - dimensional distribution neural computation 2001 13 goto s okuno y hattori m nishioka t kanehisa m ligand : database of chemical compounds and reactions in biological pathways nucleic acids research 2002 30 402 11752349 lodhi h saunders c shawe - taylor j cristianini n watkins c text classification using string kernels journal of machine learning research 2002 2 419 444 leslie c eskin e weston j noble w mismatch string kernels for svm protein prediction advances in neural information processing systems 2003 15 saigo h vert j ueda n akutsu t protein homology detection using string alignment kernels 2004 vishwanathan s smola a fast kernels for string and tree matching advances in neural information processing systems 2003 15 heger a mallick s wilton c holm l the global trace graph , a novel paradigm for searching protein sequence databases bioinformatics 2007 23 2361 17823134 heger a lappe m holm l accurate detection of very sparse sequence motifs recomb ' 03 : proceedings of the seventh annual international conference on research in computational molecular biology 2003 new york , ny , usa : acm 139 147 shawe - taylor j cristianini n kernel methods for pattern analysis 2004 cambridge university press

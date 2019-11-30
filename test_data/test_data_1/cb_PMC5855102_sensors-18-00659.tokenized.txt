@@ -1,0 +1,229 @@
+sensors ( basel ) sensors ( basel ) sensors sensors ( basel , switzerland ) 1424 - 8220 mdpi 29473912 5855102 10.3390 / s18020659 sensors - 18 - 00659 article application of improved 5th - cubature kalman filter in initial strapdown inertial navigation system alignment for large misalignment angles wang wei chen xiyuan * key laboratory of micro - inertial instrument and advanced navigation technology , ministry of education , school of instrument science and engineering , southeast university , nanjing 210096 , china ; 230159566 @ seu.edu.cn * correspondence : chxiyuan @ seu.edu.cn ; tel. : + 86 - 138 - 1589 - 8035 23 2 2018 2 2018 18 2 659 22 12 2017 21 2 2018 ( c ) 2018 by the authors .
+2018 licensee mdpi , basel , switzerland .
+this article is an open access article distributed under the terms and conditions of the creative commons attribution ( cc by ) license ( http :// creativecommons.org / licenses / by / 4.0 /) .
+in view of the fact the accuracy of the third - degree cubature kalman filter ( ckf ) used for initial alignment under large misalignment angle conditions is insufficient , an improved fifth - degree ckf algorithm is proposed in this paper .
+in order to make full use of the innovation on filtering , the innovation covariance matrix is calculated recursively by an innovative sequence with an exponent fading factor .
+then a new adaptive error covariance matrix scaling algorithm is proposed .
+the singular value decomposition ( svd ) method is used for improving the numerical stability of the fifth - degree ckf in this paper .
+in order to avoid the overshoot caused by excessive scaling of error covariance matrix during the convergence stage , the scaling scheme is terminated when the gradient of azimuth reaches the maximum .
+the experimental results show that the improved algorithm has better alignment accuracy with large misalignment angles than the traditional algorithm .
+initial alignment large misalignment angle fifth - degree cubature kalman filter fading memory index weighting 1 .
+introduction initial alignment is the basis for obtaining accurate misalignment angles of strapdown inertial navigation systems ( sins ) , and its accuracy and efficiency will directly affect the sins performance [ 1,2 ] .
+in an application environment with large misalignment angles and moving bases , the linear initial alignment algorithm is greatly restricted [ 3 ] , while nonlinear algorithms have been increasingly used for initial alignment [ 4,5 ] .
+in order to apply the linear kalman filter to a nonlinear system , the extended kalman filter ( ekf ) [ 6 ] truncates the taylor series expansion of the nonlinear function .
+the accuracy of ekf is low for strongly nonlinear systems , and there may be a problem in that the jacobi matrix cannot be solved [ 7 ] .
+an unscented transformation ( ut ) is used in the unscented kalman filter ( ukf ) [ 8 ] to replace the local linearization for obtaining the first two moments of the states .
+although the precision of ukf is higher than ekf , there is a " dimension disaster " problem [ 9 ] in high dimensional applications of ukf , and parameter adjustment is needed when using ukf .
+spherical radial cubature rule ( srcr ) is used in the third - degree ckf ( hereinafter referred to as ckf3 ) to approximate the nonlinear integral and obtain the two moments of the states , which can achieve third - order accuracy [ 10 ] .
+ckf has a better numerical stability than ukf , and has been widely applied [ 11,12 ] .
+in order to further improve the accuracy of the ckf3 , fifth - degree ckfs ( hereinafter referred to as ckf5 ) [ 13,14 ] have been applied gradually [ 15 ] .
+ckf5 has problems of numerical stability and big calculation [ 16 ] , and in this sense , ckf5 is more suitable for low dimensional systems .
+the adaptive kalman filter is an effective method to restrain the divergence and improve the accuracy of filtering .
+the main idea of the adaptive kalman filter is to scale the part of error covariance matrix or system noise matrix by calculating the ratio of matrix ranks of actual updating and filter updating [ 17,18 ] .
+the traditional method for estimating the updating covariance is the open window method , which uses the mean value of historical data and not takes into account the different weights of new and old updates .
+the accuracy and real - time performance of the traditional adaptive kalman filter should be improved .
+combining ekf and adaptive filtering [ 19 ] , the update covariance matrix is directly introduced into the calculation of gain matrix , which improves the utilization rate of updates .
+however , ekf cannot effectively meet the accuracy requirement of the nonlinear initial alignment with large misalignment angles .
+adaptive filtering is introduced into unscented particle filter ( upf ) [ 20 ] , and the efficiency of convergence can be improved by partially scaling the error covariance matrix .
+nevertheless , the precision of in - motion and nonlinear initial alignment with large misalignment angles should be further verified experimentally .
+the 5 - th ckf is directly applied to the initial alignment [ 12 ] , but experiments on initial alignment with large misalignment angles are lacking .
+the singular value decomposition can improve the robustness of the initial alignment algorithm [ 21 ] , but there is no verification of actual data except for simulations .
+in order to improve the efficiency and accuracy of the 5 - th ckf in initial alignment situations , an entire scaling of the error covariance matrix method with the ratio of matrix ranks of actual updates and filtered updates is introduced in this paper .
+to solve the problem of oscillation or divergence of improved 5 - th ckf caused by excessive scaling of the error covariance matrix , the scaling is terminated when the gradient of the azimuth error reaches the maximum .
+the improved algorithm needs to store the historical imu data , gnss data and the calculated azimuth misalignment angle data , and then recalculate it for alignment .
+to improve the stability of the 5 - th ckf algorithm , the singular value decomposition ( svd ) algorithm is used instead of the cholesky 's method in the matrix decomposition .
+the large misalignment angle model is simplified in this paper , which means that only the velocity errors and the misalignment angles are used as the states .
+the reduction of the states has the advantages of requiring less calculation and better calculation stability , which can reduce the chances of filter divergence .
+in this paper , the nonlinear model of initial alignment with large misalignment angles is first analyzed and a simplified alignment model with 6 - dimensional state variables is proposed .
+secondly , the traditional ckf5 algorithm is briefly described in this paper , and then the improved algorithms based on fading factor for the updating covariance matrix , short - term scaling of the error covariance matrix and svd decomposition are introduced .
+finally , the effectiveness of the improved algorithms is verified by simulation experiments and the dynamic vehicle experiments .
+2. nonlinear model of initial alignment with large misalignment angle the sins updating algorithm includes attitude - updating , speed - updating and position - updating , and the corresponding differential equations are expressed with equations ( 1 ) to ( 3 ) [ 22 ] : ( 1 ) c.bn = cbn ( omeganbbx ) , ( 2 ) v.n = cbnfsfb - ( 2omegaien + omegaenn ) xvn + gn , ( 3 ) [ l.lambda.h. ]=[ 01 / rmh0secl / rnh00001 ] vn. where cbn is the direction cosine matrix of the attitude converting from the measurement reference frame ( abbreviated as b frame ) to the navigation reference frame ( abbreviated as n frame ) , omeganbb = omegaibb - ( omegaieb + omegaenb ) is the rotational angular rate of b frame relative to n frame , i is the inertial reference frame , ( omeganbbx ) is the antisymmetric matrix of omeganbb , the vector nun =[ nue nun nuu ] t expresses the eastern velocity , northern velocity and vertical velocity , respectively , fsbb is the output of the accelerometer , l is the latitude of the location of carrier , lambda is the longitude of the location of carrier , h is the height of the location of carrier , rmh is the radius of meridian of the location of carrier and rnh is the radius of prime vertical circle of the location of carrier .
+assuming n ' and n are the calculation reference frame and ideal navigation reference frame , respectively , the misalignment ( expressed as euler angle ) between the two navigation reference frames can be expressed as : ( 4 ) phi. = comega - 1omegann'n ' , ( 5 ) omegann'n '=( i - cnn ') omega ^ inn + cnn'deltaomegainn - cbn '( epsilonb + wgb ) , where omegann'n ' is the relative rotational angular rate between the n reference frame and n ' reference frame , epsilonb is the random constant drift of fiber optic gyroscope ( fog ) and wgb is the random drift of fog .
+comega - 1 and cnn ' can be expressed as : ( 6 ) comega - 1 =[ cosphiy0sinphiysinphixsinphiy / cosphix1 - sinphixcosphiy / cosphix - sinphiy / cosphix0cosphiy / cosphix ] ( 7 ) cnn '=~[ cosphiycosphiz - sinphixsinphiysinphizcosphiysinphiz + sinphixsinphiysinphiz - cosphixsinphiy - cosphixsinphizcosphixcosphizsinphixsinphiycosphiz + sinphixcosphiysinphizsinphiysinphiz - sinphixcosphiycosphizcosphixcosphiy ] .
+under the reference frame , equation ( 2 ) can be written as : ( 8 ) v ^. n '= cbn'f ^ sfb - ( 2omega ^ ien + omega ^ enn ) xv ^ n + g ^ n. subtracting equation ( 2 ) from equation ( 8 ) and neglecting the calculation error of gravitational acceleration and higher - order terms , we obtain : ( 9 ) deltav.n =[ i - ( cnn ') t ] cbn'f ^ sfb +( cnn ') tcbn'nablab - ( 2omega ^ ien + omega ^ enn ) xdeltavn , where nu ^ n '= nun + deltanun , f ^ sfb = fsfb + deltafsfb , nablab = deltafsfb , and we have : ( 10 ) epsilon.b = 0 , ( 11 ) nabla.b = 0 .
+the purpose of initial alignment is to quickly identify the misalignment angles .
+it is difficult to estimate the errors of inertial sensors accurately , and that is not the purpose of initial alignment , then the errors of epsilonb and nablab can be regarded as system noises .
+therefore , the states used in initial alignment are misalignment angles phi and the velocity error deltanun , which can reduce the dimensions of the filter , and thus reduce the computation and improve the numerical stability of ckf5 .
+in order to simplify the filtering error equation , a sins nonlinear error model which can reflect the characteristics of sins errors has important practical value in the initial alignment [ 20 ] .
+when the sins and gnss are integrated for initial alignment under moving base conditions , gnss can provide relatively accurate velocity and location information , then equations ( 4 ) and ( 9 ) can be simplified as : ( 12 ) phi. = comega - 1 [( i - cnn ') omega ^ in,gn - epsilonn ']+ comega - 1cbn'wgb , ( 13 ) deltav.n =[ i - ( cnn ') t ] cbn'f ^ sfb +( cnn ') tnablan '+( cnn ') tcbn'wab , where wab is the random drift of accelerometer , omega ^ in,gn is the angular velocity of the earth determined by the information from gnss. with the difference between the velocity of sins measured by gnss and the calculated velocity working as the measurement of z , the nonlinear filtering equations of initial alignment with large misalignment angles can be expressed as : ( 14 ) { x. = f ( x )+ g ( x ) w,z = hx + v , where x = [ phi ( deltanun ) t ] , w =[( wgb ) t ( wab ) t ] , h = [ 03x3 i3x3 ] , nu is the error vector of measurement and the function of f can be obtained from equation ( 12 ) .
+the model of initial alignment ( equations ( 12 ) and ( 13 )) takes into account of the moving base situation , so the estimation of the initial alignment angles will theoretically not be affected by the line movement and angle movement of sins .
+3. ckf5 and improved ckf5 3.1 .
+ckf5 algorithm for the integral of the global nonlinear function i ( f ) and variable x = ry in the spherical - radial coordinate system , i ( f ) can be written as : ( 15 ) i ( f )= integral0infinityintegralunf ( ry ) rn - 1e - r2dsigma ( y ) dr , where deltatdelta = 1 , r in [ 0 , infinity ) , un is n - dimensional unit hypersphere and sigma ( g ) is the element of un. i ( f ) can be divided into two parts , spherical integral s ( r ) and radial integral r : ( 16 ) { s ( r )= integralunf ( ry ) dsigma ( y ) , r = integral0infinitys ( r ) rn - 1e - r2dr .
+the numerical integration is approximated with the summation of weighted sigma points in the algorithm of ckf , then equation ( 16 ) can be expressed as : ( 17 ) { s ( r )=~ sumj = 1nsomegas,jf ( ryj ) , r =~ sumi = 1nromegar,if ( ri ) .
+then : ( 18 ) i ( f )=~ sumi = 1nrsumj = 1nsomegar,iomegas,jf ( riyj ) .
+the m - order approximation of s ( r ) can be written as : ( 19 ) s ={ 2producti = 1ngamma [( di + 1 )/ 2 ] gamma [(| d |+ n )/ 2 ] , { di } are even numbers,0 , at least one odd number in { di } , where d = [ p1,p2 ,... , pn ] , | d = sumi = 1ndi | , | d |<= m , and gamma ( g ) is the gamma function .
+note that when m = 5 , the value of s is calculated with f1 ( y )= 1 , f2 ( y1 )= y12 , f3 ( y1 )= y14 and f4 ( y1,y2 )= y12y22 .
+the points set on the un is defined as : ( 20 ) {[ e ] n ={+/ - { ei } i = 1n },[ s ] n ={+/ - { si } i = 1n ( n - 1 )} , where { ei } i = 1n and { si } i = 1n ( n - 1 ) are defined as : ( 21 ) {{ ei } i = 1n ={ e1,e2 ,... , en },{ si } i = 1n ( n - 1 )={( ek +/ - el )/ 2 : k,l = 1,2 ,... , n. and k < l } , where ei is the ith column of identity matrix inxn .
+then the equation ( 19 ) can be expressed as : ( 22 ) s ( r )=~ omega1sumi = 12nf ( r [ e ] i )+ omega2sumi = 12n ( n + 1 ) f ( r [ s ] i ) , where omega1 =( 4 - n ) an2n ( n + 2 ) , omega2 = ann ( n + 2 ) and an ={[ a ] n ,[ s ] n } .
+for the symmetry , s1 ( r )= 1 , s2 ( r )= r2 and s3 ( r )= r4 are needed to calculated in the solution of 5 - order integral of s ( r ) .
+then ( 23 ) { omegar,1r10 + omegar,2r20 = 12gamma ( n / 2 ) , omegar,1r12 + omegar,2r22 = 12gamma ( n / 2 + 1 )= n4gamma ( n / 2 ) , omegar,1r14 + omegar,2r24 = 12gamma ( n / 2 + 2 )= 12 ( 12n + 1 )( n / 2 ) gamma ( n / 2 ) .
+let r1 = 0 , then we have : ( 24 ) { r2 = 12n + 1,omegar,1 = 1 ( n + 2 ) gamma ( n / 2 ) , omegar,2 = n2 ( n + 2 ) gamma ( n / 2 ) .
+then it follows from equations ( 19 ) and ( 23 ) that the integrated result of equation ( 18 ) can be obtained .
+the algorithm flow of ckf5 is shown as follows : prediction phase : let xk - 1 ~ n ( xk - 1 ; x ^ k - 1 | k - 1 , pk - 1 | k - 1 ) be the estimated state at time k - 1 and decompose pk - 1 | k - 1 with cholesky 's method : ( 25 ) pk - 1 | k - 1 = sk - 1 | k - 1sk - 1 | k - 1t .
+compute cubature points : ( 26 ) { x1 = sk - 1 | k - 1.0 + x ^ k - 1 | k - 1,x2 = sk - 1 | k - 1n + 2.sj ++ x ^ k - 1 | k - 1,x3 = - sk - 1 | k - 1n + 2.sj ++ x ^ k - 1 | k - 1,x4 = sk - 1 | k - 1n + 2.sj - + x ^ k - 1 | k - 1,x5 = - sk - 1 | k - 1n + 2.sj - + x ^ k - 1 | k - 1,x6 = sk - 1 | k - 1n + 2.ej + x ^ k - 1 | k - 1,x7 = - sk - 1 | k - 1n + 2.ej + x ^ k - 1 | k - 1 , where { sj +}={ 12 ( ek + el ) : k < l , k,l = 1,2 ,... , n } and { sj - }={ 12 ( ek - el ) : k < l , k,l = 1,2 ,... , n } .
+compute the predicted mean x ^ k | k - 1 and predicted covariance pk | k - 1 : ( 27 ) x ^ k | k - 1 = w1f ( x1 )+ w2sumj = 1n ( n - 1 )/ 2 ( f ( x2 )+ f ( x3 ))+ w2sumj = 1n ( n - 1 )/ 2 ( f ( x4 )+ f ( x5 ))+ w3sumj = 1n ( f ( x6 )+ f ( x7 )) , ( 28 ) pk | k - 1 = w1f ( x1 ) f ( x1 ) t + w2sumj = 1n ( n - 1 )/ 2 ( f ( x2 ) f ( x2 ) t + f ( x3 ) f ( x3 ) t )+ w2sumj = 1n ( n - 1 )/ 2 ( f ( x4 ) f ( x4 ) t + f ( x5 ) f ( x5 ) t )+ w3sumj = 1n ( f ( x6 ) f ( x6 ) t + f ( x7 ) f ( x7 ) t ) - x ^ k | k - 1.x ^ k | k - 1t + qk - 1 , where w1 = 2n + 2 , w2 = 1 ( n + 2 ) 2 , w3 = 4 - n2 ( n + 2 ) 2 and qk - 1 is system noise covariance matrix .
+update phase : 4 .
+decompose pk | k - 1 with cholesky 's method : ( 29 ) pk | k - 1 = sk | k - 1sk | k - 1t .
+5. compute cubature points : ( 30 ) { x1 '= sk | k - 1.0 + x ^ k | k - 1,x2 '= sk | k - 1n + 2.sj ++ x ^ k | k - 1,x3 '= - sk | k - 1n + 2.sj ++ x ^ k | k - 1,x4 '= sk | k - 1n + 2.sj - + x ^ k | k - 1,x5 '= - sk | k - 1n + 2.sj - + x ^ k | k - 1,x6 '= sk | k - 1n + 2.ej + x ^ k | k - 1,x7 '= - sk | k - 1n + 2.ej + x ^ k | k - 1 .
+6. compute the estimated measurement z ^ k | k - 1 , the gain matrix kk and the covariance matrixes of pk | k - 1zz , pk | k - 1xz : ( 31 ) z ^ k | k - 1 = w1h ( x1 ')+ w2sumj = 1n ( n - 1 )/ 2 ( h ( x2 ')+ h ( x3 '))+ w2sumj = 1n ( n - 1 )/ 2 ( h ( x4 ')+ h ( x5 '))+ w3sumj = 1n ( h ( x6 ')+ h ( x7 ')) , ( 32 ) pk | k - 1zz = w1h ( x1 ') h ( x1 ') t + w2sumj = 1n ( n - 1 )/ 2 ( h ( x2 ') h ( x2 ') t + h ( x3 ') h ( x3 ') t )+ w2sumj = 1n ( n - 1 )/ 2 ( h ( x4 ') h ( x4 ') t + h ( x5 ') h ( x5 ') t )+ w3sumj = 1n ( h ( x6 ') h ( x6 ') t + h ( x7 ') h ( x7 ') t ) - z ^ k | k - 1.z ^ k | k - 1t + rk , ( 33 ) pk | k - 1xz = w1x1'h ( x1 ') t + w2sumj = 1n ( n - 1 )/ 2 ( x2'h ( x2 ') t + x3'h ( x3 ') t )+ w2sumj = 1n ( n - 1 )/ 2 ( x4'h ( x4 ') t + x5'h ( x5 ') t )+ w3sumj = 1n ( x6'h ( x6 ') t + x7'h ( x7 ') t ) - x ^ k | k - 1.z ^ k | k - 1t , ( 34 ) kk = pk | k - 1xzpk | k - 1zz - 1 .
+7. update x ^ k | k and pk | k : ( 35 ) pk | k = pk | k - 1 - kkpk | k - 1zzkkt , ( 36 ) x ^ k | k = x ^ k | k - 1 + kk ( zk - z ^ k | k - 1 ) , where zk is the measurement at time k .
+3.2 .
+improved ckf5 algorithm the filtering precision of ckf5 can reach the fourth order , and the accuracy of ckf3 can reach the second order .
+the amount of sigma points of ckf5 is 2n2 + 1 , and that of ckf3 is 2n , so the cost of computing of ckf3 is less than that of ckf5 .
+in order to estimate the numerical stability of nonlinear filter , the stability factor can be defined as [ 23 ] : ( 37 ) i = sumi = 1n | omegai | , where omegai is the weight of sigma point and n is the amount of sigma points .
+if i = 1 , the numerical integration has absolute stability theoretically , on the contrary , non - absolute stability for i != 1 .
+when i != 1 , the cumulative truncation error may leads to a non - positive error covariance matrix , even further to the error of calculation or divergence .
+for ckf3 , i = 1 and for ckf5 , i != 1 , which means that ckf3 has better numerical stability than ckf5 .
+for ckf5 , we have : ( 38 ) i =| 2n + 2 |+| n ( n - 1 )( n + 2 ) 2 |+| n ( 4 - n ) 2 ( n + 2 ) 2 |= 2n + 2 + n ( n - 1 )( n + 2 ) 2 + n ( n - 4 ) 2 ( n + 2 ) 2 , n > 4 ,= 3n2 - 2n + 82 ( n + 2 ) 2 , n > 4 .
+according to equation ( 14 ) , n = 6 and i = 13 / 16 , the robustness of ckf is poor in this situation .
+the non - positive covariance matrix caused by strong nonlinear or data errors may bring many problems in kalman filters , such as filtering error or divergence , which also can lead to the error of cholesky decomposition in ckf .
+in order to improve the numerical stability of ckf5 , and considering that the singular value decomposition ( svd ) has better numerical robustness than cholesky [ 24 ] , svd is introduced into ckf5 .
+for s linear optimal kalman filter , when the gain matrix kk is optimal , the innovation sequence zk should be orthogonal .
+this conclusion can be extended to nonlinear filtering .
+the adaptive kalman ( hereinafter referred to as akf ) scales the error covariance matrix or system noise matrix by calculating the ratio of matrix ranks of actual innovation and filtered innovation [ 17,18 ] .
+essentially , the traditional akf only partly scale the error covariance matrix in the next filtering period , and the utilization rate of innovation is low .
+for the innovation sequence , the contribution of the new innovation to the state estimation is large than the old one .
+therefore , ickf5 uses the exponent fading factor to weigh the innovation sequence , and then scale the entire error covariance matrix in the next filtering period .
+assuming the current filter period is k and the weight set of innovation sequence is { alphai } , we have : ( 39 ) sumi = 1kalphai = 1 , alphai - 1 = alphai.xi , where xi is fading factor and xiin ( 0 , 1 ) , empirically , xiin ( 0.6 , 1 ) .
+to illustrate the impact of xi on alphai , xi was taken as 0.7 , 0.8 , and 0.9 , respectively , for the convenience of observation , the innovations are weighted by the exponent fading factor from k = 100 .
+the distribution of alphai is shown in figure 1 .
+figure 1 shows that if the xi is big , the weight of the current innovation is small , correspondingly , the weights of old innovations are big , which means that the old innovation has bigger influence than the new innovation on calculating the covariance matrix of innovation sequence .
+the opposite conclusion can be obtained if xi is small .
+a recursive formula for the covariance matrix of the innovation sequence zk is given below .
+when the forgetting factor xi is determined , then : ( 40 ) rhok = sumi = 1k - 1xii .
+it follows from equations ( 39 ) and ( 40 ) that : ( 41 ) alphai = xik - irhok , i = 1,2 ,... , k. the open window method is used in traditional akf , the covariance matrix p ^ z,k of innovation zk at time k can be expressed as : ( 42 ) p ^ z,k = 1k - 1sumi = 1kzizit .
+the weight of 1 /( k - 1 ) in equation ( 42 ) can be replaced by the weights of alphai in equation ( 41 ) , then a recursive formula between p ^ z,k and p ^ z,k - 1 can be expressed as : ( 43 ) p ^ z,k = sumi = 1kxik - irhokzizit = zkzktrhok + sumi = 1k - 1xik - izizitrhok = zkzktrhok + xirhok - 1rhokrhok - 1sumi = 1k - 1xik - i - 1zizit = zkzktrhok + xirhok - 1rhokrhok - 1sumi = 1k - 1xik - i - 1zizit = zkzktrhok + rhok - 1rhok ( 1rhok - 1sumi = 1k - 1xik - i - 1zizit )= zkzktrhok + rhok - 1rhokp ^ z,k - 1 .
+in order to improve the feedback effect of innovation , we scale the error covariance matrix of the next filtering period betak times entirely .
+the increase of the error covariance matrix makes the filter gain kk increase and the error correction ability of the innovation in the next filtering period is strengthened .
+this method can reduce the dependence of the filter on the model , and then improve the filtering accuracy and reduce the risk of divergence .
+betak is defined as : ( 44 ) betak = max { trace ( p ^ z,k - rk ) trace ( hkpk | k - 1hkt ) , 1 } , where trace (.) is the operator of obtaining the rank of a matrix , rk is the measurement error covariance matrix at time k , hk is the measurement matrix at time k. the error covariance matrix of next filtering period is scaled as : ( 45 ) pk + 1 | k = betak.pk + 1 | k. the algorithm of ickf5 is summarized as follows : prediction phase : ( 1 ) input the initial values for filtering : xk - 1 | k - 1 , pk - 1 | k - 1 , qk - 1 , betak - 1 = 1 , rk .
+( 2 ) compute cubature points xi , ( i = 1 ,... , 7 ) according to equation ( 26 ) .
+( 3 ) compute the predicted mean x ^ k | k - 1 and predicted covariance pk | k - 1 according to equations ( 27 ) and ( 28 ) , respectively .
+( 4 ) scaling the entire pk | k - 1 : pk | k - 1 = betak - 1.pk | k - 1 .
+update phase : ( 5 ) decompose pk | k - 1 with the svd method .
+( 6 ) compute cubature points xi ' , ( i = 1 ,... , 7 ) according to equation ( 30 ) .
+( 7 ) compute the estimated measurement z ^ k | k - 1 , the gain matrix kk and the covariance matrixes of pk | k - 1zz , pk | k - 1xz according to equations ( 31 ) - ( 34 ) , respectively .
+( 8 ) update x ^ k | k , pk | k and betak according to equations ( 35 ) , ( 36 ) and ( 44 ) , respectively .
+the scaling of the error covariance matrix by ickf5 can effectively improve the utilization of innovation and speed up the convergence of initial alignment .
+ickf5 is a kind of suboptimal algorithm , if the scaling value of betak is too large , the system will be in a state of overshoot , which may lead to oscillation or divergence .
+for example , when getting the initial alignment in the convergence stage , the gain kk and the error covariance matrix pk | k - 1 should ideally remain unchanged or little changed .
+if the feedback for error covariance matrix is big at the stage of alignment convergence , it may cause the filtering convergence to be unstable or lead to the divergence .
+in order to reduce the possibility of divergence of initial alignment filtering and ensure the stationarity after convergence , we use a short - term feedback strategy that we stop the scaling of betak in ickf5 before the filtering occurs oscillating or diverging , which can ensure the convergence of initial alignment .
+for convenience , we call the short - term feedback algorithm iickf5 .
+the first step of iickf5 is that the ickf5 is used to complete the initial alignment firstly , then the gradient sequence nablapsii = diff ( psii ) of the set of azimuth misalignment angle { psii } outputted by ickf5 can be obtained , where diff (.) is gradient operator .
+the second step , the time tmax corresponding to the maximum value of the gradient is chosen as the time to terminate the feedback to the error covariance matrix pk | k - 1 .
+tmax can be expressed as : ( 46 ) tmax = max { abs { nablapsi }} .
+to be brief , ickf5 is used in the period of [ 1,tmax ) and ckf5 is used in [ tmax,tend ] , where tend is the end time of initial alignment filtering .
+the flow chart of iickf5 is shown in figure 2 .
+compared to ickf5 , iickf5 needs to recalculate the stored imu data and the misalignment angle set { xk } output by ickf5 .
+iickf5 has a certain delay compared with ickf5 , and some storage space is needed .
+3.3 .
+simulation and its analysis in order to verify the effectiveness of ickf5 and iickf5 , a simulation of initial alignment under static base conditions is performed .
+the simulation conditions are set as follows : the gyro constant drift is epsilonc = 0.01 ( o / h ) , random drift is epsilonn = 0.001 ( o / h ) ; the accelerometer zero bias is nablac = 50 mug , random deviation is nablan = 5 ( mug / h ) ; the local geographic latitude is 34degrees , longitude is 108degrees ; the misalignment angles are set as phi ( 0 )=[ 20degrees , - 40degrees , 170degrees ] and the simulation period is 800 s. the general parameters of the initial alignment algorithms are set with the same values .
+the initial value of x0 is set as x0 =[ 0 ; 0 ; 0 ; 0 ; 0 ; 0 ] .
+the matrix of q is determined according to the random drift of imu , and qk = diag {( 0.001o ) ; ( 0.001o ) ; ( 0.001o ) ; ( 5ug ) ; ( 5ug ) ; ( 5ug )} 2 .
+the initial error covariance matrix is set as p0 = diag ([[ 10 ; 10 ; 180 ]. pi / 180 ; [ 1 ; 1 ; 1 ]]) 2 .
+where diag (.) is the operator of obtaining the diagonal matrix with diagonal elements .
+for ukf , alpha = 1e - 3 , beta = 2 and lambda = 0 .
+ekf , ukf [ 25 ] , ckf3 , ckf5 , ickf5 and iickf5 algorithms are applied to the nonlinear initial alignment .
+in addition to iickf5 , the calculated misalignment angles are as shown in figure 3 .
+figure 3 shows that the pitching misalignment angles converge to 20degrees and the rolling misalignment angles converge to - 40degrees with the exception of ekf , and only the azimuth misalignment angles of ckf5 and ickf5 converge to 170degrees .
+the gradient values of the azimuth angle errors of ickf5 are shown in figure 4 .
+figure 4 shows that there is an obvious mutation in the azimuth angle error at t = 4 s , which is the overshoot caused by ickf5 , so tmax = 4 s. the estimated azimuth angles of ckf5 , ickf5 and iickf5 are shown in figure 5 .
+as seen in figure 5 , iickf5 enters the convergence stage at about 400 s , while ckf5 and ickf5 converge slower than iickf5 .
+figure 3 also shows that the convergences of horizontal misalignment angles are faster than that of the azimuth misalignment angles , which is due to the fact that the observability of the horizontal misalignment angles is high under the velocity matching mode .
+there is a coupling relationship between the horizontal misalignment angles and the bias of accelerometer .
+when the variation of heading angle is small , the accuracies of the horizontal misalignment angles depend on the bias of the accelerometer .
+the simulation experiment in this paper is based on static base , so the variation of heading angle is very small , and the horizontal misalignment has a slow drift due to the bias of the accelerometer. from this point of view , the estimation period of the horizontal misalignment angles is not the longer the better .
+for the sake of accuracy , we select the estimations of horizontal misalignment angles at 50 s and select the estimation value of azimuth misalignment angle at the last moment ( 800 s ) as the outputs of alignment , and the alignment errors are shown in table 1 .
+table 1 shows that the pitch and the azimuth misalignment errors of iickf5 are the smallest , and the azimuth misalignment error is close to the limitd alignment precision of 0.05degrees , which meets the initial alignment requirement .
+4. dynamic vehicle experiment the experimental equipment is shown in figure 6 .
+the gnss real - time differential system consisted of two model propak6 receivers ( novatel , calgary , ab , canada ) .
+the attitude reference system is a novatel span system ( novatel , calgary , ab , canada ) , which can reach centimeter level precision .
+an ln - 200 imu named from the novatel company is used for the initial alignment experiment .
+the bias of the accelerometer is 0.3 mg and its scale factor is 300 ppm .
+the constant drift , the random drift and the scale factor of gyro are epsilonc = 1 ( o / h ) , epsilonn = 0.07 ( o / h ) and 100 ppm , respectively .
+the output rates of the ln - 200 , span system and gnss system are 200 hz , 100 hz and 5 hz , respectively .
+the period of initial alignment is 700 s. in addition to iickf5 , the calculated azimuth angle errors are as shown in figure 7 .
+for the azimuth angle errors , figure 7 shows that ekf , ukf , ckf3 did not converge to the accurate azimuth angle , ickf5 has faster convergence rate than ckf5 , and ickf5 has much more oscillations in the convergence process than ckf5 because of the overshoot .
+for the pitch angle and the roll angle errors , we can see that ckf5 and ickf5 have greater oscillations than other algorithms , which is caused by the inaccuracy of model noises , such as the gps 's measurement noise , imu noise and so on. the nonlinear filter of high order precision amplifies the noises with high frequencies , which easily results in larger estimation errors if the estimated state values are small .
+when obtaining the gradient of the azimuth angles of ickf5 in figure 7c , the gradient values are as shown in figure 8 .
+figure 8 shows that there is a mutation in the azimuth angle error at t = 50 s , so tmax = 50 s. the estimated misalignment angles of all the algorithms are shown in figure 9. from figure 9 we can find that iickf5 has a faster convergence rate than ckf5 and ickf5 except for the pitching misalignment angle , and the azimuth misalignment angle of iickf5 has better convergence stability than ickf5 .
+the alignment errors at the end of alignment ( at 700 s ) are shown in table 2 .
+table 2 shows that iickf5 has better accuravy than ckf5 in estimating the rolling misalignment angle and azimuth misalignment angle .
+when the alignment is finished , the alignment errors of ickf5 and iickf5 did not converge to small values ( e.g. , 1degrees ) , so more time is needed for fine alignment .
+in order to further compare the convergence abilities of different algorithms , the mean and standard deviation of azimuth misalignment errors are calculated in the range of [ 100 s , 700 s ] , which can be regarded as a relatively complete convergence period for ickf5 and iickf5 , and the results are shown in table 3. from table 3 we can see that iickf5 has the smallest errors of mean and standard deviation .
+in this sense , the improved algorithm is suitable for quickly identifying a large azimuth misalignment angle in a complex alignment environment .
+ickf5 is a kind of real - time algorithm that represents an improvement on ckf5 , which does not need to process historical imu data and no storage space for the imu is needed .
+iickf5 needs to obtain the gradient value of the historical azimuth angle , so the historical imu data need to be stored for the second initial alignment filtering .
+for the 700 s period of in - motion initial alignment , the length of imu data is 70,000 ( in order to synchronize with the reference system ) , and the storage space for imu data is 2869 kb. the data stored are double and floating types with 64 bits .
+the update rate of gnss is 5 hz , so the storage space it needs is small , and the size is 10 kb. the capacity of the azimuth misalignment angle data is 6 kb. the total storage space needed for iickf5 is 2885 kb , and the additional burden on the navigation computer is small .
+5. conclusions it is not only convenient to calculate the innovation variance matrix in a recursive and exponent fading factor way , but also to effectively use the current and old updates .
+the speed and precision of convergence can be effectively improved by scaling error covariance matrix with the ratio of matrix ranks of actual updates and filter updates .
+in order to solve the problem of oscillation or divergence caused by excessive scaling of the error covariance matrix , the scaling scheme is terminated when the azimuth gradient reaches the maximum .
+the improved ckf can improve the precision of initial alignment better than the traditional ckf .
+the length of filtering time is also dependent on the experience , and the robustness of the improved algorithm is also worthy of further study .
+acknowledgments this work is supported by the national natural science foundation of china ( no .
+51375087 ) , the scientific research foundation of graduate school of southeast university ( no .
+ybjj1737 ) and the postgraduate research & practice innovation program of jiangsu province ( no. kycx17 _ 0065 ) .
+author contributions wei wang and xiyuan chen conceived and designed this study .
+wei wang performed the experiments and wrote the paper .
+xiyuan chen reviewed and edited the manuscript .
+all authors read and approved this manuscript .
+conflicts of interest the authors declare no conflict of interest .
+references 1 .
+dmitriyev s.p. stepanov o.a. shepel s.v. nonlinear filtering methods application in ins alignment ieee trans. aerosp. electron. syst .
+1997 33 260 271 10.1109 / 7.570762 2 .
+chang l.b. hu b.q. li a. qin f.j. strapdown inertial navigation system alignment based on marginalized unscented kalman filter iet sci. meas. technol .
+2013 7 128 138 10.1049 / iet - smt.2012.0071 3 .
+li h. pan q. wang x. jiang x. deng l. kalman filter design for initial precision alignment of a strapdown inertial navigation system on a rocking base j. navig .
+2015 68 184 195 10.1017 / s0373463314000575 4 .
+hao y.l. mu h.w. jia h.m. application of icdkf in initial alignment of large azimuth misalignment in sins syst. eng. electron .
+2013 35 152 155 5 .
+chatzi e.n. smyth a.w. the unscented kalman filter and particle filter methods for nonlinear structural system identification with non - collocated heterogeneous sensing struct .
+control health monit .
+2009 16 99 123 10.1002 / stc.290 6 .
+cox h. on the estimation of state variables and parameters for noisy dynamic systems ieee trans. autom .
+control 1964 9 5 12 10.1109 / tac.1964.1105635 7 .
+crassidis j.l. markley f.l. unscented filtering for spacecraft attitude estimation j. guid .
+control dyn .
+2003 26 536 542 10.2514 / 2.5102 8 .
+julier s.j. uhlman j.k. durrant - whyte h.f. a new approach for filtering nonlinear systems proceedings of the ieee american control conferenceseattle , wa , usa21 - 23 june 1995 1628 1632 9 .
+uchiyama s. takemoto k. satoh k. yamamoto h. tamura h. mr platform : a basic body on which mixed reality applications are built proceedings of the international symposium on mixed and augmented reality ( ismar 2002 ) washington , dc , usa30 september - 1 october 2002 248 256 10 .
+arasaratnam i. haykin s. cubature kalman filters ieee trans. autom .
+control 2009 54 1254 1269 10.1109 / tac.2009.2019800 11 .
+sun f. tang l.j. initial alignment of large azimuth misalignment angle in sins based on ckf chin. j. sci. instrum .
+2012 33 327 333 12 .
+zhang y.g. huang y.l. wu z.m. li n. moving state marine sins initial alignment based on high degree ckf math. probl. eng .
+2014 2014 546107 10.1155 / 2014 / 546107 13 .
+jia b. xin m. cheng y. high - degree cubature kalman filter automatica 2013 49 510 518 10.1016 / j.automatica.2012.11.014 14 .
+jia b. xin m. multiple sensor estimation using a new fifth - degree cubature information filter trans. inst. meas .
+control 2015 37 15 24 10.1177 / 0142331214523032 15 .
+zhang y.g. huang y.l. li n. sins initial alignment based on fifth - degree cubature kalman filter proceedings of the 2013 ieee international conference on mechatronics and automation ( icma ) takamatsu , japan4 - 7 august 2013 401 406 16 .
+xu b. zhang p. wen h. wu x. stochastic stability and performance analysis of cubature kalman filter neurocomputing 2016 186 218 227 10.1016 / j.neucom.2015.12.087 17 .
+ding w. wang j. rizos c. kinlyside d. improving adaptive kalman estimation in gps / ins integration j. navigat .
+2007 60 517 529 10.1017 / s0373463307004316 18 .
+olfati - saber r. kalman - consensus filter : optimality , stability , and performance proceedings of the 48th ieee conference on decision and control held jointly with 2009 28th chinese control conferenceshanghai , china15 - 18 december 2009 7036 7042 19 .
+fang j. yang s. study on innovation adaptive ekf for in - flight alignment of airborne pos ieee trans. instrum. meas .
+2011 60 1378 1388 20 .
+sun j. xu x.s. liu y.t. zhang t. li y. initial alignment of large azimuth misalignment angles in sins based on adaptive upf sensors 2015 15 21807 21823 10.3390 / s150921807 26334277 21 .
+huang x.y. tang x.q. wu m. application of 5th - degree ckf in sins nonlinear initial alignment syst. eng. electron .
+2015 37 633 638 22 .
+yan g.m. yan w.s. xu d.m. a sins nonlinear error model reflecting better characteristics of sins errors j. northwest. polytech. univ. 2009 27 511 516 23 .
+wu y.x. hu d.w. wu m.p. hu x.p. a numerical - integration perspective on gaussian filters ieee trans .
+signal process .
+2006 54 2910 2921 10.1109 / tsp.2006.875389 24 .
+long r. qin y.y. jia j.c. observable degree analysis of sins initial alignment based on singular value decomposition proceedings of the 2008 ieee international symposium on knowledge acquisition and modeling workshopwuhan , china21 - 22 december 2008 444 448 25 .
+yan g.m. yan w.s. application of simplified ukf in sins initial alignment for large misalignment angles j. chin. inert. technol .
+2008 16 253 264 figure 1 the distribution of weights of innovations under different xi. figure 2 the flow chart of iickf5 .
+figure 3 the estimated misalignment angles ( phi ( 0 )=[ 20degrees , - 40degrees , 170degrees ]) : ( a ) pitching misalignment angle ; ( b ) rolling misalignment angle ; ( c ) azimuth misalignment angle .
+figure 4 the gradient values of azimuth angle error .
+figure 5 the estimated azimuth misalignment angles of ckf5 , ickf5 and iickf5 .
+figure 6 the field test setup .
+figure 7 the alignment errors of large azimuth misalignment angle of dynamic vehicle experiment : ( a ) pitch errors ; ( b ) roll errors ; ( c ) heading errors .
+figure 8 the gradient values of azimuth angle error ( dynamic vehicle experiment ) .
+figure 9 the alignment errors of different algorithms : ( a ) pitch errors ; ( b ) roll errors ; ( c ) heading errors .
+sensors - 18 - 00659 - t001 _ table 1 table 1 comparison of alignment errors ( degrees ) .
+ekf ukf ckf3 ckf5 ickf5 iickf5 error of pitch ( degrees ) - 7.0205 0.0899 0.1270 0.1590 0.0829 0.0291 error of roll ( degrees ) 7.8234 - 0.1464 - 0.1634 - 0.2078 - 0.2949 - 0.2738 error of heading ( degrees ) 62.7783 157.7361 61.2902 13.6403 - 1.2458 - 0.0878 sensors - 18 - 00659 - t002 _ table 2 table 2 comparison of alignment errors with in - motion base ( degrees ) .
+ekf ukf ckf3 ckf5 ickf5 iickf5 error of pitch ( degrees ) - 3.2814 - 1.2868 - 2.6771 - 3.7189 3.0270 5.9149 error of roll ( degrees ) - 1.2960 - 0.2867 3.3751 5.4245 - 2.9030 1.8357 error of heading ( degrees ) - 139.5622 - 266.3212 - 204.3457 7.9986 42.5004 - 1.9540 sensors - 18 - 00659 - t003 _ table 3 table 3 mean and standard deviation ( sd ) of azimuth misalignment errors ( degrees ) .
+ekf ukf ckf3 ckf5 ickf5 iickf5 mean ( degrees ) - 155.2618 - 264.1352 - 201.1962 1.6920 - 6.1625 - 0.6852 sd ( degrees ) 38.8935 3.8062 11.5359 10.2307 41.2056 4.6229

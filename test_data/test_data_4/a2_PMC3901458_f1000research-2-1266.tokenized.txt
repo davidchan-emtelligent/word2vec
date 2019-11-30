@@ -1,0 +1,297 @@
+f1000res f1000res f1000research f1000research 2046 - 1402 f1000research london , uk 24555054 3901458 10.12688 / f1000research.2 - 103.v1 research articlearticlesgenetics of the immune systemleukocyte development reconstructing a b - cell clonal lineage. i. statistical inference of unobserved ancestors v1 ; ref status : indexed kepler thomas b a12 1 department of microbiology , boston university school of medicine , boston , ma , 02118 , usa 2 department of mathematics & statistics , boston university , boston , ma , 02118 , usa a tbkepler @ bu.edu competing interests : no competing interests were disclosed .
+3 4 2013 2013 2 103 25 3 2013 copyright : ( c ) 2013 kepler tb 2013 this is an open access article distributed under the terms of the creative commons attribution licence , which permits unrestricted use , distribution , and reproduction in any medium , provided the original work is properly cited.data associated with the article are available under the terms of the creative commons zero " no rights reserved " data waiver ( cc0 1.0 public domain dedication ) .
+one of the key phenomena in the adaptive immune response to infection and immunization is affinity maturation , during which antibody genes are mutated and selected , typically resulting in a substantial increase in binding affinity to the eliciting antigen .
+advances in technology on several fronts have made it possible to clone large numbers of heavy - chain light - chain pairs from individual b cells and thereby identify whole sets of clonally related antibodies .
+these collections could provide the information necessary to reconstruct their own history - the sequence of changes introduced into the lineage during the development of the clone - and to study affinity maturation in detail .
+but the success of such a program depends entirely on accurately inferring the founding ancestor and the other unobserved intermediates .
+given a set of clonally related immunoglobulin v - region genes , the method described here allows one to compute the posterior distribution over their possible ancestors , thereby giving a thorough accounting of the uncertainty inherent in the reconstruction .
+i demonstrate the application of this method on heavy - chain and light - chain clones , assess the reliability of the inference , and discuss the sources of uncertainty .
+nih / niaidhhsn272201000053cbill and melinda gates foundationthis work was supported by nih / niaid research contract hhsn272201000053c to ( tbk , pi ) and a vaccine development center grant in the collaboration for aids vaccine discovery program from the bill and melinda gates foundation ( b. haynes , pi ). the funders had no role in study design , data collection and analysis , decision to publish , or preparation of the manuscript .
+background during the course of an infection , the host 's immune system produces antibody molecules that bind to molecular determinants ( antigens ) on the infectious agent , thereby neutralizing the agent and targeting it for removal by additional antimicrobial effectors .
+the heavy and light chain immunoglobulin ( ig ) genes that encode the components of the antibody molecule result initially from the stochastic intrachromosomal rearrangement of gene segments arrayed in libraries of such gene segments 1 .
+these genes are further modified after the activation of the b cells that possess them through somatic hypermutation targeted to the rearranged ig genes 2 .
+those b cells whose ig genes encode molecules with greater affinity for the eliciting antigen gain a proliferative and survival advantage .
+in this way , the overall affinity of the pool of serum antibodies increases , sometimes by two or more orders of magnitude .
+this affinity maturation 3 is an essential component of the establishment of humoral immunity , the basis for the large majority of successful vaccines 4 .
+a great deal has been learned about affinity maturation , particularly with regard to the mechanism of somatic hypermutation 5 and the dynamic organization of the cellular environment in which affinity maturation takes place 6 , 7 ( see the recent review by shlomchik and weisel 8 ) , but the mechanism underlying the selective aspects of affinity maturation remains poorly understood .
+there is increasing interest in the manipulation of affinity maturation pathways in vaccinology 9 and thus in comparing the biophysical properties of mature antibodies to those of their inferred unmutated ancestors ( ua ) 10 - 18 .
+little attention has been paid , however , to the uncertainties inherent in the inference of these uas .
+given the sensitive dependence of antibody - antigen interactions on single amino acid changes 19 , estimating these uncertainties is essential .
+under some circumstances , there may be more than one history consistent with prior knowledge that is supported by the data ; having the means to determine these cases and provide a set of alternative uas that as an ensemble cover a significant posterior probability could be valuable , as was shown by alam et al. in a study of the affinity maturation of a broadly neutralizing anti - hiv - 1 antibody 14 .
+the inference of ancestral rearrangements involves the alignment of two ( light chain ) or three ( heavy chain ) gene segments in tandem to the target mature ig gene .
+the identities of the gene segments are not known in advance .
+instead , there is a library of gene segments from which each segment is drawn stochastically ; the identity of each segment is part of the inference .
+the problem is complicated by randomness in the location of the recombination points , where each gene segment begins or ends , because this condition implies that the alignments are not independent .
+further challenges are encountered by the presence of nontemplated ( n - ) nucleotides added at random to the junctions between gene segments , and of course , by point mutations .
+there is a well - developed literature on ancestor reconstruction in phylogenetics ( see , for example , pagel et al. , 2004 20 ) .
+this line of research has informed the development of my methods , but the problem at hand requires tools beyond those that have been developed by its practitioners .
+the difference between the previous phylogenetic methods and the method described here is that the former do not take into account the complex process through which the ig ancestor is constructed .
+this process places a strong statistical constraint on what ancestral states are permissible .
+my method owes a great deal to this prior work but does not aim to improve upon it fundamentally .
+it simply extends a small part of its methods to a new domain of application .
+independent of this previous work from phylogenetics there are applied methods developed by computational immunologists .
+indeed , computational methods developed to address the problem have been used for some time 21 .
+there are several different approaches and corresponding programs available online for carrying out these analyses , including ihmmune 22 , v - quest 23 , joinsolver 24 , and soda and soda2 25 , 26 .
+none of these applications , however , provides either of two features essential for the systematic reconstruction of clonal histories .
+first , one must be able to use all of the information available in a set of clonally related ig genes in a statistically principled manner .
+all currently available ig alignment tools work with one sequence at a time .
+second , one needs systematic uncertainty estimates on the ua. in order to say anything of interest about the ua and the clonal history , there must be some level of certainty that the inferred sequence really is the actual ua. the method described here provides these features .
+it is based on a hierarchical model of ig gene development that produces an analysis of the clonal history and posterior probabilities on the ua. the method uses the information available across all members of a clone in a consistent and powerful manner .
+methods one starts with a query set q of observed ig variable - region gene sequences assumed to share descent from a common ancestor alpha .
+the task is to estimate the dna sequence alpha or , more generally , a posterior probability on alpha .
+there are two distinct stochastic processes that together give rise to q. the stochastic intrachromosomal rearrangement process transforms the germline configuration to the unmutated ( naive ) ancestor .
+somatic mutation transforms the naive ancestor to the mature ( mutated ) antibodies that are observed .
+to each of these stochastic processes there corresponds a probability function , each of which , in turn , has a natural interpretation within the framework of bayesian inference .
+the rearrangement process generates a distribution p 0 ( alpha ) on unmutated ancestors .
+for each unmutated ancestor a , somatic mutation then generates the likelihood function p ( q | alpha ) relating the ancestor to the observed query sequences .
+once these functions are computed , bayes' theorem is used to compute the posterior probability on alpha given q , p ( alpha | q )= p ( q | alpha ) p0 ( alpha ) sumalpha'p ( q | alpha ') p0 ( alpha ') ( 1 ) parameterization of the recombination process to avoid unnecessary complication , light chain sequences will be used for illustration .
+the extension to heavy chains is straightforward , but even for the simpler light chains the notation becomes clumsy and obscures the intuition behind the method .
+heavy chain rearrangements involve an additional gene segment ( dh ) and two junctions rather than the one that light chain rearrangements have .
+figure 1 illustrates the parameterization of a heavy - chain rearrangement and provides a guide applicable to both heavy and light - chain rearrangements .
+figure 1 .
+illustration of parameters for the rearrangement model .
+labelled vertical arrows indicate the positions of the recombination sites : 1 ) rv = 1 ; 2 ) rd1 = 5 ; 3 ) rd2 = 7 ; 4 ) rj = 3 .
+the dashed arrow 2a indicates a possible alternative recombination site : rd1 = 3 .
+lower - case letters in the gene - segment sequences indicate mismatches between the observed sequence and the gene segment .
+the last line shows n nucleotide sequences consistent with the observed sequence .
+a light - chain rearrangement results from the selection of a v - gene segment v , the selection of a j - gene segment j , the specification of the recombination point in both of these segments r v , r j , and the sequence n of the n nucleotides randomly added to the junction between the gene segments .
+these elements are regarded as parameters in a statistical model : v and j are categorical parameters naming specific gene segments , r v and r j are integers , and n is a dna sequence .
+r v is defined as the position of the 3 ' - most v nucleotide included in the rearrangement ; r j is the position of the 5 ' - most j nucleotide included .
+the dna sequence n may have length zero ( meaning that the v and j segments are directly joined and no n nucleotides occur ) .
+each combination of parameter values generates a specific dna sequence , although a given sequence may be generated by more than one set of parameter values .
+one computes the posterior distribution on these parameters , and uses it to generate posteriors probabilities on the quantities of interest , such as the nucleotides at each position of the founder gene .
+let s ( v , j , r v , r j , n ) be the sequence generated by indicated arguments .
+then the distribution on unmutated rearrangements is p0 ( alpha )= sumv,j,rv,rj,ni [ alpha = s ( v,j,rv,rj,n )] pi ( v,j,rv,rj,n ) ( 2 ) where i is the boolean indicator : i [ true ] = 1 , i [ false ] = 0 and pi is the prior probability on rearrangement parameters .
+v and j are taken to be independent and pi ( v , j , r v , r j , n ) = pi ( v , r v ) pi ( j , r j ) pi ( n ) .
+although this assumption is not strictly true - there are small correlations among v , d , and j gene segments 27 , the inclusion of these correlation would have very small effects on the resulting inference at the cost of substantial computational effort .
+for the analyses in this paper i use gene - segment libraries derived from the imgt reference libraries 28 .
+these libraries contain multiple alleles for each gene segment locus .
+priors are assigned to the gene segments such that each gene segment locus has the same prior probability , regardless of the number of allelic variants present .
+within a gene - segment locus , the distribution on alleles is uniform .
+when more prior information is available - for example , if one knows the allelic frequencies in the relevant population or knows precisely which alleles are carried by the subject - this information is easily accommodated in the prior probabilities .
+the recombination sites are also assigned prior probabilities uniformly across their assumed range .
+the largest allowed value for r v corresponds to the position just 3 ' of the codon encoding the second invariant cysteine residue .
+the largest allowed value of r j corresponds to the position just 5 ' of the codon encoding the invariant tryptophan residue .
+for all gene segments , the smallest allowed value of the recombination points is - 4 , corresponding to four p nucleotides 29 .
+for n - nucleotide sequences , an improper prior is used , formally assigning a uniform distribution over all sequence lengths .
+the use of this uninformative prior is computationally convenient and has little consequence in practice , since ancestral sequences that have excessively long n regions will be judged very unlikely to give rise to the observed sequences and will not contribute substantially to inferences .
+the mechanics of this phenomenon will become clearer when i describe the computation of the likelihood and sequence alignment .
+the likelihood function the second probability function required is the likelihood , describing the probability that the query sequences q arose from a given ancestor alpha by somatic mutation .
+the likelihood function depends implicitly on the multiple sequence alignment used as well as on the assumed phylogenetic tree .
+it is computationally infeasible to account completely for these additional sources of uncertainty .
+indeed , it remains a significant challenge in the general case 30 .
+fortunately , somatic hypermutation only infrequently creates insertions or deletions 31 , which are the major cause of uncertainty in multiple sequence alignment .
+rather than sum over many multiple alignments , for each gene segment i use the alignment with the maximum score as detailed below .
+i assume that the complete multiple alignment a c can be decomposed into a multiple sequence alignment a q among the query sequences in q and the alignment a between a q and the ua. a q is estimated in advance and treated as given in subsequent computations .
+then for each gene segment , the maximum likelihood alignment between it and a q is computed .
+every tree t can be represented by a tree t 1 with unit average branch length and a mutation rate mu taken to multiply each branch of t 1 to yield t. although the estimated ancestor is insensitive to variation in the assumed tree 32 , the estimate of uncertainty is clearly sensitive to the assumed overall mutation rate , i.e. , to the overall scaling of the branch lengths .
+the procedure is to iteratively estimate t 1 given the ua and the ua given t 1 , integrating over mu at each stage .
+one starts with a simple tree t 1 invariant under permutations of the gene assignments to tips ( a palm tree , with a branch from the root to the last common ancestor of q and branches of equal length from the last common ancestor to each member of q ) .
+then , given t 1 , estimate the posterior on the rearrangement parameters ( integrating over mu ) , find the ua with maximum posterior likelihood , use this sequence at the root to re - estimate t 1 , and continue iteratively until convergence is reached .
+although the pairwise alignments a v , a d , and a j of the v , d and j gene segments to q are not independent , they are conditionally independent given the recombination points .
+therefore , the likelihood factorizes into components corresponding to gene segments as follows , using the light chain for the example , p ( q | v,j,rv,rj,n,a,t ) pi ( v,j,r,vrj,n )= p ( q | v,rv,av,t ) pi ( v,rv ) p ( q | j,rj,aj,t ) pi ( j,rj ) ( 3 ) xp ( q | n,t ) pi ( n ) f ( rv,rj,av,aj ) the last function contains the dependence among the gene segment pairwise alignments .
+f ( r v , r j , a v , a j ) = 1 when the position of r j in a q is 3 ' of the position of r v in a q , that is , when the gene segments do not overlap .
+otherwise , it is zero .
+sequence alignment and somatic mutation the positions in the ancestor are assumed to evolve independently .
+for a single query sequence q , one has log p ( q | alpha,lambda )= sumi = 1llog m ( qi | alphai,lambda ) ( 4 ) where q i is the nucleotide at position i in the query , l is the length of q , alpha i is the nucleotide at position i in the ancestor , and lambda is the product of time and mutation rate , or branch length .
+the function m represents the substitution model .
+for this paper , i use the simple jukes - cantor form 33 .
+within each component of the likelihood , the substitution model allows the computation of the likelihood for any sequence alpha placed at the root of t , conditional on t. since the columns of the individual gene segment alignments are independent , the overall likelihood is the product of the likelihoods for each column in the alignment , each of which is given by taking the product of the likelihoods along each branch in t and summing over all combinations of nucleotides at the interior nodes 34 .
+given a pair of nucleotide sequences with one taken to be derived from the other , an alignment between them is equivalent to an accounting of the mutations via which the derivation occurred .
+given a substitution model , there is an alignment scoring scheme that corresponds to that substitution model , so that the score for any alignment is the log of the likelihood of the corresponding set of substitutions .
+it is straightforward to generalize these observations to the alignment of a nucleotide sequence against a set of sequences , the multiple sequence alignment among which is presumed given .
+let the set of nucleotides at position i in the alignment be denoted q i and the nucleotide in the ancestor at position i be denoted alpha i. the following pairwise alignment scoring scheme is obtained .
+match score - aligning the jth position in the ancestor against the ith position in the derived gene : m ( i,j )= log m ( qi | alphaj,t ) ( 5 ) insertion score - aligning a gap in the ancestor against the ith position of the derived sequence : i ( i )= log m ( qi | - , t ) .
+( 6 ) deletion score - placing a gap at any position in the derived sequence : d ( x )= log m ( - | x,t ) , ( 7 ) where x is any nucleotide .
+to account for long deletions or insertions one could use an affine gap score , but in this paper just the simple gap penalties above are used .
+nontemplated nucleotides in addition to the standard scoring elements for pairwise alignment , the alignment of rearranging antigen receptors requires an additional scoring element for the treatment of n nucleotides .
+the score for the assignment of a given nucleotide to a generic n nucleotide rather than to a specific n nucleotide state ( a,g,t,c ) is computed .
+denoting by pi n ( x ) the prior probability for a random n nucleotide to have state x , the score corresponding to the assertion that position i in the query sequence alignment is encoded by an n nucleotide is ni = logsumxin { a,g,t,c } m ( qi | x,t ) pin ( x ) ( 8 ) for the analyses conducted in this paper , pi n ( x ) = 1 / 4 for all nucleotides x , though , again , the use of informative priors is straightforward. with all the components of the scoring function in place , one is able to use dynamic programming to find the alignment that maximizes the alignment score .
+algorithm the algorithm is schematized as follows .
+( preparation ) align q using multiple sequence alignment to give a q. assume an initial unit - length palm tree , t 1 .
+while not converged : { estimate rearrangement parameters given t 1 .
+for each discretized value of mu { compute the likelihood for each alpha i in { a , c , g , t } at each position i of a q. align each gene segment v , ( d ) , j in the gene segment library to a q , using eqs .
+( 5 - 8 ) , computing the likelihood for the relevant parameters in each alignment .
+compute the posterior on alpha conditional on mu using eqs .
+( 1,2 ) .
+} compute the posterior on mu. marginalize the posterior on alpha over mu. add the modal ( maximum posterior probability ) ua alpha * to q. estimate new tree t 1 ' with alpha * at root .
+if t 1 ' == t 1 converged = true else t 1 = t 1 ' } because of n nucleotides and increased uncertainty estimating dh gene segments , the complementarity determining region 3 ( cdr3 ) is typically the region of lowest confidence .
+in addition , all three cdrs accumulate mutations more rapidly than the framework regions in both selected and unselected genes 27 .
+for these reasons , cdr3 is susceptible to having its true mutation rate underestimated .
+the heuristic employed here is to assume a mutation frequency two - fold higher in cdr3 than in the remainder of the gene .
+this value is consistent with the enhancement of mutation frequency measured in cdr1 and cdr2 where there is much greater confidence in the counting of mutations 35 .
+the foregoing method was implemented using clustalw 36 within bioedit to compute a q , phylip 's dnaml 37 for clonal tree estimation , and software i developed , arpp uai , for all other computations .
+reconstructing a b - cell clonal lineage : antigen receptor probabilistic parser ( arpp ) software and clone k / h fasta files these files are supplementary to the paper " reconstructing a b - cell clonal lineage. i. statistical inference of unobserved ancestors " , which describes the inference of the unmutated ancestor to a set of clonally related antibody genes .
+the software that implements the methods described is called arpp uai , for antigen receptor probabilistic parser : unmutated ancestor inference .
+setup.exe is the installer for arpp uai .
+double click the icon , and follow the steps as indicated in the installation wizard .
+it will install the program and create an icon on your desktop .
+the program requires a windows operating system to run .
+arpp quickstart is a very brief manual describing how to run the program and interpret its output .
+cl558 ( clonek ). fasta and genbankighc2 ( cloneh ). fasta are data input files that can be used to test the installation .
+these are the datasets that were used to generate the results in the paper .
+the first of these is a small clone of human kappa sequences , called clone k in the paper .
+the latter is a large clone of human heavy chain sequences , called clone h in the paper .
+click here for additional data file .
+results to examine the reliability of error estimation for the method , i identified two relatively large sets of clonally - related genes for testing .
+the first , clone h , is a set of 84 heavy - chain genes 38 of common length 376 nucleotides ( nt ) , with an average (+/ - standard deviation ) pairwise difference of 30.4 +/ - 9.4 nt and a maximum pairwise distance of 61 nt. figure 2 shows the clonal phylogram for this set of sequences .
+the second , clone k , is a set of 12 kappa - chain sequences 16 of length 299 , with an average of 12.2 +/ - 4.8 nt differences and a maximum pairwise distance of 21 nt. figure 2 .
+phylogram of clone h. the scale bar shows evolutionary distance , or expected number of mutations per position .
+i applied the inference procedure to clone h and found that the vh gene segments with the greatest posterior probabilities are vh4 - 34 * 01 and vh4 - 34 * 03 , with nearly identical posterior probabilities of 0.49 each .
+these two alleles differ from each other in two places .
+the majority of sequences in the alignment matches one of the alleles at one of these two informative sites but matches the other allele at the other informative site .
+the modal dh gene segment is dh6 - 6 * 01 with posterior probability 0.94 .
+the modal jh gene segment is jh6 - 1 * 02 with posterior probability greater than 0.99 .
+the most likely rearrangement has vh using as many as 7 p - nucleotides , no n nucleotides in the v - d junction , and 14 n nucleotides in the d - j junction ( figure 3 ) .
+the observed sequences have an average mutation frequency of 8.0 % compared to the ua. figure 3 .
+nucleotide alignment and error profile .
+nucleotide alignment of observed heavy - chain sequences , inferred unmutated ancestor , and modal gene segments , with the probable error ( below ) , illustrating the influence of n nucleotides , junctions , and allelic ambiguity on uncertainty .
+the large probable error at position 273 is due to allelic ambiguity .
+a second position in fr1 has similar probable error due to allelic ambiguity ( not shown ) .
+hcdr3 is indicated .
+the 84 sequences at the top of the alignment are fragments of the observed members of clone h ( naming is arbitrary ) .
+the 4 sequences at the bottom of the alignment are the modal unmutated ancestor ( ua ) , and the modal gene segments .
+a dot in the sequence indicates a match to the ua at that position .
+the ua of clone k is inferred to have been rearranged using vk1 - 39 * 1 with probability greater than 0.999 and to the jk1 * 1 with probability 0.98 .
+no n nucleotides are required for the rearrangement .
+the observed sequences have an average mutation frequency of 5.6 % compared to ua. the inference procedure produces a posterior marginal probability mass function over nucleotides at each position of the ua. the probable error at each position is defined as one minus the maximum value of the posterior probability at that position .
+the total probable error is the sum of the probable errors over positions , and gives the expected number of mismatches between the inferred modal ua and the true ua. to examine the reliability of the estimated probable error , i subsampled the sequence sets and performed the inference on each of the subsamples .
+for clone h , ten pseudorandom samples for each size 1 , 3 , 9 , and 27 were generated .
+for clone k , uas were estimated using each of the individual sequences alone .
+the resulting modal uas for all sets were compared to the modal uas inferred from the complete set .
+for clone h , the total probable error for the ua inferred from the complete set is 2.0 .
+figure 4 shows the results of these analyses for clone h. the observed number of mismatches for each subsample is plotted against the total probable error for that subset .
+the distribution of probable error by nucleotide position shows that some uncertainty is attributable to uncertainty in the allele used in the ancestral rearrangement ( figure 3 , position 273 ) and some is attributable to uncertainty in the n nucleotides and junctions ( figure 3 , hcdr3 ) .
+figure 4 .
+observed number of mismatches vs. probable error .
+the number of mismatches between the modal unmutated ancestor ( ua ) for each subsample compared to the ua for the clone h complete set vs. the estimated error summed over all positions for each clone h subsample ua. symbol color indicates subsample size as shown in the legend .
+the larger symbols indicate the means ; the half - widths of the error bars are the standard errors of the means .
+the dashed vertical line indicates the total probable error using the complete 84 - sequence set .
+for clone k , the total probable error for ua inferred from the whole set is 0.07 .
+for the 12 uas obtained from individual sequences , the mean total probable error is 0.14 +/ - 0.05 .
+there were no mismatches among the light - chain uas .
+influence of prior distribution to quantify the impact of the prior distributions on the inference , i performed the inference using the same sequence sets , but with a simple uniform prior on nucleotides at each position rather than the prior based on knowledge of the rearrangement mechanism and gene segments .
+under this model , the modal ua differs from that of the full rearrangement - based model in 11 positions for the heavy - chain clone , and in 10 positions for the light - chain clone .
+the total probable error for the heavy chains and light chains is 8.5 and 11.5 , respectively for the model with uniform priors .
+discussion i have developed a method for the inference of clonal history in sets of affinity - matured clonally - related immunoglobulin genes .
+the method allows one to compute posterior distributions on the rearrangement parameters , and hence marginal distributions on several elements , including the nucleotide sequence of the unmutated ancestor .
+the probable error is strongly dependent on the interplay of n nucleotides and mutation frequency .
+this phenomenon occurs because nucleotides near the recombination junction are ambiguous with regard to their origin .
+a nucleotide that does not match the relevant gene segment at a position near the unknown recombination junction may have been encoded by the gene segment and mutated .
+alternatively , it may have been encoded by an n nucleotide .
+the relative probabilities of these alternatives depend on the mutation frequency .
+if there are few mutations elsewhere in the gene ( where they can be determined more reliably ) the likelihood of a mismatch in the junction being due to a mutation is small .
+the second major source of uncertainty is allelic diversity .
+it is often the case , as it is with clone h , that mutation has destroyed the information required to distinguish which of two or more alleles was used .
+the greater part of the total uncertainty will be due to one of these two phenomena ( figure 3 ) .
+this state of affairs also implies that the errors may be correlated , and the distribution of the total number of mismatches overdispersed , as is evident in figure 4 .
+one expects the total uncertainty to be proportional to the distance from the root to the most recent common ancestor of the observed sequences ( as long as that distance is not too large ) .
+adding related sequences to a clonal set improves the inference to the extent that they push back the time of the most recent ancestor .
+where there are few n nucleotides and allelic polymorphism either not present or not obscured by mutations , the ua can be inferred with great precision , even in the presence of significant levels of mutation , as is the case with clone k. conclusions technology now provides immunologists with the means to reconstruct clonal histories , synthesize the unobserved ancestors , and retrace the steps of affinity maturation to provide deeper insight into the humoral immune response in general and into vaccine design in particular .
+but the value of the information obtained in this way is wholly dependent on the reliability of the inferential part of the reconstruction .
+if the ancestors and intermediates are misinferred , the reconstructed history will be potentially misleading .
+the methods outlined here are intended to ensure reliable inference and to indicate when multiple histories must be considered .
+acknowledgements i thank grace kepler , barton haynes , larry liao and the members of the duke human vaccine institute antibodyome group for stimulating discussions .
+1 tonegawa s : somatic generation of antibody diversity. nature .
+1983 ; 302 ( 5909 ) : 575 - 581 10.1038 / 302575a0 6300689 2 mckean d huppi k bell m : generation of antibody diversity in the immune response of balb / c mice to influenza virus hemagglutinin .
+proc natl acad sci u s a .
+1984 ; 81 ( 10 ) : 3180 - 3184 10.1073 / pnas.81.10.3180 6203114 3 eisen hn siskind gw : variations in affinities of antibodies during the immune response. biochemistry .
+1964 ; 3 ( 7 ) : 996 - 1008 10.1021 / bi00895a027 14214095 4 amanna ij slifka mk : contributions of humoral and cellular immunity to vaccine - induced protection in humans. virology .
+2011 ; 411 ( 2 ) : 206 - 215 10.1016 / j.virol.2010.12.016 21216425 5 muramatsu m nagaoka h shinkura r : discovery of activation - induced cytidine deaminase , the engraver of antibody memory . in : frederick wa , tasuku h , editors .
+adv immunol.academic press , 2007 ; 94 : 1 - 36 10.1016 / s0065 - 2776 ( 06 ) 94001 - 2 17560270 6 jacob j kassir r kelsoe g : in situ studies of the primary immune response to ( 4 - hydroxy - 3 - nitrophenyl ) acetyl. i. the architecture and dynamics of responding cell populations .
+j exp med. 1991 ; 173 ( 5 ) : 1165 - 1175 10.1084 / jem.173.5.1165 1902502 7 berek c berger a apel m : maturation of the immune response in germinal centers. cell .
+1991 ; 67 ( 6 ) : 1121 - 1129 10.1016 / 0092 - 8674 ( 91 ) 90289 - b 1760840 8 shlomchik mj weisel f : germinal centers .
+immunol rev .
+2012 ; 247 ( 1 ) : 5 - 10 10.1111 / j.1600 - 065x.2012.01125.x 22500827 9 haynes bf kelsoe g harrison sc : b - cell - lineage immunogen design in vaccine development with hiv - 1 as a case study .
+nat biotechnol .
+2012 ; 30 ( 5 ) : 423 - 433 10.1038 / nbt.2197 22565972 10 xiao x chen w feng y : germline - like predecessors of broadly neutralizing antibodies lack measurable binding to hiv - 1 envelope glycoproteins : implications for evasion of immune responses and design of vaccine immunogens .
+biochem biophys res commun .
+2009 ; 390 ( 3 ) : 404 - 409 10.1016 / j.bbrc.2009.09.029 19748484 11 xiao x chen w yang f : maturation pathways of cross - reactive hiv - 1 neutralizing antibodies. viruses .
+2009 ; 1 ( 3 ) : 802 - 817 10.3390 / v1030802 21994570 12 dimitrov ds : therapeutic antibodies , vaccines and antibodyomes. mabs .
+2010 ; 2 ( 3 ) : 347 - 356 10.4161 / mabs.2.3.11779 20400863 13 zhou t georgiev i wu x : structural basis for broad and potent neutralization of hiv - 1 by antibody vrc01. science .
+2010 ; 329 ( 5993 ) : 811 - 817 10.1126 / science.1192819 20616231 14 alam sm liao hx dennison sm : differential reactivity of germ line allelic variants of a broadly neutralizing hiv - 1 antibody to a gp41 fusion intermediate conformation .
+j virol .
+2011 ; 85 ( 22 ) : 11725 - 11731 10.1128 / jvi.05680 - 11 21917975 15 ma bj alam sm go ep : envelope deglycosylation enhances antigenicity of hiv - 1 gp41 epitopes for both broad neutralizing antibodies and their unmutated ancestor antibodies .
+plos pathog .
+2011 ; 7 ( 9 ) : e1002200 10.1371 / journal.ppat.1002200 21909262 16 liao hx chen x munshaw s : initial antibodies binding to hiv - 1 gp41 in acutely infected subjects are polyreactive and highly mutated .
+j exp med. 2011 ; 208 ( 11 ) : 2237 - 2249 10.1084 / jem.20110363 21987658 17 bonsignori m hwang kk chen x : analysis of a clonal lineage of hiv - 1 envelope v2 / v3 conformational epitope - specific broadly neutralizing antibodies and their inferred unmutated common ancestors .
+j virol .
+2011 ; 85 ( 19 ) : 9998 - 10009 10.1128 / jvi.05045 - 11 21795340 18 wu x zhou t zhu j : focused evolution of hiv - 1 neutralizing antibodies revealed by structures and deep sequencing. science .
+2011 ; 333 ( 6049 ) : 1593 - 1602 10.1126 / science.1207532 21835983 19 braden bc goldman er mariuzza ra : anatomy of an antibody molecule : structure , kinetics , thermodynamics and mutational studies of the antilysozyme antibody d1.3 .
+immunol rev .
+1998 ; 163 ( 1 ) : 45 - 57 10.1111 / j.1600 - 065x.1998.tb01187.x 9700501 20 pagel m meade a barker d : bayesian estimation of ancestral character states on phylogenies .
+syst biol .
+2004 ; 53 ( 5 ) : 673 - 684 10.1080 / 10635150490522232 15545248 21 kepler tb borrero m rugerio b : interdependence of n nucleotide addition and recombination site choice in v ( d ) j rearrangement .
+j immunol .
+1996 ; 157 ( 10 ) : 4451 - 4457 8906821 22 gaeta ba malming hr jackson kj : ihmmune - align : hidden markov model - based alignment and identification of germline genes in rearranged immunoglobulin gene sequences. bioinformatics .
+2007 ; 23 ( 13 ) : 1580 - 1587 10.1093 / bioinformatics / btm147 17463026 23 brochet x lefranc mp giudicelli v : imgt / v - quest : the highly customized and integrated system for ig and tr standardized v - j and v - d - j sequence analysis .
+nucleic acids res .
+2008 ; 36 ( web server issue ) : w503 - w508 10.1093 / nar / gkn316 18503082 24 souto - carneiro mm longo ns russ de : characterization of the human ig heavy chain antigen binding complementarity determining region 3 using a newly developed software algorithm , joinsolver .
+j immunol .
+2004 ; 172 ( 11 ) : 6790 - 6802 15153497 25 volpe jm cowell lg kepler tb : soda : implementation of a 3d alignment algorithm for inference of antigen receptor recombinations. bioinformatics .
+2006 ; 22 ( 4 ) : 438 - 444 10.1093 / bioinformatics / btk004 16357034 26 munshaw s kepler tb : soda2 : a hidden markov model approach for identification of immunoglobulin rearrangements. bioinformatics .
+2010 ; 26 ( 7 ) : 867 - 872 10.1093 / bioinformatics / btq056 20147303 27 volpe jm kepler tb : large - scale analysis of human heavy chain v ( d ) j recombination patterns .
+immunome res .
+2008 ; 4 : 3 10.1186 / 1745 - 7580 - 4 - 3 18304322 28 lefranc mp giudicelli v ginestoux c : imgt ( r ) , the international immunogenetics information system ( r ) .
+nucleic acids res .
+2009 ; 37 ( database issue ) : d1006 - d1012 10.1093 / nar / gkn838 18978023 29 meier jt lewis sm : p nucleotides in v ( d ) j recombination : a fine - structure analysis .
+mol cell biol .
+1993 ; 13 ( 2 ) : 1078 - 1092 10.1128 / mcb.13.2.1078 8380891 30 liu k raghavan s nelesen s : rapid and accurate large - scale coestimation of sequence alignments and phylogenetic trees. science .
+2009 ; 324 ( 5934 ) : 1561 - 1564 10.1126 / science.1171243 19541996 31 wilson pc de bouteiller o liu yj : somatic hypermutation introduces insertions and deletions into immunoglobulin v genes .
+j exp med. 1998 ; 187 ( 1 ) : 59 - 70 10.1084 / jem.187.1.59 9419211 32 hanson - smith v kolaczkowski b thornton jw : robustness of ancestral sequence reconstruction to phylogenetic uncertainty .
+mol biol evol .
+2010 ; 27 ( 9 ) : 1988 - 1999 10.1093 / molbev / msq081 20368266 33 jukes th cantor cr : evolution of protein molecules .
+mammalian protein metabolism.academic press .
+1969 ; 21 - 132 reference source 34 felsenstein j : evolutionary trees from dna sequences : a maximum likelihood approach .
+j mol evol .
+1981 ; 17 ( 6 ) : 368 - 376 10.1007 / bf01734359 7288891 35 cowell lg kim hj humaljoki t : enhanced evolvability in immunoglobulin v genes under somatic hypermutation .
+j mol evol .
+1999 ; 49 ( 1 ) : 23 - 26 10.1007 / pl00006530 10368430 36 larkin ma blackshields g brown np : clustal w and clustal x version 2.0. bioinformatics .
+2007 ; 23 ( 21 ) : 2947 - 2948 10.1093 / bioinformatics / btm404 17846036 37 felsenstein j : phylip ( phylogeny inference package ) .
+3.6 ed. seattle , wa : distributed by the author , department of genome sciences , university of washington , 2005 reference source 38 wilson pc wilson k liu yj : receptor revision of immunoglobulin heavy chain variable region genes in normal human b lymphocytes .
+j exp med. 2000 ; 191 ( 11 ) : 1881 - 1894 10.1084 / jem.191.11.1881 10839804 referee response for version 1 crowe jr james 1referee 1 vanderbilt school of medicine , vanderbilt university , nashville , tn , usa competing interests : no competing interests were disclosed .
+23 4 2013 version 1recommendationapprove current high throughput dna sequencing technologies , including those for amplicons such as pcr products of antibody gene transcripts , allow for the production of millions or billions of nucleotide sequence files .
+an intriguing finding that has emerged recently is that b cells of apparent clonal families encoding highly related antibody transcripts , representing what appear to be somatic variants , circulate in the peripheral blood and other tissues .
+after sequence alignment , it seems very intuitive to infer that highly related sequences actually derived in vivo from single b cell clones .
+however , as the author points out , there is uncertainty in the inferences made by alignment or conventional phylogenetic tools because of the nontemplated regions of recombined antibody genes , and the high frequency of somatically mutated residues in clones from memory b cells .
+current computational tools for identification of likely germline gene segments used in the original recombination are reasonable , but currently there are not adequate tools to determine the likelihood as to whether particular recombined and somatically mutated sequences derived biologically from another less mutated sequence in the repertoire from a sample .
+this is the gap that the author attempts to fill with the tool described .
+this tool likely has significant limitations , but it is important that such tools be developed and tested , with comparison to biological experiments .
+as sequencing technologies become ever more efficient , it is likely that increased sequencing depth will allow experimentalists to ' fill in the gaps' of these types of proposed phylogenies , offering some level of verification of the accuracy of the inferences .
+expression and testing of binding of antibodies in intermediate nodes of these phylogenies could be used to experimentally validate the relevance of the inferences .
+this type of work is already ongoing in several laboratories aimed at rational vaccine and antibody design .
+i am not a mathematician , so i cannot comment as to whether the statistical methods are really appropriate in this work .
+i can comment however that there are a number of limitations that arise from biological particulars of antibody gene repertoires that likely need to be accounted for in later iterations of this tool .
+the possible number and diversity of nontemplated junctional nucleotides is theoretically nearly infinite and position independent , but structural constraints limit the length and type of residues encoded in junctions .
+in fact , canonical structural configurations of the necks of the hypervariable loops ( cdrs ) likely limit the sequence diversity that can be observed in peripheral blood expressed antibodies after selection .
+i am not certain if these structural constraints can be used to constrain the inferred phylogenies generated , but that would be very helpful , since somatic variants are unlikely to violate the common structural determinants of the antibody paratopes in antigen - specific repertoires .
+antibody genes contain more mutable codons than many other genes encoding proteins , so the likelihood of coding changes may need to be accommodated .
+insertions and deletions occur with reasonable frequency in these genes during the process of somatic hypermutation .
+some sequences that arise from somatic hypermutation stimulated by a foreign antigen may be eliminated due to autoreactivity or other selective pressures .
+i also did not see any methods for dealing with sequencing errors , which are vexing in this context .
+all of these biologic phenomena affecting antibody repertoires make inference of antibody gene phylogenies especially challenging .
+nevertheless , i find it encouraging that new tools like this are being developed that can be tested , evolved and validated in this area .
+the sequencing technologies present the practical problem of inferring relationships between observed transcripts already , and laboratory experimentalists need practical tools like this for establishing limited sets of candidate genes to synthesize and study .
+as larger repertoires from more diverse sets of individuals are obtained , the relevance of these tools will become clear .
+it is especially intriguing to think that , with sufficient sequencing efforts , we may be able to define all possible commonly expressed antibodies and their phylogenies , not just within individuals but across populations .
+i have read this submission .
+i believe that i have an appropriate level of expertise to confirm that it is of an acceptable scientific standard .
+referee response for version 1 hughes austin 1referee 1 department of biological sciences , university of south carolina , columbia , sc , usa competing interests : no competing interests were disclosed .
+22 4 2013 version 1recommendationapprove - with - reservations the method presented in this paper depends on the assumption that reconstructing somatic rearrangement events occurring in the ancestors of b cell clones can be improved by using phylogenetic methods to infer the unmutated ancestor ( ua ) of mature antibodies .
+the methods used to reconstruct the ua are standard phylogenetic methods , but the statistical approach taken ignores biological complexities .
+first , the process of affinity maturation of antibodies is a selective process , not just the accumulation of mutations .
+certain mutations , which increase affinity , are selectively favoured , while those that decrease affinity are eliminated .
+thus , the author 's assumption of the independence of nucleotide positions in the sequence seems unjustified , as does the use of the simple jukes - cantor model .
+in addition , phylogenetic reconstruction in this case ( involving short sequences subject to positive selection , resulting in terminal branches that are very long in comparison to internal branches ) is likely to be unreliable .
+the author cites one study suggesting that ancestral sequence reconstruction may not be highly sensitive to tree topology , but the sequences used in that study may not be directly comparable to the present case .
+it would have been nice to see some quantitative evidence regarding the influence of tree topology on ua reconstruction with these data .
+furthermore , if tree topology does n't matter for the results , why go through the whole elaborate process of phylogenetic tree reconstruction ?
+in spite of these reservations , the author is to be congratulated for drawing attention to the potential value of using the information in clonally related sequences for inference of ancestral rearrangement .
+i have read this submission .
+i believe that i have an appropriate level of expertise to confirm that it is of an acceptable scientific standard , however i have significant reservations , as outlined above .
+referee response for version 1 dunn - walters deborah 1referee 1 department of immunobiology , king 's college london school of medicine , london , uk competing interests : no competing interests were disclosed .
+9 4 2013 version 1recommendationapprove this is a really useful tool for immunoglobulin affinity maturation studies - particularly now that technology enables us to generate large clonal families .
+a minor point , in the file downloads information you state " the program requires a windows operating system to run. " it would be useful to be more specific - 32 or 64 bit ?
+which version of windows ?
+i have read this submission .
+i believe that i have an appropriate level of expertise to confirm that it is of an acceptable scientific standard .

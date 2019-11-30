@@ -27,6 +27,7 @@ import time
 import logging
 
 current_path = os.path.dirname(os.path.realpath(__file__))
+test_path = os.path.join(os.path.dirname(os.path.dirname(current_path)),"test_data")
 sys.path.append(current_path)
 from get_files_multi import get_files
 
@@ -269,35 +270,18 @@ def get_similar(text, model_str): #gensim.utils.simple_preprocess):
     return ret_str
 
 
-if __name__ == '__main__':
+def main():
     import argparse
 
     argparser = argparse.ArgumentParser()
-
-    argparser.add_argument("-o", "--output_dir", dest="output_dir", type=str, default="", \
-        help="save tokenized text path (default={})".format(""))
-
-    argparser.add_argument("-i", "--input_path", dest="input_path", type=str, default="", \
-        help="input_path (default={})".format(None))
-
-    argparser.add_argument("-m", "--checkpoint_dir", dest="checkpoint_dir", type=str, default="", \
-        help="save checkpoint (default={})".format(None))
-
-    argparser.add_argument("-s", "--span", dest="input_span", type=str, default="", \
-        help="span of files list (default={})".format(""))
-
-    argparser.add_argument("--tokenizer", dest="tokenizer", type=str, default="", \
-        help="tokenizer segtok/simple (default={})".format(""))
-
-    argparser.add_argument("-c", "--config", dest="config_path", default="config.json", \
-        help="config.json (default={})".format("config.json"))
-
-    argparser.add_argument("-v", "--verbose", dest="verbose", default=False, action='store_true',\
-        help="verbose")
-
-    argparser.add_argument("-t", "--text", dest="text_str", type=str, default="", \
-        help="similar 5 words (default={})".format("abc efg"))
-
+    argparser.add_argument("-o", "--output_dir", dest="output_dir", type=str, default="", help="save tokenized text path (default={})".format(""))
+    argparser.add_argument("-i", "--input_path", dest="input_path", type=str, default=os.path.join(test_path, "tokenized_text.paths"),  help="input_path (default={})".format(None))
+    argparser.add_argument("-m", "--checkpoint_dir", dest="checkpoint_dir", type=str, default="", help="save checkpoint (default={})".format(None))
+    argparser.add_argument("-s", "--span", dest="input_span", type=str, default="", help="span of files list (default={})".format(""))
+    argparser.add_argument("--tokenizer", dest="tokenizer", type=str, default="", help="tokenizer segtok/simple (default={})".format(""))
+    argparser.add_argument("-c", "--config", dest="config_path", default=os.path.join(test_path, "config.json"), help="config.json (default={})".format("config.json"))
+    argparser.add_argument("-v", "--verbose", dest="verbose", default=False, action='store_true', help="verbose")
+    argparser.add_argument("-t", "--text", dest="text_str", type=str, default="", help="similar 5 words (default={})".format("abc efg"))
     args = argparser.parse_args()
 
     with open(args.config_path) as fj:
@@ -347,4 +331,8 @@ if __name__ == '__main__':
         epochs=epochs, verbose=verbose)
 
     print (model)
-    print ("model size:", getsize(model))  
+    print ("model size:", getsize(model))
+
+if __name__ == '__main__':
+    main()
+

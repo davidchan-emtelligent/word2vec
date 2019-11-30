@@ -1,0 +1,470 @@
+bmc med res methodol bmc medical research methodology 1471 - 2288 biomed central 20678228 2923159 1471 - 2288 - 10 - 70 10.1186 / 1471 - 2288 - 10 - 70 review automatic de - identification of textual documents in the electronic health record : a review of recent research meystre stephane m 1 stephane.meystre @ hsc.utah.edu friedlin f jeffrey 3 jfriedlin @ regenstrief.org south brett r 12 brett.south @ hsc.utah.edu shen shuying 12 shuying.shen @ hsc.utah.edu samore matthew h 12 matthew.samore @ hsc.utah.edu 1 department of biomedical informatics , university of utah , salt lake city , utah , usa 2 ideas center slcva healthcare system , salt lake city , utah , usa 3 medical informatics , regenstrief institute , inc. , indianapolis , indiana , usa 2010 2 8 2010 10 70 70 2 2 2010 2 8 2010 copyright ( c ) 2010 meystre et al ; licensee biomed central ltd .
+2010 meystre et al ; licensee biomed central ltd.this is an open access article distributed under the terms of the creative commons attribution license ( http :// creativecommons.org / licenses / by / 2.0 ) , which permits unrestricted use , distribution , and reproduction in any medium , provided the original work is properly cited .
+background in the united states , the health insurance portability and accountability act ( hipaa ) protects the confidentiality of patient data and requires the informed consent of the patient and approval of the internal review board to use data for research purposes , but these requirements can be waived if data is de - identified .
+for clinical data to be considered de - identified , the hipaa " safe harbor " technique requires 18 data elements ( called phi : protected health information ) to be removed .
+the de - identification of narrative text documents is often realized manually , and requires significant resources .
+well aware of these issues , several authors have investigated automated de - identification of narrative text documents from the electronic health record , and a review of recent research in this domain is presented here .
+methods this review focuses on recently published research ( after 1995 ) , and includes relevant publications from bibliographic queries in pubmed , conference proceedings , the acm digital library , and interesting publications referenced in already included papers .
+results the literature search returned more than 200 publications .
+the majority focused only on structured data de - identification instead of narrative text , on image de - identification , or described manual de - identification , and were therefore excluded .
+finally , 18 publications describing automated text de - identification were selected for detailed analysis of the architecture and methods used , the types of phi detected and removed , the external resources used , and the types of clinical documents targeted .
+all text de - identification systems aimed to identify and remove person names , and many included other types of phi .
+most systems used only one or two specific clinical document types , and were mostly based on two different groups of methodologies : pattern matching and machine learning .
+many systems combined both approaches for different types of phi , but the majority relied only on pattern matching , rules , and dictionaries .
+conclusions in general , methods based on dictionaries performed better with phi that is rarely mentioned in clinical text , but are more difficult to generalize .
+methods based on machine learning tend to perform better , especially with phi that is not mentioned in the dictionaries used .
+finally , the issues of anonymization , sufficient performance , and " over - scrubbing " are discussed in this publication .
+background confidentiality of the information confided by a patient to a healthcare provider has been a cornerstone of the trust relationship established between them for centuries , as expressed in the hippocratic oath in ancient greece : "... all that may come to my knowledge in the exercise of my profession or in daily commerce with men , which ought not to be spread abroad , i will keep secret and will never reveal . "
+[ 1 ] .
+certainly with increased use and adoption of electronic health records ( ehr ) systems , greater amounts of readily accessible patient data is available for use by clinicians , researchers , and operational purposes .
+as data become more accessible , protecting patient confidentiality is a requirement and expectation that should not be overlooked or understated .
+in the united states , the health insurance portability and accountability act ( hipaa ; codified as 45 cfr s160 and 164 ) protects the confidentiality of patient data , and the common rule [ 2 ] protects the confidentiality of research subjects .
+these laws typically require the informed consent of the patient and approval of the internal review board ( irb ) to use data for research purposes , but these requirements are waived if data is de - identified , or if patient consent is not possible ( e.g. , data mining of retrospective records ) .
+for clinical data to be considered de - identified , the hipaa " safe harbor " technique requires 18 data elements ( called phi : protected health information ) to be removed as shown in figure 1 [ 3 ] .
+figure 1 patient identifiers defined in the hipaa " safe harbor " legislation .
+anonymization and de - identification are often used interchangeably , but de - identification only means that explicit identifiers are hidden or removed , while anonymization implies that the data cannot be linked to identify the patient ( i.e. de - identified is often far from anonymous ) .
+scrubbing is also sometimes used as a synonym of de - identification .
+the de - identification of narrative text documents is often realized manually , and requires significant resources .
+dorr et al .
+[ 4 ] have evaluated the time cost to manually de - identify narrative text notes ( average of 87.2 +/ - 61 seconds per note ) , and concluded that it was time - consuming and difficult to exclude all phi required by hipaa .
+already well aware of these issues , several authors have investigated automated de - identification of narrative text documents from the ehr , and many are described in details and analyzed below .
+building repositories of de - identified clinical texts has profound implications , particularly for organizations that have data warehouses containing vast amounts of legacy data available in the form of both structured and unstructured clinical data .
+in these systems the creation of a repository of de - identified patient data should have significant implications for the future of clinical and health services research and facilitate development of applications that have great potential to improve patient care that previously did not exist .
+such repositories will provide researchers and operations with greatly increased access to patient data , thereby combining sources of data previously unavailable .
+for some health care systems that have large and existing ehr systems , use of combined structured and unstructured data sources for such purposes is just beginning .
+the department of veteran 's affairs ( va ) has recently funded a new informatics initiative called the consortium for healthcare informatics research ( chir ) , focusing on utilizing both structured and unstructured data previously unavailable for research and operational purposes .
+these efforts have also focused on creating a high - performance computing environment to support data management , analytics and development environments called the veterans' informatics , information and computing infrastructure ( vinci ) .
+evaluating existing de - identification methods and potentially building and evaluating new methods and tools is one of the cornerstones of this initiative .
+realized efforts will fulfill the ethical and legal obligations of patient privacy and confidentiality .
+methods here we present a review of recent research in automatic de - identification of narrative text documents in the ehr .
+a comprehensive review of all research about text automatic de - identification is beyond the scope of this paper .
+our review focus is only on recently published research after 1995 .
+we selected relevant publications from bibliographic queries in pubmed ( for " de - identification " , " de - identification " , " anonymization " , and " text scrubbing ") , conference proceedings , and the acm digital library ( for the same terms used in pubmed with " medical " or " medicine " or " biomedical " or " clinical ") .
+we also added interesting publications referenced in papers that were already included .
+results the literature search resulted in a collection of more than 200 papers .
+a significant proportion of these publications focused only on structured data instead of narrative text .
+several publications described radiological or face images de - identification , and some mentioned manual de - identification processes .
+finally , 18 publications described automated text de - identification and were selected for detailed analysis of the architecture and methods used , the types of phi detected and removed , the external resources used , and the types of clinical documents targeted .
+these applications are listed in table 1 and analyzed below .
+they are described in subsequent sections .
+table 1 automatic de - identification systems and their principal characteristics 1st author system name availability / license programming language / resources ( when known ) knowledge resources document types aramaki [ 23 ] system for the i2b2 de - identification challenge not publicly available crf ++ 1 lists of names , locations , dates discharge summaries beckwith [ 14 ] hms scrubber open source ( gnu lgpl v2 ) java , jdom , mysql lists of names , locations surgical pathology reports berman [ 5 ] concept - match system freely available perl umls metathesaurus surgical pathology reports fielstein [ 7 ] ( va system ) not publicly available perl lists of names , locations , email addresses va compensation and pension examinations friedlin [ 8 ] meds not publicly available java lists of names , locations , medical terms hl7 messages gardner [ 24 ] hide open source ( common public license v1 ) perl , java , mallet 2 none surgical pathology reports guo [ 25 ] system for the i2b2 de - identification challenge not publicly available gate 3 ( annie , jape ) , java , svmlight 4 lists of locations , hospitals .
+discharge summaries gupta [ 15 ] de - id ( de - id data corp. , richboro , pa ) commercial system , not freely available .
+unknown list of u.s. census names , user defined dictionaries surgical pathology reports hara [ 27 ] system for the i2b2 de - identification challenge not publicly available c ++ , bact and yamcha 5 none discharge summaries morrison [ 18 ] medlee not publicly available prolog medlee lexicon , umls metathesaurus outpatient follow - up notes neamatullah [ 9 ] ( mit system ) open source ( gnu gpl v2 ) perl lists of common english words ( non - phi ) , terms indicating phi , names and locations , known phi ( patients and staff list !) nursing progress notes , discharge summaries ruch [ 19 ] medtag framework - based not publicly available unknown medtag lexicon ( based on umls metathesaurus ; only in french ) various clinical documents ( multilingual ) sweeney [ 20 ] scrub not publicly available unknown lists of area codes , names various clinical documents szarvas [ 28 ] system for the i2b2 de - identification challenge not publicly available weka 6 lists of first names , locations , diseases , non - phi ( general english ) discharge summaries taira [ 30 ] ( ucla system ) not publicly available unknown list of names , and drugs various clinical documents thomas [ 33 ] ( regenstrief institute system ) not publicly available java , xsl list of names , umls metathesaurus terms .
+surgical pathology reports uzuner [ 31 ] stat de - id not publicly available ( open source release planned ) .
+libsvm 7 mesh terms , lists of names , locations , and hospitals .
+discharge summaries wellner [ 32 ] system for the i2b2 de - identification challenge open source ( bsd ) ocaml 8,carafe 9 lists of us states , months , common english words .
+discharge summaries 1 http :// crfpp.sourceforge.net / 2 http :// mallet.cs.umass.edu / 3 http :// gate.ac.uk / 4 http :// svmlight.joachims.org / 5 http :// www.chasen.org /~ taku / software / 6 http :// www.cs.waikato.ac.nz / ml / weka / 7 http :// www.csie.ntu.edu.tw /~ cjlin / libsvm 8 http :// caml.inria.fr / ocaml / index.en.html 9 http :// sourceforge.net / projects / carafe / identifying information and types of clinical documents processed the automatic de - identification systems analyzed here often targeted only several types of identifying information , and not all 18 classes of phi cited in hipaa .
+considering the format and content of each type of phi , we classified each in seven general classes used in table 2 and listed below : table 2 types of phi and other data detected by the de - identification systems de - identification system phi clinical data person names ages > 89 geographical locations hospitals / hc org .
+dates contact information ids aramaki p + d v v v v v v none beckwith p + d v v v v v v none berman * * * * * * * umls fielstein p + d - v v v v v none friedlin p + d v v v v v v none gardner p v - - v - v none guo p + d v v v v v v none gupta p + d v v v v v v none hara p + d v v v v v v none morrison * * * * * * * medlee neamatullah p + d v v v v v v none ruch p + d - - v v v v medtag sweeney p + d v v v v v v none szarvas p + d v v v v v v none taira p - - - - - - none thomas p + d - - - - - - none uzuner p + d - v v v v v none wellner p + d v v v v v v none * only extracted concepts ( i.e. umls or other clinical concepts ) are retained .
+p + d = patient and healthcare provider names ; p = patient name * person names : names of patient , family member , patient proxy , and healthcare provider .
+* ages > 89 : age greater than 89 .
+* geographical locations : locations such as addresses , street names , zip codes , and cities .
+* hospitals and healthcare organizations : healthcare facilities , laboratories , and nursing homes .
+* dates : all elements of dates smaller than a year .
+* contact information : phone numbers , pager numbers , fax numbers , and e - mail addresses .
+* ids : social security number , medical record number , driver 's license number , and other identifiers .
+as seen in table 2 , all de - identification systems aimed to identify and remove person names ( always patient names , often also healthcare provider names ) .
+even though the majority of systems target multiple phi types , ages over 89 , geographical locations , and hospitals / healthcare organizations are most frequently ignored by de - identification systems ( 4 out of 18 systems ) .
+three systems not only tried to identify phi , but also identified clinical data and disambiguated it from phi .
+this would prevent misclassifying clinical data as phi and removing clinically relevant information during the de - identification process .
+one of these even removed everything but clinical data [ 5 ] .
+more systems ( 8 out of 18 ) used some medical knowledge to improve their detection and classification of terms as phi , or non - phi .
+evaluation of de - identification tasks across varied document sources is important to demonstrate generalizability of methods .
+however , most systems referenced in this review paper used only one or two specific document types , such as pathology reports and discharge summaries , and only three systems evaluated performance across a more heterogeneous document corpus ( table 1 ) .
+the most common types of clinical text targeted by these systems - discharge summaries and surgical pathology reports - are often dictated and are composed deliberately for clear communication , while other texts like progress notes are written mainly for documentation purposes [ 6 ] .
+the former are " cleaner " , often more structured , and therefore an easier target for automatic de - identification .
+it is important to note that one system used hl7 messages as a document source .
+this can be seen as a novel source of input data that leverages the accepted healthcare messaging standard .
+even though discharge summaries are more likely to have more sensitive phi elements , it is difficult to draw conclusions as to the accuracy and generalizability of methods with more heterogeneous document sources and less prevalent phi elements .
+in order for these methods to be implemented in some practical and standardized way across operational practice , these methods should be evaluated on a larger scale .
+such an evaluation should at a minimum include the diverse continuum of document types that exists in most ehr systems .
+considering the large number of different clinical document types , their variability across institutions , specialties , note types , and even individuals , and the variable prevalence of phi , this evaluation would certainly require significant resources .
+in a large and diverse organization such as the va , the 100 most common clinical document types represent 80 % of all clinical documents .
+such a sample would probably be sufficiently representative of all clinical documents at the va , and would include varied document types such as nursing notes , discharge summaries , physical therapy notes , echo reports , operation reports , specialized consult notes , history and physical exam notes , radiological imaging reports , etc .
+methods used for automatic de - identification automated text de - identification applications are mostly based on two different groups of methodologies : pattern matching and machine learning .
+many systems combine both approaches for different types of phi ( figure 2 ) , but the majority uses no machine learning and relies only on pattern matching , rules , and dictionaries .
+figure 2 principal methods used for each class of phi .
+these patterns , rules , and dictionaries listed in table 3 are typically manually crafted , at the cost of months of work by experienced domain experts , and with limited generalizability .
+almost all pattern matching is implemented as regular expressions , up to 50 or more for several systems .
+dictionaries are built from various sources , and can be broadly classified as " phi - like " or " not phi - like " .
+the first class of dictionaries list terms that are typically considered phi , such as proper names , geographical locations , healthcare institution names , and sometimes even actual names of patients or healthcare providers of the institution in which the system was developed in [ 7 - 9 ] .
+these lists were built from publicly available resources such as the social security death index , spell - checking lexicons that include proper names ( e.g. , ispell ) , or lists of u.s. geographical cities , counties , and states .
+the second class of dictionaries list terms that are in general not considered phi , and include general english terms or biomedical terms .
+general english terms are provided by publicly available resources like atkinson 's words list [ 10 ] or the ispell lexicon ( after removal of proper names ) .
+biomedical terms come mostly from the umls metathesaurus [ 11 ] , or from other standard terminologies like mesh [ 12 ] .
+table 3 resources used by systems mostly based on pattern matching and / or rule - based methods .
+de - identification system knowledge resources principal methods beckwith lists of proper names , locations regular expressions and dictionaries .
+berman umls metathesaurus , stop words dictionaries fielstein lists of cities and va phi ( patient names , ssns , mrns ...) regular expressions and dictionaries .
+friedlin lists of names ( including regenstrief patients ) , locations .
+regular expressions and dictionaries ; identifiers in hl7 messages .
+gupta ( de - id system ) umls metathesaurus , institution - specific identifiers regular expressions and dictionaries ; identifiers in report headers .
+morrison ( medlee ) medlee lexicon and umls metathesaurus .
+rules / grammar - based , with dictionaries .
+neamatullah lists of common english words ( non - phi ) , names , locations , umls metathesaurus and other medical terms , known patients and healthcare providers in the institution .
+regular expressions and dictionaries .
+ruch medtag lexicon ( enriched with healthcare institution names , drug names , procedures , and devices ) rule - based , with dictionaries .
+sweeney lists of names , u.s. states , countries , medical terms .
+rule - based , with dictionaries .
+thomas list of names , umls metathesaurus , ispell terms .
+regular expressions and dictionaries .
+the advantages to the rule - based and pattern matching de - identification methods is that they require little or no annotated training data , and can be easily and quickly modified to improve performance by adding rules , dictionary terms , or regular expressions .
+disadvantages of pattern matching de - identification methods are the already mentioned requirement for developers to craft many complex algorithms in order to account for different categories of phi , and the required customization to a particular dataset .
+as such , phi pattern recognition performance may not be generalizable to different datasets ( i.e. data from a different institution or a different type of medical report ) .
+another disadvantage of pattern matching de - identification methods is the need for developers to be aware of all possible phi patterns that can occur , such as unexpected date formats that use periods ( e.g. , 12.20.2001 ) , or location patterns that use non - standard abbreviations ( e.g. , ' cal ' for california ) .
+more recent applications tend to be mostly based on supervised machine learning methods to classify words as phi or not phi , and in different classes of phi in the former case .
+the methods used range from support vector machines , to conditional random fields , decision trees , and maximum entropy ( table 3 ) .
+a large corpus of annotated text is required to train these machine learning algorithms , a resource that also requires significant work by domain experts , even if text annotation is often considered to be easier than knowledge engineering .
+annotated corpora can also be shared , such as during the i2b2 de - identification challenge [ 13 ] .
+even the corpus annotation can be shared among many groups , such as during the i2b2 medication extraction challenge in 2009 .
+almost all systems based on machine learning add some pattern matching to extract features for classification , or to detect specific types of phi that tend to be regular , such as telephone numbers or social security numbers .
+these systems use a variety of features for their machine learning algorithms ( table 4 ) .
+lexical features ( word - level features ) include attributes of lexical items or words in the text .
+they describe the word case , punctuation , special characters , numerical characters , and the morphology of the word .
+each word is considered separately , but surrounding words are also often included as bi - or tri - grams .
+word - level features are by far the most common types of features used for de - identification , and are also described as the most useful for the classification task .
+syntactic features almost always include the part - of - speech ( pos ) provided by some freely available pos tagger .
+semantic features refer to the semantic classification of word or phrase units .
+they include terms from dictionaries , and sometimes , semantic types .
+a few document - level features are also used , such as section headers or frequency of terms in the document .
+finally , corpus - level features are rarely used and include word frequencies , mostly for disambiguation .
+table 4 algorithms and features used by systems mostly based on machine learning methods .
+de - identification system machine learning algorithm features lexical / morphological syntactic semantic aramaki crf word , surrounding words ( 5 words window ) , capitalization , word length , regular expressions ( date , phone ) , sentence position and length .
+pos ( word + 2 surrounding words ) dictionary terms ( names , locations ) gardner crf word lemma , capitalization , numbers , prefixes / suffixes , 2 - 3 character n - grams pos ( word ) none guo svm word , capitalization , prefixes / suffixes , word length , numbers , regular expressions ( date , id , phone , age ) pos ( word ) entities extracted by annie ( doctors , hospitals , locations ) hara svm word , lemma , capitalization , regular expressions ( phone , date , id ) pos ( word ) section headings szarvas decision tree word length , capitalization , numbers , regular expressions ( age , date , id , phone ) , token frequency none dictionary terms ( first names , us locations , countries , cities , diseases , non - phi terms ) , section heading .
+taira maximum entropy capitalization , punctuation , numbers , regular expressions ( prefixes , physician and hospital name , syndrome / disease / procedure ) pos ( word ) semantic lexicon , dictionary terms ( proper names , prefixes , drugs , devices ) , semantic selectional restrictions uzuner svm word , lexical bigrams , capitalization , punctuation , numbers , word length .
+pos ( word + 2 surrounding words ) , syntactic bigrams ( link grammar ) mesh id , dictionary terms ( names , us and world locations , hospital names ) , section headers .
+wellner crf word unigrams / bigrams , surrounding words ( 3 words window ) , prefixes / suffixes , capitalization , numbers , regular expressions ( phone , id , zip , date , locations / hospitals ) none dictionary terms ( us states , months , general english terms ) .
+crf = conditional random fields ; svm = support vector machine ; pos = part - of - speech the main advantages of machine learning de - identification methods are that they can automatically learn to recognize complex phi patterns , and that developers of the system require only little knowledge of phi patterns .
+also , de - identification systems based on machine learning methods tend not to increase in complexity , and their processing speed does not slow over time , as can occur with pattern matching systems when progressively adapted to new document types or domains .
+the main disadvantage of machine learning methods is the already mentioned need , in the case of supervised learning , for large amounts of annotated training data .
+another disadvantage of these methods is that it is sometimes difficult to know precisely why the application committed an error .
+for example , if a phi location pattern is undetected by the application , adding more training data may or may not correct the error. and while machine learning de - identification methods are typically more generalizable than pattern matching methods , some additional annotated training is often required when applied to a new dataset .
+in general , methods based on dictionaries performed better with phi that is rarely mentioned in clinical text , but are more difficult to generalize .
+methods based on machine learning tend to perform better , especially with phi that is not mentioned in the dictionaries used .
+in the i2b2 de - identification challenge , systems based on machine learning with regular expression template features for all phi categories performed best .
+they were followed by systems combining rules for some phi categories with learning for others , and then by systems purely based on machine learning without regular expression template features or rules , and finally by purely rule - based systems [ 13 ] .
+clinical text de - identification applications mostly based on pattern matching and / or rule - based methods hms scrubber was developed by beckwith [ 14 ] and is an open source , hipaa compliant , de - identification tool tailored for pathology reports .
+it was developed as a freely available open source scrubber .
+all of the tools used to create the scrubber were open source , and the source code is freely available at the shared pathology informatics network ( spin ) .
+methods : the scrubber performs a three - step process for removing phi .
+first the reports are preprocessed and converted into an xml format ( spin format ) .
+this format includes a header portion and a textual portion of the report .
+the header portion contains demographic information about the patient such as name , medical record number , date of birth and social security number ; and information about the pathology report , such as the accession number and the pathology department .
+in the first of three scrubbing steps , the identifying information in these segments is extracted so it can be searched for within the body of the report via exact string matches .
+the second scrubbing step uses pattern matching with regular expressions .
+a total of 50 regular expressions are used to detect known patterns of phi such as dates , telephone numbers , or social security numbers .
+additionally , common suffixes and prefixes that likely represent names , such as " dr. " or " mr. " are also used to detect names during this step .
+in the third scrubbing step , a database of census derived person names and location names are used and exact string matching algorithms are used to replace any name from this list that are in the report .
+this database was also augmented with names from the researcher 's local institution .
+the scrubber replaces phi with a series of x 's as well as the general category of the phi that was removed .
+evaluation : the scrubber was developed and tested using pathology reports obtained from three institutions within spin .
+the software was trained on training sets until it exhibited good performance ( the exact number of reports used as the training set is not reported ) .
+1800 new pathology reports ( 600 for each of the three hospitals ) were used as a test set .
+they reported a recall of 98 % ( average for all types of phi ) .
+the scrubber 's precision was 43 % ( 4671 over - scrubs ; all types of phi ) .
+over - scrubs were primarily related to common words contained in proper names and places database .
+the reported processing speed was 47 reports per minute .
+the concept - match scrubber was developed by berman [ 5 ] and provides an alternative method from most traditional de - identification systems by extracting and removing every word from the text except words from an approved list of known non - phi words .
+it is designed for pathology reports .
+methods : this application is written in the perl programming language and the software ( including source code ) and the nomenclatures used are available open source .
+the scrubber algorithm consists primarily of six steps .
+the report is parsed into sentences and words , and stop words ( high frequency words i.e. the , a , for , in ) are identified for preservation .
+all remaining words ( non - stop words ) are mapped to a standard nomenclature ( the umls metathesaurus [ 11 ]) with larger terms subsuming smaller terms .
+matching report terms are replaced with their corresponding codes and terms from the nomenclature , and in a final step , all non - matching terms are replaced by a blocking tag .
+evaluation : a surgical pathology text corpus was obtained from jharcoll , a public domain collection of more than half a million different phrases extracted from actual pathology reports ( surgical pathology , cytopathology , and autopsy ) .
+all phrases in this collection were scrubbed .
+the actual precision and recall for the system was not reported , but it is assumed that the concept match method achieves high recall , because the only phi likely to be retained in the text are identifiers that are also either stop words ( e.g. , mr. and ) or medical terms ( e.g. , mr. colon ) .
+the system is reported to suffer from low precision because of the large number of over - marked non - identifiers .
+also , due to the scrubbing method of removing all non - mapped and nonstop words , the output of the scrubber would likely be hard to interpret and read .
+the system was fast : all 567,921 pathology phrases in jharcoll were scrubbed in 2,968 seconds ( nearly 200 phrases per second ) .
+fielstein et al. describe a va - based de - identification system that uses algorithms to identify phi in compensation and pension examination reports [ 7 ] .
+the system extends the rule - based systems created by sweeney and to a lesser extent , berman .
+methods : the fielstein system 's de - identification algorithms are written in the perl programming language and consist in pattern matching with regular expressions .
+the regular expressions were created using public domain sources of e - mail addresses , person names from census , location names , and other resources .
+in addition , va - specific regular expressions were created to match va case numbers and account identifiers .
+the system uses known phi related to a report and separately maintained within the vista system .
+these identifiers include patient names , social security numbers , medical record numbers , compensation claim numbers , and va sites of exam .
+the system looks for these specific known instances of phi when performing scrubbing .
+evaluation : the fielstein system was evaluated using 69 va joint exam reports .
+four expert judges reviewed the de - identified reports and both over - scrubbing and under - scrubbing errors were noted .
+true positives were defined as text segments appropriately de - identified and true negatives were defined as text that was not phi and not inappropriately scrubbed by the system .
+the overall sensitivity of the system was 81 % and the overall specificity was 99 % ( averages for all types of phi except ages over 89 ) .
+after regular expression modification and the addition of a city name list , the sensitivity increased to 92 % .
+the number and type of phi instances in these 69 reports were not reported , and the number of over - scrubbing errors in relation to the number of true positives was also not provided .
+friedlin developed the medical de - identification system ( meds ) at the regenstrief institute [ 8 ] .
+the system is similar to the system described by beckwith and gupta .
+methods : it uses regular expressions , patient specific data from report headers , and dictionaries of names of persons and locations to remove phi .
+meds uses multiple processes to de - identify medical documents .
+first , it uses approximately 50 regular expressions to identify likely phi patterns , such as numeric patterns like medical record numbers and zip codes , as well was numeric / text patterns such as addresses .
+it also uses regular expressions to identify tags that likely indicate patient or provider names such as " dr. " and " mr. " .
+meds also used dictionaries containing person names ( obtained from census data and data from the regenstrief emr ) and place names ( obtained from census data ) .
+meds also extracts patient and provider names from the report header section and searches for these identifiers in the body of the report .
+lastly , meds contains string similarity algorithms that it uses to identify likely misspelled patient names in a report .
+evaluation : meds was evaluated in two separate evaluations .
+the first evaluation used a total of 2,400 reports , obtained from the indiana network for patient care ( inpc ) database , which included 1,400 laboratory reports , 800 narrative reports of multiple types and 200 mixed source reports .
+meds scrubbed 11,273 ( 99.06 %) of the 11,380 hipaa - specified identifiers , and 38,095 ( 98.26 %) of the 38,768 non - hipaa - specified identifiers ( such as provider names / addresses ) .
+meds committed 4,012 ( 8 % of the total ) over - scrubbing errors .
+manual review of a sample of the de - identified reports revealed that approximately 95 % retained their readability and interpretability .
+the second evaluation used 7,193 surgical pathology reports obtained from the inpc database .
+meds scrubbed 79,993 ( 99.47 %) of the 80,418 hipaa specified identifiers in these reports , and 12,689 ( 96.93 %) of the 13,091 non - hipaa identifiers .
+the missed phi consisted of identifier fragments and none represented a high risk for re - identification of the patient .
+de - id is a commercial application originally developed at the university of pittsburgh and evaluated by gupta [ 15 ] .
+de - id data corp .
+acquired the global rights to de - id software in 2004 , and it was released for commercial and academic license in march 2005 .
+the national cancer institute ( nci ) has licensed de - id for de - identification of some of the applications in the tissue banks and pathology workspace of the nci - sponsored cancer biomedical informatics grid ( cabig ( r ) [ 16 ]) .
+methods : de - id uses a set of rules , pattern matching algorithms and dictionaries to identify phi in medical documents .
+de - id analyzes report headers for patient demographic information , such as patient names , which it then uses in its string matching search of the body of the text .
+it also uses pattern - matching algorithms ( presumably regular expressions although this is not stated ) to detect phi such as telephone numbers and zip codes .
+it uses a list of person names from the u.s. census and looks for a straight match to any member in this list within the text of a report .
+de - id allows for the creation of user - defined dictionaries containing local identifiers specific to a given institution .
+it also uses the umls metathesaurus to aid in identifying valid medical terms that should be retained within the document .
+de - id replaces phi with specific tags that indicate the category of the phi removed , and the same phi found repeatedly in a report are replaced consistently with the same tags .
+this helps to improve the readability of the de - identified report .
+also , dates are replaced by date tags that allow for the retention of the time interval between two dates .
+evaluation : there were a total of three evaluations of the de - id system .
+all evaluations used surgical pathology reports obtained from the university of pittsburgh medical center network .
+the first two evaluations used approximately 1000 reports and were used to develop and improve the system .
+the third evaluation consisted of 300 pathology reports and was used to evaluate the final version of the software .
+only the number of false negative and false positive instances was reported , and since no report was given of the total number of phi scrubbed in this final evaluation , precision and recall of the system could not be calculated .
+morrison used a general purpose natural language processor - medlee [ 17 ] - to de - identify outpatient clinic notes [ 18 ] .
+methods : similarly to the system described by berman , medlee was used to identify and extract only the valid medical concepts in a report , and discarded all terms that were non - medical .
+medlee has been used to successfully extract concepts from numerous medical documents including radiology reports , discharge summaries , and visit notes .
+for this study , medlee was used without modifications .
+manual review of medlee 's output by a physician was performed to identify phi retained in the output .
+evaluation : the dataset consisted of 100 outpatient clinic notes created by internal medicine practitioners. of the 809 instances of the phi in the notes , 26 ( 3.2 %) were detected in the output .
+most of the phi in the output was transformed into normalized medical terms .
+examples of retained phi in the output included patient names that are also findings ( such as colors ' green ' and ' brown ') and modifiers such as ' rose ' - interpreted by medlee as meaning ' increased ' .
+additionally , medlee interpreted the ages as laboratory values , and the phi of ' st ' ( an abbreviation for street or saint ) as an st segment measurement on an ekg .
+neamatullah describes a perl - based de - identification software package [ 9 ] based on lexical look - up tables , regular expressions , and simple rules to identify phi in medical text documents .
+methods : the system uses four types of look - up dictionaries : 1 ) names of patients and hospital staff obtained from the mimic ii database , a large annotated database of cardiovascular signal data and clinical data from intensive care units ( icus ) in the united states ; 2 ) a table of phi names and locations which are also medical or common words ( i.e. , words that are in the umls metathesaurus or a spell - checking dictionary ; 3 ) a table of keywords and phrases that likely act as indicators for phi (' mr. ' , ' dr. ' , ' hospital ' , ' street ' etc. ) ; 4 ) a table of common words and phrases likely to be non - phi , obtained from the umls metathesaurus and the spell - checking dictionary .
+the scrubber uses three separate processes to replace phi in medical reports .
+first , numerical phi patterns ( e.g. , phone numbers ) are identified with regular expressions .
+second , non - numerical phi ( e.g. , patient names ) are identified with a combination of table look - ups , a context detection algorithm , and regular expressions .
+lastly , all phi identified by the above two processes are replaced with a tag to indicate the corresponding category of phi .
+evaluation : the neamatullah system was evaluated on 2,434 nursing notes from 163 patients randomly selected from the mimic ii database .
+a subset of these notes ( 99 ) were ' enriched ' with manual insertion of additional instances of phi .
+the nursing notes contained 1,779 instances of phi as identified by the reference standard of 3 clinician reviewers and a 4th to adjudicate disagreements .
+the system missed 90 instances of phi , with an estimated recall of 94 % ( average of all phi types ) .
+the majority of missed phi was first names , followed by last names .
+none of the missed names were patient names however .
+it was also noted that the software did not use the patient and provider name table obtained form the mimic ii database for this evaluation .
+the system did commit numerous false positive errors resulting in a precision of only 75 % ( average of all phi types ) .
+however , it was noted that the readability and information content of the de - identified notes was not compromised despite the low precision .
+ruch et al. describe a de - identification system based on the medtag framework and consisting of a semantic lexicon specialized in medicine , and an original rule - based word - sense and morpho - syntactic tagger [ 19 ] .
+methods : the method attempts to rely on markers to identify phi , and to use the taggers when markers are ambiguous for phi .
+the scrubber first tags the words in the text with part - of - speech tags .
+then , a word - sense tagger identifies the class of a specific word in the phrase .
+then based on these two tags , a determination of whether the word is phi or not is made .
+for example , for the phrase " doctors smith and jones saw the patient ," the part - of - speech tagger identifies ' doctors ' , ' smith ' and ' jones' as nouns , and the word - sense tagger identifies the word ' doctors' as an identity marker belonging to the person class .
+a recursive transition network uses the tags and actually makes the determination that a token is phi .
+additional terms were added to the medtag lexicon for this study , including names of medical institutions , drug names , and medical procedure and device names , such as ' ct scan ' and ' doppler ' .
+the researchers also added more than 40 disambiguation rules that were applied on a short string of tokens ( up to five words ) .
+these rules helped resolve ambiguities that remained after the two sets of tags were created .
+evaluation : the medtag - based scrubber was evaluated on approximately 800 medical documents consisting of mostly post - operative reports , but also laboratory and test results , and discharge summaries ( exact numbers of reports were not given ) .
+most documents were in french , with only two discharge summaries written in english .
+the de - identified reports were manually reviewed to create the reference standard .
+the review found that the system removed 452 ( 96.8 %) of the 467 instances of phi in the corpus ( phi types did n't include ages over 89 and geographical locations ). of the 15 identifiers missed , 3 were partially removed , 4 completely missed , and 8 were removed when non - phi tokens were removed .
+the types of identifiers missed were not explicitly stated .
+error analysis revealed that some errors were caused by misspellings , while other errors could be corrected by adding more words to the lexicon .
+the investigators report that the system committed no over - scrubbing errors .
+sweeney describes scrub , a de - identification system that uses multiple phi detection algorithms competing in parallel to categorize and label phi in text reports [ 20 ] .
+methods : the scrub system uses rule - based and dictionary - based algorithms to detect phi .
+it employs a system of parallel phi detectors , with each detector tasked to identify a specific category of phi .
+for example , there are distinct detectors to identify first names , last names , full names , addresses , cities , states , and countries .
+there is a detector precedence based on the number of entities the detector is assigned to detect .
+for example , the ' location ' detector is tasked to detect a city , state and country pattern .
+therefore , the ' location ' detection algorithm has a higher precedence than city , state , or country detectors .
+each detector reports a certainty score for the assigned phi category .
+the detector with the highest precedence and the highest certainty score above a given threshold prevails .
+the scrub system attempts to consistently replace phi with pseudo - phi .
+for example , if the detected phi is a date , a replacement date is inserted , based on a certain offset from the original date , using various algorithms .
+if the detected phi is a first name , the system uses a hash - table look - up to replace the original name with a name from the table .
+the scrub system also employs strategies to prevent reverse scrubbing , such as grouping all dates within a certain time period to the same date ( i.e. the first of the month ) .
+evaluation : the scrub system was evaluated on a pediatric medical record system database consisting of 275 patient records that included 3,198 letters to referring physicians .
+the letters were both highly structured formal letters , as well as less structured delimited notes .
+the scrub system was first evaluated using a certainty threshold of 0.7 .
+this resulted in the detection of 99 % of the phi in the reports ( average of all phi types ) .
+when the threshold was reduced to 0.5 , detection of 100 % of the phi occurred .
+there was no mention of the number of over - scrubs ( terms falsely identified as phi ) and no details as to how the reference standard was created .
+thomas et al. describe a method for removing names in pathology reports by using a lexicon of proper names and a dictionary of common and clinical terms obtained from the umls metathesaurus [ 21 ] .
+this system removes only proper names from medical reports .
+it does not attempt to remove other categories of phi from medical documents .
+methods : the system identifies proper names in reports by using an augmented search and replace algorithm .
+it uses two dictionaries to identify names : a dictionary of common and clinical usage words ( ccuw ) built with umls metathesaurus terms , and all non - proper words from an open source spell check dictionary called ispell [ 22 ] , and a second dictionary of proper names generated from three sources ( all proper names from the ispell dictionary , all patient and physician names from the regenstrief medical record system , all names from the social security death index ( nearly 65 million records )) .
+the proper names dictionary was modified by removing duplicates and also removing all names also appearing in the ccuw dictionary .
+the algorithm also uses regular expressions to detect likely prefixes ( e.g. , ' mr. ' or ' dr. ') and suffixes ( e.g. , ' md ' or ' jr . ')
+to proper names .
+the system tokenizes the reports and the de - identification process proceeds as follows : if a token appears in the proper name list , it is removed .
+otherwise , if the word is in the ccuw list , the surrounding words are checked for likely indicators of proper names and if found , the token is removed .
+if the word is in neither dictionary , then the surrounding words are examined for the presence of a proper name and , if found , the token is removed .
+evaluation : the thomas system was evaluated using 1,001 pathology reports randomly selected from the regenstrief medical record system .
+these reports were manually annotated by two reviewers to identify all names and create the reference standard .
+the reference standard identified 7,710 proper names in the reports with 231 being in the narrative section of the report .
+the system identified 228 ( 98.7 %) of the names found in the narrative section and 7,151 ( 92.7 %) of all names .
+the names that were missed in the narrative section of the reports were all provider names and included one first name and two last names .
+no data was provided about the overall precision , recall and f - measure of the system , nor on the number of over - scrubbing errors that occurred .
+clinical text de - identification applications mostly based on machine learning methods aramaki et al. describe a de - identification system based on a unique approach combining non - local features , such as sentence features and label consistency , with local features ( mainly surrounding words ) to identify phi [ 23 ] .
+the system participated in the 2006 informatics for integrating biology to bedside ( i2b2 ) de - identification challenge [ 13 ] and was one of the top performing systems .
+methods : the aramaki team first manually tagged all words of a training set with either a phi tag or a non - phi tag .
+the aramaki system used a machine learning technique - conditional random fields ( crf ) - to learn the relation between features and labels in this tagged training set .
+two sets of learning processes were run .
+the first used the crf to identify local features ( surrounding words ) , non - local features ( such as sentence length and location within a document ) and extra - source features , mainly from external dictionaries .
+the second learning process used all of the features from the first learning process , plus four additional features dealing mostly with the prevalence of a label at the record and corpus level , to achieve label consistency .
+label consistency is based upon the hypothesis that if the same phi word or phrase appears multiple times within a document , it likely has the same label .
+using non - local features ( sentence length and location within a document ) is based upon the observation that sentences with phi tend to occur at the beginning or at the end of a document , and tend to be shorter in length than non - phi containing sentences .
+evaluation : for the i2b2 de - identification challenge , a corpus of 889 discharge summaries was de - identified and " re - identified " with realistic surrogates for this challenge .
+seven teams participated and developed de - identification systems ranging from purely rule - based systems , to machine learning based systems and hybrid systems using both methodologies .
+several systems that participated in this challenge are described below .
+the aramaki team submitted only one run in the de - identification challenge .
+compared to the other six teams , the aramaki system performance was above average .
+for overall phi detection , it placed third and achieved a precision , recall and f - measure all greater than 94 % .
+for individual phi categories , it achieved f - measures of >= 90 % , except for ages ( 80 %) , and locations ( 70 %) .
+the health information de - identification ( hide ) system was developed by gardner et al .
+[ 24 ] .
+methods : extraction of phi is treated as a named entity recognition ( ner ) problem and uses a machine learning method called conditional random fields ( crf ) for extracting identifying and sensitive attributes .
+crf feature sets in the hide system included the previous word , next word , and things such as capitalization , the presence of special characters , or if the token was a number .
+one unique aspect of this work is the iterative classifying and retagging of the training corpus during the development of the system .
+this created a labeled training set in less time and effort than would be required if the corpus was tagged from scratch .
+evaluation : the system was evaluated using 100 pathology reports from the winship cancer institute at emory .
+the phi in these reports were first annotated manually , and then fed into the hide system .
+they evaluated the system 's accuracy in extracting individual attributes ( such as medical record numbers ) as well as its overall accuracy .
+the overall accuracy reported for all attributes was 98.2 % ( average of patient names , ages over 89 , dates , and ids ) .
+precision and recall were best with dates ( 100 % for both ) and its worst precision was with first names ( 97 %) and the worst recall with ages ( 96.3 %) .
+no data was presented on the speed with which the system processed the reports .
+guo et al. also consider the task of identifying phi in medical reports as a ner task , which in turn they view as a classification problem [ 25 ] .
+methods : their system used support vector machines ( svm ) and participated in the i2b2 de - identification challenge as one of the top performing systems .
+the guo team used the open source gate system [ 26 ] , a natural language processing framework and model .
+they used the information extraction system called annie , distributed freely with gate , to preprocess and annotate a training set .
+annie also has the capability to assign entity types to words or phrases ( e.g. , person name , date ) but the authors noted that this process had to be modified since annie 's definition of an entity is not always identical to what is commonly defined as phi .
+the svm classifier used in this project was svmlight , an open source system that can be used as a gate module .
+multiple features were added empirically to the svm classifier by the developers to achieve higher accuracy of phi detection .
+these included date features , such as recognizing dates with a number / number or number - number pattern , and recognizing variations in telephone number patterns .
+features were also added to recognize doctor names ( mainly by adding prefix / suffix markers as features e.g. , " dr. ") , hospital names , ages , and locations .
+it is one of the few systems described here that does not use regular expressions .
+evaluation : in the i2b2 challenge , the guo team submitted two runs .
+in the first run , the svm was trained only on local features and used no regular expressions .
+in the second run , they enriched their feature set and added rules as well as regular expressions , for mapping named entities to phi .
+the system with non - enriched features and no mapping rules actually outperformed the enhanced system .
+compared to the other six teams , the guo system performance was below average .
+for overall phi detection , the best performing run placed sixth and achieved a precision , recall and f - measure all greater than 86 % .
+for individual phi categories , it achieved f - measures of >= 90 % , except for hospitals ( 83 %) , phone numbers ( 78 %) and ids ( 82 %) .
+hara et al. describe a de - identification system that uses svms and a text classifier to identify phi in medical reports [ 27 ] .
+the system participated in the i2b2 de - identification challenge .
+methods : the hara system uses four processes to identify phi in medical reports : 1 ) pattern matching to identify headings in reports ; 2 ) regular expressions to identify patterns such as dates or telephone numbers 3 ) a sentence classifier that classifies sentences as containing phi or not , 4 ) a text chunker based on svms that identifies phi in categories including : location , hospital , doctor , patient , and age .
+the identification of headings for de - identification is somewhat unique in de - identification systems and even if developers initially thought it might be an important element to detect phi , results showed that this feature only contributed very little to the identification of phi .
+evaluation : for the i2b2 challenge , the hara team submitted three runs , the first two using different sentence classifiers , and the third bypassing sentence classification altogether .
+interestingly , the run that bypassed sentence classification performed the best .
+compared to the other six teams , the hara system performance was average .
+for overall phi detection , the best performing hara system ( without a sentence classifier ) achieved a precision , recall and f - measure all greater than 92 % .
+for individual phi categories , the best performing hara run achieved f - measures of >= 90 % , except for locations ( 68 %) , patient ids ( 88 %) , and phone numbers ( 86 %) .
+szarvas et al. describe a de - identification system that uses a machine learning ner approach to identity phi in discharge records [ 28 ] .
+this system participated in the i2b2 de - identification challenge and was one of the best performing systems .
+methods : this system used a modified version of an existing ner model previously used to detect entities in newswire articles [ 29 ] .
+they applied an iterative learning method based on decision trees that utilized the information contained in the structured ( header ) portion of a report to improve the recognition of phi in the body of the report .
+the system includes a word - level classification model with a varied feature set .
+the feature set included orthographical features ( e.g. , capitalization , word length ) , frequency information , phrasal information ( class of preceding words and common suffixes of the target token ) , dictionaries ( such as first names or location names ) , and contextual information ( such as sentence position or closest section heading ) .
+the system uses context defined by lexical triggers that are sorted based on the strength of their association with each phi category as well as on their frequency of occurrence in the entire training set .
+the system also uses regular expressions to identify well - known patterns of phi .
+consistency of phi labels in a record is achieved by post - processing the phi labels to identify labels with the longest indentified matching phrase .
+evaluation : in the i2b2 challenge , the szarvas team submitted three runs .
+the best performing system run achieved a precision , recall and f - measure all greater than 96 % for overall phi detection .
+for individual phi categories , the best performing run achieved f - measures of >= 90 % , except for locations ( 68 %) .
+taira et al. describe a de - identification system that uses statistical models to remove patient names in medical reports from a pediatric urology practice [ 30 ] .
+methods : the algorithm uses both lexicons and semantic constraint information to assign probabilities of a given word being a name .
+the system is designed to only remove patient names from reports and is not applicable to other categories of phi .
+the taira system uses a statistical based algorithm to estimate the probability of a patient name reference within the context of a predefined set of logical relations .
+the system processes each sentence in a report and classifies it according to the type of logical relation it contains .
+if the logical relation is determined to be of a patient type , the potential name is extracted .
+the algorithm uses a lexicon of over 64,000 first and last names , as well as a set of semantic selectional restrictions that place contextual requirements upon candidate words in the report text .
+this is based on the hypothesis that strong associations exist between some classes of words and some classes of concepts .
+for example the word ' presented ' may be strongly associated with the concept of patient name as in " john smith presented to the clinic today " .
+these constraints were determined automatically from a manually tagged corpus of training reports , and act as a template for various semantic restrictions placed on the descriptions of patient names in the training set .
+evaluation : the taira system was trained using 1,350 randomly selected reports from pediatric patients generated at the ucla clark urology center .
+researchers manually tagged a total of 907 patient names in this corpus .
+the test set consisted of 900 reports from the same clinic and consisted of letters to referring physicians , discharge summaries , clinic notes , and operative reports .
+the system output was compared to that of the manually tagged reference standard .
+the area under the roc curve was 0.97 .
+the threshold value with the best accuracy was 0.55 and attained a precision of 99 % and a recall of 94 % ( for patient names ) .
+reasons for false positive errors included semantically incorrect but valid name syntax , identification of the patient relative instead of the patient , medical terms that can also be proper names , and some proper drug names .
+reasons for false negative errors included logical relations that were not modeled , and grammatically difficult expressions .
+stat de - id was developed by uzuner et al. and treats de - identification as a multi - class classification task [ 31 ] .
+it uses svms to classify tokens as either one of several categories of phi , or non - phi .
+methods : the stat de - id system attempts to identify the local context of a particular token in order to determine the class of the token .
+the system identifies orthographic , syntactic and semantic characteristics of a token by examining a +/ - 2 token window around the target token .
+the system is unique in that it augments the syntactic context by parsing the sentence containing the token using a link grammar parser , which is capable of partially parsing even malformed sentences .
+examples of lexical and orthographic features include the target token itself , capitalization , punctuation , and word length .
+examples of syntactic features include the part - of - speech of the token , the part - of - speech of surrounding tokens , and the output of the link grammar parser .
+for this system , they used libsvm , an open source integrated software library for multi - class svms .
+evaluation : the stat de - id system was evaluated using 889 discharge summaries obtained from the various medical departments of the partners healthcare system in boston , ma. this was the same corpus used in the 2006 i2b2 de - identification challenge .
+the system achieved an f - measure of 98 % with a precision of 99 % and a recall of 97 % ( average of all phi types ) .
+wellner et al. describe a de - identification system based on the adaptation of two toolkits for named entity recognition ( carafe and lingpipe ) [ 32 ] .
+methods : wellner et al. treated the de - identification task as a sequence - labeling problem in which labels are assigned to individual words indicating whether the word is the beginning , part of , or end of a particular phi instance .
+the system participated in the i2b2 de - identification challenge and was the best performing system .
+the wellner system was developed using two different sequence - labeling systems .
+the first is called carafe , a toolkit implementing conditional random fields and targeted especially for phrase identification tasks .
+it is structured to allow for easy introduction of new features , and the researchers performed task - specific modifications of carafe to increase de - identification accuracy .
+these included adding tokenization adjustments ( mainly to account for date patterns ) .
+in order to ensure the system favors recall over precision , they introduced a bias parameter that adjusts model weight based on prior probability to a token to a particular label .
+however , introducing this bias parameter alone did not sufficiently improve recall ; therefore a number of regular expressions were used during post - processing to further improve recall .
+the other sequence labeling system used in development was called lingpipe , a software developer 's toolkit of java classes for performing a variety of nlp tasks .
+for the de - identification task , the developers used lingpipes' named entity tagging feature .
+based on hidden markov models , the named entity tagging feature uses text chunking and n - gram models to make predictions about entities based on statistics gathered from training .
+a chunk labeled as a named entity was considered phi .
+evaluation : in the i2b2 challenge , the wellner team submitted three runs , two using the carafe system and one run using lingpipe .
+for overall phi detection , the best performing system ( using carafe ) achieved a precision , recall and f - measure all greater than 96 % .
+for individual phi categories , the best performing run achieved f - measures of >= 93 % , except for locations ( 78 %) , ages ( 80 %) , and phone numbers ( 85 %) .
+discussion in this paper , we present a review of the state of the art in automated de - identification of clinical text .
+methods that performed well to de - identify text include machine learning approaches based on crf , decision trees , maximum entropy models , or svm , combined with dictionaries and sometimes regular expressions .
+though many systems report promising performance on a specific document corpus used for their evaluation , these systems should be tested on a more heterogeneous document set to assess generalizability across clinical documents , various ehr systems , and de - identification of all identifiers specified by hipaa .
+these performances were also not evaluated in terms of acceptability : how good is enough ?
+this question is largely dependent on the particular use case and document type ( s ) .
+certainly there are specific tradeoffs when evaluating one approach over another in terms of precision and recall , but there may also be other issues related to workload , and cost of practical system implementation when evaluation is conducted using more heterogeneous data sources .
+the approach that provides optimal results for one use case or data source may not generalize when applied to a different data source or clinical use case .
+also , none of the studies in our review looked at the effects of de - identification on subsequent automated information extraction tasks , nor did they look at how automated de - identification affects the readability and interpretability of remaining clinical data .
+as already mentioned , de - identified data is often not completely anonymous ( i.e. the possibility that the patient could be re - identified cannot be excluded ) .
+as the amount of patient data increases across clinical domains , awareness of the types of data available and the potential risks of re - identification will increase .
+discussions of regulatory issues and policy are beyond the scope of this review , but it is important to note that the policy expectations will change as data are made more widely available and that privacy and utility of patient data need not be mutually exclusive goals .
+the de - identification methods discussed in this review will certainly play into these decisions .
+an important question is what performance could be considered sufficient to feel confident that the risk of re - identification is negligible. is removing 90 % of the dates sufficient ? is missing 10 % of the names acceptable ?
+since the risk of re - identification related to the different types of phi varies widely , a different sufficient performance should be defined for each type of phi .
+names should not be missed , but rare address portions like cities could probably be missed .
+sufficient performance will also depend on the context in which the de - identified data will be used .
+insiders , like healthcare personnel with access to local identifiers ( e.g. laboratory test numbers ) and knowledgeable of the social and medical history of patients , are far more likely to recognize a patient from de - identified text than external researchers with no access to any additional data about the patients .
+the definition of sufficient levels of performance that depend on the type of phi and the future uses of the de - identified text are desirable , and might be part of future regulatory issues and policies .
+the ultimate goal of de - identification software is to scrub true patient identifiers while minimizing over - scrubbing ( erroneously removing non - phi data ) .
+a medical report completely scrubbed of not only all patient identifiers but also most of the important medical data as well is of little use to researchers .
+over - scrubbing errors can be grouped into 2 general categories : 1 ) over - scrubbing that removes pertinent medical data thereby affecting the readability and interpretability of the de - identified report ; 2 ) over - scrubbing that has little or no effect on readability and interpretability .
+removing a diagnosis , finding , or medication are examples of the first category .
+removal of common words , such as ' the ' , ' a ' , ' and ' , and removal of non - medical data such as the phrases ' was seen ' , ' was examined ' , ' following this' are examples of the second category .
+while we agree that the main focus of the evaluation of a de - identification system should be its accuracy in removing phi from medical documents , assessing over - scrubbing errors is also important .
+in addition to calculating phi removal accuracy , thoroughly evaluating over - scrubbing errors and the degree to which they affect the research value of the final de - identified reports provide valuable data in determining the practical usefulness of a de - identification system .
+often , studies involving de - identification systems focus only on the system 's ability to remove phi and give little or no detail regarding over - scrubbing errors [ 7,15,20,33 ] .
+those studies that do provide over - scrubbing error data , rarely offer details on what was over - scrubbed and how the over - scrubbing affected the research value of the de - identified reports .
+a standard method of measuring the effects of over - scrubbing errors would be helpful in the evaluation of de - identification systems .
+de - identified reports will probably be less valuable for research compared to fully identified reports .
+for example , dates ( more specific than year ) are considered phi and therefore must be removed or altered in de - identified reports .
+temporal information , such as knowledge that one report , disease , finding , or treatment occurs before or after another is often important for medical research .
+also , some diseases or findings may have seasonal patterns , which could be important to researchers .
+such data is generally lost when reports are de - identified .
+a few de - identification systems attempt to retain some temporal data by using ' date altering ' - where the same random interval is applied to every occurrence of a date in an entire patient record , thereby preserving the intervals between dates [ 15,8 ] .
+other data potentially valuable to researchers , for example geographic information ( both specific - such as hospital or clinic names and more general such as the names of major cities ) , patient occupations , and ages of elderly patients older than 89 , are lost through the de - identification process and not present in de - identified reports .
+it is also possible that the de - identification process has an adverse effect on the accuracy of automated identification and extraction of medical concepts from de - identified documents .
+technologies such as natural language processing ( nlp ) and text data mining applications such as those in the statistical analysis system ( sas ) may be less effective when processing de - identified reports compared to fully identified reports .
+to the best of our knowledge , no studies have evaluated this issue .
+the i2b2 nlp challenges used de - identified discharge summaries [ 13,34,35 ] .
+neither the smoking status identification challenge , nor the obesity and comorbidities detection challenge , cited the de - identification process itself as a cause of nlp failures for any of the systems involved in the challenge .
+however , the discharge summaries in the i2b2 challenge were de - identified using methods quite different than the automated methods used by systems mentioned in this paper , so caution must be used in concluding that de - identification has no effect on nlp system performance .
+in the i2b2 challenge , the de - identification was performed semi - automatically with manual review of scrubbing , and all phi was replaced by synthetic identifiers .
+it is likely then that the de - identified discharge summaries used in the i2b2 challenges and the de - identified discharge summaries produced by processing the same reports using any of the systems mentioned here would be quite different .
+conclusions we have reviewed recent research in automatic de - identification of narrative text documents in the ehr , and analyzed the methods and resources used , as well as discussed 18 systems included in this analysis .
+this review will inform our evaluation of existing de - identification methods and the development of a best - of - breed automatic clinical text de - identification system in the context of the department of veteran 's affairs chir and vinci projects .
+the evaluation of the level of anonymization and risk for re - identification of automatically de - identified clinical text , as well as the impact of the de - identification process on subsequent use of clinical text will also be part of these projects .
+these efforts will enhance the usability of clinical data for research , and fulfil the ethical and legal obligations of patient privacy and confidentiality .
+competing interests the authors declare that they have no competing interests .
+authors' contributions smm conceived and organized the review , analyzed publications , and helped draft the manuscript .
+fjf , brs , and ss analyzed publications , and helped draft the manuscript .
+mhs revised the manuscript critically and in details .
+all authors read and approved the final manuscript .
+pre - publication history the pre - publication history for this paper can be accessed here : http :// www.biomedcentral.com / 1471 - 2288 / 10 / 70 / prepub acknowledgements we greatly acknowledge the support of the consortium for healthcare informatics research ( chir ) , va hsr hir 08 - 374 .
+nlmthe hippocratic oath 2002 http :// www.nlm.nih.gov / hmd / greek / greek _ oath.htmlgpo , u.s45 c.f.r. s 46 protection of human subjects 2008 http :// www.access.gpo.gov / nara / cfr / waisidx _ 08 / 45cfr46 _ 08.htmlgpo , u.s45 c.f.r. s 164 security and privacy 2008 http :// www.access.gpo.gov / nara / cfr / waisidx _ 08 / 45cfr164 _ 08.html dorr da assessing the difficulty and time cost of de - identification in clinical narratives methods inf med 2006 246 52 16685332 berman jj concept - match medical data scrubbing .
+how pathology text can be used in research arch pathol lab med 2003 680 6 12741890 meystre sm extracting information from textual documents in the electronic health record : a review of recent research yearb med inform 2008 128 44 18660887 fielstein em brown sh speroff t algorithmic de - identification of va medical exam text for hipaa privacy compliance : preliminary findings medinfo 2004 1590 friedlin fj mcdonald cj a software tool for removing patient identifying information from clinical documents j am med inform assoc 2008 15 5 601 10 10.1197 / jamia.m2702 18579831 neamatullah i automated de - identification of free - text medical records bmc med inform decis mak 2008 8 32 10.1186 / 1472 - 6947 - 8 - 32 18652655 atkinson k spell checking oriented word lists , revision 6 2004 http :// sourceforge.net / projects / wordlist / files / scowl / rev % 206 / scowl - 6.tar.gz / downloadnlmunified medical language system ( r ) ( umls ( r )) - metathesaurus 2009 http :// www.nlm.nih.gov / research / umls / knowledge _ sources / metathesaurus / index.htmlnlmmedical subject headings 2009 http :// www.nlm.nih.gov / mesh / meshhome.html uzuner o luo y szolovits p evaluating the state - of - the - art in automatic de - identification j am med inform assoc 2007 550 63 10.1197 / jamia.m2444 17600094 beckwith ba development and evaluation of an open source software tool for deidentification of pathology reports bmc med inform decis mak 2006 12 10.1186 / 1472 - 6947 - 6 - 12 16515714 gupta d saul m gilbertson j evaluation of a deidentification ( de - id ) software engine to share pathology reports and clinical documents for research am j clin pathol 2004 176 86 10.1309 / e6k33gbpe5c27fyu 14983930 ncicagrid and infrastructure overview 2009 https :// cabig.nci.nih.gov / working _ groups / dsic _ slwg / sharable / cagrid _ overview friedman c a broad - coverage natural language processing system proc amia symp 2000 270 4 11079887 morrison fp repurposing the clinical record : can an existing natural language processing system de - identify clinical notes ?
+j am med inform assoc 2009 16 1 37 9 10.1197 / jamia.m2862 18952938 ruch p medical document anonymization with a semantic lexicon proc amia symp 2000 729 33 11079980 sweeney l replacing personally - identifying information in medical records , the scrub system proc amia annu fall symp 1996 333 7 8947683 thomas sm a successful technique for removing names in pathology reports using an augmented search and replace method proc amia symp 2002 777 81 12463930 international ispell 1996 http :// www.lasr.cs.ucla.edu / geoff / ispell.html aramaki e automatic deidentification by using sentence features and label consistency i2b2 workshop on challenges in natural language processing for clinical data , washington , dc 2006 gardner j xiong l hide : an integrated system for health information de - identification proceedings of the 2008 21st ieee international symposium on computer - based medical systems 2008 254 9 full _ text guo y identifying personal health information using support vector machines i2b2 workshop on challenges in natural language processing for clinical data , washington , dc 2006 cunningham h gate : a framework and graphical development environment for robust nlp tools and applications 40th anniversary meeting of the association for computational linguistics ( acl'02 ) , phildelphia , pn 2002 hara k applying a svm based chunker and a text classifier to the deid challenge i2b2 workshop on challenges in natural language processing for clinical data , washington , dc 2006 szarvas g farkas r busa - fekete r state - of - the - art anonymization of medical records using an iterative machine learning framework j am med inform assoc 2007 574 80 10.1197 / jamia.m2441 17823086 szarvas g farkas r kocsor a a multilingual named entity recognition system using boosting and c4.5 decision tree learning algorithms 9th int conf disc sci ( ds2006 ) , lnai 2006 267 278 taira rk bui aa kangarloo h identification of patient name references within medical documents using semantic selectional restrictions proc amia symp 2002 757 61 12463926 uzuner o a de - identifier for medical discharge summaries artif intell med 2008 42 1 13 35 10.1016 / j.artmed.2007.10.001 18053696 wellner b rapidly retargetable approaches to de - identification in medical records j am med inform assoc 2007 564 73 10.1197 / jamia.m2435 17600096 thomas sm a successful technique for removing names in pathology reports using an augmented search and replace method proc amia symp 2002 777 81 12463930 uzuner o identifying patient smoking status from medical discharge records j am med inform assoc 2008 15 1 14 24 10.1197 / jamia.m2408 17947624 uzuner o recognizing obesity and co - morbidities in sparse data j am med inform assoc 2009 16 4 561 70 10.1197 / jamia.m3115 19390096

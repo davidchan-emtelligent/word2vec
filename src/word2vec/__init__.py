@@ -7,8 +7,18 @@ import gensim
 from .get_files_multi import get_files
 from .helper import save_word_count, save_w2v, get_vec, get_text_similar, split_dir
 from .conll2tokens import tokenized_text_from_conll
-from .w2v import read_and_preprocess, train, split_hyphen_segtok, simply_split, get_latest, getsize
+from .w2v import read_and_preprocess, train, split_hyphen_segtok, simply_split, getsize
 
+def get_latest(model_root, size):
+	end_size_lastest = []
+	for x in os.listdir(model_root):
+		(e, d) = tuple(x.split('_')[0].split('d') )
+		end_size_lastest += [(int(e), int(d), x)]
+
+	if end_size_lastest == []:
+		return (0, size, None)
+
+	return sorted(end_size_lastest)[-1]
 
 def get_file_paths(in_dir, out_file, ext='txt'):
     files = get_files(in_dir, ext)

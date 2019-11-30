@@ -1,0 +1,316 @@
+plos one plos one plos plosone plos one 1932 - 6203 public library of science san francisco , ca usa 26618857 4664243 10.1371 / journal.pone.0142184 pone - d - 14 - 49894 research article an effective cuda parallelization of projection in iterative tomography reconstruction cuda parallelization of projection in iterative ct xie lizhe 1 hu yining 2 3 4 yan bin 1 wang lin 1 yang benqiang 5 * liu wenyuan 5 * zhang libo 5 luo limin 2 3 4 shu huazhong 2 3 4 chen yang 2 3 4 1 oral hospital of jiangsu province , affiliated to nanjing medical university , jiangsu , china 2 centre de recherche en information biomedicale sino - francais ( lia cribs ) , rennes , france 3 the laboratory of image science and technology , southeast university , nanjing , china 4 the key laboratory of computer network and information integration ( southeast university ) , ministry of education , beijing , china 5 department of radiology , general hospital of shenyang military area command , shenhe district , shenyang , china zhang qinghui editor north shore long island jewish health system , united states competing interests : the authors have declared that no competing interests exist .
+conceived and designed the experiments : b. yang wl. performed the experiments : lx yh. analyzed the data : lz wl hs. contributed reagents / materials / analysis tools : b. yan lw. wrote the paper : lx yh yc ll wl b. yang .
+* e - mail : bqyang _ syjqzyy @ sina.com ( b. yang ) ; sy _ liuwenyuan @ sina.com ( wl ) 30 11 2015 2015 10 11 e0142184 20 11 2014 19 10 2015 ( c ) 2015 xie et al 2015 xie et althis is an open - access article distributed under the terms of the creative commons attribution license , which permits unrestricted use , distribution , and reproduction in any medium , provided the original author and source are properly credited .
+projection and back - projection are the most computationally intensive parts in computed tomography ( ct ) reconstruction , and are essential to acceleration of ct reconstruction algorithms .
+compared to back - projection , parallelization efficiency in projection is highly limited by racing condition and thread unsynchronization .
+in this paper , a strategy of fixed sampling number projection ( fsnp ) is proposed to ensure the operation synchronization in the ray - driven projection with graphical processing unit ( gpu ) .
+texture fetching is also used utilized to further accelerate the interpolations in both projection and back - projection .
+we validate the performance of this fsnp approach using both simulated and real cone - beam ct data .
+experimental results show that compare to the conventional approach , the proposed fsnp method together with texture fetching is 10 ~ 16 times faster than the conventional approach based on global memory , and thus leads to more efficient iterative algorithm in ct reconstruction .
+this research was supported by national natural science foundation under grants ( 81370040 , 81530060 , 61405033 , 31100713 ) .
+this work was also supported by the grant of natural science foundation of jiangsu province under grant bk20130629 , and the qing lan project in jiangsu province.data availabilityall relevant data are available via figshare ( http :// dx.doi.org / 10.6084 / m9.figshare.1594987 ) .
+data availability all relevant data are available via figshare ( http :// dx.doi.org / 10.6084 / m9.figshare.1594987 ) .
+introduction computed tomography ( ct ) has become one of the most widely used non - invasive medical imaging systems .
+as the rapid development of multi - slice ct , 3 - d ct has replaced the 2 - d ct in radiology routines by providing fast 3 - d scanning .
+recently , extensive studies have demonstrated that iterative methods , based on an accurate system model , are capable of providing better reconstruction quality than analytical methods , especially under low - dose ct scans [ 1 - 10 ] .
+however , due to the high computation cost in iterative reconstructions , fbp ( filtered back - projection ) based analytical reconstructions still take the main horsepower in current clinical reconstruction for 3 - d ct [ 11 ] .
+projection and back - projection occupy the most computation consuming parts in ct reconstruction .
+how to accelerate projection and back - projection is crucial to implementing fast iterative ct reconstruction algorithms .
+in 2 - d reconstruction , a preload system matrix can be used as projection operator , which accelerates both projection and back - projection [ 12 ] .
+but as to 3 - d reconstruction , system matrix preload might not be feasible because the memory requirement will greatly increase .
+in [ 13 ] , we transformed the 3 - d system matrix into the combination of one single - view projection matrix and one 2 - d rotation matrix , with an aim to save storage for system matrix with limited projection views [ 13 ] .
+however , the feasibility of this approach will be limited in the systems with large view number and large object size .
+for instance , in the case of a cone - beam ct system with 512 x 512 x 512 object size , 1024 x 1024 projection resolution and 400 projection views , around 8gb memory and 4gb memory are required to store the single sparse - view projection matrix and the corresponding rotation matrix , respectively .
+gpu based parallelization has been widely used to accelerate the projection and back - projection in ct in recent years .
+flores et. al parallelized the multiplication of the pre - stored system matrix by cuda ( compute unified device architecture ) in 2 - d iterative ct reconstruction [ 14 ] .
+in [ 15 ] , gao accelerated the projection and back - projection for iterative reconstructions by parallelizing the interpolation in siddon 's ray - driven algorithm .
+but the thread kernel function in [ 15 ] involves complex looping and geometry parameter calculations , which often lowers the efficiency for cuda parallelization .
+in [ 16 ] , zhao et.al applied gpu parallelization in projection and back - projection for iterative reconstructions , in which zero - value voxels were excluded to reduce computation cost [ 14 ] .
+also , to accelerate tv ( total variation ) regularized iterative reconstruction , jia et.al applied cuda technique to accelerate ray - driven based projection and back - projection [ 17 ] .
+global memory is often used in the parallelization of ct reconstruction due to its large size and direct accessibility by threads and blocks , but the applications are often compromised by its low access speed .
+shared memory and texture memory both allow higher access speed , and can be considered to further enhance the parallelization efficiency .
+shared memory can be directly accessed by cuda cores , and is often used to accelerate atomic operations with sum reduction [ 18 ] .
+but the shared memory can only be accessed in single block , and is often too small to store the whole object data .
+texture memory , though with a lower access speed than shared memory , provides faster access speed than global memory and allows efficient access to floating coordinates via texture fetching operation .
+besides , the large - sized texture memory in gpu device can handle projections and scanning object , thus avoiding the frequent data exchange .
+pratx et.al proposed in [ 19 ] a gpu - based ( using opengl ) 3 - d osem ( ordered subsets expectation maximization ) algorithm for tomographic reconstruction in pet ( positron emission tomography ) , in which texture memory was used to store projection data .
+in [ 20 ] , okistu et.al developed a cuda framework to parallelize fdk ( feld - davis - kress ) algorithm for ct , in which texture fetching was directly applied to accelerate the interpolation in back - projection from texture data .
+also , fdk algorithm via texture fetching based parallelization was also introduced in noel 's and wang 's work in [ 21 ] and [ 22 ] .
+however , up to now , there is still no agreement on whether texture memory should be used in the parallelization of iterative reconstructions .
+the reason is that the texture memory is read - only , therefore the costly texture rebinding is required for data update in each iteration .
+in this paper , a strategy termed parallelization with fixed sampling number projection ( fsnp ) is devised to ensure the operation synchronization along projection lines in parallelizing ray - driven projection based on cuda framework .
+the conventional cubic field of view ( fov ) is replaced by a rotational symmetric fov to save computation cost in geometry parameter calculation .
+the rest of this paper is organized as follows .
+in section 2 , previous works related to this study are reviewed .
+the proposed fsnp scheme is explained in detail in section 3 .
+the parallelization to normalized voxel - based back - projection operator is also discussed .
+in section 4 , the proposed approach is applied to a cone - beam ct system performances of different parallelization modes were compared in this section .
+experiment results show that , with well synchronized operation , the fsnp method is superior in terms of computation efficiency to the conventional sampling strategy with fixed sample intervals , and the utilization of texture memory leads to further improved acceleration performance .
+this study also shows that the fsnp method works well with voxel - driven back - projection operator to give efficient iterative reconstruction .
+table 1 lists the abbreviations used in this paper .
+10.1371 / journal.pone.0142184.t001 table 1 abbreviations .
+fsnp fixed sampling number projection fsip fixed sampling interval projection prpt per ray per thread prpb per ray per block cuda compute unified device architecture fdk feld - davis - kress osem ordered subsets expectation - maximization rmse root mean square error sod source to orientation distance sdd source to detector distance method existing algorithms for projection and back - projection can be roughly classified into three modes : ray - driven , voxel - driven and distance - driven .
+the ray - driven algorithm is well suited for projection and the voxel - driven algorithm works well in back - projection .
+however , the ray - driven back - projection tends to bring grid artifacts into image domain whereas voxel - driven projection brings grid artifacts to the projections [ 23 ]. with a more accurate geometric modeling , the distance - driven methods often lead to better performance than ray - driven projection and voxel - driven back - projection by mapping voxel and detector boundaries into the same axis [ 24 ] .
+nevertheless , parallelization of the distance - driven method is highly limited by the intensive calculation of intersection areas along each ray .
+although ray - driven projector and pixel - driven back - projector are intrinsically unmatched , zeng pointed out in [ 25 ] that unmatched projection / back - projection pair is sometimes beneficial to reconstructions , for example , a matched projection / back - projection pair with weighted line lengths often produces ring artifacts , whereas an unmatched pair , in which the projector is ray - driven with line - length - weighting but the back - projector is voxel - driven with bilinear interpolation , can effectively remove ring artifacts .
+based on this , in this study we choose ray - driven projection in implementing the proposed fsnp strategy , and perform reconstructions by combining it with voxel - driven back - projection operator .
+2.1 projection as illustrated in fig 1 , the ray - driven algorithm works by tracing rays through scanning objects .
+each ray can be simplified to an ideal line connecting the source and the detector center .
+projection values are obtained via integrating sampled values along each projection ray , which is realized by a weighted intensity summation of the voxel intensities in each ray .
+10.1371 / journal.pone.0142184.g001 fig 1 2 - d illustration of ray - driven projection .
+( a ) : line summation mode ; ( b ) : linear interpolation mode .
+different methods have been proposed to calculate the weights for voxels in projection .
+for instance , one can use intersection length between line and voxels [ 26 - 27 ] , or the interpolation from neighboring voxels [ 27 ] .
+the classic intersection length summation based model is given in fig 1 ( a ) .
+in this mode , the ideal line indexed i passes through pixel j with intensity x j. with the intersection length of line i and pixel j denoted by l ij , the contribution of pixel j to the projection and the summed projection value can be quantified by x jxl ij and the projection value y i = sumj x jxl ij , respectively .
+to alleviate the intensive calculation for each intersection length l ij in this projection model , the line summation based model are often approximated by the linear interpolation model given in fig 1 ( b ) .
+in this model , pixels surrounding each sample point in the ray are used to estimate the interpolated value cpk of point p k , with weights determined by their spatial distances to the sample point .
+the projection value amounts to yi = sumkcpk for detector i. the outline of ray - driven based projection algorithm is given below .
+ray - driven based projection algorithm set point source position s ; set sampling step length d ; set number of detectors i ; for each detector d i ( 1 <= i <= i ) compute the line equation for sdi - > , and note the unit direction vector as ni - > ; compute the sampling point number m i for d i ; end for ; for each detector d i ( 1 <= i <= i ) set first sampling point p 0 to s , and set k to 0 ; set projection value y i to 0 ; do pk + 1 = pk + ni - > ; yi = yi + cpk ; while | spk + 1 - - >| < | sdi - - >| end for in ray - driven model , each projection value is calculated by integrating the sample intensities along each projection ray .
+calculation of all the ray - driven projection values can be accelerated via cuda based parallelization .
+generally , the parallelization of ray - driven projection includes two options : per ray per thread ( prpt ) mode and per ray per block ( prpb ) mode .
+in prpt mode , each projection value is independently calculated inside one single thread , which allows easy and straight parallelization .
+but the acceleration efficiency of prpt mode tends to be lowered by the looping integration in each kernel function .
+as to the prpb mode , each projection value is calculated within one block , and each thread in the block calculates the value for one sampling point along this projection ray .
+the intensive atomic operations for the intensity summing operation in prpb mode can be effectively accelerated by sum reduction with the shared memory .
+so , it is generally believed that the prpb mode is more efficient than the prpt mode in projection parallelization [ 28 ] .
+the sampling point numbers along different projection lines are not identical due to the varying intersection lengths for different projection lines .
+the varying sampling numbers will lead to unsynchronized operations in threads or blocks for prpt or prpb modes , which result in lowered parallelization efficiency .
+in this paper , a method of fixed sampling number projection ( fsnp ) is proposed to overcome this .
+as illustrated by fig 2 , this fsnp approach assumes that the x - ray attenuation is negligible outside a pre - specified field of view ( fov ) .
+we fix the sampling number along each ray and perform uniform sampling on the line segments inside the fov , thus allows an easy synchronization for both the prpt and prpb modes .
+10.1371 / journal.pone.0142184.g002 fig 2 non - uniform distributed samples points in projection geometry .
+( a ) cubic fov , ( b ) cylinder fov , ( c ) sphere fov in this fsnp strategy , to save computation cost , the parameters for each projection line ( including intersection length , coordinates of intersection points and line direction ) should be calculated and stored in memory before the projection operation .
+however , when the conventional cubic fov ( shown in fig 2 ( a )) is used , we have to store these parameters for each projection view respectively .
+for a ct system with 512x512 detector plane and 360 angles , it takes about 2.5gb memory to store the parameters for all projection views , which imposes a large saving burden for many gpu devices .
+to solve this , we define the fov in cylinder and sphere shapes ( as shown in fig 2 ( b ) and 2 ( c )) for long object and short object scans , respectively .
+in this way , for one specific detector , the intersection length keeps the same for different views , and the coordinates of intersection points and line direction can be easily calculated according to the rotational symmetry of fov .
+hence we only have to store the parameters for one view .
+furthermore , in order to avoid unnecessary computation on those rays with too short intersections with the fov , only the rays with longer intersection ( with the fov length ) than one preset threshold r t are considered .
+normally the fov should be large enough to ensure that no object data is removed by excluding those rays with small intersection lengths .
+the pseudo code for the proposed fsnp algorithm is given as follows for both the prpt and prpm modes : the proposed fsnp algorithm with prpt mode // pre - computation part : set fov and calculate the intersection information for start view set the point source position s ; set the sampling number on each projection line to m ; set the field of view as fov ; set the detector number i = d rowxd col ; // d row and d col are row and column indexes of detector plane ; set threshold r t for intersection length ; for each detector d i ( 1 <= i <= i ) , do compute the line equation for sdi - > ; compute the intersection points ( a i , b i ) between sdi - > and the fov ; compute r i = | a i b i | if ( r i > r t ) set step length d i = r i /( m - 1 ) ; else set step length d i = 0 // this ray is not considered in the projection part ; end for // projection part : calculate projection for each view bind the 3 - d object data in texture memory // if texture memory is used ; update intersection information according to view angle using rotation symmetry ; set block count d row to the number of detector rows ; for j = 1 to d row , calculate projection for each detector row in block j ; set thread count d col to the number of detector columns ; for k = 1 to d col , calculate current projection y i in thread k ( i = j x d col + k ) ; set the current projection value y i = 0 ; if ( step length d i > 0 ) for m = 1 to m calculate the location of sampling points p m on aibi - > ; calculate the value cpm for point p m using linear interpolation ; yi = yi + cpm ; end for end if end for thread synchronize ; normalization : y i = y i x r i / m ; end for the proposed fsnp algorithm with prpb mode // pre - computation part : set fov and calculate the intersection information for start view set the point source position s ; set the sampling number on each projection line to m ; set the field of view as fov ; set number of detectors i ; set threshold r t for intersection length ; for each detector d i ( 1 <= i <= i ) , do compute the line equation for sdi - > ; compute the intersection points ( a i , b i ) between sdi - > and the fov ; compute r i = | a i b i | ; if ( r i > r t ) set step length d i = r i /( m - 1 ) ; else set step length d i = 0 // this ray is not considered in the projection part ; end for // projection part : calculate projection for each view bind the 3 - d object data in texture memory ; // if texture memory is used modify intersection information according to view angle using rotation symmetry ; set block count i to detector numbers ; for i = 1 to i , calculate projection for each detector d i in block i ; if ( step length d i > 0 ) set the projection value y i = 0 ; set thread count m for each block ; for m = 1 to m , calculate each sampling value in thread m ; calculate the location parameters of sampling points p m on aibi - > ; calculate the value cpm for point p m using linear interpolation ; atomic add ( y i , cpm ) ( accelerated via shared memory with sum reduction ) ; end for end if thread synchronize ; normalization : y i = y i x r i / m ; end for 2.2 back - projection as illustrated in the 2 - d schematic diagram of the pixel - driven back - projection ( fig 3 ) , a line ( ray ) connecting the radiation source and voxel center intersects with the detector plane for each pixel .
+routinely , the linear interpolation or kernel function convolution can be used to estimate the back - projected value with respect to intersection locations [ 23 - 28 ] .
+fig 3 also shows that the back - projection operator is in fact a linear interpolation : x j = ( p 1 l 2 + p 2 l 1 )/( l 1 + l 2 ) , where l 1 + l 2 is the distance between the two neighboring detector centers , and p 1 and p 2 are the corresponding projection values for the neighboring detectors .
+the outline of the voxel - driven based back - projection algorithm is also given below .
+10.1371 / journal.pone.0142184.g003 fig 3 calculation of pixel driven back - projection with linear interpolation in 2 - d case .
+voxel - driven based back - projection algorithm set point source position s ; compute the coordinates of each detector center ; for j = 1 to j ( j is the number of voxels ) compute the geometrical line equation that connects s and the voxel j , noted as line j ; compute the intersection point of line line j and the detector array , noted as y j ; compute the back - projection value x j according to the position of y j via interpolation or convolution ; end for as can be seen in above algorithm outlines , the back - projection algorithm allows a straight parallelization because the calculation related to each back - projected voxel is independent and can be easily handled by thread based parallelization .
+we should note that the back - projection operator in iterative reconstructions is normalized to match the projection operator by dividing the projection value by a pre - computed intersection length .
+the pseudo code for the parallelized back - projection is given as follows : parallelized voxel - driven back - projection algorithm // pre - computation set point source position s ; set number of detectors i = d row x d col , // d row and d col are row and column indexes of detector plane ; denote y the projection value ; projection normalization : y ~ i = yi / ri , // r i is intersection length , computed in the projection part ; // calculation of the back - projected value for each voxel bind the normalized 2 - d projection data y ~ in texture memory , // if texture memory is used ; set block number to l x h ; for p = 1 to l x h for each block set thread number for each block to w ; for q = 1 to w , calculate the back - projection for voxel x pxw + q in each thread ; calculate the line equation for l p,q that connects the s and voxel x pxw + q ; calculate the intersection point i ~ between the detector plane and line l p,q ; use linear interpolation to calculate the normalized projection on position i ~ as yi ~ ; calculate the back - projection value x pxw + q from yi ~ ; end for thread synchronize ; end for experiments and results 3.1 experiment configuration experiments with a simulated cone beam ct system were performed with configurations listed in table 2 .
+the involved abbreviations are listed in table 2 .
+a 3 - d shepp - logan phantom is used .
+the experiments were conducted for low resolution mode and high resolution mode .
+in low resolution mode , the projection size is 512x512 , and the scanning object size is 256x256x256 ; in high resolution mode , the projection size is 1024x1024 , and the scanning object size is 512x512x512 .
+we use sphere fov shown in fig 2 ( c ) in the experiment .
+the implementation runs under a mobile workstation with intel core ( tm ) 2.40ghz ( quad - core ) , 24gb ram , nvidia gtx780m graphic card ( 4gb global memory ) , and the developing environment is microsoft visual studio 2008 with cuda version 5.5 .
+10.1371 / journal.pone.0142184.t002 table 2 parameters of the simulated cone beam system .
+configuration of the simulated cone beam system low resolution high resolution sod 720mm 720mm sdd 1440mm 1440mm scanning object size 2563 5123 object voxel size 0.42mm3 0.21mm3 projection size 5122 10242 projection pixel size 0.42mm2 0.21mm2 3.2 computation cost we evaluated the efficiency of the proposed fsnp method for projection computation in this section .
+both prpb and prpt modes were implemented .
+for each mode , both global memory and texture memory versions are considered .
+the computation time is listed in table 3 in the unit of millisecond ( ms ) .
+we can see in table 3 that the prpb mode is faster than the prpt mode in the case when global memory is used , but the projection with prpt mode becomes more efficient when texture memory is used for interpolation .
+we can also see that in global memory version , the time cost increases linearly as the sampling point number increases .
+but for the texture memory version , increasing sampling point number did not result in a linear increment of computation cost .
+the computational time increases little when sampling point number was doubled for texture based prpt mode ( around 10 % for low resolution mode and 7 % for high resolution mode ) .
+this means that developing projection model with higher resolution is allowed without much extra computation cost for the proposed fsnp approach when using prpt mode with texture memory .
+10.1371 / journal.pone.0142184.t003 table 3 computational time ( in ms ) for the fsnp apprach with different modes low resolution high resolution 256 samples 512 samples 512 samples 1024 samples global prpb 57.34 103.75 311.92 563.99 global prpt 117.95 219.30 1432.1 2176.4 texture prpb 32.65 53.59 205.12 297.28 texture prpt 17.09 18.95 132.29 141.31 fsip prpt 27.77 36.53 197.55 288.28 we also compared the computation time of the fsnp method with the conventional fsip ( fixed sampling interval projection ) method in prpt mode in table 3 .
+for the fsnp method , the threshold r t is set to 30mm .
+as to the fsip method , we adjusted the sampling density to ensure that the average sampling point number is close to the fixed sample number in fsnp method .
+we can see that the proposed fsnp method is faster than the fsip method due to the better synchronization. from table 3 , we can see that , in the texture memory version with prpt mode , the computational time remains at same level when the sampling point number doubles for both fsnp and fsip modes .
+thus the blob based projection can be used to give better suppression of streak artifacts and artifacts [ 29 - 30 ] .
+based on [ 31 ] , the kernel function of blobs is constructed using generalized kaiser - bessel ( kb ) window b n,a,alpha : bn,a,alpha ( r )= 1in ( alpha )(( 1 - ( r / a ) 2 ) nin ( alpha ( 1 - ( r / a ) 2 ) , 0 <= r <= a ( 1 ) where r is the radial distance to the origin .
+i n is the modified bessel function with order m , alpha is a parameter controls the shape of the blob , a is the radius .
+within our experiment , the parameters were set as follows : n = 2 , alpha = 10.4 , a = 0.84 mm ( two voxels ) .
+in the current cuda version , only nearest neighbor and linear interpolation modes are supported by texture fetching .
+both modes can be applied for the computation of kernel computation .
+if linear interpolation mode is considered , for each sampling point , the contribution of each nearby voxels is determined by the distances between the voxel centers and the sampling points .
+the computation of the distances has to be implemented serially in threads with prpt mode , which implies lowered computation efficiency .
+we use nearest neighbor instead .
+a set of discrete blob kernel functions were pre - stored in global memory ( 1003 in our experiment ) , each of the kernel function are with a different translation from the origin .
+the translation { kx,ky,kz } in {( - 12,12 ),( - 12,12 ),( - 12,12 )} .
+for each sampling point , the closest blob kernel function is chosen for the interpolation .
+the computation cost with blob based kernel function in table 4 indicates that the blob based projection can be accelerated by the proposed prpt method with texture memory .
+table 4 also shows that , similar to the linear interpolation based fsnp , the increment of computational time is around 14 % to 30 % when the sampling number is doubled for the blob based fsnp with prpt mode .
+10.1371 / journal.pone.0142184.t004 table 4 comparison of computational time for linear interpolation based fsnp and blob based fsnp ( in ms ) sampling points low resolution high resolution 256 samples 512 samples 512 samples 1024 samples global prpb linear 57.34 103.75 311.92 563.99 global prpb blob 431.92 798.15 2088.1 3808.0 texture prpt linear 17.09 18.95 132.29 141.31 texture prpt blob 117.55 134.96 706.42 921.35 the above result indicates that even with the costly operation of texture binding , texture memory can be used to improve efficiency in projection parallelization .
+table 5 compares the computational cost for back - projection of parallelized voxel - driven algorithm using global and texture memories .
+results in table 5 confirm that the texture memory can also be used to accelerate back - projection .
+10.1371 / journal.pone.0142184.t005 table 5 computational time for back - projection operators , in ms. sampling points low resolution high resolution global memory 28.91 225.94 texture memory 19.84 157.57 3.3 projection and reconstructions in this section , we perform ct reconstructions with proposed fsnp .
+conventional ray - driven and distance driven methods are also considered in the reconstruction for comparison .
+root mean square error ( rmse ) defined in eq ( 2 ) was used to quantify the difference between the reconstructed 3 - d images and original phantom 3 - d images : rmse =|| f ^ - f || 22 || f ^|| 22 ( 2 ) where f ^ is the phantom image as ground truth , and f denotes the reconstructed image .
+|| f ^|| denotes the l2 norm calculation .
+we performed fdk reconstruction with ram - lak filter .
+3 - d shepp - logan phantom was used with the system configuration in table 2 ( low resolution mode ) , and the phantom data was projected into 360 angles .
+the results are shown in fig 4 .
+we do not provide the result for the voxel - driven projections because the grid artifacts in such projection mode often results in severe artifacts in fdk reconstruction [ 26 ]. with respect to the phantom images in fig 4 ( a ) , obvious streak artifacts can be observed in fig 4 ( b ) , 4 ( c ) , 4 ( d ) and 4 ( e ) ; the combination of linear interpolation based fsnp and voxel - driven back - projection operator can provide better results than the classic ray - driven projector and back - projector pair .
+we can also see in fig 4 ( f ) that the blob based fsnp leads to the reconstructions with effective artifact suppression and the lowest mse values , but at the cost of blurred edges .
+this is because the simulated projections generated by blob based fsnp are blurred by the weighted summation of neighboring voxels .
+10.1371 / journal.pone.0142184.g004 fig 4 fdk reconstructions of shepp - logan phantom. from left to right are cross - section , sagittal view and coronal view , respectively .
+row ( a ) : phantom images ; row ( b ) : the reconstruction with ray - driven projection and ray - driven back - projector ( rmse = 7.11 %) ; row ( c ) reconstruction with distance - driven projection and distance - driven back - projector ( rmse = 5.06 %) ; row ( d ) : the reconstruction with linear interpolation based fsnp ( 256 sampling points per ray ) and voxel - driven back - projector ( rmse = 5.30 %) ; row ( e ) : the reconstruction with linear interpolation based fsnp ( 512 sampling points per ray ) and voxel - driven back - projector ( rmse = 5.22 %) ; row ( f ) : the reconstruction with blob based fsnp ( 256 sampling points per ray ) and voxel - driven back - projector ( rmse = 2.98 %) .
+we then evaluated the performance of fsnp in iterative reconstruction algorithm .
+the osem ( ordered subsets expectation - maximization ) algorithm with 30 subsets and 100 iterations was chosen as the iterative algorithm .
+results in figs 5 and 6 show that the linear interpolation based fsnp together with voxel - driven back - projector can provide results similar to the matched distance - driven pair , both visually and quantitatively .
+although the measurements are assumed to be independent form each other in ideal projection model , they are in fact somehow correlated , due to the imperfect collimation and scatter effect .
+the blob - based kernel takes such correlation into consideration , and thus leads to a more realistic model in characterizing the residual between observed measurements and image projections , especially for differences near the edges .
+as a result , we may see that different from the results in fig 4 ( f ) , the reconstructed images in fig 5 ( d ) indicate that the blob based fsnp also leads to a good preservation of edges in addition to artifact suppression .
+fig 6 plots the line profile ( the vertical blue line in the left image in fig 5 ( a )) of the reconstructions in fig 5 , from which we can see that the reconstruction with blob based fsnp results in a smoother profile with a better match of the reference profile than others ( zoom 1 ) ; the distance driven projection provides blurred edges ( zoom 2 ) ; and the blob based fsnp has the best performance in recovering peak value ( with the best matched profile with phantom data in zoom 3 ) .
+10.1371 / journal.pone.0142184.g005 fig 5 osem reconstructed results using different projection and back - projection operators .
+columns from left to right are the illustrations of cross section , coronal section and sagittal section , respectively .
+row ( a ) : phantom images ; row ( b ) : reconstruction with linear interpolation based fsnp and voxel - based back - projection ( rmse = 2.58 %) ; row ( c ) : reconstruction with distance - driven projection and back - projection pairs ( rmse = 2.34 %) ; row ( d ) : reconstruction with blob based fsnp and voxel - based back - projection ( rmse = 1.96 %) .
+10.1371 / journal.pone.0142184.g006 fig 6 profiles of the reconstructed images in fig 5 .
+the profile is marked in blue line in fig 5 ( a ) , 5 ( b ) , 5 ( c ) and 5 ( d ) are the zoomed regions in marked as " zoom 1 " , " zoom 2 " and " zoom 3 " respectively .
+the proposed projection methods are also validated by real scan data from a micro ct system .
+a rat was scanned under 40kv tube voltage and 200ma tube current .
+the projection sequence contains 360 projections over 360degrees .
+the projection image size is 922x748 with pixel size 0.1mm 2 ; the reconstruction volume size is 512x512x512 with voxel size 0.085mm 2 , sod = 83.65mm , sdd = 167.3mm .
+the fdk algorithm with ram - lak filter and the osem algorithm with 30 subsets and 100 iterations were performed .
+all the methods listed are with voxel - driven back - projector .
+different from the observation in fig 5 , the reconstruction results fig 7 indicates that , compared to the linear interpolation based fsnp , the blob based fsnp provides results with better edge preservation ( see the arrows ) .
+nevertheless , we can also see that the improved edge preservation is also accompanied with amplified noise in the reconstructed images .
+10.1371 / journal.pone.0142184.g007 fig 7 one 2d slice reconstructed from one rat data scanned from a micro ct .
+( a ) : fdk with ram - lak filter ; ( b ) : osem with linear interpolation based fsnp ; ( c ) : osem with blob based fsnp .
+( d ) , ( e ) and ( f ) are the zoomed regions from ( a ) , ( b ) and ( c ) , respectively .
+discussion cuda technology provides a well - established software platform for developers to design parallelized workflow with c - style code , with direct access to the virtual instruction set and gpu memories .
+in this paper , a strategy termed fixed sampling number projection ( fsnp ) is devised to ensure the operation synchronization along projection lines in parallelizing ray - driven projection based on cuda framework .
+the conventional cubic fov is replaced by a rotational symmetric fov to save computation cost in geometry parameter calculation .
+back - projection parallelization is relatively simple because the computation involved in each kernel for each back - projected voxel is independent to the computation in other threads .
+but as to projection operator , which calculates projection values via line integration of sample intensities , the involved accumulation operation often results in racing condition that limits the computation speed .
+such problem can be alleviated by memory management and synchronization optimization .
+although there is a common view that prpb mode is more efficient than prpt mode in parallelizing ct projection using cuda , experiment results have shown that with texture fetching , the computation time for prpt mode is 43 %~ 67 % less than that of the prpb mode .
+this advantage is brought by the locality property of texture memory when fixed sampling number is used for each ray .
+it is also found that the cost in texture binding occupies a large part in the whole computation .
+for instance , as to the prpt mode with linear interpolation , in which the computational time for each projection in fsnp was respectively 17.09ms and 18.95ms for the cases with 256 and 512 sampling points per ray , there is 14ms cost for texture binding .
+for high resolution mode , the texture binding for 512x512x512 objects took about 104ms .
+compared to the case with projection operator , the texture binding for back - projection requires less computation time due to the smaller 2 - d data size ( about 0.9ms and 2.8ms for 512x512 and 1024x1024 projection images , respectively ) .
+despite this , the utilization of texture memory allows building a more accurate model by increasing the sampling points , without significantly increasing computational load .
+although fixing the sampling number in each line leads to more effective parallelization , it also results in inconsistent sampling density for projection rays , due to the different intersection lengths for projection rays within the fov .
+for instance , the centered projection ray is often with a higher sampling density for cubic fov ; yet it is with a lower sampling density in the cases of cylinder or sphere fovs .
+in the proposed approach , the sampling number is set based on the projection ray with the longest intersection length within the fov , which defines the limit of the sampling intervals .
+results in fig 4 show that the mse varies little when increasing the sampling number from 256 to 512 .
+conclusion this paper proposes an effective parallelization scheme fsnp for the projection in iterative ct reconstruction algorithms .
+in this fsnp method , the sampling point number on each projection ray is fixed to ensure the synchronization of parallel computing .
+texture memory is also used in the fsnp approach to further improve the computation efficiency .
+experiment results show that the proposed approach with texture memory is 10 ~ 16 times faster than the global memory version in iterative reconstruction .
+although it is widely accepted that the prpb mode is suitable for the parallelization of the projection operator , this study indicates that the prpt mode is about twice faster than prpb mode with the proposed approach .
+we also found that the proposed ray - driven base fsnp method works well with voxel based back - projection operator in reconstructions. by introducing blob based kernel functions into the fsnp method , better reconstruction results than the distance - driven projection and back - projection pair can be obtained by the proposed approach .
+better performance in noise suppression can be expected to be obtained by incorporating the noise property into kernel building .
+this research was supported by national natural science foundation under grants ( 81370040 , 81530060 , 61405033 , 31100713 ) .
+this work was also supported by the grant of natural science foundation of jiangsu province under grant bk20130629 , and the qing lan project in jiangsu province .
+references 1 bian j .
+, yang k .
+, boone j. m. , han x .
+, sidky e.y. and c pan x .
+, " investigation of iterative image reconstruction in low - dose breast ct " , physics in medicine and biology , vol.59 ( 11 ) , pp .
+2659 - 2685 , 2014 . 24786683 2 sidky e. and pan x .
+, " image reconstruction in circular cone - beam computed tomography by constrained total - variation minimization " , physics in medicine and biology .
+vol.53 ( 17 ) , pp .
+4777 - 4807 , 2008 . 18701771 3 hu y .
+, xie l .
+, luo l .
+, nunes j. c. and toumoulin c .
+, " l0 constrained sparse reconstruction for multi - slice helical ct reconstruction " , physics in medicine and biology , vol.56 ( 4 ) , pp .
+1173 - 1189 , 2011 . 21285478 4 chen y .
+, li y .
+, yu w .
+, luo l .
+, chen w .
+, and toumoulin c .
+.
+" joint - map tomographic reconstruction with patch similarity based mixture prior model " , siam , multiscale modeling and simulation , vol.9 ( 4 ) , pp .
+1399 - 1419 , 2011 . 5 chen y .
+, gao d .
+, nie c .
+, luo l .
+, chen w .
+, yin x. and lin y .
+.
+" bayesian statistical reconstruction for low - dose x - ray computed tomography using an adaptive - weighting nonlocal prior " , computerized medical imaging and graphics , 33 ( 7 ) , pp .
+495 - 500 , 2009 doi : 10.1016 / j.compmedimag.2008.12.007 19515533 6 chen y .
+, ma j .
+, feng q .
+, luo l .
+, chen w. and shi p .
+, " nonlocal prior bayesian tomographic reconstruction " , journal of mathematical imaging and vision , vol.30 ( 2 ) , pp .
+133 - 146 , 2008 . 7 ma j .
+, zhang h .
+, gao y .
+, huang j .
+, liang z .
+, feng q .
+, and chen w .
+.
+" iterative image reconstruction for cerebral perfusion ct using a pre - contrast scan induced edge - preserving prior " , physics and medical biology , 57 : 7519 - 7542 , 2012 . 8 ma j .
+, huang j .
+, zhang h .
+, feng q .
+, lu h .
+, liang z .
+, and chen w .
+.
+" low - dose computed tomography image restoration using previous normal - dose scan " , medical physics , vol. 38 , no .
+10 , pp .
+5713 - 5731 , 2011 21992386 9 witte y .
+, vlassenbroeck j. and hoorebeke l.v .
+, " a multiresolution approach to iterative reconstruction algorithms in x - ray computed tomography " , ieee transactions on image processing , vol.19 , pp .
+2419 - 2427 , 2010 . 20350850 10 wang j .
+, li t .
+, and xing l .
+, " iterative image reconstruction for cbct using edge - preserving prior " , medical physics .
+vol.36 , pp .
+252 - 260 , 2009 . 19235393 11 xu j .
+, mahesh m. and benjamin m.w .
+, " is iterative reconstruction ready for mdct ?
+" , journal of the american college of radiology , vol.6 , pp .
+274 - 276 , 2009 . 19327661 12 l. a. flores , v. vidal , m. patricia , r francisco , v gumersindo , " ct image reconstruction based on gpus " , international conference on computational science , pp .
+1412 - 1420 , 2013 .
+13 y. hu , m. jung , a. oukili , g. yang , j .
+- c. nunes , j. fehrenbach , g. peyre ' , m. bedossa , l. luo , c. toumoulin , l. d. cohen , " sparse reconstruction from a limited projection number of the coronary artery tree in x - ray rotational imaging " , conference : ieee international symposium on biomedical imaging , pp .
+804 - 807 , 2012 .
+14 flores l. a. , vidal v .
+, patricia m .
+, francisco r , gumersindo v , " parallel ct image reconstruction based on gpus " , radiation physics and chemistry , vol.95 , pp .
+247 - 250 , 2014 . 15 gao h .
+, " fast parallel algorithms for the x - ray transform and its adjoint " , medical physics , vol.39 ( 11 ) , 2012 . 16 zhao x .
+, hu j .
+, yao t .
+, " gpu based iterative cone - beam ct reconstruction using empty space skipping technique " , journal of x - ray science and technology , pp .
+53 - 69 , 2013 doi : 10.3233 / xst - 130366 23507852 17 jia x .
+, dong b .
+, lou y. and jiang s.b .
+" gpu - based iterative cone beam ct reconstruction using tight frame regularization " , physics in medicine and biology , vol.56 ( 13 ) , 2011 . 18 m. knaup , s. steckmann , m. kachelriess , " gpu - based parallel - beam and cone - beam forward - and backprojection using cuda " , nuclear science symposium conference , dresden , germany , pp .
+5153 - 5157 , 2008 .
+19 pratx g .
+, chinn g .
+, olcott p. d. and levin c.s .
+, " fast , accurate and shift - varying line projections for iterative reconstruction using the gpu " , medical imaging , ieee. trans .
+on , vol.28 ( 3 ) , pp .
+435 - 445 , 2009 . 20 okistu y .
+, ino f .
+, hagihara k .
+, " high - performance cone beam reconstruction using cuda compatible gpus " , parallel computing , vol.36 ( 2 - 3 ) , pp .
+129 - 141 , 2010 . 21 noel p. b. , walczak a. m. , xu j .
+, et. al , " gpu - based cone beam computed tomography " , computer methods and programs in biomedicine , pp .
+271 - 277 , 2010 . 22 wang l .
+, zhang s .
+, " optimization of cone beam ct reconstruction algorithm based on cuda " , sensors & transducers , vol.21 , pp .
+128 - 134 , 2013 . 23 d. bruno , and s. basu .
+" distance - driven projection and backprojection " , nuclear science symposium conference record , 2002. vol. 3. ieee , 2002 .
+24 bruno d. m. , samit b .
+, " distance - driven projection and back - projection in three dimensions " , physics in medicine and biology .
+vol.49 ( 11 ) , pp .
+2463 - 2475 , 2004 . 15248590 25 zeng g. l. , gullberg g. t. , " unmatched projector / backprojector pairs in an iterative reconstruction algorithm " , medical imaging , ieee. trans .
+on , vol.19 ( 5 ) , pp .
+548 - 555 , 2000 . 26 siddon r. l. , " fast calculation of the exact radiological path for a three - dimensional ct array " , medical physics , vol.12 ( 2 ) , pp .
+52 - 255 , 1985 . 27 zhuang w .
+, gopal s. s. , and hebert t. j. .
+" numerical evaluation of methods for computing tomographic projections " , nuclear science , ieee transactions on , vol. 41 ( 4 ) , pp .
+1660 - 1665 , 1994 . 28 chou c .
+, chuo y .
+, hung y .
+, wang w .
+, a fast forward projection using multithreads for multirays on gpus in medical image reconstruction . medical physics , vol.38 ( 7 ) , pp .
+4052 - 4065 , 2011 . 21859004 29 b. zhang and l. zeng , " an immediate after - back - projection filtering method with blob - shaped window functions for voxel - based iterative reconstruction " , ieee nuclear science symposium conference , m12 - 3 , pp .
+2900 - 2903 , 2006 .
+30 z. hu , w. wang , e. e. gualtieri , et. al. , " an lor - based fully - 3d pet image reconstruction using a blob - basis function " , ieee nuclear science symposium conference , m26 - 228 , pp .
+4415 - 4418 , 2007 .
+31 lewitt r. m. , " multidimensional digital image representations using generalized kaiser - bessel window functions " , j opt soc am a , vol. 7 ( 10 ) , pp .
+1834 - 46 , 1990 . 2231101

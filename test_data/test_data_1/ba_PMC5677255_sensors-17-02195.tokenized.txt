@@ -1,0 +1,489 @@
+sensors ( basel ) sensors ( basel ) sensors sensors ( basel , switzerland ) 1424 - 8220 mdpi 28946634 5677255 10.3390 / s17102195 sensors - 17 - 02195 article towards robot - assisted retinal vein cannulation : a motorized force - sensing microneedle integrated with a handheld micromanipulator + gonenc berk 1 * chae jeremy 2 gehlbach peter 2 taylor russell h .
+1 iordachita iulian 1 1 computer integrated surgical systems and technology engineering research center ( cisst erc ) , johns hopkins university , baltimore , md 21218 , usa ; rht @ jhu.edu ( r.h.t. ) ; iordachita @ jhu.edu ( i.i . )
+2 wilmer eye institute , the johns hopkins school of medicine , baltimore , md 21287 , usa ; jchae3 @ jhmi.edu ( j.c. ) ; pgelbach @ jhmi.edu ( p.g . )
+* correspondence : bgonenc1 @ jhu.edu ; tel. : + 1 - 360 - 975 - 1676 + this paper is an extended version of our paper published in gonenc , b. , n. tran , c. n. riviere , p. gehlbach , r. h. taylor , and i. iordachita .
+force - based puncture detection and active position holding for assisted retinal vein cannulation .
+2015 ieee international conference on multisensor fusion and integration for intelligent systems ( mfi ) , san diego , ca , usa , 14 - 16 september 2015 .
+23 9 2017 10 2017 17 10 2195 08 8 2017 19 9 2017 ( c ) 2017 by the authors .
+2017 licensee mdpi , basel , switzerland .
+this article is an open access article distributed under the terms and conditions of the creative commons attribution ( cc by ) license ( http :// creativecommons.org / licenses / by / 4.0 /) .
+retinal vein cannulation is a technically demanding surgical procedure where therapeutic agents are injected into the retinal veins to treat occlusions .
+the clinical feasibility of this approach has been largely limited by the technical challenges associated with performing the procedure .
+among the challenges to successful vein cannulation are identifying the moment of venous puncture , achieving cannulation of the micro - vessel , and maintaining cannulation throughout drug delivery .
+recent advances in medical robotics and sensing of tool - tissue interaction forces have the potential to address each of these challenges as well as to prevent tissue trauma , minimize complications , diminish surgeon effort , and ultimately promote successful retinal vein cannulation .
+in this paper , we develop an assistive system combining a handheld micromanipulator , called " micron " , with a force - sensing microneedle .
+using this system , we examine two distinct methods of precisely detecting the instant of venous puncture .
+this is based on measured tool - tissue interaction forces and also the tracked position of the needle tip .
+in addition to the existing tremor canceling function of micron , a new control method is implemented to actively compensate unintended movements of the operator , and to keep the cannulation device securely inside the vein following cannulation .
+to demonstrate the capabilities and performance of our uniquely upgraded system , we present a multi - user artificial phantom study with subjects from three different surgical skill levels .
+results show that our puncture detection algorithm , when combined with the active positive holding feature enables sustained cannulation which is most evident in smaller veins .
+notable is that the active holding function significantly attenuates tool motion in the vein , thereby reduces the trauma during cannulation .
+force sensing fiber bragg grating retinal vein cannulation 1 .
+introduction 1.1 .
+motivation retinal vein occlusion ( rvo ) is one of the most common retinal vascular diseases affecting approximately 16.4 million people worldwide [ 1 ] , with a prevalence of 1.8 % and 0.5 % for central and branch retinal veins , respectively [ 2 ] .
+rvo occurs when there is arterial stiffening / thickening of the crossing artery 's wall , low flow , hyper - coagulability , or thrombosis in the central retinal vein or its branches .
+the anatomic result of retinal vein occlusion is dilation , tortuosity and intraretinal hemorrhage .
+in many cases , the resulting ischemia leads to macular edema and decreased vision .
+other serious complications include neovascularization , vitreous hemorrhage , and retinal detachment [ 3,4 ] .
+patients with rvo are often experience blurred or distorted vision , and in severe cases permanent vision loss [ 5 ] .
+the available treatments for rvo include , but are not limited to , photocoagulation , hemo - dilution , radial optic neurotomy , vitrectomy and intravitreal injections .
+the predominant therapy at this time is serial intravitreous injections of anti - vegf agents with the intent of limiting the damage induced by the occlusion , rather than resolving it [ 6,7,8,9,10 ] .
+retinal vein cannulation ( rvc ) is a still investigational surgical procedure proposed to treat rvo by direct therapeutic agent delivery methods .
+the procedure involves three main steps : ( 1 ) accurately bringing a sharp tipped cannula onto the occluded retinal vein , ( 2 ) puncturing through the vein wall and precisely halting the cannula tip at the right depth , and ( 3 ) advancing and maintaining the cannula inside the vein for several minutes , during which a therapeutic agent e.g. , tissue plasminogen activator ( t - pa ) [ 11 ] or ocriplasmin [ 12 ] or other is delivered to dissolve the thrombus .
+this is a very demanding and risky procedure because of the small size and fragility of retinal veins - - especially if the occlusion is in a branch retinal vein ( typically o < 200 mum ) rather than the central vein [ 13 ] .
+1.2 .
+background several studies have explored cannulation of retinal vessels using a variety of in vivo models .
+in porcine eyes , it was shown that puncturing larger proximal vessels is technically easier than piercing the smaller veins more distal to the optic nerve after they have branched [ 14 ] .
+nevertheless , when a small branch vein is occluded , cannulation of a nearby larger vessel instead is thought to diminish the effectiveness of the treatment [ 15 ] .
+to easily pierce the retinal vasculature and enable injection directly into such small branch veins , glass micropipettes with very fine sharp tips have been used [ 16,17,18 ] .
+however , the transparent small tips are hard to visualize under the microscope and the fragility of glass raises valid safety concerns .
+an alternative is to use stainless steel microneedles ( o 50 microm ) which have been used to inject balanced saline solution to dissolve a clot in prior work [ 19 ] , and to mechanically fragment thrombi by advancing a soft thin ( o 100 microm ) wire through the lumen of a 37 - gauge needle [ 20 ] .
+tests on porcine eyes showed the feasibility , and this was further supported by successful clinical demonstrations in human retinal veins with few intraoperative and postoperative complications [ 21 ] .
+using a curved cannula or an angulated tip accessing the vessel at a strategic angle has been found to be easier and safer .
+however , there were challenges in introducing the bent tip into the eye through the sclera , requiring either a modified incision or accommodating trocar through the sclera .
+in order to enhance the intraocular distal dexterity , a stent deployment unit with adjustable approach angle via concentric tubes was devised , and the optimal approach angle while cannulating vasculature on the chorioallantoic membrane ( cam ) of fertilized chicken eggs - - an accepted in vivo model for rvc studies [ 22 ] - - was explored .
+this work revealed an optimum range of 25 - 35degrees , which is not easy to achieve via a straight instrument [ 23 ] .
+flexible prebent stainless steel microneedles , which are normally held straight inside a protective shaft to be more easily introduced into the eye , have been developed .
+when deployed , these microneedles assume the optimum angle as they approach the retinal surface [ 24,25 ] .
+despite the aforementioned progress effective and safe rvc remains a procedure at the limits of human performance .
+three main challenges remain : first , a cannula thin enough to be inserted into the retinal vein ( o < 100 microm ) that can also withstand the forces of venipuncture and remains easily visible under the microscope is required .
+this challenge has partially been resolved by using stainless steel microneedles that replace previous transparent and fragile glass micropipettes .
+the second challenge is to control physiological hand tremor of the vitreoretinal surgeon , the normal scale of which is comparable in amplitude to the size of retinal veins [ 26 ] .
+hand tremor limits precise targeting of retinal veins and also limits the ability to maintain the cannula within the lumen for the period of drug delivery [ 11 ] .
+in order to provide a more precise tool manipulation in vitreoretinal surgery , various robotic systems have been developed during the past 20 years [ 27 ] .
+these research platforms include teleoperated devices [ 28,29,30,31,32 ] , cooperatively - controlled systems [ 33,34 ] , injectable ocular microrobots [ 35,36 ] , or handheld tools [ 37,38,39,40,41,42,43 ] , and mostly shared the common goal of suppressing involuntary components of motion , such as the physiological hand tremor of the operator .
+studies have now shown improved precision during procedures performed in artificial phantoms and animal models [ 18 ] , and the potential to facilitate a safer operation on the extremely delicate retinal tissues during human surgery .
+however , it was n't until recently that any of these systems appeared in an actual retinal microsurgery .
+in september 2016 , using the preceyes surgical system , a motion - scaling tremor - suppressing teleoperated robot [ 30 ] , surgeons at oxford 's john radcliffe hospital performed the world 's first robot - assisted vitreoretinal surgery for a membrane peeling operation [ 44 ] .
+in january 2017 , eye surgeons at university hospitals leuven were the first to demonstrate robot - assisted rvc using another system to inject t - pa into the patient 's occluded retinal vein [ 45 ] .
+these two major proof of principal steps show the potential benefits and feasibility of robot - assisted tool manipulation during vitreoretinal surgery .
+nevertheless , they do not address the third challenge in rvc , which stems from the fact that cannulating retinal veins occurs at forces that are almost imperceptible to humans .
+this fact makes the instant of venous puncture nearly imperceptible limiting the unassisted human effort to halt needle advancement and appropriately begin t - pa injection at the correct depth , leading to double punctures and undesired subretinal injections during in vivo trials [ 18 ] .
+unlike cannulating retinal veins , conventional venipuncture occurs on larger structures and the resulting tactile forces are both perceptible and familiar to experienced phlebotomists .
+specifically the clinician can feel the moment of vessel puncture [ 46 ] .
+tests on the cam model [ 29 ] have confirmed that most rvc forces lie below the human perception threshold , yet there is still a sharp force drop upon venous puncture , as observed in conventional venipuncture [ 47 ] .
+continual monitoring of these very fine tool - tissue interactions via a very sensitive force sensor therefore has the potential to inform the operator of the moment of venous puncture during rvc and could also identify a second puncture indicating exit from the vessel .
+prior studies proposed several methods to quantify tool - tissue interaction forces in microsurgery and minimally invasive surgery ( mis ) .
+semiconductor strain gauges were used to sense forces on robotic microgrippers [ 48 ] .
+the resulting geometry occupied an overall length of 17 mm , width of 7.5 mm and thickness of 0.4 mm. micro - newton scale force sensing for safely manipulating cells was achieved by using diffractive optical mems encoders on a silicon - nitride probe [ 49 ] .
+to monitor tool - tissue interaction forces in mis , a sensor was developed for use on laparoscopic instruments , with an outer diameter of 5 mm and based on intensity - modulated fiber optics to capture the three - dimensional forces with a resolution of 0.01 n [ 50 ] .
+another fiber - optics based force sensor was shown to measure the tri - axial tool - tissue interaction forces with a resolution of 0.02 n during tissue palpation in mis [ 51 ] .
+using strain gauges mounted on a steward platform , a 6 - degree of freedom ( dof ) force - sensing forceps was designed again for mis applications , which provided a force resolution of 0.05 n for transverse loads and 0.25 n for axial loads [ 52 ] .
+in microsurgery , specifically in stapedectomy , integration of fiber bragg grating ( fbg ) strain sensors on a micro - forceps enabled the first time quantification of forces involved in crimping of a stapes prosthesis , which ranged from 2.4 n to 5.2 n [ 53 ] .
+based on a monolithic structure flexure and photo - sensors , a compact axial force sensor was developed providing a force resolution of 0.48 n [ 54 ] , and was shown to properly work with a handheld robotic device to maintain a fixed contact force ( 200 and 400 mn ) at the tool tip [ 42 ] .
+recently , a strain - gauge - based force - sensing bipolar forceps was developed and used to measure axial and planar forces ranging up to 1.20 n during neurosurgical tasks in cadaveric brain experiments [ 55 ] .
+the force sensing methods in the above studies have several limitations that impede their application to vitreoretinal surgery .
+in order to measure the very fine tool - tissue interaction forces , force - sensing instruments with millinewton resolution and accuracy are required .
+this requirement was addressed by a miniature tri - axial force sensor based on strain gauges , which was designed to be mounted on the handle of a microsurgical instrument [ 56 ] .
+however , in retinal microsurgery , the tools are inserted through an incision in the sclera , and the contact forces at the insertion port are considerably larger than the tissue manipulation forces at the tool 's tip .
+therefore , a handle mounted force sensor is not practical for vitreoretinal surgery , as the measurements would involve not only the tool - tissue interaction forces but also the adverse effect of frictional forces at the insertion port [ 57 ] .
+this necessitates positioning the force sensor proximal to the tool tip inside the eye , which imposes strict dimension constraints as well as biocompatibility , sensitivity and safety requirements , and hence limits the available sensors for this use .
+to provide force feedback in retinal microsurgery , our team has developed force - sensing instruments based on fbg strain sensors [ 25,58,59,60,61 ] , which have been shown to accurately measure the micro - forces directly at the tool tip without significant signal degradation due to varying ambient temperature or the forces at the sclerotomy port .
+following a similar approach , we developed a force - sensing microneedle with a thin ( o 70 microm ) bent ( 45degrees ) tip , which is held straight in a protective shaft while inserting through the sclera and deployed out by means of a motorized unit upon reaching the retina surface [ 25 ] .
+researchers from university of leuven developed an alternative force - sensing needle also with a thin ( o 80 microm ) and bent ( 45degrees ) tip independently from our previous work [ 24 ] .
+combining a force - sensing cannulation tool with a robotic assistant is a potential solution to overcoming the challenges in rvc .
+precisely identifying the moment of venous puncture and stably fixating the cannula throughout the drug delivery are both facilitated .
+we have previously attained an extended period of intravenous cannula stability in a dry phantom by combining a handheld micromanipulator , micron , with a force - sensing microneedle [ 62 ] , which has been , to the best of our knowledge , the first handheld assistive rvc system that can detect venous puncture and act automatically .
+this study builds on our prior work , discusses the development of the force - sensing microneedle tool in more detail , and presents a more extensive validation of the combined assistive system .
+in section 2 , we introduce the components of our system .
+section 3 demonstrates our force and position based venous puncture detection methods and its integration with the micromanipulator control scheme .
+in section 4 and section 5 , using an artificial phantom replicating the constraints of rvc , we evaluate the efficacy of the developed system for three operators with differing levels of experience on the robotic system and expertise in rvc .
+the paper concludes with a discussion of the results , current limitations and our future aims .
+2. system components 2.1 .
+motorized force - sensing microneedle 2.1.1 .
+actuation mechanism injecting t - pa into thin branch retinal veins ( o < 200 microm ) requires the use of even thinner and sharp tipped cannulae .
+targeting o 100 - 500 microm veins , we devised a motorized force - sensing microneedle with an outer diameter of 70 microm at the tip ( figure 1 ) .
+this is a compact lightweight modular unit carrying all the necessary sensors ( fbgs and an encoder ) and a linear motor that can be independently actuated .
+this enables easy integration with various types of tool handles , either manual or robotic , without interfering with their operation .
+the tool has a sharp beveled ( 15degrees ) and bent ( 45degrees relative to the tool shaft ) tip .
+if a straight and blunt tipped microneedle were used , the vein walls would pushed closed .
+in addition , after piercing the vein wall , the instantaneous release of stress would cause the tissue to uncoil toward the needle , which would make overshooting the target vein almost inevitable .
+to avoid overshoot , it is important to approach the retina at an angle , and move the needle tip almost parallel to and with minimal vertical motion into the vein .
+this way , the tissue will deform less and along the vein axis , so that any relative motion due to tissue relaxation after venous puncture will not force the needle tip out of the vein lumen .
+based upon these factors , the optimal approach angle while cannulating the vasculature on cam was previously explored , which revealed a range of 25 - 35degrees between the needle tip and vein surface [ 23 ] .
+due to constraints at the sclerotomy , it is not easy to approach the retinal surface at this angle with a straight tool .
+using a flexible pre - bent tip can help , as long as the bending angle is carefully adjusted .
+over bending the microneedle in order to achieve a very shallow approach angle may not only cause severe deformation of the needle while pushing it against the vein , but will also lead to excessive resistance to fluid flow inside the lumen at the bend , preventing injection .
+considering these limitations , the approximate pars plana position for tool insertion , the dimensions of the typical adult eye , and targeting an ideal approach angle of about 30degrees [ 30 ] , we bent the needle tip 45degrees relative to the tool shaft as shown in figure 2b .
+the bent needle tip was bonded to a 30 gauge stainless steel tube using medical device adhesive ( loctite 4013 prism , henkel , rocky hill , ct , usa ) to form the injection line of our tool .
+after mounting the tool onto a robotic device or a manual tool handle , the 30 gauge tube can be connected to a syringe controlled by a standard infusion pump ( 11 pico plus elite , harvard apparatus , holliston , ma , usa ) via a sealed polyethylene tubing ( pe - 10 , warner instruments ) to deliver the injection fluid ( t - pa as in [ 11 ] or ocriplasmin as in [ 12 ]) .
+due to the bent shape of the thin needle , it is not easy to introduce the tool into the eye through a small incision ( o < 1 mm ) without damaging the tip .
+in order to keep the sharp and pre - bent microneedle protected and flexed straight while passing it through the sclera , we devised a motorized module with a retractable guide tube functioning as a protective sheath .
+as depicted in figure 2a,b , the injection line ( 30 gauge tube with the bent microneedle attached at its tip ) is passed through a 23 gauge guide tube and firmly anchored to the body of the module with the help of a set screw .
+this component is designed to be disposable since the needle tip will gradually lose its sharpness and impede venous puncture in the setting of consecutive cannulation attempts. by releasing the set screw , the old injection line with the dull tip can easily be replaced with a new one while preserving the rest of the module .
+the guide tube is fixed onto a slider mechanism driven by a linear micro motor ( squiggle - rv - 1.8 , new scale technologies inc. , victor , ny , usa ) , so that when the motor is actuated , the guide tube moves along the tool shaft to cover or expose the needle tip .
+while inserting the tool into the eye and approaching the retina surface , the needle tip is flexed and held straight inside the guide tube .
+upon reaching the target vessel site , retracting the guide tube deploys the bent needle tip ( figure 2c ) .
+fully covering or exposing the microneedle requires a travel of 2.4 mm. the selected motor supplies enough force and travel range for this task in a very small ( 2.8 x 2.8 x 6 mm ) , and light weight ( 0.16 g ) package .
+there is a bar magnet located on the side of the slider ( figure 3a ) .
+the position of the slider , and thus of the micro motor , is tracked via the magnetic position sensor ( nse - 5310 , ams ag , unterpremstatten , austria ) located on the side of the base .
+this enables fine position control of the motor in closed loop ( with a resolution of 0.5 microm and linear accuracy of 25 microm without loading ) , and ensures accurate motion of the guide tube despite the potentially variable friction at the insertion port through the sclera .
+the parts holding the guide tube , housing the motor , anchoring the injection line to the module and the lid shielding the slider mechanism were built using 3d printed acrylonitrile - butadiene - styrene ( abs ) with a resolution of 0.254 mm. the assembled actuation unit occupies a space of 13.0 x 15.5 x 9.3 mm and weighs only about 2.9 g .
+2.1.2 .
+force sensor integration detection of the very fine tool - tissue interaction forces while cannulating retinal veins requires the use of a very sensitive force sensor with sub - mn resolution .
+in addition , the location of the force sensor is critical .
+since the forces at the sclera insertion port can be much larger than the typical cannulation forces at the tool tip , a handle mounted force sensor measuring a combination of these two forces would not be appropriate .
+in order to capture only the tool tip forces , the sensor needs to be located proximal to the tool apex and inside of the eye .
+bringing the sensor into the eye puts strict requirements and limits the available sensors for this use .
+fbg strain sensors ( technica s.a. , beijing , china ) with their small dimension ( o = 80 microm ) , high sensitivity , biocompatibility , sterilizability , and immunity from electrostatic and electromagnetic noise satisfy these criteria .
+while inserting the needle into the vein , forces induced at the needle tip will be mostly along the axis of the needle , and hence will be dominantly perpendicular to the tool shaft due to the bent tip .
+previously , our team has developed several ophthalmic tools capable of sensing the transverse forces at the tool tip with a 0.25 mn resolution during other retinal procedures [ 58,59,60,61 ] .
+following a similar architecture , we bonded 3 fbg sensors evenly around the guide tube using medical device adhesive ( loctite 4013 prism , henkel , rocky hill , ct , usa ) as shown in figure 3b .
+this led to an overall tool shaft diameter less than 0.9 mm , which is sufficiently small for insertion through the sclera .
+in order to transform the optical wavelength information from each embedded sensor to force values , we assume small elastic deformations and model the guide tube as an euler - bernoulli beam with transverse forces ( within the plane formed by the x and y axes in figure 3b ) at the tip inducing a linearly proportional local elastic strain on each sensor , and thus producing a linearly proportional bragg wavelength shift in each fbg .
+in addition , during vitreoretinal surgery , the intraocular temperature may show significant changes at different steps of the surgical procedure [ 63 ] , which may induce a drift in sensor readings .
+in this case , the combined bragg wavelength shift for each sensor is given by : ( 1 ) deltalambdai = cif _ xfx + cif _ yfy + cdeltatdeltat , i = 1,2,3 where cif _ x , cif _ y and cdeltat are constants associated with the x , y , z forces and the temperature change , respectively .
+when the mean bragg wavelength shift in all three lateral sensors is computed , due to axisymmetric distribution of lateral fbgs around the guide tube ( 120degrees apart from each other as depicted in figure 3b ) , the terms related to the transverse forces in equation ( 1 ) cancel each other as detailed in [ 58 ] , resulting in the common mode ( deltalambdamean ) which is a function of the temperature change only .
+the thermal drift in sensor readings can be eliminated by subtracting the common mode from each sensor 's wavelength shift as shown in equation ( 2 ) .
+the remaining differential mode of each sensor ( deltalambdaidiff ) can then be used in equation ( 3 ) to compute the forces at the tool tip .
+for transverse loads ( fx and fy ) , this temperature compensation method was previously shown for a retinal pick tool with similar force - sensing architecture to provide a robust response accurate within 2 mn when the tool was subject to thermal shocks [ 58 ] : ( 2 ) deltalambdaidiff = deltalambdai - deltalambdamean = cif _ xfx + cif _ yfy , i = 1,2,3 ( 3 ) [ fxfy ] t = c [ deltalambda1diffdeltalambda2diffdeltalambda3diff ] t in equation ( 3 ) , c is a 2 x 3 coefficient matrix which represents the linear mapping from optical sensor readings to the force domain .
+in order to find this constant , we performed a calibration experiment using the setup shown in figure 4a .
+we mounted our force - sensing tool horizontally on a rotary stage to modulate its axial orientation ( theta ) .
+a soft plastic piece carrying a wire hook was attached to the microneedle tip ( figure 4b ). by hanging aluminum washers on the wire hook , varying forces ( pure fx at theta = 0degrees and pure fy at theta = 90degrees ) were induced at the tool tip .
+the washers were weighed using a precision scale ( sartorius gc2502 , gottingen , germany ) which provides a resolution of 0.01 mn and a repeatability of +/ - 0.02 mn. the maximum test load was 20.6 mn , and each washer weighed about 1.03 mn. the bragg wavelength of each fbg sensor was acquired using an optical sensing interrogator ( sm130 - 700 from micron optics inc. , atlanta , ga , usa ) .
+measurements were taken for 20 different levels of loading at each orientation .
+for each test condition , 1000 samples were recorded at a rate of 200 hz. the calibration results in figure 5a show that all fbgs exhibit a linear reproducible behavior to forcing along both the x - and y - axis .
+using this dataset , the linear system of equations given in equation ( 3 ) is formed and solved by using the method of least squares to obtain the calibration matrix ( c ) : ( 4 ) c =[ - 0.21280.2455 - 0.0327 - 0.1418 - 0.09270.2346 ] mn / pm the wavelength resolution of our optical sensing interrogator is 1 pm. based upon the obtained calibration matrix , this corresponds to a resolution of about 0.25 mn for both fx and fy. the optical sensing interrogator has a scan rate of 1 khz , and the time constant of the sensor is about 5 ms [ 64 ] , providing a fast enough response for accurate tracking of quick force variations in rvc .
+to validate sensor operation , the tool tip was loaded / unloaded repeatedly at three different orientations ( 0degrees , 45degrees and 90degrees ) .
+twenty different load conditions ( 0 - 20.6 mn ) were tested at each orientation , and each case was repeated six times ( three load / unload cycles ) .
+for each test , 1000 samples were recorded at a rate of 200 hz. overall , the computed forces were observed to closely predict the actual forces with root mean square errors of 0.31 mn and 0.24 mn respectively for fx and fy. the histograms of the residual errors ( figure 5b ) show that the probability of errors beyond 0.5 mn is very low , especially for 0 - 10 mn range , where a closer fit to the ideal straight line ( slope = 1 ) passing through the origin in figure 5c is visible between the computed and actual forces .
+above 10 mn , although fy accuracy is preserved , fx is observed to gradually deviate from the ideal line as the loading is increased .
+this also leads to higher order moments in the distribution of errors in fx compared to the errors in fy ( figure 5b ) , which can be attributed to the adverse effect of torque generated due to the distance between the tip of the bent needle and the tool shaft center .
+such error can , in theory , be corrected by modeling the torsional effects on the force - sensitive elements .
+however , during rvc , since the needle insertion will take place mostly along the needle axis ( y - axis of the tool ) , forces exceeding 10 mn along the x - axis are highly unexpected .
+thus , the slightly bigger errors in predicting fx at larger amplitudes are not a major concern .
+2.1.3 .
+effect of actuation on force sensor response in this design concept , the force sensitive elements are integrated on a functional component that moves and goes under stress during the actuation of the tool .
+as shown in figure 6 , this causes a shift in fbg sensor readings , which produces an erroneous reading of about 2 mn in fx and 6 mn in fy when the guide tube is fully retracted back ( motor position = 2.4 mm ) although the needle tip is not interacting with the tissue yet .
+in addition , the computed calibration matrix is valid for the fully exposed configuration of the needle .
+the sensitivity may differ for middle positions and fully covered states , which are not relevant to the practical use of the needle .
+in our force computation algorithm , to get an accurate measurement of forces during cannulation , after the motor position reaches 2.4 mm and the needle is fully exposed , each fbg sensor is automatically rebiased to eliminate the actuation artifact and set a zero - force reference for the subsequent measurements .
+after touching the retinal surface , the interaction forces are computed relative to this baseline using the calibration matrix obtained in the previous section .
+2.2 .
+integration with a handheld micromanipulation system : micron in order to suppress involuntary motion in retinal microsurgery , various robotic systems have been developed [ 27 ] .
+among the handheld robotic devices is micron [ 33 ] , which aims to preserve the intuitive feel of standard handheld ophthalmic tools , and actively attenuate the physiological hand tremor of the surgeon .
+micron has a custom optical tracking system , named apparatus to sense accuracy of position ( asap ) .
+asap acquires the pose of the tool handle with 4 microm resolution and up to 2 khz sampling rate , which is used to identify the voluntary and involuntary ( tremulous ) components of motion via a shelving filter .
+when activating its three piezoelectric actuators , micron moves its tip to counteract the involuntary motion component within a workspace of approximately a 1 x 1 x 0.5 mm volume centered on the handle position .
+the control software for this operation mode is implemented in labview and can be altered to achieve other micromanipulation goals .
+we attached our force - sensing motorized microneedle to micron 's tool mount as shown in figure 7 .
+the fluid line ( 30 gauge tube protruding from the back of the tool ) was passed through the hollow center of the micron handle and connected to a syringe with a 30 gauge needle via a sealed polyethylene tubing ( pe - 10 , warner instruments ) to deliver the injection fluid .
+the infusion rate and amount can be controlling the syringe with a standard infusion pump ( 11 pico plus elite , harvard apparatus ) .
+the controller board of the linear actuator was located inside the tool handle .
+a force - sensing resistor ( fsr 400 , interlink electronics , westlake village , ca , usa ) was attached on the tool handle under the operator 's thumb and interfaced with the micro - motor controller such that the target position of the motor varies linearly with the exerted force on the resistor .
+simply by releasing or squeezing the handpiece , the operator can cover or expose the microneedle , respectively .
+3. system operation 3.1 .
+control scheme micron normally operates in a " tremor canceling mode " , which attenuates physiological hand tremors by continually tracking the tool handle motion and filtering it to compute a goal position for the tool tip .
+this is a beneficial feature to accurately manipulate the microneedle inside the eye and aim the occluded vein during rvc .
+however , it is not sufficient to fully assist the procedure .
+after bringing the tip onto the target and while pushing it into the vein , identifying the moment of venous puncture is important to stop needle penetration in a timely manner - - right after piercing through the superficial vessel wall and before piercing through the inferior vessel - - to avoid double puncturing the vein .
+in addition , after this instant , any unintentional movement , not only the higher - frequency tremulous components but also the lower - frequency drift in tool position , needs to be counteracted to maintain the cannula inside the vein for a longer period with minimal trauma to the vasculature , until the infusion is completed .
+based on the continual monitoring of acquired tool - tissue interaction forces via the devised force - sensing microneedle , and the tool tip position via micron 's asap trackers , we developed two puncture detection algorithms , which were integrated with micron 's software via a custom labview program leading to the new operational mode " position holding mode " .
+in this control scheme , the wavelength information from each fbg sensor on the needle is collected and processed at 1 khz and transmitted over tcp / ip to the labview environment .
+the tool - tissue interaction forces at the needle tip are computed based on the method and calibration matrix introduced in section 2.1.2 .
+meanwhile , the asap trackers provide the needle tip position at a sampling rate of 1 khz , which is used to compute tool tip velocity .
+tool tip force and velocity are continually fed into our venous puncture detection algorithm , which will be detailed in the following section .
+before the venous puncture occurs , micron works in its regular " tremor canceling mode " , filtering out the high - frequency components of the sensed tool motion , and therefore enabling a safe and steady approach to the target vein .
+when venous puncture is detected , an alarm sound is generated to inform the operator of the puncture event , and micron switches from its " tremor canceling mode " to the " position holding mode " by locking its goal position to the tip position recorded at the instant of venous puncture .
+after the mode switch , even if the user unintentionally drifts the tool handle away , micron deflects its tip to actively compensate the motion so that the tip is held fixed right at the puncture point .
+this mode helps fixate the needle inside the vein successfully as long as the drift of the user is within the limits of micron 's actuators ( within a sphere of ~ 0.5 mm radius ) .
+deviating from the puncture point beyond these limits will saturate the actuators , and thus may not be compensated .
+throughout the operation , the operator still maintains the gross positioning control while micron makes fine adjustments to fixate the tool tip .
+in this way , micron actuation can be overridden if needed , in case the needle needs to be quickly removed from the tissue .
+3.2 .
+venous puncture detection we investigated two different strategies for detecting venous puncture .
+3.2.1 .
+force - based method in earlier needle puncture studies using rabbit ear veins [ 46 ] and cam of fertilized chicken eggs [ 47 ] , a characteristic force behavior was reported .
+after the needle tip touches the tissue surface , the tool - tissue interaction force gradually rises until a sharp drop signaling the entrance of the needle tip into the vein .
+our first method aims to quickly identify this instant by continually checking the time derivative of forces measured by the sensitized microneedle .
+for this , a custom labview program was developed .
+during the operation , first , the bragg wavelength of each fbg is obtained from the optical sensing interrogator , and using the calibration matrix , the transverse force at the tool tip is obtained .
+then , the time derivative of tip force is computed and passed through a second - order low - pass filter .
+the optimal filter parameters ( cutoff frequency and damping coefficient ) are tuned based on measured force profiles in [ 47 ] so that the sharp oscillations due to measurement noise are filtered properly and the sharp drop in force is easily detectable with minimal delay ( within 60 ms ) .
+when the filtered derivative of force turns negative ( d | f - - > needle |/ dt < 0 ) , or falls below a certain threshold value ( p ) that distinguishes venipuncture from tool retraction ( d | f - - > needle |/ dt < p ) , a puncture is reported by this algorithm , right after which the operator can be warned via an auditory signal or helped with a robotic assistance method to halt needle advancement and maintain its position fixed .
+3.2.2 .
+force - and - position - based method in cannulating retinal veins , manipulating the tool by hand either manually or with the aid of a robotic micromanipulator , it is difficult to guarantee a constant insertion speed .
+as shown in table 1 , while pushing the needle against the vein wall , moving the tool slightly slower or retracting it before the venipuncture can cause a decline in the force magnitude (| f - - > needle |) , which can be misinterpreted still as a puncture event if the sensing system is checking only the sign of the exerted force 's time derivative ( d | f - - > needle |/ dt < 0 ) .
+to distinguish a venous puncture from retraction events , a threshold value ( p ) needs to be specified such that only a sufficiently sharp drop in force ( d | f - - > needle |/ dt < p ) will be reported as a venous puncture .
+identifying a proper threshold though requires careful tuning [ 24 ] and may differ depending on the local mechanistic properties of the inhomogeneous retinal tissue as well as the operator 's skill level .
+on the contrary , keeping track of both the force and position of the tool tip can give a more generalized and reliable prediction of the venous puncture without having to worry about the force derivative threshold .
+venous puncture is an event associated with a sharp drop in force while the needle is moving into the vein , which distinguishes it from a retraction event where the needle is moved away from the tissue .
+after the needle tip touches the vein wall , pushing it in will gradually deform the tissue and generate an increasing force at the needle tip .
+in contrast , retracting the needle backward will relax the tissue and therefore decrease the interaction force .
+therefore , as long as the vein is not pierced , the law of action - reaction requires that the time derivative of the sensed tool tip force ( df - - > needle / dt ) and the velocity of the tool tip ( df - - > needle / dt ) always oppose directions ; hence , the inner product of these two vectors is normally negative .
+upon piercing the vein , however , this rule is reversed as the force variation vector ( df - - > needle / dt ) instantly flips its orientation and points in the same direction as the velocity vector .
+therefore , the venous puncture can be detected by continually checking the sign of the inner product of the force variation and velocity vectors , which will spike up to some positive value at the instant of venous puncture ( df - - > needle / dt.df - - > needle / dt > 0 ) .
+since our microneedle is bent 45degrees relative to the tool shaft , the insertion will induce mostly transverse ( negligible axial ) forces at the tool tip .
+thus , although the force sensing properties of the microneedle are limited to only two dimensions ( fneedlex and fneedley ) , puncture of the vein can still be captured effectively by taking dfneedlez / dt = 0 .
+4. experiments the setup shown in figure 8 was designed to replicate the main challenges of rvc , and as a very consistent platform to enable extensive testing .
+due to its similarity in both scale and the composition of structure and morphology , cam is an accepted in vivo model to study the retina and its vasculature [ 22 ] .
+however , using cam , the number of trials for each test case remains limited , and it is hard to guarantee phantom consistency throughout the trials due to slight differences in the size of cannulated veins , and the anatomical variation between the eggs .
+to simulate the vein wall with consistent mechanical behavior , we created an artificial phantom with a thin membranous layer by stretching a vinyl layer ( analogous to the polydimethylsiloxane sheet used in [ 29 ]) onto an acrylic insert with laser cut slots .
+the channels ( 1 mm wide ) were cut much larger than the typical diameter of retinal veins to leave room for membrane deformation and unintentional drift of the operator 's hand without letting the needle tip contact the acrylic surface , and were made small enough to create support for the vinyl membrane 's surface tension .
+previous studies showed that the applied force while cannulating retinal veins can range anywhere from 5 mn to 35 mn depending on the angle of approach , the needle tip bevel , and the vein size [ 47 ] .
+the width of the acrylic insert in our phantom determines how stretched the vinyl membrane is , which affects the force required to pierce the membrane .
+the dimensions in the current setup produces a tension such that the piercing force varies within 5 - 15 mn. the phantom was placed inside a container , which was filled with balanced salt solution ( bss ) to emulate the aqueous environment inside the eye after vitrectomy .
+a white silicone port ( fabricated as outlined in [ 65 ]) was mounted above the phantom to simulate the sclera .
+to reach the phantom surface , the needle is first passed through the trocar on the silicone port .
+analogous to the movable eyeball while manipulating the tools during surgery , the silicone port is not a hard constraint but can be rotated and translated as shown in figure 8b .
+experiments were performed under an ophthalmic microscope ( opmi lumera , zeiss , oberkochen , germany ) , providing only the top view of the phantoms .
+for analysis of collected data , a side view of the operation side ( figure 8c,d ) was recorded using a digital microscope ( usb2 - micro - 200x , plugable technologies , redmond , wa , usa ) .
+two types of experiments were conducted .
+in the first experiment , the phantom was punctured several times at different locations , aiming to verify phantom 's puncture properties and test the developed puncture detection methods .
+the experiment was performed by two subjects with differing skill and experience : ( 1 ) a non - surgeon with five years of experience on the robotic system but with no prior cannulation experience , ( 2 ) an ophthalmology fellow with moderate cannulation experience and 2 h of training on the robotic system .
+to prevent significant performance degradation in time due to fatigue , tests were completed in three periods , each period involving a total of eight trials , with a 10 - min break between the periods .
+similar to the procedural flow in rvc , the task in experiments was to puncture the vinyl membrane by moving the microneedle almost entirely laterally ( in the direction the needle tip is pointing ) , and as slowly as possible without retracting the instrument before the puncture .
+after piercing the membrane - - as observed from the side view of the operation site monitored by the digital microscope - - the users were informed via auditory feedback , after which they tried to maintain the needle fixed for the following 45 s. since each puncture causes the membrane to lose its tension locally , every new trial was done at a sufficiently distant location from the previous puncture point .
+the second experiment aimed to quantify the effects of our system on operator performance during simulated cannulation trials using the same setup .
+the experiments were performed by three subjects with differing level of skill and experience : ( 1 ) a non - surgeon user with 5 years of experience on the robotic system but with no prior cannulation experience , ( 2 ) an ophthalmology fellow with moderate cannulation experience and 2 h of training on the robotic system , and ( 3 ) an expert vitreoretinal surgeon with 1 h of training on the robotic system .
+the task in each experiment was to approach the phantom submerged in the bss solution , and puncture the vinyl membrane by moving the microneedle almost entirely laterally , in the direction the needle tip is pointing , and hold the needle fixed for 45 s after the event of puncture .
+in the second experiment , two cases were explored by altering the operation mode of micron : ( 1 ) only tremor canceling mode ( tcm ) versus ( 2 ) with the automatic position holding mode ( phm ) .
+in either case , the force - and - position - based puncture detection method from section iii.b was used , and the operator was informed upon the puncture via auditory feedback .
+the needle trajectory after this instant was recorded for analysis .
+to prevent significant performance degradation in time due to fatigue , tests were completed in three periods , each period involving a total of eight trials ( four trials per case ) , with a 10 - min break between the periods .
+micron mode was altered between tcm and phm in random order .
+since each puncture on the phantom causes the membrane to lose its tension locally , every new trial was done at a sufficiently distant location from the previous puncture .
+after completing the trials , the exact timing of each puncture was identified from the video recorded by the side - view digital microscope .
+in the first experiment , the recorded forces and tool tip position were used to test the feasibility of the force - and - position - based puncture detection method , and compare its performance to the force - based technique .
+in the second experiment , performance assessment was based upon the recorded deviation from the point of puncture .
+analyses were done using one - way analysis of variance ( anova ) followed by a t - test assuming unequal variance ; statistical significance was defined as p < 0.05 .
+5. results 5.1 .
+experiment 1 : evaluation of the puncture detection methods figure 9 shows the measured forces during 10 consecutive punctures at different locations on the phantom for the first user .
+accordingly , the peak force ( min : 7.72 mn , max : 13.48 mn ) and rate of force drop at the instant of piercing the membrane ( min : - 35.21 mn / s , max : - 8.73 mn / s ) vary .
+the difference between punctures can be attributed to the slight discrepancies in the local surface tension of the membrane , variations in approach angle and insertion speed .
+in addition , there may be differences between the users .
+this makes it quite challenging to define a generalized threshold for detecting every puncture using the force - based method .
+the recorded force characteristics for each user and the performance of the developed puncture detection methods are summarized in table 2 .
+in addition , sample measurements from each user are presented in figure 10 .
+the exerted forces by the first user involve force drops ranging from - 119.10 mn / s to - 49.23 mn / s. on the other hand , the second user 's data reveals a wider range from - 141.20 mn / s to - 19.67 mn / s. using the force - based method from the previous section , if the first subject 's data is taken as the basis for puncture detection ( d | f - - > needle |/ dt = - 49.23 mn / s , the black dashed line in figure 10 ) , then the first user 's all punctures can be accurately identified with only 2 trials involving a faulty detection after the actual puncture ( false positives ) , which can be attributed to the involuntary movements and resulting force oscillations while trying to maintain the needle inside the membrane after the puncture .
+despite the good results for the first user , this threshold is not appropriate for the second user 's performance as one third of the punctures , which have softer force drops , will be missed .
+the trial shown in figure 10b exemplifies this issue , where the puncture leads to a force drop of d | f - - > needle |/ dt = - 45.51 mn / s , and the threshold indicated by the dashed black line ( d | f - - > needle |/ dt = - 49.23 mn / s ) does not intersect the force variation profile failing to detect the puncture .
+to remedy , if the threshold is set to a higher value ( d | f - - > needle |/ dt = - 19.67 mn / s ) , then all punctures for both users can be accurately sensed .
+though among the 24 trials , in three of the trials in the second user 's performance , due to a momentary retraction of the needle before the actual puncture , the force profile follows a fluctuating trend rather than a steady rise , causing a faster force drop than the threshold value .
+this causes the force - based method with the elevated threshold to misinterpret these instances as puncture events .
+the sample trial shown in figure 10b illustrates one such case , where the blue dashed threshold ( d | f - - > needle |/ dt = - 19.67 mn / s ) intersects the force profile before the actual puncture due to the momentary retraction of the needle as evident from the trajectory plots .
+the retraction causes a force drop of d | f - - > needle |/ dt = - 36.76 mn / s , which is under - 19.67 mn / s and hence reported as a puncture by the force - based method .
+in addition , the elevated threshold triggers several false positives due to involuntary tool motion and rapidly fluctuating forces after the puncture for both users ( in 83 % of the trials for the first user , and 63 % of the trials for the second user ) .
+in contrast to the force - based method , monitoring the inner product of force variation and tool tip velocity gives a much clearer image , and helps with distinguishing between needle retraction and puncture events .
+as shown in the sample data for each user in figure 10 , the puncture leads to sharp positive peak in the product .
+although the value of this peak can vary between users and trials , since the rest of variations in force and position lead to negative oscillations , the puncture , as the only prominent positive peak , remains very clear .
+as a result , using the force - and - position - based method , all punctures can be precisely detected for both users without any false positives before the actual puncture .
+this method performs satisfactorily as long as the filtered force and velocity information accurately describe the tool - tissue interactions .
+on the contrary , in the presence of rapid changes , the method can still lead to erroneous detection of punctures .
+after the actual puncture , while trying to compensate the user 's drift and maintain the needle fixed in place , the micromanipulator can run out of its workspace ( limited to 0.5 mm along each axis ) , which leaves no range to cancel user 's hand tremor .
+in this case , due to the tremulous tool motion and the complicated interactions while the tip is inside the membrane , the method will fail and report several faulty punctures .
+in terms of the faulty detections after the puncture , the force - based method with the lower threshold seems to have the best performance ( table 2 ) , though it has the risk of failing to detect the actual puncture - - only 67 % of the actual punctures were detected for the second user .
+the force - and - position - based method can identify all the actual punctures for both users , and meanwhile provides much less frequent false detection after the puncture ( 46 % and 50 % of trials for users 1 and 2 respectively ) in comparison to what the force - based method with the elevated threshold causes ( 83 % and 63 % of trials for users 1 and 2 , respectively ) .
+these false positives can presumably be avoided by tuning the parameters of the low - pass filters on the velocity and force signals .
+however , this is not preferable as it would also induce a delay in predicting the actual puncture , and since for practical purposes , identifying the initial puncture precisely in a timely manner is of utmost importance .
+without any false positives before the actual puncture and with a full detection rate of the actual puncture , the force - and - position based method has shown feasibility in predicting the instant of puncture quickly ( within 90 ms ) with less dependence on local mechanical properties of the phantom and the user 's performance .
+5.2 .
+experiment 2 : a multi - user system evaluation sample measurements from trials with tcm and with phm for the first subject are shown in figure 11 .
+in these trials , sensed forces gradually rise after the microneedle touches the membrane surface ( the simulated vein wall ) .
+forces are mostly along the y - axis ( all the measured x - axis forces remain under 5 mn ) since the insertion is performed by moving the tool along the needle axis ( y - axis ) ( figure 5b ) .
+in both trials , the sharp positive peak in the inner product of needle velocity and force variation vectors ( figure 11c ) shows the instant of puncture .
+during the 45 s period following puncture , there is a clear difference between tcm and phm trials in terms of the tool tip travel , which is visible in figure 11b .
+in tcm , all components of the position vector fluctuate , especially the z - component due to operator 's poor depth perception with the provided 2d microscope view .
+using phm , the tool motion after the puncture is significantly lowered .
+figure 11d presents three sample needle tip trajectories per operation mode for the first user , which shows a reduced deviation from the puncture point with phm .
+the characteristics observed at the instant of puncture during the 24 trials for each user are summarized in table 3 .
+accordingly , the puncture forces for all users lie mostly within the range that the phantom was developed for ( 5 - 15 mn ) .
+the mean value of the puncture force did not vary depending on the mode of operation ( tcm or phm ) , revealing no statistically significant difference ( p = 0.83 ) between the mechanical behavior of membranes used in either test case .
+furthermore , no statistically significant difference could be identified between the mean puncture forces of the three users ( p = 0.12 ) .
+the forces for the first user ( f = 10.46 +/ - 1.70 mn ) , with extensive training on both the robotic system and the phantom , show the lowest deviation throughout the trials .
+similar consistency is also observed in the surgeon 's ( user 3 ) performance ( f = 8.74 +/ - 1.70 mn ) .
+the rate of force drop associated with the event of puncture differs significantly among the users ( - 49.48 +/ - 15.75 mn / s for user 1 , - 67.47 +/ - 34.35 mn / s for user 2 , - 51.37 +/ - 16.06 mn / s for user 3 , and p = 0.019 ) .
+therefore , to detect puncture , the force - based method would require separate tuning for each user .
+using the force - and - position based method , the instant of puncture , which produced a clearly visible positive spike ( 8.75 x 103 - 7.21 x 105 mn.microm / s2 ) in the normally negative inner product of tool velocity and force variation , was detected precisely in all trials .
+to assess the ability to maintain cannulation in veins of different sizes , using the measured tool tip position throughout the entire hold period ( 45 s ) , we computed the time spent inside five zones of varying distance from the puncture point ( figure 11d ) .
+the size of each zone was chosen to represent a vein diameter , and was decided based upon the typical sizes of retinal vasculature ( o 100 - 500 microm ) .
+in rvc , since both the vasculature and the microneedle are elastic , going beyond the borders of these zones does not necessarily mean that the needle will get out of the vein ; instead , the needle will flex and the tissue will deform to some extent .
+the deviation from the puncture point , therefore , is a measure of the trauma that would have been induced on the vasculature in a clinical scenario .
+the results in figure 12 show that , compared with the tcm trials , using the phm enabled all the users to maintain the tip within each zone for a significantly longer period ( p < 0.05 ) .
+for instance , for the first user , who is the most experienced subject in using micron and the phantom , the average time that the tip was maintained within a 100 microm distance from the puncture point was measured to be only 5.41 s with tcm ; and in none of the 12 tcm trials could this duration exceed 40 s. in contrast , upon using phm , the mean time was raised to 13.27 s , with 2 trials reaching a hold time over 40 s. similar performance improvement with phm was observed in the 200 and 300 microm zones .
+for the 400 and 500 microm zones , in terms of the average time maintained inside , no statistically significant difference between tcm and phm could be identified for the first user ( p = 0.07 for 400 microm , p = 0.26 for 500 microm ) .
+however , even for the 500 microm zone , where the performance of tcm and phm is closest , the number of trials with successful " in - zone " hold time over 40 s was still 50 % greater in phm than tcm .
+the length of stay within each zone for all users with the tcm versus the phm are compared in figure 13 .
+in contrast to the first user , the limited training that both user 2 ( ophthalmology fellow ) and user 3 ( vitreoretinal surgeon ) received on the robotic system is a factor affecting their performance .
+despite that with tcm the third user could still maintain the needle inside the smallest zone ( 100 microm ) for the longest time ( 8.47 s on the average ) among others .
+as the zone size increases , the average time spent inside the zone grows for all users , following a different trend for each - - with almost a constant rate for user 1 , and with increasing rates for users 2 and 3 .
+nevertheless , the durations measured for all users , especially within the smaller zones , are far from being feasible to do prolonged infusions in rvc .
+when phm is used , the average time spent in each zone is significantly improved for all subjects ( p < 0.05 ) .
+this shows that the phm is helpful in keeping the needle close to the point of puncture for longer periods .
+for instance , user 3 could maintain the needle within 300 microm around the point of puncture for an average of only 14.43 s with the tcm , whereas with the aid of phm this period was almost doubled up to an average of 27.92 s. for the largest zone ( 500 microm ) , all subjects exhibited almost identical performance using the phm ; the surgeon 's average time inside the zone ( 44.19 s ) equaled almost the full test period .
+our second performance metric is based on the range of needle tip motion after the puncture - - which needs to be minimized to reduce trauma - - as a function of the hold time .
+for this , we analyzed the tip deviation during the first 15 , 30 and 45 s after the puncture for each user .
+the results in figure 14 show that the maximum and mean deviation from the puncture point both increase as the needle is held for longer periods for all users , regardless of whether tcm or phm was used .
+nevertheless , for all hold times , both the mean and the maximum distance from the puncture point are significantly lower with the phm for all users ( p < 0.05 ) .
+in case of a 15 - s hold time for instance , the mean deviation from the puncture point for the first subject was reduced by more than 65 % ( from 276.18 microm to 90.34 microm ) .
+for the 30 and 45 - s hold periods , the decay was similar .
+the mean deviation from the puncture point during a 45 - second hold exceeded 350 microm with the tcm , whereas the phm lowered it to below 200 microm for user 1 .
+similarly , for the second and third users , the mean drift after the puncture was reduced from 854.98 microm to 553.06 microm and from 812.06 microm to 412.32 microm , respectively .
+these results show that the automatic position holding is an essential feature that can potentially enable the cannulation of smaller veins , and provide an extended period of intravenous cannula stability , and thereby allow sustained periods of drug delivery at tolerable pressures .
+6. conclusions retinal vein cannulation is a demanding procedure , and its feasibility is currently limited by the challenges in identifying the moment of venous puncture , achieving cannulation and maintaining cannulation during drug delivery .
+in this study , we addressed these problems using a force - sensing microneedle combined with a handheld robotic micromanipulator , leading to two main contributions .
+first , to identify the instant of venous puncture , two distinct methods were developed and investigated .
+the first method based on the time derivative of only the tool tip forces required careful tuning of a threshold value that distinguishes the puncture from other force drops for each user .
+the second method which made use of both the tool tip force and position information together , and monitored the inner product of force variation and tool velocity vectors , revealed a more reliable prediction of the puncture without requiring the adjustment of any user - dependent parameters .
+the second contribution of this study is an automatic position holding feature which was developed to switch from the default tremor canceling operation mode of the micromanipulator to a full motion compensation .
+after identifying the venous puncture , the robotic system with this new feature helped in keeping the cannula fixed at the detected puncture position .
+using an artificial phantom , we conducted a multi - user study with subjects from three different levels of skill and experience evaluating the performance of the micron system with and without this new feature .
+results showed that the developed puncture detection algorithm combined with active positive holding can maintain the needle tip inside the vein for a much longer time especially for smaller veins , and that it significantly attenuates the tool motion in the vein following venipuncture , thereby reduces the trauma on the tissue during cannulation .
+the evaluation studies presented in this paper are based upon a fixed phantom position , and are limited to the very consistent mechanical behavior of an artificial phantom .
+our future work aims to extend this evaluation by involving more users , collecting subjective user feedback in addition to quantitative performance metrics , replacing the handheld micromanipulator with a newer version with larger workspace , and integrating the effect of variability in tissue properties using in vivo models , which may reveal more distinguishing results in the performance of novice and expert operators .
+in a real clinical scenario , after venous puncture , the cannula needs to be maintained fixed relative to the tissue .
+therefore , it is essential to account for potential movement of the tissue .
+force information from the sensitized cannula may be used to detect relative movements and stabilize the cannula relative to the vasculature .
+alternatively , optical coherence tomography guidance can be used after integrating an additional imaging fiber on the sensitized cannula to track and fixate tool - tissue distance after the venous puncture , which are some of the potential future directions .
+acknowledgments this work was supported in part by the national institutes of health under grants 2r01 eb000526 and 1r01eb023943 , in part by the johns hopkins university internal funds as research to prevent blindness , in part by the j. willard and alice s. marriott foundation , in part by the gale trust , in part by h. ehlers , and in part by b. wilbur , and raj c. shaw , and ron stiff .
+author contributions b.g. , i.i. and r.h.t. developed the system , b.g. conceived and designed the experiments ; b.g. , j.c. and p.g. performed the experiments ; b.g. analyzed the data and wrote the paper .
+conflicts of interest the authors declare no conflict of interest .
+the founding sponsors had no role in the design of the study ; in the collection , analyses , or interpretation of data ; in the writing of the manuscript , and in the decision to publish the results .
+references 1 .
+rogers s. mcintosh r.l. cheung n. lim l. wang j.j. mitchell p. kowalski j.w. nguyen h. wong t.y. the prevalence of retinal vein occlusion : pooled data from population studies from the united states , europe , asia , and australia ophthalmology 2010 117 313 319 10.1016 / j.ophtha.2009.07.017 20022117 2 .
+klein r. moss s.e. meuer s.m. klein b.e.k. the 15 - year cumulative incidence of retinal vein occlusion : the beaver dam eye study arch. ophthalmol .
+2008 126 513 518 10.1001 / archopht.126.4.513 18413521 3 .
+the central vein occlusion study group natural history and clinical management of central retinal vein occlusion arch. ophthalmol .
+1997 115 486 491 9109757 4 .
+wong t.y. scott i.u. retinal vein occlusion n. engl. j. med. 2010 363 2135 2144 10.1056 / nejmcp1003934 21105795 5 .
+hayreh s.s. retinal vein occlusion indian j. ophthalmol .
+1994 42 109 132 7829175 6 .
+inagaki k. ohkoshi k. ohde s. deshpande g.a. ebihara n. murakami a. subthreshold micropulse photocoagulation for persistent macular edema secondary to branch retinal vein occlusion including best - corrected visual acuity greater than 20 / 40 j. ophthalmol .
+2014 2014 10.1155 / 2014 / 251257 25276413 7 .
+glacet - bernard a. atassi m. fardeau c. romanet j.p. tonini m. contrath j. denis p. mauget - faysse m. coscas g. soubrane g. hemodilution therapy using automated erythrocytapheresis in central retinal vein occlusion : results of a multicenter randomized controlled study graefe arch. clin. exp. ophthalmol .
+2011 249 505 512 10.1007 / s00417 - 010 - 1532 - 5 20953877 8 .
+garcia - arumi j. boixadera a. martinez - castillo v. montolio m. verdugo a. corcostegui b. radial optic neurotomy in central retinal vein occlusion : comparison of outcome in younger vs older patients am. j. ophthalmol .
+2007 143 134 140 10.1016 / j.ajo.2006.08.034 17113557 9 .
+kumagai k. furukawa m. ogino n. uemura a. larson e. long - term outcomes of vitrectomy with or without arteriovenous sheathotomy in branch retinal vein occlusion retina 2007 27 49 54 10.1097 / 01.iae.0000221996.77421.69 17218915 10 .
+moisseiev e. goldstein m. waisbourd m. barak a. lowenstein a. long - term evaluation of patients treated with dexamethaxone intravitreal implant for macular edema due to retinal vein occlusion eye 2013 27 65 71 10.1038 / eye.2012.226 23154502 11 .
+weiss j.n. bynoe l.a. injection of tissue plasminogen activator into a branch retinal vein in eyes with central vein occlusion ophthalmology 2001 108 2249 2257 10.1016 / s0161 - 6420 ( 01 ) 00875 - 2 11733266 12 .
+de smet m.d. stassen j.m. meenink t.c.m. janssens t. vanheukelom v. naus g.j. beelen m.j. jonckx b. release of experimental retinal vein occlusions by direct intraluminal injection of ocriplasmin br. j. ophthalmol .
+2016 100 1742 1746 10.1136 / bjophthalmol - 2016 - 309190 27688592 13 .
+hamid s. mirza s.a. shokh i. branch retinal vein occlusion j. ayub. med. coll .
+abbottabad 2008 20 128 132 19385476 14 .
+tsilimbaris m.k. lit e.s. d'amico d.j. retinal microvascular surgery : a feasibility study investig. ophthalmol. vis. sci. 2004 45 1963 1968 10.1167 / iovs.03 - 0874 15161864 15 .
+weiss j.n. apparatus and method for cannulating retinal blood vessels u.s .
+patent6,402,734 b1 11 6 2002 16 .
+glucksberg m.r. dunn r. giebs c.p. in vivo micropuncture of retinal vessels graefes arch. clin. exp. ophthalmol .
+1993 231 405 407 10.1007 / bf00919649 8406066 17 .
+suzuki y. matsuhashi h. nakazawa m. in vivo retinal vascular cannulation in rabbits graefes arch. clin. exp. ophthalmol .
+2003 241 585 588 10.1007 / s00417 - 003 - 0690 - 0 12819977 18 .
+willekens k. gijbels a. schoevaerdts l. esteveny l. janssens t. jonckx b. feyen j.h.m. meers c. reynaerts d. vander poorten e. robot - assisted retinal vein cannulation in an in vivo porcine retinal vein occlusion model acta ophthalmol .
+2017 10.1111 / aos.13358 28084059 19 .
+kadonosono k. arakawa a. yamane s. uchio e. yanagi y. an experimental study of retinal endovascular surgery with a fabricated needle invest. opthalmol. vis. sci. 2011 52 5790 5793 10.1167 / iovs.11 - 7327 21659311 20 .
+asami t. kaneko h. miyake k. ota i. miyake g. kato s. yasuda s. iwase t. ito y. terasaki h. an endovascular cannulation needle with an internal wire for the fragmentation of thrombi in retinal vein occlusion transl. vis. sci. technol .
+2016 5 9 10.1167 / tvst.5.5.9 27730009 21 .
+kadonosono k. yamane s. arakawa a. inoue m. yamakawa t. uchio e. yanagi y. amano s. endovascular cannulation with a microneedle for central retinal vein occlusion jama ophthalmol .
+2013 131 783 786 10.1001 / jamaophthalmol.2013.2585 23764703 22 .
+leng t. miller j.m. bilbao k.v. palanker d.v. huie p. blumenkranz m.s. the chick chorioallantoic membrane as a model tissue for surgical retinal research and simulation retina 2004 24 427 434 10.1097 / 00006982 - 200406000 - 00014 15187666 23 .
+wei w. popplewell c. chang s. fine h.f. simaan n. enabling technology for microvascular stenting in ophthalmic surgery j. med. devices 2010 4 014503 10.1115 / 1.4001193 24 .
+gijbels a. poorten e.b.v. stalmans p. reynaerts d. development and experimental validation of a force sensing needle for robotically assisted retinal vein cannulations proceedings of the 2015 ieee international conference on robotics and automation ( icra ) seattle , wa , usa26 - 30 may 2015 2270 2276 25 .
+gonenc b. gehlbach p. handa j. taylor r.h. iordachita i. force - sensing microneedle for assisted retinal vein cannulation proceedings of the ieee sensorsvalencia , spain2 - 5 november 2014 698 701 26 .
+singh s.p.n. riviere c.n. physiological tremor amplitude during retinal microsurgery proceedings of the ieee 28th annual northeast bioengineering conference ( ieee cat .
+no.02ch37342 ) philadelphia , pa , usa20 - 21 april 2002 171 172 27 .
+channa r. iordachita i. handa j.t. robotic vitreoretinal surgery retina 2017 10.1097 / iae.0000000000001398 27893625 28 .
+jensen p.s. grace k.w. attariwala r. colgate j.e. glucksberg m.r. toward robot - assisted vascular in the retina graefes arch. clin. exp. ophthalmol .
+1997 235 696 701 10.1007 / bf01880668 9407227 29 .
+tanaka s. harada k. ida y. tomita k. kato i. arai f. ueta t. noda y. sugita n. mitsuishi m. quantitative assessment of manual and robotic microcannulation for eye surgery using new eye model int. j. med. robot. comput. assist. surg .
+2014 11 210 217 10.1002 / rcs.1586 24737776 30 .
+meenink t. naus g. de smet m. beelen m. steinbuch m. robot assistance for micrometer precision in vitreoretinal surgery invest. ophthalmol. vis. sci. 2013 54 5808 31 .
+nasseri m.a. gschirr p. eder m. nair s. kobuch k. maier m. zapp d. lohmann c. knoll a. virtual fixture control of a hybrid parallel - serial robot for assisting ophthalmic surgery : an experimental study proceedings of the 5th ieee ras / embs international conference on biomedical robotics and biomechatronicssao paulo , brazil12 - 15 august 2014 732 738 32 .
+zhou m. roodaki h. eslami a. chen g. huang k. maier m. lohmann c.p. knoll a. nasseri m.a. needle segmentation in volumetric optical coherence tomography images for ophthalmic microsurgery appl. sci. 2017 7 748 10.3390 / app7080748 33 .
+fleming i. balicki m. koo j. iordachita i. mitchell b. handa j. hager g. taylor r. cooperative robot assistant for retinal microsurgery med. image comput. comput. assist. interv .
+5242 2008 543 550 34 .
+gijbels a. wouters n. stalmans p. van brussel h. reynaerts d. poorten e.v. design and realisation of a novel robotic manipulator for retinal surgery proceedings of the 2013 ieee / rsj international conference on intelligent robots and systemstokyo , japan3 - 7 november 2013 3598 3603 35 .
+singh a.v. sitti m. targeted drug delivery and imaging using mobile milli / microrobots : a promising future towards theranostic pharmaceutical design curr. pharm. des .
+2016 22 1418 1428 10.2174 / 1381612822666151210124326 26654436 36 .
+singh a.v. sitti m. patterned and specific attachment of bacteria on biohybrid bacteria - driven microswimmers adv. healthc. mater .
+2016 5 2325 2331 10.1002 / adhm.201600155 27240122 37 .
+becker b.c. yang s. maclachlan r.a. riviere c.n. towards vision - based control of a handheld micromanipulator for retinal cannulation in an eyeball phantom proceedings of the 4th ieee ras & embs international conference on biomedical robotics and biomechatronicsrome , italy24 - 27 june 2012 44 49 38 .
+latt w.t. tan u.x. shee c.y. ang w.t. a compact handheld active physiological tremor compensation instrument proceedings of the ieee / asme international conference on advanced intelligent mechatronicssingapore14 - 17 july 2009 711 716 39 .
+payne c.j. kwok k. yang g. an ungrounded hand - held surgical device incorporating active constraints with force - feedback proceedings of the ieee international conference on intelligent robots and systems ( iros'13 ) tokyo , japan3 - 7 november 2013 2559 2565 40 .
+chang d. gu g.m. kim j. design of a novel tremor suppression device using a linear delta manipulator for micromanipulation proceedings of the ieee international conference on intelligent robots and systems ( iros'13 ) tokyo , japan3 - 7 november 2013 413 418 41 .
+saxena a. patel r.v. an active handheld device for compensation of physiological tremor using an ionic polymer metallic composite actuator proceedings of the ieee international conference on intelligent robots and systems ( iros'13 ) tokyo , japan3 - 7 november 2013 4275 4280 42 .
+kyeong s. chang d. kim y. gu g.m. lee s. jeong s. kim j. a hand - held micro surgical device for contact force regulation against involuntary movements proceedings of the 2015 37th annual international conference of the ieee engineering in medicine and biology society ( embc ) milan , italy25 - 29 august 2015 869 872 43 .
+cheon g.w. lee p. gonenc b. gehlbach p.l. kang j.u. active depth - guiding handheld micro - forceps for membranectomy based on cp - ssoct proceedings of the optical fibers and sensors for medical diagnostics and treatment applications xvisan francisco , ca , usa13 - 18 february 2016 volume 9702 10.1117 / 12.2212715 44 .
+world first for robot eye operation available online : http :// www.ox.ac.uk / news / 2016 - 09 - 12 - world - first - robot - eye - operation ( accessed on 22 september 2017 ) 45 .
+world first : surgical robot performs precision - injection in patient with retinal vein occlusion available online : https :// www.kuleuven.be / english / news / 2017 / surgical - eye - robot - performs - precision - injection - in - patient - with - retinal - vein - occlusion ( accessed on 22 september 2017 ) 46 .
+saito h. togawa t. detection of needle puncture to blood vessel using puncture force measurement med. biol. eng. comput .
+2005 43 240 244 10.1007 / bf02345961 15865134 47 .
+ergeneman o. pokki j. pocepcova v. hall h. abbott j.j. nelson b.j. characterization of puncture forces for retinal vein cannulation j. med. dev .
+2011 5 044504 10.1115 / 1.4005318 48 .
+menciassi a. eisinberg a. scalari g. anticoli c. carrozza m. dario p. force feedback - based microinstrument for measuring tissue properties and pulse in microsurgery proceedings of the ieee international conference on robotics and automationseoul , korea21 - 26 may 2001 49 .
+zhang x. silicon microsurgery - force sensor based on diffractive optical mems encoders sens. rev .
+2004 24 37 41 10.1108 / 02602280410515806 50 .
+peirs j. clijnen j. reynaerts d. van brussel h. herijgers p. corteville b. boone s. a micro optical force sensor for force feedback during minimally invasive robotic surgery sens .
+actuators a phys .
+2004 115 447 455 10.1016 / j.sna.2004.04.057 51 .
+puangmali p. liu h. seneviratne l.d. dasgupta p. althoefer k. miniature 3 - axis distal force sensor for minimally invasive surgical palpation ieee / asme trans. mechatron .
+2012 17 646 656 10.1109 / tmech.2011.2116033 52 .
+seibold u. kubler b. hirzinger g. prototype of instrument for minimally invasive surgery with 6 - axis force sensing capability proceedings of the ieee international conference on robotics and automationbarcelona , spain18 - 22 april 2005 53 .
+bell b. stankowski s. moser b. oliva v. stieger c. nolte l .
+- p. caversaccio m. weber s. integrating optical fiber force sensors into microforceps for orl microsurgery proceedings of the ieee engineering in medicine and biology societybuenos aires , argentina31 august - 4 september 2010 1848 1851 54 .
+gu g.m. shin y.k. son j. kim j. design and characterization of a photo - sensor based force measurement unit ( fmu ) sens .
+actuators a phys .
+2012 182 49 56 10.1016 / j.sna.2012.05.018 55 .
+zareinia k. maddahi y. gan l.s. ghasemloonia a. lama s. sugiyama t. yang f.w. sutherland g.r. a force - sensing bipolar forceps to quantify tool - tissue interaction forces in microsurgery ieee / asme trans. mechatron .
+2016 21 2365 2377 10.1109 / tmech.2016.2563384 56 .
+berkelman p.j. whitcomb l.l. taylor r.h. jensen p. a miniature microsurgical instrument tip force sensor for enhanced force feedback during robot - assisted manipulation ieee trans. robot. autom .
+2003 19 917 921 10.1109 / tra.2003.817526 57 .
+jagtap a.s. riviere c.n. applied force during vitreoretinal microsurgery with handheld instruments proceedings of the 26th annual international conference of the ieee engineering in medicine and biology societysan francisco , ca , usa1 - 5 september 2004 2771 2773 58 .
+iordachita i. sun z. balicki m. kang j. phee s. handa j. gehlbach p. taylor r. a sub - millimetric , 0.25 mn resolution fully integrated fiber - optic force - sensing tool for retinal microsurgery int. j. comput. assist. radiol. surg .
+2009 4 383 390 10.1007 / s11548 - 009 - 0301 - 6 20033585 59 .
+he x. balicki m.a. kang j.u. gehlbach p.l. handa j.t. taylor r.h. iordachita i.i. force sensing micro - forceps with integrated fiber bragg grating for vitreoretinal surgery proceedings of the optical fibers and sensors for medical diagnostics and treatment applications xiisan francisco , ca , usa1 - 7 february 2012 volume 8218 60 .
+kuru i. gonenc b. balicki m. handa j. gehlbach p. taylor r.h. iordachita i. force sensing micro - forceps for robot assisted retinal surgery proceedings of the international conference of the ieee embs ( embc ' 12 ) san diego , ca , usa28 august - 1 september 2012 1401 1404 61 .
+gonenc b. feldman e. gehlbach p. handa j. taylor r.h. iordachita i. towards robot - assisted vitreoretinal surgery : force - sensing micro - forceps integrated with a handheld micromanipulator proceedings of the ieee international conference on robotics and automation ( icra'14 ) hong kong , china31 may - 7 june 2014 1399 1404 62 .
+gonenc b. tran n. riviere c.n. gehlbach p. taylor r.h. iordachita i. force - based puncture detection and active position holding for assisted retinal vein cannulation proceedings of the international conference on multisensor fusion and integration for intelligent systems ( mfi'15 ) san diego , ca , usa14 - 16 september 2015 322 327 63 .
+romano m.r. romano v. mauro a. angi m. costagliola c. ambrosone l. the effect of temperature changes in vitreoretinal surgery transl. vis. sci. technol .
+2016 5 10.1167 / tvst.5.1.4 26929884 64 .
+gonenc b. gehlbach p. taylor r.h. iordachita i. effects of micro - vibratory modulation during robot - assisted membrane peeling proceedings of the ieee / rsj international conference on intelligent robots and systems ( iros'15 ) hamburg , germany28 september - 2 october 2015 3811 3816 65 .
+gupta a. gonenc b. balicki m. olds k. handa j. gehlbach p. taylor r.h. iordachita i. human eye phantom for developing computer and robot - assisted epiretinal membrane peeling proceedings of the international conference of the ieee embs ( embc'14 ) chicago , il , usa26 - 30 august 2014 6864 6867 figure 1 ( a ) conceptual design of our motorized force - sensing microneedle for retinal vein cannulation ; ( b ) the tool has a thin tip ( o 70 microm ) and a modular design that allows for easy integration with robotic devices , such as the micron handheld micromanipulator .
+figure 2 ( a ) components of the design : force sensitive motorized unit , and the disposable prebent needle ( b ) assembled prototype ( c ) tool actuation : the microneedle is exposed by retracting the guide tube as much as 2.4 mm. figure 3 motorized actuation of the tool for retracting the guide tube back and exposing the prebent microneedle .
+the inner tube of the tool shaft delivers the injection fluid , while 3 fbg sensors on the outer tube sense transverse forces on the microneedle .
+( a ) the inner tube of the tool shaft delivers the injection fluid , while ( b ) 3 fbg sensors on the outer tube sense transverse forces on the microneedle .
+figure 4 ( a ) setup for calibration experiments : the force - sensing micro - needle was held horizontal and mounted on a rotary stage to modulate its axial orientation ( theta ) ; ( b ) the microneedle tip was inserted into a soft plastic piece carrying a wire hook .
+forces were applied at the needle tip by hanging washers of known weight on the hook .
+figure 5 ( a ) calibration results : linear response for all fbgs when the needle is loaded along x and y axes ; ( b ) the force - sensing coordinates relative to the target vein and the histogram of residual errors in each direction ; ( c ) computed forces vs. the actual forces along the x and y axes [ 62 ] .
+figure 6 effect of actuation on the sensed forces during three cycles of cover / expose cycles .
+although the microneedle is not contacting any tissue , covering and exposing the microneedle shifts the force readings by about 2 mn in fx and 6 mn in fy with a consistent behavior .
+in practice , these undesired components due to actuation can be eliminated from the force readings by automatically rebiasing the fbg readouts once the motor position reaches the fully exposed position ( 2400 microm ) .
+figure 7 sample integration of the motorized force - sensing microneedle with a handheld micromanipulator , micron .
+( a ) the controller board for the tool 's motor was located on micron 's handle inside the two hand pieces ; ( b ) a force - sensing resistor was mounted on one of the hand pieces , under the operator 's thumb , to control the microneedle 's actuation by squeezing or releasing the hand piece .
+the injection line passes through the center of the instrument and is connected to a syringe via polyethylene tubing to deliver fluid to the microneedle .
+figure 8 experimental setup for cannulation experiments using an artificial phantom .
+( a ) stretched vinyl membranes simulating the vein walls were punctured using the force - sensing micro - needle under an ophthalmic microscope ; ( b ) an acrylic insert with channels ( 1 mm wide ) was used to tension the vinyl layer .
+the phantom was placed inside a container filled with balanced salt solution ( bss ) .
+to approach the channels on the phantom , the needle was inserted through the trocar on the movable ( as shown with red arrows ) sclerotomy port .
+a digital microscope was used to monitor the operational area from the side and assess the moment of puncture : ( c ) microneedle above the vinyl layer before puncture ; ( d ) microneedle inside the channel after puncturing through the vinyl membrane .
+figure 9 measured forces during 20 consecutive punctures on the stretched vinyl membrane phantom .
+grey zones correspond to the needle insertion phase while the white regions are for the retraction of the needle after puncture .
+during the insertion phase , most of the forces are along the needle axis ( y - axis of the tool ) , with minor side load ( fx < 5 mn ) .
+the peak force before puncture ranges from 7.72 mn to 13.48 mn as the stretch of the phantom was adjusted targeting a range of 8 - 15 mn. the rate of force drop at the instant of piercing the membrane ( marked with red dots in the lower plot ) vary with a minimum of - 35.21 mn / s and maximum of - 8.73 mn / s for this set of trials .
+figure 10 measurements from a sample trial for each user : needle tip force ( fx in grey , fy in red ) , needle tip position ( x in grey , y in red , z in black ) , the variation of force ( d | f - - > needle |/ dt ) and the inner product of tool velocity and variation of force ( df - - > needle / dt.df - - > needle / dt ) .
+the timing of the actual puncture in each trial is marked with a green dashed line .
+( a ) data for the first user : the elevated threshold ( the dashed blue line at d | f - - > needle |/ dt = - 19.67 mn / s ) may intersect the time derivative of force multiple times , and may trigger faulty detections after the actual puncture .
+( b ) data for the second user : the low threshold ( the dashed black line at d | f - - > needle |/ dt = - 49.63 mn / s ) fails to intersect the force variation curve while the elevated threshold intersects it twice , leading to a faulty detection before the actual puncture using the force - based method .
+in both trials , the inner product of the force variation and tool velocity clearly displays the instant of actual puncture with a prominent positive peak .
+the force - and - position - based method , relying on the inner product value , is able to distinguish the event of puncture .
+figure 11 typical measurements taken during trials of the first user using the tremor canceling ( blue ) and automatic position holding ( red ) features of the system .
+( a ) forces on the needle : mostly along the y - axis with a gradual rise during insertion and a sharp drop at the instant of puncture ; ( b ) position of the needle remains fixed with the position holding mode in contrast to the fluctuations with only tremor canceling ; ( c ) the event of puncture : a positive peak in the inner product of needle velocity and force variation vectors ; ( d ) recorded needle tip trajectories for three representative trials of each mode .
+position holding mode significantly reduced tool tip deviation from the puncture point [ 62 ] .
+figure 12 the total time that the needle tip was maintained inside various sizes of zones around the puncture point using the tcm ( in blue ) versus the phm ( in orange ) features .
+the solid bars show the mean , and the error bars represent the maximum values .
+the active position holding helps in maintaining the needle tip inside the vein for a significantly longer time , especially for veins smaller than 300 microm [ 62 ] .
+figure 13 the performance of each user in maintaining the needle around the point of puncture ( zone size = distance from the puncture point ) .
+user 1 is a non - surgeon with extensive experience on the robotic system .
+users 2 and 3 are , respectively , an ophthalmology fellow and an expert vitreoretinal surgeon with some training on the robotic system .
+the solid bars show the mean , and the error bars represent the maximum and minimum values .
+the automatic position holding mode aids in maintaining the needle close to the puncture point for a longer period for all users .
+figure 14 deviation from the puncture point vs. the hold time for each user .
+the solid bars show the mean distance from the puncture point , and the error bars represent the maximum values .
+a longer hold time causes the needle to move away from the puncture point more .
+the automatic position holding mode significantly helps in keeping the needle tip proximal to the puncture point .
+sensors - 17 - 02195 - t001 _ table 1 table 1 variation of tool tip force and position before and at the instant of puncture .
+before puncture at the instant of puncture d | f - - > needle | dt > 0 d | f - - > needle | dt < 0 d | f - - > needle | dt < p df - - > needledt.df - - > needledt < 0 df - - > needledt.df - - > needledt < 0 df - - > needledt.df - - > needledt > 0 sensors - 17 - 02195 - t002 _ table 2 table 2 puncture detection rates with the force - based versus the force - and - position - based methods for two users with differing skill and experience ( n = 24 trials per user ) .
+puncture criterion force - based method force - and - position - based method d | f - - > needle | dt < - 49.23 mn / s d | f - - > needle | dt < - 19.67 mn / s df - - > needledt.dp - - > needledt > 0 detected the actual puncture false detection before puncture false detection after puncture detected the actual puncture false detection before puncture false detection after puncture detected the actual puncture false detection before puncture false detection after puncture user 1 100 % 0 % 8 % 100 % 0 % 83 % 100 % 0 % 46 % user 2 67 % 0 % 17 % 88 % 13 % 63 % 100 % 0 % 50 % sensors - 17 - 02195 - t003 _ table 3 table 3 force characteristics associated with the instant of puncture for three different users ( n = 24 trials / user ) .
+| f - - > needle | d | f - - > needle | dt [ mn / s ] df - - > needledt.dp - - > needledt [ mn.microm / s2 ] mean std. min. max .
+mean std. min. max .
+mean std. min. max .
+user 1 10.46 1.70 7.68 12.09 - 49.48 15.75 - 78.31 - 26.14 7.08 x 104 4.18 x 104 1.53 x 104 1.34 x 105 user 2 11.66 6.90 4.55 22.45 - 67.47 34.35 - 141.20 - 19.67 2.07 x 105 1.61x 105 8.75 x 103 7.21 x 105 user 3 8.74 1.70 6.51 13.02 - 51.37 16.06 - 89.21 - 29.83 8.17 x 104 4.53 x 104 2.62 x 104 1.69 x 105

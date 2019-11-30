@@ -1,0 +1,387 @@
+plos one plos one plos plosone plos one 1932 - 6203 public library of science san francisco , ca usa 27861560 5115803 pone - d - 16 - 32260 10.1371 / journal.pone.0166721 research articlebiology and life sciencesevolutionary biologypopulation geneticshaplotypesbiology and life sciencesgeneticspopulation geneticshaplotypesbiology and life sciencespopulation biologypopulation geneticshaplotypesbiology and life sciencesmolecular biologymolecular biology techniquesdna constructiondna library constructiongenomic library constructionresearch and analysis methodsmolecular biology techniquesdna constructiondna library constructiongenomic library constructionbiology and life sciencescomputational biologygenome analysissequence assembly toolsbiology and life sciencesgeneticsgenomicsgenome analysissequence assembly toolsbiology and life sciencesdevelopmental biologygenomic imprintingbiology and life sciencesgeneticsepigeneticsgenomic imprintingbiology and life sciencesmolecular biologymolecular biology techniquessequencing techniquesgenome sequencingresearch and analysis methodsmolecular biology techniquessequencing techniquesgenome sequencingbiology and life sciencesmolecular biologymolecular biology techniquesgene mappingchromosome mappingresearch and analysis methodsmolecular biology techniquesgene mappingchromosome mappingbiology and life sciencescomputational biologygenome complexitybiology and life sciencesgeneticsgenomicsgenome complexitybiology and life sciencesmolecular biologymolecular biology techniquessequencing techniquessequence analysissequence alignmentresearch and analysis methodsmolecular biology techniquessequencing techniquessequence analysissequence alignment a genetic algorithm for diploid genome reconstruction using paired - end sequencing diploid genome reconstruction ting chuan - kang 1 lin choun - sea 2 chan ming - tsai 3 chen jian - wei 4 chuang sheng - yu 1 huang yao - ting 1 * 1 department of computer science and information engineering , national chung cheng university , chiayi , taiwan 2 agricultural biotechnology research center , academia sinica , taipei , taiwan 3 biotechnology center in southern taiwan , academia sinica , tainan , taiwan 4 institute of biomedical sciences , national chung hsing university , taichung , taiwan xu peng editor xiamen university , china competing interests : the authors have declared that no competing interests exist .
+conceptualization : yth ckt .
+methodology : yth ckt syc .
+resources : csl mtc jwc .
+software : syc yth .
+writing - original draft : syc yth .
+writing - review & editing : yth ckt .
+* e - mail : ythuang @ cs.ccu.edu.tw 2016 18 11 2016 11 11 e0166721 26 8 2016 2 11 2016 ( c ) 2016 ting et al 2016 ting et althis is an open access article distributed under the terms of the creative commons attribution license , which permits unrestricted use , distribution , and reproduction in any medium , provided the original author and source are credited .
+the genome of many species in the biosphere is a diploid consisting of paternal and maternal haplotypes .
+the differences between these two haplotypes range from single nucleotide polymorphisms ( snps ) to large - scale structural variations ( svs ) .
+existing genome assemblers for next - generation sequencing platforms attempt to reconstruct one consensus sequence , which is a mosaic of two parental haplotypes .
+reconstructing paternal and maternal haplotypes is an important task in linkage analysis and association studies .
+this study designs and implemented hapsvassembler on the basis of genetic algorithm ( ga ) and paired - end sequencing .
+the proposed method builds a consensus sequence , identifies various types of heterozygous variants , and reconstructs the paternal and maternal haplotypes by solving an optimization problem with a ga algorithm .
+experimental results indicate that the hapsvassembler has high accuracy and contiguity under various sequencing coverage , error rates , and insert sizes .
+the program is tested on pilot sequencing of a highly heterozygous genome , and 12,781 heterozygous snps and 602 hemizygous svs are identified .
+we observe that , although the number of svs is much less than that of snps , the genomic regions occupied by svs are much larger , implying the heterozygosity computed using snps or k - mer spectrum may be under - estimated .
+yth was supported in part by the ministry of science and technology ( most ) with grant numbers 103 - 2923 - e - 194 - 001 - my3 and 104 - 2221 - e - 194 - 048 - my2.data availabilityall relevant data are within the paper and its supporting information files .
+data availability all relevant data are within the paper and its supporting information files .
+introduction the release of next - generation sequencing ( ngs ) platforms , including 454 life sciences , illumina genome analyzer , and applied biosystems solid , have had a significant effect on many aspects of genomic research [ 1 , 2 ] .
+compared with traditional capillary - based sanger sequencing , these ngs technologies are able to sequence tens of millions of reads at an affordable cost [ 3 , 4 ] .
+using these platforms , researchers have successfully assembled a number of genomes from microbial to mammalian scale in recent years .
+for example , the woodland strawberry genome was sequenced at a 39 - fold coverage and over 95 % of the genome was assembled using three ngs platforms [ 5 ] .
+the panda genome was the first mammalian genome sequenced and assembled using only the illumina platform [ 6 ] .
+to understand the evolution of complex animal lives , the genome 10k project aims to sequence the genomes of 10,000 vertebrates [ 7 ] .
+the objective of most genome sequencing projects aims to reconstruct a reference sequence from massive amount of short reads .
+most genome assemblers adopt variations of the de bruijn graph approach , which models the assembly problem as a search for an eulerian path in the graph [ 8 - 10 ] .
+however , the performance of these short - read assemblers often deteriorates because of sequencing errors , repeats , and coverage variance [ 11 ] .
+to overcome the difficulty of assembling repeated regions , many researchers adopt paired - end sequencing to sequence both ends of larger read fragments ( termed paired - end reads ) .
+these paired - end reads are used to further bridge assembled contigs into larger units called scaffolds [ 12 , 13 ] .
+finally , a second - round assembly can close the gaps within the scaffold [ 8 ] .
+in reality , the genome of most species in the biosphere is a diploid consisting of maternal and paternal haplotypes inherited from the parents .
+the differences between these two haplotypes range from small single - nucleotide polymorphisms ( snps ) , small indels , to large - scale structural variations ( svs ) , including insertion , deletion , and inversion [ 14 ] .
+however , existing genome assemblers only attempt to reconstruct one consensus sequence , which is a mosaic of two parental haplotypes .
+reconstructing paternal and maternal haplotypes is important for linkage analysis , association studies , and genomic imprinting [ 15 ] .
+many computational approaches have been proposed for inferring the haplotypes via analysis of population linkage structure ( called phasing ) .
+but these methods assumes a reference genome is available and sufficient genomes are sequenced , while most de novo sequencing projects only sequence one genome .
+this paper focuses on haplotype reconstruction in de novo sequencing when only one genome is deeply sequenced .
+existing methods can be classified into three categories .
+first , a number of methods can identify heterozygous snps / svs ( differed between parental haplotypes ) using coverage analysis after mapping reads onto a reference genome ( e.g. , samtools ) .
+but the allele linkage of variations along each parental haplotype is not resolved .
+the second category of methods directly reconstruct the paternal / maternal sequences from short reads [ 16 ] , which simultaneously solve the genome assembly and haplotype reconstruction problems .
+however , this strategy reduces the flexibility for taking advantages of novel sequencing technologies ( e.g. , pacbio sequencing ) and of algorithmic improvement ( e.g. , paired de bruijn graph ) .
+the third type of methods independently solve the genome assembly and haplotype reconstruction problems , providing the flexibility for using newly - developed assemblers .
+after a consensus ( mosaic ) sequence is assembled , the parental haplotypes are reconstructed by analysis of allele linkage across heterozygous loci [ 17 , 18 ] .
+this paper belongs to the third category .
+the craig ventor genome was the first diploid genome assembled using this way [ 17 ] .
+the parental haplotypes were assembled by joining overlapping ( single - end ) reads that span two or more snps .
+but it does not consider variations other than snps .
+nowadays , paired - end sequencing is widely used in most sequencing projects and contains rich information for identifying various types of genetic variations ( e.g. , identification of svs ) [ 2 , 19 , 20 ] , which can serve as a better resource for reconstructing haplotypes .
+this study presents the design and implementation of a novel method called the hapsvassembler for the de novo assembly of paternal and maternal haplotypes based on paired - end sequencing .
+the proposed method first builds a consensus sequence , identifies the heterozygous loci of snps / svs , and reconstructs the paternal and maternal haplotypes by solving an optimization problem with a genetic algorithm ( ga ) .
+the experimental results indicate that this method has high accuracy and contiguity under various sequencing coverage rates , error rates , and insert sizes .
+the program is tested on a pilot sequencing of a highly heterozygous genome and resontructs paternal and maternal sequences composed of heterozygous snps and hemizygous svs .
+method fig 1 shows a flowchart of the hapsvassembler and the detailed software components can be found in s1 fig. given a set of paired - end reads , the program first constructs a set of consensus contigs by integrating de bruijn graph and overlap graph assemblers for assembly in low - and high - coverage regions .
+in the second stage , the program aligns all reads to the assembled contigs and identifies heterozygous loci , including snps , insertions , deletions , and inversions .
+in the final stage , the program extracts reads spanning at least two heterozygous loci , divides reads into paternal and maternal groups , and reconstructs the paternal and maternal haplotypes by solving an np - hard problem called constrained minimum error correction ( cmec ) .
+this study also proposes a novel ga for the cmec problem .
+10.1371 / journal.pone.0166721.g001 fig 1 overview of hapsvassembler .
+overview of hapsvassembler .
+stage i : using de novo assembler to reconstruct a reference genome ; stage ii : using a reference genome assembled in stage i , we can find snps and heterozygous svs ; stage iii : two consensus haplotypes can be reconstructed from the snp / sv matrix .
+stage i : construction of a reference consensus sequence the consensus sequence can be first built using any existing assembler ( e.g. , soapdenovo , abyss ) .
+as each assembler has its own strength and weakness , we present a hybrid pipeline used internally for typical illumina sequencing .
+existing short - read assemblers ( e.g. , soapdenovo ) must break down the reads into fixed - length k - mers to build a de bruijn graph , which implies a minimum overlap length between reads .
+in high - coverage regions , larger k - mers are good for reducing the graph complexity and improving assembly accuracy .
+smaller k - mers are more appropriate for low - coverage regions because of the insufficient overlap between reads .
+consequently , we uses a de bruijn graph assembler to assemble reads into contigs using multiple k - mers ( e.g. , k = 25 ~ 49 ) to adapt to the coverage variance across the entire genome .
+the second phase merges the contigs consistently assembled in multiple k - mers into meta - contigs by using an overlap - graph assembler ( called amos [ 21 ]) .
+this is because overlap - graph assemblers do not break contigs into smaller k - mers to build a graph .
+this merging process discards the singleton contigs assembled in only one k - mer , and attempts to elongate the more accurate contigs from larger k - mers and remove possible misassembled contigs from smaller k - mers .
+the third phase links these meta - contigs into scaffolds by using paired - end or mate - pair reads through sspace [ 12 ] .
+finally , the assembly gaps within scaffolds are closed by unused reads using gapcloser [ 8 ] .
+this workflow is shown in fig 2 .
+the users may choose the best assembly pipeline for distinct sequencing platforms ( e.g. , smrt for pacbio ) .
+10.1371 / journal.pone.0166721.g002 fig 2 flowchart of hybrid de novo assembly approach .
+the flowchart of the de novo assembly using hybrid approach with .
+stage ii : identification of heterozygous snps and svs within a diploid genome the assembled contigs in stage i form a mosaic sequence consisting of paternal and maternal haplotypes .
+the genomic variants between these two haplotypes include small - scale snps / indels to large - scale svs ( e.g. , insertions , deletions , and inversions ) .
+the small - scale variants can be identified by analyzing the read alignment output ( i.e. , gaps or mismatches ) .
+conversely , the analysis of paired - end reads often reveals large - scale svs [ 22 - 24 ] .
+the detectable genomic variants must be heterozygous between the paternal and maternal haplotypes because at least two distinct alleles appear at the same locus .
+standard snp / indel callers ( e.g. , samtool or gatk ) provide sufficient information ( in sam and vcf standard ) to distinguish reads carrying different alleles , which is necessary for subsequent haplotype assembly .
+however , existing sv callers ( e.g. , breakdancer , modil , or variationhunter ) cannot supply the information required to distinguish reads for sv or non - sv haplotypes , and the accuracies of reported svs and boundaries are unsatisfactory [ 19 , 20 ] .
+therefore , the hapsvassembler invokes bwa to align the reads onto the assembled contigs , and uses samtools to identify the coordinate / alleles of each heterozygous snp and indel .
+for large svs , a novel sv detection module not only outputs accurate sv and boundary values , but also distinguishes reads spanning sv or non - sv haplotypes .
+the sv detection module captures two important sv signatures : discordant reads and breakpoint reads .
+theoretically , the mapping distances of both ends of a paired - end read from a non - sv region ( called concordant reads ) should be roughly equal to the expected insert size , and the orientations of both ends should be (+ , - ) or ( - , +) .
+however , for paired - end reads across large insertions or deletions ( called discordant paired - end reads ) , the mapping distances between both ends are significantly smaller or larger , respectively , than the expected insert size ( fig 3 ( a ) and 3 ( b )) .
+for paired - end reads spanning boundaries of an inversion , the orientations of both ends change to (+ , +) or ( - , - ) ( fig 3 ( c )) .
+genomic regions containing excess discordant reads with aberrant mapping distances or orientations are indicative of svs .
+however , the sv boundaries identified solely by discordant reads are often imprecise because of the variance of the insert size .
+thus , the proposed sv detection module integrates discordant reads and breakpoint reads to delineate precise boundaries for each type of sv , as described in the following subsections .
+10.1371 / journal.pone.0166721.g003 fig 3 signatures of discordant reads implying svs .
+( a ) the mapping distance of a deletion event is larger than insert size ; ( b ) the mapping distance of an insertion event is smaller than insert size ; ( c ) the orientations of both ends of a read spanning an inversion breakpoint will turn to (+ , +) ( readx ) or ( - , - ) ( ready ) .
+sv detection via discordant reads this section first introduces the notations used in this study .
+suppose that the coordinate of the breakpoint pair of a potential svi is denoted by bi =( bplefti,bprighti ) .
+denote the two mapping loci of the j - th paired - end read rj as peleftj and perightj .
+the spanning region of rj ranges from ( peleftj + l ) to perightj , where l is the read length .
+the mapping distance of rj is notated by mdj =( perightj - peleftj + l ) ( fig 4 ) .
+assume that the mapping distances of all paired - end reads follow a normal distribution with mean mu and standard deviation sd [ 25 ] .
+10.1371 / journal.pone.0166721.g004 fig 4 identification of insertions or deletions .
+a discordant read rj is mapped on the reference with two mapping locis , peleftj and perightj .
+the spanning region of rj is from ( peleftj + l ) to perightj. and the potential breakpoint pair of svi is initialized from peleftj + l to perightj .
+the proposed method detects large deletions or insertions by searching for clusters of discordant reads with significantly larger or smaller mapping distances .
+define a discordant read with aberrant mapping distance as | mdj - mu | > 2sd .
+for ease of explanation , this study focuses on the detection of large deletions .
+however , large insertions are found in a similar way .
+the discordant reads are sequentially processed according to the coordinate of their mapping loci .
+each discordant read is assigned to a cluster ci of discordant reads , which may imply a potential svi .
+an initial cluster c1 is created if supported by the first discordant read r1 , and the sv type ( insertion or deletion ) of sv1 is recorded according to the mapping distance .
+the size of sv1 is computed by | md1 - mu | .
+the inferred breakpoints of sv1 are initially set to the spanning region of r1 , such that b1 =( bpleft1,bpright1 )=( peleft1 + l,peright1 ) ( fig 5 ( a )) .
+the remaining discordant reads are assigned to an existing cluster ci only if their sv type is identical and the spanning region overlaps the existing breakpoint pair bi. otherwise , a new cluster is created ( fig 5 ( b )) .
+when assigning a discordant read rj to an existing cluster ci , re - compute the sv size by sumrjinci | mdj - mu || ci | , and tighten the breakpoint pair bi by intersecting the spanning region of rj , such that bi =( bplefti,bprighti ) intersection ( peleftj + l,perightj ) .
+recursively execute this clustering procedure until all discordant reads with an aberrant mapping distance are assigned to a cluster .
+10.1371 / journal.pone.0166721.g005 fig 5 identification of clustered insertion / deletion evidicnes .
+( a ) the breakpoint pair of potential sv1 is defined by the spanning region of the first discordant read r1 ; ( b ) r2 and r3 are joined into c1 due to the overlapping with b1 in ( a ) .
+r4 does not overlap with b1 ; therefore , a new cluster c2 is created .
+the identification of an inversion mainly relies on paired - end reads with aberrant orientations .
+a read with a (+ , +) aberrant orientation implies that its right end is within the inversion and the left end is outside the inversion .
+similarly , a read with a ( - , - ) aberrant orientation has its left end within the inversion and right end outside inversion .
+using a clustering procedure similar to that used in deletion / insertion detection , the left and right breakpoints of an inversion can be determined by recursively clustering each discordant read with the same type of aberrant orientation ( fig 6 ( a )) .
+each inversion induces two discordant clusters , which is found to be confused by clusters of other inversions in practice .
+to identify the two clusters associated with each inversion , compute the maximum extent of the possible inverted region implied by each read , such that two clusters belonging to the same inversion can be associated .
+the maximum inverted region of a discordant read rj , which is denoted as readjinvert , is formulated as follows : 10.1371 / journal.pone.0166721.g006 fig 6 identification of inversions .
+( a ) two breakpoints from the same inversion are broken into two clusters c1 and c2 owing to the intersection strategy ; ( b ) the longer inverted region has been observed on the original chromosome ; therefore , the final inverted region read1invert of r1 is ranged from ( peright1 + l ) to ( peleft1 + mu ) on reference .
+the mapping distances between two ends of a paired - end read are definitely smaller than the inversion size .
+therefore , choose the maximum possible value to represent the maximum extent of the inverted region ( fig 6 ( b )) .
+this approach guarantees that the overlap between any two clusters belonging to the same inversion will be identified .
+let clusteriinvert be one cluster of discordant reads ; that is , clusteriinvert = unionrjincireadjinvert ( fig 7 ( a )) .
+subsequently , the two clusters ci and cj can be merged if ( clusteriinvertintersectionclusterjinvert ) not - inempty , and the merged inverted region is updated to ( clusteriinvertunionclusterjinvert ) ( fig 7 ( b )) .
+after this union procedure , two clusters belonging to the same inversion combine into a larger cluster .
+readjinvert ={( peleftj + l,max {( perightj + l ),( peleftj + mu )}) ifrjin (+,+)( min { peleftj ,( perightj + l - mu )} , perightj ) ifrjin ( - , - ) ( 1 ) 10.1371 / journal.pone.0166721.g007 fig 7 identification of clustered inversion evidences .
+( a ) the solid gray arrow represents the beginning loci on the original chromosome , and its mapping location on the reference is pointed by a dotted arrow .
+the maximum inverted region of a cluster c1 can be determined by union the inverted regions from all its supporting reads ; ( b ) c1 and c2 can be clustered together using the union operator to join cluster1invert and cluster2invert .
+sv boundary refinement via breakpoint reads the sv boundaries identified by discordant reads are often imprecise .
+to refine the sv boundaries , the hapsvassembler identifies the reads spanning sv boundaries ( called breakpoint reads ) by parsing the sam alignment results .
+these breakpoint reads often leave a footprint of continuous unmapped or mismatched positions in sam alignment ( e.g. , 40m40s for an 80 bp read ) .
+this is because conventional short - read alignment algorithms ( e.g. , bwa ) do not open large gaps for splitting reads across large variations .
+instead , these breakpoint reads are often partially aligned to the reference genome because the read fragments within sv are often unmappable or mismatched ( fig 8 ( a )) .
+denote the sv boundary implied by the jth breakpoint read as bpj .
+for any two breakpoint reads implying the same sv boundary ( i.e. , bpj = bpi ) , maintain a counter recording the frequency of breakpoint reads at this locus .
+thereafter , use these breakpoint reads to update the breakpoint pair bi of each identified potential sv if the implied breakpoint is within bi =( bplefti,bprighti ) ( fig 8 ( b )) .
+the breakpoint reads are ignored if they do not overlap with any sv candidates .
+10.1371 / journal.pone.0166721.g008 fig 8 illustration of breakpoint reads across sv boundaries .
+( a ) a breakpoint read rj whose right end matches perfectly first 4 nucleotides whether the remainder bases are mismatched with the reference .
+the guessing breakpoint can be inferred at the 4th base of the right end on rj ; ( b ) the actual breakpoints of sv can be determined by breakpoint reads .
+analysis of false discovery rates integrating discordant and breakpoint reads for calling svs produces a relatively low error probability .
+the insert size of paired - end reads ( of the same library ) approximates a normal distribution [ 25 ] , and the requirement of aberrant mapping distances for discordant reads ( i.e. , | mdj - mu | > 2sd ) implies a confidence interval greater than 95 % and error probability less than 5 % .
+in practice , we require at least s discordant reads for calling an sv , leading to an error probability of ( 0.05 ) s. thus , the default minimum requirement of five discordant reads has an error probability of =~ 2 x 10 - 4 .
+in addition , the error probability of a breakpoint read with length l can be computed via a binomial distribution .
+let the sequencing error rate be e , and the number of matching positions of the j - th breakpoint read be nj. the error probability of requiring at least k breakpoint reads for calling an sv is productj = 1k ( lnj )( 1 - e ) njel - nj. in reality , with the typical error rate of approximately 1 % on the illumina platform , an 80 bp read length , at least 40 bp matches and two breakpoint reads , the error probability of svs miscalled by hapsvassembler is productj = 12 ( 8040 )( 0.99 ) 400.0140 =~ 5.17x10 - 115 .
+thus , the default minimum requirement of at least five discordant reads or at least two breakpoint reads has an error probability of less than 2 x 10 - 4 or 5.17 x 10 - 115 , respectively .
+snp / sv matrix construction and haplotype block partition snp / sv matrix construction given a set of snps and svs , the hapsvassembler attempts to identify reads carrying distinct alleles ( e.g. , nucleotide or inversion orientation ) and convert them into an m by n snp / sv matrix m , where m is the number of read fragments , and n is the total number of snp and sv sites .
+this study defines an m by nsnp sub - matrix msnp from m , where nsnp is the total number of snps .
+assume that sj is the jth snp locus and the set of snps on the ith paired - end read is defined as a read fragment fi if and only if exists1 <= j <= nsnp (( pelefti <= sj <= pelefti + l ) or ( perighti <= sj <= perighti + l )) .
+the term mi,jsnp means that the allele at snp sj of fragment fi is represented by { a , c , g , t , - } , where ' - ' denotes the unknown base .
+the term mi,jsnp can be assigned by the kth nucleotide on ri , where k is the distance from pelefti or perighti to sj if ( pelefti <= sj <= pelefti + l ) or (( perighti <= sj <= perighti + l ) , respectively ( fig 9 ( a )) .
+conversely , an m by nsv sub - matrix msv represents the association between fragments and svs , where nsv is the number of discovering heterozygous svs .
+assume that svj is the jth sv location , mi,jsv represents the sv type of svj that fragment fi covers , and mi,jsv is represented by { 0 : no sv , 1 : deletions , 2 : insertions , 3 : inversions } .
+a single - end mapped read indicates that the unmapped end is likely to be located in a heterozygous sv ( fig 9 ( b )) .
+if ri is left - end mapped to the reference , mi,jsv can be defined as follows .
+mi,jsv ={ typeofsvjif ( pelefti + l,pelefti + mu ) intersection ( bpleftj,bprightj ) not - inempty0otherwise ( 2 ) similarly , if ri is right - end mapped to the reference , mi,jsv ={ typeofsvjif ( perighti + l - mu,perighti ) intersection ( bpleftj,bprightj ) not - inempty0otherwise ( 3 ) 10.1371 / journal.pone.0166721.g009 fig 9 illustration of converting paired - reads to snp matrix and sv matrix .
+( a ) paired - end read r1 and r2 both contain snps but r3 does not , therefore , r1 and r2 can be successfully converted to read fragment f1 and f2 respectively .
+snp s2 is covered by r2 , and the allele at s2 can be obtained by the 4 - th ( s2 - peleft2 ) nucleotide on r2 ; ( b ) single - end mapped read r1 and r2 whose unmapped ends are overlapping with sv1 ( e.g. , a deletion ) , both of m1,1sv and m2,1sv can be assigned by 1 .
+haplotype blocks partition for parallel computation in reality , the paired ends may not overlap continuously because of low - coverage or sequencing gaps , leading to a number of isolated overlapping groups called haplotype blocks .
+the haplotype assembly within a haplotype block is independent of other blocks ( fig 10 ( a )) .
+therefore , this study uses a simultaneous haplotype assembly through the parallel computation of multithreads ( openmp ) to significantly improve assembly efficiency .
+because this approach simultaneously assembles multiple types of genomic variants ( e.g. , snps , insertions , and deletions ) , the resulting haplotype blocks are larger than those of methods based on snps alone .
+this is because a heterozygous sv can bridge two distinct haplotype blocks if they are spanned by any sv read .
+therefore , two adjacent blocks can be merged if bridging reads in both adjacent blocks indicate the same sv ( fig 10 ( b )) .
+10.1371 / journal.pone.0166721.g010 fig 10 illustration of extended haplotype blocks via heterozygous svs .
+one end is represented by a solid arrow and two ends from the same read are connected by a dotted line .
+there is a heterozygous sv1 between snp10 and snp11 .
+( a ) without considering svs , the entire haplotype will be broken into three haplotype blocks ; ( b ) in our approach , block2 and block3 in ( a ) are merged by bridging read x , y in block2 and bridging read z in block3 that indicate heterozygous sv1 .
+haplotype assembly within a haplotype block constrained mec formulation this haplotype assembly within a haplotype block is formulated into a constrained version of the mec problem , which aims to partition reads into two consensus haplotypes with minimum error corrections , requiring reads carrying identical sv signatures are assigned to the same haplotype .
+the optimal solution of the cmec for error - free reads is zero because there should be no conflict between read fragments and corresponding consensus haplotypes .
+however , sequencing errors make it difficult to find a partition without conflicts .
+hence , the cmec problem attempts to divide a partition of reads into two groups to minimize the number of conflicts .
+in addition , we observed that reads carrying identical sv signatures almost come from the same haplotype .
+therefore , the reads having the same sv signatures are used as constraints during read partition .
+specifically , if an snp / sv matrix m and h = ( h0 , h1 ) represents the consensus haplotype pair , the number of error correction between the ith read fragment fi and consensus haplotype hl at the snp site sk is defined as d ( mi,ksnp,hl,k )={ 1ifmi,ksnp != hl,k != - 0otherwise ( 4 ) therefore , the total error correction numbers between read fi and haplotype hl is defined as d ( fi,hl )= sumk = 1nsnpd ( mi,ksnp,hl,k ) .
+furthermore , p = ( p0 , p1 ) stands for a possible partition of all fragments , and all fragments fi in pl will construct the consensus haplotype hl. the cmec problem can be formulated as follows : minimizesuml = 01sumfiinpld ( fi,hl ) subject to { fi,fj } subset / equalplifmi,ksv = mj,ksv != 0,l ={ 0,1 } , 1 <= i,j <= m,1 <= k <= nsv .
+the cmec problem is a generalized version of the np - hard mec problem [ 26 , 27 ] , and is therefore also np - hard .
+the proposed method uses the ga to address small instances of the mec problem [ 28 ] .
+however , existing ga frameworks are inadequate for solving the cmec problem because the search space is exponential to the enormous number of reads in practical ngs platforms .
+although not shown in this paper , the solution quality and running time of the original ga are both far from practical use .
+therefore , this study presents a ga framework with novel initialization and mutation schemes to solve the cmec problem in a large solution space .
+a genetic algorithm for solving the constrained mec problem genetic algorithm ( ga ) simulates the mechanisms of natural evolution , such as selection , crossover , and mutation , to evolve the candidate solutions to their optimum values .
+the effectiveness of this approach has been validated in numerous search and optimization problems .
+ga represents candidate solutions as chromosomes .
+instead of using a single search point , ga conducts a global search through a set ( population ) of chromosomes .
+the fitness function evaluates the quality ( fitness ) of chromosomes .
+the evolution in the ga begins with the population initialization .
+ga then initiates the reproduction process .
+the selection operator first picks two chromosomes from the population as parents .
+next , the ga performs crossover on these two parents to reproduce their offspring .
+some genes are altered by the mutation operator for diversity .
+implementing a survival of the fittest function , the survivor operator draws the fittest chromosomes out of the union of parent and offspring populations , and these chosen chromosomes constitute the population for the next generation .
+to reduce the computational effort in stochastic search , this study incorporates a local search into the initialization and mutation operators of the ga to improve the search efficiency and solution quality .
+the experimental results in the next section confirm that this new ga can achieve better solutions in a shorter time than a standard ga. the following paragraphs present more details about the proposed ga , where the deatiled ga parameters are listed in table 1 .
+10.1371 / journal.pone.0166721.t001 table 1 parameter setting in ga. operations / parameters setting representation binary string initialization heuristic population size 10 crossover uniform crossover rate 100 % number of offspring 10 mutation rate in error list : 80 % ; otherwise : 1m ' parent selection two - tournament survivor selection replace worst termination 5 generations i. representation because all read fragments should must be partitioned into two disjoint sets , the proposed ga represents a chromosome as a binary string over { 0 , 1 } , where 0 and 1 respectively stand for the two sets .
+considering the constraints of the cmec , read fragments carrying the same sv allele ( mi,ksv = mj,ksv != 0 ) must be forcibly partitioned into the same set , i.e. , { fi , fj } subset / equal pl. therefore , we use only one bit to represents the set of read fragments indicating the same sv , and the chromosome length is reduced from m to m '=( m - summi,ksv != 01 + nsv ) .
+a mapping function can transform the original chromosome to a reduced chromosome in constant time ( fig 11 ) .
+10.1371 / journal.pone.0166721.g011 fig 11 reducing ga chromosome length via a mapping function .
+in original chromosome , there are three fragments indicate the same sv ( mark by black ) .
+the mapping function indicates the exact index of the chromosome in ga and three sv - associated fragments will point to the same index ( index 0 ). ii. population initialization to generate an initial partition ( chromosome ) p0 , randomly select a read fragment fs as a starting point , where 2 <= s <= m ' - 1 .
+all read fragments are sorted according to their mapping coordinates .
+a random set is assigned to fs at the beginning , and the pseudo ( consensus ) haplotype corresponding to this set is also updated by the alleles on fs ( fig 12 ( a )) .
+the pseudo haplotype is then sequentially updated by reads flanking fs in both directions .
+for each flanking read fi , compute the similarity between fi and the two pseudo - haplotypes , and then greedily assign fi as follows ( fig 12 ( b )) .
+10.1371 / journal.pone.0166721.g012 fig 12 heuristic population initialization for ga chromosomes .
+( a ) the set of starting fragment f4 is randomly set as 1 , and we will update the pseudo - haplotype1 ; ( b ) the pseudo - haplotypes are extended from f3 and f5 , and the set of f3 and f5 is determined by the similarity .
+after assigning a read fragment to a set , the allele of the corresponding pseudo - haplotype may be updated to maintain only major alleles .
+this initialization process repeats until the population of chromosomes is generated .
+simulation results show that this heuristic initialization can construct solutions relatively close to the optimum because the sequencing error rate is often not high and thus the number of conflicting reads is relatively low in practice .
+this randomized greedy initialization also generates possible partitions implied by the conflicting reads only .
+this approach greatly reduces the running time of the original ga , which randomly generates partitions of all reads. iii .
+fitness evaluation the consensus haplotypes must be generated before evaluating the fitness value of a partition .
+define nallelek ( l )=( sumfiinpl ; mi,lsnp = allele1 ) as the number of fragments carrying allele at sk in pl , where allele in { a , c , g , t } .
+the kth site of the consensus haplotype is defined by hl,k = argmaxallelenallelek ( l ) to construct a consensus haplotype at each site from the fragments , greedily select the major allele that is supported from the majority .
+the fitness value of a partition p is defined as f ( p )= suml = 01sumfiinpld ( fi,hl ). iv. genetic operators the proposed ga adopts the two - tournament selection operator in view of its recognized good performance .
+this selection operator chooses the better of two randomly selected chromosomes as a parent .
+the selection procedure iteratively runs twice to obtain a pair of parents for subsequent crossover operation .
+the crossover operation exchanges and recombines the genetic information of both parents .
+the ga employs the widely used uniform crossover , which randomly determines each offspring gene from either parent .
+this mutation operation slightly changes the composition of the offspring .
+this paper devises a mutation operator based on the bit - flip mutation that flips ( i.e. , 0 - - > 1 , 1 - - > 0 ) genes with a predefined probability called the mutation rate pm. the proposed mutation also uses an error list of a partition to record the index of fragments that conflicts with the consensus haplotype .
+the fragments in the error list require a mutation rate exceeding 0.8 to be flipped into the other set ; those that remain have a lower mutation rate 1m ' .
+finally , to achieve good solutions from the mix of parent and offspring populations over the course of ga evolution , solutions with higher fitness values are selected to survive to the next generation .
+the termination criterion is set to five generations , at which point the best chromosomes are outputted .
+simulations the simulated diploid genomes are first constructed by duplicating the human reference genome ( ncbi build 37 ) into two sequences .
+subsequently , snps , insertions , deletions , and inversions are randomly placed into the two sequences with various heterozygous rates and sizes ( 100 - 500 bp ) .
+the wgsim program [ 29 ] randomly generates paired - end reads from two homologous chromosomes with various insert sizes and error probabilities .
+burrows - wheeler aligner ( bwa ) [ 30 ] then aligns short reads onto the assembled contigs .
+samtools and bcftools determine the coordinate / alleles of heterozygous snps / indels [ 29 ] .
+the proposed sv detection module identifies other deletions , insertions , and inversions .
+each site on the duplicated chromosome has a 0.01 snp rate to alter the allele to the others .
+generating and aligning paired - end reads from these diploid genomes produces standard sam alignments .
+this study defines haplotype assembly accuracy using a metric analogous to switching errors .
+however , this metric is able to reflect the fragmentation caused by discontinuous haplotype blocks .
+specifically , given a real haplotype pair h '=( h0 ' , h1 ') and an inferred haplotype pair h = ( h0 , h1 ) within a haplotype block , a switch error represents that two adjacent haplotype segments , where one is from h0 ' and the other is from h1 ' , are misjoined to form h0 ' and h1 ') ( fig 13 ) .
+denote s and n as the number of switch errors and total snps , respectively .
+the maximum possible s is thus n - 1 .
+define b as the number of haplotype block partitions within the assembled haplotypes .
+the switch errors purely caused by the assembly algorithm only occur at blocks with at least two snps , whereas a block with only one snp has no need of a haplotype assembly .
+therefore , the accuracy of the assembled haplotype pair h is 1 - switcherrorsn - b - 1 for haplotype blocks with at least two snps .
+10.1371 / journal.pone.0166721.g013 fig 13 illustration of switch errors and block breakpoints .
+in haplotype block2 , there are two switch errors , where 1st to 5th bases , 8th to 12th bases are from h0 ' but 6th to 7th bases come from h1 ' on inferred haplotype h0 .
+bac sequencing two bacterial artificial clone ( bac ) libraries from a pilot sequencing of erycina pusilla were constructed by randomly shearing the genomic dna , which consists of sixty 100 kb bacs .
+these bacs were pooled and sequenced using the illumina genome analyzer .
+a paired - end library of 300 bp insert size was constructed and sequenced up to 100bp read length .
+potential contamination from e. coli and vector sequences was cleaned by first aligning short reads onto the ncbi e. coli genome and ncbi vecscreen database ( http :// www.ncbi.nlm.nih.gov / vecscreen / vecscreen.html ) using bwa , which was removed from the subsequent process .
+only the clean paired - end reads were assembled by the hapsvassembler pipeline .
+results the hapsvassembler pipeline was implemented in c / c ++ , multithreaded , and encapsulated using bash script that supports standard formats as the input ( e.g. , fasta , sam ) .
+the source code and program have been uploaed to github ( https :// github.com / ythuang0522 / hapsvassembler ) .
+various experiments were conducted to evaluate the assembly accuracy and contiguity of the hapsvassembler .
+to the best of our knowledge , no existing assemblers are able to assemble haplotypes by using paired - end sequencing from ngs platforms .
+however , this study presents a comparison of the proposed method with two approaches proposed for sanger sequencing .
+the first approach is called maxsat [ 18 ] , and the other is called mec / ga [ 28 ] .
+both approaches attempt to separate single - end reads into paternal and maternal haplotypes with minimum error corrections .
+these programs are compared over various genome sizes , insert sizes ( hapsvassembler only ) , read lengths , sequencing coverage rates , and error rates .
+assembly accuracy and contiguity fig 14 ( a ) shows the accuracies of genome sizes ranging from 10 kbp to 50 mbp , where each data point represents the average of 10 data sets .
+the execution of mec / ga takes longer than one day when the genome is larger than 500 kbp , which is not reported in the following experiments .
+the result indicates that the hapsvassembler has significantly greater accuracy than maxsat and mec / ga ( marked by raw ) .
+the partition of haplotypes into blocks in the proposed method is the major reason for this huge difference .
+the block partition breaks down the original assembly problem into smaller subproblems , which helps the algorithm find the optimum solution .
+to compare the underlying algorithms without the partition effects , we also manually partitioned the haplotypes into blocks , invoked the mec / ga and maxsat separately for each block , and recomputed their accuracies .
+although these measures improve the accuracies of both approaches , they are still much lower than that of the hapsvassembler .
+because the mec / ga accuracy is much worse than the other two methods , the following comparative study omits its results .
+in view of the influence of read lengths to accuracy and completeness , longer reads are associated with a higher accuracy in the hapsvassembler because the expected number of snps covered by one read fragment increases ( fig 14 ( b )) .
+however , the accuracy of maxsat with a long read length drops unexpectedly .
+10.1371 / journal.pone.0166721.g014 fig 14 the accuracy for different genome size and read length .
+the paternal and maternal genomes differes in 1 % snps .
+the mean insert size is 250bp with 25bp standard deviation , the sequencing coverage is 20x , and the sequencing error rate is 1 % .
+( a ) the accuracy for different genome sizes ; ( b ) the accuracy for different read lengths .
+most sequencing protocols support short and long inserts .
+fig 15 ( b ) plots the n10 and n50 of both approaches .
+the assembled contig n10 size of the hapsvassembler is longer than that of maxsat , which does not consider the svs .
+however , the tradeoff is a decrease in accuracy ( fig 15 ( a )) .
+we also examined the influence of the hapsvassembler on various error rates in the snp / sv matrix .
+in erroneous data with a 25 % error rate , the hapsvassembler can still reconstruct haplotypes with an accuracy greater than 80 % , and has a high tolerance for noise or errors ( fig 16 ( a )) .
+fig 16 ( b ) shows that accuracy approaches 99 % in 10x coverage , confirming its ability to achieve accurate results with a low experimental cost .
+10.1371 / journal.pone.0166721.g015 fig 15 assembly accuracy and contiguity for different insert size .
+the paternal and maternal genomes differes in 1 % snps .
+the genome size is 5mbp .
+the read length is 75bp and the sequencing coverage is 20x .
+the error rate of snp / sv matrix is 1 % .
+( a ) the accuracy for different insert sizes mu with mu10 standard deviation ; ( b ) the comparison of n10 / n50 for different insert sizes .
+10.1371 / journal.pone.0166721.g016 fig 16 assembly accuracy for different error rate and sequencing coverage .
+the similarity between diploid genome is 99 % , and the genome size is 5mbp .
+the read length is 75bp , and the mean of insert size is 250bp with 25bp standard deviation .
+( a ) the accuracy for different error rate in snp / sv matrix ; ( b ) the accuracy for different sequencing coverage .
+to identify the factors that most affect hapsvassembler accuracy , fig 17 ( a ) plots the association between accuracy and different sequencing coverage rates according to various error rates .
+these results show that accuracy is always higher than 90 % in low error rate simulations ( error rate <= 0.1 ) .
+the accuracy of high error rate data can be efficiently overcome by high sequencing coverage ; for example , the accuracy of a 0.3 error rate simulation improves from =~ 67 % to =~ 81 % when the coverage increases from 5 - fold to 30 - fold .
+the error rate is a crucial factor influencing hapsvassembler accuracy .
+fig 17 ( b ) shows the association between continuity and sequencing coverage .
+it is often expected that a higher coverage of sequencing should lead to more contiguous assembly ( longer n10 and n50 simultaneously ) .
+however , this improvement is limited by the average distance between any two adjacent snp / svs , and n10 / n50 gradually converges on 25 - fold to 30 - fold .
+table 2 shows the running time for various genome sizes in three compared methods , where each datum represents the average of five independently simulated data .
+to accelerate the hapsvassembler and mec / ga , we separately used 10 and 16 threads to compute in parallel .
+10.1371 / journal.pone.0166721.g017 fig 17 assembly accuracy and contiguity for different sequencing coverage and error rates .
+( a ) the accuracy higher than 90 % can be obtained with low error rate simulations even in low coverage ; ( b ) the comparison of n10 / n50 for different sequencing coverage .
+10.1371 / journal.pone.0166721.t002 table 2 running time of hapsvassembler , maxsat and mec / ga. genome size hapsvassembler maxsat mec / ga 10kbp 0.004 seconds 0.400 seconds 33.800 seconds 50kbp 0.240 seconds 0.600 seconds 33.673 minutes 100kbp 0.680 seconds 0.600 seconds 3.801 hours 500kbp 3.270 seconds 1.400 seconds - 1mbp 6.260 seconds 2.200 seconds - 5mbp 31.710 seconds 9.000 seconds - 10mbp 73.560 seconds 19.800 seconds - 50mbp 4.825 minutes 1.760 minutes - pilot sequencing of a diploid genome the hapsvassembler was tested on a de novo pilot sequencing of the erycina pusilla genome , which is expected to be highly heterozygous yet a good model genome due to short life cycle .
+a bac library ( representing 5mb of the diploid genome ) were constructed and sequenced using the illumina hiseq with a read length of 100 bp and an insert size of =~ 300 bp. the assembled contigs sum up to 4.7mb with n50 = 12kbp .
+the results ( table 3 ) indicate that hapsvassembler identified 12,781 heteozygous snps and 573 / 29 hemizygous insertions / deletions differing between paternal and maternal genomes .
+the insertions and deletions sum up to 72,896bp and 5,080bp , respectively .
+on average , the sizes of insertions and deletions are 127bp and 175bp , respectively .
+overall , the heterozygosity of the partial genome ( including snps and svs ) is about 1.92 % ( 90,713bp / 4,705,947bp ) , which implies the subsequent whole genome assembly will be very challenging .
+although the number of svs are much less than that of snps , the genomic regions occupied by svs are much larger than that of snps ( 77,976bp vs 12,781bp ) , which implies the degree of heterozygosity computed from heterozygous snps or from the k - mer spectrum might be under - estimated .
+on the other hand , the proposed method is able to precisely compute the heterozygosity regions across various types of variations .
+10.1371 / journal.pone.0166721.t003 table 3 heterozygous variations , including heterozygous snps and hemizygous insertions / deletions / inversions , detected during assembly of diploid genome .
+snps insertions deletions inversions number 12781 573 29 0 min size 1bp 100bp 100bp - max size 1bp 337bp 363bp - mean size 1bp 127bp 175bp - total size 12,781bp 72,896bp 5,080bp 0bp genome percentage 0.27 % 1.55 % 0.1 % 0 % convergence rate of ga this section investigates the convergence of solutions and the reduction of problem size in the proposed ga. fig 18 shows the best fitness value of the first 30 generations at error rates ranging from 0.01 to 0.3 .
+results show that the fitness values often converge in the first 5 to 10 generations for low error rates because the heuristic initialization collects good solutions at the beginning of the evolution .
+therefore , the hapsvassembler avoids many random steps to reduce the computational time and stochastic search .
+fig 19 ( a ) shows the accuracy in different error rates with 5 and 30 generations .
+the accuracy advantage of 30 generations compared to 5 generations is limited .
+however , the running time increases drastically ( fig 19 ( b )) .
+given the limited advantage but much higher computational cost of 30 generations , the default setting of the hapsvassembler was set to only five generations .
+10.1371 / journal.pone.0166721.g018 fig 18 in - time behavior of proposed ga for different error rates .
+the best fitness value ( number of conflicts ) of first thirty generations in different error rate from 0.01 to 0.3 .
+10.1371 / journal.pone.0166721.g019 fig 19 the accuracy and running time of different generations in ga .
+( a ) the accuracy in different error rates with 5 and 30 generations ; ( b ) the running time in different error rates with 5 and 30 generations .
+the problem size can be reduced by the hard constraints in the cmec formulation .
+thus , fig 20 ( a ) shows the percentage of constrained read fragments with respect to the genome size .
+results show that only 0.3 % read fragments can be constrained together under 99 % similarity .
+the best reduction percentage of problem size occurs at a 10 kbp genome size because the svs are un - proportionally created in small genome size ( e.g. , 10 kbp and 50 kbp ) .
+fig 20 ( b ) shows that the problem size consistently decreases with respect to the increasing divergence between diploid genome in that more reads are constrained by the heterozygous variants between the diploid .
+in summary , the cmec formulation reduces the problem size in a ga at a higher coverage rate and for larger genomes .
+10.1371 / journal.pone.0166721.g020 fig 20 the percentage of reducted problem sizes of cmec model .
+( a ) under 99 % similarity between the diploid genome , 0.3 % of reads can be constrained together ; ( b ) problem size is decreased when the difference between the diploid genome is increased .
+discussion the error rate of illumina sequencers is known to be non - uniform .
+as a consequence , the accuracy of breakpoint reads ( and thus sv calling ) might be reduced since alignment is less reliable at these error - prone or repetitive regions .
+below we discussed the influence of error bias and repeats on our algorithm separately under the re - sequencing and de novo assembly scenarios .
+if a fully - assembled genome is available , the error rate of breakpoint reads indeed may elevate at high - gc / repeat boundaries .
+however , in addition to breakpoint reads , discordant reads ( e.g. , abnormal mapping distance w.r.t. insert size ) are also included in the prediction , which are less affected by the non - uniform error bias .
+therefore , users may improve the specificity by requiring both sufficient discordant and breakpoint reads when calling svs , although this would sacrifice sensitivity .
+it look to us a better solution to this problem may be inclusion of sequence context / motif of these error - biased regions ( e.g. , ggc motif or gc density ) into the sv calling algorithm , in addition to the conventional breakpoint / discordant reads .
+furthermore , we feel this problem might become a minor issue if the third - generation sequencers are used instead ( e.g. , pacbio or nanopore ) , which produce less gc bias and longer reads for spanning repeats .
+on the other hand , if a fully - assembled genome is unavailable and de novo assembly is required , our algorithm is less affected by this error - biased problem .
+these error - biased / repetitive regions reduce not only the alignment accuracy but also the assembly contiguity .
+as a consequence , most contigs are only assembled upto boundaries of these error - biased / repetitive regions .
+in other words , our algorithm is in fact tested on the contigs in which the majority do not contain these problematic regions .
+the current implementation does not support multiple libraries , because the inclusion of sv constraints from multiple libraries into the cmec formulation will generate a complex optimization problem , whereas conflicting constraints derived from different libraries would prevent search of feasible solutions .
+the major output file has a format similar to the conventional vcf file yet including haplotype block boundaries and sv alleles ( e.g. , insertion or deletion ) .
+we also provided another output file similar to fasta yet containing the paternal and maternal haplotype sequences separated by block boundaries .
+other output files mainly provide the loci and allele information of snps and svs and details can be found on readme on github .
+supporting information s1 fig the software components and flowchart of hapsvassembler .
+the short reads are first aligned to the assembled genome .
+subsequently , snps and svs are identified and used to construct a snp / sv matrix .
+finally , the paternal and maternal haplotypes are separated in order to reconstruct the diploid genome .
+( tif ) click here for additional data file .
+yth was supported in part by the ministry of science and technology ( most ) with grant numbers 103 - 2923 - e - 194 - 001 - my3 and 104 - 2221 - e - 194 - 048 - my2 .
+references 1 bentley d . whole - genome re - sequencing . current opinion in genetics & development .
+2006 ; 16 : 545 - 552 . doi : 10.1016 / j.gde.2006.10.009 17055251 2 mckernan kj , peckham he , costa gl , mclaughlin sf , fu y , tsung ef , et al sequence and structural variation in a human genome uncovered by short - read , massively parallel ligation sequencing using two - base encoding . genome research .
+2009 ; 19 : 1527 - 1541 . doi : 10.1101 / gr.091868.109 19546169 3 mardis er . next - generation dna sequencing methods . annual review of genomics and human genetics .
+2008 ; 9 : 387 - 402 . doi : 10.1146 / annurev.genom.9.081307.164359 18576944 4 harismendy o , ng pc , strausberg rl , wang x , stockwell tb , beeson ky , et al evaluation of next generation sequencing platforms for population targeted sequencing studies . genome biology .
+2009 ; 10 doi : 10.1186 / gb - 2009 - 10 - 3 - r32 19327155 5 shulaev v , sargent dj , crowhurst rn , mockler tc , folkerts o , delcher al , et al the genome of woodland strawberry ( fragaria vesca ) . nature genetics .
+2010 ; 43 : 109 - 116 . doi : 10.1038 / ng.740 21186353 6 li r , fan w , tian g , zhu h , he l , cai j , et al the sequence and de novo assembly of the giant panda genome . nature .
+2009 ; 463 : 311 - 317 . doi : 10.1038 / nature08696 20010809 7 genome 10k community of scientists .
+genome 10k : a proposal to obtain whole - genome sequence for 10,000 vertebrate species . journal of heredity .
+2009 ; 100 : 659 - 674 . doi : 10.1093 / jhered / esp086 19892720 8 li r , zhu h , ruan j , qian w , fang x , shi z , et al de novo assembly of human genomes with massively parallel short read sequencing . genome research .
+2010 ; 20 : 265 - 272 . doi : 10.1101 / gr.097261.109 20019144 9 pevzner pa , tang h , waterman ms . an eulerian path approach to dna fragment assembly . proceedings of the national academy of sciences .
+2001 ; 98 : 9748 - 9753 . doi : 10.1073 / pnas.171285098 11504945 10 zerbino dr and birney e . velvet : algorithms for de novo short read assembly using de bruijn graphs . genome research .
+2008 ; 18 : 821 - 829 . doi : 10.1101 / gr.074492.107 18349386 11 chaisson mj , brinza d , pevzner pa . de novo fragment assembly with short mate - paired reads : does the read length matter ?
+genome research .
+2008 ; 19 : 336 - 346 . doi : 10.1101 / gr.079053.108 19056694 12 boetzer m , henkel cv , jansen hj , butler d , pirovano w . scaffolding pre - assembled contigs using sspace . bioinformatics .
+2011 ; 27 : 578 - 579 . doi : 10.1093 / bioinformatics / btq683 21149342 13 simpson jt , wong k , jackman sd , schein je , jones sj , birol i . abyss : a parallel assembler for short read sequence data . genome research .
+2009 ; 19 : 1117 - 1123 . doi : 10.1101 / gr.089532.108 19251739 14 sharp aj , carson ar , scherer sw . structural variation in the human genome . annual review of genomics and human genetics .
+2006 ; 7 : 85 - 97 . doi : 10.1146 / annurev.genom.7.080505.115618 15 voight bf , kudaravalli s , wen x , pritchard jk . a map of recent positive selection in the human genome . plos biology .
+2006 ; 4 doi : 10.1371 / journal.pbio.0040072 16494531 16 iqbal z , caccamo m , turner i , flicek p , mcvean g . de novo assembly and genotyping of variants using colored de bruijn graphs . nat genet .
+2012 ; 44 ( 2 ) : 226 - 232 . doi : 10.1038 / ng.1028 22231483 17 levy s , sutton g , ng pc , feuk l , halpern al , walenz bp , et al the diploid genome sequence of an individual human . plos biology .
+2007 ; 5 doi : 10.1371 / journal.pbio.0050254 17803354 18 he d , choi a , pipatsrisawat k , darwiche a , eskin e . optimal algorithms for haplotype assembly from whole - genome sequence data . bioinformatics .
+2010 ; 26 : 183 - 190 . doi : 10.1093 / bioinformatics / btq215 19 hormozdiari f , alkan c , eichler ee , sahinalp sc . combinatorial algorithms for structural variation detection in high - throughput sequenced genomes . genome research .
+2009 ; 19 : 1270 - 1278 . doi : 10.1101 / gr.088633.108 19447966 20 sindi s , helman e , bashir a , raphael bj . a geometric approach for classification and comparison of structural variants . bioinformatics .
+2009 ; 25 doi : 10.1093 / bioinformatics / btp208 19477992 21 sommer dd , delcher al , salzberg sl , pop m . minimus : a fast , lightweight genome assembler . bmc bioinformatics .
+2007 ; 8 doi : 10.1186 / 1471 - 2105 - 8 - 64 17324286 22 chen k , wallis jw , mclellan md , larson de , kalicki jm , pohl cs , et al breakdancer : an algorithm for high - resolution mapping of genomic structural variation . nature methods .
+2009 ; 6 : 677 - 681 . doi : 10.1038 / nmeth.1363 19668202 23 hormozdiari f , hajirasouliha i , dao p , hach f , yorukoglu d , alkan c , et al next - generation variationhunter : combinatorial algorithms for transposon insertion discovery . bioinformatics .
+2010 ; 26 : 350 - 357 . doi : 10.1093 / bioinformatics / btq216 24 lee s , hormozdiari f , alkan c , brudno m . modil : detecting small indels from clone - end sequencing with mixtures of distributions . nature methods .
+2009 ; 6 : 473 - 474 . doi : 10.1038 / nmeth.f.256 19483690 25 wendl mc and wilson rk . statistical aspects of discerning indel - type structural variation via dna sequence alignment . bmc genomics .
+2009 ; 10 doi : 10.1186 / 1471 - 2164 - 10 - 359 26 cilibrasi r , iersel lv , kelk s , tromp j . on the complexity of several haplotyping problems in : algorithms in bioinformatics ; 2005 p .
+128 - 139 . doi : 10.1007 / 11557067 _ 11 27 lancia g , bafna v , istrail s , lippert r , schwartz r . snps problems , complexity , and algorithms in : european symposium on algorithms ; 2001 p .
+182 - 193 . 28 wang rs , wu ly , li zp , zhang xs . haplotype reconstruction from snp fragments by minimum error correction . bioinformatics .
+2005 ; 21 : 2456 - 2462 . doi : 10.1093 / bioinformatics / bti352 15731204 29 li h , handsaker b , wysoker a , fennell t , ruan j , homer n , et al the sequence alignment / map format and samtools . bioinformatics .
+2009 ; 25 : 2078 - 2079 . doi : 10.1093 / bioinformatics / btp352 19505943 30 li h and durbin r . fast and accurate short read alignment with burrows - wheeler transform . bioinformatics .
+2009 ; 25 : 1754 - 1760 . doi : 10.1093 / bioinformatics / btp324 19451168

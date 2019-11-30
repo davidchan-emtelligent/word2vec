@@ -1,0 +1,273 @@
+sensors ( basel ) sensors ( basel ) sensors ( basel , switzerland ) 1424 - 8220 molecular diversity preservation international ( mdpi ) 27879943 3697182 10.3390 / s8074392 sensors - 08 - 04392 article pau / rad : design and preliminary calibration results of a new l - band pseudo - correlation radiometer concept bosch - lluis xavier * camps adriano ramos - perez isaac marchan - hernandez juan fernando rodriguez - alvarez nereida valencia enric remote sensing lab , dept .
+teoria del senyal i comunicacio , campus nord d3 , universitat politecnica de catalunya , 08034 barcelona , spain * author to whom correspondence should be addressed ; e - mail : xavier.bosch @ tsc.upc.edu 7 2008 28 7 2008 8 7 4392 4412 03 6 2008 14 7 2008 25 7 2008 ( c ) 2008 by the authors ; licensee molecular diversity preservation international , basel , switzerland .
+2008 this article is an open - access article distributed under the terms and conditions of the creative commons attribution license ( http :// creativecommons.org / licenses / by / 3.0 /) .
+the passive advanced unit ( pau ) for ocean monitoring is a new type of instrument that combines in a single receiver and without time multiplexing , a polarimetric pseudo - correlation microwave radiometer at l - band ( pau - rad ) and a gps reflectometer ( pau - gnss / r ) .
+these instruments in conjunction with an infra - red radiometer ( pau - ir ) will respectively provide the sea surface temperature and the sea state information needed to accurately retrieve the sea surface salinity from the radiometric measurements .
+pau will consist of an array of 4x4 receivers performing digital beamforming and polarization synthesis both for pau - rad and pau - gnss / r. a concept demonstrator of the pau instrument with only one receiver has been implemented ( pau - one receiver or pau - or ) .
+pau - or has been used to test and tune the calibration algorithms that will be applied to pau .
+this work describes in detail pau - or 's radiometer calibration algorithms and their performance .
+radiometer reflectometer pseudo - correlation calibration field - programmable gate array ( fpga ) 1 .
+introduction sea surface salinity can be indirectly measured through the variations of the brightness temperature due to the change of the sea water dielectric constant with respect to temperature and salinity [ 1 ] .
+however , the brightness temperature also depends on the sea surface roughness .
+despite the field experiments performed in the past years to improve our understanding of this effect [ 2,3,4 ] , the sea surface roughness correction still remains one of the most critical corrections needed to retrieve the salinity with the required accuracy since it cannot be simply parameterized in terms of the wind speed and / or the significant wave height .
+inaccuracies in the brightness temperature direct model may induce significant errors ( biases ) in the retrieved salinity [ 5 ] .
+the passive advanced unit ( pau ) ( fig. 1 ) is a new concept instrument originally proposed in 2003 [ 6 ] .
+pau consists of a suite of three instruments operating synergistically : pau - rad : a new type of pseudo - correlation l - band radiometer to measure the brightness temperature of the sea surface , pau - gnss - r : a gps - reflectometer to measure the sea state , and pau - ir : an ir radiometer to measure the sea surface temperature .
+pau - rad is a full polarimetric radiometer , so that the delivered results are the four stokes parameters ( eqn. 1 ) .
+the stokes parameters fully characterize the polarization state of partially polarized thermal radiation .
+this polarized thermal radiation is related to different phenomena such as the angle incidence , the sea surface salinity ( sss ) , the sea surface temperature ( sst ) , the sea surface roughness ( ssr ) , wind direction , foam ...
+( 1 ) i =[ iquv ]=[| ev | 2 +| eh | 2 | ev | 2 - | eh | 22.re < ev.eh *> 2.im < ev.eh *>] , where : i,q,u and v are the four stokes parameters , and ev and eh are the electric fields at vertical and horizontal polarizations .
+the first and the second parameters ( i , q ) are the sum and the difference of the brightness temperatures at vertical and horizontal polarizations .
+it is known that the sea surface salinity can be retrieved from i and q [ 1 ] .
+the third and the fourth parameters ( u , v ) characterize the correlation between these two orthogonal polarizations .
+wind direction information can be retrieved from u and v [ 7 ] .
+the gps - reflectometer uses the same rf - if front - end as the l - band radiometer , although the digital beamformer synthesizes beams pointing towards the specular reflection points of the gps signals [ 8,9 ] .
+the relationship of the standard deviation of the ssr and the brightness temperature is obtained ( deltatbsigmassr ) [ 10 ] from this instrument .
+finally , the third element is a commercial 8 - 14 mm thermal ir radiometer [ 11 ] , from which the sst is obtained .
+pau [ 12 ] will retrieve the sss from radiometer outputs ( stokes parameters ) and correcting the sea state effect using information from the reflectometer ( deltatbsigmassr ) and from the ir - radiometer ( sst ) .
+pau - rad consists of an array of 4x4 dual polarization receivers integrated behind a patch antenna [ 13 ] , whose outputs are digitized , and then properly calibrated and combined to produce several beams using a digital beamformer [ 14 ] .
+in this implementation the pau - rad operates at the gps l1 frequency , sharing the rf - if front - end with the pau - gnss / r. pau - rad 's digital design has been split in two field programmable gate array ( fpga ) [ 14 ] : one is called control unit ( cu ) and manages the system and the another one is called arithmetic - logic unit ( alu ) and implements the radiometer algorithms .
+section 2 presents the receiver design and operation .
+section 3 describes the calibration algorithms implemented , which includes the injection of correlated noise at two different levels , and a kalman filter [ 15 ] to better track the phase drifts .
+calibration results are presented at the end of this section .
+finally , section 4 presents the main conclusions and future research lines .
+2. pau - rad design overview each element in the array has a dual - polarization antenna ( horizontal and vertical ) and each polarization is thereafter divided in two using a wilkinson power splitter .
+the pau radiometer idea is that the output voltage signals are proportional to the antenna signal plus or minus the noise added by the resistor of the wilkinson power splitter .
+a detailed noise wave analysis of this novel topology is described in [ 12 ] .
+the receiver topology is described in detail in [ 13 ] : the input signals are demodulated at an intermediate frequency ( if ) of 4.309 mhz and have a 2.2 mhz bandwidth .
+the analog signals are then digitalized at 8 bits at a sampling frequency of 5.745 mhz .
+to avoid the mechanical scan of the antenna , a digital beamformer with the 4x4 element array has been designed so that the beam can be steered up to +/ - 20degrees from the array boresight ( 45degrees incidence angle ) in 5degrees steps ( incidence angle from 25degrees to 65degrees ) .
+the pau - rad basic requirements are summarizes below : i / q demodulation of 64 input signals ( 16 elements x 2 polarization / element x 2 receiving chains / polarization ) , maximum amplitude unbalance within +/ - 1 db. residual amplitude unbalance better than +/ - 0.1 db. limited by the number of bits , phase calibration between receiving chains better than 2degrees rms ( random initial error within 0degrees and 360degrees ) , computation the four stokes parameters using correlation techniques , system re - configurability , so that the integration and calibration times , and the inter - calibration period may be optimized as a function of the scenario and application , and simultaneous generation of two simultaneous beams , with the computing resources available .
+as it has been said in the introduction , the reflectometer and the radiometer share the same rf - if front - end , a commercial gps down - converter .
+as a result both , radiometer and reflectometer , operate at 1575.42 mhz .
+however , it is known that for the best performance , radiometer should operate at the 1400 - 1427 mhz band and reflectometer at 1575.42 mhz .
+this non - optimal scenario is assumed because the aim of this prototype is to demonstrate the pau concept and the scenario allows reducing the hardware resources required .
+on the other hand , we have to deal with some handicaps .
+the fist is the radiometer uses the 2.2 mhz gps bandwidth , instead of the about 20 mhz available in l - band .
+obviously , it has an impact on the radiometric sensitivity that can be compensated by increasing the integration time .
+the second handicap is the contamination that gps signal can introduce in the radiometric measurements , which has to be quantified despite of the spread spectrum modulation gps signal is lower than the noise level .
+total gps power density received over the earth 's surface is about - 153 dbw / m2 .
+the power received after a reflection over the earth 's surface depends on the receiver 's height and on the antenna 's effective area .
+in the worst case , where the specular reflection point is at the antenna 's boresight and considering a surface reflection coefficient of gamma = 0.7 , a height of h = 100 m and an antenna 's effective area of aeff = 0.16 m2 the radiometric measurement contribution is deltat = pr / kbb = 2.3 k (~ 4.6 psu salinity error in warm water ) .
+however , if the reflection comes through the array pattern with an attenuation at least of 15 db , the radiometric measurement contribution is just deltat = 0.03 k (~ 0.06 psu salinity error in warm water ) , below the 0.1 psu requirement of godae for open ocean [ 16 ] .
+taking into account that the radiometer beam can be electronically steered , the chances of having a significant interference level are negligible .
+pau - rad is a proof of concept of the pau - seosat / ingenio [ 17 ] instrument that has been selected for the b phase of seosat / ingenio ( stands for spanish earth observation satellite , spanish contribution to gmes ). satellite .
+in this pau version the radiometer will operate in the 1404 - 1423 mhz band ( bandwidth of 19 mhz ) and the reflectometer at the l1 gps frequency , using common rf chains and two separated if chains .
+2. 1. pau - rad analog receiver overview each receiver ( fig. 2 ) has two linear polarization antennas and two chains per polarization ( four chains per receiver ) .
+a switch follows the antenna and commutes between the antenna signal ( sa ) and the correlated noise ( scn ) ( fig. 3 ) from a controlled noise source ( cns ) , used for calibration purposes .
+a cns has been designed to provide three temperature points ( 300 , 400 and 500 k ) , so as to perform two types of calibration : internal hardware calibration and absolute radiometric calibration .
+after the switch , the wilkinson power splitter divides the signal in two , one for each receiver chain .
+the rf stage amplifies the signal by 33 db. at the downconverter output the signals are centered at an if of 4.309 mhz with a bandwidth of 2.2 mhz .
+the last stage is formed by the adjustable gain video amplifiers and an impedance matching network. from here the signals are sampled using 8 bits analog - digital converters ( adc ) .
+the fine amplitude adjustment is then performed in the digital part , using advanced processing algorithms as described in section 3 .
+2.2 .
+analog acquisition the number of bits used is a trade - off between the radiometric sensitivity of the full array , which depends on the clipping effect [ 18 ] and on the effective number of bits , and fpga resources .
+the analysis developed on [ 19 ] shows that the best performance is given when the adc 's conversion window and the standard deviation of the signal is vpp / sigmasignal = 9.09 , where vpp means the window 's voltage peak to peak .
+the same work analyzes the performance as a function of the number of bits , the result is that 8 bits is enough to neglect the digitization error and to ensure a main beam efficiency larger than 96 % of the digital beamformer .
+considering these results , the analog signals are sampled at 8 bits and 5.745 mhz .
+the sampling frequency is higher than the if which allows a kind of " band - pass sampling " [ 20 ] downconverting the input signals at 0.25 times the digital frequency ( 1.436 mhz ) .
+digitization of the 4 receiver chains ( 4 per element ) is performed with 2 dual - channel 8 - bit adcs , which share the output bus .
+an internal multiplexer determines which digitalized channel is present at the adc outputs .
+it is controlled by an 11.49 mhz signal , so in half - period of clk each adc is able to put its channels in the output bus .
+the control signals are all supplied by the fpga to keep the synchronism with the internal digital processes .
+moreover , according to the relationship vpp = 9.09 .
+sigmasignal the signals amplitude have been adjusted to 110 mvrms to clip less than 0.1 % samples when the adc dynamic range is set to 1 v. the digital output values go from 0 ( - 0.5v ) to 255 (+ 0.5v ) , so a 128 offset value is present at the output data , that will have to be subtracted afterwards .
+the signals from each element enter into the fpga multiplexed in time by a factor of 4 ( 4 times faster ) .
+since there are 16 elements , the processing unit must process 367.68 mbytes of data per second .
+to process this data rate properly the hardware must operate , at least , at 4 times the sampling frequency ( 22.98 mhz ) .
+2.3 .
+pau - rad digital overview the digital part of pau - rad has been split in a control unit ( cu ) that manages the system and another block called arithmetic - logic unit ( alu ) , where the radiometer algorithms are implemented .
+2.3.1 .
+pau - rad arithmetic logic unit ( alu ) the pau - rad alu processes the acquired data and finally computes the four stokes parameters [ 21 ] .
+the digital implementation to compute the first two elements has been performed as follows : ( 2a ) i = 1tauiintegral0tauis1 ( t ). s2 *( t ) dt - - > i = 2taui (< i1.i2 >+ j < q1.i2 >) and ( 2b ) q = 1tauiintegral0tauis3 ( t ). s4 *( t ) dt - - > q = 2taui (< i3.i4 >+ j < q3.i4 >) , where : s1 and s2 are the signals from the vertical antenna with the wilkinson noise ( wilkinson noise is defined as the noise generated in the wilkinson load ) and the receiver noise , ( s1,2 signals are deeply analyzed on 3.4 ) , s3 and s4 are the signals from the horizontal antenna with the wilkinson noise and the receiver noise , ( s3,4 signals are deeply analyzed on 3.4 ) , i1,2,3,4 and q1,2,3,4 are the in - phase and quadrature signals for s1,2,3,4 signals , respectively , and taui is the integration time. and the digital implementation to compute the second two elements has been performed as follows : ( 2c ) u = 1tauiintegral0tauis1 ( t ). s3 *( t ) dt - - > u = 2taui (< i1.i3 >) and ( 2d ) v = 1tauiintegral0tauis1 ( t ). s3 *( t ) dt - - > v = 2taui (< q1.i3 >) , where : s1 and s2 are the signals from the vertical antenna with the wilkinson noise and the receiver noise , s3 and s4 are the signals from the horizontal antenna with the wilkinson noise and the receiver noise , i1,3 and q1,3 are the in - phase and quadrature signals for s1,3 signals , respectively , and taui is the integration time .
+in order to save fpga resources and maximize their use , signal time - multiplexing and hardware reuse techniques have been intensively used .
+this increases the synchronism complexity because it is necessary to relate the adc output to a synchronous signal to know which signals are being processed at each clock cycle .
+furthermore , to improve the maximum operating frequency two techniques are used : parallelization , that involves the use of sequential circuits ( changes a multiple cycle serial operation to a multiple stage parallel operation ) , and pipelining , that involves the use of combinational circuits ( changes a high delay combinational circuit to multiple low delay circuits with registers ) .
+in these conditions the digital design operating frequency must be the same as the sampling frequency .
+actually , data is processed at twice the sampling frequency in order to obtain a second steered beam .
+the data path is schematically shown in fig. 4. a correction must be first applied to the input signals to adjust their level before being processed .
+this is related to the output of the adc that gives a binary quantification of the analog signal between 0 and 255 .
+it is therefore necessary to subtract 128 to all the signals while , at the same time , converts the signals into 2 's complement .
+in order to perform the beamforming and the pseudo - correlation , all channels must have a zero relative phase and the same amplitude .
+phase errors are largely related to the fact that the 64 analog receivers do not share the same lo. a 10 mhz clock reference is distributed to all receivers' plls , which lock with a random phase what is uniformly distributed within 0 to 2pi radians .
+amplitude errors are introduced by gain variations ( aging and drifts ) from each receiver 's chain , and are adjusted within +/ - 1 db. as discussed in section 2.2 , the incoming signals are centered at 0.25 times the digital frequency .
+then , it is possible to simultaneously down - convert , apply the beam steering phase , and perform the phase and amplitude calibration of the signals with a single multiplication between the signal and the digital local oscillator signal : ( 3 ) slo ( n )= alphaexp ( - j ( wnn - thetabeam )) withn = 1,2,3 ,... where : wn = 0.25 times the digital frequency , alpha : complex calibration coefficient ( amplitude and phase ) and thetabeam : beam steering phase .
+to synthesize this in the digital domain , a multiplexed digital down - converter ( mddc ) block has been developed ( fig. 5 ) which is also fully adaptive to create new beams or dynamically compensate the phase / amplitude error correction .
+the mddc consists of a phase and amplitude variable local oscillator ( lo ) , whose values are determined by the pau - rad control unit ( cu ) as a function of the beam steering , and the estimated phase and amplitude errors .
+the lo is updated when a new beam is synthesized or the instrument recalibrated .
+note that there are 16 mddcs and 64 los , one for each receiver .
+after the mddc the digital beamformer signal is formed by adding the 16 signals that came from the receivers using a weighted adder .
+the next step is to low - pass filter the i / q composed beams signals , to do this an iir filter has been chosen instead of fir one , due to the smaller order required to obtain the same attenuation .
+once the signals are filtered , they are input to the pseudo - correlator block that multiplies them by pairs ( eqn .
+2 ) , the results are accumulated in the integrator block .
+pau - rad cu switches the input analog receiver signal from antenna signal to a correlated noise signal to estimate the phase and amplitude errors .
+the correlated noise is needed to determine the relative amplitude and phase errors between channels and calibrate them .
+2.3.2 .
+pau - rad control unit ( cu ) pau - rad cu is built on an embedded processor which is implemented in the fpga .
+it is a 32 bit processor with 16 bit instructions specially developed to be programmed in c language .
+pau - rad cu has three main functions : it is both , the interface with the pau - rad alu and with the external interface of pau - rad ; controlling the system operation mode and transmitting to pau - rad alu the state , computes the corrections to be applied at the digital lo to calibrate the signals , and attends the remote control based on a tcp / ip connection .
+pau - rad cu has been designed as a finite state machine , which is always working in one of the different states according to the radiometer 's operation mode at each time instant .
+the block diagram in fig. 6 shows the different states of pau - rad cu and the transitions between them .
+there is a c main function to implement this state diagram , and a subroutine to each state , therefore the descriptions of the different states are an explanation of the corresponding subroutine features .
+there are two types of states : the extended ones that perform test functionalities ( phase sweep ( ps ) , close loop ( cl ) and open loop ( ol )) , and the fundamental ones that perform the core of the radiometer functions ( initialization ( init ) , calibration ( cal ) , correlated internal reference ( cir ) , uncorrelated internal reference ( uir ) and antenna measurement ( am )) .
+the different states are described below : init : initialization state .
+it has two main functions : sets the default parameters of the system when resetting and it listens the remote commands coming from the external interface .
+in a reset process the pau - rad cu transmits to the pau - rad alu the system timer .
+cal : hardware calibration state .
+it switches the input signal to the correlated noise source ( cns ) and starts the phase and amplitude error estimation .
+the lo is modified using the correction values once the error is achieved .
+cir : internal radiometric calibration state .
+it switches the input signal to two well known temperature points of the cns .
+the signals are correlated and sent to the external interface through the tcp / ip connection .
+these results are used to set a unique relationship between the detected power and the brightness temperature .
+the aim of this state is to reduce the time between external hot - cold calibrations .
+uir : offset estimation state .
+it switches the input signal of each chain to a matched load and correlates the signals .
+the result is the offset correction to be applied at the radiometric measures .
+am : computes the stokes parameters .
+it switches the input signal to the antennas .
+it is the state in which the system spends most of the time .
+ol : temporal phase and amplitude drift analysis state , only used for test purposes .
+it switches the input signal to a cns' predefined point .
+los are set to the same amplitude and phase , them the power and the phase of each chain is computed .
+cl : phase and amplitude calibration performance state , used only for test purposes .
+it switches the input signal to a cns' predefined point .
+the system is always estimating and correcting the phase and amplitude errors .
+ps : lo phase sweep analysis state , only used for test purposes .
+it switches the input signal to a cns' predefined temperature point .
+the system changes constantly the lo 's phase and computes the correlation between channels .
+the standard sequence ( cal - cir - uir - am ) is only modified if a remote command has been received .
+in this case , the system moves to init state .
+the time spent in each state depends on the hardware stability .
+the variable v _ timecal is a timer that can be configured depending on the scenario and determines the inter - calibration period .
+it is the time that the system spends in the am. each fundamental cycles , except am , are executed some number of times before the next state .
+finally , the cu has a remote reset watchdog ( the reset signal comes from tcp / ip connection ) to periodically check the status of the connection , and reset the cu if necessary .
+3. calibration algorithms implementation and tests in order to test and improve the calibration algorithms for pau a one - receiver version has been developed ( pau - or ) [ 22 ] .
+it includes pau - rad and pau - gnss / r , but not pau - ir. pau - or ( fig. 7 ) has a full polarization seven - patch array antenna with 25degrees beamwidth and 17.5 dbi directivity .
+analog circuitry is located inside a thermal isolated and regulated box using peltier cells ( achieving a thermal stability , standard deviation of the internal temperature , lower than 0.3degreesc ) .
+a left hand circularly polarized signal is composed and it is sent to pau - gnss / r. a 15 db enr noise source is used for the cns to perform the hardware calibration and for internal reference radiometric calibration .
+in pau - or , and by extension in pau - rad , there are two types of calibration .
+the first one is related to the internal relative calibration between the analog receivers that have different gains and phases .
+needed to perform the beamforming and operates as a pseudo - correlation radiometer .
+the second one is the radiometric calibration to set a unique relationship between the cross - correlation outputs and the stokes elements .
+the cns has been designed to achieve these two types of calibration , allowing the generation of three different temperature points .
+3.1 .
+internal relative phase and amplitude calibration the analog receiver ( fig. 3 ) has two possible inputs : one from the antenna ( ma mode ) and the other from the cns , for calibration purposes ( cir mode ). by commuting the input switch to the correlated noise input the same signal is applied at the input of each chain , which allows estimating the amplitude and phase differences among them .
+the equations obtained from pau are extensively developed in [ 12 ] where all non - ideal terms such as the wilkinson power splitter unbalance or the imperfect matching and isolation are taken into account .
+note that in this paper the system is assumed to be ideal to simplify the mathematics and to clarify the calibration algorithm .
+if the system imperfections are accounted for , additional terms appear , but cancel out in the differential algorithm described below .
+when the input of the analog receivers is commuted to the cns path , the four ideal output signals are given by : ( 4a ) s1 = 12 ( 12 ( scn + sw1 )+ sw2 )+ srec1 , ( 4b ) s2 = alpha ( 12 ( 12 ( scn + sw1 ) - sw2 )+ srec2 ) , ( 4c ) s3 = beta ( 12 ( 12 ( scn - sw1 )+ sw3 )+ srec3 ) and ( 4d ) s4 = gamma ( 12 ( 12 ( scn - sw1 ) - sw3 )+ srec4 ) , where signals are defined as effective voltage waves : scn : is the noise signal from the cns ( same for the four channels ) , sw1 : is the thermal noise signal generated at the first wilkinson power splitter that divides the noise from the cns in two , one for the upper branch ( chains 1 and 2 , fig. 3 ) and the other for the lower branch ( chains 3 and 4 , fig. 3 ) , sw2 and sw3 : are the thermal noise signals from the second and third wilkinson power splitter , at the upper branch and at the lower branch respectively .
+note that these signals are uncorrelated among them , srec1 , srec2 , srec3 and srec4 : are the thermal noise signals introduced by from each receiver .
+note that these signals are also uncorrelated among them , and alpha , beta , gamma : are the complex coefficients that contain the relative phase and amplitude error with respect to the first channel .
+to estimate the complex coefficients alpha , beta , gamma , the following correlations are obtained using the signals defined in eqn .
+4 : ( 5a ) < s1.s1 *>= tcn + tw14 + tw22 + trec1 , ( 5b ) < s1.s2 *>= alpha ( tcn + tw14 - tw22 ) , ( 5c ) < s1.s3 *>= beta ( tcn - tw14 ) and ( 5d ) < s1.s4 *>= gamma ( tcn - tw14 ) , where : tcn : noise temperature from the cns , since tcn * <| scn | 2 > ( note that the equivalence to brightness temperature has been normalized by kb ; .
+tw1 : noise temperature introduced by first wilkinson power splitter , note that tw1 * tph1 * tph2 , that are the receivers physical temperature and tw2 : noise temperature introduced by the upper branch wilkinson power splitter , note that tw2 * tph2 * tph1 , that are the receivers physical temperature .
+in order to compare eqns .
+5a and 5b with 5c and 5d the +/ - tw2 / 2 and trec1 terms that must be cancelled .
+to eliminate these terms a differential calibration approach is used , by injecting two different noise temperatures ( tcn1 and tcn2 ) , and subtracting the results for each channel : ( 6a ) < s1.s1 *> tcn1 - < s1.s1 *> tcn2 = tcn1 - tcn24 , ( 6b ) < s1.s2 *> tcn1 - < s1.s2 *> tcn2 = alpha ( tcn1 - tcn24 ) , ( 6c ) < s1.s3 *> tcn1 - < s1.s3 *> tcn2 = beta ( tcn1 - tcn24 ) and ( 6d ) < s1.s4 *> tcn1 - < s1.s4 *> tcn2 = gamma ( tcn1 - tcn24 ) , the complex coefficients alpha , beta and gamma are them obtained without the " a priori " knowledge of the receiver 's noise temperature .
+the digital lo is then modified and , as a result , the channels are calibrated .
+note that : equation 5 and eqn .
+6 the kb terms have been deliberately omitted so that " powers " are directly expressed as temperatures ( kelvin ) .
+this analysis can be directly extended to the case of non - ideal power splitters and receivers as detailed in [ 12 ] , and as is said , the previous analysis has assumed that the wilkinson power splitters were ideal , and that all inputs were perfectly matched .
+a detailed analysis was performed in [ 12 ] which shows that when the differential technique is used , the non - ideal terms are cancelled out , thus reducing to eqn .
+6. 3.2 .
+test of the internal relative phase and amplitude calibration algorithms a set of test has been performed in order to evaluate the algorithms performance .
+all these tests have been done in cl mode , the system is always injecting two noise levels to estimate and correct the phase and amplitude errors on a snap - shot basis every 0.53 s .
+( integration time ) .
+figure 8 shows the test set - up. note that the receiver is outside the thermal isolated box to show the whole test set - up. figure 9 shows the different output power ( in counts : arbitrary measurement units , amu ) , during the warm up transient , for the four receiving channels .
+after a warm - up transient of 50 min. , the amplitude values stabilize , and the calibration algorithm can then be applied .
+after applying the calibration algorithm at each measurement .
+the means and the standard deviations for each channel are m1,2,3,4 = 58.63 dbamu , within the goal of +/ - 0.1 db residual amplitude calibration error , and sigma1 = 0.017 , sigma2 = 0.032 sigma3 = 0.016 and sigma4 = 0.015 dbamu , respectively .
+( fig. 10b ) note that in fig. 10a the powers are expressed in arbitrary measurement units ( amu , 1 amu = 1 count ) .
+before calibration the mean and the standard deviation for each channel are m1 = 58.63 , m2 = 58.53 , m3 = 58.64 and m4 = 58.15 dbamu and sigma1 = 0.015 , sigma2 = 0.016 sigma3 = 0.003 and sigma4 = 0.003 dbamu , respectively .
+figure 11 shows the phase drift of the four channels just after turning on the receiver .
+again , after a warm - up transient of 50 min. , the phase values stabilize , and the calibration algorithm can be applied .
+figure 12 shows the residual phase error as the result of the application of the described algorithm applied .
+after the transient period , the residual phase error standard deviations are : sigma1 = 0.069degrees , sigma2 = 1.343degrees , sigma3 = 1.116degrees and sigma4 = 1.302degrees .
+in order to reduce even further the residual phase error a closed - loop kalman filter [ 15 ] has been implemented ( fig. 13 ) .
+a kalman filter is an efficient recursive filter that estimates the state of a dynamic system from a series of incomplete and noisy measurements , in this case the filter 's input is the estimated phase error that contains measurement noise .
+the filter 's output is the estimated phase error with smaller noise level .
+there are two main parameters in a kalman filter to be tuned : the standard deviation of the noisy signal and the gain coefficient .
+the first one , the measurement of the standard deviation of the noisy signal , was experimentally determined through several iterations .
+the second one , the filter gain , is a trade - off between the convergence speed and the residual error and the best results have been obtained with a 0.95 gain .
+figure 14a shows the temporal evolution of the residual phase error using a closed - loop kalman filter .
+after a transient of about 100 s. , when there is some ringing , the residual phase error stabilizes to smaller values .
+figure 14b shows the phase error histograms of the residual phase error using a closed - loop kalman filter .
+the standard deviations of the phase of each channel are : sigma1 = 0.012degrees , sigma2 = 0.227degrees , sigma3 = 0.278degrees and sigma4 = 0.189degrees , while the means of each of the four channels is zero .
+these residual standard deviation values are very low and allow performing the pseudo - correlation radiometer and the digital beam - forming accurately .
+note that the histograms ( fig. 14b ) look like those of a sinusoidal histogram due to the sinusoidal oscillations of the kalman transient ringing .
+3.3 .
+pau hardware calibration global algorithm this algorithm is implemented in the pau - rad - uc , the algorithm has six steps that can be summarized as follows : switching the input to the cns input , using the highest temperature point available , and acquisition of one set of data from the pau - rad - alu .
+data acquisition from the pau - rad - alu in order to estimate the relative phase error .
+for each channel compute and set the new error phase values for the lo. data acquisition from the pau - rad - alu in order to estimate the amplitude error , first acquisition .
+modification of the cns to obtain the medium noise temperature point and acquire data from the pau - rad - alu in order to estimate the amplitude error , second acquisition .
+compute and set the final values for the lo , taking into account phase and amplitude errors , and steering phase .
+3.4 .
+radiometric absolute calibration using internal references the classical method to calibrate a radiometer consists of using ( at least ) an external thot , ( eg. microwave absorber ) and an external tcold , ( eg. the clear sky ) .
+using these well - known reference points , an unique relationship between the antenna temperature and the measured power is obtained .
+this method requires a mechanical movement of the antenna .
+to avoid this inconvenience , a radiometric calibration based on internal temperature references has been implemented .
+the cns system generates a third well - known temperature point at the input of the receiver chain .
+the input noise is the same as that of a microwave absorber placed in front of the antenna , both at the same physical temperature than the matched load. with these results and using a previous measurement of tsky ( which obviously includes the antenna ohmic losses , etaomega ) the correction coefficients can be obtained .
+4. conclusions and future work the calibration algorithm of pau - rad has been presented on a one - receiver demonstrator : pau - or. the instrument has been implemented , the calibration algorithms tested and the result presented and discussed .
+on one hand , to take advantage of using the same band for both reflectometer and the radiometer , its beam must be steered to a direction where the gnss - reflected signal is attenuated by at least 15 db ( deltat = 0.03 k ) .
+on the other hand , the reflectometer beam must be pointed to the specular reflection .
+the digital design can be easily modified to generate two simultaneous beams in real - time .
+the whole design , analog and digital parts , has been satisfactorily tested .
+moreover , the pau - rad cu has been designed in c language over a microprocessor giving it versatility .
+the state diagram has been developed to obtain the best performance in any kind of scenario and allows changing the main radiometer 's parameters .
+the main results are summarized below : differential amplitude and phase calibration algorithms have been developed in order to mitigate the offset introduced by the subsystems non - idealities and to give robustness to the error estimation .
+the results obtained with de differential amplitude calibration algorithm are better than the required 0.1db : sigma1 = 0.017 , sigma2 = 0.032 sigma3 = 0.016 and sigma4 = 0.015 dbamu .
+the results obtained with the differential phase calibration algorithm are smaller than 1.5degrees : sigma1 = 0.069degrees , sigma2 = 1.343degrees , sigma3 = 1.116degrees and sigma4 = 1.302degrees , and the improvement over the standard phase calibration algorithm filtering using a kalman filter improves the results obtained , with standard deviations smaller than 0.5degrees : sigma1 = 0.012degrees , sigma2 = 0.227degrees , sigma3 = 0.278degrees and sigma4 = 0.189degrees .
+future work will focus on exporting the know - how and the techniques developed in pau - or to the 16 element pau .
+this work has been conducted as part of the award " passive advanced unit ( pau ) : a hybrid l - band radiometer , gnss - reflectometer and ir - radiometer for passive remote sensing of the ocean " made under the european heads of research councils and european science foundation euryi ( european young investigator ) awards scheme in 2004 , was supported by funds from the participating organizations of euryi and the ec sixth framework programme .
+it has also been supported by the spanish national research and eu feder project tec2005 - 06863 - c02 - 01 .
+references and notes 1 .
+font j. lagerloef g.s.e. le vine d.m. camps a. zanife o.z. the determination of surface salinity with the european smos space mission ieee transactions on geoscience and remote sensing 2004 42 10 2196 2205 2 .
+camps a. font j. vall - llossera m. gabarro c. corbella i. duffo n. torres f. blanch s. aguasca a. villarino e. the wise 2000 and 2001 field experiments in support of the smos mission : sea surface l - band brightness temperature observations and their application to multi - angular salinity retrieval ieee transactions on geoscience and remote sensing 2004 42 4 804 823 3 .
+sobjaerg s.s. rotboll j. m. skou n. the l - band ocean salinity airborne campaign losac esaisbn : sp - 525 vol : losac c 2003 27 35 4 .
+reul n. contract esa itt1 - 4505 / 03 / nl / cb - synergetic aspects and auxiliary data concepts for sea surface salinity measurements from spacetechnical report dos vol. 2004 - 03 ifremer bp 70 , 29280 plouzane , france 2004 5 .
+sabia r. camps a. vall - llossera m. reul n. impact on sea surface salinity retrieval of different auxiliary data within the smos mission ieee transactions on geoscience and remote sensing 2006 44 11 - 1 2769 2778 6 .
+camps a. telecommunications engineering .
+" passive advanced unit ( pau ) : a hybrid l band radiometer , gnss - reflectometer and ir - adiometer for passive remote sensing of the ocean " european young investigator awards 2004 http :// www.esf.org / activities / euryi / awards / 2004.html 7 .
+yueh s.h. modeling of wind direction signals in polarimetric sea surface brightness temperatures ieee transactions on geoscience and remote sensing 1997 35 6 8 .
+marchan - hernandez j.f. ramos - perez i. bosch - lluis x. camps a. fpga - based implementation of ddm - generator for gps - reflectometry proceedings of the international geoscience and remote sensing symposiumusa 2006 1180 1183 9 .
+marchan - hernandez j.f. ramos - perez i. bosch - lluis x. camps a. rodriguez - alvarez n. albiol d. pau - gnss / r , a real - time gps - reflectometer for earth observation applications : architecture insights and preliminary results proceedings of the international geoscience and remote sensing symposiumspain 2007 10 .
+marchan - hernandez j.f. rodriguez - alvarez n. camps a. bosch - lluis x. ramos - perez i. valencia e. correction of the sea state impact in the l - band brightness temperature by means of delay - doppler maps of global navigation satellite signals reflected over the sea surface ieee transactions on geosceince and remote sensing 2008 ( in press ) 11 .
+rodriguez - alvarez n. camps a. bosch - lluis x. ramos - perez i. marchan - hernandez j.f. pau - ir : sea surface temperature retrieval using ir - radiometry and atmospheric modeling : simulation and experimental results international geoscience and remote sensing symposiumspain 2007 12 .
+camps a. bosch - lluis x. ramos - perez i. marchan - hernandez j.f. izquierdo b. rodriguez - alvarez n. new instrument concepts for ocean sensing : analysis of the pau - radiometer ieee transactions on geosceince and remote sensing 2007 45 10 3180 3192 13 .
+ramos - perez i. bosch - lluis x. camps a. marchan - hernandez j.f. prehn r. design of a compact dual - polarization receiver for pseudo - correlation radiometers at l - band proceedings of the international geoscience and remote sensing symposiumusa 2006 1172 1175 14 .
+bosch - lluis x. camps a. marchan - hernandez j. f. ramos - perez i. prehn r. fpga - based implementation of a polarimetric radiometer with digital beamforming proceedings of the international geoscience and remote sensing symposiumusa 2006 1176 1179 15 .
+kalman r.e. a new approach to linear filtering and prediction problems transactions of the asme - journal of basic engineering 1960 82 35 40 16 .
+smith n. lefebvre m. the global ocean data assimilation experiment ( godae ) proc. int. symp .
+monitoring oceans in the 2000s : an integrated approachfrance 1997 17 .
+camps a. rodriguez - alvarez n. bosch - lluis x. marchan - hernandez j.f. ramos perez i. segarra m. sagues ll. tarrago d. cunado o. pau in seosat : a proposed hybrid l - band microwave radiometer / gps reflectometer to improve sea surface salinity estimates from space 10th specialist meeting on microwave radiometry and remote sensing of the environmentitaly 2008 18 .
+van vlecr j.h. middleton d. the spectrum of clipped noise proceedings of the ieee 1966 54 1 2 19 19 .
+bosch - lluis x. ramos - perez i. camps a. marchan - hernandez j.f. rodriguez - alvarez n. valencia e. vericat m. guerrero m.a. the impact of the number of bits in digital beamforming real aperture and synthetic aperture radiometers 10th specialist meeting on microwave radiometry and remote sensing of the environmentitaly 2008 20 .
+de paula a. pieper r.j. a more complete analysis for subnyquist band - pass sampling system theory , 1992 .
+proceedings of the ssst / csa 92 1992 20 24 21 .
+yueh s.h. estimates of faraday rotation with passive microwave polarimetry for microwave remote sensing of earth surfaces ieee transactions on geosceince and remote sensing 2000 38 5 2434 2438 22 .
+camps a. aguasca a. bosch - lluis x. marchan - hernandez j.f. ramos - perez i. rodriguez - alvarez n. bou f. ibanez c. measurements and first results of the one - receiver pau instruments international geoscience and remote sensing symposiumspain 2007 figure 1 .
+pau overview .
+figure 2. a. pau 's rf part of the elemental receiver with box. b. pau 's if part of the elemental receiver with box .
+figure 3 .
+analog receiver configuration for hardware calibration by noise injection .
+figure 4 .
+pau - alu - rad diagram .
+figure 5 .
+mddc sketch .
+figure 6 .
+pau - rad cu extended datagram .
+figure 7 .
+pau - or general view .
+figure 8 .
+pau - or general view , set up for test purposes .
+figure 9 .
+one receiver amplitude temporal drifts , without any correction .
+figure 10. a. one receiver amplitude temporal drifts , without any correction. b. one receiver amplitude after the differential amplitude calibration algorithm .
+figure 11 .
+phase temporal drifts of the four channels , without any correction .
+figure 12. a. residual phase error , after the phase calibration. b. residual phase error histogram after the phase calibration .
+figure 13 .
+digital hardware calibration for phase error estimation using a kalman filter .
+figure 14. a. residual phase error , using a closed - loop kalman filter. b. phase error residual histogram , using a closed - loop kalman filter .

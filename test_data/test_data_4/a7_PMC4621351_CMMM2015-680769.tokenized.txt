@@ -1,0 +1,161 @@
+comput math methods med comput math methods med cmmm computational and mathematical methods in medicine 1748 - 670x 1748 - 6718 hindawi publishing corporation 26550023 4621351 10.1155 / 2015 / 680769 research article enhanced z - lda for small sample size training in brain - computer interface systems gao dongrui 1 zhang rui 1 liu tiejun 1 2 li fali 1 ma teng 1 lv xulin 1 li peiyang 1 yao dezhong 1 2 xu peng 1 2 * 1key laboratory for neuro - information of ministry of education , school of life science and technology , university of electronic science and technology of china , chengdu 611731 , china 2center for information in bio - medicine , university of electronic science and technology of china , chengdu 611731 , china * peng xu : xupeng @ uestc.edu.cn academic editor : irena cosic 2015 13 10 2015 2015 680769 10 7 2015 28 9 2015 28 9 2015 copyright ( c ) 2015 dongrui gao et al .
+2015 this is an open access article distributed under the creative commons attribution license , which permits unrestricted use , distribution , and reproduction in any medium , provided the original work is properly cited. background .
+usually the training set of online brain - computer interface ( bci ) experiment is small .
+for the small training set , it lacks enough information to deeply train the classifier , resulting in the poor classification performance during online testing. methods .
+in this paper , on the basis of z - lda , we further calculate the classification probability of z - lda and then use it to select the reliable samples from the testing set to enlarge the training set , aiming to mine the additional information from testing set to adjust the biased classification boundary obtained from the small training set .
+the proposed approach is an extension of previous z - lda and is named enhanced z - lda ( ez - lda ). results .
+we evaluated the classification performance of lda , z - lda , and ez - lda on simulation and real bci datasets with different sizes of training samples , and classification results showed ez - lda achieved the best classification performance. conclusions .
+ez - lda is promising to deal with the small sample size training problem usually existing in online bci system .
+1. introduction brain - computer interface ( bci ) could translate brain intention into computer commands , and it has been widely used for cursor control [ 1 ] , word spelling [ 2 ] , neurological rehabilitation [ 3 ] , and so forth .
+generally , bci system consists of stimulus presentation , signal acquisition , feature extraction , and translation modules [ 4 ] ; among them feature extraction and translation algorithms play important roles for the final bci performance .
+three factors , including heteroscedastic class distribution , small sample size training , and nonstationary physiological signals , should be taken into consideration when selecting the translation algorithms for bci system .
+regarding the translation module , linear discriminant analysis ( lda ) is one of the most popular classification algorithms for bci application due to its simplicity , and it has been widely used in motor imagery - based bci [ 5 ] , p300 speller [ 6 ] , and motion - onset visual evoked potential - based bci ( mvep - bci ) [ 7 ] .
+besides , the use of linear discriminant analysis ( lda ) for functional near - infrared spectroscopy - ( fnirs - ) based bcis is worth mentioning .
+lda has been shown to work effectively for the binary [ 8 ] and multiclass [ 9 ] classifications of motor imagery signals for the development of fnirs - based bcis .
+however , lda is established on the homoscedastic class distribution assumption , which is usually not held for practical bci application .
+in order to handle this problem , we proposed an improved method named z - score lda ( z - lda ) [ 10 ] .
+z - lda defines the decision boundary through z - score utilizing both mean and standard deviation information of the projected data , and evaluation results showed better classification performance could be obtained under the heteroscedastic distribution situation .
+but z - lda does not take into account the small sample size training problem that usually existed in actual online bci system [ 11 ] .
+when the number of the training samples is small , the estimated classifier tends to be overfitted , resulting in the poor generalization during online testing .
+various approaches have been proposed to address this issue [ 12 ] .
+li et al. designed a self - training semisupervised svm algorithm to train the classifier with small training data [ 11 ] .
+xu et al. proposed a strategy which enlarges training set by adding test samples with high probability to improve the classification performance of bayesian lda under small sample training situation [ 13 , 14 ] .
+the strategy hypothesizes that unlabeled samples with high probability provide valuable information for refining the classification boundary .
+in essence , z - lda defines the confidence of samples in terms of its position in the estimated distribution , which could be used to update the classifier for the online bci system .
+in the current study , we will extend z - lda to deal with the small size training problem .
+2. materials and methods 2.1 .
+probability output of z - lda in lda [ 15 ] , the weight sum y ( x ) of the unlabeled sample x is calculated based on the project vector w which is estimated from the training set , and the corresponding prediction label is then determined by the shortest distance between y ( x ) and the labels of each class .
+for z - lda [ 10 ] , we assume that y ( x ) of samples in each class follow normal distribution and normalize it through z - score as ( 1 ) zk = yx - muksigmak,where mu k , sigma k are the corresponding mean and standard deviation of the weight sum y ( x ) for training set c k. thus , z k follows standard normal distribution ; z - lda make the prediction based on the distance between z k and mean of the standard normal distribution ( i.e. , 0 ) .
+suppose z * is the closest one near to 0 ; then the unlabeled sample will be classified to training set c * .
+in the binary classification , the decision boundary of z - lda is defined as [ 10 ] ( 2 ) c *= sigma1mu2 + sigma2mu1sigma1 + sigma2 .
+generally , the cumulative distribution function of the standard normal distribution is denoted as ( 3 ) phix = px < x = 12piintegral - infinityxe - t2 / 2 dt , - infinity < x <+ infinity.for the transformed z - score z * of z - lda , the area represents the cumulative probability phi ( z *) that is shown in figure 1 .
+based on this , we define the prediction probability of z - lda as ( 4 ) pz *= 1 - phiz * - phi - z *. the area which represents p ( z *) is also marked on figure 1 .
+it is easy to know that p ( z *) decreases with the increased distance between z * and the mean of the standard normal distribution , and the range of p ( z *) is [ 0,1 ] .
+obviously , the larger p ( z *) denotes the higher confidence that the sample belongs to class c * ; thus the above definition is reasonable .
+2.2 .
+training set enlarging strategy a small training set may not provide enough information for estimating the distribution parameters of the samples ; thus the biased classification boundary could be obtained when training the classifier .
+in this case , the classification accuracy will be decreased during online test .
+we propose to add a kind of training set enlarging strategy to alleviate the small sample size training effect in this work , and the detailed procedures are illustrated in figure 2 .
+after classifier model is estimated based on the small training set and the prediction results of unlabeled test samples are obtained , the strategy assumes that unlabeled test samples with high classification probability represent correct prediction , and these correctly predicted samples could be screened out and then used to enlarge the training set .
+thus , more accurate sample distribution estimation and the improved classifier with the refined classification boundary would be obtained [ 13 ] .
+in this strategy , classification probability information exported from z - lda classifier is regarded as a confident evaluation criterion to select the high probability test samples , which are then labeled according to the prediction results of z - lda .
+next we need to set a threshold ; the predicted label of a test sample is believed to be correct if the corresponding classification probability is higher than the threshold .
+finally this test sample could be considered as a training sample because its label has been correctly predicted , and it could be added to the training set for classifier calibration .
+the above procedures could be repeated several times ; thus more samples could be selected , the training set could be enlarged , and the more accurate classification boundary could be found .
+the above training set enlarging strategy incorporated with z - lda is named as enhanced z - lda ( ez - lda ) in current study .
+2.3 .
+simulations we constructed a simulation dataset in order to quantitatively investigate the classification performance of ez - lda when dealing with the small sample size training problem .
+the simulation was established by using the fundamental two 2 - dimensional gaussian distributions , where the samples in the first class follow a gaussian distribution with mean ( - 5 , 1 ) and standard deviation ( 1 , 1 ) , and the samples in the second class follow a gaussian distribution with mean ( 5 , - 1 ) and standard deviation ( 5 , 5 ) .
+5 % outlier samples were added into both the training and testing sets , where the outliers follow a gaussian distribution with mean ( 25 , - 15 ) and standard deviation ( 1 , 1 ) .
+there were 50 samples in the training set with 25 samples in each class , and the testing set consisted of 200 samples with 100 samples in each class .
+during classifier training , 20 , 30 , 40 , and 50 samples from the training set were selected , respectively .
+the prediction results of lda and z - lda were also calculated for comparison .
+regarding ez - lda , the test set was divided into 20 parts , with 10 samples in each part .
+then we used the classifier estimated from original training set to predict the labels of the first part ( 10 samples ) of the test set and obtained the predicted label and classification probability of each sample .
+next we set a probability threshold ; the predicted label of a test sample is believed to be correct if the corresponding classification probability is higher than the threshold .
+finally this kind of test sample could be considered as a training sample because its label has been correctly predicted , and it could be added to the training set .
+once the first part ( 10 ) samples have been processed , we retrain the classifier based on the extended training set ; then using the updated classifier to process the next 10 test samples , the repetitions will be stopped until all the test samples are predicted .
+the probability thresholds ranged from 10 % to 90 % with a step 10 % being considered .
+the above procedures were repeated 100 times in order to reduce the random effect , and all the samples of the training and testing set were generated at the beginning of each iteration .
+finally , the average classification accuracies were obtained for the three classifiers , respectively .
+2.4 .
+real bci dataset 2.4.1 .
+dataset description the evaluation dataset comes from motion - onset visual evoked potential - based bci ( mvep - bci ) experiment .
+mvep could be evoked by brief motion of object , and it is time locked to the onset of the motion .
+we can achieve the brief motion stimuli by screen virtual button ; thus bci system based on mvep could be developed [ 7 , 16 ] .
+eight subjects ( 2 females , aged 23.3 +/ - 1.3 years ) participated in the current study .
+they were with normal or corrected to normal vision .
+the experimental protocol was approved by the institution research ethics board of the university of electronic science and technology of china .
+all participants were asked to read and sign an informed consent form before participating in the study .
+after the experiment , all participants received monetary compensation for their time and effort .
+the experimental paradigm is similar as we described in [ 17 ] ; six virtual buttons were presented on the 14 - inch lcd screen , and , in each virtual button , a red vertical line appeared in the right side of the button and moved leftward until it reached the left side of the button , which generated a brief motion - onset stimulus .
+the entire move took 140 ms , with a 60 ms interval between the consecutive two moves .
+the motion - onset stimulus in each of the six buttons appeared in a random order , and a trial was defined as a complete series of motion - onset stimulus of all six virtual buttons successively .
+the interval between two trials was 300 ms ; thus each trial lasted 1.5 s. five trials comprised a block , which costs 7.5 s. the subject needs to focus on the button which is indicated in the center of the graphical user interface , and the instructed number randomly appeared .
+to increase their attention , the subject was further asked to count in silence the times of moving stimulus appearing in the target button .
+a total of 144 blocks , including 720 trials , were collected for each subject in four equal separate sessions , with a 2 - minute rest period between sessions .
+ten ag / agcl electrodes ( cp1 , cp2 , cp3 , cp4 , p3 , p4 , pz , o3 , o4 , and oz ) from extended 10 - 20 system were placed for eeg recordings by using a symtop amplifier ( symtop instrument , beijing , china ) .
+all electrode impedance was kept below 5 komega , and afz electrode was adopted as reference .
+the eeg signals were sampled at 1000 hz and band - pass filtered between 0.5 and 45 hz .
+2.4.2 .
+preprocessing and feature extraction since the scalp recorded eeg signals are usually contaminated with noise , those trials with absolute amplitude above 50 muv threshold were removed from the following analysis .
+the remaining eeg data were band - pass filtered between 0.5 hz and 10 hz , because the mvep is usually distributed in the low frequency band [ 18 ] .
+then the eeg epochs of 5 trials in each block were averaged by stimulus .
+similar to p300 - based study , the instructed stimulus was defined as target , and the others were defined as nontarget .
+two - sample t - test was applied between the target and nontarget epochs to find the channels and time windows which exhibit significant difference .
+finally , three significant channels were selected for each subject , and the time windows ranged from 140 ms to 350 ms , which varied between subjects .
+the selected epochs were further down - sampled to 20 hz , and a 9 - dimensional or 12 - dimensional feature vector was generated for each stimulus in the block at the end .
+2.4.3 .
+small sample size classification the aim of the mvep - bci was to distinguish the target and nontarget stimuli , that is , recognizing the button which subject paid attention to ; thus it was a binary classification problem .
+the ratio of the nontarget and target number in each trial was 5 : 1 , and we selected equal number of target and nontarget samples for initially training in the following analysis in order to balance the two classes .
+20 , 40 , 60 , 80 , and 100 samples were used to train the classifiers , respectively , and the remaining samples were used for test .
+similar to the strategies demonstrated in simulations , the higher probability test samples were added into the training set to update the classifier for ez - lda with the step also being 10 samples , and the threshold was set as 50 % , because the highest accuracy was achieved at this threshold on the simulation dataset .
+similarly , the classification results of lda and z - lda were also calculated for comparison .
+3. results the classification results of the simulation dataset were shown in table 1 , where the accuracies of all the three classifiers increased with the extending of the initial training sample size .
+ez - lda achieved the highest average accuracies under all the sample size conditions , and the accuracies obtained by ez - lda under all thresholds were significantly higher than z - lda ( p < 0.05 , mann - whitney u test ) .
+when the training sample size was bigger than 20 , both z - lda and ez - lda achieved higher accuracies than lda .
+regarding the various thresholds in ez - lda , the best performance was obtained for the threshold 50 % .
+to further reveal the working mechanism of ez - lda , an illustration of the training set enlarging strategy was given in figure 3 .
+the initial training sample size was 20 ; z - lda and ez - lda shared the same classification boundary ( figure 3 ( a )) .
+when the high probability samples in testing set were included in the training set , the corresponding boundary lines of ez - lda could be adaptively adjusted ( figures 3 ( b ) - 3 ( d )) .
+figure 4 presented the performances on real mvep - bci dataset for lda , z - lda , and ez - lda .
+for all the three kinds of classifiers , the mean accuracies increased when we enlarged the training size , and this is consistent with the simulation result .
+moreover , the classification accuracies of ez - lda consistently outperformed z - lda in all of the five considered training sample sizes ( p < 0.05 , mann - whitney u test ) ; compared with lda , the significant improvement could be also observed except the training size with 40 samples .
+4. discussion translation algorithms in bci system could translate intent - related features to computer commands , and generally we need to collect a training set at first for training the classifier .
+but due to the factors such as experiment time limit , electrode conductivity decrease over time , and subject fatigue , usually the training set is not big enough in bci application .
+besides , as for the online bci system , the subject 's mental state may vary largely from the previous mental state during training .
+therefore , in order to track subject 's mental state change , it is necessary to update the classifier by utilizing the information from those new test samples , which is also useful for resolving the small sample size training problem .
+the best way to reduce the bias effect is to include enough samples to train the classifier , but it is unable to achieve in actual bci experiment .
+alternatively , we could consider the unlabeled test samples with high classification probability , as the prediction of them could be trusted .
+thus we may enlarge the training set by adding those test samples with high classification probability in testing set to refine the classifier .
+results from both simulation and real bci datasets in current study showed that the enlarging strategy for training set could improve the classification performance of z - lda under small sample size situation .
+the classification boundary definition of z - lda is based on the distribution of the training samples ; vividly it can be viewed as the intersection of the gaussian distribution curves [ 10 ] .
+if the training set is too small , we may not get the accurate distribution information of the samples , resulting in the biased classifier boundary .
+in this case , the classification accuracy of z - lda may be decreased as revealed in the results from both simulation and actual bci datasets .
+specifically , in simulation dataset , the mean accuracies of z - lda are lower than those of lda when the training size is 20 ; similarly in real bci dataset when 20 or 40 samples are selected for training , the mean accuracies of z - lda are lower than lda .
+however , ez - lda achieved better accuracies than lda in both simulation and real bci datasets , but ez - lda still needs a number of training samples for initial classifier training ; based on the simulation and real bci datasets in current study , we think the minimum number of training samples is 20 for ez - lda to perform well .
+adding the test samples with higher classification probability to training set could enlarge the training size ; thus more accurate sample distribution information could be estimated for z - lda , and the biased classification boundary could be corrected too .
+as shown in figure 3 , the classification boundaries are the same between ez - lda and z - lda for the initial training set ( figure 3 ( a )) .
+then the boundary is used to predict the labels of the test samples , and those predicted test samples with high classification probability are selected to extend the training set ; finally the classification boundary is refined ( figure 3 ( b )) .
+the above procedures could be repeated again to obtain more accurate classification boundary ( figures 3 ( c ) and 3 ( d )) .
+noted that some of the test samples may be wrongly classified during prediction , usually these kinds of samples are far from the distribution center and with lower classification probability , for example , the grey filled circles in figure 3 .
+since they may influence the estimated classifier model , we set a threshold to screen them out .
+the classification probability of z - lda is based on the cumulative distribution function phi ( x ) of the standard normal distribution .
+the cumulative probability is equal to 0 , 50 % , and 100 % when x are - infinity , 0 , and + infinity , respectively .
+mathematically , z - lda measures similarity of how a sample belongs to this distribution by the distance between the distribution center 0 and the sample variable defined in ( 1 ) .
+following ( 4 ) , the closer to distribution center the sample variable is , the higher probability the sample belongs to the class with this distribution .
+to expand the training set , we need to set a probability threshold to select the test samples with correctly predicted label .
+obviously , more wrongly predicted samples may be added to the training set when a lower threshold was set , whereas when the threshold was set higher , fewer samples could be selected to add in the training set .
+the biased classification boundary cannot be effectively corrected under the two above conditions , as proved by table 1 that the relatively poor performance is achieved for ez - lda when the threshold is set as 10 % or 90 % .
+however , the highest mean accuracy is achieved when the threshold is set as 50 % .
+therefore , the threshold should be set as a compensation of the number of correctly and wrongly predicted samples in the actual application .
+in the real bci dataset , we only considered the 50 % threshold for illustration , because the highest accuracies are achieved under this threshold on simulation dataset .
+as shown in figure 4 , when the enlarging strategy is combined with ez - lda , the performance of ez - lda has statistical improvement compared with lda and z - lda , because the information in the testing set can be mined to update the classifier .
+svm is an another popular classifier used for bci application [ 19 , 20 ] ; the advantages of lda are simplicity and low computational cost , while svm has better generalization capability .
+theoretically , the optimal hyperplane of svm maximizes the distance between the support vectors ( the nearest training points ) ; thus it is highly dependent on the nearest training points which are found from the training samples .
+however , when there are fewer samples in the training set , the selected nearest training points may not be representative ; thus the obtained optimal hyperplane may be biased too .
+therefore , svm cannot solve the small sample size training problem .
+5. conclusions in the current study , we proposed adding the test samples with higher classification probability to the training set for obtaining comprehensive distribution information ; thus the biased classification boundary estimated from the small training set could be corrected .
+the effectiveness of ez - lda in handling the small sample size training problem was validated on both simulation and real bci datasets .
+ez - lda is an extension of z - lda , and it is easy to be implemented in real - time bci systems .
+acknowledgments this work was supported , in part , by grants from the 973 program 2011cb707803 , the 863 project 2012aa011601 , the national nature science foundation of china ( no .
+61175117 , no .
+81330032 , no .
+91232725 , and no .
+31100745 ) , the program for new century excellent talents in university ( no. ncet - 12 - 0089 ) , and the 111 project ( b12027 ) .
+conflict of interests the authors declare that they have no competing interests .
+authors' contribution dongrui gao and rui zhang contributed equally to this work .
+1 wolpaw j. r. mcfarland d. j. control of a two - dimensional movement signal by a noninvasive brain - computer interface in humans proceedings of the national academy of sciences of the united states of america 2004 101 51 17849 17854 10.1073 / pnas.0403504101 2 - s2.0 - 11144248238 15585584 2 zhou z. yin e. liu y. jiang j. hu d. a novel task - oriented optimal design for p300 - based brain - computer interfaces journal of neural engineering 2014 11 5 056003 10.1088 / 1741 - 2560 / 11 / 5 / 056003 2 - s2.0 - 84907912021 3 takahashi m. takeda k. otaka y. event related desynchronization - modulated functional electrical stimulation system for stroke rehabilitation : a feasibility study journal of neuroengineering and rehabilitation 2012 9 , article 56 10.1186 / 1743 - 0003 - 9 - 56 2 - s2.0 - 84864960828 4 wolpaw j. r. birbaumer n. mcfarland d. j. pfurtscheller g. vaughan t. m. brain - computer interfaces for communication and control clinical neurophysiology 2002 113 6 767 791 10.1016 / s1388 - 2457 ( 02 ) 00057 - 3 2 - s2.0 - 0036271135 12048038 5 guger c. ramoser h. pfurtscheller g. real - time eeg analysis with subject - specific spatial patterns for a brain - computer interface ( bci ) ieee transactions on rehabilitation engineering 2000 8 4 447 456 10.1109 / 86.895947 2 - s2.0 - 0034470419 11204035 6 bostanov v. bci competition 2003 - - data sets ib and iib : feature extraction from event - related brain potentials with the continuous wavelet transform and the t - value scalogram ieee transactions on biomedical engineering 2004 51 6 1057 1061 10.1109 / tbme.2004.826702 2 - s2.0 - 2442679166 15188878 7 guo f. hong b. gao x. gao s. a brain - computer interface using motion - onset visual evoked potential journal of neural engineering 2008 5 4 477 485 10.1088 / 1741 - 2560 / 5 / 4 / 011 2 - s2.0 - 59649086752 19015582 8 naseer n. hong k .
+- s. classification of functional near - infrared spectroscopy signals corresponding to the right - and left - wrist motor imagery for development of a brain - computer interface neuroscience letters 2013 553 84 89 10.1016 / j.neulet.2013.08.021 2 - s2.0 - 84884379869 23973334 9 hong k .
+- s. naseer n. kim y .
+- h. classification of prefrontal and motor cortex signals for three - class fnirs - bci neuroscience letters 2015 587 87 92 10.1016 / j.neulet.2014.12.029 2 - s2.0 - 84919933401 25529197 10 zhang r. xu p. guo l. zhang y. li p. yao d. z - score linear discriminant analysis for eeg based brain - computer interfaces plos one 2013 8 9 e74433 10.1371 / journal.pone.0074433 2 - s2.0 - 84884165951 11 li y. guan c. li h. chin z. a self - training semi - supervised svm algorithm and its application in an eeg - based brain computer interface speller system pattern recognition letters 2008 29 9 1285 1294 10.1016 / j.patrec.2008.01.030 2 - s2.0 - 43249086679 12 lotte f. congedo m. lecuyer a. lamarche f. arnaldi b. a review of classification algorithms for eeg - based brain - computer interfaces journal of neural engineering 2007 4 2 r1 r13 17409472 13 xu p. yang p. lei x. yao d. an enhanced probabilistic lda for multi - class brain computer interface plos one 2011 6 1 e14634 10.1371 / journal.pone.0014634 2 - s2.0 - 79551627007 14 lei x. yang p. yao d. an empirical bayesian framework for brain - computer interfaces ieee transactions on neural systems and rehabilitation engineering 2009 17 6 521 529 10.1109 / tnsre.2009.2027705 2 - s2.0 - 74549222346 19622442 15 bishop c. m. pattern recognition and machine learning 2006 new york , ny , usa springer 16 hong b. guo f. liu t. gao x. r. gao s. k. n200 - speller using motion - onset visual response clinical neurophysiology 2009 120 9 1658 1666 10.1016 / j.clinph.2009.06.026 2 - s2.0 - 69549089812 19640783 17 zhang r. xu p. chen r. an adaptive motion - onset vep - based brain - computer interface ieee transactions on autonomous mental development 2015 10.1109 / tamd.2015.2426176 18 kuba m. kubova z. kremlacek j. langrova j. motion - onset veps : characteristics , methods , and diagnostic use vision research 2007 47 2 189 202 10.1016 / j.visres.2006.09.020 2 - s2.0 - 33845609252 17129593 19 naseer n. hong m. j. hong k .
+- s. online binary decision decoding using functional near - infrared spectroscopy for the development of brain - computer interface experimental brain research 2014 232 2 555 564 10.1007 / s00221 - 013 - 3764 - 1 2 - s2.0 - 84893858740 24258529 20 naseer n. hong k. fnirs - based brain - computer interfaces : a review frontiers in human neuroscience 2015 9 , article 3 10.3389 / fnhum.2015.00003 figure 1 the prediction probability of ez - lda and the cumulative probability .
+figure 2 the flow chart of the training set enlarging strategy .
+figure 3 the classification boundary adjustment processes of ez - lda .
+( a ) the initial 20 training samples ; ( b ) 20 training samples + 20 test samples ; ( c ) 20 training samples + 40 test samples ; ( d ) 20 training samples + 60 test samples .
+star : the samples in the first class ; filled circle : the samples in the second class ; blue : the samples in the training set ; red : the higher probability test samples for extending the training set ; grey : the lower probability test samples .
+figure 4 classification results of lda , z - lda , and ez - lda on mvep - bci dataset with different training sample sizes .
+* denotes the classification accuracy of ez - lda is significantly higher than that of z - lda ( mann - whitney u test , p < 0.05 ) .
+table 1 the classification accuracies of lda , z - lda , and ez - lda on simulation dataset .
+training size 20 30 40 50 lda 78.7 80.4 81.9 83.4 z - lda 77.0 81.7 83.0 84.0 ez - lda ( different thresholds ) 10 % 81.2 * 83.6 * 84.9 * 85.8 * 20 % 81.5 * 83.8 * 85.1 * 86.0 * 30 % 81.6 * 83.9 * 85.2 * 86.3 * 40 % 81.6 * 84.0 * 85.5 * 86.4 * 50 % 81.8 * 84.1 * 85.5 * 86.4 * 60 % 81.4 * 83.9 * 85.3 * 86.2 * 70 % 81.3 * 83.6 * 85.1 * 86.2 * 80 % 81.1 * 83.2 * 84.8 * 85.8 * 90 % 80.3 * 82.8 * 84.2 * 85.2 * the second column denotes the threshold used in ez - lda .
+* denotes the classification accuracy of ez - lda is significantly higher than that of z - lda ( mann - whitney u test , p < 0.05 ) .

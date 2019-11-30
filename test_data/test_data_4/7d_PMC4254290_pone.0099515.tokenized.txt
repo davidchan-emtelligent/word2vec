@@ -1,0 +1,349 @@
+plos one plos one plos plosone plos one 1932 - 6203 public library of science san francisco , usa 25470498 4254290 pone - d - 14 - 05270 10.1371 / journal.pone.0099515 research articlecomputer and information sciencescomputer applicationsweb - based applicationsdata managementontologiesinformation technologydatabasesnatural language processingtext miningphysical sciencesphysicsinterdisciplinary physicsstatistical mechanicssocial scienceseconomics extraction of temporal networks from term co - occurrences in online textual sources extraction of temporal networks from co - occurrences in online texts popovic marko 1 stefancic hrvoje 1 2 sluban borut 3 kralj novak petra 3 grcar miha 3 mozetic igor 3 puliga michelangelo 4 zlatic vinko 1 * 1 theoretical physics division , rudjer boskovic institute , p.o.box 180 , hr - 10002 , zagreb , croatia 2 catholic university of croatia , zagreb , croatia 3 jozef stefan institute , ljubljana , slovenia 4 imt alti studi lucca , lucca , italia perc matjaz editor university of maribor , slovenia * e - mail : vinko.zlatic @ irb.hr competing interests : the authors have declared that no competing interests exist .
+conceived and designed the experiments : mp hs bs pkn mg im mp vz. performed the experiments : mp hs bs pkn mg im mp vz. analyzed the data : mp hs bs pkn mg im mp vz. contributed reagents / materials / analysis tools : mp hs bs pkn mg im mp vz. wrote the paper : mp hs bs im mp vz .
+2014 3 12 2014 9 12 e99515 4 2 2014 15 5 2014 ( c ) 2014 popovic et al 2014 popovic et althis is an open - access article distributed under the terms of the creative commons attribution license , which permits unrestricted use , distribution , and reproduction in any medium , provided the original author and source are properly credited .
+a stream of unstructured news can be a valuable source of hidden relations between different entities , such as financial institutions , countries , or persons .
+we present an approach to continuously collect online news , recognize relevant entities in them , and extract time - varying networks .
+the nodes of the network are the entities , and the links are their co - occurrences .
+we present a method to estimate the significance of co - occurrences , and a benchmark model against which their robustness is evaluated .
+the approach is applied to a large set of financial news , collected over a period of two years .
+the entities we consider are 50 countries which issue sovereign bonds , and which are insured by credit default swaps ( cds ) in turn .
+we compare the country co - occurrence networks to the cds networks constructed from the correlations between the cds .
+the results show relatively small , but significant overlap between the networks extracted from the news and those from the cds correlations .
+this work was supported in part by the european commission under the fp7 projects foc ( forecasting financial crises , grant no .
+255987 ) and multiplex ( foundational research on multilevel complex networks and systems , grant no .
+317532 ) , and by the slovenian research agency programme knowledge technologies ( grant no. p2 - 103 ) .
+the funders had no role in study design , data collection and analysis , decision to publish , or preparation of the manuscript .
+introduction during the last decade , methods developed in the fields of mathematics , computer science and statistical physics have contributed to the emergence of complex networks analyses .
+these analyses have strongly penetrated into the areas of social media , biology , and economics [ 1 ] , [ 2 ] .
+a special type of networks extracted from data are co - occurrence networks , used in diverse fields , such as : linguistics [ 3 ] , bioinformatics [ 4 ] - [ 6 ] , ecology [ 7 ] , scientometry [ 8 ] , [ 9 ] , and socio - technological networks [ 10 ] - [ 12 ] .
+co - occurrence networks are loosely defined as networks in which nodes represent some entities ( for example persons , companies , genes , etc. ) , and links represent the fact that these entities exist together in some collection ( for example database , article , etc. ) .
+for textual sources it is of paramount importance to extract the links between entities that represent a real relationship and are not created by chance .
+furthermore , beside reliability , it is important that the extraction of reliable co - occurrences is implemented by an efficient algorithm .
+in the case of online textual sources , the stream of data can be potentially large and fast , and the speed of processing can be a decisive factor in the choice between alternative methods .
+this paper addresses the question of reliable and efficient construction of co - occurrence networks from textual sources on the web .
+the main result is a significance algorithm , based on a simple algebraic method and counting statistics , that can be efficiently used to extract significant co - occurrences in the real data stream .
+another result is a benchmark model , used to generate synthetic data , on which the significance algorithm is tested and the required parameters are determined .
+finally , we investigate the relation between the networks extracted from online texts and the networks drawn from economic data .
+we demonstrate an application of our method by extracting a network of co - occurring countries from financial news .
+alternative methods to construct co - occurrence networks have previously been used [ 1 ] .
+the most common is the so called maslov - sneppen rewiring algorithm [ 13 ] which is known to produce randomized networks and is a " microcanonical " alternative to the " canonical " configuration models , such as the molloy reed model [ 14 ] .
+these methods create randomized versions of initial networks in which degrees are conserved and afterward a comparison with real data is made to check if certain patterns differ significantly from those obtained by the randomization procedure .
+these methods can be cumbersome , especially if the frequency of temporal changes in the network is very high .
+benchmark model which is presented in the paper is a simple linear hidden variable model that we use to construct syntethic data .
+these data are not a representative of the real co - occurence data and their statistics is not the one we measure in co - occurence analysis .
+this data just have the same structure ( i.e. projection of bipartite graph ) and through hidden variables we can construct relationships as important or nonimportant in order to evaluate how well our method performs with respect to different measurement parameters .
+the case study , which is an integral part of the paper , analyzes textual data collected from 2,500 rss feeds from 170 major english - language news web sites , with the subject of economy and finance .
+we acquired around 35,000 articles per day , during a period of two years , about 18 million articles in total .
+the data acquisition pipeline processes the data in real - time , and can easily be extended to other news sources and languages .
+in that case , the number of processed articles could increase many fold .
+therefore , it is vital to have a method which can extract significant co - occurrences from a large dataset efficiently .
+in the paper we present an efficient algebraic method that can extract co - occurrences from simple counting statistics .
+we believe that the method can be incorporated into the real - time acquisition pipeline , but we do not address the issue of efficiency in the paper .
+other types of network analyses of online textual sources such as twitter , facebook , google , etc. are also an interesting topic of research .
+in particular , the idea that one can extract some unaccounted economical / financial information related to some entity from the online text materials , even before a market can account for it , has been investigated thoroughly [ 15 ] - [ 19 ] .
+several economic indicators can also be represented as network measures , such as the impacting - impacted vulnerability derived from cds networks of companies [ 20 ] .
+therefore in the end , we use our method to find significant co - occurences of countries in the news web sites .
+we then consider cds ( credit default swaps ) of the same countries , and extract networks based on the correlations between cds time series over the same time windows .
+the results show relatively small , but significant overlap between the networks extracted from the news and those from cds correlations .
+this paper is organized as follows .
+first , we describe the textual data that we use and the architecture of the real - time data acquisition pipeline .
+we then describe the method for extraction of significant co - occurrences .
+further , we develop a benchmark model for the creation of realistic synthetic data .
+we test our extraction algorithm on the benchmark model in order to estimate the statistics we need for the method to work reliably .
+in the case study , we construct co - occurrence networks from the textual data acquired , and compare them with the cds networks .
+finally , we give conclusions and state what further developments we might achieve with the methods described .
+data acquisition this section briefly describes the technology needed to extract bipartite networks from textual sources on the web .
+the idea is to monitor a large number of financial data sources ( news and blog sites ) , acquire their content , extract relevant entities , and construct networks in different time windows .
+within a specific time window ( e.g. , a month ) , nodes of the network are all the entities of interest ( e.g. , financial institutions or countries ) which appear in the texts , and links are formed by their co - occurrences in the same documents .
+the technology required for network construction is implemented as a data acquisition and processing pipeline ( dacqpipe in short ) .
+it is responsible for acquiring unstructured data from several data sources , preparing it for the analysis , and brokering it to the appropriate analytical components .
+the dacqpipe is running continuously , since october 2011 , polling the web and proprietary apis for recent content , turning it into a stream of preprocessed text documents .
+it is composed of two main parts : the data acquisition and the semantic data processing .
+the pipeline is schematically presented in figure 1 .
+10.1371 / journal.pone.0099515.g001 figure 1 the data acquisition , processing and semantic annotation pipeline .
+the data acquisition pipeline the news articles and blogs are collected from 2,503 rss feeds from 170 english language web sites ( 14,567 domains ) , covering the majority of web news in english and focusing on financial news and blog sources .
+we collect data from the main news providers and aggregators ( like yahoo.com , dailymail.co.uk , nytimes.com , bbc.co.uk , wsj.com ) and also from the main financial blogs ( like zerohedge.com ) .
+the fifty most productive web sites account for 80 % of the collected documents .
+we started with continuous data acquisition on october 24 , 2011 .
+in the period from november 2011 until the end of 2013 , almost 18 million documents were collected and processed .
+on an average work day , about 40,000 unique articles are collected .
+the number of collected articles is substantially lower during weekends ; around 20,000 per weekend day .
+holidays are also characterized by a lower number of documents .
+content from news , blogs , forums , and other web content , is not immediately ready to be processed by the text analysis methods .
+web pages contain a lot of ' noise ' or ' boilerplate ' ( i.e. , undesired content such as advertisements , copyright notices , navigation elements , and recommendations ) that needs to be identified and removed before the content can be analyzed .
+for this reason , the data acquisition and preprocessing pipeline ( dacqpipe ) consists of a number of components : ( i ) data acquisition components , ( ii ) data cleaning components , ( iii ) natural - language preprocessing components and ( iv ) semantic annotation components .
+the pipeline topology is shown in figure 1 .
+the data acquisition components are mainly rss readers that poll for data in parallel .
+one rss reader is instantiated for each web site of interest .
+the rss sources , corresponding to a particular web site , are polled one after another by the same rss reader to prevent the servers from rejecting requests due to concurrency .
+an rss reader , after it has collected a new set of documents from an rss source , dispatches the data to one of several processing pipelines .
+the pipeline is chosen according to its current load ( load balancing ) .
+a processing pipeline consists of a boilerplate remover , duplicate detector , language detector , sentence splitter , tokenizer , part - of - speech tagger , lemmatizer , stop - word detector and a semantic annotator .
+some of the components are custom - made while others use the functionality available from the opennlp library [ 21 ] .
+boilerplate remover extracting meaningful content from web pages presents a challenging problem which was extensively addressed in the static setting .
+our setting , however , is dynamic and focuses on content extraction from streams of html documents in real time .
+we use the url tree content extraction algorithm [ 22 ] , which is specialized for content extraction from streams of html documents .
+the algorithm is based on the observation that html documents from the same source normally share a common template .
+the content extraction algorithm is efficient , unsupervised , and language - independent .
+duplicate detector due to news aggregators and redirect urls , one article can appear on the web with many different urls pointing to it. to have a concise dataset of unique articles , we have developed a duplicate detector that is able to detect if the document was already acquired or not .
+language detector it detects the language used in a document and discards all the non - english documents .
+the model is constructed by a machine learning algorithm , and trained on a large multilingual set of documents .
+the basic features for model training are the frequencies of several consecutive letters .
+sentence splitter the sentence splitter splits the text into sentences .
+the result forms the input to the part - of - speech tagger .
+we use the opennlp [ 21 ] implementation of the sentence splitter .
+tokenizer tokenization is the process of breaking a stream of text into words , phrases , symbols , or other meaningful elements called tokens .
+in dacqpipe our own implementation of the tokenizer is used , which supports the unicode character set and is based on rules .
+part - of - speech tagger the part - of - speech ( pos ) tagger marks tokens with their corresponding word type ( e.g. , noun , verb , proposition ) based on the token itself and the context of the token .
+a token might have multiple pos tags depending on the token and the context .
+the part - of - speech tagger from the opennlp library [ 21 ] is used .
+lemmatizer lemmatization is the process of finding the normalized forms of words appearing in text .
+it is a useful preprocessing step for a number of language engineering and text mining tasks , and especially important for languages with rich inflectional morphology .
+in dacqpipe , we use lemmagen [ 23 ] for lemmatization , which is the most efficient publicly available lemmatizer trained on large lexicons of multiple languages , whose learning engine can be retrained to effectively generate lemmatizers of other languages .
+we lemmatize to english .
+stop - word detector in automated text processing , stop words are words that do not carry semantic meaning .
+in dacqpipe , stop words are detected and annotated .
+semantic data processing the data acquisition pipeline is general , domain independent , and biased towards finance only by the selection of rss sources .
+on the other hand , the semantic data processing pipeline is tailored to finance by an lightweight ontology of financial entities and terms .
+the ontology includes a dictionary of positive and negative words for dictionary - based sentiment analysis .
+the ontology contains gazetteers , which specify the lexicographic information about the possible appearances of entities in text .
+this information is used by the semantic annotator to annotate the entities in text .
+ontology of financial entities and terms the lightweight ontology of financial entities and concepts consists of three main categories : financial entities , financial terms , related to the latest financial crisis , and geographical entities .
+most of the information extraction ontology is automatically induced by reusing various data sources .
+the geographical entities ( continents , countries , cities , organizations ( such as european union and united nations ) and currencies ) , and the relations between those were extracted from geonames ( http :// www.geonames.org / accessed 2014 nov 6. ) .
+we used the idms database and msn money ( http :// money.msn.com / accessed 2014 nov 6. ) to ' grow ' the ontology from a list of seed stock indices to its constituents ( stocks ) and further on to the companies that issue these stocks .
+we added a list of ' over - the - counter ' stocks from otc markets ( http :// www.otcmarkets.com / home accessed 2014 nov 6. ) .
+the hierarchy of financial terms related to the financial crisis was developed in collaboration with experts in economics .
+it includes the main european politicians and economy leaders , central banks and other financial institutions , rating agencies , and fiscal and monetary policy terms .
+semantic annotator each entity has associated gazetteers ; gazetteers are rules describing the appearance of an entity in text .
+for example , ' the united states of america ' can appear in text as ' usa ' , ' us ' , ' the united states' and so on. the rules include capitalization , lemmatization , pos tag constraints , and must contain constraints ( another gazetteer must be detected in the document or in the sentence ) and followed by constraints .
+semantic annotation database the information about the location ( specific paragraph ) of terms ( entities and sentiment words ) in each document is stored in an sql database .
+additionally , the entity - class relationship and the hierarchy of ontology classes is also stored .
+meta - data about the document , including the document title , acquisition and publication time , source domain , response url , among others , allow drill - down to the concrete document .
+some aggregates , like the sentiment polarity of each document and each paragraph , are also precomputed and stored in the database for performance reasons .
+such a database allows for efficient and diverse querying .
+for example , document titles and response urls , documents by sources , dates , entity content , sentiment word content and aggregate sentiment by documents / paragraphs .
+significance algorithm the data thus acquired can be naturally represented as a dynamic bipartite network .
+in this representation , entities and documents are represented by two classes of nodes .
+documents are used as ' dummy ' nodes since we focus on interesting relationships between entities .
+documents have time stamps which enable the extraction of entity relationships as a function of time .
+when other sources of data are scarce , an entity projection network can provide important information and present a way to infer the structure of entity interrelationships .
+we devise a simple method to extract the relationships between entities based on their co - occurrence statistics .
+the method recognizes entities as related if their co - occurrence in the data is significantly more frequent then expected from a suitable null model , using a level of significance as a parameter in the method .
+the null model is based on entity occurrence data and is very similar to the well - known configuration model , but is much faster to compute .
+this feature is important when large amounts of data are streamed in real time , as in our case .
+data structure used in the algorithm is organized as documents with timestamps and a list of entities in each document .
+time stamps allow the documents to be grouped in days , weeks or other suitable time frames .
+each frame is analyzed independently .
+a shorter time frame provides a better temporal resolution although the frequency of events can sometimes be insufficient for reasonable significance testing .
+on the other hand , longer time frames will generally provide enough events for statistical testing , but a temporal resolution can be too coarse - grained for the intended purposes .
+the question of time frames will be further addressed in the section on benchmark models .
+some entities are more frequent in the data than others .
+we are interested in relations between pairs of entities and not their individual properties , therefore , we take the numbers of occurrences as an external parameter .
+it must be stressed that methods and models presented in this paper can be used to create projection networks out of any temporal bipartite network .
+two entities can appear in the same document even if they do not have any real connection .
+therefore , we want to calculate , given the number of occurrences , whether two entities appear more often together than expected by chance .
+the standard method is to use configuration or a maslov - sneppen rewiring model as null - models .
+here we devise a simple analytical formula based on the configuration model , to compute a significance score as a function of the number of occurrences and the total number of documents .
+this formula is easy to compute and is much faster than alternative monte carlo simulations .
+in the not - unrealistic case of huge data flowing through the presented pipeline , the speed of computation becomes of paramount importance .
+in our method , considering two entities and with and occurrences respectively , we count all possible configurations in which these entities can be arranged : ( 1 ) where is the number of and co - occurrences .
+in the data analysis scheme we discard documents with only one entity in order to get proper statistics .
+to write down the probability of having co - occurrences we need to normalize the above expression with sum of all possible configurations over all possible co - occurrence values .
+this is equal to a number of ways we can put and independently in documents : ( 2 ) expected number of co - occurrences is therefore given by : ( 3 ) ( 4 ) where is just the normalization constant , and the second moment is ( 5 ) where both sums have been carried out in mathematica .
+standard deviation is now ( 6 ) and we compute a standard significance score of the co - occurrence from the data as ( 7 ) setting some fixed threshold we can distinguish significant and non - significant relationships between the entities .
+this method is different from the configuration model in that we treat documents as identical ' passive ' containers .
+as a consequence , we cannot choose the distribution of the number of entities per document since it is already determined by the algorithm .
+therefore , we can expect results similar to the configuration model only if the number of entities per document in the data already has a distribution similar to the one coming out of our algorithm .
+we can estimate the distribution given by our algorithm in the following way .
+first , let us find the distribution when multiple occurrences of the same entity in a document are allowed .
+the number of entities per documents obeys poisson distribution ( 8 ) where . now , we have to remove all configurations in which there are multiple occurrences of the same entity .
+this procedure prefers configurations that even more equally distribute the number of entities than predicted by a poisson distribution .
+therefore , describing all documents by average value should provide reasonable conditions for distributions in data .
+in our data , the distribution of the number of entities per document is approximately exponential , as seen in figure 2 .
+since all statistical moments are non - divergent for such a distribution , the average value is a good first order representative of the data set which coincides with the algorithm condition .
+this method has also recently been used by [ 24 ] .
+we also add that the individual probability distribution that an entity occurs in the document or that 2 entities co - occur in a document are heavy - tailed distributions , as seen in figure 3 and figure 4 .
+10.1371 / journal.pone.0099515.g002 figure 2 frequencies of the number of entities in the document .
+the distribution has exponential tail which enforces approximations used in the paper .
+the exponent of the distribution is : . 10.1371 / journal.pone.0099515.g003 figure 3 distribution of occurrence of entities in the data has fat tail .
+10.1371 / journal.pone.0099515.g004 figure 4 distribution of co - occurrences in the data has fat tail distribution .
+the main advantage of this method is that it is very fast to compute .
+this is ideal for the huge amount of real life data and is not necessarily useful only in our context .
+benchmark model for the creation of synthetic data in the previous section we have defined a method that we use to find significant co - occurrences of entities in documents .
+if there are no underlying assumptions of the hidden relationships between these entities that are worthy of further investigation , then such an endeavor is unnecessary .
+for example : one can extract co - occurrences of the names of proteins from the corpus of biomedical papers hoping that these co - occurrences are related to real protein - protein interactions in the cell [ 25 ] .
+one can also extract co - occurrences of countries in financial news hoping that they will correspond to the real financial riskiness of these countries .
+clearly , hidden relationships cannot be explicitly measured in the data and the level to which significant co - occurrences correspond to these relationships is impossible to estimate .
+to overcome such difficulties we create a simple model of hidden relationships in the spirit of the many hidden variable models [ 26 ] , [ 27 ] .
+in this model we explicitly provide hidden relationships which we call importances and use them to construct an ensemble of artificial networks .
+our goal is to investigate how many of the important relationships will be discovered by the method with respect to different statistical parameters .
+the main idea behind this hidden variable model is the one which is heavily used in community finding [ 28 ] , [ 29 ] , and is used to evaluate different community finding algorithms with respect to their performance .
+we therefore present a simple but broadly applicable benchmark model to test robustness and predictability of the described method .
+the benchmark constructs artificial data in which we can independently control relationships between the entities .
+it also provides a way to change relationships smoothly in time if needed .
+in this way , we emulate correlations present in the real data , which are the main source of statistical artifacts .
+we use the benchmark to test the method and to find applicable regimes in which extracted relationships are reliable , such as the level of significance , the number of documents etc .
+a future envisioned application of the benchmark is to compare different methods of relationship extraction from dynamic bipartite networks and to use it as a testing ground for investigation of more sophisticated methods .
+evaluation of link importance in data and especially in temporal networks is in its infancy and we concluded that it would be reasonable to provide some way to create synthetic data which could be used to compare the performance of different algorithms as they are presented to the community .
+we propose a simple benchmark model which creates a series of artificial document nodes with a time stamp and a list of four entities attached to it. the simplest case to calculate would be if we assign only two entities per document , but such a benchmark would lack correlations .
+namely , if documents contain more than two entities , entities with several strong relationships will have in general more co - occurrences even with entities they have no relationship with .
+documents with more than two entities introduce correlations as an immanent part of real data , and we also have to incorporate them in our benchmark .
+the choice of four entities per document is a compromise between simplicity and correlations in the data .
+further in the text we provide formulae for the general model with different entities per document .
+benchmark model with 4 entities in the benchmark we independently control each pair of entities by assigning them importance representing hidden relationships .
+importance is in general a positive real number .
+the probability for a document to contain entities , , and we write as a function of all six importances ( pairwise ) .
+( 9 ) we use "" and "" to stress that the ordering of elements is not important and to distinguish these probabilities from the later use of probabilities in which the ordering is important .
+in principle it is possible to calculate probabilities for all possible combinations of four entities but it seems to be rather expensive since one would have to calculate numbers , where is the number of entities .
+to be more efficient we develop an algorithm which picks entities one by one and still keep above probability .
+such procedure requires only calculations .
+the simplest choice for the document probability is a sum of all six importances and we will adopt it as a reasonable choice .
+( 10 ) where is a normalization factor .
+it should be mentioned that other choices like product rules or some other rule could also be devised and they could possibly be more realistic .
+however , for a more realistic function we would need to have a model of how the choices of entities are made by writers and we are not aware of any such models .
+since importances are not otherwise defined we can use this formula as their definition when interpreting the results .
+when simulating benchmarks we want to avoid choosing randomly among sets of four entities - combinations .
+we reduce the problem to choosing entities one by one - four times combinations .
+for this we need probabilities : - probability to choose as first - probability to choose as second , given is first - probability to choose as third , given the first two - probability to choose as fourth , given the first three - probability to choose , , and in that order when constructing a document , probability for a first entity to be is simply : ( 11 ) division by 4 is the consequence of unordered character of the distribution . to calculate probability for a second entity to be given we already have we first need to calculate the probability of and to be in the same document : ( 12 ) the probability that was first picked and second is and using bayes formula for conditional probability we have : ( 13 ) this procedure can now recursively done until we select all four entities .
+later we calculated the probabilities for a general number of entities in the document but we report the exact probabilities for the case with entities per document .
+( 14 ) ( 15 ) ( 16 ) where is a strength of the entity and . normalization can be calculated to be : ( 17 ) therefore , we can calculate probabilities needed to pick entities one by one : ( 18 ) ( 19 ) ( 20 ) ( 21 ) for constant importances we do not need time stamps on documents and create a bipartite network with documents on which various methods of data extraction can be tested .
+if , on the other hand , we want to test the time resolution of such methods , we can give importances time dependence ; then time stamps are created as a realization of some random process in time .
+general benchmark model although in this paper we are using the variant of the model in which there are only entities in each document , it is easy to generalize the results to documents with different entities in each document .
+in that case ( 22 ) is the probability that the document with entities will have all entities from the set . the probability that a subset of entities , will be found in the randomly chosen document is : ( 23 ) and the set is a set of all the possible entities that are not found in the set . we will define one other set which is a set of entities that are contained in the document but are not in the set of entities whose probability of occurrence we calculate .
+note that sets and have fixed values of indices while set has variable indices that are elements of set .
+using equation ( 22 ) and equation ( 23 ) we write ( 24 ) note that here the first summation runs over all possible subsets of the set and the second runs over all elements of chosen set . we can break the equation ( 24 ) into a sum of three distinct parts : ( 25 ) where ( 26 ) is a contribution of links connecting the entities of the set ; ( 27 ) is a contribution of links connecting the entities in a set with elements in all possible sets and ( 28 ) is a contribution of links that are connecting entities all possible sets . these contributions can be calculated as follows : ( 29 ) where and . now we can write equation ( 25 ) as : ( 30 ) where . this equation can be written in a more condensed form as : ( 31 ) once the probabilities are computed it is easy to compute ordered probabilities needed for the computer simulation .
+probability that first the was chosen then and all the way to is just : ( 32 ) note that this means that we can also work with ordered probabilities for which ( 33 ) with normalization factor . a more detailed version of general calculations is presented further .
+if each document contains entities , the probability of finding a set of entities is ( 34 ) the probability of finding a subset of entities , where , then reads ( 35 ) here the sum over indices and in ( 34 ) can be decomposed into three sums in which none , one or both indices in the is summed over .
+( 36 ) in particular these sums are calculated as follows .
+the sum term where none of the indices in is summed over reads : ( 37 ) the sum term where one of the indices in is summed over reads : ( 38 ) the sum term where both indices in are summed over reads : ( 39 ) here . further introducing ( 40 ) and ( 41 ) and combining ( 37 ) , ( 38 ) and ( 39 ) , the expression for ( 35 ) becomes ( 42 ) the expressions given above are valid when because only in these cases both and terms appear .
+the formula ( 42 ) is also applicable to the case if we take and to the case if we take and . finally , the case requires separate approach .
+in particular , ( 43 ) results in this section we present the evaluation of the proposed algorithm for estimating the significance of entity co - occurrences .
+first the results obtained on synthetic data are presented , followed by a comparison of temporal networks constructed from country co - occurrences in financial news and from correlations between the corresponding cds time series .
+testing the method with syntethic data we tested our method on artificial networks produced with the benchmark model .
+we use artificial networks to estimate the statistics needed to reliably construct financial interdependence networks from the available data .
+such networks can then be used as proxies for real financial networks .
+we test two types of artificial networks created by the benchmark model , both with nodes representing entities and potential links in the projection network .
+the number of simulated documents is between and . the first aforementioned type is constructed with importances randomly drawn from the set of two different values , satisfying the constraint that the number of importances with assigned value is exactly . thus relations have assigned weights and important relations have assigned weights , where is a parameter we call importance amplitude . using the method to determine the significant links with the threshold on the realizations of artificial networks , we can calculate a fraction of significant links that are also important , i.e. ( positive predictive value - ppv ) and a fraction of important links found to be significant ( sensitivity ) .
+see figure 5 .
+the number of significant links in the figure is , with a variable number of documents , and importance amplitude . 10.1371 / journal.pone.0099515.g005 figure 5 ppv and sensitivity for the case of two types of importances .
+the x - axis gives the number of documents and the y axis is importance amplitude .
+in the column a colors show positive prediction value and in the column b colors represent sensitivity .
+the number of important links is for the first row , for the second row and for the third row .
+figure 5 show that 3000 - 5000 documents are good enough to provide reliable significance for extracted co - occurrences as long as importance is high enough .
+if the difference between an important link and an average link is not large enough there is no number of documents that we tested that will result with in high ppv or sensitivity .
+in the second type of artificial networks , importance is a power law distributed with exponent . we determine significant links with some threshold . the number of such links is . to measure the number of correctly selected links , we compare the list of significant links to the list of links with the highest importance .
+links occurring in both lists are true positives and their fraction with respect to the is a measure of the method 's performance .
+see figure 6 for values of . 10.1371 / journal.pone.0099515.g006 figure 6 ppv for the case of power law distributed importances .
+the x - axis gives the number of documents and the y - axis is exponent of the power law for the second case .
+colors show positive prediction value .
+the threshold is for the panel a , for the panel b and for the panel c. it is clear that the method works well for exponent . the reason is that for higher exponents , important links do not have a large spread i.e. , typical importance in the data set is close to the highest importance in the data set , and we can see again that the number of documents cannot improve statistics much .
+the correlations between the co - occurrences imposed by the number of entities per document in the data set are masking the real importance of the links .
+comparison of co - occurrence networks with cds networks the final goal of co - occurrence networks is to provide some information on the relationships between entities of interest .
+we hope that the co - occurrence networks of financial entities can provide information about shared risk of the entities of interest .
+the idea is to compare data indirectly related to sovereign debt .
+a temporal network was extracted from co - occurrences of countries in financial news , and another was constructed from the correlations between cds time series of the same countries .
+in the financial literature [ 30 ] , [ 31 ] , cds are often considered a good proxy for the risk of default of a financial institution issuing bonds .
+the structure of that financial instrument is " triadic " in the sense that a cds is a special insurance policy that a financial institution sells ( seller ) or buys ( buyer ) to hedge against the risk that a third party ( reference entity ) will experience a default within some fixed period ( the maturity of the cds ) , and the financial investments of the buyer will be lost .
+in the formation of the price the triadic model ( that accounts for the risk of the buyer , the seller and the reference entity ) will produce , at the end of computation , a single value ( the cds price ) for each financial institution .
+this number is considered an estimation , from a market perspective , of the perceived default risk but , as the cds are financial products , the dynamics of the prices can also follow other market trends that are not immediately bound to systemic risk .
+we cautiously suggest that the cds time series are a possible proxy of the systemic risk of a country as this concept can involve many other components in addition to financial ones .
+the networks are reconstructed using the correlation of pairs of time series , one per country .
+we recall here that a high correlation between country a and country b , during a given period , does not necessarily imply an high risk as it is also important to consider the common level of the prices , i.e. during normal business we can have high correlation but low risk while , conversely , during bad business we can see small correlation and high risk .
+we conclude that the correlation networks account for similar patterns in cds prices across different countries while the mapping with the systemic risk needs then to be clearly stated from the price levels and possibly from other financial indicators .
+the entity co - occurrence network was constructed from textual data in the form of financial news and blogs from november 1 , 2011 until december 31 , 2013 .
+in this period , the acquisition pipeline collected about 18 million documents .
+they were filtered for strictly financial news , and each document had to contain at least two different entities , each occurring at least twice .
+this filtering resulted in more than 1.3 million documents to be analyzed .
+we chose the observed entities to be 50 selected countries and the corresponding economic indicators to be the countries' cds time series .
+we were hoping to see that countries having a higher correlation in cds prices tend to be cited together in the news : higher correlation is reflected in the media as more co - occurrences .
+links in the country co - occurrence network were created according to the method for extraction of important co - occurrences , as presented in the significance algorithm section .
+the links in the cds network were created using the pearson 's correlation coefficient () among two cds time series .
+the temporal networks were constructed using a rolling window of three months that was shifted for one month over a period of two years .
+this time window was chosen using the benchmark model so that the average number of documents is large enough to reliably detect hidden relationships .
+our comparison of networks constructed from significant co - occurrences and cds correlations was twofold .
+first , we examined the overlap of the most important links in the networks , and second , we compared the structure of both networks by investigating the similarity between their most central nodes .
+to compare the networks in terms of their most important links we have used the precision at method [ 32 ] , commonly used as a metric in recommender systems .
+precision at is defined as follows .
+first , the links in both networks are ordered by their importance .
+in the case of co - occurrences we use the significance computed with our method and for the cds networks we use the correlations as measures of importance .
+then we count how many links are present in both ordered lists in the first entries .
+finally , the precision at is defined as the fraction of the matched links ( 44 ) we present the results of matching links for networks constructed in two different sliding window settings : one week window sliding from week to week , and a three month window sliding by one month .
+the results are summarized in figure 7 .
+it is clear that in one week we are not able to collect statistics reliable enough to match the co - occurrence networks with the cds networks , or that the relationship at such fine temporal scales does not exist .
+on the other hand , for 3 - month integrated data we see that there is a significant match between co - occurrence networks and cds networks .
+to evaluate the significance of the match we have used the - score value .
+to obtain the expected number of matchings and the standard deviation we have used 10.000 random permutations of ordered lists .
+the distribution of random matchings is poisson like , which allows the use of a - score for significance testing .
+as can be seen in figure 7 , the matching for a one week window is really very small and only modestly better then completely random matching .
+on the other hand , the matching for the 3 month window is significant with a signal easily surpassing between and . one other possible interpretation for this result is that in our case study we have used country cds data which are less volatile than the companies .
+we did not use companies in order to get good enough statistics , as evaluated with the benchmark model , for the comparison with cds data .
+examples of the co - occurrence network constructed with our method and the cds network for the same period are presented in figures 8 and 9 , respectively .
+10.1371 / journal.pone.0099515.g007 figure 7 precision at k for the matching between co - occurrence networks and the cds networks .
+on the left panels is precision at level k and on the right associated z score produced from comparison of the data with 10.000 randomized versions of data .
+top is the matching between two networks with 1 week integration period and bottom is matching between 2 networks with 3 months integration period .
+10.1371 / journal.pone.0099515.g008 figure 8 co - occurrence network created with for october 2012 .
+10.1371 / journal.pone.0099515.g009 figure 9 cds network created with pearson 's correlation for october 2012 .
+the networks shown in figures 8 and 9 are constructed from the links between the most significantly co - occurring countries , , and the highest correlating cds time series , . in figure 10 we show the monthly overlaps of links in the co - occurrence and cds networks over the period of two years .
+among the most important links that the two networks share we can observe many pairs of country names that are known to be connected economically , as well as some geographically ( which in some cases implies similar economic indicators ) .
+10.1371 / journal.pone.0099515.g010 figure 10 monthly overlapping links of the co - occurrence and cds networks , for and . ten most significant links in the monthly overlaps are listed .
+another way to compare the structure of two networks is by looking at the most important nodes that they have in common .
+we performed a - core decomposition [ 33 ] of the networks and compared the overlap between their main cores , i.e. the - cores of the respective networks .
+the monthly overlaps and the lists of nodes in the overlaps are presented in figure 11 .
+the results show a moderate level of overlap between the main core nodes , but provide insight into commonly and repeatedly appearing nodes in the overlap .
+additionally , we examined the most central nodes in the networks , as denoted by the eigenvector centrality measure [ 34 ] .
+the monthly overlaps of ten most central nodes in the co - occurrence and cds networks are presented in figure 12 .
+the overlap between the most central nodes is also in this case moderate , but shows that similar nodes are most important as in the overlap analysis with the - core decomposition .
+note that most of the overlapping nodes in figure 12 belong also to the overlaps of the main network cores as shown in figure 11 .
+10.1371 / journal.pone.0099515.g011 figure 11 monthly overlapping nodes of the co - occurrence and cds networks' main cores .
+the respective coreness is indicated in the form . 10.1371 / journal.pone.0099515.g012 figure 12 monthly overlaps of the ten most central nodes from the co - occurrence and cds networks .
+note that most of the overlapping noted belong also to the overlaps of the main network cores as shown in figure 11 .
+conclusions the method presented in the paper is simple and fast and therefore well suited for implementation of fast significance detection in huge streams of data .
+we have presented and implemented a pipeline for real - time acquisition and analysis of a stream of financial news .
+the extraction of significant co - occurrences was tested on historical data , but can be added to the real - time processing pipeline .
+more sophisticated methods could outperform this method in realistic settings given sufficient time .
+we have also presented a method for the creation of bipartite networks based on a hidden variable model with given importances .
+we have tested our model on synthetic data which we produced with the benchmark model and used it to find a time window which will , on average , have enough documents for a reasonable reconstruction of entity relationships .
+furthermore , every new method can be tested with this benchmark to assess its validity and performance .
+it is important to stress that the benchmark model can easily be extended to include time - changing importances in order to test the statistics needed to capture the change in the value of importances and so on. furthermore , we are preparing a manuscript in which we will use a generalization of this method for creation of " canonical " models of bipartite networks .
+since all the relationships are linear it is possible to invert the matrix that relates importances ' s to co - occurrence distribution and to extract from the data importances for which expected distribution of co - occurrences is exactly the one found in the data .
+we have also shown that in the cases of large enough datasets we can relate co - occurrence networks with networks of mutual financial risk , such as cds networks .
+our method was thoroughly investigated by means of the benchmark model for the reliable number of events that could discover relationships between news data and cds market .
+our results show that the relationship between two data sets is significant but very weak .
+this may be attributed to several causes .
+( i ) one possibility is that there is really no strong relationship between the news and the market .
+in this case further investigation of this relationship should yield similar results .
+( ii ) we have used only news in the english language .
+it is possible that english news is biased in such a way that only a small portion of the market is well presented .
+in this case future research should include news samples in many different languages to show a stronger relationship between news and the cds market .
+( iii ) the relationship is hidden in longer time intervals and more pronounced in shorter time intervals .
+in that case a significantly larger sample of news should be used in order to provide for more reliable statistics in the shorter time intervals .
+further work on the applicability of this method and causal relationships between cdss and co - occurrences is proposed for the future .
+we thank sebastian schroff from stuttgart stock exchange for providing the cds data for selected countries .
+mp , hs and vz have worked on the method and benchmark model .
+bs , pkn , mg and im have worked on the data acquisition pipeline and bs and mp have worked on the cds networks .
+all authors have contributed to the text of the paper .
+references 1 caldarelli g ( 2007 ) scale - free networks : complex webs in nature and technology .
+oup catalogue .
+2 jackson mo ( 2010 ) social and economic networks .
+princeton university press .
+3 edmonds p ( 1997 ) choosing the word most typical in context using a lexical co - occurrence network .
+in : proceedings of the 35th annual meeting of the association for computational linguistics and eighth conference of the european chapter of the association for computational linguistics .
+association for computational linguistics , pp.507 - 509 .
+4 cohen am , hersh wr , dubay c , spackman k ( 2005 ) using co - occurrence network structure to extract synonymous gene and protein names from medline abstracts . bmc bioinformatics 6 : 103 . 15847682 5 wilkinson dm , huberman ba ( 2004 ) a method for finding communities of related genes . proceedings of the national academy of sciences of the united states of america 101 : 5241 - 5248 . 14757821 6 shalgi r , lieber d , oren m , pilpel y ( 2007 ) global and local architecture of the mammalian microrna - transcription factor regulatory network . plos computational biology 3 : e131 . 17630826 7 freilich s , kreimer a , meilijson i , gophna u , sharan r , et al ( 2010 ) the large - scale organization of the bacterial network of ecological co - occurrence interactions . nucleic acids research 38 : 3857 - 3868 . 20194113 8 su hn , lee pc ( 2010 ) mapping knowledge structure by keyword co - occurrence : a first look at journal papers in technology foresight . scientometrics 85 : 65 - 79 . 9 mane kk , borner k ( 2004 ) mapping topics and topic bursts in pnas . proceedings of the national academy of sciences of the united states of america 101 : 5287 - 5290 . 14978278 10 cattuto c , schmitz c , baldassarri a , servedio vd , loreto v , et al ( 2007 ) network properties of folksonomies . ai communications 20 : 245 - 262 . 11 zlatic v , ghoshal g , caldarelli g ( 2009 ) hypergraph topological quantities for tagged social networks . physical review e 80 : 036118 . 12 ghoshal g , zlatic v , caldarelli g , newman m ( 2009 ) random hypergraphs and their applications . physical review e 79 : 066118 . 13 maslov s , sneppen k ( 2002 ) specificity and stability in topology of protein networks . science 296 : 910 - 913 . 11988575 14 molloy m , reed b ( 1995 ) a critical point for random graphs with a given degree sequence . random structures & algorithms 6 : 161 - 180 . 15 bollen j , mao h , zeng x ( 2011 ) twitter mood predicts the stock market . journal of computational science 2 : 1 - 8 . 16 mishne g , glance ns ( 2006 ) predicting movie sales from blogger sentiment .
+in : aaai spring symposium : computational approaches to analyzing weblogs .
+pp.155 - 158 .
+17 de choudhury m , sundaram h , john a , seligmann dd ( 2008 ) can blog communication dynamics be correlated with stock market activity ?
+in : proceedings of the nineteenth acm conference on hypertext and hypermedia .
+acm , pp.55 - 60 .
+18 asur s , huberman ba ( 2010 ) predicting the future with social media .
+in : web intelligence and intelligent agent technology ( wi - iat ) , 2010 ieee / wic / acm international conference on. ieee , volume 1 , pp.492 - 499 .
+19 ruiz ej , hristidis v , castillo c , gionis a , jaimes a ( 2012 ) correlating financial time series with micro - blogging activity .
+in : proceedings of the fifth acm international conference on web search and data mining .
+acm , pp.513 - 522 .
+20 kaushik r , battiston s ( 2013 ) credit default swaps drawup networks : too interconnected to be stable ? plos one 8 : e61815 . 23843931 21 apache ( 2010 ). opennlp .
+url http :// opennlp.apache.org .
+22 sluban b , grcar m ( 2013 ) url tree : efficient unsupervised content extraction from streams of web documents .
+in : acm international conference on information and knowledge management ( cikm 2013 ) .
+23 jursic m , mozetic i , erjavec t , lavrac n ( 2010 ) lemmagen : multilingual lemmatisation with induced ripple - down rules . journal of universal computer science - jucs 16 : 1190 - 1214 . 24 tibely g , pollner p , vicsek t , palla g ( 2013 ) extracting tag hierarchies . plos one 8 : e84133 . 24391901 25 guldener u , munsterkotter m , oesterheld m , pagel p , ruepp a , et al ( 2006 ) mpact : the mips protein interaction resource on yeast . nucleic acids research 34 : d436 - d441 . 16381906 26 caldarelli g , capocci a , de los rios p , munoz ma ( 2002 ) scale - free networks from varying vertex intrinsic fitness . phys rev lett 89 : 258702 . 12484927 27 popovic m , stefancic h , zlatic v ( 2012 ) geometric origin of scaling in large traffic networks . physical review letters 109 : 208701 . 23215527 28 lancichinetti a , fortunato s , radicchi f ( 2008 ) benchmark graphs for testing community detection algorithms . physical review e 78 : 046110 . 29 fortunato s ( 2010 ) community detection in graphs . physics reports 486 : 75 - 174 . 30 pan j , singleton kj ( 2008 ) default and recovery implicit in the term structure of sovereign cds spreads . the journal of finance 63 : 2345 - 2384 . 31 aizenman j , hutchison m , jinjarak y ( 2012 ) what is the risk of european sovereign debt defaults ?
+fiscal space , cds spreads and market pricing of risk . journal of international money and finance 32 raghavan v , bollmann p , jung gs ( 1989 ) a critical investigation of recall and precision as measures of retrieval system performance . acm transactions on information systems ( tois ) 7 : 205 - 229 . 33 seidman sb ( 1983 ) network structure and minimum degree . social networks 5 : 269 - 287 . 34 bonacic p ( 1972 ) factoring and weighting approaches to status scores and clique identification . journal of mathematical sociology 2 : 113 - 120 .

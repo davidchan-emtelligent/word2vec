@@ -1,0 +1,287 @@
+jmir med inform jmir med inform jmi jmir medical informatics 2291 - 9694 jmir publications toronto , canada 27485666 4987493 v4i3e24 10.2196 / medinform.5490 original paperoriginal paper a semi - supervised learning approach to enhance health care community - based question answering : a case study in alcoholism eysenbach gunther giraud - carrier christophe zhai haijun wongchaisuwat papis ms1department of industrial engineering and management sciencesnorthwestern university2145 sheridan rdevanston , il , 60208united states1 847 491 33831 847 491 8005 papiswongchaisuwat2013 @ u.northwestern.edu http :// orcid.org / 0000 - 0002 - 4438 - 7601 klabjan diego phd1http :// orcid.org / 0000 - 0003 - 4213 - 9281 jonnalagadda siddhartha reddy phd2http :// orcid.org / 0000 - 0003 - 3299 - 6052 1department of industrial engineering and management sciencesnorthwestern universityevanston , ilunited states 2divison of health and biomedical informaticsfeinberg school of medicinenorthwestern universitychicago , ilunited states corresponding author : papis wongchaisuwat papiswongchaisuwat2013 @ u.northwestern.edu jul - sep 2016 02 8 2016 4 3 e24 5 2 2016 22 2 2016 5 5 2016 24 6 2016 ( c ) papis wongchaisuwat , diego klabjan , siddhartha reddy jonnalagadda .
+originally published in jmir medical informatics ( http :// medinform.jmir.org ) , 02.08.2016 .
+2016 this is an open - access article distributed under the terms of the creative commons attribution license ( http :// creativecommons.org / licenses / by / 2.0 /) , which permits unrestricted use , distribution , and reproduction in any medium , provided the original work , first published in jmir medical informatics , is properly cited .
+the complete bibliographic information , a link to the original publication on http :// medinform.jmir.org / , as well as this copyright and license information must be included .
+background community - based question answering ( cqa ) sites play an important role in addressing health information needs .
+however , a significant number of posted questions remain unanswered .
+automatically answering the posted questions can provide a useful source of information for web - based health communities .
+objective in this study , we developed an algorithm to automatically answer health - related questions based on past questions and answers ( qa ) .
+we also aimed to understand information embedded within web - based health content that are good features in identifying valid answers .
+methods our proposed algorithm uses information retrieval techniques to identify candidate answers from resolved qa. to rank these candidates , we implemented a semi - supervised leaning algorithm that extracts the best answer to a question .
+we assessed this approach on a curated corpus from yahoo !
+answers and compared against a rule - based string similarity baseline .
+results on our dataset , the semi - supervised learning algorithm has an accuracy of 86.2 % .
+unified medical language system - based ( health related ) features used in the model enhance the algorithm 's performance by proximately 8 % .
+a reasonably high rate of accuracy is obtained given that the data are considerably noisy .
+important features distinguishing a valid answer from an invalid answer include text length , number of stop words contained in a test question , a distance between the test question and other questions in the corpus , and a number of overlapping health - related terms between questions .
+conclusions overall , our automated qa system based on historical qa pairs is shown to be effective according to the dataset in this case study .
+it is developed for general use in the health care domain , which can also be applied to other cqa sites .
+machine learning natural language processing question answering web - based health communities consumer health informatics introduction a study by pew internet project 's research reported that 87 % of us adults use the internet , and 72 % of internet users sought health information over the internet in the past year [ 1 ] .
+other studies have also analyzed the modes in which health information is shared and its impact on consumer decision making [ 2,3 ] .
+although it is known that patients are seeking information that might not be obtained during the course of their regular clinical care and valuable knowledge is publicly available in the internet , it is not trivial for users to quickly find an accurate answer to specific questions .
+consequently , community - based question answering ( cqa ) sites such as yahoo !
+answers tend to be a potential solution to this challenge .
+in cqa sites , users post a question and expect the web - based health community to promptly provide desirable answers .
+despite a high volume of users' participation , a considerable number of questions are left unanswered , and at the same time , other questions that address the same information need are answered elsewhere .
+this common situation drew our attention to develop an automated system for answering both unsuccessfully answered and newly posted questions .
+substantial research exists for developing systems that address physicians' information needs at the point of care .
+info buttons and other decision support tools automatically select and retrieve information from knowledge sources at the point of care [ 4 ] .
+social media platforms involve exchanges of health information among peers at any place and time [ 5 ] .
+the advantages and disadvantages of using a social network to address the information needs compared with a search engine are described in the study by morris et al [ 6 ] .
+however , limited research has been done in addressing the information needs of patients through automated approaches that synthesize the information shared across web - based health communities .
+cqa systems in the health care domain address this issue .
+qa systems are widely studied in both open and other restricted domains .
+one of the common approaches is to retrieve answers based on past qa , which is also fundamental to our work .
+shtok et al [ 7 ] extracted an answer from resolved qa pairs obtained from yahoo !
+answers .
+specifically , a statistical model was implemented to estimate the probability that the best answer from the past posts can satisfactorily answer a newly posted question .
+in addition to shtok et al , marom et al [ 8 ] implemented a predictive model involving a decision graph to generate help desk responses from historical email dialogues between users and help desk operators .
+feng et al [ 9 ] constructed a system aiming to provide accurate responses to students' discussion board questions .
+an important element in these qa systems is identifying the closest ( the most similar ) matching between a new question and other questions in a corpus .
+however , this is not a trivial task because both the syntactic and semantic structure of sentences should be considered to achieve an accurate matching .
+a syntactic tree matching approach was proposed to tackle this problem in cqa [ 10 ] .
+jeon et al [ 11 ] developed a translation - based retrieval model exploiting word relationships to determine similar questions in qa archives .
+various string similarity measures were also implemented to directly compute the distance between 2 different strings [ 12 ] .
+a topic clustering approach was introduced to find similar questions among qa pairs [ 13 ] .
+an important component in qa systems is re - ranking of candidates to identify the best answer .
+a probabilistic answer selection framework was used to estimate the probability of an answer candidate being correct [ 14 ] .
+alternatively , supervised learning - based approaches including support vector machine [ 15,16 ] and logistic regression [ 17 ] are applicable to select ( rank ) answers .
+commonly , collecting a large number of labeled data can be very expensive or even impossible in practice .
+wu et al [ 18 ] developed a novel unsupervised support vector machine classifier to overcome this problem .
+other studies used different classifiers with multiple features for similar problems [ 19 - 23 ] .
+athenikos et al [ 24 ] conducted a thorough survey reviewing state of the art in biomedical question answering systems .
+morris et al [ 25 ] presented a survey study about the behavior of users in question and answer systems .
+luo et al [ 26 ] developed an algorithm , simq , to extract similar consumer health questions based on both syntactic and semantic analysis .
+vector - based distance measures were used to compute similarity score among questions .
+statistical syntactic parsing and standardized unified medical language system ( umls ) were implemented to construct syntactic and semantic features , respectively .
+however , to effectively use the information in cqas , we need to not only retrieve similar questions but also provide and validate potential answers .
+simq was designed to retrieve similar questions from the netwellness [ 27 ] , a health information platform that has been maintained by clinician peer reviewers .
+questions collected within netwellness tend to be clean and well structured , whereas cqa websites tend to be noisy .
+wong et al has also contributed to automatically answering health - related questions based on previously solved qa pairs [ 28 ] .
+they provide an interactive system where the input questions are precise and short as opposed to accepting cqa questions directly as input .
+in comparison to these systems , our work relies on implementing semi - supervised learning with expectation - maximization ( em ) approach [ 29 ] .
+semi - supervised learning uses both labeled and unlabeled data for training .
+given labeled and unlabeled data , em - based semi - supervised learning first trains an initial model using just the labeled set .
+this model is then used to estimate the label of each element in the unlabeled set .
+next , the model is retrained using both labeled and unlabeled set with the estimated labels from the previous step .
+the new model is used to refine the estimated labels in the unlabeled set .
+these steps are iteratively repeated until the algorithm converges or reaches predefined number of iterations .
+in addition , we used dynamic time warping ( dtw ) [ 30 ] along with the vector - space distance [ 31 ] to measure similarity and incorporated biomedical concepts as additional features .
+in summary , our work aims to automatically answer health - related questions based on past qa. we extracted candidate questions based on similarity measure and selected possible answers by using a semi - supervised learning algorithm .
+automatically retrieving answers for questions from web - based health communities should provide the users a potential source of health information .
+methods the system was built as a pipeline that involves 2 phases .
+the first phase implemented as a rule - based system , consists of ( 1 ) question extracting , which maps the yahoo !
+answers dataset to a data structure that includes question category , the short version of the question , and the 2 best answers ; ( 2 ) answer extracting , which uses similarity measures to find answers for a question from existing qa pairs .
+in the second phase of answer re - ranking , we implemented supervised and semi - supervised learning models that refined the output of the first phase by screening out invalid answers and ranking the remaining valid answers .
+figure 1 depicts the system architecture and flow .
+in training , phase i is applied for each prospective question in the training dataset ( with all other questions under a consideration corresponding to all questions in the corpus being different from the current prospective question ) .
+for test , the prospective question is a test question , and all other questions are those from the training set .
+in this case , phase ii uses the trained model to rank the candidate answer .
+we first describe the training phase .
+the rule - based answer extraction phase ( phase i ) is split into the following 2 steps : figure 1 overall architecture for training the system .
+question extracting for this system , we assumed that each question posted on cqa sites has a question title and its description .
+once users provided possible answers to the posted question , some responses were assumed to be marked as the best answer either by the question provider or community users .
+the second and subsequent best answers were chosen among remaining answers based on the number of likes .
+the raw data collected from cqa sites are unstructured and contain unnecessary text .
+it is essential to retrieve short and precise questions embedded in the original question title and its description ( which can include up to 4 - 5 question sentences ) .
+instead of using the whole question title and description that are long and verbose , we implemented a rule - based approach to capture these possible short question sentences ( subquestions ) .
+these subquestions were categorized into different groups based on the words in questions .
+more specifically , regular expressions based on question words were used to classify subquestions , which yielded different question classes consisting of " yes - no ," " what quantity ," " how frequent ," " when ," " why ," " how ," " where ," " who ," " whose ," " whom ," " what ," and " which ," and " others. " we considered subquestions , instead of full questions and descriptions , in the rest of this paper .
+answer extracting given a question , it was divided into subquestions and matched with the question group using the aforementioned rule - based approach .
+then , we computed the semantic distance between the prospective question and all other questions from the training sets belonging to the same group .
+two distance approaches were used in our work .
+1. dtw - based approach : it is based on a sequence alignment algorithm known as dtw , which uses efficient dynamic programming to calculate a distance between 2 temporal sequences .
+this allows us to effectively encode the word order without adversely penalizing for missing words ( such as in a relative clause ) .
+applying it in our context , a sentence was considered as a sequence of words where the distance between each word was computed by the levenshtein distance at a character level [ 32,33 ] .
+for any 2 sequences defined as seq1 = < w11 , w21 ,... , wm1 > and seq2 = < w12 , w22 ,... , wn2 > where m and n are the lengths of the sequences , liu et al [ 30 ] defined the distance between 2 sequences ( in our case , 2 sentences ) as in the following figure 2 : figure 2 the distance between two sequences .
+where f ( 0,0 ) = 0 , f ( i , 0 ) = f ( 0 , j ) = infinity , i in ( 0 , m ) , j in ( 0 , n ) here , d ( wi1 , wj2 ) is the distance between 2 words computed by the levenshtein measure .
+2. vector - space based approach : an alternative paradigm is to consider the sentences as a bag of words , represent them as points in a multidimensional space of individual words , and then calculate the distance between them .
+we implemented a unigram model with tf - idf weights based on the prospective question and other questions in the same category and computed the euclidean distance measure .
+we further took into account the cases that share similar medical information by multiplying the distances with a given weight parameter .
+the best value of the weight parameter was selected based on extensive experiments .
+the metamap tool was used to recognize umls concepts occurring in questions [ 34 ] .
+if at least 1 word in the umls concepts of " organic chemical " and " pharmacologic substance " occurs in both the prospective question and a training question , we reduce the distance to account for the additional semantic similarity .
+these umls concepts are specifically selected as we want to provide more weight to answers that mention a treatment approach under the intuitive assumption that most cqa users aim to seek informative advice for their illness .
+the set of semantic types can be expanded to capture broader concepts if different domains are considered .
+the qa pairs in the training set corresponding to the smallest and the second smallest distance were extracted .
+thus , we finally obtained a list of candidate answers , that is , the answers referring to smallest and second smallest questions , for each prospective question .
+these answers were used as the output of the baseline rule - based system .
+this was repeated for each question in the training set , that is , the prospective question corresponds to each question in the training set .
+at the end of this phase , we had triplets ( qp , qt , at ) over all questions qp. note that at is an answer to question qt with qt != qp , and each qp yielded several such triplets .
+the machine - learning phase of answer re - ranking ( phase ii ) is described next .
+the goal of this phase is to rank candidate answers from the previous step and select the best answer among them .
+each triple ( qp , qt , at ) is aimed to be assigned as " valid " if at is a valid answer to qp , or " invalid " otherwise .
+we describe how the model was trained in this section while detailed explanations ( eg , number of labeled and unlabeled triplets ) are provided in the section , " results. " we first selected a small random subset of triplets and labeled them manually ( there were too many to label all of them in this way ) .
+both supervised and semi - supervised learning em models were developed to predict the answerability of newly posted question and rank candidate answers .
+specifically , the semi - supervised learning model was trained on labeled and unlabeled triplets .
+according to the semi - supervised learning model , we first trained a supervised learning algorithm including neural networks with the entropy objective function ( nnet ) , neural networks with the l2 - norm or least squares objective function ( nnet _ l2 ) , support vector machine ( svm ) , and logistic regression based on manually labeling outputs from the aforementioned rule - based answer extraction phase .
+the trained model was used to classify the unlabeled part of the outputs of phase i , and then , the classifier was retrained based on the original labeled data and a randomly selected subset of unlabeled data using the estimated labels from the previous iteration .
+these steps were iteratively repeated to achieve a final estimated label .
+the supervised approach , on the other hand , only ran a classifier on the labeled subset and finished .
+a 10 - fold cross validation was implemented in both semi - supervised and supervised approaches .
+specifically , all labeled observations were partitioned into 10 parts where 1 part was set aside as a test set .
+the model was fitted based on the remaining 9 parts of the labeled observations ( plus the entire unlabeled part for the semi - supervised learning approach ) .
+the parameters of the semi - supervised model were obtained by using the em algorithm previously described .
+the fitted model was then used to predict the responses in the part that we set aside as the test set .
+these steps were repeated by selecting different part to set aside as the test set .
+all features used in the models are illustrated based on the following example as summarized in table 1 .
+table 1 list of features used in the model .
+type of features features value general features 1.text length of qp 5 2.text length of qt 12 3 .
+number of stop words contained in qp 1 4 .
+number of stop words contained in qt 5 5 .
+vs ( qp , qt ) 3.7052 6 .
+the difference between vs ( qp , at ) and vs ( qt , at ) 0.4303 7 .
+dtw ( qp , qt ) 29 8 .
+the difference between dtw ( qp , at ) and dtw ( qt , at ) 14.5 umls - based features 9 .
+number of overlapping words in sp and st 3 10 .
+number of overlapping words in sp and sa 3 11 .
+binary variable indicating whether a set of overlapping words in ( sp , st ) and ( sp , sa ) are different 0 12 .
+cardinality of the set difference of sp and st 4 13 .
+cardinality of the set difference of sp and sa 5 example of a triple ( qp , qt , at ) prospective question anxiety medication for drug / alcohol addiction ?
+training question is chlordiazepoxide / librium a good medication for alcohol withdrawal and the associated anxiety ?
+training answer chlordiazepoxide has been the standard drug used for rapid alcohol detox for decades and has stood the test of time .
+the key word is rapid the drug should really only be given for around a week .
+starting at 100 mg on day 1 and reducing the dose every day to reach zero on day 8 .
+in my experience , it deals well with both the physical and mental symptoms of withdrawal .
+looking ahead , he will still need an alternative management for his anxiety to replace the alcohol .
+therapy may help , possibly in a group setting sets sp , st , and sa are sets of terms corresponding to umls concepts occurred in qp , qt , and at , respectively .
+general features are taken from previous work [ 7 ] , while we introduce umls - based features into the model .
+features 9 and 10 are calculated by counting the number of words contained in both sets .
+to obtain features 12 and 13 , we find the elements that are in only 1 of the 2 sets .
+table 2 depicts examples of annotations in the corpus .
+the inter - rater agreement for random instances ( 10 % of total ) assigned to 2 independent reviewers is very good ( 95 % ci of kappa from . 69 to . 93 ) .
+the procedure to identify an answer to a newly posted question is illustrated in figure 3 after the usual split of the corpus in train and test .
+table 2 corpus annotation examples .
+a target question a training question a training answer label can fully recovered alcoholics drink again can a recovered alcoholic drink again ?
+what they say at aa is that there is no such thing as permanent recovery from alcoholism .
+there are alcoholics who never drink again , but never alcoholics who stop being alcoholics .
+valid can fully recovered alcoholics drink again if both my parents are recovered alcoholics , will i have a problem with alcohol ?
+yes , there is a good chance that you could inherit a tendency towards alcoholism .
+invalid anxiety medication for drug / alcohol addiction ? is chlordiazepoxide / librium a good medication for alcohol withdrawal and the associated anxiety ?
+chlordiazepoxide has been the standard drug used for rapid alcohol detox for decades and has stood the test of time .
+valid anxiety medication for drug / alcohol addiction ?
+negative effects of alcohol and adhd medication ?
+drinking in moderation is wise for everyone , but it is imperative for adults with adhd .
+invalid figure 3 process flow of the testing step .
+the following evaluation metrics are used to test the overall performance of our algorithm .
+1. question - based evaluation metrics - for this paper , we define " overall accuracy " as ratio of the number of questions with at least 1 " correct " answer divided by total number of questions in the test set .
+a test question is labeled as " correct " if our algorithm predicts at least 1 valid triple correctly .
+for the case that there is no valid answer in the question from the gold standard , we label it as " correct " if our algorithm predicts corresponding triplets as invalid .
+- the mean reciprocal rank ( mrr ) with test questions q is defined as figure 4 .
+where ranki is the position of a valid instance in manually sorted probabilities from the model .
+if there are more than 1 valid instances in any question , minimum value of ranki is used .
+2. triple - based evaluation metrics precision , recall , and the f1 - score can be used as standard measures for binary classification .
+we do not measure accuracy and receiver operating characteristic curves because the dataset is heavily imbalanced .
+figure 4 the mean reciprocal rank ( mrr ) with a set of test questions q. results to test the algorithm , we obtained a total of 4216 alcoholism - related qa threads from yahoo !
+answers .
+the sample outputs from our algorithm are shown in figure 5 , which indicates how our system could potentially be used by web - based advice seekers .
+to extract initial candidate answers in the rule - based answer extraction , our algorithm returns 8 instances for each prospective question ( obtained from 2 different similarity measures where we extract at least 2 closest questions for each measure with 2 answers for each question ) .
+an example of output reported from the rule - based answer extraction is depicted in figure 6 .
+figure 5 system output .
+figure 6 an example result returned from the algorithm to determine candidate answers .
+a randomly selected set of 220 threads were manually annotated and used as labeled questions .
+overall , 119 of 220 questions , or 54.1 % , have valid answers among those extracted in the rule - based answer extraction phase .
+after retrieving candidate answers , we further aim to re - rank them and select the best answer ( if there is a valid answer ) .
+note that each question corresponds to several candidate answers and thus multiple triplets ( qp , qt , at ) .
+if at least 1 triplet is labeled as " valid ," the corresponding question is also labeled as " valid. " specifically , the semi - supervised learning model ( em ) was trained on 1553 labeled triplets ( corresponding to 220 manually labeled questions ) and 10,000 unlabeled triplets .
+in the training data of 1553 labeled triplets , 297 triplets were manually labeled as " valid " and 1256 as " invalid. " the typical 10 - fold cross validation was implemented to validate the model .
+we included all features listed in table 1 in the models .
+to indicate a significance of each feature , we analyzed the feature set by using information gain .
+the information gain is based on the entropy function , which is closely related with the objective function of the neural network nnet and logistic regression classifiers .
+the most influential features are the number of stop words contained in qp , the text length , the distance of ( qp , qt ) , and the number of overlapping umls words between qp and qt , that is , in sp and st. all information gains for these significant features are listed in table 3 .
+table 3 information gain score of 5 significant features features information gain 1 .
+number of stop words contained in qp 0.0912 2 .
+text length of qp 0.0804 3 .
+dtw ( qp , qt ) 0.0395 4 .
+number of overlapping words in sp and st 0.0393 5 .
+vs ( qp , qt ) 0.0350 the best model was selected by varying the cutoff probability of being valid or invalid to obtain the maximum f1 - score .
+we selected nnet , nnet _ l2 , svm , and logistic regression approaches to train the model on a subset .
+for the svm classifier , the probability was obtained by fitting a logistic distribution using maximum likelihood to the decision values provided by svm .
+the semi - supervised learning ( em ) algorithm with 1 iteration trained with nnet _ l2 gave the best performance for mrr and f1 - score with a reasonable value of overall accuracy , whereas nnet performs best for overall accuracy , as listed in table 4 .
+each value in the table is the average across 100 different runs based on different random numbers in the algorithms and the test / train splits ( details provided in the following section ) .
+in table 4 , the numbers in bold represent the best value among different models and classifiers for each evaluation metric .
+the confusion matrices for 1 iteration of em trained with 4 different classification models are provided in figure 7 .
+figure 7 the confusion matrices for 1 iteration of em trained with nnet , nnet _ l2 , svm , and log .
+table 4 evaluation metrics .
+evaluation metrics supervised learning semi - supervised learning ( em ) nnet nnet _ l2 svma logb 1 iteration 10 iterations nnet nnet _ l2 svm log nnet nnet _ l2 svm log overall accuracy 0.5818 0.6993 0.6305 0.6245 0.8623 0.7105 0.6774 0.6473 0.8491 0.71 0.6783 0.6478 mrrc 0.4216 0.5534 0.6224 0.6336 0.5686 0.6339 0.631 0.6266 0.5681 0.6332 0.6313 0.628 f1 - score 0.1 0.3786 0.3045 0.3214 0.3222 0.3996 0.3667 0.3622 0.316 0.3977 0.3656 0.3626 precision 0.0746 0.3614 0.4803 0.5073 0.2294 0.3981 0.4493 0.4421 0.2219 0.3942 0.4478 0.44 recall 0.1433 0.4 0.241 0.2659 0.6801 0.4214 0.3239 0.3224 0.6562 0.4209 0.3229 0.3233 asvm : support vector machine .
+blog : logistic regression .
+cmrr : mean reciprocal rank .
+we performed 2 types of statistical hypothesis tests ( t - tests ) at the . 05 level ( 95 % ci ) to determine if 2 sets of evaluation metrics among the f1 - score , overall accuracy , and mrr , obtained from different settings are significantly different from each other .
+first , randomness occurs within an algorithm such as the randomness in the stochastic gradient approach .
+second , we consider randomness of assigning the test set , that is , the training and test sets in 10 - fold cross validation are randomly assigned .
+we performed both types of the hypothesis tests for all possible comparisons including the model implemented ( pure classification vs semi - supervised ) , and among the 4 different classifiers based on the numbers reported in table 4 .
+overall , the semi - supervised learning model is statistically significantly better than the corresponding supervised version for all evaluation metrics .
+this conclusion holds for both tests .
+comparing between 1 and 10 em iterations , the evaluation metrics are not statistically different from each other .
+this implies that the model parameters tuned by the em algorithm are very close to the optimal values within 1 iteration .
+we are also interested in understanding whether umls - based features ( feature 9 - 13 listed in table 1 ) play a role in predicting the validity of a candidate answer .
+hence , we trained another model , which excludes all umls - based features , and compared the results ( obtained from 1 iterations of em trained with nnet _ l2 ) with those from the original model as illustrated in figure 8 .
+the statistical tests at the . 05 level showed significantly difference between the 2 models ( with vs without umls - based features ) for the 3 evaluation metrics. with umls - based features , the model gave a better performance , which is consistent across all evaluation metrics .
+this implies that these features played a role in distinguishing between valid and invalid answers .
+figure 8 performance between the original and adjusted model to test significance of umls - based features ( health features ) .
+discussion in this paper , we developed an automated qa system by using previously resolved qa pairs from a cqa site and evaluated it. although we used yahoo !
+answers as a data source , our algorithm can be adapted and applied to other cqa sites , in particular those related to health care where umls applies .
+among different models and classifiers experimented , em semi - supervised learning is better than pure supervised learning , and 1 iteration of em generally performs better than other models .
+specifically , 1 iteration of em with nnet gives the best performance in term of accuracy .
+nnet _ l2 with 1 iteration of em performs best in terms of the mrr and f1 - scores .
+the nnet _ l2 with 1 em iteration is recommended to be used based on the case study data .
+overall , the best model achieves an 86.2 % accuracy and a 0.4 f1 - score , which are significant given that the problem is challenging and the data are imperfect .
+internet users typically provide responses in an ill - formed fashion .
+our data also consist of a significant number of complex questions , for example , a user discusses about his or her situation in 10 to 20 sentences and then asks whether he or she is an alcoholic .
+moreover , some questions are very detailed ; for example , the percentage of alcohol resulting from a given combination of chemical components .
+there is a trade - off between precision and recall .
+some of these values listed in table 4 are small as we aim to find a good balance between the 2 values .
+we intentionally maximize the f1 - score , which is a representative of both values .
+precision and recall are reported in table 4 for completeness .
+a comparison between the rule - based approach in the first phrase and the semi - supervised learning model in the second phrase reveals a significant improvement .
+the semi - supervised approach improves the accuracy of the model by 30 % ( approximately from 55 % to 86 %) .
+comparing with luo et al [ 26 ] who retrieved the similar questions based on the distance measure , we relied on this idea with different approaches .
+to compute the similarity score between questions , we used the dtw measure instead of relying on the vector - based distance measure .
+luo et al used matching questions with information in data sources that are written and reviewed by experts ; we strictly use only data from yahoo !
+answers , which are very noisy .
+for this reason , the syntactic features proposed by luo et al might not be useful in our model .
+unfortunately , not all libraries used in luo et al 's implementation are publicly available , and thus , direct comparison of the accuracy is not possible .
+shtok et al [ 7 ] used resolved qa pairs to reduce the rate of unanswered questions in yahoo !
+answers .
+the experiment in shtok et al was also tested with health - related questions , and the accuracy as measured by the f1 - score was 0.32 .
+our method , which trained a semi - supervised learning model with a smaller amount of manually labeled data compared with a supervised learning model used in [ 7 ] , resulted in 0.4 f1 - score .
+a better performance might be because of several reasons .
+first , we categorized questions in a corpus into different groups based on question keywords .
+instead of computing the distance between a test question and all other questions in the corpus , categorizing questions reduces the scope of questions an algorithm needs to search .
+as we categorize collected questions into different groups based on question keywords , latent topics and " wh " question matching features used in shtok 's study are not valuable in our context .
+second , our algorithm also used multiple features related to the umls medical topics to enhance the model 's performance when applied within the health domain where the shtok 's system was designed for a more general usage .
+although shtok et al. relied on cosine distance , the euclidean distance performed better in our evaluation .
+among distance measures used in our work , more valid answers can be correctly identified with the dtw - based approach than the vector similarity measure , which can be observed when manually annotating the output from the rule - based answer extraction .
+in addition , our algorithm extracted multiple candidate answers retrieved from 2 closest qa pairs for each distance metric and the 2 best answers for each question .
+in each qa pair , both the best and the second best answer were extracted compared with shtok et al where only the best answer was extracted .
+finally , we implemented semi - supervised learning to gain benefits from unlabeled data , whereas shtok et al only relied on a supervised learning model in the re - ranking phase .
+using a semi - supervised learning model that leverages unlabeled data is reasonable against other traditional supervised learning models because obtaining labeled data is very expensive and time consuming in practice .
+as the features of the machine - learning algorithm are not specific to alcoholism , our system should be applicable for other related topics .
+on the other hand , it would be possible to increase the accuracy for " alcoholism " if we use specific features such as concepts related to alcoholism .
+in summary , the main novelty and advantages of our work against other works include the dtw - based distance approach , umls - based features , the semi - supervised learning algorithm , and the dataset used in the study .
+we introduce novel distance measures , the dtw - based approach that performs better than the typical vector - space distance method .
+umls - based features are included to enhance the model applied in the health care domain in addition to the general features in the study by the study by shtok et al [ 7 ] .
+our system is trained and tested only on the web - based information without any additional sources .
+further , obtaining the annotation from web - based data can be very difficult and time consuming .
+this stresses the significance of using semi - supervised learning rather than a typical supervised learning algorithm .
+for the machine - learning component , the distance between a test question and other questions in the training dataset is important in distinguishing valid and invalid answers .
+the closer the distance is , the higher the chance of the corresponding answer being valid .
+matching umls terms , which imply a closer similarity between questions , plays a role in determining the validity of the answer .
+although umls - based features show lower information gain , the model with these features included is significantly better across all evaluation metrics .
+the overall accuracy is improved by 8 % when these features are included .
+information gain shows that number of stop words contained in a test question and the underling text length are the best indicators for differentiating between valid and invalid answers .
+we note that the number of content - rich words , represented as text length minus the number of stop words , is also taken indirectly into account by these 2 features .
+we fitted the model without the number of stop words feature compared with the full model .
+although these 2 models are not statistically different , we include the number of stop words feature in the model as previously done by shtok et al [ 7 ] .
+limitations and future work the main limitation of our work is the lack of assessment of the model 's generalizability .
+although our algorithm is generic and does not include any features that are specific to the topic of alcoholism , we have not validated it in different domains as we do not have available data .
+approximately 30 % ( obtained from a preliminary observation ) of all questions cannot be answered based on existing answers ; some of these questions also require additional resources that are more technical and reliable , such as medical textbooks , journals , and guidelines .
+conclusions the question - answering system developed in this work achieves reasonably good performance in extracting and ranking answers to questions posted in cqa sites .
+our work is a promising approach for automatically answering alcoholism - related questions obtained from cqa sites based only on past qa that is used as a case study .
+in addition , our system can potentially be applied to other health care domain questions asked by web - based health care communities .
+the system and the gold standard corpus are available on github [ 35 ] .
+the authors are grateful to dr. jina huh from michigan state university for providing the yahoo !
+answers dataset and dr. kalpana raja from northwestern university for helping with umls .
+this work was partly supported by funding from the national library of medicine grant r00lm011389 .
+conflicts of interest : none declared .
+abbreviations cqa community - based question answering dtw dynamic time warping em expectation maximization mrr mean reciprocal rank nnet neural networks qa questions and answers svm support vector machine umls unified medical language system 1 fox s duggan m pew research center 2013 health online 2013 http :// www.pewinternet.org / 2013 / 01 / 15 / health - online - 2013 / 2 lau ay coiera e impact of web searching and social feedback on consumer decision making : a prospective online experiment j med internet res 2008 10 1 e2 10.2196 / jmir.963 18244893 18244893 3 nath c huh j adupa a jonnalagadda s website sharing in online health communities : a descriptive analysis j med internet res 2016 18 1 e11 10.2196 / jmir.5237 26764193 26764193 4 cimino j yu h del fg infobuttons and point of care access to knowledge clinical decision support 2007 345 72 5 burton s tanner k giraud - carrier c leveraging social networks for anytime - anyplace health information network modeling analysis in health informatics and bioinformatics 2012 1 4 173 81 6 morris m jaime t panovich k a comparison of information seeking using search engines and social networks 2010 1 01 proceedings of 4th international aaai conference on weblogssocial mediamay 23 - 26 , 2010washington , dc 291 4 7 shtok a dror g maarek y szpektor i learning from the past : answering new questions with past answers 2012 4 16 proceedings of the 21st international conference on world wide webapril 16 - 20 , 2012lyon , france 759 68 10.1145 / 2187836.2187939 8 marom y zukerman i a predictive approach to help - desk response generation 2007 1 06 20th international joint conference on artificial intelligencejanuary 6 - 12 , 2007hyderabad , india 1665 70 9 feng d shaw e kim j hovy e an intelligent discussion - bot for answering student queries in threaded discussions 2006 1 29 proceedings of the 11th international conference on intelligent user interfacesjanuary 29 - february 01 , 2006sydney , australia 171 7 10 wang k ming z chua t a syntactic tree matching approach to finding similar questions in community - based qa services 2009 7 19 proceedings 32nd annual international acm sigir conference on research and development in information retrievaljuly 19 - 23 , 2009boston , ma 187 94 11 jeon j croft w lee j finding similar questions in large question and answer archives 2005 10 31 proceedings of the 14th acm international conference on information and knowledge managementoctober 31 - november 05 , 2005bremen , germany 84 90 12 bernhard d gurevych i answering learners' questions by retrieving question paraphrases from social q & a sites 2008 6 19 proceedings of the third workshop on innovative use of nlp for building educational applicationsjune 19 , 2008columbus , oh 44 52 13 zhang w liu t yang y cao l zhang y ji r a topic clustering approach to finding similar questions from large question and answer archives plos one 2014 9 3 e71511 10.1371 / journal.pone.0071511 24595052 24595052 14 ko j si l nyberg e a probabilistic framework for answer selection in question answering 2007 4 22 proceedings of human language technology conference of the north american chapter of the association of computational linguisticsapril 22 - 27 , 2007rochester , ny 524 31 15 moschitti a quarteroni s linguistic kernels for answer re - ranking in question answering systems information processing & management 2011 47 6 825 42 10.1016 / j.ipm.2010.06.002 16 suzuki j sasaki y maeda e svm answer selection for open - domain question answering 2002 8 26 proceedings of the 19th international conference on computational linguisticsaugust 26 - 30 , 2002taipei , taiwan 1 7 17 blooma m chua a goh d selection of the best answer in cqa services 2010 4 12 proceedings of the 7th international conference on information technologyapril 12 - 14 , 2010las vegas , nv 534 9 18 wu y zhang r hu x kashioka h learning unsupervised svm classifier for answer selection in web question answering 2007 6 28 proceedings of the joint conference on empirical methods in natural language processing and computational natural language learningjune 28 - 30 , 2007prague , czech republic 33 41 19 toba h ming z adriani m chua t discovering high quality answers in community question answering archives using a hierarchy of classifiers inform sciences 2014 101 15 20 shah c pomerantz j evaluating and predicting answer quality in community qa 2010 7 19 sigir : proceedings of the 33rd annual international acm sigir conference on research development in information retrievaljuly 19 - 23 , 2010switzerland 411 8 21 arai k handayani a predicting quality of answer in collaborative q / a community international journal of advanced research in artificial intelligence 2013 2 3 21 5 22 shah c kitzie v choi e questioning the question - addressing the answerability of questions in community question - answering 2014 1 06 47th hawaii international conference on system sciencesjanuary 6 - 9 , 2014waikoloa , hi 1386 95 23 tian q zhang p li b towards predicting the best answers in community - based question - answering services 2013 7 08 proceedings of the 7th international conference on weblogs and social mediajuly 8 - 11 , 2013cambridge , ma 725 8 24 athenikos sj han h biomedical question answering : a survey comput methods programs biomed 2010 7 99 1 1 24 10.1016 / j.cmpb.2009.10.003 19913938 19913938 25 morris m teevan j panovich k what do people ask their social networks , and why ? : a survey study of status message q & a behavior 2010 4 10 proceedings of the sigchi conference on human factors in computing systemsapril 10 - 15 , 2010atlanta , ga 1739 48 26 luo j zhang g wentz s cui l xu r simq : real - time retrieval of similar consumer health questions j med internet res 2015 17 2 e43 10.2196 / jmir.3388 25689608 25689608 27 morris ta guard jr marine sa schick l haag d tsipis g kaya b shoemaker s approaching equity in consumer health information delivery : netwellness j am med inform assoc 1997 4 1 6 13 8988468 8988468 28 wong w thangarajah j padgham l contextual question answering for the health domain j am soc inf sci tec nov 2012 63 11 2313 27 29 nigam k mccallum a thrun s mitchell t text classification from labeled and unlabeled documents using em machine learning 2000 39 2 - 3 103 34 30 liu xy zhou ym zheng rs sentence similarity based on dynamic time warping 2007 9 17 international conference on semantic computing , proceedingsseptember 17 - 19 , 2007irvine , ca 250 6 31 zobel j moffat a exploring the similarity space acm sigir forum 1998 32 1 18 34 32 levenshtein v binary codes capable of correcting deletions , insertions , and reversals soviet physics doklady 1966 10 8 707 10 33 wagner r fischer m the string - to - string correction problem journal of acm 1974 21 1 168 73 34 aronson a effective mapping of biomedical text to the umls metathesaurus : the metamap program 2001 proceedings / amia annual symposium2001washington , dc 17 21 35 wongchaisuwat p klabjan d jonnalagadda s github 2015 2016 - 07 - 06a semi - supervised learning approach to enhance community - based question answering : code and dataset https :// github.com / papisw / health - qa

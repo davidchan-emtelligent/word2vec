@@ -1,0 +1,316 @@
+front neurorobot front neurorobot front. neurorobot .
+frontiers in neurorobotics 1662 - 5218 frontiers media s.a .
+25386135 4209885 10.3389 / fnbot.2014.00024 neuroscienceoriginal research a comparative analysis of three non - invasive human - machine interfaces for the disabled ravindra vikram 1 castellini claudio 1 * 1robotics and mechatronics center , german aerospace center ( dlr ) , webetaling , germany edited by : florian rohrbein , technische universitat munchen , germany reviewed by : elizabeth b. torres , rutgers university , usa ; cecilia laschi , scuola superiore sant'anna , italy * correspondence : claudio castellini , robotics and mechatronics center , german aerospace center ( dlr ) , munchner strabetae 20 , webetaling d - 82234 , germany e - mail : claudio.castellini @ dlr.de this article was submitted to the journal frontiers in neurorobotics .
+17 9 2014 27 10 2014 2014 8 24 11 7 2014 07 10 2014 copyright ( c ) 2014 ravindra and castellini .
+2014 this is an open - access article distributed under the terms of the creative commons attribution license ( cc by ) .
+the use , distribution or reproduction in other forums is permitted , provided the original author ( s ) or licensor are credited and that the original publication in this journal is cited , in accordance with accepted academic practice .
+no use , distribution or reproduction is permitted which does not comply with these terms .
+in the framework of rehabilitation robotics , a major role is played by the human - machine interface ( hmi ) used to gather the patient 's intent from biological signals , and convert them into control signals for the robotic artifact .
+surprisingly , decades of research have not yet declared what the optimal hmi is in this context ; in particular , the traditional approach based upon surface electromyography ( semg ) still yields unreliable results due to the inherent variability of the signal .
+to overcome this problem , the scientific community has recently been advocating the discovery , analysis , and usage of novel hmis to supersede or augment semg ; a comparative analysis of such hmis is therefore a very desirable investigation .
+in this paper , we compare three such hmis employed in the detection of finger forces , namely semg , ultrasound imaging , and pressure sensing .
+the comparison is performed along four main lines : the accuracy in the prediction , the stability over time , the wearability , and the cost .
+a psychophysical experiment involving ten intact subjects engaged in a simple finger - flexion task was set up. our results show that , at least in this experiment , pressure sensing and semg yield comparably good prediction accuracies as opposed to ultrasound imaging ; and that pressure sensing enjoys a much better stability than semg .
+given that pressure sensors are as wearable as semg electrodes but way cheaper , we claim that this hmi could represent a valid alternative / augmentation to semg to control a multi - fingered hand prosthesis .
+pressure sensing machine learning incremental learning human - machine interaction rehabilitation robotics force control 1 introduction despite decades of research by roboticists , mathematicians , and physiatrists , properly controlling a hand prosthesis by a hand amputee is , still nowadays , an open problem .
+in the ideal case , proper control means that each single degree of freedom ( dof ) of the prosthesis should be independently and proportionally controllable according to the amputee 's intent ; for instance , the desire to grab a bottle should immediately result in a stable cylindrical power grasp .
+so far , this is only enforced on single - dof grippers such as , e.g. , otto bock 's sensorhand speed1 using two surface electromyography ( semg ) electrodes ( merletti et al. , 2009 , 2011a,b ) placed on the loci of maximal residual muscle activity found on the stump .
+although this form of control is reliable , it cannot go very much past such non - dexterous prostheses , e.g. , proportional control of two dofs at best , with switching between dofs enforced by sequences of cocontractions .
+on the other hand , with the recent advent of multi - fingered hand prostheses as well as active prosthetic wrists and elbows , the need for more dexterous control has become urgent .
+commercially available devices ( certified as prostheses and employed in the clinics ) include , e.g. , touch bionics 's i - limb ultra revolution , rsl steeper 's bebionic , and vincent systems 's vincent evolution 22 , each one equipped with four to six motors and single - finger dofs ; in some cases , the prosthesis can even independently rotate and flex the thumb .
+academic prototypes are going in the same direction , e.g. , prensilia 's azzurra hand , derived from the smarthand ( cipriani et al. , 2011 ) , gifted with five independent motors and tendon - actuated fingers , and the softhand ( catalano et al. , 2012 ) , exploiting the concept of motor synergies ( santello et al. , 1998 ) to dramatically simplify the control without reducing the functionality .
+for these mechatronic artifacts , amsuss et al .
+( 2014 ) have shown that the old one - dof control schema does not suffice any longer ; more sophisticated forms of semg - based control , relying on pattern matching , do not yet work as desired .
+matching semg patterns via classification is clumsy , unstable , and limiting for the patient , to the point that ( micera et al. , 2010 ; peerdeman et al. , 2011 ) a large percentage of hand amputees do not routinely use such costly devices .
+the community is therefore calling for novel human - machine interfaces ( hmis ) to complement , augment , or substitute semg , together with the necessity to enforce simultaneous and proportional control using these signals ( fougner et al. , 2012 ; jiang et al. , 2012 ) .
+to this aim , novel hmis are currently being explored ( castellini et al. , 2014 ) for control of multi - fingered hand prostheses , but so far little is known about their comparative advantages and disadvantages .
+in this paper , we propose one such analysis focusing on two such hmis recently appeared in the scientific literature , namely ultrasound imaging ( sierra gonzalez and castellini , 2013 ) and pressure sensing ( wininger et al. , 2008 ; yungher et al. , 2011 ) , in comparison to semg .
+we analyzed their performance under four aspects : the accuracy in the prediction of the activation of the dofs of the prosthesis ; the stability of the prediction over time ; the wearability ; and the projected costs .
+a psychophysical experiment was set up in which ten able - bodied subjects would repeatedly flex their fingers to different extents of maximal voluntary contraction , while their semg signals , pressure signature of the forearm , and ultrasound images of the forearm were recorded .
+the experimental results seem then to indicate that pressure sensing represents a viable alternative to semg , at least as far as single - finger - force control of a hand prosthesis is concerned .
+1.1 related work the three hmis chosen for this study have already been individually investigated for hand prosthetic control .
+namely , semg is a very long - standing choice , its use dating back to the 60s for one - dof control ( finley and wirta , 1967 ) .
+several comprehensive surveys about its use in modern , multi - dof hand prostheses have appeared ( e.g. , micera et al. , 2010 ; peerdeman et al. , 2011 ) , showing that basically all possible electrode arrangements and machine - learning methods have been tried to enable fine control over self - powered prosthetic hands ; nevertheless , it turns out that semg has a number of drawbacks , which still make it unsuitable .
+the main problem lies in its changing nature due to sweat , electrode shift , and fatigue ( merletti et al. , 2011a ) , the latter being especially hard to counter since it entails shifts in the frequency components of the signals as well as in its amplitude .
+the problem is all the more relevant whenever standard commercial electrodes , such as , e.g. , otto bock 's myobock 13e2003 are used , which are the de facto standard in clinical applications .
+these electrodes provide a rectified , low - pass filtered version of the raw semg signal , with no original frequency content remaining .
+attempts to counter fatigue include , e.g. , the usage of switching regimes as the signal changes ( artemiadis and kyriakopoulos , 2011 ) or static methods , i.e. , filtering ( dimitrova and dimitrov , 2003 ) .
+the limited success of these methods mean that the level of abandonment of hand prostheses remains unusually high ( biddiss and chau , 2007 ; peerdeman et al. , 2011 ) .
+the idea of using ultrasound imaging is , as well , not new .
+zheng et al .
+( 2006 ) originally used it to track the thickness of the extensor muscle in the forearm to drive a one - dof prosthetic wrist ; the approach was then extended in chen et al .
+( 2010 , 2011 ) and shi et al .
+( 2010 ) to multiple dofs and to a better accuracy .
+castellini et al .
+( 2012 ) and sierra gonzalez and castellini ( 2013 ) demonstrated its feasibility to predict finger forces and positions in a realistic setting , i.e. , using no sensors for ground truth and training on maximal and minimal forces only .
+an attempt at comparing semg and ultrasound imaging in a discrete tracking task appears in jing - yi et al .
+( 2011 ) , from which it seems that ultrasound imaging obtains better results than semg .
+in castellini ( 2014 ) , it is speculated that , given the wealth of information obtained from ultrasound images , this technique might be superior to semg .
+as far as pressure sensing is concerned , the main idea is that of detecting the intent of a subject by estimating the deformation induced on the forearm / stump surface by the underlying muscle activity - the so - called " pressure signature " of the muscle activation .
+this path was initially explored in the 2000s by craelius and wininger ( craelius , 2002 ; phillips and craelius , 2005 ; wininger et al. , 2008 ) who showed that an array of variable resistors could be used to determine the forces required during walking and / or while grasping a dynamometer .
+comparison between semg and this technique showed that these novel signals enjoy less variability in time and provide more repeatable patterns .
+this is not surprising , since muscular fatigue should not affect such signals .
+in castellini and ravindra ( 2014 ) , the effectiveness of such an approach was further demonstrated by showing that a simple bracelet containing 10 force - sensing resistors ( fsrs ) , similar to those used by craelius and wininger , can be used to detect finger forces to a degree of accuracy comparable to that found in literature for semg .
+in the following , we will denote the three above - described hmis as , in turn , semg ( surface electromyography ) , us ( ultrasound imaging ) , and fsr ( the acronym of force - sensing resistors , the devices used to gather the pressure signature of the forearm ) .
+2 materials and methods a psychophysical experiment involving ten able - bodied subjects was set up , in order to determine the pros and cons of the three hmis mentioned above .
+we gathered fingertip forces from the subjects , while they were induced to apply force patterns using a visual stimulus .
+at the same time , their semg signals , fsr signals , and us images of the forearm were recorded .
+2.1 experimental setup 2.1.1 forearm pressure signature the pressure sensing setup comprised a semi - rigid bracelet with ten force - sensing resistors ( fsr400 short by interlink electronics4 affixed along the inner surface of the bracelet , as shown in figure 1a ) .
+the sensors have a 5.6 mm - diameter pressure sensitive surface , whose resistance changes in a predictable manner when a force is applied on it. the behavior of the sensor is typically non - linear , with no guarantee of repeatability across sensors , which accounts for their inexpensiveness - a single unit costs in germany < 5 eur .
+each force sensor was placed on an aluminum plate of 3 cm x 1 cm x 1 cm dimension and immobilized by means of a double sided tape .
+a spherical rubber foot was placed on the sensing surface and the whole arrangement was encased in a heat shrink rubber tubing so as to keep the parts in place .
+a detailed description of the bracelet as well as of its calibration can be found in castellini and ravindra ( 2014 ) .
+figure 1 hmi devices used : ( a ) customized arrangement of fsr housed in a semi - rigid bracelet ; ( b ) ten semg electrodes arranged on a strip of bio - compatible self - adhesive tape ; ( c ) ultrasound transducer fixed to a custom - made cradle .
+2.1.2 surface electromyography ten ottobock myobock 13e200 semg electrodes were attached to a bio - compatible reusable self - adhesive tape at regular intervals - see figure 1b .
+these electrodes are the standard , off - the - shelf semg device used in clinical prosthetic sockets , and are commercially available ; they provide an amplified , bandpass filtered , rectified semg signal , of excellent quality for prosthetic control .
+the electrode band was placed around the forearm , about 5 cm below the elbow ; no muscle targeting was enforced in order to keep the electrode positioning as simple as possible .
+this choice has already been proved effective for hand prosthetic control ( castellini et al. , 2009 ; castellini and van der smagt , 2013 ) .
+each such electrode can be bought at a price between 150 and 300 eur in europe .
+2.1.3 ultrasound imaging ultrasound images of the forearm were gathered using a general electric logiq - e portable ultrasound machine5 equipped with a 12l - rs linear transducer .
+movement of the probe with respect to the subject 's skin was avoided using a custom - built plastic cradle obtained via rapid prototyping - see figure 1c .
+the machine was configured to an ultrasound frequency of 12 hz , edge enhancement on , focus point at a depth of 1.3 cm and minimum depth of field , resulting in a frame rate of 38 hz. for a deeper description of this setup , please refer to sierra gonzalez and castellini ( 2013 ) .
+2.1.4 finger - force sensor the finger - force linear sensor ( ffls , see koiva et al. , 2012 ) was used to gather the applied finger forces .
+the ffls is a customized arrangement of six strain gage sensors , ergonomically designed to fit the positions of fingers while the palm is stretched .
+it employs four kd60 - 100n industrial strain gage sensors by me - mebetasysteme gmbh6 to measure finger flexion and extension forces of the index , ring , middle , and little fingers , and one rfs ( r ) 150xy - 100 - 8 - 3 dual axis strain gage sensor by honigmann gmbh7 to measure the flexion / extension and abduction / adduction forces of the thumb .
+the sensors have < 0.1 % linearity error and 0.1 % drift over 30 min .
+the ffls guarantees therefore a repeatable linear behavior in a high range of force ( 100 n in all directions ) and reaches an overall accuracy of + 0.35 % over nominal measurement range .
+2.2 experiment description an experiment was designed to compare the accuracy and stability of the finger - force prediction obtained by a state - of - the - art machine - learning method using the three kinds of signals provided by each hmi .
+in an initial round of data collection , we measured the maximal forces that each subject could apply at each of the 6 dofs considered ( namely flexion of the little , ring , middle , and index finger plus thumb adduction and flexion ) .
+the choice of these six dofs of the human hand is motivated by the fact that one of the most dexterous self - powered hand prostheses in the world at the time of the experiment , namely the i - limb ultra revolution , has exactly those active six dof available ; and it is reflected in the configuration of the ffls , which can measure the forces applied for each of these dofs .
+in the ideal case , data should have been collected with all three devices strapped to the forearm at the same time .
+however , such an arrangement would have seriously hampered the comfort of the subjects .
+we rather did a pairwise comparison of the fsr with semg and us. this pairwise comparison was done by dividing the data collection into two phases .
+in the first phase , the semg band and the fsr bracelet were affixed to the right forearm of the subject ( figure 2a ) ; whereas in the second phase , the semg band was replaced by the ultrasound probe ( figure 2b ) .
+the ground truth was collected by strapping the fingertips on the sensors of the ffls .
+figure 2 experimental setup comprising hmis on the forearm and the finger tips on the ffls .
+( a ) fsr bracelet and semg band ; ( b ) fsr bracelet and us transducer applied to the forearm .
+in both phases , the same visual stimuli were administered to the subjects : a 3d hand model of a human hand , flexing the fingers , plus a colored bar denoting the required level of force .
+a further set of colored bars denoting the force actually applied by the subjects helped ensure that the subjects would exert the required amounts of force to their best .
+the two phases were identical in terms of the actions that were required by the subject .
+each phase comprised ten repetitions , each repetition consisting of a single - finger flexion for each dof .
+during repetitions 1 - 5 , the subjects were required to flex their fingers at 80 % maximum force level ; the subject was then given a break of 5 min , followed by repetitions 6 - 10 , at 15 % of maximum force .
+this split provided an indication of how the prediction accuracy would behave in a high - force as well as in a low - force scenario .
+ten able - bodied subjects volunteered for the experiment .
+the entire experimental procedure was conveyed to them in oral and written form , following which their consent was taken in writing .
+the experiment was approved by the ethical committee of dlr .
+the subjects were seated comfortably on an adjustable office chair for the entire duration .
+they were given the option to pause or stop the experiment at any point of time .
+2.3 data processing and force prediction data obtained from the semg , fsr , and ffls were collected at 50 hz using a standard analogic - to - digital conversion card .
+the semg signals were filtered by a 1st order low - pass butterworth filter with cutoff frequency at 1 hz. a gradual drift was observed in the fsr signals , which was remedied by applying a 3rd order high - pass butterworth filter with cutoff frequency at 0.5 hz. the filtered signals obtained from the semg electrodes and fsrs were directly used , without any further feature extraction phase .
+the us images were grabbed from the vga output ( at 38 hz ) of the us machine using a standard pci - bus frame grabber ; from each image , 543 local visual features were extracted , denoting the changes in the local levels of gray of each image .
+for a thorough description of the feature extraction procedure , please refer to sierra gonzalez and castellini ( 2013 ) .
+following the approach tested in the same paper , we applied ridge regression to the visual features in order to predict the finger forces .
+ridge regression ( hoerl and kennard , 1970 ) is a regularized variant of least - squares regression , building a linear model of the forces of the form f ( x ) = wtx , where x denotes the visual features extracted from each image , and w is a weighting vector , which can be calculated in closed form from a set of ( sample , target ) pairs ( the training set ) previously collected .
+in particular , if x denotes the training set ( as an n x 543 matrix , where n is the number of samples in the training set ) , and y is a vector collecting the n target ( force ) values for each collected sample , then w = ( xtx + lambdai ) - 1xty .
+( the regularization coefficient lambda was set at the standard value of 1. ) for semg and fsr data , a linear approach is not sufficient ( castellini and ravindra , 2014 ; gijsberts et al. , 2014 ) , therefore we employed a non - linear extension to ridge regression called random fourier features ( rahimi and recht , 2008 ) .
+the models obtained by this approach have the form f ( x ) = wtphi ( x ) , where phi is a non - linear mapping from the input space ( the semg or fsr values ) to a higher - ( but finite - ) dimensional feature space , where linear regression is more likely to succeed .
+the mapping phi is actually a finite approximation of the well - known radial - basis - function kernel ; but , as opposed to what happens , e.g. , with support vector machines ( boser et al. , 1992 ) , where the kernel is known but the mapping is not , leading to an infinite - dimensional feature space , in this case phi can be explicitly ( and computationally lightly ) evaluated .
+the finiteness of the induced kernel keeps the approach bounded in space and permits the mapping to simply be " plugged in " into the ridge regression formula : w = ( phi ( x ) tphi ( x ) + lambdai ) - 1phi ( x ) ty. more details about the theory of this method when applied to semg can be found in gijsberts et al .
+( 2014 ) .
+the prediction accuracy of each machine - learning method ( ridge regression and random fourier features in turn ) was evaluated by following the realistic scenario first described in sierra gonzalez and castellini ( 2013 ) : to build a training set , only data collected during the application of maximal and minimal forces were considered ; fivefold cross - validation was done for each subject , by training on four out of five repetitions and testing on the remaining repetition .
+in the case of random fourier features , the hyperparameter sigma was found by grid - search while the number of features to be evaluated , d , was set at the computationally feasible value of 300 .
+training sets were built , in turn , using either the ffls force data ( the " ideal " ground truth ) and the stimulus values - a harder but more realistic choice , since amputees cannot provide any consistent ground truth using sensors .
+the prediction accuracy of each machine - learning method applied to either regression problem ( with forces or stimulus as ground truth ) was evaluated by calculating the root mean - squared - error between the predicted force values and the ground truth obtained from the ffls sensor , normalized over the target signal range ( nrmse ) .
+notice that this problem represents a hard challenge for any machine - learning method whatsoever : in the most difficult setting , the system is trained on stimulus values but still tested on real force data .
+lastly , two prediction scenarios were considered , one to ascertain the accuracy obtained by each hmi in general , and another one to test the stability over time of each hmi .
+for the first scenario , the above cross - validation procedure was used ; for the second , we trained on data collected during the first repetition , and subsequently tested on the second , third , fourth , and fifth repetition separately .
+as the repetitions were always collected in the same chronological order , this would give us an indication of how well the prediction could carry on over time .
+3 results 3.1 prediction accuracy figures 3 and 4 show the prediction accuracy obtained by each hmi on each degree of freedom considered ( little , ring , middle , and index finger flexion , thumb adduction , and thumb rotation ) , in the high - and low - forces experiment , in turn , both when the ffls ( force ) data are used as ground truth ( figures 3a and 4a ) and when the stimulus values are used to this purpose ( figures 3b and 4b ) .
+figure 3 prediction accuracy ( nrmse ) obtained by each hmi for each degree of freedom considered , during the high - forces experiment ( stimulus at 80 % of the maximum voluntary contractions ) .
+( a ) error obtained when the ffls data are used as ground truth ; ( b ) error obtained when the stimulus is used as ground truth .
+the legend denotes , in turn , semg ( emg ) , the two fsr sessions ( fsr1 , fsr2 ) and ultrasound imaging ( us ) .
+bars and stems denote average nrmse values across ten subjects , plus / minus one standard error of the mean .
+figure 4 prediction accuracy ( nrmse ) obtained by each hmi for each degree of freedom considered , during the low - forces experiment ( stimulus at 15 % of the maximum voluntary contractions ) .
+( a ) error obtained when the ffls data are used as ground truth ; ( b ) error obtained when the stimulus is used as ground truth .
+the legend denotes , in turn , semg ( emg ) , the two fsr sessions ( fsr1 , fsr2 ) and ultrasound imaging ( us ) .
+bars and stems denote average nrmse values across ten subjects , plus / minus one standard error of the mean .
+in the graphs , fsr1 and fsr2 denote the two identical experiments performed with fsr , the first time together with semg and the second with us. almost no statistically significant difference in performance is observed ( student 's two - tailed t - test p - value always larger than 0.05 , except for one single case ) .
+this confirms that the error values for the fsr obtained in the two experiments are similar , in turn , confirming that the subjects were induced to do approximately the same things during the two experiments .
+the maximum force exerted averaged over ten subjects and the six degrees of freedom is 22.6 +/ - 2.1 n. as far as the prediction accuracy is concerned , in the high - forces case , when the actual forces ( ffls data ) are used as ground truth to train the system ( figure 3a ) , the error attained by semg and fsr is almost uniformly below 10 % , with very few statistically significant differences .
+ultrasound imaging obtains a rather higher error , in the range 15 - 20 % , always statistically significant .
+in case the stimulus values are used as ground truth for training ( figure 3b ) , the situation gets uniformly worse as expected , but the same pattern can be observed : semg and fsr obtain errors in the range 10 - 20 % ( around 20 % in the case of thumb adduction ) , which corresponds to a maximum error of approximately 4.3 n , while ultrasound imaging performs overall much worse , with errors hovering around 40 % , which is approximately 7.2 n. again , its performance is always statistically significantly different in comparison to the worse among the other approaches .
+in the low - forces experiment ( figure 4 ) , the same considerations hold , given the fact that the error becomes uniformly higher .
+this is to be expected , since the range of forces in this case is significantly smaller than in the high - forces case .
+it should be noted that though the nrmse values obtained with semg and fsr is high for some dofs ( 20 - 35 % for middle , index , and thumb adduction / rotation ) , the minuteness of the 15 % force level means that the error in terms of physical force is approximately 1.2 n .
+3.2 stability figures 5 and 6 show the prediction errors obtained by fsr and semg on each degree of freedom considered , in the high - and low - forces experiment , in turn , split across repetitions # 2 , # 3 , # 4 , and # 5 .
+training was done on the first repetition only .
+testing was done on the ffls ground truth only , to obtain a clearer picture .
+figure 5 prediction accuracy ( nrmse ) obtained by fsr ( a ) and semg ( b ) for each degree of freedom considered , during the high - forces experiment ( stimulus at 80 % of the maximum voluntary contractions ) ; the system was trained on the first repetition ; the graph shows the error obtained while testing on repetitions # 2 , # 3 , # 4 , and # 5 .
+the ffls data are used as ground truth .
+figure 6 prediction accuracy ( nrmse ) obtained by fsr ( a ) and semg ( b ) for each degree of freedom considered , during the low - forces experiment ( stimulus at 15 % of the maximum voluntary contractions ) ; the system was trained on the first repetition ; the graph shows the error obtained while testing on repetitions # 2 , # 3 , # 4 , and # 5 .
+ffls data are used as ground truth. from the figures , a clear trend up is evident in the case of semg , all the more in the case of the low - forces experiment .
+in fact , the slope of a linear fit ( averaged over the six degrees of freedom ) turns out to be 0.0002 +/ - 0.0014 and - 0.0008 +/ - 0.0004 for fsr , and 0.0079 +/ - 0.0005 and 0.0092 +/ - 0.0105 for semg .
+this confirms that fsr enjoys a better stability in time with respect to semg .
+4 discussion the experiment described in this paper is a comparative analysis among hmis for the disabled .
+particular care was taken to ensure that the three hmis under examination were tested in the very same conditions .
+since it was infeasible to have the subjects wear the semg electrodes , the pressure sensing bracelet and the ultrasound imaging probe all at the same time , we rather tested the hmis in two pairs , checking later on that the common one ( namely , the tactile bracelet ) would obtain comparable results in the two experiments .
+the experimental results show that , overall , all three hmis can be in principle used in a realistic setting - that is , using an incremental , real - time machine - learning method , in principle trained without the usage of sensors for ground truth , and using a very short training procedure ( on minimal and maximal forces only ) .
+all three hmis can potentially enforce simultaneous and proportional control over fingers of a multi - fingered prosthesis .
+a more detailed discussion of the results follows .
+4.1 prediction accuracy ultrasound imaging provided a surprisingly unsatisfactory performance .
+according to figures 3 and 4 , the nrmse achieved by ultrasound imaging in the most difficult settings ( that is , when training on the stimulus as ground truth ) hovers around 40 % both in the high - and low - forces experiment .
+this is a surprisingly high value if compared to previous work ( sierra gonzalez and castellini , 2013 ) .
+it must be noted , however , that in that work , the cross - validation was done by random shuffling of all samples gathered in one series of finger - force repetitions ; this is of great aid to any machine - learning method , since it represents a uniform sampling of the whole probability distribution of the data .
+as opposed to that , in this experiment the cross - validation is performed repetition - wise , that is , by training on four out of five repetitions , and then testing on the remaining repetition .
+it can therefore be the case that the ultrasound visual features extracted from each repetition slightly differ from one another ( due to probe shift or different levels of muscle activation and shifting from one repetition to the next one ) .
+in an initial round of experiments on the same data set performed using random shuffling in cross - validation , error values similar to those obtained in sierra gonzalez and castellini ( 2013 ) have appeared , confirming the above claim .
+surface electromyography and pressure sensing , on the other hand , perform better .
+in the same hard setting , both semg and pressure sensing achieve errors in the range 10 - 20 % at high - force level , in line with existing literature ( for example , castellini and ravindra , 2014 ; gijsberts et al. , 2014 ) .
+though the accuracy , in terms of nrmse , deteriorates at low - force level , it maps onto a force error of just 1.2 n. a direct comparison between these two hmis , performed using student 's t - test , reveals very few significant differences in performance .
+4.2 stability over time it is well - known ( merletti et al. , 2011a ) that the semg signal suffers from non - trivial substantial changes over time during stress conditions ; this is due to electrode displacement , muscular fatigue , and the formation of sweat at the interface between the electrodes and the skin .
+an hmi based upon pressure sensing , on the other hand , should not suffer from this problem , as the forearm deformations induced by the underlying muscular activity should still reflect the actual activations .
+our stability analysis confirms this claim , showing that ( consider now figures 5 and 6 ) the prediction error achieved by semg rapidly degrades over time in both settings , going from 7 - 11 to 8 - 14 % in the high - forces case and from 7 - 15 to 8 - 20 % in the low - forces one .
+this is an ominous problem , already highlighted and studied in previous work ( gijsberts et al. , 2014 ) ; the solution that we proposed and positively tested in that paper was that of enforcing an incremental learning system , so that whenever required , prediction errors could be amended by inserting new knowledge in the existing models .
+( this is as well the main motivation for using , in this very work , ridge regression with and without random fourier features. ) as opposed to this degradation suffered by semg , the prediction obtained by pressure sensing remains stable at 4 - 10 and 6 - 14 % .
+this result is in line with former literature ( yungher et al. , 2011 ) and provides an indication that pressure sensing might be a viable companion to ( or even a substitute of ) semg , when stability over time is an issue .
+notice that high - resolution tactile sensing , an approach very closely related to ours , is already being investigated as a means of intent detection for the disabled ( radmand et al. , 2014 ) .
+4.3 physiological considerations due to the mainly applicative focus of this work , the analysis presented in this paper neglects almost all physiological aspects of machine - learning - based intent detection / prosthetic control ; in particular , no physical data have been recorded for the subjects ( e.g. , the forearm girdle and length , the muscle fitness , etc. ) , and the analysis has been performed by finding the optimal machine - learning hyperparamters either by referring to previous literature or by extensive ( grid - ) search ( see subsection 3 again ) .
+in other words , each model found ( and the associated prediction accuracy ) is the optimal one for the related subject and dataset , irrespective of her / his physical condition and anatomical features .
+this is nowadays a standard procedure in rehabilitation robotics , since the aim is that of providing the best precision and effectiveness to any human subject who needs to use the system. with this aim in mind , we have adopted the " realistic setting " detailed in sierra gonzalez and castellini ( 2013 ) , in which the machines are trained on minimal and maximal stimulus values only , since amputees cannot produce force ground truth nor precisely follow graded stimuli .
+it is , however , worth to stress once again that the performance testing has been done on the full range of forces , including the intermediate ones .
+this means that the prediction performance is the one , which would be obtained on average , on the full range of required forces .
+notice , moreover , that disabled subjects usually have abnormal physical / psychophysical parameters with respect to the healthy population ; for example , parkinson patients present a higher amount of non - voluntary muscle activation than control subjects ( torres et al. , 2011 ) .
+in the case of transradial amputees , who are the focus population of this research , the stump can hardly be related to the intact human forearm , especially when the amputation is proximal ( watson et al. , 2010 ) , a neuroma is formed and , after the operation , muscles attach to the stump ending , the neuroma itself or the bone stump .
+this abnormal reorganization almost prevents the detection of standard muscle activity patterns in such patients ; nevertheless , in most studies in which amputees have tested systems such as the one that we have presented here , it was clear that enough information was still present to reach remarkable levels of control , sometimes to the level of single fingers ( tenore et al. , 2009 ) .
+to ensure a reliable prediction , machine - learning methods require repeatable and distinct patterns corresponding to the desired activations , potentially irrespective of their physiological meaning .
+4.4 wearability and cost a few qualitative considerations on the wearability and costs of the three examined hmis follow .
+ultrasound imaging is , as yet , not wearable .
+to the best of our knowledge , neither b - mode ultrasound interface has so far been realized that can be embedded into a prosthetic socket nor any array of ultrasound transducers has been built , that can be embedded in a flexible structure ( e.g. , a lycra sock or glove ) to be worn on the skin .
+the only attempt we are aware of so far is represented by guo et al .
+( 2013 ) , where one single transducer was affixed to a subject 's forearm , this way realizing a very preliminary form of wearable a - mode ultrasonography .
+it must be noted , however , that a really fully wearable us system calls for a quite radical advancement in the technology , since the electronics required to form the beam of ultrasound waves is much more complex than that required for gathering a set of voltages .
+in addition to this , the long - term effects of ultrasound waves on the human tissues are still unknown , which would require a clinical trial ( castellini , 2014 ) .
+as opposed to this , the wearability of the semg and pressure sensing devices has already been shown in a number of works : semg is in use in the clinics , the electrodes being embedded in the plastic cast , which support the hand prosthesis ; the pressure sensing bracelet that we used here weighs about 65 g and requires no preparation at all ( castellini and ravindra , 2014 ) .
+as far the costs are concerned : cheap as it has become in recent times with respect to the past years ( a hand - held ultrasound machine can , at the time of writing , be purchased for about 8.000 usd ) , this kind of hardware remains prohibitively expensive to be shipped along with a hand prosthesis , constituting a relevant fraction of the price of the hand itself ( hovering around 25.000 eur ) .
+each semg electrode of the kind that we used here is in the range of 150 - 300 eur a piece , which makes our array significantly cheaper than an ultrasound device ; it must be noted that , probably , even cheaper arrays of semg electrodes can be purchased , but in that case , a further signal processing phase ( rectification , filtering ) must take place before the signal is available to the machine - learning method , raising the cost of the whole approach .
+the pressure sensing bracelet , in turn , cost an estimated 50 eur as it employs force - sensing resistors , which can be bought for < 5 eur apiece ( castellini and ravindra , 2014 ) .
+4.5 perspectives to summarize , table 1 shows a qualitative comparison of the three hmis ( surface electromyography , pressure sensing , and ultrasound imaging ) considered from the four points of view that we described above : prediction accuracy , stability over time , wearability , and cost .
+table 1 qualitative summary of the characteristics of each hmi , denoted as bad / poor / average / good / excellent .
+error stability wearability cost high forces low forces high forces low forces semg good good poor poor excellent poor pressure good good good good excellent excellent ultrasound bad bad - - bad bad from this comparison , pressure sensing is favored , as it provides the best accuracy ( comparable to that of surface electromyography ) , but it also keeps a remarkably stable prediction over time ( as opposed to semg ) .
+it is also cheaper than semg , while maintaining full wearability .
+this does not mean , of course , that pressure sensing is a definitive replacement for semg and / or ultrasound .
+we speculate that this novel hmi will suffer from a number of disturbances once it is used in a real - life application ; in particular , its signal will change as the patient swings the forearm ( due to the acceleration of the forearm against the sensors harness ) and , which is more worrisome , as ( s ) he lies the forearm on a surface .
+these problems will need to be countered ; one possibility is to fuse this signal with that obtained from semg , which will be much less influenced by such artifacts .
+the weak performance of ultrasound imaging in this experiment , together with its low scores as far as cost and wearability are concerned , pose serious doubts on its use as a competitor hmi .
+nevertheless , as we had previously claimed ( sierra gonzalez and castellini , 2013 ) , ultrasound images provide an extremely rich set of information about the status of the forearm ; in order to fully exploit it , it could be useful to employ more advanced image processing techniques .
+if such a technique can be found , ultrasound imaging could still be employed as a virtual - reality hmi in a clinic , in order to rehabilitate , e.g. , amputees and stroke patients .
+5 conclusion inspired by the recent trend in the rehabilitation robotics community , in this paper we have compared three hmis for control of multi - fingered prosthetic hands .
+surface electromyography , pressure sensing , and ultrasoundimaging were tested on ten intact subjects engaged in a simple , repetitive application of single - finger - force patterns ; a state - of - the - art machine - learning method was then used to predict the forces using the signals gathered from the hmis .
+our experimental results indicate that pressure sensing represents a cheaper alternative to semg , enforcing prediction accuracy comparable to semg , better stability in time , and the same wearability as this more traditional hmi .
+conflict of interest statement the authors declare that the research was conducted in the absence of any commercial or financial relationships that could be construed as a potential conflict of interest .
+1http :// www.ottobock.com 2http :// www.touchbionics.com , http :// www.bebionic.com and http :// www.vincentsystems.de 3http :// www.ottobock.com 4http :// www.interlinkelectronics.com 5http :// www.gehealthcare.com 6http :// www.me - systeme.de 7http :// www.honigmann.de references amsuss s. goebel p. graimann b. farina d .
+( 2014 ) .
+" extending mode switching to multiple degrees of freedom in hand prosthesis control is not efficient ," in proceedings of the 36th annual conference of the ieee engineering in medicine and biology society , embc , chicago , il artemiadis p. k. kyriakopoulos k. j. ( 2011 ) .
+a switching regime model for the emg - based control of a robot arm . ieee trans. syst .
+man cybern .
+b cybern .
+41 , 53 - 63 . 10.1109 / tsmcb.2010.2045120 20403787 biddiss e. chau t .
+( 2007 ) .
+upper - limb prosthetics : critical factors in device abandonment . am. j. phys. med. rehabil .
+86 , 977 - 987 . 10.1097 / phm.0b013e3181587f6c 18090439 boser b. e. guyon i. m. vapnik v. n. ( 1992 ) .
+" a training algorithm for optimal margin classifiers ," in proceedings of the 5th annual acm workshop on computational learning theory ( colt ) , ed. haussler d .
+( new york , ny : acm press ) , 144 - 152 castellini c .
+( 2014 ) .
+" state of the art and perspectives of ultrasound imaging as a human - machine interface ," in neuro - robotics : from brain - machine interfaces to rehabilitation robotics , volume 2 of trends in augmentation of human performance , ed. artemiadis p .
+( dordrecht : springer ) , 37 - 58 castellini c. artemiadis p. wininger m. ajoudani a. alimusaj m. bicchi a .
+( 2014 ) .
+proceedings of the first workshop on peripheral machine interfaces : going beyond traditional surface electromyography . front. neurorobot .
+8 : 22 . 10.3389 / fnbot.2014.00022 25177292 castellini c. gruppioni e. davalli a. sandini g .
+( 2009 ) .
+fine detection of grasp force and posture by amputees via surface electromyography . j. physiol .
+paris 103 , 255 - 262 . 10.1016 / j.jphysparis.2009.08.008 19665563 castellini c. passig g. zarka e .
+( 2012 ) .
+using ultrasound images of the forearm to predict finger positions . ieee trans .
+neural syst. rehabil. eng .
+20 , 788 - 797 . 10.1109 / tnsre.2012.2207916 22855234 castellini c. ravindra v .
+( 2014 ) .
+" a wearable low - cost device based upon force - sensing resistors to detect single - finger forces ," in proceedings of biorob - ieee international conference on biomedical robotics and biomechatronics , sao paulo , 199 - 203 castellini c. van der smagt p .
+( 2013 ) .
+evidence of muscle synergies during human grasping . biol. cybern .
+107 , 233 - 245 . 10.1007 / s00422 - 013 - 0548 - 4 23370962 catalano m. grioli g. serio a. farnioli e. piazza c. bicchi a .
+( 2012 ) .
+" adaptive synergies for a humanoid robot hand ," in 12th ieee - ras international conference on humanoid robots ( humanoids ) , 2012 , osaka , 7 - 14 chen x. chen s. dan g .
+( 2011 ) .
+" control of powered prosthetic hand using multidimensional ultrasound signals : a pilot study ," in proceedings of the 6th international conference on universal access in human - computer interaction : applications and services uahci , vol. 11 ( orlando , fl : springer - verlag ) , 322 - 327 chen x. zheng y .
+- p. guo j. y. shi j .
+( 2010 ) .
+sonomyography ( smg ) control for powered prosthetic hand : a study with normal subjects . ultrasound med. biol .
+36 , 1076 - 1088 . 10.1016 / j.ultrasmedbio.2010.04.015 20620695 cipriani c. controzzi m. carrozza m. c. ( 2011 ) .
+the smarthand transradial prosthesis . j. neuroeng. rehabil .
+8 , 29 . 10.1186 / 1743 - 0003 - 8 - 29 21600048 craelius w .
+( 2002 ) .
+the bionic man : restoring mobility . science 295 , 1018 - 1021 . 10.1126 / science.295.5557.1018 11834819 dimitrova n. a. dimitrov g. v. ( 2003 ) .
+interpretation of emg changes with fatigue : facts , pitfalls , and fallacies . j. electromyogr. kinesiol .
+13 , 13 - 36 . 10.1016 / s1050 - 6411 ( 02 ) 00083 - 4 12488084 finley f. r. wirta r. w. ( 1967 ) .
+myocoder studies of multiple myopotential response . arch. phys. med. rehabil .
+48 , 598 - 601 6060789 fougner a. stavdahl o kyberd p. j. losier y. g. parker p. a. ( 2012 ) .
+control of upper limb prostheses : terminology and proportional myoelectric control - a review . ieee trans .
+neural syst. rehabil. eng .
+20 , 663 - 677 . 10.1109 / tnsre.2012.2196711 22665514 gijsberts a. bohra r. sierra gonzalez d. werner a. nowak m. caputo b .
+( 2014 ) .
+stable myoelectric control of a hand prosthesis using non - linear incremental learning . front. neurorobot .
+8 : 8 . 10.3389 / fnbot.2014.00008 24616697 guo j .
+- y. zheng y .
+- p. xie h .
+- b. koo t. k. ( 2013 ) .
+towards the application of one - dimensional sonomyography for powered upper - limb prosthetic control using machine learning models . prosthet. orthot. int .
+37 , 43 - 49 . 10.1177 / 0309364612446652 22683737 hoerl a. e. kennard r. w. ( 1970 ) .
+ridge regression : biased estimation for nonorthogonal problems . technometrics 12 , 55 - 67 . 10.1080 / 00401706.1970.10488634 jiang n. dosen s. muller k .
+- r. farina d .
+( 2012 ) .
+myoelectric control of artificial limbs - is there a need to change focus ?
+ieee signal process. mag .
+29 , 148 - 152 . 10.1109 / msp.2012.2203480 jing - yi g. yong - ping z. kenney l. p. j. bowen a. howard d. canderle j. j. ( 2011 ) .
+a comparative evaluation of sonomyography , electromyography , force and wrist angle in a discrete tracking task . ultrasound med. biol .
+37 , 884 - 891 . 10.1016 / j.ultrasmedbio.2011.03.008 21546151 koiva r. hilsenbeck b. castellini c .
+( 2012 ) .
+ffls : an accurate linear device for measuring synergistic finger contractions . conf. proc .
+ieee eng. med. biol. soc .
+2012 , 531 - 534 . 10.1109 / embc.2012.6345985 23365946 merletti r. aventaggiato m. botter a. holobar a. marateb h. vieira t .
+( 2011a ) .
+advances in surface emg : recent progress in detection and processing techniques . crit. rev. biomed. eng .
+38 , 305 - 345 . 10.1615 / critrevbiomedeng.v38.i4.10 21133837 merletti r. botter a. cescon c. minetto m. vieira t .
+( 2011b ) .
+advances in surface emg : recent progress in clinical research applications . crit. rev. biomed. eng .
+38 , 347 - 379 . 10.1615 / critrevbiomedeng.v38.i4.20 21133838 merletti r. botter a. troiano a. merlo e. minetto m .
+( 2009 ) .
+technology and instrumentation for detection and conditioning of the surface electromyographic signal : state of the art . clin. biomech .
+24 , 122 - 134 . 10.1016 / j.clinbiomech.2008.08.006 19042063 micera s. carpaneto j. raspopovic s .
+( 2010 ) .
+control of hand prostheses using peripheral information . ieee rev. biomed. eng .
+3 , 48 - 68 . 10.1109 / rbme.2010.2085429 22275201 peerdeman b. boere d. witteveen h. in ' t veld r. h. hermens h. stramigioli s .
+( 2011 ) .
+myoelectric forearm prostheses : state of the art from a user - centered perspective . j. rehabil. res. dev .
+48 , 719 - 738 . 10.1682 / jrrd.2010.08.0161 21938658 phillips s. l. craelius w .
+( 2005 ) .
+residual kinetic imaging : a versatile interface for prosthetic control . robotica 23 , 277 - 282 . 10.1017 / s0263574704001298 radmand a. scheme e. englehart k .
+( 2014 ) .
+" high - resolution muscle pressure mapping for upper - limb prosthetic control ," in proceedings of mec - myoelectric control symposium , fredericton , 193 - 197 rahimi a. recht b .
+( 2008 ) .
+" uniform approximation of functions with random bases ," in allerton conference on communication control and computing , allerton'08 , urbana - champaign 555 - 561 santello m. flanders m. soechting j. f. ( 1998 ) .
+postural hand synergies for tool use . j. neurosci .
+18 , 10105 - 10115 . 9822764 shi j. chang q. zheng y .
+- p .
+( 2010 ) .
+feasibility of controlling prosthetic hand using sonomyography signal in real time : preliminary study . j. rehabil. res. dev .
+47 , 87 - 98 . 10.1682 / jrrd.2009.03.0031 20593322 sierra gonzalez d. castellini c .
+( 2013 ) .
+a realistic implementation of ultrasound imaging as a human - machine interface for upper - limb amputees . front. neurorobot .
+7 : 17 . 10.3389 / fnbot.2013.00017 24155719 tenore f. v. ramos a. fahmy a. acharya s. etienne - cummings r. thakor n. v. ( 2009 ) .
+decoding of individuated finger movements using surface electromyography . ieee trans. biomed. eng .
+56 , 1427 - 1434 . 10.1109 / tbme.2008.2005485 19473933 torres e. b. heilman k. m. poizner h .
+( 2011 ) .
+impaired endogenously evoked automated reaching in parkinson 's disease . j. neurosci .
+31 , 17848 - 17863 . 10.1523 / jneurosci.1150 - 11.2011 22159100 watson j. gonzalez m. romero a. kerns j .
+( 2010 ) .
+neuromas of the hand and upper extremity . j. hand surg. am .
+35 , 499 - 510 . 10.1016 / j.jhsa.2009.12.019 20193866 wininger m. kim n .
+- h. craelius w .
+( 2008 ) .
+pressure signature of forearm as predictor of grip force . j. rehabil. res. dev .
+45 , 883 - 892 . 10.1682 / jrrd.2007.11.0187 19009474 yungher d. wininger m. t. barr j. b. craelius w. threlkeld a. j. ( 2011 ) .
+surface muscle pressure as a means of active and passive behavior of muscles during gait . med. eng. phys .
+33 , 464 - 471 . 10.1016 / j.medengphy.2010.11.012 21176884 zheng y. chan m. shi j. chen x. huang q .
+( 2006 ) .
+sonomyography : monitoring morphological changes of forearm muscles in actions with the feasibility for the control of powered prosthesis . med. eng. phys .
+28 , 405 - 415 . 10.1016 / j.medengphy.2005.07.012 16115790

@@ -1,0 +1,253 @@
+bmc proc bmc proc bmc proceedings 1753 - 6561 biomed central 26361499 4547148 1753 - 6561 - 9 - s6 - s3 10.1186 / 1753 - 6561 - 9 - s6 - s3 research pathwaymatrix : visualizing binary relationships between proteins in biological pathways dang tuan nhon 1 murray paul 1 forbes angus graeme 1 aforbes @ uic.edu 1 department of computer science m / c 152 , university of illinois at chicago , 851 s. morgan , room 1120 , chicago 60607 - 7053 , il , usa 2015 13 8 2015 9 suppl 6 proceedings of the 5th symposium on biological data visualization : part 2daniel weiskopf and jan aertspublication of this supplement has not been supported by sponsorship .
+information about the source of funding for publication charges can be found in the individual articles .
+articles have undergone the journal 's standard peer review process for supplements .
+the supplement editors declare that they have no competing interests .
+s3 s3 copyright ( c ) 2015 dang et al .
+2015 dang et al.this is an open access article distributed under the terms of the creative commons attribution license ( http :// creativecommons.org / licenses / by / 4.0 ) , which permits unrestricted use , distribution , and reproduction in any medium , provided the original work is properly cited .
+the creative commons public domain dedication waiver ( http :// creativecommons.org / publicdomain / zero / 1.0 /) applies to the data made available in this article , unless otherwise stated .
+background molecular activation pathways are inherently complex , and understanding relations across many biochemical reactions and reaction types is difficult .
+visualizing and analyzing a pathway is a challenge due to the network size and the diversity of relations between proteins and molecules .
+results in this paper , we introduce pathwaymatrix , a visualization tool that presents the binary relations between proteins in the pathway via the use of an interactive adjacency matrix .
+we provide filtering , lensing , clustering , and brushing and linking capabilities in order to present relevant details about proteins within a pathway .
+conclusions we evaluated pathwaymatrix by conducting a series of in - depth interviews with domain experts who provided positive feedback , leading us to believe that our visualization technique could be helpful for the larger community of researchers utilizing pathway visualizations .
+pathwaymatrix is freely available at https :// github.com / creativecodinglab / pathwaymatrix .
+pathway visualization biological networks matrix visualization binary relationships 10 - 11 july 20155th symposium on biological data visualizationdublin , ireland background biological pathways consist of interactions and biochemical reactions between sets of proteins and other biomolecules resulting in a product or a change in cellular state or activity [ 1 ] .
+for instance , some pathways describe metabolic processes which break down carbohydrates , fats and proteins to create energy .
+other pathways show how cells respond to external stimuli , such as immune cells detecting and responding to bacteria or viruses .
+still other pathways produce changes in gene regulation , such as pathways that initiate mediated cell death .
+each of these pathways contains a series of biochemical reactions between proteins and biomolecules , such as a phosphorylation reaction (" raf1 phosphorylates mek1 ") where one protein adds a phosphate group to another , changing the protein 's state .
+while some pathways are well characterized , researchers continually make discoveries that result in the identification of new interactions between pairs or proteins , or that explain the structure of , or refine existing knowledge related to , a molecular network under different cellular conditions .
+this growing volume of " biological network " data , available via public databases [ 2 - 5 ] , is in part fueled by the development of high - throughput experimental techniques and the standardization of biological network data formats , allowing scientists to more rapidly generate and collect biological network data [ 6 - 8 ] .
+as the scale and complexity of this network data grows , along with the potential for error , there is a need for novel representations that address critical tasks in curating and analyzing these datasets [ 9 ] .
+the biggest challenge in presenting pathways is their complexity .
+pathways may contain hundreds of proteins or small molecules , which form hierarchical and nested complexes that participate in a series of multistage reactions of various kinds .
+representing complexity while also enabling researchers to see higher order patterns is a significant challenge [ 10 ] .
+human generated pathway diagrams have many benefits , and many pathway visualization tools mimic the hand - made style of presenting pathway data .
+however , pathway complexity makes it difficult to view higher - order patterns .
+other tools use an approach that instead attempts to reduce complexity by presenting an abstracted view of pathway data , where complex interactions are reduced to binary ( and sometimes directed ) relations between proteins .
+given this abstraction , these representations do not show multistage reactions , protein complexes , or protein state transitions .
+all interactions are treated as binary relationships , without consideration of reactions that include multiple inputs and multiple outputs .
+this simplification aims to make it possible for researchers to see broader patterns within a pathway , without being distracted by details .
+a set of rules ( the simple interaction format , or sif ) were developed to reduce interactions to pairwise relationships [ 5 ] .
+since sif interactions are always binary it is not possible to fully represent all complex relationships , and this translation is lossy in general .
+the sif format specifies nodes and interactions only , and sif is convenient for building a graph from a list of interactions .
+it also makes it easy to combine different interaction sets into a larger network , or to add new interactions to an existing data set .
+the main disadvantage is that this format does not include any layout information .
+nonetheless , sif network data remains useful for certain types of bioinformatic applications that require pairwise interaction [ 11 ] .
+the sif format can be easily imported into popular network analysis tools , such as cytoscape [ 12 ] , or biofabric [ 13 ] .
+our application , pathwaymatrix , represents binary relations between pairs of proteins and biomolecules in a network to enable the identification of modules or sub - networks within large pathways .
+in this paper , we describe pathwaymatrix , which includes : colored glyphs that indicate reaction types ; a simplification technique in which dense parts of a pathway network are grouped and simplified ; linked venn diagrams and arc diagrams that complement the network data shown in the matrix ; and interaction techniques that allow for data overlays and on - demand lensing to reveal details of complex pathways .
+this paper introduces these features and our motivations for incorporating them in our application , provides clear examples of why such a visualization is needed , and demonstrates some of the benefits this method has over traditional node - link diagrams for certain pathway visualization tasks .
+related work there exist a variety of approaches to represent biological pathway data .
+these include , among others : a ) human generated layouts of curated pathways ; b ) variations on node - link diagrams that are presented with automated layouts ; and c ) overviews depicting binary relationships between proteins and molecules in pathways [ 14,15 ] .
+while these approaches enable a variety of analysis tasks , they also have significant limitations , including a lack of scalability to large networks and a tendency toward visual clutter that impedes critical pathway analysis tasks , such as identifying sub - networks , detecting the importance of a protein in a pathway , and understanding causality .
+abstracting pathway data to binary relationships can help to address the problem of scalability .
+visualizations that focus on binary relationships can display visualizations of large , complex biological networks that may include thousands of proteins and complexes .
+several visualization tools use this abstracted binary approach , including pcviz [ 5 ] , visant [ 16 ] , biofabric [ 13 ] , and compressed adjacency matrices [ 17 ] .
+pcviz and visant both produce traditional node - link diagrams with force - directed layouts .
+visant is capable of showing very large networks , and includes interactive brushing and linked views that allow an analyst to explore subsets of nodes within a network .
+pcviz lets researchers search for interactions that include target proteins of interest , allowing for more focused inquiry into how a protein interacts with other proteins .
+however , since both of these approaches use conventional graph layout algorithms , the spatial positioning of nodes is not necessarily optimized for biological questions .
+as with many graph visualizations , as the number of nodes increase , the " hairball problem " inhibits analysis .
+biofabric [ 13 ] is a novel layout approach , which attempts to " comb the hairball " and provide layouts for easier understanding of complex graphs .
+it accomplishes this by adapting the node - link diagram to a matrix format , and by using lines to represent nodes , where intersections between horizontal and vertical lines represent links between nodes .
+however , using biofabric to trace causal patterns across a sequence of reactions remains challenging .
+the compressed adjacency matrix [ 17 ] was built specifically for gene regulatory networks , an essentially different class of biological network .
+gene regulatory networks , in particular , contain few cycles , which are common in molecular activation networks .
+this representation extends adjacency matrices in a way that includes paths containing more than two nodes , which enables the visualization of causal relationships from one starting protein to another .
+broadly speaking , these approaches abstract details , but in the process some important information is lost .
+in some cases , misinterpretation of the representation is possible , such as when several proteins with shared binary interactions may appear to all interact at once , while in reality they interact in multiple , distinct stages .
+finally , many critical tasks that could be addressed through abstraction are not targeted by these tools .
+these tasks include easily discerning the multiple complexes and reactions in which a given protein participates and detecting elements with similar functionality .
+in the following sections , we introduce our tool , pathwaymatrix , providing scalable views of pathway data that reduce complexity while retaining important pathway information .
+all example biological pathways are found from the reactome pathway database and are encoded using the biopax format .
+methods visualizing and analyzing large pathway networks is a daunting task due to the network size and variety of types of connections between proteins in the pathway .
+to avoid the " hairball " problem , we introduce a novel matrix visualization that presents some advantages over node - linked diagrams for certain pathway visualization tasks .
+overview of pathway visualization tasks over the course of many in - depth discussions with systems biologists , molecular biologists , and bioinformatics researchers , we identified a set of design goals to address some important visualization tasks relevant to biological pathway datasets. t1 .
+provide a comprehensive overview of the binary relations between proteins within a pathway : we represent these binary relations in an adjacency matrix rather than via the more conventional node - link graph .
+this abstraction of the pathway data can help analysts identify modules and sub - networks within a pathway without the visual clutter that graph layouts can create , for example , due to edge crossings in large , dense networks. t2 .
+visualize multiple types of relations between proteins : it is very common to find multiple relationships between a pair of proteins or biomolecules .
+our glyph design maximizes visual impact by clearly highlighting these relationships , which is especially useful when exploring large networks. t3 .
+detect proteins with similar functionality in a pathway : we define a measure of protein similarity in a particular pathway network based on the set of relationships between the proteins .
+using this measure , we are able to order proteins by their similarities and create clusters of proteins having identical functionality. t4 .
+create interactive maps : for biologists , it can be important to zoom in to see details about particular proteins or groups of proteins of interest .
+pathwaymatrix provides lensing , brushing and linking capabilities allowing users to perform this task .
+binary interaction patterns in a biopax model based on the needs of bioinformatics researchers who we helped clarify the goals of the application , we look only at protein - protein relations , as other biological elements , such as small molecules are less important for pathway analysis tasks .
+the five protein - protein interaction types which include directionality that can be explored via pathwaymatrix are indicated by the following phrases , where p1 and p2 are the two proteins participating in a binary relation : p1 controls - state - change - of p2 * p1 controls - phosphorylation - of p2 * p1 controls - transport - of p2 * p1 controls - expression - of p2 * p1 catalysis - precedes p2 additionally , our application displays three protein - protein interaction types where directionality does not play a role : * p1 in - complex - with p2 * p1 interacts - with p2 * p1 neighbor - of p2 the distribution of these relation types in pathways varies significantly in different pathways .
+our choice of the glyphs used to represent binary relationships ( t2 ) , depicted in figure 1 , follows the guidance on pop - out effects by maguire et al .
+[ 18 ] .
+pop - out effects enable faster visual searching for a target among unalike distractors .
+based on extensive studies in psychophysics , the four most effective visual channels are color , size , shape , and orientation [ 19,20 ] , where color has the strongest pop - out effect [ 18 ] .
+therefore , in pathwaymatrix we use color as the primary visual channel to encode different types of binary relationships between proteins within a pathway .
+orientation is used as a secondary visual channel , since , as discussed below , our interaction techniques alter the size of glyphs and because it would be difficult to use shapes ( as will become apparent later in the paper ) .
+in some pathways not all of the binary interaction types are present .
+figure 1 visualizing the atm mediated phosphorylation of repair proteins pathway : ( a ) matrix view of protein binary relations ( b ) venn diagram summarizing protein binary relations .
+figure 1 , shows an example of pathwaymatrix for the tm mediated phosphorylation of repair proteins pathway .
+in each cell of the matrix , we use circular sectors , divided similarly to a pie - chart , to indicate relations between two proteins , where each sector in circle is given a color to indicate interaction type .
+a modified venn diagram is also supplied to provide an overview of the types of interactions within the pathway .
+the size of circles in this diagram represents the frequency of different relations in the pathway , and overlapping areas provide an overview of how often relations coexist in the pathway .
+we use the same color encoding for the venn diagram and the matrix .
+for example , red represents " controls - state - change - of " relationships and blue represents " neighbor of " relationships .
+the inclusion of interaction types through colored circular sectors and the linked diagram are both unique to this work .
+together they better integrate important contextual information into the main view of the proteins , addressing a significant limitation in other abstracted pathway representations .
+the venn diagram is constructed based on wilkinson 's algorithm [ 21 ] , which provides an approximation of the computationally - hard problem of computing circle overlaps .
+ordering proteins in a matrix figure 2 shows different ways of ordering proteins in the raf - map kinase cascade .
+figure 2 different protein orderings in the raf - map kinase cascade pathway .
+we implemented ordering algorithms in an effort to reveal higher - level patterns in large pathways , such as subnetworks and clusters of related proteins .
+matrix reordering is a widely studied topic , and it has applications to many different fields such as sociology , psychology , and economics [ 22 ] .
+however , existing matrix ordering algorithms are not applicable to our application , since in our formulation each cell of the matrix contains a set of relations , rather than a single value .
+therefore comparing two elements in the matrix involves comparing the set of common and uncommon relations .
+we developed a novel measure of similarity between two proteins ( t3 ) , and we use this metric to order the proteins in the matrix .
+our ordering algorithm starts with a random protein and adds successive proteins to the ordering based on their similarity .
+this ordering continues until all genes are ordered .
+the dissimilarity of two proteins is computed as follows : let < p1 , p2 , ... , pn > be the set of proteins in a pathway and rij be the set of relations between pi and pj. the dissimilarity of two proteins pi and pj is then computed by the following equation : ( 1 ) dis ( pi , pj )= sumk = 1n (| uijk | - w *| cijk )|) where cijk is the set of common relations of rik and rjk with respect to protein pk , which is defined by cijk = rik intersection rjk .
+uijk is the set of uncommon relations of rik and rjk with respect to protein pk , which is defined by uijk = ( rik - rjk ) union ( rjk - rik ) .
+to compute | uijk | , we use the equation : ( 2 ) | uijk |=| rik |+| rjk | - 2 *| cijk | for example , if rik = { a , b , c , d } and rjk = { a , b , x } .
+then , cijk = { a , b } and uijk = { c , d , x } .
+therefore , we have | uijk | = |{ a , b , c , d }|+|{ a , b , x }| - 2 * |{ a , b }| = 4 + 3 - 2 * 2 = 3 .
+replacing eq .
+2 into eq .
+1 , we have : ( 3 ) dis ( pi , pj )= sumk = 1n (| rik |+| rjk | - w + 2 *| cijk |) notice that dis ( pi , pj ) can be a negative integer if there are no uncommon relations but many common relations between pi and pj with respect to the third protein pk. w is a parameter which allows the viewer to control the importance of common binary relations over uncommon binary relations .
+in other words , * when w = 0 , we compare the two proteins based on the set of uncommon relations ( to other proteins ) .
+* when w is a large integer , we consider the two proteins similar if they have many common relations ( to any other proteins ) .
+the three panels of figure 3 show the effects of ordering proteins in different ways .
+the top panel shows proteins ordered by their name .
+this helps to bring proteins in the same family together when their names are similar ( i.e. , only the id numbers at the end of the protein name are different ) .
+however , this naming convention is not always accurate .
+additionally , some proteins that belong to different protein families may perform the same functionality within a pathway .
+as illustrated in the middle panel , patterns become apparent when ordering proteins by similarity are applied .
+figure 3 matrix view of different protein orderings and lensing ( last panel ) in the rb - e2f pathway .
+lensing over the matrix when the data includes hundreds of proteins , each circular sector becomes too small to decipher .
+we provide a lensing tool that helps the viewer to zoom in on a group of relationships in a specific area of the matrix without losing the overall context .
+the bottom panel of figure 3 shows an example of lensing on the rb - e2f pathway .
+this pathway contains 9,016 binary relations between 156 proteins and small molecules .
+lensing helps address scalability limitations when viewing large networks .
+significantly , we use animation to show smooth transitions between different ordering schemes , which can improve perception by maintaining object constancy [ 23 ] .
+animation is also helpful when applying lensing on the matrix .
+as it is difficult to describe animation in static images , we invite the reader to refer to the video in our associated supplementary materials .
+grouping proteins together even with lensing , large networks can be difficult to view .
+for instance , in figure 4 we show another example of the rnap ii pre - transcription events pathway .
+this pathway contains 31,866 relations between 294 proteins .
+the first panel shows an adjacency matrix with proteins ordered by similarity .
+to manage the scale of this network , we introduce a new technique called " group by similarity. " the grouping algorithm is based on the idea of the leader algorithm , where assignments are made in a way that is similar to the iterative assignments in the k - means algorithm [ 24 ] , except with only one pass through the data .
+thus , the computational complexity of the leader algorithm is considerably less than that for k - means .
+figure 4 matrix view of ordering by protein similarity ( top panel ) and grouping ( middle and last panel ) in the rnap ii pre - transcription events pathway .
+our grouping algorithm proceeds as follows : 1 we initialize the leader list l = empty .
+2 for each protein pi , we find the leader protein in l which has the same set of relations as pi has .
+3 if we could not find a leader protein satisfying this condition , we make pi a new leader and add pi into l .
+4 otherwise , we add pi to the follower list of this leader protein .
+5 repeat steps 2 to 4 for all proteins pi. when groups are computed , we then " collapse " nodes within a group into a single node , as shown in the middle panel of figure 4 .
+each point in the matrix now represents relationships between proteins or groups of proteins , where the members of a group all share identical sets of relations .
+we indicate group size through a text label .
+group size can also be indicated through the darkness of rows and columns in the matrix .
+a viewer can explore proteins or relations in a protein group by simply clicking on its name , as depicted on the left side of the last panel in figure 4 ( where we have selected a group of 27 proteins ) .
+in this example , pathwaymatrix has automatically grouped all proteins in the nucleoporin families which are the constituent building blocks of the nuclear pore complex ( npc ) [ 25 ] .
+additionally , this cluster also contains other proteins outside the nucleoporin family , such as aladin , nlp1 , pomp121 , rae1 , seh1 , and tpr .
+the 27 proteins were grouped together because they each have the same set of relation types as all the other proteins in this group .
+displaying the hierarchy of protein complexes complexes consisting of many proteins are common in pathway datasets .
+in addition , these complexes are hierarchical , with several complexes nested together .
+however , abstracted views showing only binary relations lose this important hierarchical information .
+we introduce a new approach which shows complexes in a secondary linked view , and also allow hierarchy information to be overlaid on the adjacency matrix view .
+the linked view , shown in figure 5 , is placed next to the adjacency matrix , and uses a list to display the hierarchy of complexes in a pathway .
+complexes in the list are ordered by size ( the total number of proteins in complex ) .
+given that complexes can be nested within other complexes , a nested complex will always appear below its parent in this list .
+figure 5 visualizing the hierarchy of protein complexes in the rb - e2f pathway : ( a ) all descendant relationships between complexes ( b ) descendant relationships between selected complexes .
+the list is paired with an interactive arc diagram .
+arcs connect proteins and complexes that are in the same hierarchy .
+when a protein or complex is selected from the list , the arcs connecting members of its hierarchy are highlighted , and those complexes are also highlighted in the adjacency matrix .
+arc thickness is determined by the size of the sub - complex , and the saturation of arcs indicates how many levels away the sub - complexes are from the selected complex .
+the arc diagram is used instead of , for example , a simple indented list because any one protein or complex may belong to many different parent complexes , making a typical hierarchical representation infeasible .
+viewers can overlay the complex structure in the pathway matrix as depicted in figure 5 ( a ) .
+darker areas highlight intersections of proteins and sub - complexes belonging to multiple complexes .
+when the user hovers the mouse over a complex , the arcs recursively highlight descendants ( sub - complexes ) of the selected complex as depicted in figure 5 ( b ) .
+implementation and requirements pathwaymatrix is implemented in java and built on top of processing framework .
+it is cross - platform , with a minimum requirement of java 7 .
+pathwaymatrix uses paxtools [ 26 ] for the loading and management of biopax data .
+the application , source code , and sample data are provided via our github repository , located at https :// github.com / creativecodinglab / pathwaymatrix .
+results and discussion comparison to other visualization tools in this section , we compare pathwaymatrix to other popular tools for viewing pathway data .
+we use the hiv life cycle to show differences between these tools ; this pathway can be downloaded from wikipathways [ 27 ] or reactome [ 28 ] .
+figure 6 shows the human generated diagram of this pathway .
+though these hand - made figures are sometimes used in pathway visualizations , such as entourage [ 29 ] , they are not appropriate for every type of analysis task .
+( the pros and cons of these human generated pathway diagrams have been discussed above in the background section. ) figure 6 human generated diagram of the hiv life cycle by different tools downloaded from wikipathways [ 27 ] .
+effectively visualizing this data can be difficult since we may need to consider a wide array of n - ary relationships .
+however , representing this data as a simple binary network between proteins can also be very helpful because it allows the user to quickly see higher order patterns .
+moreover , it becomes more straightforward to can apply conventional graph algorithms to visualize and analyze this binary networks .
+for instance , cytoscape features layout algorithms that attempt to minimize edge crossings , and biofabric uses a novel network presentation method that represents nodes as horizontal line segments , one per row .
+our technique is inspired by the compressed adjacency matrix technique that was introduced by dinkla et al .
+[ 17 ] for representing relationships in gene regulatory networks .
+this technique is related to our work , since it also makes use of matrix representation , but is different in some essential ways .
+pathway data includes many types of relationships , while compressed adjacency matrices are optimized for three types of relations ( promotion , inhibition , or both ) in a gene regulation network , with color being used to indicate these relationships. that is , it would be difficult to extend this technique to handle multiple types of binary relations between proteins ; it would require too many colors to clearly encode the 8 different kinds of relationships and all of their combinations .
+therefore , we do not include compressed adjacency matrices in our comparison .
+figure 7 shows an example of these tools on a medium - sized pathway network , the hiv life cycle , which contains 11,337 binary relations of 176 proteins .
+in the top panel , we show the biofabric representation of this pathway , with an overview ( that is difficult to reproduce in a figure ) and a close - up of one small portion of the network .
+biofabric may not be ideal for visualizing this pathway data .
+because pathway networks are sparse and because multiple relations may exist between a pair of proteins , biofabric visualizations become very long and cannot fit onto the screen to provide a comprehensive overview of the data .
+in addition , the hiv life cycle network contains two disconnected components which are difficult to discern from the overview of biofabric shown at the top of the top panel .
+figure 7 visualizing protein binary relationships of the hiv life cycle by different tools : biofabric ( top panel ) , cytoscape ( middle panel ) , hive plot ( bottom left panel ) , and pathwaymatrix ( bottom right panel ) .
+in the middle panel of figure 7 , we show cytoscape 's force directed layout for the same data .
+in this view , the two components of the network are clearly separated : the left network is associated to the early stage of the hiv life cycle while the right network is associated to the late stage of the hiv life cycle .
+the bottom left panel of figure 7 shows a hive plot [ 30 ] of the data .
+each dot represents a protein in the pathway , and each link represents a binary relation from one class to another .
+links are colored according to their relation type .
+hive plot defines a linear layout for nodes , arranging them along radial axes based on their connectivity degree ( higher degree nodes are positioned toward the outer edge of the radial layout ) .
+proteins are separated into three groups : nodes with more outgoing links ( top right axis containing 25 proteins ) , nodes with more incoming links ( top left axis containing 40 proteins ) , and nodes with the same number of incoming and outgoing links .
+the axis for the last group ( at the bottom ) is duplicated to reveal relationships within this group .
+in this view , the two components of the network are not clearly separated .
+however , we can quickly notice that the relations " controls - state - change - of " ( in red ) and " controls - transport - of " ( in yellow ) only exist between proteins in the first two groups ( on the top left axis and the top right axis ) .
+the two disconnected components of the hiv life cycle are easily discerned in the pathwaymatrix shown at the bottom right of figure 7 : the top left part of the matrix is associated to the early stage of the hiv life cycle while the lower right part of the matrix is associated to the late stage of the hiv life cycle .
+at the bottom , we also show the venn diagram of the four most prevalent binary relationships between proteins in the pathway :" neighbor - of " is in blue ; " incomplex - with " is in cyan ; " controls - state - change - of " is in red ; and " controls - transport - of " is in yellow .
+this same color encoding is consistently used in other tools for comparison .
+the top panel of figure 8 shows a zoomed - in view of the hiv life cycle network in cytoscape .
+here we see visual clutter due to edge crossings in a dense part of the network .
+in the middle panel of figure 8 , the same region of the network is shown using the lensing tool in pathwaymatrix .
+the relationships between proteins are much easier to interpret in pathwaymatrix .
+in the last panel , we show that we can further reduce the complexity of the matrix view by collapsing similar rows and columns together .
+the visualization now displays the binary relationships between different groups of proteins .
+when we mouse over a group name , pathwaymatrix displays all proteins in that group , as shown in the last panel of 8 .
+the 16 proteins of the selected group ( containing proteins in the u ba , u bb , and u bc families ) have no relationships with any other proteins in this group , but they have the same set of relations to other proteins or protein groups in the pathway .
+figure 8 zooming in on a sub - network of the hiv life cycle : cytoscape ( top panel ) and pathwaymatrix ( middle panel ) .
+grouping similar proteins in pathwaymatrix ( last panel ) .
+it is difficult to make a comparison between pathwaymatrix and techniques that utilize node - link diagrams as a matrix representation is optimal for different tasks than a node - link diagram .
+nonetheless , this comparison shows that our tool can provide important structural information that is lost when using other techniques .
+our tool is not meant to replace existing network views , but instead to provide an alternative visualization technique for biological networks that may enhance particular analysis tasks .
+expert feedback we presented our pathwaymatrix to three domain experts ( one a molecular biologist , one a systems biologist , and the third a bioinformatics researcher ) .
+each of the experts are very familiar with the various tools used to visualize biological pathways .
+we conducted interviews regarding the potential relevance of the pathwaymatrix to their research tasks , and we further asked them for comparisons of to alternative visual representations .
+all three experts were intrigued by our tool and responded positively overall .
+both biologists noted that the protein - level view provided a nice overview of the high - level features in protein - to - protein relationships and indicated that the options for sorting and clustering would be useful for identifying relevant regions of the pathway .
+one of the experts also indicated that the tool could be useful as a " debugging " tool to detect files that may contain incomplete or inaccurate information about a biological pathway .
+one expert used pathwaymatrix to inspect a pathway taken from the reactome pathway database .
+using the grouping features in the protein - level view , it quickly became apparent that the data file actually encoded two unconnected pathways , something that was obscured in the more cluttered views often associated with node - link representations .
+he noticed that our tool also highlighted certain protein identifiers that could not be resolved , making it easier to curate pathway data files .
+both the biologists and the bioinformatician also pointed out limitations of matrix representations .
+since we decompose n - ary relationships ( for example , biochemical reactions which involve multiple input / output proteins and biomolecules ) into binary relations , the chronological ordering is lost .
+although it is easier to visualize causality in node - link visualizations , such as chibe [ 31 ] , tracing causal patterns across a sequence of biochemical reactions remains challenging , especially for larger pathways , in both matrix and node - link representations .
+visualizing causality is an interesting future direction of this work .
+in future work , we would like to be able to handle a much larger amount of data and to include data from multiple pathways .
+although grouping proteins by their functionality in the network significantly reduces its complexity , the reduced ( grouped ) matrix is still rather complex when given large amounts of data .
+in this case , we could further cluster the reduced matrix if we relax the grouping criteria to allow for differences between grouped proteins .
+grouping could occur at many levels , and a linked - view dendrogram of protein names could help explain how proteins are clustered into groups at different levels .
+conclusions pathwaymatrix presents an alternative visual representation of biological pathways using an interactive matrix representation instead of a node - linked diagram .
+a pathway contains multiple interaction types between proteins .
+the glyphs inside each circular cell can indicate concurrent relations between a pair of proteins .
+we maximize the pop - up effects by using colors and orientations of circular sectors .
+this is helpful for larger networks when the space assigned for each cell in the matrix is limited .
+pathwaymatrix supports interactive capabilities to help users interested in exploring very dense pathway networks .
+the ability to order by protein arranges similar proteins so that they appear together in the visualization .
+smooth lensing allows the viewer to focus on a particular protein or a group of proteins that is of interest .
+grouping similar proteins provide a more compressed view of the entire network .
+finally , users can overlay information about protein complexes on the top of the matrix to visualize their nested structure .
+although this paper focuses largely on alternative representations to a node - link diagram , we believe that it may be useful to present our visualization techniques alongside ( instead of in replacement of ) a node - link diagram .
+although one advantage of our representations is that they are less cluttered than node - link representations , we plan to further investigate the scalability of our system and to explore other ways of interactively compressing or expanding parts of the pathway as needed , something that may prove important for very large pathways containing more than a few hundred proteins or for loading multiple pathways simultaneously , a feature we plan to implement in the future .
+competing interests the authors declare that they have no competing interests .
+authors' contributions tnd , pm , and agf conceived of the interactive visualization technique and its application to biological pathways .
+pm provided the overview of pathway visualization tasks .
+tnd implemented all aspects of the prototype visualization tool , including the definitions of the similarity metrics and the lensing and grouping methods ; he also provided the comparison to existing tools .
+tnd , pm , and agf drafted , read , and approved the final manuscript .
+acknowledgements we thank nathalie henry riche for providing useful feedback on an early version of pathwaymatrix .
+we also thank guang yao and ryan gutenkunst who provided useful insight into the function and structure of biological pathways .
+finally , emek demir kindly provided updated descriptions of binary interaction patterns using the biopax model .
+declarations this publication is supported by the darpa big mechanism program under aro contract wf911nf - 14 - 1 - 0395 .
+this article has been published as part of bmc proceedings volume 9 supplement 6 , 2015 : proceedings of the 5th symposium on biological data visualization : part 2 .
+the full contents of the supplement are available online at http :// www.biomedcentral.com / bmcproc / supplements / 9 / s6 .
+kitano h systems biology : a brief overview science 2002 295 5560 1662 1664 10.1126 / science.1069492 11872829 bader gd cary mp sander c pathguide : a pathway resource list nucleic acids research 2006 34 database issue d504 d506 16381921 kanehisa m araki m goto s hattori m hirakawa m itoh m kegg for linking genomes to life and the environment nucleic acids research 2008 36 database issue d480 d484 18077471 matthews l gopinath g gillespie m caudy m croft d de bono b reactome knowledgebase of human biological pathways and processes nucleic acids research 2009 37 database issue d619 d622 18981052 cerami eg gross be demir e rodchenkov i babur o anwar n pathway commons , a web resource for biological pathway data nucleic acids research 2011 39 database issue d685 d690 21071392 charbonnier s gallego o gavin ac the social network of a cell : recent advances in interactome mapping biotechnology annual review 2008 14 1 28 18606358 mathivanan s periaswamy b gandhi t kandasamy k suresh s mohmood r an evaluation of human protein - protein interaction data in the public domain bmc bioinformatics 2006 7 suppl 5 s19 17254303 von mering c krause r snel b cornell m oliver sg fields s bork p comparative assessment of large - scale data sets of protein - protein interactions nature 2002 417 6887 399 403 12000970 pavlopoulos ga wegener al schneider r a survey of visualization tools for biological network analysis biodata min 2008 1 12 10.1186 / 1756 - 0381 - 1 - 12 19040716 saraiya p north c duca k visualizing biological pathways : requirements analysis , systems evaluation and research agenda information visualization 2005 4 3 191 205 10.1057 / palgrave.ivs.9500102 cerami e demir e schultz n taylor bs sander c automated network analysis identifies core pathways in glioblastoma plos one 2010 5 2 e8918 10.1371 / journal.pone.0008918 20169195 shannon p markiel a ozier o baliga ns wang jt ramage d cytoscape : a software environment for integrated models of biomolecular interaction networks genome research 2003 13 11 2498 2504 10.1101 / gr.1239303 14597658 longabaugh wj combing the hairball with biofabric : a new approach for visualization of large networks bmc bioinformatics 2012 13 275 10.1186 / 1471 - 2105 - 13 - 275 23102059 gehlenborg n o'donoghue si baliga ns goesmann a hibbs ma kitano h visualization of omics data for systems biology nature methods 2010 7 3 suppl s56 s68 20195258 suderman m hallett m tools for visually exploring biological networks bioinformatics 2007 23 20 2651 2659 10.1093 / bioinformatics / btm401 17720984 hu z hung jh wang y chang yc huang cl huyck m delisi c visant 3.5 : multi - scale network visualization , analysis and inference based on the gene ontology nucleic acids research 2009 37 web server issue w115 19465394 dinkla k westenberg ma van wijk jj compressed adjacency matrices : untangling gene regulatory networks visualization and computer graphics , ieee transactions on 2012 18 12 2457 2466 maguire e rocca - serra p sansone sa davies j chen m taxonomy - based glyph design - - with a case study on visualizing workflows of biological experiments visualization and computer graphics , ieee transactions on 2012 18 12 2603 2612 quinlan pt humphreys gw visual search for targets defined by combinations of color , shape , and size : an examination of the task constraints on feature and conjunction searches perception & psychophysics 1987 41 5 455 472 10.3758 / bf03203039 3601628 ware c visual thinking for design 2008 morgan kaufmann publishers inc. , san francisco , ca , usa wilkinson l exact and approximate area - proportional circular venn and euler diagrams ieee transactions on visualization and computer graphics 2012 18 2 321 331 21383412 liiv i seriation and matrix reordering methods : an historical overview statistical analysis and data mining : the asa data science journal 2010 3 2 70 91 heer j robertson g animated transitions in statistical data graphics ieee trans vis comput graph 2007 13 6 1240 1247 17968070 hartigan ja clustering algorithms 1975 john wiley & sons , new york doye v hurt e from nucleoporins to nuclear pore complexes current opinion in cell biology 1997 9 3 401 411 10.1016 / s0955 - 0674 ( 97 ) 80014 - 2 9159086 demir e babur o rodchenkov i aksoy ba fukuda ki gross b using biological pathway data with paxtools plos comput biololgy 2013 9 9 e1003194 10.1371 / journal.pcbi.1003194 kelder t van iersel mp hanspers k kutmon m conklin br evelo ct pico ar wikipathways : building research communities on biological pathways nucleic acids research 2012 40 d1 d1301 d1307 10.1093 / nar / gkr1074 22096230 croft d mundo af haw r milacic m weiser j wu g the reactome pathway knowledgebase nucleic acids research 2014 42 d1 d472 d477 10.1093 / nar / gkt1102 24243840 lex a partl c kalkofen d streit m gratzl s wassermann am schmalstieg d pfister h entourage : visualizing relationships between biological pathways using contextual subsets ieee transactions on visualization and computer graphics 2013 19 12 2536 2545 24051820 krzywinski m birol i jones sj marra ma hive plots - - rational approach to visualizing networks briefings in bioinformatics 2011 13 5 627 644 22155641 babur o dogrusoz u demir e sander c chibe : interactive visualization and manipulation of biopax pathway models bioinformatics 2010 26 3 429 431 10.1093 / bioinformatics / btp665 20007251

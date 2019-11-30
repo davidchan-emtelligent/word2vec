@@ -1,0 +1,274 @@
+sensors ( basel ) sensors ( basel , switzerland ) 1424 - 8220 molecular diversity preservation international ( mdpi ) 22163650 3231245 10.3390 / s100908198 sensors - 10 - 08198 article assessment of relative accuracy of ahn - 2 laser scanning data using planar features van der sande corne soudarissanane sylvie khoshelham kourosh * optical and laser remote sensing , department of remote sensing , delft university of technology , kluyverweg 1 , 2629hs delft , the netherlands ; e - mails : c.j.vandersande @ tudelft.nl ( c.s. ) ; s.s.soudarissanane @ tudelft.nl ( s.s . )
+* author to whom correspondence should be addressed ; e - mail : k.khoshelham @ tudelft.nl ; tel. : + 31 - 15 - 2781741 ; fax : + 31 - 15 - 2782348 .
+2010 1 9 2010 10 9 8198 8214 20 7 2010 19 8 2010 20 8 2010 ( c ) 2010 by the authors ; licensee mdpi , basel , switzerland .
+2010 this article is an open access article distributed under the terms and conditions of the creative commons attribution license ( http :// creativecommons.org / licenses / by / 3.0 /) .
+ahn - 2 is the second part of the actueel hoogtebestand nederland project , which concerns the acquisition of high - resolution altimetry data over the entire netherlands using airborne laser scanning .
+the accuracy assessment of laser altimetry data usually relies on comparing corresponding tie elements , often points or lines , in the overlapping strips .
+this paper proposes a new approach to strip adjustment and accuracy assessment of ahn - 2 data by using planar features .
+in the proposed approach a transformation is estimated between two overlapping strips by minimizing the distances between points in one strip and their corresponding planes in the other .
+the planes and the corresponding points are extracted in an automated segmentation process .
+the point - to - plane distances are used as observables in an estimation model , whereby the parameters of a transformation between the two strips and their associated quality measures are estimated .
+we demonstrate the performance of the method for the accuracy assessment of the ahn - 2 dataset over zeeland province of the netherlands .
+the results show vertical offsets of up to 4 cm between the overlapping strips , and horizontal offsets ranging from 2 cm to 34 cm. airborne laser scanning altimetry accuracy assessment strip adjustment planar features least - squares estimation 1 .
+introduction airborne laser scanning is an active optical range measurement technique that is used for acquiring accurate height data of the ground surface .
+the advantages of airborne laser scanning include high measurement accuracy , fast acquisition capability , and large spatial coverage .
+the netherlands is the first country that was entirely covered by airborne laser altimetry measurements through the actueel hoogtebestand nederland ( ahn ) project [ 1 ] .
+the second part of the national laser altimetry project ahn - 2 is being carried out since 2007 by several companies , and will be completed in 2012 .
+the new height model has an unprecedented spatial resolution : it has an average density of 10 points per square meter [ 2 ] .
+this unique high - resolution height model is used in a variety of applications , including water storage determination , subsidence studies , forest volume mapping , monitoring of coastal areas and 3d modeling of urban environments .
+the airborne laser scanning measurements are acquired in multiple flight strips , and are independently georeferenced using data from on - board navigation sensors , i.e. , global navigation satellite system ( gnss ) and inertial navigation system ( ins ) .
+the systematic and random errors introduced by the scanning mechanism as well as the navigation sensors accumulate in the final point cloud .
+this results in an offset and misalignment between data of overlapping flight strips .
+the quantification and elimination of the offset and misalignment between the overlapping strips is an important issue in airborne laser scanning , and is commonly referred to as strip adjustment .
+moreover , the identification of the offsets and misalignments forms a major part of the accuracy assessment done by the end - user of the data .
+therefore , fast and reliable methods for the adjustment of aerial laser strips are of particular interest for both the data providers and the end - users .
+the error budget of airborne laser scanning has been a subject of extensive research [ 3 - 9 ] .
+in general , the errors originate from three main sources : ( i ) individual sensors ( scanner , ins , gnss ) and their integration ; ( ii ) properties of the target surface ( geometry , reflectance ) ; and ( iii ) post - processing ( filtering , interpolation ) .
+among these , the first source has a major impact on the accuracy of raw height data .
+the conventional approach to assessing the accuracy of laser strips is based on comparing the height on a number of tie points ( corresponding points in two overlapping laser strips ) or control points ( ground truth measurements ) .
+kilian et al .
+[ 6 ] , crombaghs et al .
+[ 10 ] , and hodgson and bresnahan [ 7 ] describe the use of tie and control points for the accuracy assessment of airborne laser scanner data .
+the identification of point features in laser scanner data is however difficult , due to the discrete nature of the data and the limited spatial resolution .
+to allow the accurate measurement of control points , csanyi and toth [ 11 ] designed ground targets of a specific shape suitable for measurement in laser altimetry data .
+as another source of external measurements , bretar et al .
+[ 12 ] used a photogrammetrically derived digital surface model ( dsm ) to perform an adjustment of airborne laser strips .
+an alternative approach to assessing the relative accuracy of laser altimetry data is the comparison of corresponding features in overlapping strips .
+vosselman [ 13,14 ] estimated planimetric offsets between the strips using linear features such as ditches and roof ridge lines .
+the planimetric accuracy of laser altimetry data is generally lower than the altimetric accuracy [ 5 ] , but is equally important , particularly in applications where mapping object boundaries is concerned .
+the use of corresponding linear features for the accuracy assessment has also been reported in a number of recent works [ 15 - 17 ] .
+other previous works have demonstrated the use of corresponding surfaces for the evaluation of the errors in laser altimetry data .
+ressl [ 18 ] presented a non - linear model for accuracy assessment of strip adjustment based on five parameters .
+latypov [ 19 ] derived a generalized relative accuracy measure by comparing corresponding surfaces in the overlapping strips .
+corresponding planar surfaces have been used for the estimation of vertical offsets between the strips [ 20 ] , as well as the system calibration parameters [ 21,22 ] .
+maas [ 23 ] estimated shift parameters between two overlapping or crossing strips by minimizing the distances between points in one strip and a triangulated mesh ( tin ) of the other strip .
+habib et al .
+[ 9,24 ] also minimized point - to - tin distances iteratively , but estimated biases in the laser scanner system components .
+the drawback of the tin - based methods is that the triangular patches do not necessarily always represent actual surfaces .
+this paper proposes a new approach to strip adjustment and accuracy assessment of airborne laser scanner data by using planar features .
+the choice of planar features is particularly appropriate for the accuracy assessment of ahn - 2 data over the netherlands , because buildings with gable roof planes are present almost in all parts of the country , and also the high point density of the ahn - 2 data is a determining factor in the increased reliability of the extracted planes .
+the basis of the proposed approach is that by evaluating the adjustment between the corresponding planes in two overlapping strips an estimation of the systematic and random errors in the data can be obtained .
+in the strip adjustment , a transformation is estimated between the strips by minimizing the distances between points in one strip and their corresponding planes in the other .
+the advantage of such an estimation model is twofold .
+first , incorporating a large number of reliable point - to - plane distance observations in a least - squares estimation model improves the precision of the estimated transformation parameters .
+second , if two strips cannot be adjusted by only a 3d offset , an affine transformation can be estimated from which possible rotations between the strips can be derived .
+in addition , the estimation model is linear , which makes it independent of an initial approximation of the transformation parameters .
+the paper proceeds with an overview of laser altimetry over the netherlands and the status of the ahn - 2 project in section 2 .
+section 3 describes the proposed approach to strip adjustment , including the segmentation method for extracting planar segments , the robust plane fitting and the mathematical model for the estimation of strip adjustment parameters .
+the results of the accuracy assessment of the ahn - 2 data over zeeland province are presented in section 4 .
+the paper concludes with some remarks in section 5 .
+2. airborne laser altimetry over the netherlands : the ahn - 2 project the actual height model of the netherlands ( ahn ) part 2 is a joint program between the ministry of water management ( rijkswaterstaat ) and the 26 water boards conducted in the period from 2007 to 2012 .
+water boards are the oldest legislative bodies in the netherlands responsible for monitoring dykes and managing water quantity and quality .
+the importance of a country - wide height model for these organisations is evident , as the netherlands is a delta partly below the sea level .
+during the first phase of the ahn project between 1997 and 2003 the entire netherlands was laser scanned to make a height model with an altimetric accuracy of 16 cm and a point density varying from 1 point per 16 m2 to 1 point per 32 m2 .
+for the ahn - 2 the requirements were tightened to achieve a higher accuracy and an increased point density .
+figure 1 shows the first height model of the netherlands , and the acquisition plan of the ahn - 2 .
+while the ahn - 2 is coordinated by the waterschapshuis ( the executive body of the dutch water boards in the area of information and communication technology ) the acquisition and quality control of the data are done by private companies .
+the first acquisition was done by fugro over zeeland province in the winter of 2007 using the fli - map 400 laser scanner system mounted on a helicopter [ 25 ] .
+the fli - map 400 system uses the multiple pulse in air ( mpia ) technique , which is the state of the art in airborne laser scanning technology .
+the mpia technique allows the laser scanner to operate at a higher pulse frequency ( 375 khz in the case of fli - map 400 ) by emitting a second pulse before the reflection of the first one is received [ 26 ] .
+the result is a substantial increase in the maximum flying height and the coverage of each laser strip , but also an increased point density on the ground for a given flying height .
+the planned specifications of the ahn - 2 data include an average density of 10 points per m2 with 5 cm systematic error in height and 5 cm standard deviation. with such point density an object of 2 m by 2 m size can be correctly identified with a maximum planimetric error of 50 cm. the quality control procedures have been drafted by the waterschapshuis , and executed by the companies neo and geodelta .
+the quality control consists of more than 40 procedures , including the point density check , the filtering of vegetation , the point distribution and the quality of the strip adjustment .
+the quality control procedures are partly revised and modified every year .
+in 2008 the quality measures were derived by comparing corresponding elements in strip overlaps , but expressed for the entire coverage area .
+since 2009 the quality measures are estimated and expressed per individual strip overlaps .
+the quality control procedures are not based on a standard methodology , and in fact there is a lack of reliable and commonly accepted methods for the quality control of laser altimetry data in practice .
+3. strip adjustment using planar features the airborne laser scanner data are normally acquired strip - wise , with across - track overlap , as shown in figure 2 .
+in an ideal dataset that is completely free of systematic errors corresponding planar features in the overlapping area should match perfectly .
+in practice , this is often not the case , and the distances between the planar features in the two strips can be used to evaluate the systematic and random errors in the data .
+the following sections describe the procedure for extracting planar features from laser data and the least - squares model for the estimation of the strip adjustment parameters .
+3.1 .
+extraction of planar features from aerial laser data extracting planar features from laser altimetry data is usually done over urban areas where many buildings with planar roofs are available .
+there are many methods in the literature for detecting buildings and identifying roof planes in aerial laser data , e.g. , [ 27 - 32 ] .
+in this study , a region growing segmentation method is used to extract planar features from gabled roofs or dike slopes .
+the points that belong to each strip in the overlapping area are interpolated into a raster format with a resolution of 50 centimeters using an inverse distance interpolation algorithm based on the weighted average method [ 33 ] .
+slope and aspect orientation that best define the terrain in the vicinity of each point are derived .
+homogenous regions are created by using a segmentation algorithm performed with the slope and aspect data .
+the size of the created regions is dependent on a scale parameter , which defines the maximum allowed heterogeneity within the resulting regions .
+the region - growing segmentation starts with single data points as initial regions , and repeatedly merges them into larger regions as long as a homogeneity criterion holds .
+the homogeneity criterion is controlled by the scale parameter : larger scale parameters result in larger regions , and smaller parameters in smaller regions [ 34,35 ] .
+to avoid overgrown regions , a suitable scale parameter is found experimentally .
+the segmentation is performed with different scale parameters on a subset of data , and the segmentation results are visually examined .
+the best scale parameter is selected as one that provides the largest regions which do not overgrow beyond the boundaries of the roofs or dike slopes .
+planar surfaces that represent gabled roofs and dike slopes are selected from the resulting regions by constraining the regions to a minimum area of 6 m2 and a slope between 15 and 70 degrees .
+the boundaries of the corresponding regions in the two strips are combined and intersected .
+these intersected regions are buffered inwards with 25 cm ( half the raster pixel size ) to make sure that the points that are within the intersection area are part of the plane .
+these points are selected for the estimation of the plane parameters .
+as the segmentation is performed on gridded data , the selection criteria are not applied on the points directly .
+therefore outliers in the selected point cloud might still be present after the segmentation process .
+3.2 .
+robust plane fitting using ransac the plane parameters are obtained by applying the principal component analysis ( pca ) to the selected points [ 36 ] .
+the principal components are the axes of maximum variation of the data .
+for a set of points that lie on a plane the last principal component is the axis of minimum variation , which is normal to the plane .
+the principal components are found by the singular value decomposition ( svd ) of the mean - centered points .
+the eigenvector corresponding to the smallest eigenvalue is the last principal component that is the plane normal .
+the distance of the plane to the origin of the coordinate system is taken as the median of the dot product of the normal vector and the vector of each individual point .
+the segmentation procedure does not necessarily always provide regions of points that are perfectly coplanar .
+in practice the regions might contain outliers , e.g. , points on the walls , trees or the ground surface .
+to deal with the outlying points a robust plane fitting has to be applied to the points in both strips .
+then only those points that are identified by the robust fitting algorithm as inliers are used to obtain the point - to - plane distances .
+the robust plane fitting is performed using the ransac algorithm [ 37 ] .
+considering that each random sample should contain three points ( minimum to define a plane ) , and assuming that 50 % of the points are outliers , 35 random samples are needed to ensure , with a probability of 99 % , that at least one sample is outlier - free [ 38 ] .
+the relatively small number of the required random samples indicates that the computational cost of the robust plane fitting is easily affordable .
+figure 3 demonstrates the robust plane fitting using ransac .
+3.3 .
+estimation of strip adjustment parameters the output of the previous step is a set of planes in one strip and their corresponding points in the other strip .
+the parameters of a transformation between the two overlapping strips are estimated by minimizing the distances between points and their corresponding planes .
+let the transformation of a set of points p by a transformation h be expressed by matrix multiplication h p. the condition that the transformed points lie on a plane n is expressed as [ 38,39 ] : ( 1 ) nthp = 0where n = ( n1 , n2 , n3 , - d ) t represents a plane with normal n = ( n1 , n2 , n3 ) t and distance d to the origin , p = ( x , y , z , 1 ) t denotes the homogenous representation of a point in 3d space .
+in practice , h can be a homogenous similarity transformation : ( 2 ) h =[ rt01x31 ] in which r is a 3d rotation matrix , t = ( tx , ty , tz ) t is a translation vector and a scale factor is neglected since laser strips are normally assumed to have identical scales .
+however , to make the estimation model linear , we ignore the orthogonality of r and assume that h is an affine transformation .
+to estimate the transformation equation ( 1 ) is rewritten as : ( 3 ) [ n1n2n3 - d ][ r1ttxr2ttyr3ttz01x31 ][ p1 ]= 0where r1t , r2t , r3t are the three rows of r , and p = ( x , y , z ) t is the euclidian notation of a point in 3d space .
+for one point on one plane equation ( 3 ) reduces to : ( 4 ) n1 ( r1tp + tx )+ n2 ( r2tp + ty )+ n3 ( r3tp + tz )= d equation ( 4 ) is the essential observation equation that basically expresses the condition that the transformed points in one strip rest on their corresponding plane in the other strip .
+for m points corresponding to k planes we will have a system of equations as follows : ( 5 ) [ n11p1tn21p1tn31p1tn11n21n31 .................. n1kpmtn2kpmtn3kpmtn1kn2kn3k ][ r1r2r3txtytz ]=[ d1 ... dk ] where superscripts denote the point and plane numbers .
+the system of equation ( 5 ) is of the form ax = l for which the least - squares solution that minimizes the norm of the squared distances between the transformed points and their corresponding planes , i.e. , || ax - l || , is given in equation ( 6 ) : ( 6 ) x =( atwa ) - 1atwlwhere w is a weight matrix .
+in this paper , the same weight is applied to each observable based on the assumption that all observables have the same precision .
+a special case of the strip adjustment model as described above occurs when we expect the transformation between the strips to be only a translation vector .
+in such a case , the estimation model given in equation ( 4 ) reduces to : ( 7 ) n1 ( x + tx )+ n2 ( y + ty )+ n3 ( z + tz )= dwhich basically expresses that the translated points lie on the plane .
+the system of equations with m points and k planes becomes : ( 8 ) [ n11n21n31 ......... n1kn2kn3k ][ txtytz ]=[ d1 - n11x1 - n21y1 - n31z1 ... dk - n1kxm - n2kym - n3kzm ] for which a solution that minimizes the distances between the translated points and their corresponding planes can be obtained similar to the general case as given in equation ( 6 ) .
+it is worth noting that to obtain a solution for the estimation models derived above the design matrices in equations ( 5 ) and ( 8 ) have to be of full rank .
+this requires a minimum of 12 points and 3 non - parallel planes to estimate the affine transformation in equation ( 5 ) , and a minimum of 3 points and 3 non - parallel planes to estimate the translation vector in equation ( 8 ) .
+in practice , this is not an issue since usually a large number of point - to - plane distances are available .
+the precision of the observables as well as the estimated transformation parameters are derived from the residual vector v that actually contains the remaining point - to - plane distances after the adjustment : ( 9 ) v = ax - l the reference variance obtained from the residual vector v is an indication of the precision of the observables , or the random error of individual points : ( 10 ) sigma02 = vt w vm - uwhere u is the number of unknown parameters in the adjustment .
+the precision of the estimated transformation parameters is then obtained by : ( 11 ) sigmaxx = sigma02 ( at w a ) - 1 4 .
+results of accuracy assessment of ahn - 2 data 4.1 .
+description of dataset the strip adjustment method as described above was employed to assess the accuracy of the pilot ahn - 2 dataset acquired by fugro - inpark over zeeland province in 2007 .
+the area consists of a crop land with large farm buildings and several urban areas , of which the city of flushing is the largest .
+the data were acquired by the helicopter - mounted fli - map 400 laser scanner from an altitude of 375 meters .
+the data consists of the forward - , nadir - and backward - looking scan lines. from this dataset , 15 strips were selected , resulting in 13 overlaps , as shown in figure 4 .
+table 1 lists the overlaps and their corresponding strips , number of points and width of each overlap .
+the overlap areas are of different sizes .
+within each overlap also the numbers of points belonging to each strip are slightly different , which is due to the difference in the scanning geometry , the topography and the type of objects present in the overlap area .
+4.2 .
+evaluation of segmentation to evaluate the performance of the segmentation procedure strip overlap o12 was segmented with different scale parameters .
+the resulting roof regions were examined and compared with building boundaries from an existing large scale base map and with aerial images of the area .
+the result is shown in figure 5 .
+scale parameters 10 and 15 provide the most reliable roof segments .
+scale parameter 15 provides more segments that are also larger in size ; therefore , it is chosen as the optimal scale parameter .
+figure 6 shows an example of roof segments created by using three different scale parameters .
+the segments are shown in yellow outlines .
+the building on the left has a dormer on the right roof side .
+it can be seen that by using scale parameter 20 one of the created segments is overgrown and contains points on the dormer .
+in contrast , scale parameter 15 provides homogeneous segments within the roof boundaries .
+the irregularity in the shape of the segments is due to the intersection of the segments in the two strips and the applied inwards buffering .
+4.3 .
+accuracy assessment results the point - to - plane distances were derived for each strip overlap from the segmentation results .
+for every region in one strip plane parameters were computed using the robust plane fitting method .
+then , distances between this plane and the inlying points in the corresponding region in the other strip were obtained and entered as observables in the estimation model .
+two transformations were estimated for each pair of overlapping strips : a 3d translation only and a full affine transformation .
+the mean and standard deviation of the point - to - plane distances before and after the adjustment were computed .
+assuming that the data are not contaminated by gross errors ( outliers ) , the mean before the adjustment indicates systematic error in the data .
+after the adjustment , the mean is expected to be very small , and the standard deviation indicates the random error of the observables and the precision of the estimated parameters .
+figure 7 shows the mean of the point - to - plane distances before and after the adjustment .
+before the adjustment the mean ranges from - 3 cm to 2 cm. adjustment with only a translation reduces the mean in all overlaps , except for overlap o2 ( although here the mean is only - 1 cm ) .
+adjustment with a full transformation further reduces the mean to values below +/ - 5 mm. figure 8 shows the standard deviation of the point - to - plane distances before and after the adjustment .
+before the adjustment the standard deviations range from 3 cm to 11 cm. these become smaller after the translation ( 2 cm to 8 cm ) , and are the smallest after the full transformation where the largest standard deviation is 5 cm. figure 9 and figure 10 show the estimated horizontal offsets respectively in x and y direction together with their precision for all strip overlaps .
+these values are compared to those obtained by a line - based method [ 40 ] , which provides only 2d translation parameters .
+the precision of the estimated parameters is remarkably better in all overlaps when point - to - plane distances are used .
+both tx and ty are estimated with a precision better than 1 mm. in most of the overlaps , the estimated horizontal offsets are in agreement with those obtained by the line - based method .
+the discrepancies are in overlaps o6 ( tx ) , o7 ( ty ) and o9 ( both tx and ty ) , where differences from 10 cm to 20 cm can be observed .
+in the case of overlap o9 , the precision of both tx and ty estimated from the line correspondences is very low , whereas the offsets estimated from the point - to - plane distances using both adjustment models are more precise and very close in magnitude .
+in fact , both tx and ty estimated from point - to - plane distances are within the range of uncertainty of the offsets estimated by the line - based method .
+in overlap o6 also the tx values estimated by the plane - based method using both adjustment models are very close and more precise than that estimated by the line - based method .
+the disagreement in ty corresponding to overlap o7 may be due to the presence of a small rotation between the strips .
+note that the mean and standard deviation of the point - to - plane distances after the adjustment with a translation only and those after the full affine transformation have the largest discrepancy in overlap o7 ( see figure 7 and figure 8 ) .
+figure 11 shows the vertical offsets tz estimated from the point - to - plane distances for all overlaps .
+here the bars representing the precision of the offsets are magnified by a factor of 10 .
+it can be seen that the vertical offsets resulting from the two transformation models are very close .
+a difference of about 1 cm can be observed in overlap o7 , which again might imply the presence of a small rotation between the strips .
+the precision of the estimated vertical offsets is better than 2 mm .
+5. conclusions we have presented a method for the adjustment and accuracy assessment of airborne laser altimetry strips using planar features .
+the choice of planar features is particularly appropriate for the accuracy assessment of ahn - 2 data over the netherlands , because buildings with gable roof planes are present almost in all parts of the country , and also the high point density of the ahn - 2 data is a determining factor in the increased reliability of the extracted planes .
+the method is based on estimating a transformation between two overlapping strips by minimizing the distances between points in one strip and their corresponding planes in the other .
+the accuracy assessment of the ahn - 2 laser dataset over zeeland , the netherlands , was carried out using the proposed plane - based method , and the results were compared with those of a previously - used line - based method .
+the results show vertical offsets of up to 4 cm between the overlapping strips , and horizontal offsets ranging from 2 cm to 34 cm. in comparison with the line - based methods , the use of planar features in strip adjustment leads to a more precise estimation of the transformation parameters .
+the performance of the plane - based methods is , however , dependent on the reliability of the extracted planes .
+despite careful selection of the segmentation parameters we found many segments that contained outliers .
+the robust plane fitting using ransac proved very effective in removing these outlying points .
+in conclusion , for the plane - based strip adjustment method to be used in practice for the quality control of laser altimetry data robust and reliable plane extraction algorithms are of great importance .
+the authors would like to thank the ahn steering committee for providing the dataset and ancillary data of zeeland .
+references 1 .
+wouters w bollweg a a detailed elevation model using airborne laser altimetry geodetic info mag 1998 9 6 9 2 .
+actualisatie van het ahn waterschapshuis utrecht , the netherlandsavailable online : http :// www.ahn.nl / actualisatie _ van _ het ( accessed on 23 june 2010 ) .
+3. huising ej gomes pereira lm errors and accuracy estimates of laser data acquired by various laser scanning systems for topographic applications isprs j. photogramm 1998 53 245 261 4 .
+schenk t modeling and analyzing systematic errors in airborne laser scannerstechnical notes in photogrammetry no 19 the ohio state university columbus , oh , usa 2001 5 .
+baltsavias e airborne laser scanning : basic relations and formulas isprs j. photogramm 1999 54 199 214 6 .
+kilian j haala n englich m capture and evaluation of airborne laser scanner data proceedings of international archives of the photogrammetry , remote sensing and spatial information sciencesvienna , austria12 - 18 july 1996 383 388 7 .
+hodgson me bresnahan p accuracy of airborne lidar - derived elevation : empirical assessment and error budget photogramm. eng .
+remote sensing 2004 70 331 339 8 .
+triglav - cekada m crosilla f kosmatin - fras m a simplified analytical model for a - priori lidar point - positioning error estimation and a review of lidar error sources photogramm. eng .
+remote sensing 2009 75 1425 1439 9 .
+habib a bang k kersting a lee d - c error budget of lidar systems and quality control of the derived data photogramm. eng .
+remote sensing 2009 75 1093 1108 10 .
+crombaghs mje brugelmann r de min ej on the adjustment of overlapping strips of laser altimeter height data proceedings of international archives of the photogrammetry , remote sensing and spatial information sciencesamsterdam , the netherlands16 - 22 july 2000 230 237 11 .
+csanyi n toth ck improvement of lidar data accuracy using lidar - specific ground targets photogramm. eng .
+remote sensing 2007 73 385 396 12 .
+bretar f pierrot - deseilligny m roux m solving the strip adjustment problem of 3d airborne lidar data proceedings of international geoscience and remote sensing symposiumanchorage , ak , usa20 - 24 september 2004 4734 4737 13 .
+vosselman g analysis of planimetric accuracy of airborne laser scanning surveys proceedings of international archives of the photogrammetry , remote sensing and spatial information sciencesbeijing , china3 - 11 july 2008 99 104 14 .
+vosselman g on the estimation of planimetric offsets in laser altimetry data proceedings of international archives of the photogrammetry , remote sensing and spatial information sciencesgraz , austria9 - 13 september 2002 375 380 15 .
+lee j yu kj kim y habib af adjustment of discrepancies between lidar data strips using linear features ieee geosci .
+remote sens .
+lett 2007 4 475 479 16 .
+habib af kersting ap ruifang z al durgham m kim c lee dc lidar strip adjustment using conjugate linear features in overlapping strips proceedings of international archives of the photogrammetry , remote sensing and spatial information sciencesbeijing , china3 - 11 july 2008 385 390 17 .
+rentsch m krzystek p lidar strip adjustment using automatically reconstructed roof shapes proceedings of international archives of the photogrammetry , remote sensing and spatial information scienceshannover , germany2 - 5 june 2009 158 164 18 .
+ressl c mandlburgera g pfeifer n investigating adjustment of airborne laser scanning strips without usage of gnss / imu trajectory data proceedings of isprs workshop , " laser scanning 2009 " paris , france1 - 2 september 2009 195 200 19 .
+latypov d estimating relative lidar accuracy information from overlapping flight lines isprs j. photogramm .
+remote sensing 2002 56 236 245 20 .
+pfeifer n oude elberink s filin s automatic tie elements detection for laser scanner strip adjustment proceedings of international archives of the photogrammetry , remote sensing and spatial information sciencesenschede , the netherlands12 - 14 september 2005 21 .
+filin s recovery of systematic biases in laser altimetry data using natural surfaces photogramm. eng .
+remote sensing 2003 69 1235 1242 22 .
+kager h discrepancies between overlapping laser scanner strips - simultaneous fitting of aerial laser scanner strips proceedings of international archives of the photogrammetry , remote sensing and spatial information sciencesistanbul , turkey12 - 23 july 2004 555 560 23 .
+maas hg methods for measuring height and planimetry discrepancies in airborne laserscanner data photogramm. eng .
+remote sensing 2002 68 933 940 24 .
+habib a kersting ap bang ki lee dc alternative methodologies for the internal quality control of parallel lidar strips ieee trans. geosci .
+remote sens 2010 48 221 236 25 .
+inwinning ahn - 2 met nieuw fli - map 400 - systeemfugro info juni 2008 fugro nederland amsterdam , the netherlands 2008 26 .
+roth rb thompson j practical application of multiple pulse in air ( mpia ) lidar in large - area surveys proceedings of international archives of the photogrammetry , remote sensing and spatial information sciencesbeijing , china3 - 11 july 2008 183 188 27 .
+khoshelham k li zl king b a split - and - merge technique for automated reconstruction of roof planes photogramm. eng .
+remote sensing 2005 71 855 862 28 .
+khoshelham k nardinocchi c frontoni e mancini a zingaretti p performance evaluation of automated approaches to building detection in multi - source aerial data isprs j. photogramm .
+remote sensing 2010 65 123 133 29 .
+nardinocchi c forlani g building detection and roof extraction in laser scanning data automatic extraction of man - made objects from aerial and space images gruen a baltsavias ep van gool l balkema lisse , the netherlands 2001 319 330 30 .
+rottensteiner f trinder j clode s kubik k building detection by fusion of airborne laser scanner data and multi - spectral images : performance evaluation and sensitivity analysis isprs j. photogramm .
+remote sensing 2007 62 135 149 31 .
+vosselman g gorte bg sithole g rabbani shah t recognising structure in laser scanner point cloud proceedings of international archives of photogrammetry , remote sensing and spatial information sciencesfreiburg , germany3 - 6 october 2004 33 38 32 .
+weidner u forstner w towards automatic building extraction from high resolution digital elevation models isprs j. photogramm .
+remote sensing 1995 50 38 49 33 .
+weber d englund e evaluation and comparison of spatial interpolators ii math .
+geol 1994 26 589 603 34 .
+baatz m schape a multiresolution segmentation : an optimization approach for high quality multi - scale image segmentation j. photogram .
+remote sensing 2000 58 12 23 35 .
+definiens developer 7 - - reference book definiens ag munich , germany 2007 197 available online : http :// www.ecognition.cc / download / referencebook 36 .
+jensen jr introductory digital image processing prentice hall ptr upper saddle river , nj , usa 2004 37 .
+fischler ma bolles rc random sample consensus : a paradigm for model fitting with applications to image analysis and automated cartography commun .
+acm 1981 24 381 395 38 .
+hartley r zisserman a multiple view geometry in computer vision2nd ed cambridge university press cambridge , uk 2003 655 39 .
+khoshelham k gorte bg registering point clouds of polyhedral buildings to 2d maps proceedings of the 3rd isprs international workshop 3d - arch 2009 : " 3d virtual reconstruction and visualization of complex architectures " trento , italy25 - 28 february 2009 40 .
+vosselman g on the estimation of planimetric offsets in laser altimetry data proceedings of isprs symposium , " photogrammetric computer vision " graz , austria 9 - 13 9 2002 375 380 figure 1 .
+the ahn project .
+( a ) the height model acquired during the first phase of the ahn project ; ( b ) the acquisition plan of ahn - 2 .
+figure 2 .
+overlapping strips .
+the overlap area between the blue strip and the red strip is represented as the yellow hatched area .
+figure 3 .
+robust plane fitting to points on a roof segment .
+points marked in red are inliers identified by ransac .
+figure 4 .
+ahn - 2 laser altimetry dataset of zeeland consisting of 15 strips .
+figure 5 .
+performance of the segmentation method with different scale parameters .
+figure 6 .
+roof segments created by using different scale parameters in the segmentation procedure .
+figure 7 .
+mean of point - to - plane distances before and after the strip adjustment .
+figure 8 .
+standard deviation of point - to - plane distances before and after the strip adjustment .
+figure 9 .
+estimated x - offsets and their associated precision ( vertical bars ) compared to those estimated from line correspondences .
+figure 10 .
+estimated y - offsets and their associated precision ( vertical bars ) compared to those estimated from line correspondences .
+figure 11 .
+vertical offsets and their associated precision ( vertical bars ) estimated from point - to - plane distances .
+table 1 .
+specifications of the 13 strip overlaps .
+overlap id strip number of points in the strip overlap overlap width ( m ) 1st 2nd 1st 2nd o1 s3 s4 21,731,922 27,885,585 200 o2 s4 s5 23,114,236 28,984,667 175 o3 s5 s6 28,984,667 51,271,482 240 o4 s7 s8 24,693,624 24,953,061 175 o5 s9 s8 24,534,357 22,834,121 175 o6 s9 s10 35,156,934 22,427,804 240 o7 s10 s11 10,303,345 7,590,510 200 o8 s12 s13 24,771,459 19,671,036 240 o9 s14 s13 3,267,309 4,177,717 525 o10 s15 s13 22,910,115 14,855,334 240 o11 s2 s1 4,618,326 5,251,392 485 o12 s2 s3 4,618,326 6,164,108 485 o13 s1 s3 65,247,718 77,060,363 320

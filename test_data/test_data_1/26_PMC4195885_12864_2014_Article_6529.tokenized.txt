@@ -1,0 +1,330 @@
+bmc genomics bmc genomics bmc genomics 1471 - 2164 biomed central london 25283306 4195885 6529 10.1186 / 1471 - 2164 - 15 - 862 methodology article iuta : a tool for effectively detecting differential isoform usage from rna - seq data niu liang niul @ niehs.nih.gov huang weichun huang6 @ niehs.nih.gov umbach david m umbach @ niehs.nih.gov li leping li3 @ niehs.nih.gov biostatistics branch , national institute of environmental health sciences , research triangle park , kragujevac , nc 27709 usa 6 10 2014 6 10 2014 2014 15 1 862 9 6 2014 29 9 2014 ( c ) niu et al. ; licensee biomed central ltd .
+2014 this article is published under license to biomed central ltd .
+this is an open access article distributed under the terms of the creative commons attribution license ( http :// creativecommons.org / licenses / by / 4.0 ) , which permits unrestricted use , distribution , and reproduction in any medium , provided the original work is properly credited .
+the creative commons public domain dedication waiver ( http :// creativecommons.org / publicdomain / zero / 1.0 /) applies to the data made available in this article , unless otherwise stated .
+background most genes in mammals generate several transcript isoforms that differ in stability and translational efficiency through alternative splicing .
+such alternative splicing can be tissue - and developmental stage - specific , and such specificity is sometimes associated with disease .
+thus , detecting differential isoform usage for a gene between tissues or cell lines / types ( differences in the fraction of total expression of a gene represented by the expression of each of its isoforms ) is potentially important for cell and developmental biology .
+results we present a new method iuta that is designed to test each gene in the genome for differential isoform usage between two groups of samples .
+iuta also estimates isoform usage for each gene in each sample as well as averaged across samples within each group .
+iuta is the first method to formulate the testing problem as testing for equal means of two probability distributions under the aitchison geometry , which is widely recognized as the most appropriate geometry for compositional data ( vectors that contain the relative amount of each component comprising the whole ) .
+evaluation using simulated data showed that iuta was able to provide test results for many more genes than was cuffdiff2 ( version 2.2.0 , released in mar .
+2014 ) , and iuta performed better than cuffdiff2 for the limited number of genes that cuffdiff2 did analyze .
+when applied to actual mouse rna - seq datasets from six tissues , iuta identified 2,073 significant genes with clear patterns of differential isoform usage between a pair of tissues .
+iuta is implemented as an r package and is available at http :// www.niehs.nih.gov / research / resources / software / biostatistics / iuta / index.cfm .
+conclusions both simulation and real - data results suggest that iuta accurately detects differential isoform usage .
+we believe that our analysis of rna - seq data from six mouse tissues represents the first comprehensive characterization of isoform usage in these tissues .
+iuta will be a valuable resource for those who study the roles of alternative transcripts in cell development and disease .
+electronic supplementary material the online version of this article ( doi : 10.1186 / 1471 - 2164 - 15 - 862 ) contains supplementary material , which is available to authorized users .
+keywords isoform usage rna - seq compositional data transcriptome profiling tissue r package issue - copyright - statement ( c ) the author ( s ) 2014 background alternative splicing is widespread in higher eukaryotes as a way to increase cellular and functional complexity [ 1 - 6 ] .
+most human genes are alternatively spliced [ 7 - 9 ] , and most human alternative spicing is tissue - specific [ 9 , 10 ] .
+recently , the encyclopedia of dna elements ( encode ) project catalogued human transcripts genome - wide in two major cellular sub - compartments ( nucleus and cytosol ) for 15 cell lines [ 11 ] , thus providing the most in - depth picture to date of the human transcriptome .
+one finding from that study is that about 10 - 13 isoforms are expressed per gene per cell line [ 11 ] .
+growing evidence suggests that alternative splicing is important in cell functions .
+for example , it plays an important role in cell development [ 12 - 16 ] .
+recently , merkin et al .
+[ 8 ] studied tissue - specific splicing patterns in four mammals and one bird and identified many exons exhibiting highly conserved tissue - specific splicing patterns .
+differential alternative splicing may be associated with diseases [ 17 ] ; for example , overexpression of four - repeat tau mrna isoforms has been reported in progressive supranuclear palsy [ 18 ] .
+abnormally spliced mrnas are also found in a high proportion of cancerous cells [ 19 ] .
+traditionally , the expression level of individual isoforms is quantified one isoform at a time using a specific primer .
+recent advances in next - generation sequencing technology [ 20 , 21 ] allow genome - wide profiling of isoforms ( transcripts ) .
+although rna - seq conveniently provides a global view of the transcriptome at the gene level , deconvolution of the overall expression of a gene into the expression of its individual isoforms from sequence reads is not trivial because similar isoforms can generate identical sequence reads .
+many of the tools that have recently been developed for this purpose detect differences in expression between two groups of samples for each individual isoform of a gene [ 22 - 27 ] , rather than for all its isoforms simultaneously .
+in this paper , we focus on detecting differential isoform usage : " differential " meaning differences between two groups of samples and " isoform usage " denoting the set of relative abundances ( proportions of total gene expression ) of all isoforms of a gene .
+isoform usage so defined is assessed by a vector of fractions summing to one .
+consequently , detecting differential isoform usage for a given gene between two groups of samples is a different problem from that mentioned earlier of detecting differential expression for any particular individual isoform .
+the former problem , by focusing on the entire compositional vector , implicitly incorporates the constraint that the fractional contributions of the component isoforms sum to one .
+existing methods for detecting differential isoform usage can be categorized into two types depending on whether or not they use information on isoform structure , e.g. , gene annotation .
+methods that require isoform structures , either known a priori or inferred from rna - seq data , include cuffdiff2 [ 26 ] , the chi - square test in [ 28 ] , rdiff.parametric in [ 29 ] and the probability splice graph ( psg ) model in [ 30 ] .
+methods that do not depend on isoform - structure information include the flow difference metric ( fdm ) model in [ 31 ] , diffsplice in [ 32 ] and the rdiff.nonparametric in [ 29 ] .
+all of these methods essentially test for a difference between two groups in their underlying distributions of isoform usage ; and they all make use of alignment data obtained from the rna - seq sequence reads ( either single - end reads or paired - end reads ) .
+among methods that utilize prior information on isoform structure , cuffdiff2 [ 26 ] either uses the known isoform - structure information or uses information on isoform structure inferred from the rna - seq alignment data by cufflinks [ 33 ] .
+the alignment data are also used to estimate the abundance of isoforms of genes .
+these estimates are then used to test for differential isoform usage between the two groups for those genes with all isoforms sharing the same start site .
+another method in this category , the chi - square test in [ 28 ] , first utilizes the known isoform - structure information to identify regions that are unique to particular isoforms and uses the counts of the alignments in those unique regions to test for differential isoform usage .
+similarly , for each gene , rdiff.parametric [ 29 ] first identifies genomic regions that are not common to all isoforms in the gene and uses the counts of the alignments in those regions to test for differential isoform usage by a negative - binomial model .
+finally , psg [ 34 ] , uses known isoform structure information to construct a splice graph , aligns the rna - seq reads to the splice graph , estimates the weights of the edges in each sample from the aligned reads , then uses those estimated weights to test for differential isoform usage with a likelihood ratio test .
+each of these procedures has limitations , however .
+cuffdiff2 cannot test for differential isoform usage directly when the isoforms of a gene do not share the same transcription start site ( tss ) , as it is designed to detect differential alternative splicing events for isoforms originating from the same pre - mrna .
+the chi - square test in [ 28 ] can only be applied to genes that contain unique regions among the isoforms ; so its power is expected to be limited when the unique regions are small .
+similarly , rdiff.parametric [ 29 ] is expected to have limited power when regions that are not common to all isoforms are small .
+finally , psg [ 30 ] does not accommodate biological replicates and requires exactly one biological sample per group .
+tools that do not require isoform structures to test for differential isoform usage employ permutation tests to compare the alignments of sequence reads over the gene region in the two groups and provide an overall test for each gene .
+fdm [ 31 ] constructs a splice graph for each gene in each sample using the rna - seq alignment data , calculates the flow difference metric ( fdm , a metric to measure the difference between two above splice graphs ) for every pair of the constructed splice graphs ( one for a sample ) , and tests for differential isoform usage using those fdms .
+diffsplice [ 32 ] also constructs a splice graph from the rna - seq alignment data for each sample , and indirectly tests for differential isoform usage by testing for the differential distribution of the alignments over the genomic locations where " alternative splicing occurs " in the gene , i.e. , the alternative splicing modules ( asm 's ) in [ 32 ] .
+rdiff.nonparametric represents each alignment in a gene as a binary vector whose length is the number of base pairs in the gene , calculates the average of these binary vectors from all samples in each group , and then tests for differential isoform usage using the euclidean distance between the two averages as the test statistic .
+one advantage of these three procedures is that they do not require the isoform structure information and so can be applied to genomes with incomplete or unknown annotations .
+however , there are disadvantages too .
+for example , fdm and diffsplice do not use the available data efficiently because , when applied to paired - end reads , they do not directly incorporate the uncertainty of the unsequenced portion of the underlying mrna fragments into their models .
+such uncertainty is only partially handled by alignment tools such as mapsplice ( for fdm ) and mapper ( for diffsplice ) before the data analysis .
+also , none of these methods can pinpoint which isoforms are involved in differential isoform usage , as individual isoforms are never identified in these methods .
+in this paper , we present isoform usage two - step analysis ( iuta ) , a novel approach for detecting genes with differential isoform usage between two groups of samples .
+iuta requires knowledge of the gene 's isoform structure and availability of multiple samples ( at least two per group ) .
+for a given gene , iuta first estimates isoform usage in each sample based on paired - end rna - seq alignment data using a statistical model similar to one used by miso [ 23 ] .
+iuta then tests for differential isoform usage between the two groups using those estimates .
+because isoform usage is a type of compositional data , i.e. , vectors that contain the proportions of each component comprising the whole unit [ 35 ] , iuta defines the statistical testing problem as a test of equal means for two multivariate distributions under the aitchison geometry [ 36 ] instead of under the usual euclidean geometry .
+the aitchison geometry is widely regarded more suitable for compositional data analysis than euclidean geometry [ 37 ] .
+fully elucidating the reasons this preference is beyond our scope here , but the following example will illustrate the issue .
+consider two three - isoform genes in two conditions .
+for gene a , isoform usage is ( 0.05 , 0.55 , 0.40 ) in condition 1 and ( 0.10 , 0.50 , 0.40 ) in condition 2 .
+for gene b , the corresponding isoform usage vectors are ( 0.30 , 0.30 , 0.40 ) and ( 0.35 , 0.25 , 0.40 ) .
+most biologists , regarding fold - change as the way to assess differential expression , intuitively regard gene a has having a greater disparity in isoform usage between the conditions than gene b because the proportion of the first isoform doubles for gene a but only increases about 14 % for gene b and the changes in the second components are more comparable between the genes .
+the euclidean distance between conditions is the same for both genes ( the absolute change in first and second components is each 0.05 ) ; whereas the aitchison distance between conditions is based on log - ratios ( see additional file 1 ) and is larger for gene a compared to gene b ( 0.609 vs. 0.238 ) , in accord with intuition .
+iuta is the first approach that tests for differential isoform usage under aitchison geometry .
+iuta is implemented as a r package and is available at http :// www.niehs.nih.gov / research / resources / software / biostatistics / iuta / index.cfm .
+we performed several simulation studies to show the performance of iuta and to compare it with the cuffdiff2 ( version 2.2.0 , released mar .
+2014 ) , in which the developers improved the related testing procedures substantially from their old published procedures [ 26 ] .
+we restricted our comparison to cuffdiff2 , rather than including other methods that detect differential isoform usage , because cuffdiff2 is perhaps the most commonly used tool that both tests for differential isoform usage and estimates isoform usage vectors .
+the results showed that iuta is robust and has advantages over cuffdiff2 .
+we also applied iuta to six tissue - specific rna - seq datasets from the mouse genomes project at the wellcome trust sanger institute .
+we carried out 15 pair - wise comparisons among the six tissues to identify both genes with differential isoform usage between any two given tissues and genes with unique isoform usage in a given tissue compared to all others .
+this analysis represents the first genome - wide analysis of isoform usage in those tissues .
+our results on those data are consistent with other biological literature and will be valuable to those who study tissue - specific isoform usage .
+methods overview of iuta suppose we have paired - end rna - seq alignment data for multiple samples from each of two groups ( at least two samples per group ) .
+as a first step , for each gene in each sample , iuta uses alignment data ( in bam format ) to estimate the isoform usage according to the isoform structure from an annotation file .
+iuta employs a statistical framework that is similar to , but different in some aspects from miso 's [ 23 ] .
+in a second step , iuta uses the estimates from the first step to test for differential isoform usage in each gene between the two groups .
+estimating isoform usage suppose a gene has k isoforms .
+let thetaij = ( thetaij1 , ... , thetaijk ) be the isoform usage of the gene for sample j in group i where i = 0 , 1 and 1 <= j <= ji ( ji is the number of samples in group i ) .
+each thetaijk represents the relative abundance of isoform k , that is , the proportion of the total number of transcripts for that gene with isoform k. to define a likelihood function for thetaij , we let lk be the length of isoform k ( 1 <= k <= k ) , and introduce the following notation , in which the group and sample indices i and j are ignored for the sake of brevity .
+let r = ( r1 , ... , rn ) be the observed alignment data over the gene region , where n is the number of aligned paired - end sequence reads and rn ( 1 <= n <= n ) is the alignment , i.e. , the genomic location information for the pair n. let r = ( r1 , ... , rn ) be the random vector for which r is a realization .
+for n = 1 , ... , n , let in be the random variable indicating the isoform from which read rn is sequenced ; let fn be the random variable representing the fragment from which read rn is sequenced ; and let ln be the random variable representing the length of fn. also let lkn be the length of the fragment of isoform k ( 1 <= k <= k ) that matches rn ( 1 <= n <= n ) , i.e. , the two ends of the fragment are identical with read pair n , and define lkn as 0 if there is no fragment of isoform k that matches rn. let f ( . ) be the fragment length distribution ( unknown but can be estimated from the data ) .
+the likelihood function for a single gene ( in sample j of group i ) is then defined as : because p ( rn = rn , in = k | theta ) = p ( rn = rn , in = k , ln = lkn | theta ) , we can write expressing the joint probability as a product of conditional probabilities , we have where k = 1 , ... , k. the unknown fragment length distribution f (.) can be estimated from r ( additional file 1 ) .
+note that the sample index ( ij ) of pk ( should be pkij ) is also ignored in the above discussion .
+iuta 's likelihood function is similar to the likelihood function in miso [ 23 ] , with three main differences .
+first , miso defines pk differently than iuta does , using where mu is the mean of the empirical fragment length distribution f ' that is obtained by mapping all paired - end reads to long constitutive 3 ' utrs ( untranslated regions ) .
+second , miso uses a discrete normal distribution ( with mean and variance pre - determined by the empirical fragment length distribution in any rna - seq sample processed by the same assay ) in the place of f while we estimate f from the analyzed rna - seq sample in a completely different way ( additional file 1 ) .
+finally , iuta and miso calculate p ( rn = rn | in = k , ln = lkn , theta ) differently : iuta uses while miso uses , where m ( rn , lk ) is the number of " mappable positions " defined to reflect an overhang restriction when a read straddles a splice junction .
+to find the maximum likelihood estimates ( mles ) of theta , we first use an expectation - maximization ( em ) algorithm to find the mle of p , denoted , based on the likelihood function l ( theta ) ( treating the in 's as unobserved latent variables ) .
+we then calculate the mles of theta , denoted , from where ( 1 <= k <= k ) .
+the details of the em algorithm , including the choice of the starting point of the algorithm , are provided in additional file 1 .
+testing for differential isoform usage let thetai be the mean isoform usage ( in aitchison geometry ) of the gene of interest in group i , where i = 0 , 1 .
+we want to test : using an isometric log - ratio ( ilr ) transformation [ 38 ] , a distance - preserving one - to - one mapping from the open simplex with aitchison geometry to the real space rk - 1 with euclidean geometry , we can test the equivalent hypotheses : the ilr transformation allows us to honor the aitchison geometry on the simplex when carrying out statistical calculations in familiar euclidean space .
+details of the aitchison geometry and the ilr transformation are provided in additional file 1 .
+we take a hierarchical approach to deriving a probability model for a sample - specific isoform usage estimate , the mle of the sample - specific mean isoform usage ( thetaij ) in sample j of condition i ( this mle is obtained from the em algorithm previously mentioned ) .
+let denote the random variable for sample - specific estimated isoform usage , whose observed value is . our hierarchical model specifies a first - stage distribution for conditional on the sample - specific mean thetaij and a second - stage distribution for ilr ( thetaij ) conditional on the group - specific mean thetai .
+this second stage of the hierarchy implicitly views the thetaij as random quantities that vary around a fixed group - specific mean thetai .
+more specifically , we assumed in the first stage of the hierarchy that the distribution of , after ilr - transformation , has a normal distribution on rk - 1 [ 39 ] centered at ilr ( thetaij ) with variance - covariance matrix upsilonij , that is , 1 where denotes the multivariate normal distribution in rk - 1 .
+we require that lie in the open simplex , i.e. , that all relative abundances are positive so that the ilr transformation is applicable .
+to satisfy the requirement , if an isoform 's relative abundance is estimated as zero in some , but not all , samples , iuta replaces values estimated as zero with a small positive value ( 0.0001 by default ; adjustable by the user ) .
+if an isoform 's relative abundance values are estimated as zero in all samples of both groups , then that isoform is excluded from consideration in the testing stage .
+the variance - covariance matrix upsilonij can vary across samples in the same group because read coverage may differ among samples .
+for the second stage of the hierarchy , we assumed that each sample - specific mean thetaij for 1 <= j <= ji , after ilr - transformation , arises independently from a normal distribution on rk - 1 centered at ilr ( thetai ) with variance - covariance matrix sigmai , that is , 2 similar to the first stage , we require that thetaij lie in the open simplex .
+also note that the model allows each condition to have a distinct variance - covariance matrix sigmai .
+combining equations ( 1 ) and ( 2 ) , gives the marginal probability model for sample - specific estimated isoform usage : we simplified this model somewhat in our testing procedures by proceeding as though upsilonij = upsiloni for 1 <= j <= ji. although this simplifying assumption is arbitrary , a simulation study showed that iuta is robust to moderate departures from it ( see additional file 1 ) .
+consequently , the statistical tests implemented in iuta assume that all samples within group i have a common marginal variance - covariance matrix , sigmai + upsiloni , that differs between groups .
+thus , under our assumptions , testing h0 ' versus h1 ' is a test of whether two multivariate normal distributions have equal mean vectors when they have different variance - covariance matrices .
+in the statistical literature , this problem is called the multivariate behrens - fisher problem .
+we employed the skk [ 40 ] , cq [ 41 ] and ky test [ 42 ] to test for h0 ' versus h1 ' .
+details are provided in additional file 1 .
+notice that when k = 2 , the ky test becomes the welch 's t - test [ 43 ] .
+in implementing these tests , iuta employs the observed values of from each group to empirically estimate the group - specific variance - covariance matrix sigmai + upsiloni for each group i. the ky test requires that the estimate of sigmai + upsiloni be positive definite for each group ; but the skk and cq tests do not , though their critical values are justified using large - sample theory .
+these latter two tests are appropriate for situations where the number of isoforms in a group is greater than the number of samples in the group .
+consequently , iuta can in principle accommodate genes with any number of isoforms provided there are at least two samples per group ( though statistical power would , of course , suffer with such small sample sizes ) .
+simulations we performed three simulation studies .
+the first one aimed at two goals : 1 ) to compare the three tests ( skk , cq and ky ) implemented in iuta , and 2 ) to compare iuta ( with skk ) with cuffdiff2 ( version 2.2.0 , release in mar .
+2014 ) .
+the second simulation studied the robustness of iuta to the violation of the constant variance - covariance assumption that upsilonij = upsiloni for 1 <= j <= ji. we induced differences in upsilonij among samples by simulating differences in read coverage among samples .
+the third aimed to assess further the robustness of iuta to differences of read coverage among samples .
+in the first two simulation studies , we selected 8,628 mouse genes with number of isoforms between two and ten from the ucsc known mouse genes ( mm10 ) annotation [ 44 ] .
+in the last simulation study , we randomly selected five genes ( zfp407 , loxl2 , bptf , pde4dip , and stab2 ) with 2 , 3 , 5 , 7 and 8 isoforms , respectively , and then two additional genes ( dido1 and ifi203 ) , both with 8 isoforms .
+details of gene selection are provided in additional file 1 .
+in the first two simulation studies , we divided the 8,628 genes into two sets ( 8,060 genes with 2 - 5 isoforms and 568 genes with 6 - 10 isoforms ) .
+using each set of genes , we simulated 10 rna - seq alignment datasets ( five for each group ) in bam format ( http :// genome.ucsc.edu / faq / faqformat.html # format5.1 ) .
+the average read coverage for each gene in the first simulation study was 100 , and the average read coverage for each gene in the second simulation study varied among the samples ( either 30 , 50 , 70 , 90 , or 110 ) in each group .
+in the last simulation study , we chose six different levels of read coverage ( 10 , 30 , 50 , 70 , 90 , and 110 ) .
+at each read - coverage level , we carried out 1,000 in silico experiments for each gene .
+in each of the 1000 experiments , we also simulated 10 rna - seq alignment datasets ( five for each group ) .
+the parameters sigma0 and sigma1 used in the simulation studies for the 8,628 genes were obtained from cufflinks analysis of 10 mouse placenta rna - seq data sets ( five wild - type and five zfp36l3 knockout ) ( unpublished ) provided by perry blackshear ( niehs ) .
+the details of all simulations are provided in additional file 1 .
+results comparison among three different tests in iuta our simulation study demonstrated that the skk test and cq test performed comparably and both outperformed the ky test ( additional file 1 : figure s1 ) .
+as the ky test is only applicable when the dimension of the data is less than the sample sizes , we used the skk test for all subsequent analyses .
+performance comparison between iuta and cuffdiff2 we also used the above simulated datasets to compare the performance between iuta and cuffdiff2 .
+out of the 8,628 ( see additional file 1 for details on the gene selection ) mouse mm10 ucsc known genes [ 44 ] , iuta was able to analyze all of them for differential isoform usage .
+in comparison , cuffdiff2 could only analyze 4159 ( 48 %) .
+cuffdiff2 was unable to analyze the other 4,469 genes for two reasons .
+first and foremost , cuffdiff2 is designed specifically to test differential isoform usage for a given transcription start site ( tss ) .
+nearly half of the genes ( 4,381 out of 8,628 ) contained isoforms with different tsss , thus , cuffdiff2 eliminated those genes from testing .
+second , cuffdiff2 is not well suited for testing genes whose isoform structures are similar .
+even with the average reads coverage of 100 used in our simulation , cuffdiff2 declared that 88 of the 4,247 did not have enough alignments for testing .
+for the 4,159 genes that both iuta and cuffdiff2 analyzed , iuta outperformed cuffdiff2 ( figure 1 ) .
+figure 1 performance comparison between iuta and cuffdiff2 using simulated data .
+receiver operating characteristic ( roc ) curves based on the 4159 mouse genes that can be tested by both cuffdiff2 and iuta .
+false positive rate ( proportion of true negatives that are claimed as positives ) and true positive rates ( proportion of true positives that are claimed as positives ) were computed by varying the p - value cutoffs .
+robustness of iuta to a constant variance - covariance assumption to see how iuta performed when the constant variance - covariance assumption that upsilonij = upsiloni for 1 <= j <= ji ( see the methods section ) is violated , we repeated the same simulations as above but varied the read coverage among the five samples of each group for each gene ( either 30 , 50 , 70 , 90 , or 110 ) , as this variation in coverage would induce variation in the precision with which isoform usage was estimated in each sample .
+the roc curves for iuta ( additional file 1 : figure s2 ) were nearly identical to those in figure 1 .
+again , the skk and cq tests performed comparably and both outperformed the ky test. with smaller coverage per sample than in the previous simulation , cuffdiff2 could analyze only 4,136 of the 8,628 genes that iuta analyzed .
+as before , for the genes both tools could analyze , iuta performed slightly better than cuffdiff2 .
+those results demonstrated that iuta is robust to the violation of the constant variance - covariance assumption .
+robustness of iuta to the depth of read coverage for seven genes ( zfp407 , loxl2 , bptf , pde4dip , stab2 , dido1 and ifi203 ) , we chose six different levels of average read coverage , namely , 10 , 30 , 50 , 70 , 90 , and 110 , and carried out 1,000 simulations at each read - coverage level .
+we ran iuta on the 42,000 datasets ( 7 x 6 x 1000 ) .
+type - i error rate and power were computed based on the nominal alpha level 0.05 .
+as shown in table 1 , the type - i error rate and power were consistent across the different levels of read coverage for each gene , except for bptf , a gene with five isoforms , two of which ( uc007mac.1 and uc007mae.2 ) contain 28 long exons and are highly similar .
+among the three genes ( dido1 , ifi203 , and stab2 ) with eight isoforms , iuta had the smallest power for stab2 , a long gene ( 166,733 bp ) with 69 exons for which the eight isoforms have many exons in common .
+for the other two genes ( ifi203 and dido1 ) with eight isoforms but with fewer exons in common , iuta showed higher power .
+therefore , we concluded that the read coverage had little effect the performance , but the isoform structure mattered .
+table 1 empirical type i error rate ( empirical power ) of iuta _ skk at nominal type i error rate 0.05 for various levels of read coverage for a selection of genes gene no. of isoforms read coverage 10 30 50 70 90 110 zfp407 2 0.06 ( 0.99 ) 0.08 ( 1.00 ) 0.08 ( 1.00 ) 0.08 ( 1.00 ) 0.08 ( 1.00 ) 0.07 ( 1.00 ) loxl2 3 0.07 ( 1.00 ) 0.07 ( 1.00 ) 0.10 ( 0.99 ) 0.09 ( 1.00 ) 0.11 ( 0.99 ) 0.11 ( 0.99 ) bptf 5 0.30 ( 0.96 ) 0.29 ( 0.96 ) 0.27 ( 0.96 ) 0.27 ( 0.95 ) 0.25 ( 0.95 ) 0.23 ( 0.96 ) pde4dip 7 0.04 ( 0.92 ) 0.04 ( 0.94 ) 0.07 ( 0.95 ) 0.04 ( 0.93 ) 0.06 ( 0.96 ) 0.07 ( 0.96 ) dido1 8 0.11 ( 0.87 ) 0.10 ( 0.89 ) 0.10 ( 0.90 ) 0.11 ( 0.88 ) 0.11 ( 0.87 ) 0.10 ( 0.89 ) ifi203 8 0.09 ( 0.77 ) 0.10 ( 0.76 ) 0.08 ( 0.77 ) 0.09 ( 0.70 ) 0.10 ( 0.76 ) 0.09 ( 0.74 ) stab2 8 0.08 ( 0.35 ) 0.07 ( 0.43 ) 0.06 ( 0.45 ) 0.07 ( 0.44 ) 0.07 ( 0.51 ) 0.08 ( 0.44 ) inspection of table 1 revealed a troubling feature of iuta _ skk : although the tests were performed at nominal alpha level 0.05 , the empirical type i error rate ( false positive rate ) was larger than 0.05 for almost every simulated data set .
+iuta _ cq , but not iuta _ ky , showed the same failure to maintain the correct type i error rate ( results not shown ) .
+although we had not included cuffdiff2 in this simulation originally , we now undertook a similar simulation study to compare iuta and cuffdiff2 with respect to type i error rates .
+we selected three genes ( dhx9 , mr1 and trim11 ) , each had 4 isoforms sharing the same transcript start site .
+we considered two different levels of read coverage ( 30 and 90 ) .
+for each gene at each read - coverage , we simulated 1000 data sets with 5 replicates in each of the two groups under the null hypothesis that both groups had the same isoform usage .
+the empirical type i error rates for all three tests ( iuta _ skk , iuta _ cq and cuffdiff2 ) were larger than nominal 0.05 ( table 2 ) .
+we conclude that both cuffdiff2 and iuta fail to control the type i error rate at the nominal level .
+table 2 empirical type i error rates at nominal type i error rate 0.05 for three tests at two levels of read - coverage for three genes gene read coverage test iuta _ skk iuta _ cq cuffdiff2 dhx9 30 0.10 0.10 0.08 90 0.10 0.10 0.09 mr1 30 0.22 0.13 0.28 90 0.25 0.13 0.28 trim11 30 0.13 0.11 0.10 90 0.12 0.11 0.11 taken together , our simulation studies demonstrated that iuta performed better than cuffdiff2 for genes that both could analyze and was able to analyze more genes than cuffdiff2 .
+iuta was robust to the read coverage , but both iuta and cuffdiff2 failed to maintain the nominal type i error rate .
+iuta was more powerful for genes whose isoforms have fewer exons in common than for genes with many exons in common .
+applications of both iuta and cuffdiff2 to real rna - seq datasets from mouse tissues we applied iuta to 36 rna - seq datasets from the mouse genomes project at the wellcome trust sanger institute ( accession number : erp000591 ) .
+these datasets consist of six biological replicates from each of six mouse tissues ( liver , spleen , lung , heart , thymus , and hippocampus ) .
+we first aligned the sequence reads to the mouse ( grcm38 or mm10 ) refgene gene models using tophat ( version 2.0.8 ) [ 45 ] .
+next , we carried out all 15 pair - wise comparisons between any two tissues using iuta .
+in each comparison , we estimated the isoform usage in each sample , gene by gene , and then tested for differential isoform usage while controlling the family - wise error rate ( fwer ) at 0.01 with the bonferroni correction .
+the numbers of genes with statistically significant differential isoform usage are listed in table 3 with their official gene symbols provided in additional file 2 .
+the smallest number of genes with differential isoform usage was from the comparison between spleen and heart whereas the highest number was from the comparison between thymus and hippocampus .
+in total , iuta identified 2,073 genes with differential isoform usage in at least one comparison .
+estimated isoform usage in all six tissues and the pair - wise comparison results ( p - values ) for all genes tested are provided in additional file 3 .
+table 3 the number of genes with statistically significant differential isoform usage between pairs of mouse tissues tissue liver spleen thymus lung heart hippocampus liver na 323 680 508 399 847 spleen 323 na 311 365 284 676 thymus 680 311 na 538 474 1030 lung 508 365 538 na 303 781 heart 399 284 474 303 na 459 hippocampus 847 676 1030 781 459 na next , we searched for genes with tissue specific isoform usage .
+specifically , we searched for genes whose isoform usage was significantly different in all comparisons between a given tissue and remaining five tissues but non - significant in every comparison that did not involve the given tissue .
+forty - six such genes were identified ( table 4 ) .
+table 4 genes with significant tissue - specific isoform usages from 15 pair - wise comparisons among six tissues tissue gene hippocampus abi2 , arfgap2 , camta2 , dctn1 , dctn2 , eef1d , eif4g1 , ltbp4 , nelf , nqo2 , pxk , tecr , mon2 , traf3 , faim , parp6 , gopc , eya3 , 1110021j02rik , nt5c2 , cadm1 , camkk2 , fchsd2 , gnal , ptprs , wdr37 , morf4l2 heart naca liver mxi1 , psen2 , ptpn6 , bdh1 , nmi , tomm6 , efemp2 , ythdf3 , slc6a8 , masp2 , il33 , stat5b , timm22 , alkbh7 lung cttnbp2nl , c1qtnf5 spleen fam149b thymus one such gene is pxk , which has two isoforms ( nm _ 178279 and nm _ 1454578 ) ( figure 2 ) .
+pxk , also known as monaka , encodes for the px domain containing serine / threonine kinase .
+monaka has been suggested to modulate brain nak - atpase and may thereby participate in the regulation of electrical excitability and synaptic transmission [ 46 ] .
+iuta estimated that nm _ 178279 was predominantly expressed in hippocampus whereas nm _ 145458 was predominantly expressed in the other five tissues .
+isoform nm _ 178279 has a unique exon ( the middle exon in the figure 2 ) .
+another example is eef1d ( figure 3 ) , iuta estimated that nm _ 029563 has a large relative abundance in hippocampus and has a relative abundance almost 0 in each of the other 5 tissues .
+figure 2 visualization of differential isoform usage for pxk across the six mouse tissues .
+( top ) pie plot representations of tissue - specific isoform usage ; ( bottom ) observed rna - seq read coverage ( in each tissue ) .
+figure 3 visualization of differential isoform usage for eef1d across the six mouse tissues .
+( top ) pie plot representations of tissue - specific isoform usage ; ( bottom ) observed rna - seq read coverage ( in each tissue ) .
+finally , we applied cuffdiff2 on the liver and spleen data and compared its performance to that of iuta .
+the cuffdiff2 was also run using the mouse refseq gene models .
+for this data ( two groups of six replicates , 27 - 36 million read pairs in each liver replicate and 8 - 15 million read pairs in each spleen replicate ) , both tools run fast , though cuffdiff2 was faster ( 8 hours for cuffdiff2 and 16 hours for iuta ) .
+among the 2385 mouse genes with more than one isoform and the same transcription start site ( in the mouse refseq gene model ) for all isoforms , iuta was able to assess statistical significance of isoform usage difference for 1482 genes whereas cuffdiff2 was able to do 1478 genes given the rna - seq data , of which 1268 genes were common between the two tools .
+iuta detected more significant genes than cuffdiff2 did under the same nominal false discovery rate ( 0.05 ) : specifically , cuffdiff2 reported 122 significant genes whereas iuta identified 297 significant genes , among which 83 were in common .
+visual examination of the isoform usage plots of the genes declared significant by iuta but not by cuffdiff2 suggests that the iuta significant genes are credible .
+a good example is the cd74 gene ( figure 4 ) .
+mouse cd74 gene has two isoforms .
+the relative proportion of isoform nm _ 001042605 is higher in liver than in spleen , as supported by the read coverage plot ( figure 4 ) .
+the unique ( middle ) exon in nm _ 001042605 has higher relative read coverage in liver than in spleen , whereas the read coverage on the common exons appears to be similar among the samples .
+although cuffdiff2 also gave a small p - value ( 0.020 ) , it failed to reach significance after adjusting for false discovery rate ( q - value = 0.14 ) .
+it is worth pointing out that both iuta and cuffdiff2 gave similar isoform usage estimates for this gene .
+the estimates from iuta are ( 0.25 , 0.75 ) in liver and ( 0.11 , 0.89 ) in spleen , whereas those from cuffdiff2 are ( 0.22 , 0.78 ) in liver and ( 0.11 , 0.89 ) in spleen , respectively .
+estimates of isoform usage were often similar between iuta and cuffdiff2 even when they differed in declaring a gene to have differential isoform usage between tissues .
+figure 4 visualization of differential isoform usage for cd74 in the mouse liver and spleen tissues .
+( top ) pie plot representations of tissue - specific isoform usage ; ( bottom ) observed rna - seq reads coverage ( in each sample of each tissue ) .
+discussion recent advances in next - generation sequencing technologies enable rapid profiling of the entire transcriptome .
+methods for identifying differentially expressed genes from rna - seq data have been developed , either at the gene level or transcript level .
+less attention has been paid , however , to the development of robust and general methods for identifying differential isoform usage ( the set of the relative abundances of all isoforms of a gene ) .
+detecting differential isoform usage is different from detecting differential isoform expression , which aims to detect the difference of expression level between two conditions for each individual isoform of each gene .
+for the latter problem , many excellent tools have been proposed such as miso [ 23 ] , bitseq [ 22 ] , and ebseq [ 24 ] .
+among methods for the former problem , cuffdiff2 has gained recognition as the best available tool .
+our proposed method , iuta , which explicitly makes use of the compositional nature of isoform - usage estimates , offers some advantages compared to the recent completely overhauled version of cuffdiff2 ( http :// cufflinks.cbcb.umd.edu ) .
+because miso , bitseq , and ebseq are designed for testing a statistically different hypothesis than cuffdiff2 and iuta , we did not include the former methods in our simulations .
+using alignments from paired - end reads and a known isoform structure , iuta first estimates the isoform usage for each gene in each sample from each group and then uses those estimates to test for differential isoform usage between two groups .
+because isoform usage is a type of compositional data , i.e. , vector of all relative proportions of the whole , aitchison geometry is more suitable than euclidean geometry .
+aitchison geometry implicitly respects the bounded sample space induced by the isoform usage vector 's summing to one , and its distance metric is fundamentally related to fold - change .
+thus , iuta formulates the problem of testing for differential isoform usage under aitchison geometry and is , to our knowledge , the first approach to do so. one aspect of the aitchison geometry can be problematic , however .
+two proportions for the same isoform in different conditions that are both quite small but differ by orders of magnitude ( say , 10 - 7 and 10 - 10 ) sometimes have a strong influence on conclusions .
+even though distinguishing such small values is beyond the ability current technology , estimates of isoform usage occasionally contain them. through the simulation and real data studies , we found that genes with one or more isoforms having near - zero usage in both conditions were often declared to have statistically significant differential usage even when the other entries of the isoform - usage vector were quite similar .
+to deal with this issue of near - zero estimated usage for some isoforms , iuta replaces those values , together with sporadic estimated zeros , by a user - specified small positive value ( 0.0001 by default ) to facilitate the testing procedure .
+setting an even larger value such as 0.01 would ensure that the top - ranked significant genes are those with a large change in their isoform usages .
+the user can investigate whether near - zero values are influencing conclusions by seeing whether changes in this tuning parameter impact which genes iuta declares as having differential isoform usage .
+this ability represents a practical approach to a knotty problem in compositional data analysis .
+a distressing feature of both iuta and cuffdiff2 was their failure to maintain the nominal type i error rate - both rejected the null hypothesis too often when it was true .
+because procedures for controlling false discovery rate rely on p values from individual tests , a set of genes declared to have differential isoform usage at a false discovery rate of , say , 0.05 will actually represent a larger , perhaps much larger , false discovery rate when using these two procedures .
+the most likely reason for the failure of iuta to control the type i error rate is that the validity of its tests' p values is justified theoretically for large numbers of replicate samples but not for the few replicate samples used in studies of isoform usage .
+we believe that this issue is likely widespread among genome - wide tests that based on only a few replicate samples .
+we found it true of cuffdiff2 also .
+because many comparisons among competing procedures are based on roc curves , the failure to properly control type i error rate or false discovery rate may not be noticed by those developing methods - - as almost happened to us. an ideal solution to the failure to control type i error rates in isoform usage testing is elusive .
+though much larger numbers of samples in each group would ameliorate the problem , the cost of experiments would be prohibitive .
+permutation testing is another option .
+although we found that a permutation approach for the tests iuta _ skk and iuta _ cq helped to maintain the nominal type i error rate ( see details in the additional file 1 ) , the minimum possible p values for permutation tests with few samples can be too large to reach statistical significance after fdr or other genome - wide multiple - comparison adjustment .
+maintaining the correct type i error rates will remain a challenge whenever inferences must be based on a relatively small number of replicate samples .
+iuta has several advantages over existing tools : first , iuta directly incorporates the uncertainty of the underlying dna fragments corresponding to the paired - end reads into the rna - seq data model when estimating the isoform usage .
+second , iuta utilizes all paired - end reads that are mapped to a gene , not only those that are mapped to the unique regions of a gene , to test for significance .
+third , iuta takes into consideration biological variation between by requiring biological replicates and accommodates technical replicates by combining all technical replicates for a given biological replicate into a single data set .
+lastly , for each gene , iuta provides not only the p - value for differential isoform usage for each gene but also the estimate of isoform usage for each gene in each sample .
+we evaluated iuta 's performance through simulation studies in comparison to cuffdiff2 .
+cuffdiff2 was designed to test either if alternative tsss are differentially used ( differential promoter usage ) between groups of samples or if , for genes with a unique tss , alternative splicing events occur between two groups of samples .
+thus , for testing differential isoform usage , cuffdiff2 is limited to genes with all isoforms resulting from the same pre - mrna , i.e. , sharing the same tss .
+in contrast , iuta is applicable to all genes with at least two isoforms regardless of their tss .
+consequently , iuta can test many more genes differential isoform usage than can cuffdiff2 for the same data .
+moreover , we showed that iuta performed better than cuffdiff2 for the subset of genes cuffdiff2 could analyze .
+iuta is programmed in r which has the advantage of code that is easily modified and integrated with other tools , such as those available through bioconductor but has disadvantages in processing speed compared to other languages .
+when applied to the tissue transcriptome data from the mouse genomes project from the wellcome trust sanger institute , iuta identified 2,073 genes with differential isoform usage between any two given tissues and 46 genes with tissue - specific isoform usage .
+we believe that our analysis results are the first systematic catalogue of differential isoform usage between the six mouse tissues .
+we examined a few of those genes and found literature support .
+although the functional relevance for many of those genes remains unknown , we believe that the analysis results that we provide in additional files 2 and 3 for those tissues / cell lines will be useful to those interested in alternative splicing. of course , all results based on computational tools like iuta and cuffdiff2 should be confirmed in the laboratory .
+conclusions iuta , conveniently implemented in an r package , is unique among tools for genome - wide estimation and testing of isoform usage in that it utilizes contemporary statistical techniques for compositional data .
+though the development of computational / statistical methods for genome - wide analysis of alternative splicing is in its early stages , consortiums like tcga are generating large numbers of rna - seq datasets that could be used to probe isoform usage .
+we expect that new computational methods like ours will catalyse routine genome - wide analysis of alternative splicing , making it as commonplace as genome - wide analysis of gene expression .
+electronic supplementary material additional file 1 : iuta _ supplementary _ material .
+this pdf file contains all supplementary notes and supplementary figures .
+( docx 658 kb ) additional file 2 : differential _ iu _ genes .
+this excel file lists all genes identified by iuta as exhibiting differential isoform usage between any two of the six mouse tissues .
+the rna - seq data sets were from the mouse genomes project at the wellcome trust sanger institute ( accession number : erp000591 ) .
+the file contains 15 columns ( one for each of 15 pair - wise comparisons among 6 mouse tissues ) , the genes identified as having differential isoform usage between two tissues are listed under the column corresponding to those two tissues .
+the fwer is controlled at 0.01 by bonferroni correction for each comparison .
+( xlsx 70 kb ) additional file 3 : iu _ all _ mouse _ genes .
+this excel file lists the p - values for all the genes that were analyzed by iuta during the 15 pair - wise comparisons between any two of the six mouse tissues .
+the rna - seq data sets were from the mouse genomes project at the wellcome trust sanger institute ( accession number : erp000591 ) .
+the file contains 9 columns ( one for the gene symbol , one for the isoforms , six for the estimated isoform usage in the 6 mouse tissues , one for the 15 p - values from the 15 pair - wise differential isoform usage tests ) .
+( xlsx 679 kb ) competing interests the authors declare that they have no competing interests .
+authors' contributions ln , wh and dmu developed the method .
+ln made the initial draft and implemented the software .
+ln , wh , dmu and ll were all involved in study design , planning , analyses , and the interpretation of results .
+ln , wh , dmu and ll all contributed to writing and revising the manuscript .
+all authors read and approved the final manuscript .
+acknowledgements we thank david adams et al. at the wellcome trust sanger institute for making the mouse rna - seq data available .
+we also thank perry blackshear for providing real mouse rna - seq data for us to determine simulation parameters .
+we thank david fargo and shyamal peddada for critical reading of the manuscript .
+we thank the computational biology facility at niehs for computing time and support .
+funding this research was supported by intramural research program of the nih , national institute of environmental health sciences ( es101765 ) .
+references 1 .
+black dl mechanisms of alternative pre - messenger rna splicing annu rev biochem 2003 72 291 336 10.1146 / annurev.biochem.72.121801.161720 12626338 2 .
+matlin aj clark f smith cw understanding alternative splicing : towards a cellular code nat rev mol cell biol 2005 6 5 386 398 10.1038 / nrm1645 15956978 3 .
+blencowe bj alternative splicing : new insights from global analyses cell 2006 126 1 37 47 10.1016 / j.cell.2006.06.023 16839875 4 .
+nilsen tw graveley br expansion of the eukaryotic proteome by alternative splicing nature 2010 463 7280 457 463 10.1038 / nature08909 20110989 5 .
+mcmanus cj graveley br rna structure and the mechanisms of alternative splicing curr opin genet dev 2011 21 4 373 379 10.1016 / j.gde.2011.04.001 21530232 6 .
+kornblihtt ar schor ie allo m dujardin g petrillo e munoz mj alternative splicing : a pivotal step between eukaryotic transcription and translation nat rev mol cell biol 2013 14 3 153 165 10.1038 / nrm3525 23385723 7 .
+johnson jm castle j garrett - engele p kan z loerch pm armour cd santos r schadt ee stoughton r shoemaker dd genome - wide survey of human alternative pre - mrna splicing with exon junction microarrays science 2003 302 5653 2141 2144 10.1126 / science.1090100 14684825 8 .
+merkin j russell c chen p burge cb evolutionary dynamics of gene and isoform regulation in mammalian tissues science 2012 338 6114 1593 1599 10.1126 / science.1228186 23258891 9 .
+pan q shai o lee lj frey bj blencowe bj deep surveying of alternative splicing complexity in the human transcriptome by high - throughput sequencing nat genet 2008 40 12 1413 1415 10.1038 / ng.259 18978789 10 .
+wang et sandberg r luo s khrebtukova i zhang l mayr c kingsmore sf schroth gp burge cb alternative isoform regulation in human tissue transcriptomes nature 2008 456 7221 470 476 10.1038 / nature07509 18978772 11 .
+djebali s davis ca merkel a dobin a lassmann t mortazavi a tanzer a lagarde j lin w schlesinger f landscape of transcription in human cells nature 2012 489 7414 101 108 10.1038 / nature11233 22955620 12 .
+dorries u schachner m tenascin mrna isoforms in the developing mouse brain j neurosci res 1994 37 3 336 347 10.1002 / jnr.490370306 7513764 13 .
+maxwell cs antoshechkin i kurhanewicz n belsky ja baugh lr nutritional control of mrna isoform expression during developmental arrest and recovery in c. elegans genome res 2012 22 10 1920 1929 10.1101 / gr.133587.111 22539650 14 .
+ng ys rohan r sunday me demello de d'amore pa differential expression of vegf isoforms in mouse during development and in the adult dev dyn 2001 220 2 112 121 10.1002 / 1097 - 0177 ( 2000 ) 9999:9999 < : : aid - dvdy1093 > 3.0.co ; 2 - d 11169844 15 .
+park jy li w zheng d zhai p zhao y matsuda t vatner sf sadoshima j tian b comparative analysis of mrna isoform expression in cardiac hypertrophy and development reveals multiple post - transcriptional regulatory modules plos one 2011 6 7 e22391 10.1371 / journal.pone.0022391 21799842 16 .
+rice dp rice r thesleff i fgfr mrna isoforms in craniofacial bone development bone 2003 33 1 14 27 10.1016 / s8756 - 3282 ( 03 ) 00163 - 7 12919696 17 .
+faustino na cooper ta pre - mrna splicing and human disease genes dev 2003 17 4 419 437 10.1101 / gad.1048803 12600935 18 .
+chambers cb lee jm troncoso jc reich s muma na overexpression of four - repeat tau mrna isoforms in progressive supranuclear palsy but not in alzheimer 's disease ann neurol 1999 46 3 325 332 10.1002 / 1531 - 8249 ( 199909 ) 46:3 < 325 : : aid - ana8 > 3.0.co ; 2 - v 10482263 19 .
+skotheim ri nees m alternative splicing in cancer : noise , functional , or systematic ?
+int j biochem cell biol 2007 39 7 - 8 1432 1449 10.1016 / j.biocel.2007.02.016 17416541 20 .
+mortazavi a williams ba mccue k schaeffer l wold b mapping and quantifying mammalian transcriptomes by rna - seq nat methods 2008 5 7 621 628 10.1038 / nmeth.1226 18516045 21 .
+wang z gerstein m snyder m rna - seq : a revolutionary tool for transcriptomics nat rev genet 2009 10 1 57 63 10.1038 / nrg2484 19015660 22 .
+glaus p honkela a rattray m identifying differentially expressed transcripts from rna - seq data with biological variation bioinformatics 2012 28 13 1721 1728 10.1093 / bioinformatics / bts260 22563066 23 .
+katz y wang et airoldi em burge cb analysis and design of rna sequencing experiments for identifying isoform regulation nat methods 2010 7 12 1009 1015 10.1038 / nmeth.1528 21057496 24 .
+leng n dawson ja thomson ja ruotti v rissman ai smits bmg haag jd gould mn stewart rm kendziorski c ebseq : an empirical bayes hierarchical model for inference in rna - seq experiments ( vol 29 , pg 1035 , 2013 ) bioinformatics 2013 29 16 2073 2073 10.1093 / bioinformatics / btt337 25 .
+li b dewey cn rsem : accurate transcript quantification from rna - seq data with or without a reference genome bmc bioinformatics 2011 12 323 10.1186 / 1471 - 2105 - 12 - 323 21816040 26 .
+trapnell c hendrickson dg sauvageau m goff l rinn jl pachter l differential analysis of gene regulation at transcript resolution with rna - seq nat biotechnol 2013 31 1 46 53 10.1038 / nbt.2450 23222703 27 .
+turro e su sy goncalves a coin lj richardson s lewin a haplotype and isoform specific expression estimation using multi - mapping rna - seq reads genome biol 2011 12 2 r13 10.1186 / gb - 2011 - 12 - 2 - r13 21310039 28 .
+howard be heber s towards reliable isoform quantification using rna - seq data bmc bioinformatics 2010 11 suppl 3 s6 10.1186 / 1471 - 2105 - 11 - s3 - s6 20438653 29 .
+drewe p stegle o hartmann l kahles a bohnert r wachter a borgwardt k ratsch g accurate detection of differential rna processing nucleic acids res 2013 41 10 5189 5198 10.1093 / nar / gkt211 23585274 30 .
+legault lh dewey cn inference of alternative splicing from rna - seq data with probabilistic splice graphs bioinformatics 2013 29 18 2300 2310 10.1093 / bioinformatics / btt396 23846746 31 .
+singh d orellana cf hu y jones cd liu y chiang dy liu j prins jf fdm : a graph - based statistical method to detect differential transcription using rna - seq data bioinformatics 2011 27 19 2633 2640 10.1093 / bioinformatics / btr458 21824971 32 .
+hu y huang y du y orellana cf singh d johnson ar monroy a kuan pf hammond sm makowski l randell sh chiang dy hayes dn jones c liu y prins jf liu j diffsplice : the genome - wide detection of differential splicing events with rna - seq nucleic acids res 2013 41 2 e39 10.1093 / nar / gks1026 23155066 33 .
+trapnell c williams ba pertea g mortazavi a kwan g van baren mj salzberg sl wold bj pachter l transcript assembly and quantification by rna - seq reveals unannotated transcripts and isoform switching during cell differentiation nat biotechnol 2010 28 5 511 515 10.1038 / nbt.1621 20436464 34 .
+heber s alekseyev m sze sh tang h pevzner pa splicing graphs and est assembly problem bioinformatics 2002 18 suppl 1 s181 s188 10.1093 / bioinformatics / 18.suppl _ 1.s181 12169546 35 .
+aitchison j the statistical analysis of compositional data 1986 london - new york chapman & hall ltd .
+36. pawlowsky - glahn v egozcue jj geometric approach to statistical analysis on the simplex stoch env res risk a 2001 15 5 384 398 10.1007 / s004770100077 37 .
+pawlowsky - glahn v egozcue jj tolosana delgado r lecture notes on compositional data analysis 2007 38 .
+egozcue jj pawlowsky - glahn v mateu - figueras g barcelo - vidal c isometric logratio transformations for compositional data analysis math geol 2003 35 3 279 300 10.1023 / a : 1023818214614 39 .
+pawlowsky - glahn v statistical modeling on coordinates 2003 40 .
+srivastava ms katayama s kano y a two sample test in high dimensional data j multivar anal 2013 114 349 358 10.1016 / j.jmva.2012.08.014 41 .
+chen sx qin y - l a two - sample test for high - dimensional data with applications to gene - set testing ann stat 2010 38 2 808 835 10.1214 / 09 - aos716 42 .
+krishnamoorthy k yu j modified nel and van der merwe test for the multivariate behrens - fisher problem stat probabil lett 2004 66 2 161 169 10.1016 / j.spl.2003.10.012 43 .
+welch bl the generalization of student 's problem when several different population variances are involved biometrika 1947 34 1 / 2 28 35 10.2307 / 2332510 20287819 44 .
+meyer lr zweig as hinrichs as karolchik d kuhn rm wong m sloan ca rosenbloom kr roe g rhead b the ucsc genome browser database : extensions and updates 2013 nucleic acids res 2013 41 d1 d64 d69 10.1093 / nar / gks1048 23155063 45 .
+kim d pertea g trapnell c pimentel h kelley r salzberg sl tophat2 : accurate alignment of transcriptomes in the presence of insertions , deletions and gene fusions genome biol 2013 14 4 r36 10.1186 / gb - 2013 - 14 - 4 - r36 23618408 46 .
+mao h ferguson ts cibulsky sm holmqvist m ding c fei h levitan ib monaka , a novel modulator of the plasma membrane na , k - atpase j neurosci 2005 25 35 7934 7943 10.1523 / jneurosci.0635 - 05.2005 16135750

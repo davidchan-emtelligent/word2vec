@@ -1,0 +1,264 @@
+sensors ( basel ) sensors ( basel ) sensors sensors ( basel , switzerland ) 1424 - 8220 mdpi 27529252 5017449 10.3390 / s16081284 sensors - 16 - 01284 article enhanced positioning algorithm of arps for improving accuracy and expanding service coverage lee kyuman 1 baek hoki 2 lim jaesung 1 * melesse assefa m. academic editor 1 department of computer engineering , ajou university , 206 world cup - ro , yeongtong - gu , suwon 16499 , korea ; mool717 @ ajou.ac.kr 2 department of military digital convergence , ajou university , 206 world cup - ro , yeongtong - gu , suwon 16499 , korea ; neloyou @ ajou.ac.kr * correspondence : jaslim @ ajou.ac.kr ; tel. : + 82 - 31 - 219 - 2650 ; fax : + 82 - 31 - 219 - 1842 12 8 2016 8 2016 16 8 1284 27 4 2016 10 8 2016 ( c ) 2016 by the authors ; licensee mdpi , basel , switzerland .
+2016 this article is an open access article distributed under the terms and conditions of the creative commons attribution ( cc - by ) license ( http :// creativecommons.org / licenses / by / 4.0 /) .
+the airborne relay - based positioning system ( arps ) , which employs the relaying of navigation signals , was proposed as an alternative positioning system .
+however , the arps has limitations , such as relatively large vertical error and service restrictions , because firstly , the user position is estimated based on airborne relays that are located in one direction , and secondly , the positioning is processed using only relayed navigation signals .
+in this paper , we propose an enhanced positioning algorithm to improve the performance of the arps .
+the main idea of the enhanced algorithm is the adaptable use of either virtual or direct measurements of reference stations in the calculation process based on the structural features of the arps .
+unlike the existing two - step algorithm for airborne relay and user positioning , the enhanced algorithm is divided into two cases based on whether the required number of navigation signals for user positioning is met .
+in the first case , where the number of signals is greater than four , the user first estimates the positions of the airborne relays and its own initial position .
+then , the user position is re - estimated by integrating a virtual measurement of a reference station that is calculated using the initial estimated user position and known reference positions .
+to prevent performance degradation , the re - estimation is performed after determining its requirement through comparing the expected position errors .
+if the navigation signals are insufficient , such as when the user is outside of airborne relay coverage , the user position is estimated by additionally using direct signal measurements of the reference stations in place of absent relayed signals .
+the simulation results demonstrate that a higher accuracy level can be achieved because the user position is estimated based on the measurements of airborne relays and a ground station .
+furthermore , the service coverage is expanded by using direct measurements of reference stations for user positioning .
+accuracy enhancement re - estimation positioning algorithm virtual measurement dilution of precision 1 .
+introduction with the proliferation of location - based services and industries , position information and time have become important resources .
+the global navigation satellite system ( gnss ) is a position , navigation and timing ( pnt ) source and has been used in various areas [ 1,2 ] .
+however , the gnss may not be available in shaded areas , such as in indoor and underground environments , and is vulnerable to signal interferences by the surrounding area because of the weak received signal strength .
+thus , several studies have been conducted to develop alternative systems [ 3,4 ] .
+over the past few decades , pseudolite - based positioning systems have been studied as an alternative pnt source .
+pseudolite - based positioning systems are divided into two types depending on where the pseudolites are installed : ground - and airborne - based systems .
+a ground - based pseudolite system , in which pseudolites are installed on buildings and the peaks of mountains from where they provide navigation signals , has the advantages of higher power and greater flexibility than the gnss .
+in addition , system construction and maintenance are relatively simple and inexpensive .
+however , because all components are located on the ground , this system can be influenced by the multipath effect , and the accuracy of vertical estimation is poor [ 5,6,7,8 ] .
+in contrast , an airborne - based pseudolite system is configured by installing pseudolites on airborne platforms , such as unmanned aerial vehicles ( uavs ) and stratospheric airships .
+consequently , the system can cover a larger area than a ground - based pseudolite system , and the multipath effect is decreased .
+however , the positions of airborne pseudolites must be monitored to achieve accurate service , and delays in monitoring degrade the system accuracy [ 9,10,11,12 ] .
+in both of these pseudolite - based positioning systems , the user position accuracy is not high because the pseudolites are located at biased positions on the same plane with respect to the user .
+therefore , studies have been conducted to enhance the accuracy of these systems .
+in the studies by tuohino and sultana [ 13,14 ] , pseudolites were positioned at various altitudes to guarantee a good dilution of precision ( dop ) by varying the configuration dimensions .
+however , these previous studies were limited in that the assistance of the gnss or monitoring is required to precisely estimate the positions of airborne pseudolites .
+recently , the airborne relay - based positioning system ( arps ) was proposed to overcome the limitations of conventional pseudolite - based positioning systems , such as the multipath effect and monitoring delay [ 15 ] .
+in the arps , ground reference stations transmit navigation signals , and airborne relays transfer these signals to a user .
+the user then sequentially estimates the positions of the airborne relays and its own position using the relayed signals .
+owing to this two - step positioning procedure , the arps is not affected by monitoring delays , and it can benefit from the advantages of both ground - and airborne - based positioning systems by using the airborne relay .
+therefore , the performance can be improved as compared to that of pseudolite - based positioning systems .
+however , the vertical error is still relatively large because the user position is determined based on the estimated positions of airborne relays .
+furthermore , the positioning is restricted when relayed navigation signals are lacking or when the user is outside the range of some relay coverage .
+to improve the accuracy and expand the coverage of the arps , we propose an enhanced positioning algorithm .
+the main idea of this enhanced algorithm is that the virtual and direct measurements of reference stations are adaptably used in the calculation process to reduce the effects of geometrical factors and to improve positioning possibility .
+the enhanced algorithm is designed such that the user re - estimates its own position after initial positioning by adding a virtual measurement of a reference station when there are more than four navigation signals for positioning .
+otherwise , if the number of signals is insufficient , the direct measurements of nearby reference stations are used to derive the navigation equation for the user .
+the accuracy of the user can thus be improved relative to previous methods in environments that are not optimal because the user position is estimated based on the measurements of the ground reference station , as well as of the airborne relays .
+moreover , positioning is possible over a wider area because a lack of navigation signals for user estimation is compensated by using direct signals received from nearby reference stations .
+we suggest that this enhanced algorithm will be beneficial for the relative navigation of the joint tactical information distribution system ( jtids ) , which usually operates in battlefields where signal outage and the blockage of signals occur frequently .
+the rest of this paper is organized as follows .
+in section 2 , the arps is briefly detailed , and the enhanced positioning algorithm is described in section 3 .
+the simulation construction and results are presented in section 4 .
+finally , the paper is concluded in section 5 .
+2. airborne relay - based regional positioning system the arps , which was proposed in order to address the problems of the pseudolite - based positioning system as a gnss alternative regional positioning system , is comprised of a master station , reference stations , airborne relays and a user , as shown in figure 1 [ 15 ] .
+the master station provides the absolute time reference of the system and generates correction information by using the navigation signals transferred from the airborne relays .
+the reference stations periodically transmit navigation signals based on their known positions and time similar to pseudolites and gnss satellites .
+they are synchronized with each other with respect to the master station .
+airborne relays are new components not found in the conventional pseudolite - based positioning system .
+these airborne relays transfer navigation signals back to the user via different frequencies as soon as they are received from the reference stations , like bent - pipe satellites .
+the user estimates the positions of the airborne relays and its own position using relayed navigation signals through a two - step procedure .
+in the first step , the positions of the airborne relays are determined based on the known positions of the reference stations and the time difference of arrival ( tdoa ) of the relayed signals .
+then , the user position is determined using the estimated positions of airborne relays and the pseudoranges from each airborne relay to the user .
+the arps can achieve the advantages of both ground - based and airborne - based positioning systems by employing airborne relays .
+therefore , the multipath effect and near far problem , which are incurred in ground - based positioning systems , are not significant , and the coverage is large .
+moreover , monitoring and measuring to estimate airborne pseudolite positions are not required , because the user can sequentially estimate the airborne relay positions and its own position .
+thus , the mobility of airborne relays does not affect the accuracy of the system .
+however , despite the enhancement of performance as compared to that of the pseudolite - based positioning system , relatively large vertical errors occur as compared to horizontal errors , because the user position is estimated on the basis of the positions of the airborne relays , which are located toward the same direction .
+this geometric feature results in the major axis of the error ellipse being in the vertical direction .
+furthermore , the user cannot estimate its position when it is not within an area covered by airborne relays , and the relayed navigation signals are insufficient , because the existing positioning algorithm is processed using only relayed signals .
+3. enhanced positioning algorithm for arps 3.1 .
+procedures of the enhanced algorithm in the arps , which employs the relay concept for positioning , the user can receive both relayed navigation signals from airborne relays and direct navigation signals from ground reference stations .
+we propose an enhanced positioning algorithm that uses this structural characteristic in order to improve the vertical accuracy and expand the service coverage of arps .
+the procedure of the enhanced algorithm is divided into two cases , as shown in figure 2 .
+the first case is where the required number of measurements for user positioning is met , and the second case is where it is not .
+the positioning procedure in case i comprises three steps , because a re - estimation procedure is added for accuracy enhancement .
+the first and second steps are for estimating the positions of the airborne relays and the initial user location in a manner similar to that of the existing algorithm .
+after the initial position estimation of the user , the user re - estimates its own position in the third step .
+in this step , a virtual measurement of a reference station is added in the calculation process instead of a direct measurement , which is received directly from the reference station , because large errors could be included in the direct measurement caused by the multipath effect and tropospheric delay at a low elevation angle .
+the virtual measurement from the reference station to the user is calculated on the basis of the estimated initial position of the user and the position information of the reference station , which is included in the relayed signals .
+therefore , we have named this measurement the virtual pseudorange , because reception of the navigation signal from the reference station is not required , and the measurement includes the error in the initial user position instead of errors associated with signal propagation .
+however , the geometry of the added reference station may exert an adverse effect if the airborne relays are already well distributed with respect to the user .
+furthermore , although the dop for re - estimation can be improved by additionally using the reference station in the estimation , the error in the user positioning may increase because of a virtual measurement error .
+thus , the user determines whether to re - estimate its own position or not prior to the third step by comparing the expected position error in the second and third steps .
+in contrast to that in case i , the procedure in case ii consists of two steps .
+the airborne relay positions are estimated in the first step , as in the existing algorithm , whereas the second step is processed differently because of the lack of relayed signal measurements for user positioning .
+in the second step , the user derives a navigation equation to estimate its own position by adding the direct measurements of the reference station .
+however , the direct measurements include large errors , and it is difficult to guarantee a good dop for positioning when the receiver is located in the periphery of the segment disposition .
+therefore , the accuracy of the user positioning is lower than in case i in the second step .
+because the accuracy of the initial user positioning is degraded , the re - estimation of the user position is not performed in case ii .
+3.2 .
+mathematical expression of positioning procedures the mathematical expressions of the enhanced algorithm are given in detail in this section .
+we have listed the important variables to represent the procedure in table 1 .
+the arps user should estimate the positions of the airborne relays before determining its own position .
+in the enhanced algorithm , the positions of the airborne relays are estimated in the same manner as in the existing arps algorithm .
+airborne relay positioning is performed using the tdoa of the relayed navigation signals transferred by each relay .
+the difference in the pseudoranges between the first / j - th reference stations and i - th airborne relay can be represented as [ 15 ] : ( 1 ) rjnablar1rhoai = cxtrj,ai - tr1,ai,1 <= i <= i,1 <= j <= j = eairj.rrj - rai - eair1.rr1 - rai + rjnablar1tauai + rjnablar1mai + rjnablar1nai where c denotes the speed of light and tau , m and n signify the tropospheric delay , multipath delay and thermal noise , respectively , that are included in the pseudorange. with j reference stations , the navigation equation for the estimation of the i - th airborne relay is derived as equation ( 2 ) .
+the i - th airborne relay position is determined by the nonlinear least squares method using the levenberg - marquardt algorithm [ 16 ] .
+the user repeats the first step until the positions of all of the airborne relays are estimated .
+( 2 ) eair1 - eair2eair1 - eair3 ... eair1 - eairj.rai = r2nablar1rhoai - eair2.rr2 + eair1.rr1 - r2nablar1tauai - r2nablar1mai - r2nablar1nair3nablar1rhoai - eair3.rr3 + eair1.rr1 - r3nablar1tauai - r3nablar1mai - r3nablar1nai ... rjnablar1rhoai - eairj.rrj + eair1.rr1 - rjnablar1tauai - rjnablar1mai - rjnablar1nai after the position estimation of the airborne relays , the user determines its own initial position .
+the existing arps algorithm uses the time of arrival ( toa ) of the relayed signals in the second step ; in contrast , the tdoa of the relayed signals is used to provide the consistency of positioning procedures in the enhanced algorithm .
+the difference in the tdoas of each step is shown in figure 3 .
+the arps user receives multiple relayed signals because airborne relays transfer all navigation signals received from each reference station .
+however , each relayed signal has different measurement errors according to the location of each reference station .
+therefore , the accuracy of the initial user position would be affected depending on which relayed signals are used in the tdoa calculation .
+consequently , the pseudorange differences between airborne relays and the user corresponding to each reference station are averaged to mitigate the influence of geometrical factors .
+the average pseudorange difference between the first / i - th airborne relays and the user is derived as : ( 3 ) ainablaa1rho ^ u = 1jsumk = 1jcx ( trk,ai - trk,a1 ) - | rrk - rai | est +| rrk - ra1 | est = euai.rai - ru - eua1.ra1 - ru + tau ^ uai + m ^ uai + n ^ uai - tau ^ ua1 - m ^ ua1 - n ^ ua1 where tau ^ , m ^ and n ^ indicate the averaged tropospheric delay , multipath delay and thermal noise , respectively , which are included in the averaged pseudorange .
+using equation ( 3 ) , the following set of equations for i airborne relays is derived .
+consequently , the user can obtain its initial position by the nonlinear least squares method , as in the first step .
+( 4 ) eua1 - eua2eua1 - eua3 ... eua1 - euai.ru = a2nablaa1rho ^ u - eua2.ra2 + eua1.ra1 - a2nablaa1tau ^ u - a2nablaa1m ^ u - a2nablaa1n ^ ua3nablaa1rho ^ u - eua3.ra3 + eua1.ra1 - a3nablaa1tau ^ u - a3nablaa1m ^ u - a3nablaa1n ^ u ... ainablaa1rho ^ u - euai.rai + eua1.ra1 - ainablaa1tau ^ u - ainablaa1m ^ u - ainablaa1n ^ u in case i , the user re - estimates its position using the virtual pseudorange measurement from the reference stations to the user , which is generated by using the reference station information in the relayed signals and the estimated initial position of the user , in order to enhance the user accuracy .
+the tdoa in which the virtual measurement is integrated is represented as : ( 5 ) ainablarjrho ^ u '= 1jsumk = 1jcxtrk,ai - tt - | rrk - rai | est - | rrj - ru | est = eu'ai.rai - ru ' - eu'rj.rrj - ru '+ tau ^ uai + m ^ uai + n ^ uai - epsilonurj where tt denotes the navigation signal transmission time of all reference stations .
+for example , if tt = 2 , all reference stations broadcast navigation signals at two seconds in the system time .
+epsilonurj indicates the virtual measurement error caused by the initial positioning error of the user. from equation ( 5 ) , the re - estimation equation of the third step with the measurements of l reference stations and i airborne relays is derived as follows , and the final user position can be resolved with the nonlinear least squares method using the levenberg - marquardt algorithm .
+( 6 ) eu'r1 - eu'r2 ... eu'r1 - eu'rleu'r1 - eu'a1 ... eu'r1 - eu'ai.ru '= r2nablar1rhou ' - eu'r2.rr2 + eu'r1.rr1 - epsilonur2 + epsilonur1 ... rlnablar1rhou ' - eu'rl.rrl + eu'r1.rr1 - epsilonurl + epsilonur1a1nablar1rho ^ u ' - eu'a1.ra1 + eu'r1.rr1 - tau ^ ua1 - m ^ ua1 - n ^ ua1 + epsilonur1 ... ainablar1rho ^ u ' - eu'ai.rai + eu'r1.rr1 - tau ^ uai - m ^ uai - n ^ uai + epsilonur1 however , the accuracy of the user may be degraded by the error in the virtual measurement and the geometry of the added reference station in the third step .
+therefore , the user calculates the expected position errors based on the added reference station by multiplying the dop of the airborne relays and the reference station with respect to the user by the user range error ( ure ) , and the minimum of the expected position errors is compared to the expected position error of the initial estimation to determine whether to re - estimate .
+the ure has been analyzed by mc - graw in clean environments as a function of the elevation angle [ 17 ] .
+the expected position error and dop are defined as [ 18 ] : ( 7 ) rms ( expectedpositionerror )= sigmaurexdop ( 8 ) hdop = h11 + h22,vdop = h33,pdop = h11 + h22 + h33 where sigmaure denotes the ure and h is a covariance matrix given by : ( 9 ) h = gtg - 1,g =( xu - xa1 )/ rhoua1 ( yu - ya1 )/ rhoua1 ( zu - za1 )/ rhoua11 ............( xu - xai )/ rhouai ( yu - yai )/ rhouai ( zu - zai )/ rhouai1 ( xu - xr1 )/ rhour1 ( yu - yr1 )/ rhour1 ( zu - zr1 )/ rhour11 ............( xu - xrl )/ rhourl ( yu - yrl )/ rhourl ( zu - zrl )/ rhourl1 where g refers to the geometry matrix and x , y and z denote the position of the user , airborne relays and reference stations in three dimensions .
+as stated in section 3.1 , when the number of measurements for user positioning is insufficient , the procedures are processed differently .
+in this case , the direct measurements of the reference station near the user are used for deriving the navigation equation of the user in the second step .
+the tdoa of the relayed measurement based on the direct measurement , which is first received , is derived as : ( 10 ) ainablarjrho ^ u = 1jsumk = 1jcxtrk,ai - | rrk - rai | est - cxtrj = euai.rai - ru - eurj.rrj - ru + tau ^ uai + m ^ uai + n ^ uai - tauurj - murj - nurj using equation ( 10 ) , the navigation equation for estimating the user position in case ii can be constructed in a manner similar to that in case i .
+4. simulation results and discussion 4.1 .
+simulation assumptions and construction 4.1.1 .
+simulation assumptions in the arps , the user must receive more than four relayed navigation signals from each airborne relay because a minimum of four navigation signals are required to estimate the three - dimensional position of the airborne relay based on the tdoa [ 19 ] .
+we assumed that the line of sight of all airborne relays is guaranteed for each reference station .
+therefore , the user is considered to receive all of the reference station signals from the airborne relays .
+the existing algorithm of the arps uses only relayed navigation signals .
+in contrast , the enhanced algorithm uses direct navigation signals , which are received directly from the near reference stations , as well as relayed navigation signals in order to enhance the user performance .
+thus , we assumed that the user can receive both signals by modifying the receiver structure or the multiple access control scheme .
+the arps positioning algorithm may not be affected by synchronization error if the time synchronization among reference stations is maintained within 20 ns [ 15 ] .
+as discussed in [ 6 ] , nanosecond accuracy can be achieved through wireless synchronization .
+thus , we did not consider the effect of the time offset among reference stations .
+furthermore , the time offset of the user is negligible , because this can be removed by differencing the pseudorange measurement in the positioning procedures .
+4.1.2 .
+simulation model construction the physical location of system segments affects the accuracy in the navigation systems .
+we defined the disposition of segments with the consideration of practical environments , as shown in figure 4 .
+the altitude of airborne relays was set at 20 km considering the uav and stratospheric airship altitudes .
+the user must receive at least four signals from the airborne relays to calculate its position .
+therefore , the radius of the airborne relay trajectory was set to 90 km in order to ensure an overlap of each airborne relay coverage , because the coverage , which is the radius of the visible region on the ground with an elevation angle of 5o , is 195 km at an altitude of 20 km. we assumed that the airborne relays are rotated along a circular orbit while maintaining a predetermined distance from each other .
+one of them is rotated relative to the center of a circle with a 10 - km radius for a good dop .
+furthermore , we set the radius of the disposition of the reference stations to 100 km to guarantee that the estimation results of the airborne relays are good .
+these reference stations were distributed in the same manner as the airborne relays , but the locations were fixed .
+the master station was not considered in the simulations because it does not influence positioning performance .
+the number of airborne relays and reference stations was set to four and six , respectively , as in [ 15 ] , and the speed of the airborne relays was set to 150 m / s. moreover , the position change in the airborne relays , which results from the propagation time difference of the navigation signals during the relay , is considered .
+4.1.3 .
+measurement errors the arps discussed in this study is based on code - phased pseudorange measurements .
+the measurements are corrupted by several sources of error , which are related to the propagation medium and receiver .
+herein , we consider three factors that contribute to airborne relay and user positioning measurement errors : the multipath effect , tropospheric delay and receiver noise .
+the hopfield model , which is stable for all ranges of elevation angles , is used to determine the tropospheric error [ 20 ] .
+the tropospheric delay error consists of dry and wet components ( m = ddry + dwet ) and is defined as : ( 11 ) d *= 10 - 65xn * xdx1 - hrxh * 5 - 1 - htxh * 5xh * hrx - htx ,* in { dry,wet } ( 12 ) ndry = 77.6xpt,nwet = 22770xft2x107.4475x ( t - 273 ) t - 38.3 where n * denotes the refractive index defined by equation ( 12 ) , d is the slope distance between the transmitter and receiver of the navigation signal , hrx and htx respectively represent the receiver and transmitter heights , h * is the fixed scaled height for the model ( hdry = 42.7 km , hwet = 12 km ) and p , t and f represent the atmospheric pressure , temperature and relative humidity , respectively ( p = 1010.25 mbar , t = 291.15 k , f = 50 %) .
+in addition , the multipath error is provided using the satellite navigation ( satnav ) toolbox , a collection of matlab code files for total system simulation [ 21 ] .
+the function for multipath error in the satnav toolbox generates zero - elevation angle equivalent pseudorange multipath errors with a linear autoregressive model , which is characterized by a standard deviation of approximately 1.6 m and a time constant of approximately 2 min .
+before these errors are applied to pseudorange measurements , they are scaled by the factor m (= 1 - tan - 1alphatan - 1 ( pi / 2 )) where alpha is the elevation angle between the transmitter and receiver of the navigation signal [ 22 ] .
+finally , the error due to receiver noise is generated by multiplying the standard deviation corresponding to the respective signal type by a normal distributed random number ( n ~ n ( 0,1 )) [ 23 ] .
+4.2 .
+simulation results and discussion to evaluate the performance of the enhanced algorithm , we performed simulations using matlab .
+first , we analyzed the re - estimation accuracy according to the measurement of the reference station , and second , we conducted simulations for finding the optimum condition of the virtual measurement in the re - estimation procedure .
+third , we compared the performances of the existing algorithm and the enhanced algorithm in the service area .
+finally , to demonstrate the performance of the enhanced algorithm for case ii , we evaluated the accuracy of the user positioning according to the distance from the center of the segment disposition .
+4.2.1 .
+influence of measurement on re - estimation in the enhanced algorithm , both the direct and virtual measurements of reference stations can be used for re - estimation .
+the first simulation was conducted to confirm the effect on accuracy according to the measurement , and we compared the re - estimation results when a single measurement was added .
+figure 5 represents the east , north and up ( enu ) errors of the user located at ( 40,000 , 50,000 , 50 ) when the user re - estimates its own position by adding the direct measurement or virtual measurement of the reference station .
+as expected , the re - estimation results for the direct measurement show that the user position error is increased , in particular in the vertical aspect , despite the improvement in the position dop ( pdop ) from 6.4011 to 3.0448 , because of the measurement errors caused by the multipath and tropospheric delay , whereas the up error of the virtual measurement results decreases to 4.6497 m as compared to the existing algorithm .
+this is because the effect of measurement errors , which are large at a low elevation angle , is reduced by using a virtual measurement instead of a direct signal measurement , although inaccuracy is still caused by the error in the initial position of the user .
+thus , the enhanced algorithm was designed such that the virtual measurement is used only for re - estimation .
+4.2.2 .
+relationship between accuracy and geometry as with the regional positioning system , the accuracy of the arps depends on the geometry of the reference stations , airborne relays and the user .
+in the second simulation , we analyzed the re - estimation performance while changing the geometry , depending on the number of virtual measurements and the reference station positions , which are added to the navigation equation of the user in the re - estimation , in order to find the optimum condition .
+to evaluate different geometries , the user positions were set to ( 10,000 , 10,000 , 10 ) and ( 60,000 , 60,000 , 10 ) for good and poor geometries , respectively .
+figure 6 shows the horizontal and vertical root mean square error ( rmse ) of the user for good and poor geometries .
+as shown in the graph , the user accuracy with poor geometry is degraded with an increase in the number of virtual measurements due to the error included in the initial user positioning , although the change in the horizontal error is small because the influence on the horizontal aspect exerted by the re - estimation based on the measurements of the various altitude platforms is not large .
+however , the results for good geometry are rarely affected by the number of virtual measurements , because the initial positioning accuracy , which influences the re - estimation accuracy , is more precise when the reference stations and airborne relays are already well distributed toward the user .
+based on these results , it is demonstrated that more than one measurement is not required .
+therefore , one virtual measurement was used for re - estimation in the remaining simulations .
+the location of the reference station used to calculate the virtual measurement , which is added for re - estimation , is as important as the number of virtual measurements .
+table 2 represents the pdop of the re - estimation , where each reference station is applied after aligning the reference stations according to the distance from the initial user position .
+the pdop is the value that indicates the three - dimensional accuracy of the user corresponding to the geometries of the airborne relays and the reference station of the virtual measurement ; in general , a low value indicates a high accuracy .
+the results show that the accuracy is higher when the reference measurement adjacent to the initial user position is used for re - estimation .
+this is because a reference station that is located at a distance from the user worsens the geometry , since the position is biased to one direction .
+however , the influence on the geometry by the added reference station of the virtual measurement is small in the good geometry , where the airborne relays are uniformly distributed with respect to the user .
+4.2.3 .
+performance comparison between existing and enhanced algorithms in this section , we describe the simulations , which were conducted to compare the existing algorithm and enhanced algorithm performances .
+for a fair simulation , the same segment disposition and measurement models were used , and the user position error was calculated by averaging the errors generated by the changes in geometry according to the movement of airborne relays .
+figure 7 illustrates the horizontal and vertical error distributions of the user in a service area of 140 km x 140 km. the color represents the user error .
+as shown in the results , the enhanced algorithm provides a better accuracy over a wide area .
+according to dai , the best configuration for a good dop is that in which most of the segments are well distributed around a receiver and one of them is located on the zenith of the receiver [ 24 ] .
+applying a virtual measurement of a ground reference station to the re - estimation renders the geometry for re - estimation similar to a good dop configuration in the inverse direction .
+this results in the mitigation of the error ellipse forming in the vertical direction , and the accuracy can thus be improved .
+in the enhanced algorithm , whether to perform a re - estimation or not is determined for preventing an increase in the position error .
+thus , there is no large enhancement in the center of the segment disposition , because the re - estimation is not conducted in the vicinity of the center , where the dop is already good and a high accuracy level is guaranteed .
+4.2.4 .
+performance evaluation for case ii when the received navigation signals for user positioning are insufficient , the enhanced algorithm uses the measurement of direct signals , which are received from the reference stations .
+however , the direct signal measurements include large errors , which result from the multipath effect and tropospheric delay , and the user positioning accuracy is affected by the geometry of the reference stations of the added direct signals .
+thus , we evaluated the performance of the user for case ii. in the simulations , we assumed that the user received three relayed navigation signals from near airborne relays .
+therefore , the number of added direct signal measurements for user positioning is one , considering the minimum positioning requirement , and it is received from the nearest reference station .
+figure 8 shows the enu errors of the user located at ( 100,000 , 100,000 , 10 ) , where it is outside the coverage of an airborne relay , and the effect of re - estimation on the accuracy is analyzed .
+the results demonstrate that large errors occurred in the user positioning as compared to the results for case i , which are estimated based on airborne relays .
+this is because the user position is estimated using the measurements of airborne relays and a reference station that are close together , and the measurement error of the direct signals is large .
+furthermore , the re - estimation error is increased .
+the re - estimation is performed using a virtual measurement , which is calculated based on the estimated initial user position in the second step .
+therefore , the re - estimation error is amplified by the large initial error in the user positioning in case ii. for this reason , the user does not re - estimate its position in case ii. figure 9 shows a comparison of the user positioning accuracy according to the distance from the center of the segments' disposition .
+in this simulation , we deemed that the user cannot receive relayed signals from one of the airborne relays because of the coverage restriction if the user is at a distance greater than 105 km from the center .
+as confirmed by the previous results , the enhanced algorithm improves the accuracy of user .
+moreover , when the user is outside the coverage area of some airborne relays , positioning is available by integrating the direct measurements of the reference stations , although the error is increased because of poor geometry and measurement errors .
+in contrast , the existing algorithm , which uses only the relayed signals for positioning , cannot estimate the user position in areas not covered by the airborne relay .
+5. conclusions the arps resolves the problems of pseudolite - based positioning systems , such as poor vertical observability , multipath effect and monitoring delay , by employing a navigation signal relay and a two - step positioning algorithm .
+however , the limitations of the conventional arps method include the relatively large vertical error and the restriction of positioning when relayed signals are blocked and absent .
+the causes of these limitations are that the user position is estimated based on airborne relays that are located in one direction with respect to the user and that the positioning is processed using only relayed signals .
+to enhance the user accuracy and positioning possibility , we have proposed an enhanced positioning algorithm .
+in the enhanced algorithm , the user re - estimates its own position using virtual measurements , as well as the relayed signal measurements .
+the re - estimation accuracy may be degraded because of a virtual measurement error and the influence of the geometry of the reference station .
+therefore , the user compares the expected position error by multiplying the dop by the ure before re - estimation in order to decide whether to re - estimate or not .
+furthermore , if the navigation signals are insufficient , the user derives a navigation equation for user positioning by adding the direct signal measurements of near reference stations .
+to evaluate the enhanced algorithm , various simulations were performed using matlab .
+the simulation results confirmed that the vertical accuracy is improved , and a relatively uniform accuracy is provided in the service area by diversifying the reference points of positioning .
+moreover , a user that does not receive sufficient relayed navigation signals can estimate its own position .
+finally , the enhanced algorithm can improve the accuracy and expand the service area of the system without the additional configuration of segments and augmentation data using structural characteristics .
+acknowledgments this work was supported by the national research foundation of korea ( nrf ) grant funded by the korea government ( msip ) ( no. 2016r1a2a1a05005541 ) .
+author contributions kyuman lee designed the positioning algorithm and performed the simulations .
+hoki baek and jaesung lim contributed to the discussion of the results and gave keen insight to this manuscript .
+conflicts of interest the authors declare no conflict of interest .
+references 1 .
+wang s. min j. yi b. location based services for mobiles : technologies and standards proceedings of the 2008 ieee internation conference on communication ( icc2008 ) beijing , china 19 - 23 may 2008 35 38 2 .
+li x. zhang x. ren x. fritsche m. wickert j. schuh h. precise positioning with current multi - constellation global navigation satellite systems : gps , glonass , galileo and beidou sci. rep .
+2015 5 10.1038 / srep08328 25659949 3 .
+gps world gnss vulnerability and alternative pnt gps world 2010 21 38 39 4 .
+wang j. pseudolite applications in positioning and navigation : progress and problems j. glob .
+position syst .
+2002 1 48 56 10.5081 / jgps.1.1.48 5 .
+dai l. wang j. tsujii t. rizos c. inverted pseudolite positioning and some applications surv. rev .
+2002 36 602 611 10.1179 / sre.2002.36.286.602 6 .
+barnes j. rizos c. wang j. small d. voigt g. gambale n. locata : a new positioning technology for high precision indoor and outdoor positioning proceedings of the 16th international technical meeting of the satellite division of the institute of navigation ( ion gps / gnss 2003 ) portland , or , usa 9 - 12 september 2003 1119 1128 7 .
+noronha j. jovancevic a. bhatia n. sirpatil b. kirchner m. saxena d. field test results of a flexible pseudolite based navigation system proceedings of the 19th international technical meeting of the satellite division of the institute of navigation ( ion gnss 2006 ) fort worth , tx , usa 26 - 29 september 2006 102 113 8 .
+jang j. ahn w. seo s. lee j. park j. flight test result for the ground - based radio navigation system sensor with an unmanned air vehicle sensors 2015 15 28472 28489 10.3390 / s151128472 26569251 9 .
+tsujii t. rizos c. wang j. dai l. roberts c. harigae m. a navigation / positioning service based on pseudolites installed on stratospheric airships proceedings of the 5th international symposium on satellite navigation technology & applications canberra , australia 24 - 27 july 2001 24 27 10 .
+chandu b. pant r. moudgalya k. modeling and simulation of a precision navigation system using pseudolites mounted on airships proceedings of the 7th aviation technology , integration , and operations ( atio ) conferences belfast , northern ireland , uk 18 - 20 september 2007 11 .
+park b. kim d. lee t. kee c. paik b. lee k. a feasibility study on a regional navigation transceiver system j. navig .
+2008 61 177 194 10.1017 / s0373463307004481 12 .
+tiwary k. behera s. sharada g. singh a. modelling and simulation of pseudolite - based navigation : a gps - independent radio navigation system def. sci. j. 2010 60 541 550 10.14429 / dsj.60.577 13 .
+tuohino j. farley m. james r. military pseudolite flight test results proceedings of the 13th international technical meeting of the satellite division of the institute of navigation ( ion gps 2000 ) salt lake city , ut , usa 19 - 22 september 2000 2079 2088 14 .
+sultana q. sarma a. kumar a. malik m. enhancement of dop in stratolite - based navigation systems iete j. res .
+2012 58 476 482 10.4103 / 0377 - 2063.106755 15 .
+lee k. noh h. lim j. airborne relay - based regional positioning system sensors 2015 15 12682 12699 10.3390 / s150612682 26029953 16 .
+marquardt d. an algorithm for least - squares estimation of nonlinear parameters j. soc. ind. appl. math .
+1963 11 431 441 10.1137 / 0111030 17 .
+mcgraw a. murphy t. brenner m. pullen s. van dierendonck a. development of the laas accuracy models proceedings of the 13th international technical meeting of the satellite division of the institute of navigation ( ion gps 2000 ) salt lake city , ut , usa 19 - 22 september 2000 1212 1223 18 .
+misra p. enge p. global positioning system : signals , measurements and performance 2nd ed. ganga - jamuna press lincoln , ma , usa 2006 19 .
+ho k.c. chan y.t. solution and performance analysis of geolocation by tdoa ieee trans. aerosp. elecron. syst .
+1993 29 1311 1322 10.1109 / 7.259534 20 .
+wang j.j. wang j. sinclair d. lee h. tropospheric delay estimation for pseudolite positioning j. glob .
+position syst .
+2005 4 106 112 10.5081 / jgps.4.1.106 21 .
+satnav toolbox 3.0 for matlab available online : http :// gpsoftnav.com / products / satellite - navigation - satnav - toolbox - 3 - 0 / ( accessed on 27 april 2016 ) 22 .
+zappavigna a. galileo phase b2c uere budget results european space agency paris , france 2002 23 .
+kaplan e. hegarty c. understanding gps : principles and applications 2nd ed. artech house norwood , ma , usa 2005 24 .
+dai l. wang j. tsujii t. rizos c. pseudolite applications in positioning and navigation : modelling and geometric analysis proceedings of the international symposium on kinematic systems in geodesy , geomatics & navigation banff , ab , canada 5 - 8 june 2001 482 489 figure 1 configuration of the airborne relay - based positioning system .
+figure 2 positioning procedures of the enhanced algorithm .
+figure 3 time difference of arrival for each step .
+figure 4 segment disposition for simulations .
+figure 5 re - estimation errors of the user for direct and virtual measurements .
+( a ) results for direct measurement ; ( b ) results for virtual measurement .
+figure 6 user accuracy according to the number of virtual measurements .
+figure 7 horizontal and vertical accuracies of the user in a service area .
+( a ) existing algorithm ; ( b ) enhanced algorithm .
+figure 8 east , north and up ( enu ) errors of the user positioning outside a coverage area .
+( a ) user position in the simulation ; ( b ) enu errors of a user .
+figure 9 horizontal and vertical accuracy according to the distance from the center .
+sensors - 16 - 01284 - t001 _ table 1 table 1 main notations for the mathematical expressions .
+variable description eairj unit vector from the i - th airborne relay to the j - th reference station euai unit vector from the i - th airborne relay to the user rai position vector of the i - th airborne relay rrj position vector of the j - th reference station ru initial user position vector ru ' final user position vector trj,ai measured reception time of the relayed signal by the i - th airborne relay from the j - th reference station to the user trj measured reception time of direct signal from the j - th reference station to the user rhourj measured pseudorange between the j - th reference station and the user rhouai estimated pseudorange between the i - th airborne relay and the user | rrk - rai | est estimated distance between the k - th reference station and the i - th airborne relay | rrj - ru | est estimated virtual pseudorange between the j - th reference station and the estimated initial user sensors - 16 - 01284 - t002 _ table 2 table 2 pdop in accordance with the position of the reference station .
+distance from a user near < - - - - - - - - - - - - - - - - - - > far good geometry 2.1087 2.2264 2.2565 2.2451 2.2304 2.2105 ( 10,000 , 10,000 , 10 ) poor geometry 4.8424 4.9252 5.6364 5.6731 5.7758 5.9863 ( 60,000 , 60,000 , 10 )

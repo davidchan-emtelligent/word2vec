@@ -1,0 +1,389 @@
+plos one plos one plos plosone plos one 1932 - 6203 public library of science san francisco , ca usa 27855179 5113901 pone - d - 16 - 19318 10.1371 / journal.pone.0164383 research articleresearch and analysis methodsdatabase and informatics methodsinformation retrievalbiology and life sciencesneurosciencecognitive sciencecognitive psychologylanguagebiology and life sciencespsychologycognitive psychologylanguagesocial sciencespsychologycognitive psychologylanguageengineering and technologymanagement engineeringdecision analysisdecision treesresearch and analysis methodsdecision analysisdecision treesbiology and life sciencesorganismsanimalsvertebratesamniotesbirdsseabirdspenguinsphysical sciencesmathematicsapplied mathematicsalgorithmsmachine learning algorithmsresearch and analysis methodssimulation and modelingalgorithmsmachine learning algorithmsbiology and life sciencesneurosciencecognitive scienceartificial intelligencemachine learningmachine learning algorithmscomputer and information sciencesartificial intelligencemachine learningmachine learning algorithmsphysical sciencesmathematicsapplied mathematicsalgorithmsresearch and analysis methodssimulation and modelingalgorithmsbiology and life sciencesneurosciencecognitive scienceartificial intelligencemachine learningcomputer and information sciencesartificial intelligencemachine learningbiology and life sciencesneurosciencecognitive scienceartificial intelligencemachine learningsupport vector machinescomputer and information sciencesartificial intelligencemachine learningsupport vector machines analysis of web spam for non - english content : toward more effective language - based classifiers toward more effective language - based classifiers alsaleh mansour * alarifi abdulrahman king abdulaziz city for science and technology ( kacst ) , riyadh , saudi arabia khan muhammad khurram editor king saud university , saudi arabia competing interests : the authors have declared that no competing interests exist .
+conceptualization : ma aa. data curation : ma aa. formal analysis : ma aa. funding acquisition : ma aa. investigation : ma aa. methodology : ma aa. project administration : ma aa. resources : ma aa. software : aa. supervision : ma aa. validation : ma. visualization : ma aa. writing - original draft : ma aa. writing - review & editing : ma aa .
+* e - mail : maalsaleh @ kacst.edu.sa 2016 17 11 2016 11 11 e0164383 3 6 2016 23 9 2016 ( c ) 2016 alsaleh , alarifi 2016 alsaleh , alarifithis is an open access article distributed under the terms of the creative commons attribution license , which permits unrestricted use , distribution , and reproduction in any medium , provided the original author and source are credited .
+web spammers aim to obtain higher ranks for their web pages by including spam contents that deceive search engines in order to include their pages in search results even when they are not related to the search terms .
+search engines continue to develop new web spam detection mechanisms , but spammers also aim to improve their tools to evade detection .
+in this study , we first explore the effect of the page language on spam detection features and we demonstrate how the best set of detection features varies according to the page language .
+we also study the performance of google penguin , a newly developed anti - web spamming technique for their search engine .
+using spam pages in arabic as a case study , we show that unlike similar english pages , google anti - spamming techniques are ineffective against a high proportion of arabic spam pages .
+we then explore multiple detection features for spam pages to identify an appropriate set of features that yields a high detection accuracy compared with the integrated google penguin technique .
+in order to build and evaluate our classifier , as well as to help researchers to conduct consistent measurement studies , we collected and manually labeled a corpus of arabic web pages , including both benign and spam pages .
+furthermore , we developed a browser plug - in that utilizes our classifier to warn users about spam pages after clicking on a url and by filtering out search engine results .
+using google penguin as a benchmark , we provide an illustrative example to show that language - based web spam classifiers are more effective for capturing spam contents .
+this work is supported by king abdulaziz city for science and technology ( kacst ). data availabilitydata are owned by heider wahsheh ( heider.wahsheh @ unive.it ) .
+the datasets used in this study are : http :// chato.cl / webspam / datasets / uk2007 / https :// docs.google.com / viewer ? a = v & pid = sites & srcid = zgvmyxvsdgrvbwfpbnxozwlkzxjhd2foc2hlahxnedo1odm2zdhhnjdizti0ywvjhttps :// docs.google.com / viewer ? a = v & pid = sites & srcid = zgvmyxvsdgrvbwfpbnxozwlkzxjhd2foc2hlahxnedo2mmzkzmflytzlnmmyogi1 .
+data availability data are owned by heider wahsheh ( heider.wahsheh @ unive.it ) .
+the datasets used in this study are : http :// chato.cl / webspam / datasets / uk2007 / https :// docs.google.com / viewer ? a = v & pid = sites & srcid = zgvmyxvsdgrvbwfpbnxozwlkzxjhd2foc2hlahxnedo1odm2zdhhnjdizti0ywvjhttps :// docs.google.com / viewer ? a = v & pid = sites & srcid = zgvmyxvsdgrvbwfpbnxozwlkzxjhd2foc2hlahxnedo2mmzkzmflytzlnmmyogi1 .
+1 introduction web spamming ( or spamdexing ) is a process for illegitimately increasing the search rank of a web page with the aim of attracting more users to visit the target page by injecting synthetic content into the page [ 1 , 2 ] .
+web spamming can degrade the accuracy of search engines greatly if this content is not detected and filtered out from the search results [ 3 - 5 ] .
+in general , spammers aim to illegally enhance the search engine ranks of their spam pages , which might lead to user frustration , information pollution , and distortion of the search results , thereby affecting the entire information search process .
+black hat search engine optimization ( seo ) techniques are generally used to create web spam pages .
+for example , in content - based web spamming , spammers stuff spam keywords into the target page by listing them in the html tags ( e.g. , meta tags ) or by using an invisible font .
+in addition , scraper techniques are used where the spam content is simply a replica of another popular site [ 6 - 8 ] .
+these deception techniques are refused by search engines because they can lead to misleading search results [ 9 ] .
+some web ranking algorithms give higher ranks to pages that can be reached from other web pages that are highly ranked , so the black hat seo method exploits this feature to increase the ranks of spam pages [ 5 , 10 - 13 ] .
+for example , in the cookie stuffing method , the user 's browser receives a third - party cookie after visiting a spam page with an affiliate site so the cookie stuffer is credited with a commission after visiting the affiliate site and completing a particular qualifying transaction .
+moreover , by utilizing a page cloaking mechanism , a search engine crawler can receive different content from the spam page compared with that displayed on the end - user 's browser , where the aim is delivering advertisements or malicious content to the user , which is partially or completely irrelevant to that searched for by the user .
+another link - based tactic is link farms where a set of pages are linked with each other .
+site mirroring is another black hat seo method , which exploits the fact that many search engines grant higher ranks to pages that contain search keywords in the url .
+thus , spammers can create multiple sites with various urls but similar content .
+further , web spammers can create pages that redirect the user 's browser to a different page that contains the spam content in order to evade detection by search engines [ 10 ] .
+existing web spam detection approaches use link ( e.g. , [ 14 ]) and content ( e.g. , [ 1 , 15 - 18 ]) information to capture spam pages .
+for example , facebook and twitter filter out messages containing known spam content so they are not posted [ 19 , 20 ] .
+due to the success of email anti - spam tools based on machine learning , we consider that these techniques might also be effective for detecting web spamming .
+typically , high detection accuracy and a low false positive rate are the main properties required for detection tools based on machine learning methods .
+this is particularly important for detecting spam pages and ensuring that benign web sites are not penalized .
+search engines enhance their anti - spamming techniques continuously .
+for example , google developed their latest algorithm ( called penguin ) in 2012 and they have continued updating it to lower the search engine ranks of web sites that use black hat seo or that violate google webmaster guidelines [ 21 , 22 ] .
+google 's latest web spam report urges publishers to verify the contents of their pages via the search console .
+in fact , google sent over 4.3 million emails to webmasters during 2015 alone to warn them of identified spam - like content and to give them a chance of reconsideration [ 23 ] .
+the effectiveness of the google penguin algorithm is affected by the text language used in the page examined [ 24 ] .
+several web spam detection features have been proposed but to the best of our knowledge , the effect of the language on these detection features has not been examined previously .
+in addition , to the best of our knowledge , the performance of the google penguin algorithm at detecting web spam pages that contain text in languages other than english has not been evaluated .
+this study significantly extends our earlier conference paper [ 25 , 26 ] , where the data set is expanded and updated , a new release of google penguin is explored , new spamming detection algorithms are introduced , and their results are presented .
+this study makes the following main contributions .
+effects of language on the detection of web spam .
+we conducted several experiments to study how the page language affects the detection accuracy and false positive rate , as well as showing how and why the distribution of selected detection features differ according to a given page language .
+we used english and arabic as languages in case studies .
+collecting an arabic web spam data set .
+we collected and manually labeled a corpus containing both benign and spam pages with arabic content .
+we used this corpus to evaluate our proposed machine learning - based classifier and we have also made the corpus available for use by the research community in this domain .
+analysis of detection features and development of a novel classifier .
+using arabic pages in a case study , we showed how to identify a set of web spam detection features with satisfactory detection accuracy .
+employing supervised machine learning techniques , we then built a classifier for detecting web pages that contain spam content and showed that it yielded better accuracy compared with the google penguin algorithm .
+construction of a browser anti - web spam plug - in. using our proposed classifier , we developed a browser plug - in to warn the user before accessing web spam pages ( i.e. , after clicking on a link from the search results ) .
+the plug - in is also capable of filtering out spam pages from the search engine results .
+the remainder of this paper is organized as follows .
+section 2 presents our analysis of how the page language affects the detection rate for web spam using a set of classifiers .
+section 3 describes the collection and labeling process for our data set .
+section 4 illustrates our system architecture and design .
+section 5 explains the feature extraction and selection process .
+section 6 presents the proposed classifier and evaluations of its accuracy .
+section 7 discusses the meaning and implications of our main findings , and section 8 presents related research .
+finally , we give our conclusions in section 9 .
+2 effects of the page language 2.1 data sets two web spam data sets were used in this study .
+first , we used uk - 2011 [ 27 ] , which is a subset of the webspam - uk2007 data set [ 28 ] .
+the uk - 2011 data set was labeled by volunteers and each page is flagged as either " spam " or " non - spam. " second , we used an extended arabic web spam data set [ 29 ] , which included spam and non - spam arabic pages ( this data set was collected and labeled during the period from april 2011 to august 2011 ) .
+we used wahsheh 's web spam detection features [ 30 ] ( see table 1 ) .
+we employed the j48 classifier , which is a weka ( version 3.7.6 ) implementation of the c4.5 decision tree classifier ( decision trees are statistical machine learning algorithms that utilize a greedy top - down process to select attributes at selected nodes in the tree and divide the samples into subsets based on the values of these attributes ) .
+cross - validation , a model evaluation method used to improve how a classifier generalizes to an independent data set , was used to ensure that each instance in the data set had an equal probability of appearing in either the training or testing sets .
+we performed a 10 - fold cross - validation and we divided the data set into 10 chunks for training 10 times , where a different chunk was used as the testing set each time .
+for the decision tree classifier , the issue of overfitting was addressed by using a pruning technique , where the less significant tree nodes for classifying the data set instances were removed from the tree ( we set the minimum number of instances to two ) .
+10.1371 / journal.pone.0164383.t001 table 1 feature descriptions used in our study for the effects of the page language on the spam detection rate .
+note that the numbers are per page .
+feature no. feature description 1 existing amount of visible and clickable text in a hyperlink ( i.e. , anchor text ) 2 number of words 3 average word length 4 number of words in the title elements ( because spammers tend to use unrelated characters to enhance the page rank 5 page compression rate 6 number of unique words 7 number of characters in the meta - element ( because spammers tend to utilize keyword stuffing to enhance the page rank ) 8 number of words in the meta element ( because spammers tend to utilize keyword stuffing to enhance the page rank ) 9 longest word ( because spammers tend to utilize long words to increase the page rank ) 10 shortest word ( because spammers tend to utilize long words to increase the page rank ) 11 number of images 2.2 results and analysis we started our analysis by studying the selected detection features in both data sets .
+fig 1 shows the probability density function ( pdf ) for different features in both data sets .
+a random sample of 1,500 web pages was used to determine the figure visibility ( compared with 3,688 pages in data set ( 1 ) and 9,988 in data set ( 2 )) .
+according to the cumulative distribution function ( cdf ) for feature 2 in fig 1a , almost 60 % of the arabic non - spam pages contained less than 270 words in their pages , whereas less than 15 % of arabic spam pages had less than 270 words .
+the figure shows that arabic spam pages tended to have more words in their pages compared with arabic non - spam pages .
+in addition , the cdfs for the number of words in arabic non - spam pages and english pages were very similar .
+the same observation can be made based on fig 1b and 1c , but there was more variation among them .
+in fact , most of the features exhibited greater variation between spam and non - spam pages in the arabic data set compared with the uk data set .
+furthermore , fig 1b shows that arabic spam pages tended to have shorter word lengths , where almost 80 % of the arabic spam pages had an average word length of six characters , whereas only 40 % of the arabic non - spam pages had an average word length of six characters .
+in terms of the number of characters per meta - element , as shown in fig 1c , arabic spam pages usually had more characters ( 80 % had more than 400 characters ) compared with arabic non - spam pages ( 20 % had more than 400 characters ) .
+furthermore , fig 1d shows that arabic pages usually had more images in their pages compared with english pages , particularly in spam pages .
+10.1371 / journal.pone.0164383.g001 fig 1 cumulative distribution function ( cdf ) for different features in both data sets .
+first , we used all 11 detection features to build the classifiers .
+most of the arabic web spam pages used more obvious spamming tactics compared with those in english , so the dr for english spam pages was lower than that for those in arabic .
+we then selected different sets of features using the following feature selection algorithms implemented in weka : cfssubseteval , principalcomponents , consistencysubseteval , and filteredsubseteval .
+brief descriptions of these algorithms and the results obtained from their execution are shown in table 2 .
+the cfssubseteval algorithm considers the individual predictive ability of every feature as well as the features' degree of redundancy in order to evaluate the value of a subset of features .
+principalcomponents performs principal components analysis and transforms the data .
+based on the results obtained by these algorithms , we selected the following sets as training scenarios for the classifier : 1,5,7,11 , 1,5,8,9 , 1,5,7,10,11 , and all 11 features .
+10.1371 / journal.pone.0164383.t002 table 2 results obtained after applying the feature selection algorithms to both data sets .
+attribute evaluator search method selected features arabic data set english data set cfssubseteval greedystepwise 1,5,7,10,11 1,2,3,5,6,7,8,11 principalcomponents ranker 1,2,3,4,5,6,7,8,9 1,2,3,4,5,6,7,8 consistencysubseteval greedystepwise 1,5,8,9 1,2,3,5,6,8,9,11 filteredsubseteval greedystepwise 1,5,7,11 1,2,3,5,6,7,8,11 tables 3 and 4 show the performance of each set of features using the classifiers described above , the performance measurement indices mentioned in table 5 , and the confusion matrix obtained by the classifier .
+10.1371 / journal.pone.0164383.t003 table 3 performance of the decision tree classifier using different sets of features ( where s = spam and ns = non - spam ) .
+data set set of features dr er tp fp precision recall f - measure s ns s ns s ns s ns s ns english 1,5,7,11 77.22 22.78 0.79 0.75 0.25 0.21 0.78 0.76 0.79 0.75 0.79 0.76 1,5,8,9 79.74 20.26 0.81 0.78 0.22 0.19 0.81 0.79 0.81 0.78 0.81 0.78 1,5,7,10,11 78.41 21.59 0.8 0.77 0.24 0.20 0.79 0.77 0.80 0.77 0.80 0.77 all 11 features 88.13 11.87 0.89 0.87 0.13 0.11 0.88 0.88 0.89 0.87 0.89 0.87 arabic 1,5,7,11 99.52 0.48 1 0.99 0.01 0 0.99 1 1 0.99 1 1 1,5,8,9 99.23 0.77 0.99 0.99 0.01 0.01 0.99 0.99 0.99 0.99 0.99 0.99 1,5,7,10,11 99.52 0.48 1 0.99 0.01 0 0.99 1 1 0.99 1 1 all 11 features 99.21 0.79 0.99 0.99 0.01 0.01 0.99 0.99 0.99 0.99 0.99 0.99 10.1371 / journal.pone.0164383.t004 table 4 confusion matrix obtained by the decision tree classifier using different sets of features ( where s = spam , ns = non - spam ) .
+data set set of features s ns s ns s ns english 1,5,7,11 79.03 20.97 24.83 75.17 1,5,8,9 81.43 18.57 22.17 77.83 1,5,7,10,11 80.08 19.92 23.47 76.53 all 11 features 89.34 10.66 13.24 86.76 arabic 1,5,7,11 99.7 0.3 0.66 99.34 1,5,8,9 99.28 00.72 0.82 99.18 1,5,7,10,11 99.7 0.3 0.66 99.34 all 11 features 99.44 0.56 1.02 98.98 10.1371 / journal.pone.0164383.t005 table 5 performance measurement indices .
+measurement indices description detection rate ( dr ) ratio of the number of correctly classified samples relative to the total number of samples .
+error rate ( er ) ratio of the number of incorrectly classified samples relative to the total number of samples .
+true positive ( tp ) for class x ratio of the number of correctly classified samples in class x relative to the total number of samples .
+false positive ( fp ) for class x ratio of the number of incorrectly classified samples in class x relative to the total number of samples .
+precision for class x ratio of the number of correctly flagged samples in class x relative to the total number of samples in class x. recall for class x ratio of the number of correctly flagged samples in class x relative to the total number of correctly classified samples .
+f - measure for class x the harmonic mean of precision and recall for class x .
+2.3 limitations in existing data sets we found that the distributions of a selected set of features varied according to the underlying language used in the page examined .
+in addition , for both data sets , the results obtained by the classifiers showed that only a few common features yielded similar results .
+however , the significance of several of the remaining features varied according to the language used in the page examined .
+the effect of language was due partly to the use of a similar set of web spamming techniques for a given language .
+it is important to note that these data sets are fairly old and they do not represent the current techniques of new spammers .
+in addition , given that the original contents of the web pages of the two data sets were not available , we could not examine other spam detection features ( i.e. , other than those of the 11 features provided within the two data sets ) .
+furthermore , the method used to collect the web pages in these data sets did not consider specific search engines as the main goal of spammers in order to obtain higher ranks for their web pages in the search engine results and increase the number of hits .
+to overcome these limitations , we decided that a new data set must be collected carefully and made available .
+3 building an arabic web spam corpus in order to overcome the limitations described in the previous section , we followed a three - step process to collect a data set of arabic pages , including both benign and spam web pages .
+first , we collected the top arabic search keywords for the period from january 2004 to october 2012 on the google trends website .
+we then queried the google search engine using the collected search keywords .
+the urls of the top 50 result pages for each search keyword were then stored , thereby obtaining a total of 8,168 distinct domain names .
+fig 2 shows the percentages of the urls collected for each category in google trends .
+we note that the number of search keywords in a given category affected the corresponding percentage .
+10.1371 / journal.pone.0164383.g002 fig 2 percentages of the collected urls in each google trends category .
+we identified multiple types of pages with malware and phishing content , where each url was examined using six security scanners ( these scanners were provided by selected antivirus vendors ) : 1 ) sucuri sitecheck scanner ; 2 ) mcafee siteadvisor scanner ; 3 ) google safe browsing scanner ; 4 ) norton scanner ; and 5 ) sophos scanner ( with yandex ranking ) .
+the scanners examined every visible web page in the entire domain of a given url .
+this scanning process was beneficial for studying the relationships between existing vulnerabilities , malicious content , and web spam [ 31 ] .
+the scanning results were then stored into a database ( see fig 3 ) .
+10.1371 / journal.pone.0164383.g003 fig 3 process flow employed for collecting and building our web spam corpus .
+finally , the urls were labeled manually by several raters .
+each link was classified into one of four categories : i ) spam class ; ii ) borderline class ; iii ) benign class ; and iv ) unknown class .
+the raters were given a set of guidelines for labeling web spam pages ( e.g. , see [ 32 ]) .
+a web application was utilized by the raters to view and rate the data set 's links so every link was classified by at least one rater .
+fig 4a shows the distribution of classes ( i.e. , non - spam , borderline , and spam ) according to the raters .
+it should be noted that almost 26 % of the google search results were flagged as either the spam class ( 10 %) or borderline class ( 16 %) , although the new update to the penguin algorithm has been in place for several months .
+10.1371 / journal.pone.0164383.g004 fig 4 distribution of the url categories in the data set .
+many spammers aim to compromise the machines of users and there was a clear correlation between spamming and the existence of web vulnerabilities , as shown in fig 4b and 4c .
+we note that 15 % of the positive urls results obtained from the sucuri scanner ( i.e. , containing malware and flagged as malicious ) were manually labeled as spam , whereas 9 % of the negative web pages were labeled as spam .
+similarly , the percentage of urls flagged as borderline represented ( 1 ) 13 % of the sucuri scanner - negative urls and ( 2 ) 30 % of the sucuri scanner - positive urls .
+however , the percentage of non - spam urls represented more than 78 % of the negative urls and 55 % of the positive urls .
+similar observations can be made for the sites scanned by the mcafee tool , as shown in fig 4c , which indicates that spamming seems to be a preferred tool for attackers .
+fig 5a , 5b and 5c illustrate the distributions of our three classes among google trends categories .
+the distribution is divided into two sets : malicious and benign , as found in the url classification by the sucuri scanner .
+the arts & entertainment , beauty & fitness , and online communities categories were most common for web spammers .
+furthermore , we note that the numbers of positive and negative urls according to the sucuri scanner were proportional to those in the spam and borderline classes , unlike the non - spam category class .
+10.1371 / journal.pone.0164383.g005 fig 5 distribution of positive and negative urls for different manually labeled categories .
+4 system architecture and design the system comprises two major components : ( i ) a back - end server and ( ii ) a browser plug - in. the plug - in represents the connection between the back - end server and the browser ( see fig 6 ) .
+after the browser plug - in captures the url ( either clicked on or entered in the web browser address bar by the user ) , the url is sent by the plug - in to the back - end server , which then extracts the values of the detection features from the url and flags it as either benign or spam .
+10.1371 / journal.pone.0164383.g006 fig 6 system sequence diagram .
+the page will be blocked by the plug - in if it is flagged as a spam page and it will display a pop - up dialog box to warn the user of spam content .
+the user has the option to proceed and browse the spam page .
+the plug - in maintains a cache with a blacklist and whitelist , so only new urls are examined by the back - end server .
+a database containing all the requests received from the plug - ins is also maintained by the back - end server , which serves as a local cache lookup mechanism to speed up the retrieval process .
+the plug - in was implemented for the chrome browser using standard web techniques , such as html , css , and javascript , and javascript object notation ( json ) is used for lightweight data interchange with the browser and the back - end server .
+the back - end server uses apache tomcat as a web server , mysql as a database server , and javaserver pages ( jsp ) as a server - side programming technology .
+in the back - end server , jsoup is used as a java library to deal with html and xml document parsing and feature extraction .
+most computations are performed on the server side , which maintains a cache containing both the blacklist and whitelist , so the waiting time tends to be very short compared with the loading time for the pages examined .
+furthermore , the back - end server can easily be scaled up or down to serve the number of requests .
+the back - end server can also be used to collect crash reports from the plug - in , which may help to improve new releases .
+5 feature selection and extraction feature selection and extraction are crucial steps in the construction of a classifier .
+several previous studies have proposed the detection of features that minimize the intra - class variability and maximize the inter - class variability ( e.g. , [ 33 - 38 ]) .
+in general , the use of raw data for classification leads to classifiers with complex structures , thereby resulting in poor performance .
+in addition to some known features from previous studies , we propose novel detection features that have not been used before to the best of our knowledge , as shown in table 6 .
+we calculated the cdf for the second feature in fig 7a , the fifth feature in fig 7b , the sixth feature in fig 7c , and feature 7 in fig 7d , thereby helping us to understand the nature of each feature , and thus the contribution of the features to the classifier 's accuracy .
+10.1371 / journal.pone.0164383.t006 table 6 descriptions of the detection features .
+feature no. feature name description return value time comp .
+1 hidden iframes number of inline frames used to embed other documents within the current html document integer o ( n ) 2 number links number of hyperlinks integer o ( n ) 3 doorway pages indicates whether the page redirects visitors without their knowledge boolean o ( n ) 4 meta refresh indicates whether the page contains meta - refresh , which is used to automatically refresh the page after a given time interval and redirect it boolean o ( n ) 5 meta tag number of meta tags comprising part of the page 's header and that provide metadata about the page integer o ( n ) 6 word _ stuffing _ n number of unique words from google trends in the page integer o ( n2 ) 7 word _ stuffing _ r number of repeated words from google trends in the page integer o ( n2 ) 10.1371 / journal.pone.0164383.g007 fig 7 cumulative distribution function ( cdf ) for features 2 , 5 , 6 , and 7 in the spam , borderline , and non - spam categories .
+as shown in fig 7a , 70 % of the web spam and borderline pages had <= 18 links , whereas the benign pages had <= 10 links .
+fig 7b shows that 90 % of the benign web pages had <= 8 meta tags compared with <= 37 meta tags in the borderline and spam pages .
+similarly , fig 7c and 7d show clearly that for features 6 and 7 , the benign web pages were sufficiently easy to distinguish from both borderline and spam web pages .
+for instance , 90 % of the benign pages had 12 unique words from google trends compared with 25 - 30 words in both the borderline and spam pages .
+furthermore , 90 % of the benign web pages had 70 repeated words from google trends compared with 170 - 230 words in both the borderline and spam web pages .
+features 6 and 7 were actually critical for distinguishing between spam and borderline urls .
+in almost 50 % of cases , the borderline and spam web pages differed from each other by 50 - 60 words ( see fig 7d ) .
+we also calculated the pdf for the same features , as shown in fig 8 .
+10.1371 / journal.pone.0164383.g008 fig 8 probability density function ( pdf ) for features 2 , 5 , 6 , and 7 in the spam , borderline , and non - spam categories .
+fig 9a shows that 6 % of the spam pages had one hidden iframe , whereas this was the case for only 2 % of the borderline and benign pages .
+it should be noted that although some detection features might not prove useful in isolation , employing multiple features for detection could result in better detection performance when distinguishing between benign and spam pages because these features may complement each other ( see fig 9b and 9c ) .
+10.1371 / journal.pone.0164383.g009 fig 9 distributions of features 1 , 3 , and 4 in the spam , borderline , and non - spam categories .
+fig 10 shows the pdfs for some selected combinations of detection features where the difference between non - spam and spam pages was significant .
+in fig 10a , we note that there is one obvious peak where the pdf for the non - spam pages was much greater than that for the spam pages ( the x - axis represents feature f2 and the y - axis represents feature f5 , as in table 6 ; the non - spam class is shown in red and the spam class in green ) .
+fig 10b shows the delta values ( i.e. , | pn - ps |( f2 , f5 )) .
+similarly , in fig 10c , when the values of features f2 and f6 were relatively small , there was a clear peak where the pdf for the non - spam pages was greater than that for the spam pages .
+fig 10d shows the delta values ( i.e. , | pn - ps |( f2 , f6 )) .
+similar observations can be made based on fig 10e and 10f .
+10.1371 / journal.pone.0164383.g010 fig 10 probability density functions pn and ps for different combinations of features , where n denotes non - spam pages ( in red ) and s denotes spam pages ( in green ) .
+6 classification and evaluation we tested four machine learning algorithms by using multiple variations to build our classifier , as follows .
+first , we tested decision trees ( c4.5 , logistic model tree , random forest , and logitboost ) .
+second , we tested bayes network , which is a probabilistic graphical model that represents the relationships and conditional dependencies between a set of random variables using a graphical model .
+third , we tested a support vector machine ( svm ) , a statistical - based algorithm that separates classification classes using a set of hyperplanes .
+fourth , we tested a multilayer neural network , which comprises a set of interconnected processing units ( the weights of these interconnections are calibrated during the training phase to obtain the required knowledge ) .
+understanding the similarity between spam and borderline web pages is important for the prior training of classification models ( see section 5 ) .
+to build our classifiers , we considered the following scenarios : ( i ) two - class classification with only two classes : class 1 for spam and borderline web pages , and class 2 for benign pages ; and ( ii ) three - class classification where we had three classes : spam pages , borderline pages , and benign pages .
+the classifiers were configured using weka ( version 3.7.6 ) for both scenarios [ 39 ] .
+the parameters settings for the three algorithms are shown in table 7 .
+we performed 10 - fold cross - validations for each of the classifiers by using a subset of the observations to establish the classifier and to identify whether the classifier correctly flagged the eliminated observations .
+to address the overfitting problem for the decision tree classifier , we utilized a pruning technique to reduce the size of the tree by eliminating tree nodes with low significance for classifying instances .
+pruning techniques are used for reducing the complexity of classifiers , which in turn helps to reduce the time required to execute the classifier in the browser plug - in. for the other classifiers , a validation threshold was used to stop the training process when the algorithm detected overfitting and misclassification increased in the validation set .
+in order to deal with an imbalanced data set , we used the synthetic minority oversampling technique ( smote ) , which is an oversampling technique for the minority in an imbalanced data set based on the use of " synthetic " examples .
+the letter " s " is used at the end of the abbreviations in the tables to indicate whether smote was applied to the data set or not .
+10.1371 / journal.pone.0164383.t007 table 7 parameters used in the decision tree , bayesian network , support vector machine ( svm ) , and multilayer neural network methods ( see part ii of the weka manual for descriptions of the various algorithms used in our study [ 40 ]) .
+parameter classification model decision tree bayesian network svm multilayer neural network training tool weka 3.7.6 algorithm j48 ( c4.5 ) logistic model tree random forest logitboost bayesian network smo ( svm ) multilayer perceptron trained with gradient descent method ( mlp - gd ) abbreviation j48 lmt rft lbt bayesnet smo - p smo - r mlp - gd10 mlp - gd20 classifier decision stump simple estimator search algorithm simulated annealing gradient descent confidence factor 0.25 number of trees 10 maximum depth infinity minimum number of instances per leaf 2 pruning yes validation technique cross - validation with 10 folds training time 500 epochs learning rate 0.3 momentum 0.2 data normalization yes yes number of hidden layers 1 neurons in the hidden layer 10 20 activation function sigmoid validation threshold 20 complexity parameter ( c ) 1 kernel function poly .
+rbf balancing approach synthetic minority oversampling technique ( smote ) others kept as default the results obtained after training the classifier in the three - class scenario are shown in table 8 , which demonstrate that decision trees performed the best , followed by the bayesian network , multilayer neural network , and svm classifiers .
+in particular , the random forest ( rft - s ) decision tree scores were better than those produce by all of the other algorithms , with the highest precision ( value of 84 %) , f - measure ( value of 84 %) , and roc ( value of 95 %) scores .
+the lmt - s decision tree scores were second best with precision and f - measure values of 79 % , and roc = 89 % .
+10.1371 / journal.pone.0164383.t008 table 8 classification accuracy for three classes .
+algorithm performance measurement indices - - three classes dr er tp fp precision recall f - measure roc spam borderline non - spam spam borderline non - spam spam borderline non - spam spam borderline non - spam spam borderline non - spam spam borderline non - spam j48 78.02 21.98 0.35 0.42 0.93 0.04 0.07 0.44 0.49 0.55 0.85 0.35 0.42 0.93 0.40 0.48 0.89 0.74 0.72 0.82 0.78 0.33 0.76 0.78 0.77 0.79 j48 - s 78.33 21.67 0.79 0.72 0.85 0.11 0.12 0.1 0.78 0.76 0.81 0.79 0.72 0.85 0.78 0.74 0.83 0.87 0.84 0.91 0.78 0.11 0.78 0.78 0.78 0.87 lmt 78.63 21.37 0.29 0.43 0.94 0.03 0.07 0.46 0.52 0.56 0.84 0.29 0.43 0.94 0.38 0.48 0.89 0.81 0.80 0.86 0.79 0.35 0.76 0.79 0.77 0.85 lmt - s 78.83 21.17 0.78 0.73 0.85 0.10 0.12 0.10 0.79 0.76 0.81 0.78 0.73 0.85 0.79 0.75 0.83 0.89 0.86 0.92 0.79 0.11 0.79 0.79 0.79 0.89 rft 78.36 21.64 0.43 0.49 0.91 0.05 0.09 0.37 0.52 0.54 0.87 0.43 0.49 0.91 0.47 0.51 0.89 0.83 0.80 0.87 0.78 0.28 0.77 0.78 0.78 0.85 rft - s 83.96 16.04 0.87 0.80 0.85 0.09 0.08 0.07 0.84 0.83 0.86 0.87 0.80 0.85 0.85 0.81 0.86 0.96 0.93 0.95 0.84 0.08 0.84 0.84 0.84 0.95 lbt 78.28 21.72 0.27 0.47 0.93 0.03 0.09 0.43 0.52 0.53 0.85 0.27 0.47 0.93 0.35 0.50 0.89 0.83 0.82 0.87 0.78 0.33 0.76 0.78 0.77 0.86 lbt - s 62.51 37.49 0.49 0.63 0.75 0.15 0.29 0.12 0.62 0.52 0.75 0.49 0.63 0.75 0.55 0.57 0.75 0.79 0.74 0.89 0.63 0.19 0.63 0.63 0.62 0.81 bayesnet 78.39 21.61 0.24 0.46 0.94 0.02 0.08 0.46 0.54 0.54 0.84 0.24 0.46 0.94 0.33 0.50 0.89 0.83 0.83 0.87 0.78 0.35 0.76 0.78 0.76 0.86 bayesnet - s 74.32 25.68 0.71 0.59 0.93 0.15 0.12 0.12 0.70 0.71 0.8 0.71 0.59 0.93 0.71 0.65 0.86 0.88 0.84 0.96 0.74 0.13 0.74 0.74 0.74 0.89 smo - p 75.36 24.64 0.01 0.23 0.99 0 0.03 0.80 0.5 0.63 0.76 0.01 0.23 0.99 0.01 0.33 0.86 0.50 0.61 0.59 0.75 0.58 0.71 0.75 0.68 0.59 smo - p - s 54.53 45.47 0.17 0.66 0.80 0.04 0.37 0.27 0.68 0.47 0.6 0.17 0.66 0.80 0.28 0.55 0.69 0.67 0.65 0.78 0.55 0.23 0.58 0.55 0.50 0.70 mlp - gd10 77.66 22.34 0.22 0.49 0.93 0.03 0.10 0.41 0.49 0.50 0.85 0.22 0.49 0.93 0.30 0.49 0.89 0.81 0.82 0.87 0.78 0.32 0.75 0.78 0.76 0.85 mlp - gd10 - s 60.15 39.85 0.56 0.49 0.76 0.22 0.22 0.16 0.56 0.53 0.71 0.56 0.49 0.76 0.56 0.51 0.73 0.77 0.73 0.87 0.60 0.20 0.60 0.60 0.60 0.79 mlp - gd20 77.59 22.41 0.22 0.48 0.93 0.03 0.1 0.42 0.47 0.50 0.85 0.22 0.48 0.93 0.30 0.49 0.89 0.81 0.82 0.86 0.78 0.32 0.75 0.78 0.76 0.85 mlp - gd20 - s 60.74 39.26 0.54 0.52 0.77 0.20 0.24 0.16 0.58 0.52 0.71 0.54 0.52 0.77 0.56 0.52 0.74 0.77 0.73 0.88 0.61 0.20 0.60 0.61 0.61 0.79 however , we note that the detection accuracy was relatively low due partly to two main causes : ( 1 ) the urls in the spam and borderline classes ( 27 % of the data set ) were actually similar ; and ( 2 ) the fact that spammers use clever tactics to evade detection by google penguin .
+for mitigation purposes , we only established the classification models for the two - class scenario .
+table 9 shows that the performance of decision tree was better than that of the other classifiers ( particularly the rft - s algorithm where dr = 87 % and roc = 93 %) .
+similarly , the bayesnet - s classifier was ranked second , where dr = 86 % and roc = 93 % , followed by the multilayer neural network and svm classifiers .
+10.1371 / journal.pone.0164383.t009 table 9 classification accuracy for two classes .
+algorithm performance measurement indices - - two classes dr er tp fp precision recall f - measure roc spam non - spam spam non - spam spam non - spam spam non - spam spam non - spam spam non - spam j48 84.00 16.01 0.61 0.93 0.07 0.39 0.77 0.86 0.61 0.93 0.68 0.89 0.86 0.86 0.84 0.30 0.84 0.84 0.83 0.86 j48 - s 84.30 15.70 0.85 0.84 0.16 0.15 0.84 0.85 0.85 0.84 0.84 0.84 0.89 0.89 0.84 0.16 0.84 0.84 0.84 0.89 lmt 83.65 16.35 0.61 0.93 0.07 0.40 0.61 0.86 0.61 0.93 0.67 0.89 0.86 0.86 0.84 0.31 0.83 0.84 0.83 0.86 lmt - s 84.60 15.40 0.85 0.84 0.16 0.15 0.84 0.85 0.85 0.84 0.85 0.85 0.89 0.89 0.85 0.15 0.85 0.85 0.85 0.89 rft 83.41 16.59 0.69 0.89 0.11 0.31 0.71 0.88 0.69 0.89 0.70 0.89 0.87 0.87 0.83 0.26 0.83 0.83 0.83 0.87 rft - s 87.13 12.87 0.89 0.85 0.15 0.11 0.86 0.89 0.89 0.85 0.87 0.87 0.93 0.93 0.87 0.13 0.87 0.87 0.87 0.93 lbt 82.57 17.43 0.59 0.92 0.08 0.41 0.73 0.85 0.59 0.92 0.65 0.88 0.87 0.87 0.83 0.32 0.82 0.83 0.82 0.87 lbt - s 80.61 19.39 0.81 0.80 0.20 0.19 0.81 0.81 0.81 0.80 0.81 0.81 0.87 0.87 0.81 0.19 0.81 0.81 0.81 0.87 bayesnet 83.35 16.65 0.63 0.91 0.09 0.38 0.74 0.86 0.63 0.91 0.68 0.89 0.87 0.87 0.83 0.30 0.83 0.83 0.83 0.87 bayesnet - s 86.69 13.31 0.83 0.91 0.09 0.18 0.9 0.84 0.83 0.91 0.86 0.87 0.93 0.93 0.87 0.13 0.87 0.87 0.87 0.93 smo - p 80.97 19.03 0.42 0.96 0.04 0.58 0.80 0.81 0.42 0.96 0.55 0.88 0.69 0.69 0.81 0.43 0.81 0.81 0.79 0.69 smo - p - s 76.60 23.40 0.71 0.82 0.18 0.29 0.80 0.74 0.71 0.82 0.75 0.78 0.77 0.77 0.77 0.23 0.77 0.77 0.77 0.77 mlp - gd10 82.39 17.61 0.67 0.88 0.12 0.33 0.69 0.88 0.67 0.88 0.68 0.88 0.86 0.86 0.82 0.27 0.82 0.82 0.82 0.86 mlp - gd10 - s 79.93 20.07 0.77 0.83 0.17 0.23 0.82 0.78 0.77 0.83 0.79 0.81 0.87 0.87 0.80 0.20 0.80 0.80 0.80 0.87 mlp - gd20 82.65 17.35 0.68 0.88 0.12 0.32 0.69 0.88 0.68 0.88 0.69 0.88 0.86 0.86 0.83 0.26 0.83 0.83 0.83 0.86 mlp - gd20 - s 80.25 19.75 0.77 0.83 0.17 0.23 0.82 0.79 0.77 0.83 0.80 0.81 0.87 0.87 0.80 0.20 0.80 0.80 0.80 0.87 tables 10 and 11 show the confusion matrices ( i.e. , error matrix ) for the three - class and two - class classifiers , respectively .
+in each confusion matrix , the first row represents the actual class and the second row represents the predicted class or that classified by a given classifier .
+thus , for the rft - s algorithm , the number of correctly detected spam instances ( i.e. , tps ) was 87 , the number of spam instances mistakenly flagged as borderline was seven , and the number of spam instances mistakenly flagged as non - spam was five .
+similarly , the number of correctly detected non - spam instances ( i.e. , true negatives ) was 85 , the number of non - spam instances mistakenly flagged as borderline was nine , and the number of non - spam instances mistakenly flagged as spam was five .
+10.1371 / journal.pone.0164383.t010 table 10 confusion matrix for three - class classifiers .
+classes spam borderline non - spam classified as spam borderline non - spam spam borderline non - spam spam borderline non - spam algorithms j48 34.55 24.81 40.64 12.3 42.1 45.6 2.22 4.86 92.92 j48 - s 78.47 14.19 7.34 15.84 71.60 12.56 6.02 9.05 84.93 lmt 29.22 28.01 42.77 9.96 42.55 47.49 1.39 4.19 94.42 lmt - s 78.34 14.21 7.45 14.56 73.16 12.28 6.11 8.88 85.01 rft 42.92 24.05 33.03 12.57 48.74 38.69 2.72 6.69 90.59 rft - s 87.31 7.65 5.04 11.54 79.48 8.98 5.74 9.18 85.08 lbt 26.64 32.57 40.79 9.43 46.49 44.08 1.24 5.41 93.35 lbt - s 49.07 41.2 9.73 21.78 63.11 15.11 8.3 16.36 75.34 bayesnet 24.2 30.75 45.05 8.17 45.51 46.32 1.02 4.89 94.09 bayesnet - s 70.56 20.12 9.32 26.97 58.97 14.06 2.72 3.84 93.44 smo - p 0.46 14.61 84.93 0.18 22.62 77.2 0.02 1.15 98.83 smo - p - s 17.38 57.89 24.73 5.09 66.26 28.65 3.13 16.92 79.95 mlp - gd10 21.46 40.64 37.9 7.99 49.01 43 1.26 6.13 92.61 mlp - gd10 - s 55.93 30.92 13.15 33.34 48.79 17.87 11.56 12.71 75.73 mlp - gd20 22.07 38.51 39.42 9.16 47.57 43.27 1.28 5.93 92.79 mlp - gd20 - s 53.97 32.64 13.39 30.54 51.57 17.89 8.78 14.55 76.67 10.1371 / journal.pone.0164383.t011 table 11 confusion matrix for two - class classifiers .
+classes spam non - spam classified as spam non - spam spam non - spam algorithms j48 60.59 39.41 7.00 93.00 j48 - s 84.77 15.23 16.17 83.93 lmt 60.47 39.53 7.43 92.57 lmt - s 85.43 14.57 16.23 83.77 rft 68.83 31.17 10.97 89.03 rft - s 89.16 10.84 14.91 85.09 lbt 58.84 41.16 8.30 91.70 lbt - s 80.82 19.18 19.60 80.40 bayesnet 62.51 37.49 8.63 91.37 bayesnet - s 82.54 17.46 91.15 90.85 smo - p 42.07 57.93 4.06 95.94 smo - p - s 71.09 28.91 17.88 82.12 mlp - gd10 67.19 32.81 11.76 88.24 mlp - gd10 - s 76.63 23.37 16.78 83.22 mlp - gd20 68.32 31.68 11.84 88.16 mlp - gd20 - s 77.41 22.59 16.91 83.09 7 further discussion in this study , we used two public data sets ( see section 2 ) to show that spammers who target different languages behave differently and develop their own new tactics to influence the results obtained by search engine ranking algorithms .
+in fact , this issue has been recognized by search engine companies and they are considering the development of ranking algorithms that are global and language - independent as far as possible in their new releases .
+in most web spam data sets , however , search engine ranking algorithms were not considered when the data sets were constructed .
+in this study , we constructed a new data set to address this issue ( see section 3 ) .
+our data set was carefully selected to contain highly ranked web pages according to the google penguin ranking algorithm .
+however , this data set led to a concern about the effectiveness of the google anti - spamming algorithm against spam pages containing arabic content as well as other non - english languages .
+in particular , when the data set was examined using six security scanners , the results showed that a significant number of these sites contained malicious contents , thereby indicating that google search only removed some of the reported malicious sites determined by the web scanners of other anti - virus vendors .
+several of these pages were found to also contain web spam content .
+in a further study ( see sections 5 and 6 ) , we explored the effectiveness of multiple detection features using our data set and we evaluated different classifiers .
+despite that some of our classifiers obtained a detection rate of 87 % , which might be lower than previous reported detection rates in other studies , we demonstrated that spammers employ clever techniques to avoid being detected by google penguin .
+we also confirmed the need to build more representative and realistic data sets that are suitable to the context of the outputs obtained by search engines .
+8 related work numerous previous studies have investigated the prevalence of web spam and various detection techniques have been proposed using different approaches .
+gyongyi and garcia - molina proposed a web spam taxonomy after the web spam problem emerged in the early 2000s [ 2 ] .
+heymann et al. were the first to survey the detection , demotion , and prevention of web spam [ 41 ] .
+recent surveys of existing spam detection techniques and mechanisms have analyzed their advantages and disadvantages ( e.g. , [ 42 ] and [ 43 ]) .
+it should be noted that spam and automated accounts in social networks have also contributed to the prevalence of web spam ( e.g. , see [ 44 - 48 ]) .
+the detection features used for web spam in previous studies belong to two categories : ( 1 ) those that exploit topology and network - related data ; and ( 2 ) those that exploit the web page content .
+gyongyi et al .
+[ 1 ] proposed an algorithm for identifying pages that are likely to be spam and those that are likely to be reputable ( also see [ 49 ] and [ 50 ] for improved versions of the algorithm ) .
+fetterly et al .
+[ 51 ] utilized statistical analysis to show that there are outliers in the statistical distribution of the linkage structure , page content , and page evolution properties in spam pages compared with benign web pages .
+wu et al .
+[ 52 ] proposed some alternative methods for propagating trust on the web and utilized distrust to demote web spam .
+in addition , castillo et al .
+[ 53 ] built a machine learning classifier that utilizes both link - based and content - based detection features , which obtained tp = 88.4 % and fp = 6.3 % .
+svore et al .
+[ 33 ] built a classifier to identify web spam pages by training a svm classifier based on a selected set of page attributes .
+ntoulas et al .
+[ 15 ] proposed a c4.5 decision tree classifier , which could detect 86.2 % of the spam pages examined .
+becchetti et al .
+[ 37 ] explored the best combinations of spam detection features and selected classifiers that achieved high precision ( dr = 80.4 %) using a small set of features .
+furthermore , abernethy et al .
+[ 54 ] proposed a machine learning classifier that employs a variety of svm for detecting web spam using both the page content and hyperlinks .
+similarly , becchetti et al .
+[ 55 ] proposed a link - based technique for detecting web spam pages by using a damping function for rank propagation and an approximate counting technique. by exploiting textual and extra - textual features in html source code , urvoy et al .
+[ 56 ] investigated multiple html style similarity measures and proposed a flexible clustering algorithm for identifying web spam pages .
+in addition , gan and suel [ 57 ] proposed a classifier that uses the decision tree c4.5 algorithm and many detection features , including content - based and link - based , which obtained precision of around 88 % .
+webb et al .
+[ 58 ] identified a relationship between email and web spam , which they utilized to identify web spam .
+they also employed their method to collect a web spam corpus .
+lee et al .
+[ 59 ] proposed a simplified swarm optimization method to solve the complexity problem that affects statistical classification and machine learning approaches , which increases when there are a large number of web spam detection features .
+previous studies also considered linguistic - based detection features and evaluated their effectiveness at web spam classification ( e.g. , [ 36 , 60 ]) .
+however , to the best of our knowledge , no previous studies have investigated the advantages of using linguistic - based features to improve web spam detection in a particular language .
+9 conclusion and future work google continues to improve their penguin algorithm , but web spammers are also developing creative evasion mechanisms to increase their web page ranks with the aim of attracting more users .
+in fact , we consider that web spam will remain a good method for both phishing attacks and malware spreading .
+in this study , we showed that google anti - spamming methods are actually ineffective against web spam pages that contain non - english content , which raises a concern that the insufficient testing of pages with non - english content could potentially encourage spammers to target these pages .
+as an illustrative example , we developed and tested a classifier in the form of a browser anti - spam plug - in for detecting arabic spam pages , and we showed that our classifier captured most of the web spam pages not detected by the penguin algorithm .
+we also created a labeled arabic web spam data set to evaluate our classifier and to encourage other researchers to build upon our work .
+in future work , we plan to extend our web spam data set , create similar data sets for other languages , and develop custom classifiers for these languages .
+spammers and google search engine developers are continually improving their techniques to defeat each other , so future experimental studies are important for understanding new trends and directions .
+in recent years , large - scale spamming campaigns using compromised web sites have been performed to corrupt search engine results .
+these spamming campaigns are an emerging trend that needs to be investigated .
+using google penguin as a benchmark , our illustrative example shows that language - based web spam classifiers are more effective at capturing spam content .
+we consider that the web spam problem requires a continuous effort from search engines as well as developers and webmasters based on appropriate vetting of their sites , and end - users should also report spam content .
+we thank the anonymous reviewers for their comments which helped improve this paper to its present form .
+this work was supported in part by kacst .
+references 1 gyongyi z , garcia - molina h , pedersen j. combating web spam with trustrank .
+in : proceedings of the thirtieth international conference on very large data bases - volume 30 .
+vldb endowment ; 2004. p. 576 - 587 .
+2 gyongyi z , garcia - molina h. web spam taxonomy .
+in : first international workshop on adversarial information retrieval on the web ( airweb 2005 ) ; 2005 .
+3 castillo c , davison bd . adversarial web search . foundations and trends in information retrieval .
+2011 ; 4 ( 5 ) : 377 - 486 . doi : 10.1561 / 1500000021 4 fetterly d . adversarial information retrieval : the manipulation of web content . acm computing reviews .
+2007 ; .
+5 henzinger mr , motwani r , silverstein c . challenges in web search engines . sigir forum .
+2002 ; 36 ( 2 ) : 11 - 22 . doi : 10.1145 / 792550.792553 6 thurow s . search engine visibility .
+2nd ed new riders publishing ; 2008 . 7 wallace d. spamming techniques that you will want to avoid ; .
+http :// www.searchrank.com / articles / 003.html .
+8 wilkinson t. just say no to seo spam ; .
+http :// www.w - edge.com / articles / spam.htm .
+9 malaga ra . search engine optimization - - black and white hat approaches . advances in computers .
+2010 ; 78 : 1 - 39 . 10 wu b , davison bd. cloaking and redirection : a preliminary study .
+in : proceedings of the first international workshop on adversarial information retrieval on the web ( airweb ) ; 2005. p. 7 - 16 .
+11 edelman b . deterring online advertising fraud through optimal payment in arrears springer ; 2009 doi : 10.2139 / ssrn.1095262 12 payton am. a review of spyware campaigns and strategies to combat them .
+in : proceedings of the 3rd annual conference on information security curriculum development .
+acm ; 2006. p. 136 - 141 .
+13 edelman b. ad thumbnails , advertisers funding direct revenue ; .
+http :// www.benedelman.org / spyware / images / dr - mar06 / .
+14 thomas k , grier c , ma j , paxson v , song d. design and evaluation of a real - time url spam filtering service .
+in : security and privacy ( sp ) , 2011 ieee symposium on. ieee ; 2011. p. 447 - 462 .
+15 ntoulas a , najork m , manasse m , fetterly d. detecting spam web pages through content analysis .
+in : proceedings of the 15th international conference on world wide web .
+acm ; 2006. p. 83 - 92 .
+16 benczur aa , csalogany k , sarlos t , uher m. spamrank - fully automatic link spam detection work in progress .
+in : proceedings of the first international workshop on adversarial information retrieval on the web ; 2005 .
+17 davison bd . recognizing nepotistic links on the web artificial intelligence for web search .
+2000 ; p .
+23 - 28 . 18 gyongyi z , berkhin p , garcia - molina h , pedersen j. link spam detection based on mass estimation .
+in : proceedings of the 32nd international conference on very large data bases .
+vldb endowment ; 2006. p. 439 - 450 .
+19 facebook , " explaining facebook 's spam prevention systems " ; .
+http :// blog.facebook.com / blog.php ? post = 403200567130 .
+20 f - secure , " twitter now ltering malicious urls " ; .
+21 miller , m. matt cutts talks google penguin , negative seo , disavowing links , bounce rate & more ; 25 oct .
+2012. http :// searchenginewatch.com / article / 2182895 .
+22 sullivan d. two weeks in , google talks penguin update , ways to recover & negative seo ; 10 may 2012 .
+http :// searchengineland.com / google - talks - penguin - update - recover - negative - seo - 120463 .
+23 how we fought webspam in 2015. ; .
+https :// webmasters.googleblog.com / 2016 / 05 / how - we - fought - webspam - in - 2015.html .
+24 cutts m. another step to reward high - quality sites ; .
+http :// insidesearch.blogspot.com / 2012 / 04 / another - step - to - reward - high - quality.html .
+25 alarifi a , alsaleh m. web spam : a study of the page language effect on the spam detection features .
+in : the 11th ieee international conference on machine learning and applications ( icmla ) ; 2012 .
+26 alarifi a , alsaleh m , al - salman a , alswayed a , alkhaledi a. google penguin : evasion in non - english languages and a new classifier .
+in : the 12th ieee international conference on machine learning and applications ( icmla ) ; 2013 .
+27 uk - 2011 web spam dataset. ; .
+https :// sites.google.com / site / heiderawahsheh / home / web - spam - 2011 - datasets / uk - 2011 - web - spam - dataset .
+28 web spam uk2007 dataset. ; .
+http :// barcelona.research.yahoo.net / webspam / datasets / uk2007 / .
+29 extended arabic web spam 2011 dataset. ; .
+https :// sites.google.com / site / heiderawahsheh / home / web - spam - 2011 - datasets / arabic - web - spam - 2011 - dataset .
+30 wahsheh ha , al - kabi mn. detecting arabic web spam .
+in : the 5th international conference on information technology , icit'11 ; 2011 .
+31 alarifi a , alsaleh m , al - salman a. security analysis of top visited arabic web sites .
+in : proceedings of the 15th international conference on advanced communication technology ( icact ) .
+ieee ; 2013. p. 173 - 178 .
+32 guidelines for webspam - uk2007. ; .
+http :// barcelona.research.yahoo.net / webspam / datasets / uk2007 / guidelines / .
+33 svore km , wu q , burges cj , raman a. improving web spam classification using rank - time features .
+in : proceedings of the 3rd international workshop on adversarial information retrieval on the web .
+acm ; 2007. p. 9 - 16 .
+34 erdelyi m , garzo a , benczur aa. web spam classification : a few features worth more .
+in : proceedings of the 2011 joint wicow / airweb workshop on web quality ; 2011. p. 27 - 34 .
+35 fetterly d , manasse m , najork m. detecting phrase - level duplication on the world wide web .
+in : proceedings of the 28th annual international acm sigir conference on research and development in information retrieval .
+acm ; 2005. p. 170 - 177 .
+36 piskorski j , sydow m , weiss d. exploring linguistic features for web spam detection : a preliminary study .
+in : proceedings of the 4th international workshop on adversarial information retrieval on the web .
+acm ; 2008. p. 25 - 28 .
+37 becchetti l , castillo c , donato d , leonardi s , baeza - yates ra. link - based characterization and detection of web spam .
+in : airweb ; 2006. p. 1 - 8 .
+38 spirin n , han j . survey on web spam detection : principles and algorithms . sigkdd explor newsl .
+2012 ; 13 ( 2 ) : 50 - 64 . doi : 10.1145 / 2207243.2207252 39 weka w . weka 3 : data mining software in java .
+university of waikato , hamilton , new zealand ( www.cs.waikato.ac.nz / ml / weka ) .
+2011 ; .
+40 bouckaert rr , frank e , hall m , kirkby r , reutemann p , seewald a , et al weka manual for version 3 - 7 - 8 .
+hamilton , new zealand 2013 ; .
+41 heymann p , koutrika g , garcia - molina h . fighting spam on social web sites : a survey of approaches and future challenges . ieee internet computing .
+2007 ; 11 ( 6 ) : 36 - 45 . doi : 10.1109 / mic.2007.125 42 spirin n , han j . survey on web spam detection : principles and algorithms . acm sigkdd explorations newsletter .
+2012 ; 13 ( 2 ) : 50 - 64 . doi : 10.1145 / 2207243.2207252 43 khan wz , khan mk , muhaya ftb , aalsalem my , chao hc . a comprehensive study of email spam botnet detection . ieee communications surveys & tutorials .
+2015 ; 17 ( 4 ) : 2271 - 2295 . doi : 10.1109 / comst.2015.2459015 44 alarifi a , alsaleh m , al - salman a . twitter turing test : identifying social machines . information sciences .
+2016 ; 372 : 332 - - 346 . doi : 10.1016 / j.ins.2016.08.036 45 alsaleh m , alarifi a , al - salman am , alfayez m , almuhaysin a. tsd : detecting sybil accounts in twitter .
+in : machine learning and applications ( icmla ) , 2014 13th international conference on. ieee ; 2014. p. 463 - 469 .
+46 hyun y , kim n. detecting blog spam hashtags using topic modeling .
+in : proceedings of the 18th annual international conference on electronic commerce : e - commerce in smart connected world .
+acm ; 2016. p. 43. 47 almaatouq a , alabdulkareem a , nouh m , shmueli e , alsaleh m , singh vk , et al. twitter : who gets caught ?
+observed trends in social micro - blogging spam .
+in : proceedings of the 2014 acm conference on web science .
+acm ; 2014. p. 33 - 41 .
+48 almaatouq a , shmueli e , nouh m , alabdulkareem a , singh vk , alsaleh m , et al if it looks like a spammer and behaves like a spammer , it must be a spammer : analysis and detection of microblogging spam accounts . international journal of information security .
+2016 ; p .
+1 - 17 . doi : 10.1007 / s10207 - 016 - 0321 - 5 49 krishnan v , raj r. web spam detection with anti - trust rank .
+in : airweb. vol. 6 ; 2006. p. 37 - 40 .
+50 wu b , goel v , davison bd. topical trustrank : using topicality to combat web spam .
+in : proceedings of the 15th international conference on world wide web .
+acm ; 2006. p. 63 - 72 .
+51 fetterly d , manasse m , najork m. spam , damn spam , and statistics : using statistical analysis to locate spam web pages .
+in : proceedings of the 7th international workshop on the web and databases : colocated with acm sigmod / pods 2004 .
+acm ; 2004. p. 1 - 6 .
+52 wu b , goel v , davison bd . propagating trust and distrust to demote web spam . mtw .
+2006 ; 190 . 53 castillo c , donato d , gionis a , murdock v , silvestri f. know your neighbors : web spam detection using the web topology .
+in : proceedings of the 30th annual international acm sigir conference on research and development in information retrieval .
+acm ; 2007. p. 423 - 430 .
+54 abernethy j , chapelle o , castillo c. web spam identification through content and hyperlinks .
+in : proceedings of the 4th international workshop on adversarial information retrieval on the web .
+acm ; 2008. p. 41 - 44 .
+55 becchetti l , castillo c , donato d , baeza - yates r , leonardi s . link analysis for web spam detection . acm transactions on the web ( tweb ) .
+2008 ; 2 ( 1 ) : 2 doi : 10.1145 / 1326561.1326563 56 urvoy t , chauveau e , filoche p , lavergne t . tracking web spam with html style similarities . acm transactions on the web ( tweb ) .
+2008 ; 2 ( 1 ) : 3 doi : 10.1145 / 1326561.1326564 57 gan q , suel t. improving web spam classifiers using link structure .
+in : proceedings of the 3rd international workshop on adversarial information retrieval on the web .
+acm ; 2007. p. 17 - 20 .
+58 webb s , caverlee j , pu c. introducing the webb spam corpus : using email spam to identify web spam automatically .
+in : ceas ; 2006 .
+59 lee jh , yeh wc , chuang mc . web page classification based on a simplified swarm optimization . applied mathematics and computation .
+2015 ; 270 : 13 - 24 . doi : 10.1016 / j.amc.2015.07.120 60 martinez - romo j , araujo l. web spam identification through language model analysis .
+in : proceedings of the 5th international workshop on adversarial information retrieval on the web .
+acm ; 2009. p. 21 - 28 .

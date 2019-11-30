@@ -1,0 +1,358 @@
+plos comput biol plos comput .
+biol plos ploscomp plos computational biology 1553 - 734x 1553 - 7358 public library of science san francisco , usa 23028289 3459907 pcompbiol - d - 11 - 01811 10.1371 / journal.pcbi.1002691 research articlebiologyneurosciencecomputational neuroscience spike - based decision learning of nash equilibria in two - player games decision learning in two - player games friedrich johannes senn walter * department of physiology and center for cognition , learning and memory , university of bern , switzerland sporns olaf editor indiana university , united states of america * e - mail : senn @ pyl.unibe.ch the authors have declared that no competing interests exist .
+conceived and designed the experiments : jf ws. performed the experiments : jf. analyzed the data : jf ws. wrote the paper : jf ws .
+9 2012 27 9 2012 8 9 e1002691 5 12 2011 26 7 2012 ( c ) 2012 friedrich , senn 2012 friedrich , sennthis is an open - access article distributed under the terms of the creative commons attribution license , which permits unrestricted use , distribution , and reproduction in any medium , provided the original author and source are properly credited .
+humans and animals face decision tasks in an uncertain multi - agent environment where an agent 's strategy may change in time due to the co - adaptation of others strategies .
+the neuronal substrate and the computational algorithms underlying such adaptive decision making , however , is largely unknown .
+we propose a population coding model of spiking neurons with a policy gradient procedure that successfully acquires optimal strategies for classical game - theoretical tasks .
+the suggested population reinforcement learning reproduces data from human behavioral experiments for the blackjack and the inspector game .
+it performs optimally according to a pure ( deterministic ) and mixed ( stochastic ) nash equilibrium , respectively .
+in contrast , temporal - difference ( td ) - learning , covariance - learning , and basic reinforcement learning fail to perform optimally for the stochastic strategy .
+spike - based population reinforcement learning , shown to follow the stochastic reward gradient , is therefore a viable candidate to explain automated decision learning of a nash equilibrium in two - player games .
+author summary socio - economic interactions are captured in a game theoretic framework by multiple agents acting on a pool of goods to maximize their own reward .
+neuroeconomics tries to explain the agent 's behavior in neuronal terms .
+classical models in neuroeconomics use temporal - difference ( td ) - learning .
+this algorithm incrementally updates values of state - action pairs , and actions are selected according to a value - based policy .
+in contrast , policy gradient methods do not introduce values as intermediate steps , but directly derive an action selection policy which maximizes the total expected reward .
+we consider a decision making network consisting of a population of neurons which , upon presentation of a spatio - temporal spike pattern , encodes binary actions by the population output spike trains and a subsequent majority vote .
+the action selection policy is parametrized by the strengths of synapses projecting to the population neurons .
+a gradient learning rule is derived which modifies these synaptic strengths and which depends on four factors , the pre - and postsynaptic activities , the action and the reward .
+we show that for classical game - theoretical tasks our decision making network endowed with the four - factor learning rule leads to nash - optimal action selections .
+it also mimics human decision learning for these same tasks .
+this work was supported by a grant of the swiss systemsx.ch initiative ( neurochoice , evaluated by the snsf ) .
+the funders had no role in study design , data collection and analysis , decision to publish , or preparation of the manuscript .
+introduction neuroeconomics is an interdisciplinary research field that tries to explain human decision making in neuronal terms .
+behavioral outcomes are construed as results of brain activity and the neuronal correlates of the quantities relevant for the decision making process are identified .
+humans , as economic agents , attempt to optimize some reward function by participating in the production , exchange and maintenance of goods .
+reward for the individuals will depend in general not merely upon their own actions but also on those of the other players and , furthermore , these will adapt their own strategies .
+classical models in neuroeconomics are based on temporal difference ( td ) learning [ 1 ] , an algorithm to maximize the total expected reward [ 2 ] with potential neuronal implementations [ 3 ] , [ 4 ] .
+it assumes that the environment can be described as a markov decision process ( mdp ) , i.e. by a finite number of states with fixed transition probabilities [ 5 ] .
+multi - agent games , however , are not markovian as the evolution of the environment typically does not only depend on the current state , but also on the history and on the adaptation of the other agents .
+such games can be described as partially observable markov decision processes ( pomdp , [ 6 ]) by embedding the sequences and the learning strategies of the other agents into a large state space .
+we have presented a policy gradient method for population reinforcement learning which , unlike td - learning , can cope with pomdps and can be implemented in neuronal terms [ 7 ] .
+yet , since a human learner would need to successfully explore the large state space of the pomdp , this appears to be an unrealistic scenario for explaining decision making in a multi - agent environment .
+a more realistic learning scenario is that humans transiently conceive the other players to follow a fixed strategy , and try to find their optimal counter strategy under this stationarity approximation .
+maximizing one 's own payoff while assuming stationarity in the opponents strategy is called a fictitious play and conditions are studied when this play effectively converges to a stationary ( nash ) equilibrium [ 8 ] .
+here we show that for classical two - player games [ 9 ] a simplified population reinforcement learning approach [ 7 ] , which is policy gradient under the stationarity approximation , can reproduce human data .
+we consider two games , blackjack [ 10 ] and the inspector game [ 11 ] , as examples for which the optimal strategy is either deterministic or stochastic , respectively .
+optimality is expressed in terms of the nash equilibrium , a solution concept for games involving two or more players .
+it is reached when no player has anything to gain by changing its strategy unilaterally .
+each player is making the best decision it can , taking into account the decisions of the other ( s ) , hence the nash equilibrium constitutes an optimum .
+our algorithm is consistent with behavioral experiments for these games [ 10 ] , [ 11 ] while performing optimally according to the nash equilibrium .
+we also show that td - learning as well as covariance learning fail to find the stochastic nash equilibrium for the inspector game .
+the current paper follows a long tradition of explaining human and animal behavior by simple models of reward - based learning , starting from thorndike 's law of effect [ 12 ] and pavlovian conditioning paradigms [ 13 ] , [ 14 ] up to more recent theories of reinforcement learning [ 1 ] , [ 2 ] , [ 15 ] , [ 16 ] .
+basic reinforcement learning with simple models of a few free parameters have also been applied to games .
+it has been shown for a wide set of two - player games that these simple algorithms well approximate human performance [ 17 ]. yet , we show that basic reinforcement learning does not follow the reward gradient , and in fact it does not fit human data on the inspector game as well as our gradient rule .
+obviously , playing games involves cognitive reasoning , as for instance captured by the theory of ' adaptive control of thought - rational ' ( act - r , [ 18 ]) .
+within such a theory , our model represents a neuronal implementation of a ' production rule ' which initiates a behavioral pattern in response to sensory and possibly cognitive input .
+results model the network representing a player consists of a population of spike - response - model ( srm ) neurons with escape noise [ 19 ] , driven by a common presynaptic stimulus encoding the current state of the game ( the player 's hand value in blackjack , and a fixed stimulus for the inspector game ) .
+each input spike pattern () is composed of afferent spike trains generated once by independent poisson processes with duration , and then repeatedly presented with the same fixed spike timings .
+the population neurons integrate the afferent presynaptic input spike trains and produce an output spike pattern ( , see fig. 1 ) .
+the decision of an individual postsynaptic neuron is denoted by , with , if the considered neuron does not spike , otherwise . behavioral decisions are stochastically made based on the population activity defined as sum of the individual decisions across the population neurons : if is small , the population decision is likely , and the larger is , the more likely is . at the end of a game involving either a single decision ( like in the inspector game ) or a sequence of decisions ( like in blackjack ) , a reward signal is delivered by an external critic which either informs about winning or losing ( with like in blackjack ) or delivers a specific payoff ( like in the inspector game ) .
+10.1371 / journal.pcbi.1002691.g001 figure 1 neuronal architecture implementing the two players .
+each player () is represented by a population of decision making neurons ( shown of each ) which receive an input spike pattern and generate an output spike pattern . the population decision is represented by a readout unit , with being more likely when more decision making neurons fire at least one output spike .
+the synaptic weights are adapted as a function of , , and the reward signal delivered by a critic .
+the synapses feeding the stimulating spike pattern to the population neurons are updated according to a multi - factor plasticity rule involving the reward , the behavioral decision , the single neuron decision and the eligibility trace which depends on the post - and pre - synaptic activity : ( 1 ) here , is the reward signal encoding the reward prediction error [ 20 ] ( see eq .
+5 in methods ) , is the global feedback signal informing the synapses about the population decision weighted by the population activity ( eq .
+6 in methods ) , and is the neuronal decision ( spike / no spike ) .
+the eligibility trace is a synaptic buffer roughly encoding the covariance between the past pre - and postsynaptic activity relevant for learning ( eq. 8 in methods ) .
+technically , is the derivative of the log - likelihood of producing the postsynaptic spike train .
+the learning rule can be shown to perform gradient ascent in the expected reward ( supporting text s2 ) .
+while most of the terms in eq .
+1 may have their standard biological counterpart [ 16 ] , there is less experimental evidence for assigning the decision feedback ' to one specific neuromodulator .
+yet , be the population neurons recurrently connected [ 21 ] or not , decision learning based on a population always requires that a global population signal is fed back to the individual neurons , as otherwise learning would quickly degrade with increasing population size [ 7 ] , [ 22 ]. by the same performance reasons it is not possible to replace the other factors '' in eq .
+1 by a classical spike - timing dependent plasticity ( stdp ) implementation endowed with the multiplicative reward signal '' [ 23 ] .
+in fact , reward - modulated stdp is only able to learn multiple stimulus - response associations when the reward factor averages out to zero for each stimulus individually , requiring an additional reward - prediction network [ 16 ] .
+our neuronal implementation is as simple as possible to provide the required computational properties .
+the lack of feedback connectivity avoids issues relating to population spike correlations [ 24 ] , and the neural mechanisms supporting the readout of the decision and the population feedback signal are not considered here .
+similarly , the fixed spike trains representing an input pattern is a biological simplification which does not fundamentally restrict the suggested approach .
+blackjack the simplified version of blackjack considered here was played in 18th century france and is the precursor of the version played in casinos nowadays .
+the card decks used consist of cards .
+ace counts eleven , jack , queen and king ten points and the numbers two to ten according to their written value .
+the player ( gambler ) draws one card after the other , starting with an initial two card hand , with the object of bringing the hand value ( total across drawn cards ) as close as possible to , but stopping early enough so that it does not exceed this number , in which case he immediately loses .
+afterwards the croupier does the same for the bank .
+the player wins if its score is higher than that of the croupier or if the croupier exceeds , otherwise the croupier wins .
+the winner 's payoff is , the loser 's . we assume that both player and croupier base their decision whether to draw another card or not only on their current hand value .
+player and bank follow a strategy defined by the hand value and , respectively , from which on they stop to draw another card .
+the described rules of the game result in the payoff - matrix ( table 1 ) comprising the average payoff of the bank as a function of the strategies and of the player and bank , respectively ( methods ) .
+the gambler loses whatever the bank wins , therefore the game is an example of a zero sum game .
+for zero sum games a nash equilibrium corresponds to a minimax solution [ 25 ] .
+if the pay - off matrix has a saddle point ( an entry which is the maximum in its row and the minimum in its column ) the corresponding strategy pair is a minimax solution which represents a pure nash equilibrium .
+in blackjack there is a unique such pair , , and hence there is a unique nash equilibrium at all .
+for this optimal strategy pair the gambler stops drawing another card as soon as he has points or more , while the croupier stops at or more .
+the entry represents the lowest loss for the gambler given the strategy of the bank ( minimum in the column ) , and the maximal payoff obtainable by the bank given the strategy of the gambler ( maximum in the row ) .
+the nash equilibrium is asymmetric because in the case of a standoff ( equal final hand values ) the croupier always obtains reward and the player . for hand values smaller than it is safe to draw another card whereas for more than drawing another card leads to certain loss due to exceeding . while we do not model these trivial actions , we address the learning problem for hand values between and . 10.1371 / journal.pcbi.1002691.t001 table 1 average bank payoff for our version of blackjack .
+13 14 15 16 17 18 19 11 0.2982 0.3164 0.3027 0.2544 0.1689 0.0436 - 0.1237 12 0.1635 0.2015 0.2076 0.1791 0.1130 0.0066 - 0.1427 13 0.1052 0.1587 0.1806 0.1679 0.1176 0.0266 - 0.1077 14 0.0438 0.1134 0.1536 0.1597 0.1282 0.0560 - 0.0598 15 0.0119 0.0706 0.1289 0.1555 0.1450 0.0940 - 0.0008 16 0.0143 0.0607 0.1085 0.1557 0.1685 0.1411 0.0702 17 0.0543 0.0893 0.1254 0.1628 0.1989 0.1980 0.1539 18 0.1349 0.1598 0.1854 0.2120 0.2394 0.2651 0.2509 the values show the calculated mean gains of the bank , respectively losses of the gambler , dependent on the strategy of the gambler ( stopping to draw a card at hand values equal or larger than ) and the croupier ( stopping at ) .
+the strategies are described by the hand values from which on the players stop to draw another card .
+formatted typesetting is used to highlight the nash equilibrium .
+prl and td - learning converge to a pure nash equilibrium we first simulated two neural networks playing against each other .
+each hand value between and was represented by a fixed spatio - temporal spike pattern generated by 6 hz poisson processes , with different ( but fixed ) patterns distinguishing numbers , gambler and croupier .
+since initially no ordering information is associated to the poisson spike train encoding of the hand values , the learning process has yet to assign this information by trial and error .
+the drawing probabilities for each hand value learned by the gambler after and games , averaged over ten runs , are shown in fig. 2a .
+the colored dashed lines in the plot indicate the decision boundaries of nash equilibrium above which no further card is drawn by the gambler or croupier , respectively .
+initially , both players randomly decide with chance to draw ( black dashed line ) .
+after about games both players have learned to not exceed and do not draw further cards for high hand values , being still undetermined about what action to take for low hand values .
+after games both have learned successfully to draw another card for low hand values and tend to play according to the nash equilibrium .
+10.1371 / journal.pcbi.1002691.g002 figure 2 playing blackjack with prl converges toward pure nash equilibrium .
+( a ) average strategy () after ( open circles ) and ( filled circles ) games where the gambler ( blue ) is a neural net as well as the croupier ( black ) .
+the dotted vertical lines left of and show the separation line of drawing / not drawing another card for the optimal nash strategy pair .
+( b ) average strategy () after games for a neural net as gambler playing against a croupier that follows a given strategy ( blue ) , ( red ) or ( green ) .
+the colored dotted lines left of show the separation line of drawing / not drawing another card for the optimal strategy given that the croupier stops drawing at ( from left to right ) .
+( c ) average reward () of the gambler for the scenario described in ( b ) .
+the colored dotted lines show the maximal reachable average reward .
+( d ) average strategy () over the last out of a total of games for a neural net ( red ) or human ( green ) as gambler playing against a croupier that follows a given strategy . the initial weights of the network were chosen such that the strategy in the first trials ( blue ) mimics the strategy of humans instructed about the game rules ( black ) .
+we next simulated the gambler by a neural net and the croupier by a computer algorithm which follows right from the beginning a fixed strategy .
+the resulting drawing probabilities after games are shown in fig. 2b for three different strategies of the croupier , , and . the gambler learns the perfect response strategies .
+the neural net exploits deviations of the croupier from the nash equilibrium by also deviating and thus increasing its reward .
+if the croupier stops earlier at the gambler continues until , trying to exceed the croupier 's hand value ( blue ) , whereas if the croupier stops later at the gambler stops already at ( green ) , taking advantage of the fact that the croupier likely exceeds . for the case ( red ) , the gambler does not learn the optimal strategy as well as for the two others .
+this is due to the fact that here the true mean rewards for the strategies are close to the one for the optimal , cf. table 1 , and cannot be distinguished based on merely samples .
+instead of just looking at the strategy we hence consider the maximally possible and the actually obtained reward for the three croupier strategies. fig. 2c depicts the low pass filtered reward which approaches the theoretical optimum indicated by the dashed lines and read out from the corresponding columns in table 1 .
+for the non - optimal croupier strategies () the maximally possible reward is significantly higher .
+hence , from playing against another network and against the croupier , we conclude that a neuronal population endowed with the plasticity rule ( 1 ) is able to learn the optimal strategies in blackjack , determined either by the pure nash equilibrium , or by the croupier 's fixed strategy .
+replacement of the neural net by a td - learner yields similar results for both scenarios ( supporting text s1 ) .
+prl fits human data on blackjack human behavior in blackjack was studied in [ 10 ] , [ 26 ] , though with a deck of cards .
+the instruction of the subjects about the rules of the game already induces a prior in the drawing behavior with a preference for drawing or stopping in the case of low or high hand values , respectively .
+neither prl nor td can reproduce this type of learning by insight .
+moreover , the network needs first to learn the ordering of the stimuli by trial - and - error , and hence much more learning trials are required for the network .
+to still allow for a comparison with the human data , we used the same deck of cards and simulated a neural network with initial weights chosen in such a way , that the initial strategy mimics the one of human 's ( fig. 2d ) .
+after playing the same number of games as humans did , the network 's final strategy agrees with the experimental data of humans , showing the same shift to a slightly less risky drawing behavior .
+inspector game the inspector game [ 27 ] has been widely studied in neuroeconomics [ 28 ] .
+the economic story surrounding the game is that a lazy employee prefers not to work .
+an employer knows this and sometimes ' inspects ' , but has to pay some cost '' for inspection .
+the payoffs for employee and employer are shown in table 2 .
+the inspector game shows only a mixed nash equilibrium in which decisions are taken stochastically with a fixed probability .
+at the equilibrium , the players mix pure strategies , each with the same payoff : had these pure strategies different payoffs , then it would be better to just follow the pure strategy with the highest expected payoff .
+10.1371 / journal.pcbi.1002691.t002 table 2 payoff matrix of the inspector game .
+employee \ employer inspect do n't inspect work 0.5 , 2 - i 0.5 , 2 shirk 0 , 1 - i 1 , 0 the variables in the left of each cell determine the employee 's payoffs , and the variables in the right determine the employer 's payoffs for each combination of player 's responses .
+'' is the cost of inspection to the employer .
+for each value of the inspection cost , there is a unique mixed nash equilibrium in which the probability with which the employee is shirking just corresponds to the inspection cost , , and the probability with which the employer is inspecting is . in this case , neither player can improve its expected payoff by only unilaterally changing its strategy .
+in fact , using , the expected payoff for the employer is alwaysindependently of . likewise , if , the expected payoff for the employee is always , independently of . prl reproduces inspector game data and nash equilibria we played with our neural network as employee against the algorithm presented in [ 11 ] as employer , and we also simulated two neural nets playing against each other. fig. 3a shows a running average over the last trials of the shirk and inspection rates for the neuronal net employee ( green ) and neuronal net employer ( red ) , overlaid with the corresponding data for a human employee ( black ) playing against a human employer ( grey , data from [ 11 ]) .
+the inspection cost was held constant during three blocks of trials and stepped from to and finally to . the averaged shirk rate of the neuronal net employee is in striking agreement with the one of the human employee across the whole rate of inspection costs ( fig. 3b ) .
+there is also good agreement with the experimental data for the employee 's reward ( fig. 3c ) .
+10.1371 / journal.pcbi.1002691.g003 figure 3 prl but not td - learning fits data and follows a mixed nash equilibrium .
+( a ) choice behavior for prl versus prl ( employee green , employer red ) and human versus human ( employee black , employer gray ) [ 11 ] .
+the cost of inspection was stepped from to to , respectively , and this does also correspond to the shirk rate in nash equilibrium ( thick black lines ) .
+the inspection rate in the nash equilibrium would always be . ( b ) average choice behavior of prl vs prl ( dark green circles ) and td vs td ( light green circles ) , prl for the employee vs computer algorithm for the employer ( blue squares ) , human vs human ( black ) , human as an employee vs computer algorithm ( orange ) and monkey vs computer algorithm ( cyan ) for trials / block as function of the inspection cost .
+the solid line indicates the nash equilibrium .
+( c ) reward as function of the inspection cost for trials / block .
+coloring as in ( b ) .
+prl simulations are more similar to the experimental data than the td simulations .
+( d ) average choice behavior as in ( b ) but for trials / block .
+the inspect rates for prl vs prl ( td vs td ) ( dark ( light ) red circles ) and prl vs computer algorithm ( purple squares ) are shown too .
+the lines indicate the nash equilibrium for the employee ( diagonal ) and the employer ( horizontal ) .
+prl behaves according to the nash equilibrium , whereas td does not .
+( e ) time course of the probability to shirk with inspection cost for prl vs algorithm ( blue line ) and prl vs prl ( td vs td ) ( dark ( light ) green line ) .
+for the latter the probability of the employer to inspect is shown too ( dark ( light ) red line ) .
+prl oscillates around the nash equilibrium ( drawn lines ) , whereas td completely deviates from nash .
+( f ) time course of the probability to shirk or inspect respectively with inspection cost for prl vs prl ( green respectively red , solid ) as in e , but shifted up for clarity and overlaid with the negative change in the shirk rate ( green dashed ) and the change in the inspect rate ( red dashed ) to show the counteractive behavior .
+to check whether the good fit of the human data is due to the gradient property alone or whether the population boost is also necessary we considered single neurons playing against each other ( by setting the number of neurons in the population to , without changing the learning rule ) .
+in this case our learning rule becomes equivalent to the policy gradient rule for single escape rate neurons [ 29 ] , [ 30 ]. with only a single neuron learning turns out to be too slow to match the transient behavior in the human data ( fig. 3a ) , even after optimizing the learning rate ( data not shown ) .
+we have previously shown that the speeding up learning in a population of spiking neurons is only possible with an additional population signal modulating synaptic plasticity [ 22 ] , [ 31 ] .
+we conclude that population learning is necessary , and that other spike - based gradient rules which do not exploit a population signal [ 15 ] , [ 32 ] , [ 33 ] will also be too slow .
+during the trials across an experimental block , the shirk rates ( but not the inspection rates ) tended towards the corresponding value of the nash equilibrium ( diagonal line in fig. 3b ) , and so did the employee 's reward ( horizontal line in fig. 3c ) , although without reaching them .
+in the simulation we extended the block size to check the asymptotic behavior .
+we found that for block sizes of trials , the average shirk and the inspection rates closely reached the nash equilibrium ( match of simulation points with the two lines in fig. 3d ) .
+despite the match of the average rates with the mixed nash equilibria , the running means oscillate around the corresponding equilibria ( shown in fig. 3e for inspection cost ) , as predicted by the theory [ 34 ] , [ 35 ] .
+in the asymmetric case , when our neuronal employee plays against the ( apparently not optimal ) computer algorithm , the oscillation vanish and the employee 's shirk rate reaches the optimal nash equilibrium ( blue ) , as expected for a neuronal network endowed by synaptic modifications following the reward gradient ( supporting text s2 ) .
+when two reward maximizing networks play against each other , however , each tries to exploit any deviation of the other from his nash equilibrium , pushing him even further away .
+this leads to oscillations around the nash equilibrium where a change in strategy of one player is oppositely directed to the deviation from the nash equilibrium of the other player .
+in fact , when superimposing one rate with the negative change of the other rate , a close match is observed ( fig. 3f ) .
+as we are studying a policy gradient algorithm , one may ask how robust the described properties are in view of a possibly improper biological implementation .
+the eligibility trace ( eq. 8 in methods ) depends on the presynaptic spike timing and contains a positive term that depends itself on the postsynaptic spike timing and a negative term depending on the postsynaptic potential .
+due to the policy gradient property , the two terms are balanced and the eligibility trace is zero on average .
+to check for robustness we performed simulations where this balance is perturbed .
+the above results still qualitatively hold true if the negative term in the eligibility trace is twice as large , or even if it is neglected completely , yielding stdp with plasticity for pre - post spike pairing only .
+the robustness can be attributed to the factor in the learning rule ( eq .
+1 ) which averages out to due to the subtraction of the reward prediction ( since , see eq .
+5 in methods ) and hence neutralizes any bias in the estimate of [ 16 ] .
+td - learning is inconsistent with data and nash to value the match generated by our synaptic plasticity rule with experimental and theoretical data , we also trained a td - learner on the inspector game .
+yet , the parameter optimized td - algorithm roughly reproduces only the humans average shirk rate ( fig. 3b ) , but less well the subjects' rewards ( fig. 3c ) .
+more strikingly , two opposing td - learners simulated across the trial blocks do not behave according to the nash equilibrium ( fig. 3d ) , but adopt a deterministic strategy within such a block ( fig. 3e ) .
+when simulating even longer , oscillations emerge as well , but without convergence of the long - term average to the nash equilibrium .
+there are principled reasons why td - learning must generally fail to find an optimum solution , and in particular a mixed nash equilibrium .
+first , td - learning assumes that the underlying process is markovian , but for multiplayer games this assumption is in general not satisfied .
+in fact , because the policy of the other player may change in time during learning , the optimal decision probabilities depend on past actions .
+values which are assumed to be a function of the current action only , may therefore be incorrectly estimated .
+second , for a mixed nash equilibrium , td - learning may also fail to correctly map values to decision probabilities at the steady - state after learning .
+this is because each policy imposes some predefined mapping from action values to decision probabilities , and this adhoc mapping may not reflect the true relationship between expected payoffs and decision probabilities defining the nash equilibrium .
+for the inspector game with inspection costs , for instance , the softmax policy , which selects action with probability , where is the value of action and a parameter ( inverse temperature ) regulating the amount of stochasticity in the decision making , does never reflect the nash probabilities and , whatever the parameter is ( see supporting text s1 ) .
+in other learning tasks , animals and humans transiently match the choice probabilities with the average payoffs of the corresponding actions , ( for a discussion of probability matching see [ 36 ] - [ 38 ]) .
+in these cases too , td - learning with softmax will not be able to find the solutions neither , unless again all - and - values are each the same , or alternatively , the choice policy is redefined ( to , see [ 39 ]) .
+for other examples where td - learning fails in each of the two ways of either learning the values or inferring the choice probabilities see [ 7 ] .
+not all covariance - rules lead to nash equilibria covariance - based learning rules change the synaptic strengths according to the covariance between reward prediction error and some measure of neuronal activity , , see e.g. [ 37 ] , where denotes expectation .
+prl which follows the stochastic gradient of the expected reward , , is a special instance of a covariance rule where the quantity corresponds to the eligibility trace ( eq. 1 ) .
+steady - states of covariance rules satisfy herrnstein 's matching law [ 37 ] , [ 40 ] .
+this law states that the number of times an action is chosen is proportional to the reward accumulated from choosing that action .
+formally , , where is the number of times an action is chosen , is the action - independent proportionality constant , and is the reward accumulated by action across its choices .
+pure strategies , where only a single action is chosen , trivially satisfy the matching property since for non - chosen actions both and vanish .
+in contrast , stochastic strategies only satisfy matching in the case that the selected options provide the same average reward . the mixed ( and trivially the pure ) nash equilibrium represents a special case of matching .
+if in a two - player game , for instance , player 2 adopts a mixed nash strategy then , by definition , player 1 receives the same average reward from any action ( see also [ 38 ]) .
+both the steady - state of a covariance rule and the nash equilibrium imply matching .
+but a steady - state of the covariance rule does not necessarily need to be a nash equilibrium .
+this can be seen by generalizing the classical covariance rule [ 37 ] to population learning , and applying this rule to the inspector game .
+to do so we replaced the eligibility trace in the prl rule ( eq .
+1 ) by the deviation of the neuronal response from its mean , . the emerging population covariance ( pcov ) learning rule , ( 2 ) with positive learning rate and estimates ( see eq .
+5 in methods ) and for and respectively , does not follow the reward gradient and does not reliably converge to the unique mixed nash equilibrium of the inspector game ( fig. 4 ) .
+to keep simulation time short we did not use spiking neurons but merely binary neurons that produce output with probability for a given binary input pattern . this yields an expected neural response . notice that can be considered as the personalized reward for the specific neuron in consideration : if the sign of and coincide , the population reward signal elicited in response to the population decision can be taken as a personal reward signal for that neuron ; otherwise the neuron 's personal reward has reversed sign of . personalizing this way the neuronal rewards within the population solves the spatial credit - assignment problem and boosts learning [ 22 ]. fig. 4 ( a - d ) shows the results for the pcov rule applied to the inspector game , once with only the employee playing according to pcov against an employer playing according to the algorithm presented in [ 11 ] , and once for pcov versus pcov .
+only in a fraction of the simulated runs is the mixed nash equilibrium reached , while in the other runs , a deterministic ( non - nash ) strategy pair emerges .
+10.1371 / journal.pcbi.1002691.g004 figure 4 covariance learning rules may lead to a mixed nash equilibrium , but also to deterministic non - nash strategies .
+prl fits data better than basic reinforcement models .
+time course of the probability to shirk ( a,c ) and inspect ( b,d ) with inspection cost for pcov vs algorithm ( a,b ) and pcov vs pcov ( c,d ) .
+in each panel the horizontal lines depict the nash equilibrium , and for 10 simulation runs inspection and shirk rates are shown ( same color in ( a,b ) and ( c,d ) , respectively , correspond to the same run ) .
+only a small fraction of all runs converge or oscillate around the nash equilibrium , while the other runs result in a deterministic strategy pair .
+the initial distribution of synaptic weights was gauss with mean and standard deviation . the learning rate was set to , but did not change the proportion of runs converging to the pure strategy .
+( e ) average choice behavior of prl vs prl ( green ) , re1 vs re1 ( blue ) , re3 vs re3 ( red ) and human vs human ( black ) for trials / block as function of the inspection cost .
+the light red circles show the average choice behavior for re3 vs re3 and trials / block .
+individual runs converged to a pure strategy , hence the shown averages over 200 runs reflect the percentage of runs converging to a pure shirk strategy .
+( f ) reward as function of the inspection cost for trials / block .
+coloring as in ( e ) .
+the solid lines indicate the nash equilibrium .
+as check for robustness we performed further simulations showing that these negative results hold true also for other ( non - gradient ) covariance rules .
+we considered the version where the mean is not calculated analytically but determined as a running average ( as done for ) , and where the neuronal activity in the covariance rule is equal to the binary output , , without mean subtraction ( yielding the simple update rule ) .
+moreover , considering only a single neuron and taking its response as the behavioral decision did not qualitatively change the results , demonstrating that the failure is not due to the population framework ( data not shown ) .
+in [ 41 ] the author further elaborates on the relationship of covariance based rules to the replicator dynamics .
+the latter is described by , where is the effective learning rate and is the average reward for choosing action . the effective learning rate depends on the details of the decision making network and is given in eq. ( 14 ) of [ 41 ] .
+if synaptic changes are driven by the covariance of reward and neural activity , then according to the average velocity approximation , learning behavior is described by the differential equation above , but the effective learning rate is not guaranteed to be positive .
+indeed , for the binary neurons one gets , which can be negative due to negative components . hence , the convergence statements in [ 41 ] do not apply to our decision making network , and there is no contradiction with the finding that the covariance rule fails to reproduce the mixed nash equilibrium .
+nevertheless , in the special case of a coding of the inputs such that the effective learning rate becomes positive , and the specific covariance rule with a single postsynaptic neuron () , we can also fit the human data ( for learning trials ) and obtain the oscillations around the nash equilibrium ( for trials ) .
+whereas we do not consider the neural mechanisms supporting the readout of the decision , such a mechanism has been studied in the context of matching [ 42 ] .
+there , the probability for decision making is well described by a logistic function , which is also our choice for . for an increasing amount of stochasticity in the decision making they report an increasing deviation from matching towards more uniform choice probabilities .
+for choice probabilities larger than this leads to lower choice probabilities than predicted by the matching law , a phenomenon called undermatching .
+we also varied the amount of stochasticity by changing the slope of as a function of . we find that increasing and decreasing the slope by a factor of two still robustly leads to matching for the considered inspection costs , but when decreasing it by a factor of ten we also observe undermatching .
+due to the stochasticity in the decision making the range of choice probabilities our network can represent is limited. with increasing the amount of stochasticity the range becomes smaller and extreme probabilities close to or predicted by the matching law cannot be represented .
+instead , choice probabilities lie closer to uniform randomness , i.e. undermatching occurs .
+prl fits data and nash better than basic reinforcement models the replicator equation is widely used in evolutionary game theory and provides a good phenomenological description of choice behavior in many repeated - choice experiments .
+a different phenomenological description has been suggested in [ 17 ] .
+starting from luce 's basic reinforcement learning ( re1 , see also [ 43 ]) , the authors adapt this rule to take account of a generalization and recency effect ( re3 , methods ) .
+they show that both the basic and extended reinforcement learning reproduces the behavior of humans in many different games .
+however , we find that these rules poorly match human behavior for the inspector game .
+in fact , for trials / block both models of erev and roth fit the experimental data significantly worse than prl ( fig. 4 e and f ) .
+after trials re3 converged to a pure ( non - nash ) strategy , and for re1 the inspection rate diverged away from the nash equilibrium of . this non - optimal equilibrium performance is consistent with the fact that re1 and re3 are not gradient procedures ( see supporting text s3 ). whether prl fits the behavioral data of humans also better in the other games erev and roth considered remains to be tested .
+in any case , the models have to cope with the fact that humans show a variety of behaviors in two - player matrix games , although in many settings they eventually play according to nash ( for a discussion see [ 44 ]) .
+discussion we considered a population of spiking neurons which represent an adaptive agent in a dynamic environment including other adaptive agents .
+the agent 's adaptation was implemented as population reinforcement learning algorithm ( prl ) which was previously shown to perform stochastic gradient ascent in the reward for partially observable markov decision processes ( pomdps ) [ 7 ] .
+here we showed with blackjack and the inspector game that prl can also cope with a dynamic multi - agent environment and that the performance is comparable to human data in both these games .
+in fact , when two neuronal populations play against each other , they learn to behave according to the optimal ( but unstable ) nash equilibrium. by definition , no further increase in an agent 's expected payoff is possible in the nash equilibrium by only changing its own strategy while the environment remains stationary .
+in these steady - state conditions - where the opponent 's strategy is assumed to be stationary - prl is proven to maximize the expected reward ( supporting text s2 ) .
+the simulations show that the equilibrium is indeed reached by two prl agents playing against each other , with a pure ( deterministic ) nash equilibrium in blackjack and a mixed ( stochastic ) nash equilibrium in the inspector game .
+as predicted by the theory [ 34 ] , [ 35 ] , the strategies oscillated around the mixed nash equilibrium when both players used the same gradient algorithm based on the others stationarity assumption , i.e. when one network played against another both using prl ( with a small learning rate ) .
+averaging over long enough time windows , i.e. long compared to the oscillation period , yields the nash equilibrium values .
+however , when implementing only the employee by a gradient prl network and the employer by a non - gradient computer algorithm [ 11 ] , the two players do not play exactly equally well .
+in this case no oscillations occurred and both converged to and stayed at the optimal nash equilibrium .
+for mathematical clarity we presented the spike - based prl for an episodic learning scenario .
+but a biologically plausible implementation of a fully online scheme is also possible : to avoid an explicit separation of stimuli in time , the rectangular window function used to temporally integrate the eligibility trace ( eq .
+8 in methods ) can be replaced by an exponentially decaying window function to get a low - pass filtered eligibility trace , and concentrations of neuromodulators can be used to encode feedback about the population decision and the global reward signal ( e.g. acetylcholine or dopamine ) [ 22 ] .
+we considered reward delivery immediately after stimulus presentation , but reward could also be substantially delayed when considering a further eligibility trace incorporating the population decision [ 7 ] .
+moreover , since learning in general speeds up with population size ( up to 1 - shot learning for stimulus - response associations [ 31 ]) we expect that the convergence for prl towards the nash equilibrium can be much faster than in our example where parameters were fit to reproduce human data .
+the mixed nash equilibrium represents a special case of herrnstein 's matching law [ 40 ] , according to which the number of times an action is chosen is proportional to the reward accumulated from choosing that action .
+this is true both for the pure and mixed nash optimum .
+in the special case that the current reward only depends on the current action , but not on past actions , reward maximization always implies matching .
+( in fact , if one action would yield a higher ( average ) payoff per choice , then this action must be chosen with probability 1 to maximize expected reward , and matching () is trivially satisfied ( since for the non - chosen action ) .
+if both actions yield the same payoff per choice () , then matching is again trivially satisfied. ) in turn , a reward - based learning rule which only empirically maximizes reward in this case leads to only an approximated matching [ 42 ] .
+choice probabilities which maximize the expected reward are trivially also fixed points of any learning rule defined by the covariance between reward and neuronal activity .
+( in fact , at the reward maximum there is no change in neuronal activity which , in average , would lead to an increase ( and in the opposite direction to a decrease ) of the expected reward , and hence the covariance between activity and reward must vanish. ) the other direction , again , is not true : a covariance - based rule does not necessarily lead to reward maximization or a nash equilibrium [ 37 ] , [ 38 ] .
+indeed , our simulations of the inspector game with the canonical covariance - based plasticity rules show that these rules do not necessarily lead to the mixed nash equilibrium , but instead can result in deterministic ( non - nash ) strategies .
+similarly , basic reinforcement rules studied in the context of economics and human decision making [ 17 ] are neither compatible with the mixed nash equilibrium for the inspector game .
+the performance of spike - based prl is also superior to td - learning [ 2 ] which is often discussed in the neuro - economical context [ 1 ]. with the parameter values for which td - learners came closest to human data ( although without matching them as closely as prl ) , the mixed nash equilibrium in the inspector game was not reached within the long learning times .
+instead , td - learner first adopted a deterministic strategy , transiently switched their behavior , and swapped back to the same deterministic strategy .
+we attributed this mismatch to a general failing of td - learning in correctly mapping action values to choice probabilities in probabilistic decision making tasks .
+td - learning with the softmax choice policy , in particular , fails when matching of choice probabilities with average payoff is required [ 40 ] .
+different generalizations have been considered to approach the shortcomings of algorithms in socio - economic games .
+td - learning has been extended to not only assign values to its own decisions , but to pairs of own and opponent decisions .
+this enables the learning of minimax strategies where reward is maximized for the worst of the opponents actions [ 45 ] .
+while for zero - sum games minimax may realize a mixed nash equilibrium , it results in a deterministic strategy in the inspector game : minimizing the maximal loss implies for the employee to always work ( to prevent being caught while shirking ) , and for the employer to always inspect ( to prevent undetected shirking ) .
+another approach is to separately learn its own and the opponents action values and then calculate the nash equilibrium [ 46 ] , but such explicit calculations do not seem to be the typical human behavior in socio - economic interactions .
+instead , it is tempting to consider prl with long eligibility traces which , as it performs policy gradient in pomdps [ 7 ] , should find cooperative strategies with , on average , higher than nash payoffs for all agents .
+for the inspector game such a co - operative strategy is that the employer should let the employee sporadically shirk ( say with probability ) without inspection , but with the common agreement that shirking will not prevail ( leading to average payoffs and for the employee and employer , respectively ) .
+although under the specific experimental conditions of the inspector game humans did not show cooperation , they often do so in other game - theoretic paradigms , as e.g. in the prisoner 's dilemma , and hence deviate from the nash equilibrium ( for a review see [ 47 ]) .
+it remains a challenge for future modeling work to capture such cooperative behavior .
+likely , this will involve modeling the prediction of other player 's reactions in response to ones own actions , as considered in the theory of mind [ 48 ] and as being a hallmark of successful socio - economic behavior .
+given the difficulties of modeling genuine social behavior , and the difficulties humans effectively have in stacked reflexive reasoning , the assumption of the opponent 's stationarity considered here appears as a reasonable approximation for decision making even in complex situations .
+in view of its success in matching behavioral and theoretical data we may ask how far human decision making is in fact determined by cognitive reasoning , or whether decisions should rather be attributed to automated neuronal processes steered e.g. by prl ( which can also encompass input from a cognitive module as it is suggested for the production rules in the act - r theory , [ 18 ]) .
+in fact , daily experience tells us that decisions are often more appropriate when we listen to our gut feeling , while we tend to merely add justifications post - hoc. or put in schopenhauer 's words , " that in spite of all his resolutions and reflections he does not change his conduct " [ 49 ] .
+methods model details focusing on one neuron we denote by its input , which is a spike pattern made up of spike trains , and by its output spike train .
+the membrane potential can be written as ( 3 ) the postsynaptic kernel and the reset kernel vanish for . for they are given byfor the resting potential we use ( arbitrary units ) .
+further , is used for the membrane time constant and for the synaptic time constant .
+action potential generation is controlled by an instantaneous firing rate which increases with the membrane potential .
+so , at each point in time , the neuron fires with probability where represents an infinitesimal time window ( we use in the simulations ) .
+our firing rate function iswith and ( parameter values taken from [ 29 ] , see also [ 19 ]) .
+we consider a population of neurons and an input layer of size for each player that is represented by a neural net .
+we assume that each population neuron synapses onto a site in the input layer with probability of , leading to many shared input spike trains between the neurons .
+the population response is read out by the decision making unit based on a spike / no - spike code .
+we introduce the coding function , with , if neuron does not spike , otherwise . the population activity being read out by the decision making unit is : note that such a formal summation could be implemented in terms of a neuronal integrator ( forming a ' line attractor ') which continuously integrates excitatory and inhibitory input and keeps the neuronal activity at a constant level in the absence of input [ 50 ] .
+using this activity readout , the behavioral decision is made probabilistically , with likelihood given by the logistic function ( 4 ) and being the counter probability .
+the normalization of the activity with ensures that , thus being of same order as the noise in the decision readout .
+we now describe the terms , modulating synaptic plasticity in eq .
+( 1 ) .
+the reward feedback encodes the reward prediction error , as observed in experiments [ 20 ] , ( 5 ) here is a running mean estimate of the expected reward , , where we set . the parameter is the positive learning rate which , for notational convenience , we absorb into the reward signal .
+in all prl simulations we used the value . both values and ( rounded ) were chosen to minimize the mean squared error ( mse ) between the average model and human data ( for the shirk rate and for the employee 's reward in the inspector game ) .
+all other parameter values were taken from [ 7 ] .
+the decision feedback is given by ( 6 ) which is the derivative of , see eq .
+( 4 ) , with respect to ; so decision feedback measures how sensitive the decision is to changes in activity .
+as shown in [ 29 ] , the probability density , , that a neuron actually produces the output spike train in response to the stimulus during a decision period lasting from to satisfies : ( 7 ) the derivative of with respect to the strength of synapse is known as characteristic eligibility in reinforcement learning [ 51 ] .
+for our choice of the firing rate function one obtains for the last term in ( 1 ) ( 8 ) in all the simulations initial values for the synaptic strength were picked from a gaussian distribution with mean zero and standard deviation equal to , independently for each afferent and each neuron .
+in the supporting text s2 we show that the plasticity rule ( 1 ) composed of the factors ( 5 , 6 , 8 ) and the decision follows the stochastic gradient of the expected reward .
+td - learning for td - learning we used the sarsa control algorithm [ 2 ] which estimates the values of state - action pairs . at each point in time , the value estimates are updated according tohere is similar to a learning rate and has values between and . is the reward immediately obtained after performing action . in the case of blackjack it is defined as zero if the game is not over and the player chooses to draw another card , otherwise it is determined by the payoffs of the considered game .
+when in state , the next action is chosen using softmax , i.e. according to the probability . in all simulations we used the rounded values and as they minimized the mse between averaged model and human data ( for the shirk rate and for the employee 's reward in the inspector game ) .
+note that in both td - learning and prl we adapted the same number of free parameters ( td : and ; prl : and ) , making it possible to directly compare the quality of the fit .
+basic reinforcement models in both roth - erev models [ 17 ] the probabilistic choice rule is parametrized using propensities . the probability that a specific player ( who 's index is omitted ) plays his th pure strategy is . re1 model the propensity of the chosen action is incremented by the received reward , , where denotes the kronecker delta .
+the initial propensities are set to , where is the average reward for that player under uniformly distributed ' s , and the strength parameter is the one parameter that is optimized .
+re3 model in addition to the strength parameter , the generalization and forgetting parameters and are introduced .
+the propensities are updated according tothe parameters were chosen to minimize the mean squared error ( mse ) between the average model and human data ( ( re1 ) and ( re3 ) for the shirk rate and ( re1 ) and ( re3 ) for the employee 's reward in the inspector game ) .
+blackjack details in blackjack we assume an infinite number of card decks .
+independently of the history , the drawing probability therefore remains constant , with a probability to draw a card with value being , and the probability to draw any other value from 2 to 11 being . for a strategy determined by the stopping value we calculated analytically the probability distribution of hand values after drawing the last card .
+the drawing process is iterated for those hand values that are smaller than until there is only probability mass on hand values greater than or equal to . because the lowest card value on the desk remains always , drawing times in a row yields a lowest possible hand value of . hence up to cards are drawn in order to obtain a hand value greater or equal to . let us denote the value of the th card by and its probability distribution by , to obtain the probability distribution we sum up the probabilities of all possible combinations to draw cards that yield hand value , with the condition that the sum of the first drawn cards is smaller than , such that a th card is actually drawn under the stopping strategy.where ii is the indicator function which is one if its argument is true and zero else .
+the product of the is the joint probability that the first card has value , the second and so on. the first indicator function ensures that all drawn cards sum up to , the second that cards are drawn , i.e. the sum of the first cards has to be smaller than the stopping value , because otherwise no further card would be drawn .
+for instance in the case of and one obtains the distributions in table 3 .
+10.1371 / journal.pcbi.1002691.t003 table 3 probability distribution of hand values after drawing the last card .
+< 15 15 16 17 18 19 20 21 > 21 0 0.1206 0.1247 0.1194 0.1138 0.1078 0.1546 0.0944 0.1648 0 0 0.1247 0.1287 0.1231 0.1170 0.1638 0.1036 0.2390 denoting the hand value of the gambler by and that of the croupier by the payoff of the bank isaveraging of with respect to the joint distribution yields the entry in the average payoff matrix table 1 for the strategy pair () .
+for instance for () , . we defined the drawing probabilities in fig. 2 for a hand value at a certain game number as the frequency with which another card has been drawn upon the last presentations prior to of the corresponding stimulus .
+the evolution of the average reward in time in fig. 2c are the low pass filtered reward sequences , where is the reward in the - th game and was used .
+the initial value was calculated assuming a random choice behavior prior to learning .
+the initial weights mimicking the prior strategy of instructed humans were obtained by training our network to make a decision with a certain probability .
+this is possible by adapting prl to perform regression ( as will be published elsewhere ) .
+inspector game details the evolution of the rates in time in fig. 3e are the low pass filtered decision sequences , e.g. where if the employee shirks in trial , otherwise . we used a value of and assumed again an initial random choice behavior .
+the rate change in fig. 3f was determine by binning the obtained time course of the rate into bins of width , calculating the mean of each bin , and the differences between succeeding bins .
+the result was further low pass filtered once more with an exponential running mean () to reduce the noise .
+supporting information text s1 we present further results for temporal - difference learning and elaborate on its failure to learn mixed nash equilibria .
+( pdf ) click here for additional data file .
+text s2 we show how the plasticity rule presented in the main text is based on a gradient ascent procedure maximizing the average reward .
+( pdf ) click here for additional data file .
+text s3 we demonstrate that the heuristic rules of erev and roth [ 17 ] are no gradient procedures .
+( pdf ) click here for additional data file .
+we thank robert urbanczik for helpful discussions , michael c. dorris for providing the code of the computer algorithm used in [ 11 ] , johannes hewig for the data of humans playing blackjack [ 10 ] , and yonatan loewenstein for helpful feedback on the covariance rules .
+references 1 dayan p , daw nd ( 2008 ) decision theory , reinforcement learning , and the brain . cogn affect behav ne 8 : 429 - 453 . 2 sutton rs , barto ag ( 1998 ) reinforcement learning : an introduction .
+cambridge , ma : mit press .
+3 seymour b , o'doherty jp , dayan p , koltzenburg m , jones ak , et al ( 2004 ) temporal difference models describe higher - order learning in humans . nature 429 : 664 - 7 . 15190354 4 potjans w , morrison a , diesmann m ( 2009 ) a spiking neural network model of an actor - aritic learning agent . neural comput 21 : 301 - 339 . 19196231 5 howard ra ( 1960 ) dynamic programming and markov processes .
+cambridge , ma : mit press .
+6 smallwood rd , sondik ej ( 1973 ) the optimal control of partially observable markov processes over a finite horizon . oper res 21 : 1071 - 1088 . 7 friedrich j , urbanczik r , senn w ( 2011 ) spatio - temporal credit assignment in neuronal population learning . plos comput biol 7 : e1002092 . 21738460 8 fudenberg d , levine dk ( 1998 ) theory of learning in games .
+cambridge , ma : mit press .
+9 von neumann j , morgenstern o ( 1944 ) theory of games and economic behavior .
+princeton : princeton university press .
+10 hewig j , trippe r , hecht h , coles gh , holroyd cb , et al ( 2007 ) decision - making in blackjack : an electrophysiological analysis . cereb cortex 17 : 865 - 877 . 16723407 11 dorris mc , glimcher pw ( 2004 ) activity in posterior parietal cortex is correlated with the relative subjective desirability of action . neuron 44 : 365 - 378 . 15473973 12 thorndike el ( 1898 ) animal intelligence : an experimental study of the associative processes in animals . psychol monogr 2 : 321 - 330 . 13 rescorla r , wagner a ( 1972 ) a theory of pavlovian conditioning : variations in the effectiveness of reinforecement and nonreinforcement .
+in : black ah , prokasy wf , editors .
+classical conditioning ii : current research and theory .
+new york : appleton century crofts. pp .
+64 - 99 .
+14 dayan p , long t ( 1998 ) statistical models of conditioning .
+adv neural inf process syst 10. pp .
+117 - 123 .
+15 fiete ir , seung hs ( 2006 ) gradient learning in spiking neural networks by dynamic perturbation of conductances . phys rev lett 97 : 048104 . 16907616 16 fremaux n , sprekeler h , gerstner w ( 2010 ) functional requirements for reward - modulated spike - timing - dependent plasticity . j neurosci 30 : 13326 - 13337 . 20926659 17 erev i , roth ae ( 1998 ) predicting how people play games : reinforcement learning in experimental games with unique , mixed strategy equilibria . amer econ rev 88 : 848 - 881 . 18 anderson jr , bothell d , byrne md , douglass s , lebiere c , et al ( 2004 ) an integrated theory of the mind . psychol rev 111 : 1036 - 1060 . 15482072 19 gerstner w , kistler wm ( 2002 ) spiking neuron models .
+cambridge , uk : cambridge university press .
+20 schultz w , dayan p , montague pr ( 1997 ) a neural substrate of prediction and reward . science 275 : 1593 - 1599 . 9054347 21 wang xj ( 2008 ) decision making in recurrent neuronal circuits . neuron 60 : 215 - 234 . 18957215 22 urbanczik r , senn w ( 2009 ) reinforcement learning in populations of spiking neurons . nat neurosci 12 : 250 - 252 . 19219040 23 izhikevich em ( 2007 ) solving the distal reward problem through linkage of stdp and dopamine signaling . cereb cortex 17 : 2443 - 2452 . 17220510 24 averbeck b , latham pe , pouget a ( 2006 ) neural correlations , population coding and computation . nat rev neurosci 7 : 358 - 3666 . 16760916 25 von neumann j ( 1928 ) zur theorie der gesellschaftsspiele . math ann 100 : 295 - 320 . 26 hewig j , trippe r , hecht h , coles gh , holroyd cb , et al ( 2008 ) an electrophysiological analysis of coaching in blackjack . cortex 44 : 1197 - 1205 . 18761133 27 avenhaus r , von stengel b , zamir s ( 2002 ) inspection games .
+in : aumann rj , hart s , editors .
+handbook of game theory with economic applications. pp .
+1947 - 1987 .
+28 glimcher pw , camerer c , fehr e , poldrack r , editors ( 2008 ) neuroeconomics : decision making and the brain .
+amsterdam : elsevier .
+29 pfister j , toyoizumi t , barber d , gerstner w ( 2006 ) optimal spike - timing - dependent plasticity for precise action potential firing in supervised learning . neural comput 18 : 1318 - 1348 . 16764506 30 florian rv ( 2007 ) reinforcement learning through modulation of spike - timing - dependent synaptic plasticity . neural comput 19 : 1468 - 1502 . 17444757 31 friedrich j , urbanczik r , senn w ( 2010 ) learning spike - based population codes by reward and population feedback . neural comput 22 : 1698 - 1717 . 20235820 32 seung hs ( 2003 ) learning in spiking neural networks by reinforcement of stochastic synaptic transmission . neuron 40 : 1063 - 1073 . 14687542 33 werfel j , xie x , seung hs ( 2005 ) learning curves for stochastic gradient descent in linear feedfor - ward networks . neural comput 17 : 2699 - 2718 . 16212768 34 crawford vp ( 1985 ) learning behavior and mixed - strategy nash equilibria . j econ behav organ 6 : 69 - 78 . 35 stahl do ( 1988 ) on the instability of mixed - strategy nash equilibria . j econ behav organ 9 : 59 - 69 . 36 shanks dr , tunney rj , mccarthy jd ( 2002 ) a re - examination of probability matching and ra - tional choice . j behav decis making 15 : 233 - 250 . 37 loewenstein y , seung hs ( 2006 ) operant matching is a generic outcome of synaptic plasticity based on the covariance between reward and neural activity . proc natl acad sci u s a 103 : 15224 - 15229 . 17008410 38 loewenstein y , prelec d , seung hs ( 2009 ) operant matching as a nash equilibrium of an in - tertemporal game . neural comput 21 : 2755 - 2773 . 19635021 39 sakai y , fukai t ( 2008 ) the actor - critic learning is behind the matching law : matching versus optimal behaviors . neural comput 20 : 227 - 251 . 18045007 40 herrnstein rj ( 1961 ) relative and absolute strength of response as a function of frequency of reinforcement . j exp anal behav 4 : 267 - 272 . 13713775 41 loewenstein y ( 2010 ) synaptic theory of replicator - like melioration . front comput neurosci 4 : 17 . 20617184 42 soltani a , wang xj ( 2006 ) a biophysically based neural model of matching law behavior : melio - ration by stochastic synapses . j neurosci 26 : 3731 - 3744 . 16597727 43 luce r ( 1959 ) individual choice behavior : a theoretical analysis .
+new york : wiley .
+44 shanks dr , tunney rj , mccarthy jd ( 1998 ) do people play nash equilibrium ?
+lessons from evolutionary game theory . j econ lit 36 : 1 - 28 . 45 littman ml ( 1994 ) markov games as a framework for multi - agent reinforcement learning .
+in : proceedings of the international conference on machine learning .
+san francisco , ca. pp .
+157 - 163 .
+46 hu j , wellman mp ( 2003 ) nash q - learning for general - sum stochastic games . j mach learn res 4 : 1039 - 1069 . 47 holt ca , roth ae ( 2004 ) the nash equilibrium : a perspective . proc natl acad sci u s a 101 : 3999 - 4002 . 15024100 48 yoshida w , dolan rj , friston kj ( 2008 ) game theory of mind . plos comput biol 4 : e1000254 . 19112488 49 schopenhauer a ( 1890 ) the wisdom of life .
+london : s. sonnenschein .
+147 pp .
+50 seung hs ( 1996 ) how the brain keeps the eyes still . proc natl acad sci u s a 93 : 13339 - 13344 . 8917592 51 williams rj ( 1992 ) simple statistical gradient - following algorithms for connectionist reinforcement learning . mach learn 8 : 229 - 256 .

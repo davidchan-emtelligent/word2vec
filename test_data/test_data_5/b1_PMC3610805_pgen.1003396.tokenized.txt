@@ -1,0 +1,369 @@
+plos genet plos genet plos plosgen plos genetics 1553 - 7390 1553 - 7404 public library of science san francisco , usa 23555302 3610805 pgenetics - d - 12 - 02731 10.1371 / journal.pgen.1003396 research articlebiologycomputational biologygenomicsfunctional genomicsgenome databasesgenome expression analysiscomputer sciencealgorithms robust prediction of expression differences among human individuals using only genotype information robust prediction of human expression variation manor ohad 1 2 segal eran 1 2 * 1 department of computer science and applied mathematics , weizmann institute of science , rehovot , israel 2 department of molecular cell biology , weizmann institute of science , rehovot , israel gibson greg editor georgia institute of technology , united states of america * e - mail : eran @ weizmann.ac.il the authors have declared that no competing interests exist .
+conceived and designed the experiments : om es. performed the experiments : om. analyzed the data : om. wrote the paper : om es .
+3 2013 28 3 2013 9 3 e1003396 7 11 2012 24 1 2013 ( c ) 2013 manor , segal 2013 manor , segalthis is an open - access article distributed under the terms of the creative commons attribution license , which permits unrestricted use , distribution , and reproduction in any medium , provided the original author and source are properly credited .
+many genetic variants that are significantly correlated to gene expression changes across human individuals have been identified , but the ability of these variants to predict expression of unseen individuals has rarely been evaluated .
+here , we devise an algorithm that , given training expression and genotype data for a set of individuals , predicts the expression of genes of unseen test individuals given only their genotype in the local genomic vicinity of the predicted gene .
+notably , the resulting predictions are remarkably robust in that they agree well between the training and test sets , even when the training and test sets consist of individuals from distinct populations .
+thus , although the overall number of genes that can be predicted is relatively small , as expected from our choice to ignore effects such as environmental factors and trans sequence variation , the robust nature of the predictions means that the identity and quantitative degree to which genes can be predicted is known in advance .
+we also present an extension that incorporates heterogeneous types of genomic annotations to differentially weigh the importance of the various genetic variants , and we show that assigning higher weights to variants with particular annotations such as proximity to genes and high regional g / c content can further improve the predictions .
+finally , genes that are successfully predicted have , on average , higher expression and more variability across individuals , providing insight into the characteristics of the types of genes that can be predicted from their cis genetic variation .
+author summary variation in gene expression across different individuals has been found to play a role in susceptibility to different diseases .
+in addition , many genetic variants that are linked to changes in expression have been found to date .
+however , their joint ability to accurately predict these changes is not well understood and has rarely been evaluated .
+here , we devise a method that uses multiple genetic variants to explain the variation in expression of genes across individuals .
+one important aspect of our method is its robustness , in that our predictions agree well between training and test sets .
+thus , although the number of genes that could be explained is relatively small , the identity and quantitative degree to which genes can be predicted is known in advance .
+we also present an extension to our method that integrates different genomic annotations such as location of the genetic variant or its context to differentially weigh the genetic variants in our model and improve predictions .
+finally , genes that are successfully predicted have , on average , higher expression and more variability across individuals , providing insight into the characteristics of the types of genes that can be predicted by our method .
+this work was supported by grants from the european research council ( erc ) , the u.s. national institutes of health ( nih ) , and the eu syscol project to es. es is the incumbent of the soretta and henry shapiro career development chair .
+om is grateful to the azrieli foundation for the award of an azrieli fellowship .
+the funders had no role in study design , data collection and analysis , decision to publish , or preparation of the manuscript .
+introduction variation in gene expression among human individuals plays a key role in the susceptibility to different diseases and phenotypes [ 1 ] - [ 7 ] .
+some of this variation has been linked to genetic variation that exists among individuals [ 8 ] - [ 16 ] .
+for this reason , a major goal is to predict gene expression changes among individuals based on their genetic sequence variation .
+ideally , if we could predict the expression profile of genes for each individual , we could estimate this individual 's risk for developing certain diseases ; but unfortunately , our current ability to make such predictions is poor .
+a popular approach to study the relationship between genetic variation and expression variation is by using a mapping approach , where the expression of every gene is treated as a quantitative trait and one searches for genetic changes that are significantly correlated with the expression changes of each gene .
+a dominant method is to fit a linear regression model from the minor allele count of single nucleotide polymorphisms ( snps ) to the expression level of a gene across different individuals .
+under some assumptions , a p - value for the resulting correlations can be computed and after correcting for multiple hypotheses testing , the set of snps that are significantly associated with the expression changes of every gene can be identified .
+using this approach researchers were able to examine all of the snps measured in the human genome for significant associations in an unbiased way , resulting in many potential effectors of gene expression [ 9 ] , [ 10 ] , [ 17 ] , [ 18 ] .
+a major issue in the above analyses is low statistical power for detecting associations that arises from the large number of snps examined .
+this means that snps with a low correlation to expression will not be detected as possible effectors .
+however , since the degree of correlation of snps to expression is associated with their genomic features such as location ( e.g. , distance from the transcription start site ) or function [ 9 ] - [ 16 ] , [ 18 ] - [ 20 ] ( e.g. , within transcription factor binding sites ) , several studies used genomic features of snps as a prior on the probability of their functional importance within a bayesian framework [ 13 ] , [ 19 ] , [ 20 ] , resulting in additional statistical power to detect associated snps in particular genomic regions .
+a second issue is that the above methods examine each snp in isolation .
+thus , they cannot detect combinatorial associations between multiple snps and expression changes .
+several methods tried to address this issue by examining multiple snps at the same time using ridge - regression [ 21 ] , a bayesian approach [ 22 ] , or multiple interval mapping [ 23 ] , and identified statistically significant epistatic interactions that are not found using the single snp approaches .
+collectively , the above methods focused on mapping snps that are significantly correlated with expression and have identified many interesting associations between expression changes across genes and genotype data .
+however , since their goal was to identify statistically significant associations of single snps , they do not consider multiple - snp models , where combinations of snps and snps with small effects could play a role in generating the predictive model .
+one work attempted to devise a multiple - snp predictive model using a cross validation scheme , whereby a model whose parameters were fitted from the data of a subset of the individuals is tested for its ability to predict the expression of the remaining unseen individuals [ 24 ] .
+this work also integrated genomic features of snps , using them as priors in a regularized linear model , and found snps located in certain regions of the gene to be more predictive of gene expression variation .
+however , in addition to the snp information , this work also used the expression value of other genes for the prediction task , making it difficult to assess which part of the reported predictive power comes from snp information and which from the expression of correlated genes .
+here , we set out to develop an algorithm that predicts changes in gene expression among human individuals using only their genetic variation .
+notably , this goal is different from that of the above studies that focus on mapping associated single snps .
+accordingly , rather than providing p - values for snp associations , we evaluate the quality of our algorithm by its ability to predict the gene expression levels of unseen human individuals given only their genotype information .
+contrary to the single snp association studies mentioned above , we use multiple snps to predict the expression of every gene , but to avoid overfitting only snps that are in the genomic vicinity of the predicted gene are used .
+we also incorporate a comprehensive set of genomic and functional features for each snp , by allowing the algorithm to use this meta - information to weigh the importance of each snp in the prediction .
+we evaluated the ability of several algorithms to predict gene expression data from immune precursor cells of four different human populations for which corresponding snp data is available [ 8 ] , [ 10 ] .
+clearly , this prediction task is very difficult for several reasons , including noise in the data and missing snps , and because the expression of many genes is determined by environmental factors and by trans - acting snps that we do not consider .
+nevertheless , comparing two different multi - snp algorithms and one single - snp algorithm , we find that both a variation of the k - nearest neighbor ( knn ) algorithm [ 25 ] , [ 26 ] and a regularized linear model achieve high correspondence between their predictions on the training data and those on the held out test data .
+we also show that combining their predictions into a single model improves the predictions on held - out test data , as the two models explain different aspects of the expression data .
+as expected , the total number of genes whose expression can be accurately predicted using their proximal snp data is relatively small , but the high robustness of our algorithm means that it can determine the quality of the predictions in advance with high accuracy .
+as we had four different populations in the data , we evaluated the predictions on several different cross validation schemes .
+notably , we found that incorporating individuals from other populations improves the predictions of a given population compared to only using the individuals of the predicted population , suggesting that some of the snps that are associated with expression changes are shared across populations .
+we also found that our algorithm achieves similar performance when it attempts to predict the expression of genes from one population using only the data of other populations .
+taken together , our work provides concrete means by which some of the expression variation among human individuals can be predicted with a low false positive rate using only their genotype data , suggesting that the time may be ripe for a broader examination of this important prediction task , perhaps while incorporating additional features such as trans - acting snps .
+results experimental data and cross validation schemes as the data for our study , we used the hapmap phase ii dataset [ 8 ] , consisting of 210 unrelated individuals from four distinct populations of european ( ceu ) , african ( yri ) , chinese ( chb ) , and japanese ( jpt ) origins , for which corresponding expression measurements from immune precursor cells are available for 15,439 genes [ 10 ] .
+we defined a prediction task for each such gene using only its set of proximal cis - snps , defined as those snps that reside inside the body of the gene or in the 100 kb upstream and downstream regions flanking the gene .
+this resulted in a total of ~ 4.7 m cis - snps across all 15,439 genes , for an average of ~ 304 snps per gene .
+to assess whether the predictive power comes from using individuals of the same population or those of other populations , we used three different cross - validation ( cv ) schemes throughout the paper ( figure 1 ) .
+in the first cross - pop scheme , three populations serve as training data , and the remaining population is used as the test data .
+in the second mixed - pop scheme , the populations are mixed such that the training and test data both contain individuals from all four populations .
+finally , in the third intra - pop scheme , the partition to training and test is done separately for each population , such that there is a separate test data for each of the four populations that is predicted using a model learned only from the remaining individuals of the tested population .
+the prediction task of the cross - pop scheme may be expected to be the hardest , since the parameters are learned using only the data of other distinct populations , which requires the snps affecting expression to be shared across populations .
+conversely , in the intra - pop scheme , the model can select different snps for each population , if each population has a different snp affecting expression .
+this may improve the predictions but can also lead to overfitting of the training data .
+finally , in the mixed - pop scheme , although snps have to be shared across populations , having representatives from all populations in the training and test sets may improve the robustness of the model .
+10.1371 / journal.pgen.1003396.g001 figure 1 different cross - validation schemes used throughout the paper .
+shown are the three different cross validation schemes that we used throughout the paper .
+in the cross - pop scheme ( left column ) , a 4 - fold cross validation scheme is used , whereby in each partition three of the four populations are used as the training set ( blue ) , and one population is held out as a test set ( colored orange ) .
+in the mixed - pop scheme ( middle column ) , individuals from all populations are randomly partitioned into five equally sized sets , and each of the five possible choices of four sets is then used as training , with the fifth held out set used as the test set .
+finally , in the intra - pop scheme ( right column ) , a standard five fold cross validation scheme is applied separately to each population ( i.e. , the training and test set always consist of individuals from the same population ) .
+robust prediction of expression of unseen individuals from multiple snps most studies of the relationship between genetic and expression variation have focused on identifying single snps that are significantly correlated with gene expression changes [ 8 ] - [ 16 ] .
+thus , the question of whether multiple snps can be used jointly to improve predictions of gene expression remains largely unexplored , and hence , we sought to devise an algorithm that can robustly predict the expression of unseen test individuals using multiple snps .
+given that we restricted ourselves to cis - snps and that many expression changes are determined by environmental factors or by trans - snps , this prediction task is difficult and even the optimal predictor would not be able to explain most of the observed variation in expression .
+rather , we strive for a robust predictor that will have good agreement between the training and test data , such that it can determine its performance on held out individuals in advance using only the individuals given to it during the training phase .
+a predictive model based on a single snp ( single - snp model ) will have only two parameters for regression , namely the slope and the intercept .
+therefore , we decided to compare this model with two different multi - snp models that vary in the number of parameters they use .
+the first model is based on the k - nearest neighbor ( knn ) algorithm , which predicts the expression level of an unseen individual based on the measured expression values of the k individuals in the training set whose genotypes are most similar to it [ 25 ] , [ 26 ] .
+in the knn algorithm , similarity is measured by a distance metric , which we defined in our case as the absolute difference in minor allele counts summed over all cis - snps of the tested gene .
+we chose the knn algorithm due to its inherent property of generating its predictions using the measured values of those individuals that are closest to it in feature ( genotype ) space , rather than by attempting to construct a generative model of its predicted values .
+this property allows the knn model to use multiple snps in the prediction , while using only a single parameter , k ( the number of neighbors ) and it is thus similar to the single - snp model in terms of the parameter space it uses .
+the second multi - snp model we consider is a regularized ( elastic - net ) linear regression model [ 27 ] that has one weight parameter for each snp , thereby increasing the number of parameters to the number of snps used by the model .
+in order to increase robustness , we employed an internal training cross - validation procedure to determine the strength of the regularization and the training performance ( see methods ) .
+we also combined the two multi - snp models into a single model by averaging their predictions for each individual , since we hypothesized that the different assumptions and number of parameters employed by the two models will capture different aspects of the data and hence their combination could improve the predictions .
+we tested these different models in each of the three different cross validation schemes .
+for all models , in each cross validation partition we used the training data to learn the parameters for each gene , which maximize the reduction in variance achieved by the corresponding predictor ( i.e. , regressor or knn , see methods ) .
+we measure this reduction using r2 , defined as the proportion of variance in the data ( either training or test ) explained by the predictor .
+notably , for all multi - snp models , we found high correlations between their predictions on the training data and their predictions on the test data in all three cross validation schemes ( e.g. , pearson correlations of 0.57 - 0.88 between training and test results across mean cross - validation values of 15,439 genes for the combined model ) .
+in nearly all cases , these correlations between the training and test predictions were higher than those achieved by the single - snp model .
+this improved performance of the multi - snp models was most notable in the hardest cross - pop prediction scheme , where the knn model had 0.83 pearson correlation , compared to the 0.21 of the single - snp model ( figure 2a , figure s1 , figure s2 ) .
+the improved performance of the multi - snp models was also evident when binning the genes according to their training performance in each algorithm and then comparing the r2 that each algorithm achieves on the test data ( figure 2b , 2c ) .
+for example , for genes with training r2 between 0.2 and 0.3 ( i.e. , 20 - 30 % of the expression variation of the training set is explained ) , the knn , linear and combined models achieve an average test r2 of 0.21 , 0.13 and 0.22 , respectively , whereas the single - snp model achieves test r2 of 0.075 ( figure 2c , cross - pop ) .
+10.1371 / journal.pgen.1003396.g002 figure 2 multi - snp algorithms predict expression of unseen test individuals with high robustness .
+( a ) predictions of the knn algorithm are more correlated between the training and test sets compared to the linear and best - snp models .
+for the knn - based algorithm , the regularized linear regression model , and the single best - snp model that uses the most correlated snp , shown are the pearson and spearman correlation coefficients between the training and test r2 across all genes and all three cross validation schemes .
+( b ) for each of the three models and every cross - validation scheme , genes were binned by training r2 .
+shown is the mean training r2 of the genes in every bin .
+( c ) for genes with the same training r2 in each model , the multi - snp algorithms show higher test r2 .
+for the same bins from ( b ) , shown is the mean test r2 of the genes in every bin .
+( d ) the combined algorithm is more robust than the all other models .
+for each model and every cross validation scheme , genes with training r2 > 0.05 were extracted .
+for each such set of genes , shown is the fraction ( y - axis ) of genes whose test r2 by each respective model and cross validation scheme were within some fraction ( x - axis , robustness threshold ) of their training r2 .
+the r2 values above represent an average over multiple genes , and thus , they may not be indicative of the r2 of individual genes .
+as one way to examine performance at the single gene level , we defined a robustly predicted gene as one with test r2 equal to or larger than some threshold fraction of its training r2 ( only genes with training r2 >= 0 are considered ) .
+here too , we found the multi - snp models to have a much higher fraction of robustly predicted genes across all thresholds and cross - validation schemes as compared to the single - snp model ( figure 2d ) .
+notably , the differences in this analysis are even more striking than those suggested by the average r2 values , where for example , at a robustness threshold of 0.5 in the cross - pop scheme ( i.e. , test r2 of a gene is at least half of its training r2 ) , 31 % , 51 % and 75 % of the genes are robustly predicted by the knn , linear and combined models , respectively , compared to only 5 % for the single - snp model .
+as expected from this hard prediction task , the overall number of genes that can be well predicted is relatively small ( table 1 , tables s1 and s2 , and figure s3 ) .
+for example , 364 / 15,439 ( 2.4 %) and 529 / 15,439 ( 3.4 %) of the genes have training and test r2 above 0.1 in the cross - pop and mixed - pop cv schemes , respectively .
+however , the robust nature of our algorithms means that the number of false positive predictions will be relatively small , i.e. , the algorithm knows in advance which genes will be well predicted .
+this high degree of robustness persists and is most impressive in the cross - pop scheme , where the expression levels of an entire population is predicted without using any individual from that population .
+10.1371 / journal.pgen.1003396.t001 table 1 number of genes that pass r2 threshold .
+r2 threshold knn elastic - net combined single snp all models 0.05 273 / 622 388 / 640 401 / 493 533 / 2659 700 / 2730 0.1 152 / 350 239 / 389 213 / 265 272 / 685 364 / 753 0.2 47 / 125 114 / 189 82 / 105 100 / 179 143 / 245 0.3 18 / 57 54 / 94 35 / 42 50 / 72 73 / 115 0.4 8 / 29 32 / 55 15 / 20 14 / 25 36 / 62 0.5 4 / 17 14 / 28 6 / 11 5 / 7 16 / 29 models are : k - nearest - neighbor ( knn ) ; regularized linear model ( elastic - net ) ; single best - snp ( single snp ) or in any one of them ( all models ) .
+shown are the number of genes that pass training and test r2 threshold ( test / training ) using the different models in the cross - pop cross - validation scheme .
+when comparing the overlap between top - predicted genes ( in test data ) for the different models , we find that ~ 50 % of the top - predicted genes overlap across all models ( table 2 , tables s3 and s4 , top - predicted gene lists appear in tables s5 , s6 , s7 , s8 , s9 , s10 , s11 , s12 , s13 ) .
+this result suggests that some genes can be well predicted regardless of the selected model ( i.e. , even a single - snp does relatively well ) , but for other genes the selection of the model type , i.e. , linear ( elastic - net ) or non - linear ( knn ) can have a large effect on our ability to correctly predict held - out test data .
+10.1371 / journal.pgen.1003396.t002 table 2 number of top predicted genes that overlap between different models .
+top genes knn - en knn - ss en - ss all models 10 3 3 6 3 20 10 8 14 7 50 29 26 39 24 100 52 47 79 43 200 119 108 152 97 models are : k - nearest - neighbor ( knn ) ; regularized linear model ( en ) ; single best - snp ( ss ) or in any one of them ( all models ) .
+shown are the numbers of top predicted genes that overlap between the different models in the cross - pop cross - validation scheme .
+although we found the multi - snp models to have better robustness in terms of agreement between training and test results , when comparing the best model across all predicted genes , we find that on average , ~ 33 % of the genes are best predicted by the single - snp model , while the other ~ 66 % are best predicted by one of the multi - snp models ( table s14 ) .
+this result emphasizes the fact that in different scenarios , different models perform best , and the best approach would probably make combined use of all models .
+in conclusion , these results demonstrate that multi - snp models , including both the knn - model that uses a single parameter and the regularized linear model that uses multiple parameters , are overall more robust than the single - snp model , and can outperform it for most genes .
+in addition , we found that a model that combines the two multi - snp models can be beneficial in terms of prediction robustness as compared to the individual models .
+integration of genomic features of snps improves the predictions on unseen data despite the robust predictions of our knn - based algorithm , in the distance metric that it employs all snps contribute equally .
+since snps can vary greatly in their correlation to the expression of the nearby gene , and the degree to which their expression correlations on the training set match their correlations on the test set , we asked whether snps with better agreement have particular properties .
+we reasoned that if that were the case , then we might be able to improve performance by using this information to assign differential weights to snps within the distance metric .
+motivated by studies demonstrating that snps that are closer to the transcription start site or snps that are located within 3 ' utrs have higher expression correlations [ 10 ] , [ 24 ] , [ 27 ] , we generated a comprehensive set of 117 genomic features for every snp ( table s15 ) .
+in addition to previously examined annotations such as the location of the snp ( e.g. , within a utr , intron , or gene body ) , and its distance from the transcription start and end sites , we also added features such as the conservation and g / c nucleotide content around the snp , and whether or not the snp resides within predicted microrna or transcription factor binding sites .
+we also added features based on chromatin immunoprecipitation experiments , such as whether or not a snp is located in a genomic region marked with a specific histone methylation or acetylation .
+next , we extended the knn algorithm to integrate genomic features into the model by assigning a weight to each genomic feature representing its relative importance .
+we then updated the distance metric employed by the knn algorithm such that for each snp that it sums over when computing the distance between the genotypes of two individuals , it weighs the absolute difference of the snp 's allele counts between the two individuals by the weighted sum of the snp 's genomic features ( figure 3 ) .
+the extended algorithm learns the weights of the genomic features in an iterative manner , by updating the weight of each genomic feature in a way that maximizes the training r2 and thus improves the overall expression predictions of the algorithm ( methods ) .
+the greedy nature of the algorithm ensures that it improves in each iteration until a local maxima is reached in which changes to the weights of the genomic features do not further improve the training r2 .
+10.1371 / journal.pgen.1003396.g003 figure 3 extending the k - nearest - neighbor algorithm to integrate genomic features .
+illustration of our extension to the knn algorithm that integrates genomic features .
+the algorithm starts with two constant datasets , and a genomic feature weight vector ( dashed box ) that it updates .
+the constant datasets consist of the snp matrix ( bottom matrix ) , in which every entry is colored by the allele composition of the individual (' c ' , common ; ' r ' , rare ) , and the genomic feature matrix ( top matrix ) , in which every entry represents the value of the genomic feature for the corresponding snp .
+the genomic feature weight vector represents the relative weight or importance of each feature .
+the algorithm updates this weight vector iteratively .
+first , we compute the snp induced weights vector , by multiplying the genomic feature weight vector with the genomic feature matrix ( 1 ) .
+next , we compute the pairwise distances between every two individuals ( rows ) , by summing the differences in allele composition across all snps , where each snp is weighed by its corresponding induced weight ( 2 ) , resulting in a pairwise distance matrix ( bottom right ) .
+this pairwise distance matrix is then used to find the k nearest neighbors for each individual , i.e. , those k individuals with the smallest distance from each individual ( 3 ) .
+then , we average their expression values to generate a prediction for this individual .
+we apply this process to each individual , and obtain an expression prediction vector for all individuals ( 4 ) .
+finally , we compare the prediction to the true expression vector , and use this difference to update the genomic feature weight vector for the next iteration , by selecting the weight vector that minimizes this difference the most from among a candidate pool .
+( 5 ) .
+we iterate until convergence to a local maximum , whereby changing the genomic feature weight vector does not further improve the prediction on training data .
+to test whether this extended algorithm can improve the predictions obtained by the simple - knn algorithm , we applied it to all genes whose training r2 in the simple - knn algorithm was above 0.05 in each of the cross - validation schemes .
+for most genes ( 65 - 85 % , depending on the cross validation scheme , figure 4a ) , integrating genomic features did not result in large improvements of the training r2 obtained by the simple - knn algorithm .
+correspondingly , the test r2 values improved for only ~ 45 % of these genes ( figure 4b ) .
+however , for most ( 66 - 90 %) of the genes for which integrating genomic features resulted in a substantial ( above 0.1 ) increase in their training r2 , the test r2 also increased , and the average test r2 increase of these genes was ~ 0.1 in all three cross - validation schemes ( figure 4c , figure 5 ) .
+thus , although integrating genomic features improves the training predictions for only a subset of genes ( 15 - 35 % , depending on the cross - validation scheme ) , the extended algorithm maintains the robustness property of the simple knn algorithm , whereby it can identify in advance which genes will be better predicted on unseen individuals .
+10.1371 / journal.pgen.1003396.g004 figure 4 integrating genomic features improves the performance of the knn algorithm .
+( a ) shown is a comparison of the training r2 values for genes in either the basic knn algorithm ( x - axis ) or the extension of the knn algorithm that integrates genomic features ( knn - igf , y - axis ) .
+only genes that have training r2 >= 0.05 in the basic knn were included in the analysis .
+results are shown for each cross validation scheme , along with the fraction of genes with improved training r2 of 0.1 or more in knn - igf ( pink ) .
+( b ) shown is a comparison of the test r2 values for same genes in either the basic knn algorithm ( x - axis ) or the knn - igf ( y - axis ) .
+results are shown for each cross validation scheme , along with the fraction of genes that better predicted in the basic knn ( under the blue line ) or in knn - igf ( above blue line ) .
+( c ) same as ( b ) , but filtered for genes whose training r2 when integrating genomic features was at least 0.1 higher than the training r2 of the basic knn algorithm .
+as seen , most genes with improved training r2 also have better test r2 .
+10.1371 / journal.pgen.1003396.g005 figure 5 examples of predictions for genes with large training r2 improvement when integrating genomic features .
+shown are the 8 genes for which the knn algorithm that integrated genomic features resulted in the greatest r2 improvement in the training data as compared to the basic knn algorithm .
+each plot shows the expression predictions on the test data ( x - axis ) versus the measured expression values ( y - axis ) , where every dot represents one of the 210 individuals .
+the regression curve for each plot is also shown ( red curve ) along with the gene name , and training and test r2 values .
+genomic features related to regulation and activation are significantly enriched in both multi - snp models having integrated the snp genomic features into our extended knn algorithm , we next examined which genomic features are significantly enriched or depleted in it. the extended knn model explicitly assigns different weights to the different genomic features , where the weights are learned for each gene separately .
+therefore , for each genomic feature , we can compute the significance of its enrichment or depletion in having a non - zero weight across all genes .
+we find that 44 / 117 ( 38 %) and 50 / 117 ( 43 %) of the genomic features are significantly enriched or depleted in the extended knn model , respectively ( figure 6 , p < 0.01 in all cv partitions , hypergeometric test , fdr [ 28 ] correction ) .
+in contrast , the regularized linear model does not use the genomic features information in the learning process .
+however , as different snps were assigned different weights , we can determine whether snps that share a certain genomic feature are given a non - zero weight significantly more than expected by chance , or significantly less .
+we find that 47 / 117 ( 40 %) and 7 / 117 ( 6 %) of the genomic features are significantly enriched or depleted in the regularized linear model , respectively .
+10.1371 / journal.pgen.1003396.g006 figure 6 enrichment and depletion of different genomic features in the multi - snp models .
+venn diagram showing the number of significantly enriched ( blue ) or depleted ( red ) genomic features in the extended knn algorithm and the regularized linear model .
+for each model , the number of significant genomic features appears in parenthesis , and non - zero intersections are shown in the appropriate location .
+the list of respective genomic features ( enriched or depleted ) is depicted , and the number in parenthesis represents the actual number of different genomic features in the group .
+since the two multi - snp models were independently learned , we also examined their intersections of enriched or depleted genomic features .
+we found that 28 genomic features are enriched in both models , which is a significantly larger intersection than expected by chance ( p < 10 - 4 , hypergeometric test ) .
+among these enriched genomic features are all distance bins of 15 kb or smaller from tss or tes , suggesting that sequence variation in these regions is most important for regulation by cis - snps , consistent with the higher known expression correlation of proximal snps [ 10 ] , [ 13 ] ( figure 6 , full list of enriched / depleted genomic features in table s16 ) .
+in addition , the genomic feature of high (> 0.7 ) regional gc content ( 50 - 100 bp region flanking snp ) was also enriched in both models .
+high gc content was shown to correlate with higher nucleosome occupancy and regulatory function in humans [ 29 ] , which may explain why snps in these regions are more predictive of expression changes .
+snps in predicted binding sites for both transcription factors and micrornas were also enriched in both models , as may be expected , since such snps may affect the likelihood of binding of the transcription factor [ 30 ] or microrna [ 31 ] .
+among the various post - translational histone modifications included in our genomic feature set ( 20 methylations and 18 acetylation marks , table s15 ) , only 5 histone acetylation marks were significantly enriched in both models ( table s16 ) .
+notably , all 5 / 5 ( 100 %) of these acetylation marks are enriched in enhancers , compared to 11 / 18 ( 61 %) of all histone acetylation marks [ 32 ] , suggesting that snps in enhancer elements may have a larger effect on gene expression .
+next , we examined genomic features that are significantly depleted in both the extended knn and the linear models .
+we find only 3 such genomic features , consisting of medium - low regional gc content , and heterochromatin marks .
+these results suggest that areas with lower regulatory capacity have a smaller effect on variation in gene expression .
+to conclude , the analysis of the genomic features that both multi - snp models selected in an unbiased manner as being more ( or less ) important for the predictions suggests that genetic variation in active and regulatory regions are more likely to affect expression compared to variation in other regions .
+genes that are well predicted have higher expression levels and more variability to gain further insight into properties of genes that may allow for good predictions , we searched for commonalities in genes that our algorithms predicted successfully .
+we arbitrarily defined well - predicted genes as those with both training and test r2 above 0.05 in any of the three - cross validation schemes , resulting in 850 such genes .
+notably , we found that the knn algorithm selected significantly fewer neighbors when predicting these genes ( k = 11.9 vs. 15.2 for the predictable vs. non - predictable genes , respectively , p < 10 - 200 , table 3 and figure s4 ) , and that predictable genes had higher absolute expression levels ( 8.2 vs. 7.7 , p < 10 - 18 , table 3 ) and were more variable , as measured by their coefficient of variation ( standard deviation divided by mean expression , 0.039 vs. 0.027 , p < 10 - 40 , table 3 ) .
+genes with lower expression and less variability are noisier and their measured variation may thus not represent true variation , which may explain why our algorithm is less successful at predicting them .
+we also found that predictable genes have on average fewer cis - snps ( 291 vs. 307 , p < 0.002 ) , but their average information content per snp , measured by the snp 's entropy , is higher ( 0.44 vs. 0.42 , p < 10 - 7 ) .
+10.1371 / journal.pgen.1003396.t003 table 3 comparison between predictable and unpredictable genes .
+feature predictable unpredictable p - value number of neighbors ( k ) 11.9 15.2 1.00e - 200 abs .
+expression 8.2 7.7 5.80e - 19 coefficient of variation 0.039 0.027 4.20e - 41 num .
+snps 291 307 0.002 snp entropy 0.44 0.42 8.00e - 08 feature predictable ( knn - igf ) predictable ( simple - knn ) p - value number of neighbors ( k ) 10.1 10.5 ns abs .
+expression 8.2 8.3 ns coefficient of variation 0.04 0.04 ns num .
+snps 307 255 0.0004 snp entropy 0.44 0.44 ns compared features are the number of neighbors selected by the model ( i.e. , k ) , the absolute expression level of the gene , the coefficient of variation of the gene ( i.e. , standard variation normalized by mean ) , the number of snps per gene and the sum of entropy of snps per gene .
+shown are the average values for each set of genes ( 850 predictable genes vs. 14,587 unpredictable genes in the top rows , and 412 k - nearest - neighbor - integrating - genomic - features ( knn - igf ) predictable genes vs. 90 simple - knn predictable genes in the bottom rows ) , and the p - value calculated by student 's t - test ( ns is non - significant ) .
+finally , comparing genes that are predicted better by the extended knn algorithm integrating genomic features ( knn - igf , 412 genes ) to those that are predicted better by the simple - knn algorithm ( 90 genes ) , we found that genes that are better predicted in the extended version have more snps ( 307 vs. 255 , p < 0.0004 ) and similar information content per snp ( 0.44 in both cases ) .
+this suggests that by integrating genomic features and weighting the relevance by various genomic annotations , we can integrate more features ( snps ) without overfitting .
+we next asked whether predictable genes are enriched for particular biological functions or processes by testing whether they are enriched with particular go annotations .
+after correcting for multiple hypotheses testing using fdr [ 28 ] , we found 18 go annotations that were significantly enriched in the 850 genes that were better predicted ( see table s17 for the full list ). of these , the most notable enrichments were immune response categories , such as mhc protein complex and antigen processing and presentation ( p < 10 - 4 and p < 10 - 3 , respectively ) , which may be expected given that the expression measurements were done in a lymphoblastoid cell line .
+this result is consistent with the finding that snps can effect expression in a cell - type specific manner [ 33 ] , and with another study that found enrichment for immune - related phenotypes in the genes associated with snps that have high expression correlation in these cell lines [ 7 ] .
+since our algorithm only used cis - snps for its predictions , these results suggest that cis - variation may underlie part of the expression variation of immune response genes .
+high expression of a gene in a particular cell type suggests regulation in that cell type .
+thus , our ability to better predict highly expressed genes suggests that predicting the expression variation of a gene based on its cis - snps requires that gene to be regulated in the measured cell type .
+clearly , even if the variation that exists in the cis - regulatory sequence of a particular gene affects its expression , the effect will not be observed in cell types in which that gene is not regulated .
+discussion here , we devised two multi - snp algorithms for predicting gene expression variation among human individuals using only genotype information .
+the algorithms use information from multiple snps in the local vicinity of the predicted gene and we also present a combination of both algorithms and an extension that incorporates heterogeneous sources of genomic annotations of snps and assigns higher relevance to variation in snps with particular annotations .
+notably , we show that our algorithms can predict the expression of genes of unseen individuals with remarkable robustness even when the training set consists only of data from populations different than that of the predicted individuals .
+in fact , a subset of genes are predicted better by our algorithm when incorporating information from populations other than that of the predicted individuals , suggesting that part of the predictive sequence variation is shared across different populations and may be hard to distill using only individuals from the same population .
+the overall number of genes that can be accurately predicted by our algorithms is relatively small , which is expected given that we only consider cis - snps and ignore trans sequence variation and environmental factors .
+however , the robust nature of our algorithms means that although relatively small in number , the genes that can be successfully predicted can be known in advance , as well as the quantitative degree to which they will be predicted .
+we show that both a regularized linear regression model and a knn - based model that use multiple snps are more robust than a single - snp based model , especially when predicting expression across populations .
+we also show that combining these two models into a single model results in improved predictions on held - out test data .
+in addition , although multi - snps models are more robust , we found different genes to be best predicted by different models ( i.e. , linear , non - linear , single best - snp ) in different cross - validation schemes , suggesting that perhaps the most promising approach for predicting expression variation from genotype would make some combination of models .
+analysis of the genomic features that both our extended knn algorithm and the regularized linear model selected as important for prioritizing snps provides insight into specific classes of snps that may have better predictive power and offers concrete means by which we can efficiently explore the vast space of sequence variation and focus on the more relevant variation .
+features that we found to have higher predictive power include proximity to the transcription start and end sites , high regional g / c content , and presence within microrna or transcription factor binding sites .
+in contrast , we found that snps that are located far away from the gene and snps located within heterochromatic regions or low g / c content regions have , on average , lower predictive power .
+we also found that genes that are successfully predicted by our algorithm have , on average , higher expression and more variability and are enriched for classes of genes that have known functional roles in the measured cell types .
+this finding provides insight into the types of genes that we may expect to be able to predict in a given cell type .
+there are many ways in which our algorithms can be further improved , including incorporating trans genetic variation , additional functional annotations of snps , and other types of genetic variation such as insertions , deletions , and copy number variation .
+examining our ability to predict gene expression in other tissues using the models learned in this work is an interesting avenue of research , given that it has been shown that eqtls are shared across different tissues [ 16 ] , and that the similarity between gene expression profiles across different tissues is dominated by heritable effects at the cis - snps [ 34 ] .
+our ability to provide highly robust predictions suggests that the time may be ripe for working on such problems , and that the ability to accurately predict some of the gene expression patterns of individuals using only their dna sequence may be within reach .
+methods data and code download all data used in the different models and the code generating the predictions presented here are available for download in the following url : http :// genie.weizmann.ac.il / software / gen2exp / gen2exp.html genotype dataset we obtained genotype data from the hapmap project phase ii [ 8 ] .
+we removed the 60 children from the trios , resulting in 210 unrelated individuals from four distinct populations .
+we downloaded the entire set of measured single nucleotide polymorphisms ( snps ) for each individual , for a total of ~ 3.5 m snps per individual .
+for each gene , we extracted all snps located inside the gene and those within 100 kb from the transcription start or end sites .
+we transformed each snp to a discrete variable with values of 0 , 1 , or 2 , corresponding to the number of minor alleles that each individual has for the snp .
+therefore , an individual with 0 minor alleles will have a value of 0 , etc .
+expression dataset we used expression measurements of 15,439 genes performed in lymphoblastoid cell lines for all hapmap individuals [ 10 ] .
+to remove population specific effects , we separately centered the expression of the gene ( i.e. , subtracted the mean to achieve zero mean ) within each of the four populations .
+snp genomic features definition and acquisition the full list of snp genomic features that we used along with their description and corresponding reference or website from which they were acquired are given in table s15 .
+computing snp average entropy per gene for each snp we compute the entropy of its allele counts across all individuals based on shannon 's entropy calculation .
+since different snps can have a different number of values ( i.e. , 0 / 1 / 2 vs. only 0 / 1 ) , we first transform the minor allele count of each snp into two alleles , a and b , such that 0 is converted to a = 0 , b = 0 , 1 to a = 0 , b = 1 and 2 to a = 1 , b = 1 .
+next , we compute shannon 's entropy for each of the alleles a and b , and average their result per snp .
+for a specific gene , we average across all its cis - snps to obtain an average snp entropy value per gene .
+predictive models single best - snp model for each gene , we selected the snp with the highest correlation to expression in the training set .
+using this snp , we then constructed a predictor using simple linear regression between its minor allele counts and the expression of the corresponding gene .
+we computed the performance on the test set by predicting the expression values of unseen individuals using the resulting predictor .
+linear model with elastic - net regularization for each gene , we used the training data ( including expression and all cis - snps ) to construct a linear regression model from the allele counts of all snps to the value of expression .
+to regularize the model , we used elastic - net [ 27 ] , where the value of lambda ( the penalty coefficient ) was learned using cross - validation on the training set ( i.e. , partitioning the training set to a learning and validation set ) and selecting the value that gave best results on the validation set .
+the training r2 was calculated as the average r2 achieved using internal cross - validation on the training set .
+k - nearest - neighbor algorithm k - nearest - neighbor ( knn ) predicts the response value of a given instance using the response values of k instances that are closest to it in the feature space under some metric [ 25 ] .
+intuitively , if instances are close to one another in the feature space , we expect them to be close to one another in the response space .
+knn was shown to be a useful approach for many learning tasks [ 26 ] , and since its naive form has a single parameter ( k ) , overfitting does not typically occur .
+since the predictions made by knn depend on the identity of the closest neighbors , the metric plays a key role in the predictive power of the method .
+simple knn algorithm for each gene , we selected the value of k that maximizes the variability explained by a predictor based on the average expression value of the k nearest neighbors of each individual .
+the distance metric was the sum of the absolute differences in minor allele counts across all cis - snps of the gene .
+extended knn algorithm that integrates genomic features to extend the above basic algorithm to integrate genomic features , we convert the genotype matrix into a feature matrix x of size ntotalxd and the expression values to a response vector y of size ntotalx1 , where ntotal is the number of individuals in the task , and d is the number of snps or features that will be used for the prediction task .
+in addition , we define f as a matrix of genomic features representing different properties of the features themselves , where for each of the d features we have m genomic features , resulting in a matrix of size dxm .
+our goal is to predict y , or minimize the squared error between the predicted response y ? and the actual response y. we assessed the results that our algorithm achieved on a held - out test set to evaluate its performance .
+to this end , we first partition the data into training and test sets of sizes ntrain and ntest = ntotal - ntrain , respectively , and ran the algorithms only on the training sets .
+the extended version learns the distance metric used by the knn .
+instead of the metric used by the basic algorithm , in which every snp is given an equal weight , the extended version learns a weight for each genomic feature and then uses this vector to differentially weigh each snp within the distance metric , as a weighted sum of its genomic feature values .
+a key aspect of this approach is that each genomic feature is shared across all snps ( with a corresponding value for each one ) , such that changing its coefficient within the genomic feature vector affects all snps , thereby reducing overfitting .
+in addition , it enables usage of additional information about the features which cannot be represented as part of the original x matrix of snp values .
+regression using a greedy search over the space of linear combinations of genomic features to learn one joint metric that uses all m genomic features , we define a metric by using a linear combination of all genomic features , using a coefficient vector alpha .
+in this approach , the distance between two instances a,b is defined as follows : where and xa,i is the value for the i'th feature of individual a , fi,m is the value of the m'th genomic feature for the feature i , and alpham is the coefficient of the m'th genomic feature .
+now , using this metric , we define the prediction for a single instance n as the average of its k nearest neighbors : the loss function of the extended knn algorithm for the learning task , we can use several objective functions .
+in our case , since we are using a greedy heuristic approach , the objective function does not need to be differentiable .
+although several objective functions are possible , we used the metric - to - response correlation ( mrc ) objective function , which is independent of k. during the optimization process of the metric , we attempt to maximize the correlation ( across all instances ) between the pairwise distances under the metric ( dab ) to the corresponding distances in the response (| ya - yb |) .
+note that this objective function does not require k , and does not produce a prediction .
+intuitively , it tries to learn the " right " metric , where for every two instances , the closer they are under the metric , the closer they are in their responses .
+once we have optimized this objective , we can now select the k that will produce the prediction with the minimum l2 loss ( i.e. , maximum r2 ) .
+the fact that the selection of k is detached from the metric learning can possibly help to reduce over - fitting and help the model to be more robust for different choices of k. optimization procedure for the extended knn algorithm to find the coefficient vector alpha that maximizes our selected objective function , we initialize a predictor pool with m predictors , where each predictor is based on one genomic feature , such that for predictor m : alpham = 1 , alphaj = 0 micro j != m. we then compute the distances as described above , and for each predictor we compute the value of the objective function. from here on , we iterate the following algorithm : pick the r max best predictors from the predictor pool in terms of their objective function , and define the objective function value for the i'th predictor as f i for each pair of predictors ri , r j , i = 1 ...
+r max , j = 1 ...
+r max , create the predictor r ij in the following manner : for each m = 1 ...
+m : define the new predictor pool ( of size ) as all the predictors r ij , i = 1 ...
+r max , j = 1 ...
+r max this way , every iteration tries to create better predictors by linearly combining two predictors from the previous pool .
+the combination is done in a weighted manner , where the relative weight of each predictor in the combination is the value of the objective function for this predictor ( fi ) .
+this means that combining a " good " predictor with an " intermediate " predictor will result in a predictor more similar to the " good " one .
+note that in every iteration each of the predictors in the predictor pool is a predictor with some vector of coefficients alpha over the m genomic features , which defines a metric .
+we stop iterating when we are not improving in the sense that the best fi is not increasing .
+note that since we take all combinations of the top rmax predictors , we also get the combination of every predictor with itself , so the maximum value of fi in our predictor pool cannot decrease .
+supporting information figure s1 the multi - snp algorithms exhibit better correspondence between predictions on the training and test set compared to a single best - snp model .
+shown are the training and test r2 values for all 15,439 genes , along with the pearson and spearman correlation coefficients between them .
+results are shown for every cross validation scheme and for the knn algorithm , linear regression model , combined model , and the model based on the snp with the highest training set correlation .
+( pdf ) click here for additional data file .
+figure s2 pca - corrected results .
+for each gene , the snp genotype matrix of all individuals was corrected using the first 2 principal components , and the exact same analysis was conducted as in figure 2 of the article .
+( a ) predictions of the knn algorithm are more correlated between the training and test sets compared to the linear and best - snp models .
+for the knn - based algorithm , the regularized linear regression model , and the single best - snp model that uses the most correlated snp , shown are the pearson and spearman correlation coefficients between the training and test r2 across all genes and all three cross validation schemes .
+( b ) for each of the three models and every cross - validation scheme , genes were binned by training r2 .
+shown is the mean training r2 of the genes in every bin .
+( c ) for genes with the same training r2 in each model , the multi - snp algorithms show higher test r2 .
+for the same bins from ( b ) , shown is the mean test r2 of the genes in every bin .
+( d ) the combined algorithm is more robust than the all other models .
+for each model and every cross validation scheme , genes with training r2 > 0.05 were extracted .
+for each such set of genes , shown is the fraction ( y - axis ) of genes whose test r2 by each respective model and cross validation scheme were within some fraction ( x - axis , robustness threshold ) of their training r2 .
+( pdf ) click here for additional data file .
+figure s3 fraction of genes at various training r2 thresholds .
+for the set of 100 , 200 , 500 , 1000 , or 2000 genes with the largest variability in expression , shown is the fraction of genes ( y - axis ) whose training r2 is at least above some fraction ( x - axis ) , for at least one cross validation scheme .
+although the overall fraction of genes that are predicted with high training r2 is relatively small , our results indicate that these predictions are robust ( i.e. , their test r2 is close to their training r2 ) .
+( pdf ) click here for additional data file .
+figure s4 the predictions of genes that are predicted well are generated using a smaller number of neighbors .
+for each cross validation scheme ( for intra - pop results are shown separately for each population ) , shown is the distribution of the number of neighbors ( value of k in the knn algorithm ) selected by the algorithm for genes that are predicted with test r2 >= 0.05 ( blue ) and genes predicted with test r2 < 0.05 ( red ) .
+( pdf ) click here for additional data file .
+table s1 number of genes that pass a certain r2 threshold in test / training using the different models in the mixed - pop cross - validation scheme .
+( pdf ) click here for additional data file .
+table s2 number of genes that pass a certain r2 threshold in test / training using the different models in the intra - pop cross - validation scheme .
+( pdf ) click here for additional data file .
+table s3 number of top predicted genes that overlap between different models at different cutoffs in the mixed - pop cross - validation scheme .
+knn , k - nearest - neighbor ; en , elastic - net ; ss , single - snp .
+( pdf ) click here for additional data file .
+table s4 number of top predicted genes that overlap between different models at different cutoffs in the intra - pop cross - validation scheme .
+knn , k - nearest - neighbor ; en , elastic - net ; ss , single - snp .
+( pdf ) click here for additional data file .
+table s5 the list of the 100 top - predicted genes of the knn model in the cross - pop cross - validation scheme .
+( pdf ) click here for additional data file .
+table s6 the list of the 100 top - predicted genes of the elastic - net model in the cross - pop cross - validation scheme .
+( pdf ) click here for additional data file .
+table s7 the list of the 100 top - predicted genes of the single - snp model in the cross - pop cross - validation scheme .
+( pdf ) click here for additional data file .
+table s8 the list of the 100 top - predicted genes of the knn model in the mixed - pop cross - validation scheme .
+( pdf ) click here for additional data file .
+table s9 the list of the 100 top - predicted genes of the elastic - net model in the mixed - pop cross - validation scheme .
+( pdf ) click here for additional data file .
+table s10 the list of the 100 top - predicted genes of the single - snp model in the mixed - pop cross - validation scheme .
+( pdf ) click here for additional data file .
+table s11 the list of the 100 top - predicted genes of the knn model in the intra - pop cross - validation scheme .
+( pdf ) click here for additional data file .
+table s12 the list of the 100 top - predicted genes of the elastic - net model in the intra - pop cross - validation scheme .
+( pdf ) click here for additional data file .
+table s13 the list of the 100 top - predicted genes of the single - snp model in the intra - pop cross - validation scheme .
+( pdf ) click here for additional data file .
+table s14 for each cross - validation scheme and model , shown is the percentage of genes ( with test r ^ 2 > = 0.05 ) where the model had the best predictive power .
+( pdf ) click here for additional data file .
+table s15 full list of all genomic features complied for this paper .
+( pdf ) click here for additional data file .
+table s16 enriched and depleted genomic features in multi - snp models .
+shown are snp genomic features that were significantly enriched or depleted in both the extended - knn algorithm and the regularized linear model .
+enrichment / depletion of a genomic feature was defined as a feature with hypergeometric test p - value p < 0.01 in all cross - validations .
+( pdf ) click here for additional data file .
+table s17 go categories enrichment .
+shown are the go categories that are enriched in the set of 850 predictable genes .
+p - values were computed using hypergeometric test and corrected using fdr with 5 % threshold .
+hypergeometric test and correction were performed by an in - house perl script , and go categories were downloaded from the gene ontology database ( http :// www.geneontology.org /) .
+( pdf ) click here for additional data file .
+references 1 schadt ee , lamb j , yang x , zhu j , edwards s , et al ( 2005 ) an integrative genomics approach to infer causal associations between gene expression and disease . nat genet 37 : 710 - 717 doi : 10.1038 / ng1589 .
+15965475 2 fraser hb , xie x ( 2009 ) common polymorphic transcript variation in human disease . genome research 19 : 567 - 575 doi : 10.1101 / gr.083477.108 .
+19189928 3 emilsson v , thorleifsson g , zhang b , leonardson as , zink f , et al ( 2008 ) genetics of gene expression and its effect on disease . nature 452 : 423 - 428 doi : 10.1038 / nature06758 .
+18344981 4 li j , liu y , kim t , min r , zhang z ( 2010 ) gene expression variability within and between human populations and implications toward disease susceptibility . plos comput biol 6 doi : 10.1371 / journal.pcbi.1000910 .
+5 schadt ee , monks sa , drake ta , lusis aj , che n , et al ( 2003 ) genetics of gene expression surveyed in maize , mouse and man . nature 422 : 297 - 302 doi : 10.1038 / nature01434 .
+12646919 6 nicolae dl , gamazon e , zhang w , duan s , dolan me , et al ( 2010 ) trait - associated snps are more likely to be eqtls : annotation to enhance discovery from gwas . plos genet 6 : e1000888 doi : 10.1371 / journal.pgen.1000888.t001 .
+20369019 7 nica ac , montgomery sb , dimas as , stranger be , beazley c , et al ( 2010 ) candidate causal regulatory effects by integration of expression qtls with complex trait genetic associations . plos genet 6 : e1000895 doi : 10.1371 / journal.pgen.1000895.t002 .
+20369022 8 frazer ka , ballinger dg , cox dr , hinds da , stuve ll , et al ( 2007 ) a second generation human haplotype map of over 3.1 million snps . nature 449 : 851 - 861 doi : 10.1038 / nature06258 .
+17943122 9 stranger be , forrest ms , dunning m , ingle ce , beazley c , et al ( 2007 ) relative impact of nucleotide and copy number variation on gene expression phenotypes . science 315 : 848 - 853 doi : 10.1126 / science.1136678 .
+17289997 10 stranger be , nica ac , forrest ms , dimas a , bird cp , et al ( 2007 ) population genomics of human gene expression . nat genet 39 : 1217 - 1224 doi : 10.1038 / ng2142 .
+17873874 11 cheung vg , nayak rr , wang ix , elwyn s , cousins sm , et al ( 2010 ) polymorphic cis - and trans - regulation of human gene expression . plos biol 8 doi : 10.1371 / journal.pbio.1000480 .
+12 stranger be , montgomery sb , dimas as , parts l , stegle o , et al ( 2012 ) patterns of cis regulatory variation in diverse human populations . plos genet 8 : e1002639 doi : 10.1371 / journal.pgen.1002639 .
+22532805 13 veyrieras j - b , kudaravalli s , kim sy , dermitzakis et , gilad y , et al ( 2008 ) high - resolution mapping of expression - qtls yields insight into human gene regulation . plos genet 4 : e1000214 doi : 10.1371 / journal.pgen.1000214.t001 .
+18846210 14 pickrell jk , marioni jc , pai aa , degner jf , engelhardt be , et al ( 2010 ) understanding mechanisms underlying human gene expression variation with rna sequencing . nature 464 : 768 - 772 doi : 10.1038 / nature08872 .
+20220758 15 montgomery sb , sammeth m , gutierrez - arcelus m , lach rp , ingle c , et al ( 2010 ) transcriptome genetics using second generation sequencing in a caucasian population . nature 464 : 773 - 777 doi : 10.1038 / nature08903 .
+20220756 16 nica ac , parts l , glass d , nisbet j , barrett a , et al ( 2011 ) the architecture of gene regulatory variation across multiple human tissues : the muther study . plos genet 7 2 : e1002003 doi : 10.1371 / journal.pgen.1002003 .
+21304890 17 dixon al , liang l , moffatt mf , chen w , heath s , et al ( 2007 ) a genome - wide association study of global gene expression . nat genet 39 : 1202 - 1207 doi : 10.1038 / ng2109 .
+17873877 18 stranger be , forrest ms , clark ag , minichiello mj , deutsch s , et al ( 2005 ) genome - wide associations of gene expression variation in humans . plos genet 1 : e78 doi : 10.1371 / journal.pgen.0010078.sg003 .
+16362079 19 degner jf , pai aa , pique - regi r , veyrieras j - b , gaffney dj , et al ( 2012 ) dnase i sensitivity qtls are a major determinant of human expression variation . nature 482 : 390 - 394 doi : 10.1038 / nature10808 .
+22307276 20 gaffney dj , veyrieras j - b , degner jf , roger p - r , pai aa , et al ( 2012 ) dissecting the regulatory architecture of gene expression qtls . genome biology 13 : r7 doi : 10.1186 / gb - 2012 - 13 - 1 - r7 .
+22293038 21 malo n , libiger o , schork n ( 2008 ) accommodating linkage disequilibrium in genetic - association analyses via ridge regression . the american journal of human genetics 82 : 375 - 385 . 18252218 22 zhang w , zhu j , schadt ee , liu js ( 2010 ) a bayesian partition method for detecting pleiotropic and epistatic eqtl modules . plos comput biol 6 : e1000642 doi : 10.1371 / journal.pcbi.1000642.t003 .
+20090830 23 zou w , zeng z - b ( 2009 ) multiple interval mapping for gene expression qtl analysis . genetica 137 : 125 - 134 doi : 10.1007 / s10709 - 009 - 9365 - z .
+19430916 24 lee s - i , dudley am , drubin d , silver pa , krogan nj , et al ( 2009 ) learning a prior on regulatory potential from eqtl data . plos genet 5 : e1000358 doi : 10.1371 / journal.pgen.1000358.t001 .
+19180192 25 cover t , hart p ( 1967 ) nearest neighbor pattern classification . information theory , ieee transactions on 13 : 21 - 27 doi : 10.1109 / tit.1967.1053964 .
+26 dasarathy b ( 1991 ) nearest neighbor ({ nn }) norms :{ nn } pattern classification techniques . citeulikeorg 27 zou h , hastie t ( 2005 ) regularization and variable selection via the elastic net - zou - 2005 - journal of the royal statistical society : series b ( statistical methodology ) - wiley online library . journal of the royal statistical society : ...
+67 : 301 - 320 . 28 benjamini y , hochberg y ( 1995 ) controlling the false discovery rate : a practical and powerful approach to multiple testing . journal of the royal statistical society series b ( methodological ) 289 - 300 . 29 tillo d , kaplan n , moore ik , fondufe - mittendorf y , gossett aj , et al ( 2010 ) high nucleosome occupancy is encoded at human regulatory sequences . plos one 5 : e9129 doi : 10.1371 / journal.pone.0009129 .
+20161746 30 kasowski m , grubert f , heffelfinger c , hariharan m , asabere a , et al ( 2010 ) variation in transcription factor binding among humans . science 328 : 232 - 235 doi : 10.1126 / science.1183621 .
+20299548 31 lu j , clark ag ( 2012 ) impact of microrna regulation on variation in human gene expression . genome research doi : 10.1101 / gr.132514.111 .
+32 wang z , zang c , rosenfeld ja , schones de , barski a , et al ( 2008 ) combinatorial patterns of histone acetylations and methylations in the human genome . nat genet 40 : 897 - 903 doi : 10.1038 / ng.154 .
+18552846 33 dimas as , deutsch s , stranger be , montgomery sb , borel c , et al ( 2009 ) common regulatory variation impacts gene expression in a cell type - dependent manner . science 325 : 1246 - 1250 doi : 10.1126 / science.1174148 .
+19644074 34 price al , helgason a , thorleifsson g , mccarroll sa , kong a , et al ( 2011 ) single - tissue and cross - tissue heritability of gene expression via identity - by - descent in related or unrelated individuals . plos genet 7 : e1001317 doi : 10.1371 / journal.pgen.1001317 .
+21383966

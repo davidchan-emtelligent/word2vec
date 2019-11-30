@@ -1,0 +1,339 @@
+bmc genomics bmc genomics bmc genomics 1471 - 2164 biomed central london 28431529 5399828 3686 10.1186 / s12864 - 017 - 3686 - 6 methodology article hirbin : high - resolution identification of differentially abundant functions in metagenomes http :// orcid.org / 0000 - 0002 - 7870 - 8645 osterlund tobias tobias.osterlund @ chalmers.se jonsson viktor viktor.jonsson @ chalmers.se kristiansson erik erik.kristiansson @ chalmers.se 0000 0001 0775 6028grid.5371.0department of mathematical sciences , chalmers university of technology and university of gothenburg , se - 41296 gothenburg , sweden 21 4 2017 21 4 2017 2017 18 316 2 12 2016 6 4 2017 ( c ) the author ( s ) .
+2017 open accessthis article is distributed under the terms of the creative commons attribution 4.0 international license ( http :// creativecommons.org / licenses / by / 4.0 /) , which permits unrestricted use , distribution , and reproduction in any medium , provided you give appropriate credit to the original author ( s ) and the source , provide a link to the creative commons license , and indicate if changes were made .
+the creative commons public domain dedication waiver ( http :// creativecommons.org / publicdomain / zero / 1.0 /) applies to the data made available in this article , unless otherwise stated .
+background gene - centric analysis of metagenomics data provides information about the biochemical functions present in a microbiome under a certain condition .
+the ability to identify significant differences in functions between metagenomes is dependent on accurate classification and quantification of the sequence reads ( binning ) .
+however , biological effects acting on specific functions may be overlooked if the classes are too general .
+methods here we introduce high - resolution binning ( hirbin ) , a new method for gene - centric analysis of metagenomes .
+hirbin combines supervised annotation with unsupervised clustering to bin sequence reads at a higher resolution .
+the supervised annotation is performed by matching sequence fragments to genes using well - established protein domains , such as tigrfam , pfam or cogs , followed by unsupervised clustering where each functional domain is further divided into sub - bins based on sequence similarity .
+finally , differential abundance of the sub - bins is statistically assessed .
+results we show that hirbin is able to identify biological effects that are only present at more specific functional levels .
+furthermore we show that changes affecting more specific functional levels are often diluted at the more general level and therefore overlooked when analyzed using standard binning approaches .
+conclusions hirbin improves the resolution of the gene - centric analysis of metagenomes and facilitates the biological interpretation of the results .
+hirbin is implemented as a python package and is freely available for download at http :// bioinformatics.math.chalmers.se / hirbin .
+electronic supplementary material the online version of this article ( doi : 10.1186 / s12864 - 017 - 3686 - 6 ) contains supplementary material , which is available to authorized users .
+keywords metagenomics next - generation sequencing functional annotation binning tigrfam differential abundance statistical analysis http :// dx.doi.org / 10.13039 / 501100004359vetenskapsradethttp :// dx.doi.org / 10.13039 / 501100001862svenska forskningsradet formashttp :// dx.doi.org / 10.13039 / 501100004063knut och alice wallenbergs stiftelsehttp :// dx.doi.org / 10.13039 / 501100005760goteborgs universitetissue - copyright - statement ( c ) the author ( s ) 2017 background metagenomics is the study of microbial communities by high - throughput sequencing of the dna present in a sample .
+the use of metagenomics has accelerated during the last couple of years following the technological advances in next - generation sequencing , resulting in large amounts of data being generated [ 1 ] .
+metagenomics has , for example , enabled exploration of the structure and diversity of microbial communities in their natural habitat , both for the human microbiota [ 2 , 3 ] , and in the environment [ 4 ] .
+due to the nature of metagenomics the data often shows a high diversity , low coverage and a high rate of sequencing errors , while the generated sequence reads are short .
+this makes the data processing and analysis important in order to draw correct conclusions from the data .
+in gene - centric analysis metagenomic data is quantified based on the gene content , which provides information about the abundance of biochemical properties and pathways [ 5 , 6 ] .
+in this process , sequence reads are first aligned to annotated reference sequences and then sorted (' binned ') based on the function of their matching genes [ 7 ] .
+each bin is then quantified based on the total number of matching reads .
+identification of differentially abundant genes , pathways and functions can , consequently , be performed by statistical comparison of the abundance of the bins between metagenomes sampled from different environments or conditions [ 8 ] .
+functional binning of metagenomes is today a supervised process where a reference sequence or the sequence reads are annotated using sequence homology , often using profile hidden markov models ( hmm ) or position - specific weight matrices .
+several computational methods have been developed for this purpose , including mg - rast [ 9 ] , megan4 [ 10 ] , cognizer [ 11 ] , medusa [ 12 ] , tentacle [ 13 ] , clovr [ 14 ] and mocat2 [ 15 ] .
+these methods differ in their approach to read mapping and reference databases used for annotation .
+the gene profiles used for annotation are typically from databases such as pfam [ 16 ] , tigrfam [ 17 ] , foam [ 18 ] or cog [ 19 ] .
+annotation using pfam and tigrfam are based on defined gene or protein families , the foam database is built using kegg orthologies ( kos ) [ 20 ] while cogs are based on clusters of orthologous groups .
+sequenced - based functional annotation has earlier been reviewed [ 21 ] .
+the gene profiles used for annotation using these different databases are typically broad and designed to be able to identify as many protein variants in as many species as possible [ 16 , 22 ] .
+as a consequence , many domain models provides a general functional classification , but lacks the ability to discriminate between more specific functional differences .
+as an example , there are around 10 million genes described in the human gut microbiome [ 23 ] , while the total number of bacterial pfam protein families is only 9,495 ( pfam release 29.0 ) , and the total number of tigrfams is 4284 ( tigrfam v.13.0 ) .
+it is based on these numbers clear that binning based on pfam or tigrfam protein families will group a large number of different genes into a single bin .
+when comparing gene abundances between metagenomes from different conditions it is therefore a risk that specific functions with important differences between conditions are mixed with other functions that are of less interest .
+this will affect the statistical power negatively by decreasing the signal to noise ratio and make the true differences harder to detect .
+the exact impact of this ' dilution ' effect has however not been investigated , and the consequences are therefore not known .
+in order to address this knowledge gap we asked two questions : when comparing metagenomes from different conditions , given annotation using commonly used functional domains ( e.g. , pfam ) , 1 ) which effects ( differential abundance between metagenomes ) can be found at a more specific functional level , and 2 ) are those effects overlooked when comparing the metagenomes at the general functional level ?
+to answer these questions , and to be able to detect changes at a more specific functional level , we have developed a new method for gene - centric analysis of metagenomes , called hirbin .
+the method uses a data - driven binning approach which extends existing methods ( using e.g. , annotation with tigrfams , pfams or cogs ) by adding a second unsupervised binning step to find more specific sub - bins .
+first , hirbin performs binning using supervised annotation of known functional domains , which is then followed by unsupervised clustering to identify the sub - bins that defines functions at a more specific level .
+statistical analysis is then performed on the sub - binned level which enables identification of functional differences with a higher resolution. by analyzing data from the human gut we show that hirbin is indeed able to identify effects that are present on more specific functional levels .
+furthermore , we also show that effects acting on more specific levels are often diluted on the more general levels , and therefore overlooked when using standard approaches for gene - centric analysis of metagenomes , e.g. , annotation using gene profiles or orthologous groups .
+hirbin is freely available as a python package and designed to run in parallel in a linux environment .
+results a novel method for refined functional annotation and statistical analysis we have developed a new method for improved functional binning and identification of differentially abundant functions in metagenomes .
+the method , called hirbin ( high - resolution binning ) , extends previous binning methods by a second sub - binning step , combining an initial supervised functional binning step with an unsupervised sub - binning step in order to improve the resolution in the binning process for large - scale metagenomes .
+as a consequence hirbin enables identification of differentially abundant genes at a higher functional resolution .
+in this context , we use ' bin ' to denote a set of sequence reads that are associated with genes predicted to have similar biological function and / or biochemical properties .
+analogously , we define a ' sub - bin ' as any subset of a bin for which the reads are predicted to be associated with a more specific function .
+the sub - bins are created from the bins by unsupervised clustering of the sequences in each bin based on sequence similarity .
+the hirbin workflow is presented in fig. 1 and consists of four main analysis steps .
+the input to the analysis are reference sequences in fasta format ( e.g. , assembled contigs or a collection of reference genes or genomes ) and sequence reads in fastq format .
+the output is a list of sub - bins that have a significant change in their abundance between the studied conditions .
+in the supervised annotation step ( functional binning step ) hirbin annotates the reference sequences using protein domain profiles or orthologous groups .
+hirbin supports multiple profile databases , including tigrfam [ 17 ] , pfam [ 16 ] and cogs [ 19 ] .
+it is also possible to provide hirbin with user - defined annotations of the reference sequences .
+in the unsupervised annotation step ( sub - binning step ) the amino acid sequences of the annotated domains are clustered based on sequence similarity , using a provided sequence similarity cutoff , which generates the sub - bins .
+the sub - bins are then quantified by mapping the reads to the annotated reference sequences at the nucleotide level and counting the number of matches for each sub - bin .
+finally , hirbin performs a statistical analysis using an overdispersed poisson count model to identify differentially abundant sub - bins between different conditions .
+see methods for complete details regarding the implementation of hirbin. fig. 1 an overview of the hirbin workflow .
+hirbin uses reference sequences as input to the annotation step .
+the reference sequences are annotated in terms of known functional domains such as tigrfam , pfam or cog ( supervised annotation ) .
+each annotated domain is then clustered based on sequence similarity ( unsupervised clustering ) forming sub - bins .
+the sub - bin abundance is then calculated by mapping the reads in each sample to the sub - bin sequences and finally differentially abundant sub - bins between conditions are identified by statistical analysis hirbin can identify metagenomic changes with a more detailed resolution in order to demonstrate the ability of hirbin to identify differentially abundant functions , we analyzed data from a human gut metagenomics dataset with our method , comparing the metagenome of 15 patients with type 2 diabetes ( t2d ) with 15 controls [ 24 ] .
+the aim was to identify functions changing in abundance between the two groups .
+the assembled metagenomes from the selected individuals were annotated using tigrfam functional domains to define bins , which were then further divided into sub - bins .
+we performed functional annotation with hirbin using two different sequence similarity cutoffs ( fig. 2 ) .
+the sub - binning at 75 % amino acid sequence similarity represents a stricter functional annotation while the clustering at 50 % is less strict , grouping a higher number of sequences together in each sub - bin .
+the analysis using hirbin ( at 50 and 75 % sequence similarity ) was compared to the analysis using tigrfam annotations without sub - binning ( bins ) .
+furthermore , only bins and sub - bins detected in at least 75 % of the samples and thus representative for the full data set were considered in the analysis ( see methods ). fig. 2a shows the total number of representative bins and sub - bins .
+the fold changes and false discovery rates of all bins and sub - bins at the different sequence similarity cut - offs are presented in additional file 1 .
+the number of detected representative sub - bins were 15,740 at the 50 % and 10,798 at the 75 % sub - binning level , compared to the number of detected bins ( tigrfams ) that were 2,465 .
+the fact that the number of sub - bins is lower at 75 % identity than at 50 % identity is a result caused by the lack of representative sub - bins at stricter clustering cut - offs and reflects the high diversity often seen between gut metagenome from different individuals [ 25 , 26 ] .
+statistical analysis comparing individuals with and without t2d showed that 457 of the 2,465 ( 18.5 %) original bins were differentially abundant ( fdr < 0.05 , left - most bar in fig. 2a ) .
+in comparison , at the less strict clustering level ( 50 % sequence similarity. ) , 4,436 ( 28.2 %) of the sub - bins were significantly differentially abundant between the two groups ( fdr < 0.05 ) .
+the proportion of significant sub - bins decreased at the stricter sequence identity cutoff ( 75 %) , which resulted in 10,798 sub - bins , of which 1,248 ( 11.6 %) were significant. fig. 2 number of bins and sub - bins .
+a the blue bars show the total number of bins ( without clustering ) for the type 2 diabetics dataset , and sub - bins when clustering using 50 and 75 % sequence identity cutoffs .
+the red bars show the number of significant bins or sub - bins ( fdr < 0.05 ) when comparing type 2 diabetic patients to control .
+b the number of bins ( tigrfams ) that have at least one significant sub - bin ( fdr < 0.05 ) at the sub - bin level , but are not significant at the bin level ( green bars ) and the number of bins that are significant ( fdr < 0.05 ) both at the bin level and the sub - bin level ( red bars ) a large proportion of the significant sub - bins corresponded to bins that were not significant at the bin ( tigrfam ) level .
+at a 50 % sequence similarity , 987 ( 48.5 %) non - significant bins had at least one sub - bin with a significant differential abundance among the t2d patients compared to control ( fig. 2b ) .
+the analysis at the sub - bin level also showed that 112 of the 502 significant bins did not have any significant sub - bin .
+thus , at a 50 % sequence identity cutoff , hirbin identified 987 additional bins where the significant effect only could be identified at a more specific level while the effect was lost for 112 bins .
+the 112 bins that were not detected at the sub - bin level had a lower average abundance compared to other bins , suggesting that their significance was lost due to too low power ( mann - whitney u - test p - value < 2.2 * 10 - 16 , additional file 2 ) .
+when the identity cut - off was increased to 75 % , the difference between the non - significant bins with a significant sub - bin and the significant bins without a significant sub - bin decreased ( 396 bins that gained significance and 292 bins that lost significance ) .
+this is likely due to the decreasing number of representative sub - bins represented in at least 75 % of the individuals at the 75 % identity cut - off .
+to investigate if significant sub - bins provided additional biological knowledge , we performed a gene set enrichment analysis ( gsea ) using gene ontology ( go ) terms [ 27 , 28 ] ( see methods ) .
+at the bin level , in total 21 go terms were found to be significantly associated with genes that were differentially abundant between t2d and controls ( using a strict p < 0.001 cut - off , additional file 3 ) .
+however , when the gene set enrichment was performed using the sub - bins instead , we observed both a considerably higher number of significant go terms and , in general , more significant p - values ( e.g. , 56 significant terms when sub - binning using 50 % sequence similarity cutoff ) .
+interestingly , we identified many go terms that did not show any tendency to be overrepresented at the bin level , but , were highly significant at sub - bin level .
+one example is the go term associated with hydrolase activity ( go : 0016787 ) which were not reported as significant at the bin level ( p - value 0.621 ) with 6 associated bins showing an up - response ( logarithmic fold change ( logfc ) > 0 ) and 5 bins showing a down - response ( logfc < 0 ) .
+when using sub - binning instead , this go - term was reported as highly significant ( p - value < 0.001 ) among the go - terms showing an up - response .
+here , the number of sub - bins associated with this go - term at the 50 % sequence similarity level was 22 , of which 17 go up and 5 go down when comparing t2d to healthy individuals .
+furthermore , there were also a large number of go - terms that increased their significance when using hirbin , for example the go - terms associated with transmembrane transporter activity and response to oxidative stress , which have previously been shown to be associated with t2d [ 24 ] .
+these two go - terms were shown to be more significant at the sub - bin level ( gsea p - value < 0.001 at 50 % sequence similarity ) than at the bin level ( p = 0.020 and p = 0.024 respectively ; additional file 3 ) .
+thus , the gsea analysis suggests that the analysis of sub - bins provides additional biological insight into the differences of the microbiome of between healthy individuals and individuals with t2d .
+effects seen at the sub - bin level are often diluted at the bin level to further investigate the impact of sub - binning when using hirbin , we analyzed two bins in more detail by studying the sub - binning profile for these bins at different sequence identity cutoffs .
+figure 3a shows the bin tigr03537 ( dapc : succinyldiaminopimelate transaminase ) together with two of its sub - bins at the 50 and 75 % sequence identity cut - offs ( see additional file 4 for all sub - bins of this bin ) .
+at the bin level , no significant effects were found between the two groups ( fdr = 0.900 ) and the estimated log fold change ( the average difference in abundance between t2d and control ) was close to zero ( - 0.013 , se = 0.066 ) .
+however , when the bins were analyzed at a higher resolution , the two sub - bins were found to be significant where one had positive log fold change and one negative log fold change when comparing t2d to control .
+at a 75 % sequence similarity cut - off , sub - bin 1 had an estimated log fold change of + 0.734 ( se = 0.237 ) with an fdr of 0.039 while sub - bin 2 had a fold - change of - 1.397 ( se = 0.422 ) and with an fdr of 0.031 .
+the reason why we do n't see any effect at the bin level is that the effect is diluted , i.e. , sub - bins with positive fold changes and sub - bins with negative fold changes are merged and the result is an average fold change close to zero .
+figure 3b shows the bin tigr01243 ( cdc48 atpase ) .
+this is an example where the bin is reported as significant ( fdr = 0.021 , logfc = - 0.437 , se = 0.102 ) and one of the sub - bins are also significant , but with even more negative log fold change .
+at the 75 % sequence similarity clustering level the log fold change for sub - bin 2 is - 1.297 ( se = 0.379 , fdr = 0.029 ) corresponding to a 3.7 - fold decrease in the t2d samples .
+the fact that the sub - bin level shows a more negative log fold - change than the bin level indicates that the effect is diluted at the bin level , but still detectable. fig. 3 examples of bins and sub - bins .
+the figure shows examples of two tigrfams and selected sub - bins .
+the x - axis shows the percent identity cutoff used in the sub - binning step ( or no sub - binning for bins ) , and the y - axis shows the log fold change when comparing diabetics to control .
+a filled circle with error bars indicates that the sub - bin is significant ( fdr < 0.05 ; error bars show standard error of the mean logfc ) .
+an open circle represents a non - significant sub - bin .
+a hirbin sub - binning profile for tigr03537 ( dapc : succinyldiaminopimelate transaminase ) .
+b hirbin sub - binning profile for tigr01243 ( cdc48 : aaa family atpase , cdc48 subfamily ) .
+for a complete picture of all sub - bins , see additional file 4 analysis of sub - bins improves the statistical power in order to investigate the statistical power of hirbin in comparison to traditional binning , we performed a bootstrap analysis of a comprehensive dataset from the human gut [ 25 ] ( the number of sub - bins are described in additional file 5 ) .
+an effect was added to 10 % of the sub - bins at the 80 % sequence similarity level ( see methods ). fig. 4 shows the calculated fold change of the bins and sub - bins with effect and the power of detecting the change with and without using sub - binning with hirbin .
+the results showed that the power rapidly decreases at less specific levels ( fig. 4a ) .
+already when clustering using a 75 % sequence similarity cut - off , the fold - change of the added effect had , in average , decreased by 43.9 % ( fig. 4b ) and , as a result , the power decreased from 91.1 % at the correct level ( sequence identify cut - off of 80 %) to 66.8 % .
+at 50 % , the fold - change had decreased further ( 71.4 %) and the power was as low as 15.9 % .
+at the bin level , the effect was almost completely gone with a fold - change reduction of 82.1 % and a statistical power close to 0 ( 2.2 %) .
+the lack of power of performing the statistical analysis at the bin level was further evaluated by repeating the above analysis but with effects added at 50 , 60 and 70 % respectively .
+the results , which are shown in fig. 5 , demonstrates that the statistical power drops rapidly .
+if the effect is added at the most general level for sub - binning ( 50 %) , the power dropped substantially , from 99.3 to 23.7 % .
+this effect is caused by a strong dilution of the effects by the merging of sub - bins into bins , resulting in an average fold - change decrease of 80.4 % ( additional file 6 ) .
+the power is further reduced if the effect is added at more specific levels .
+thus , our analysis shows that statistical inference at the bin level will mainly identify broad changes but overlook important effects introduced at more specific functional levels. fig. 4 analysis of statistical power .
+a average fold change of regulated sub - bins at the different sub - bin levels and at the bin level .
+the effect is added to the 0.8 sub - bin level .
+b power of detecting a change at the different sub - bin levels , and at the bin level .
+the effect is added to the 0.8 sub - bin level .
+the error bars show the standard error estimated from the bootstrap iterations fig. 5 statistical power at the bin ( tigrfam ) level ( a ) power of detecting a change at the bin level ( tigrfam level ) when the effect is added at the 80 , 70 , 60 and 50 % sequence identity sub - bin levels and the bin level .
+the error bars show the standard error estimated from the bootstrap iterations discussion in this paper we present hirbin , a new method for functional annotation and identification of differentially abundant functions in metagenomes .
+hirbin uses a data - centric approach to improve gene quantification where bins are identified by supervised annotation using known functional domains , and then divided into sub - bins using unsupervised clustering over all samples .
+due to this two - step binning procedure hirbin has the ability to identify changes between metagenomes that would be overlooked by traditional methods .
+in a case study , hirbin was used to compare metagenomes from individuals with type 2 diabetes to healthy controls [ 24 ] .
+the analysis showed that the number of sub - bins detected by hirbin was up to a five - fold larger than the more general bins ( tigrfams ) .
+furthermore , a large proportion of the sub - bins were differentially abundant and many of these effects could not be identified at the bin level .
+a substantial number of bins that were found to be non - significant had at least one sub - bin that was significantly differentially abundant .
+this is a result of the broad functional classification of the bins where gene counts from multiple sub - bins are pooled .
+our results suggest that effects are diluted at the bin level , due to the large number of sequences belonging to the bin that are not changing in abundance , or changing in the opposite direction , which makes the effect hard to identify in the statistical analysis .
+this was also underlined by the bins studied in detail ( fig. 3 ) , which showed that significant changes present at more specific sub - bins can be masked at the bin level due to dilution of the significant effects .
+furthermore , integrative analysis using gsea showed , compared to the analysis using traditional bins , a higher number of significantly over - represented gene ontology terms when using sub - bins calculated with hirbin .
+this suggest that the increased sensitivity to detect changes in more specific functions enabled by hirbin can increase the data interpretability and provide more biologically relevant results .
+the effects of dilution and the ability to detect differential abundance was further examined and quantified using resampling of an additional independent metagenomic dataset , where effects were systematically added using down - sampling of reads [ 8 ] .
+when effects were added to more specific sub - bins ( 80 % sequence similarity ) , the estimated fold - change at the bin level was close to zero , and , as a consequence , the statistical power ( the ability of the method to detect the change ) was substantially reduced ( 97.6 % decrease ) .
+when the effect was added to less specific sub - bins ( 50 % sequence similarity ) the power of detecting the change at the bin level increased , but were still reduced ( the power of detecting the change at the bin level was 23.7 %.) .
+these results confirm that effects introduced at more specific functional levels are likely to be diluted to the extent that they are hard to identify based on the quantitative information generated by traditional binning strategies .
+there is thus a significant gain of statistical power in performing the analysis at a more refined functional level , where the effect of dilution ( i.e. , the impact of the sequences that are not changing in abundance , or changing in another direction ) will be reduced .
+changes in the abundance of biochemical functions and pathways between metagenomes reflects the microbial community response to a perturbation or change in environment .
+these changes are caused , explicitly or implicitly , by selection pressures acting on specific microbial phenotypes .
+the exact nature of these selection pressures is in most situations complex affecting both general and more specific biological functions in the microbial community .
+the stringency of the sub - bins derived by hirbin should therefore be based on underlying hypothesis and decided based on whether general or more specific effects are in focus .
+as a consequence , the stringency cutoff has been made adaptable and can be set by specifying the minimum amino acid similarity allowed for the functional domains defining each sub - bin .
+more stringent sub - bins ( higher sequence similarity ) are thus in general more homogenous , both sequence - wise and functionally .
+it is however important to note that the stringency of the sub - bins will affect the number of associated sequence reads , i.e. , the coverage of the annotated regions .
+since sub - bins are formed by splitting less specific bins and sub - bins , the number of sequence reads will decrease with increased stringency .
+both analyzed datasets showed almost a ten - fold decrease in the average abundance of the sub - bins ( 75 % sequence similarity ) compared to the general bins ( additional file 7 ) .
+the 112 bins that were not detected by hirbin at the 50 % sub - bin level , but were significant at the bin level all had a relatively low average abundance , and are therefore harder to detect when splitting up the bins to sub - bins .
+the ability of detecting differential abundance is dependent on the total read count and an increased stringency will thus result in a reduction of the statistical power .
+many modern metagenomes are however sequenced at high depths in order to ensure a satisfactory de novo assembly of the reference [ 29 , 30 ] and it is very likely that this results in enough sequence reads for a suitable statistical power , even for the more stringent sub - bins .
+however , the reduction of power at more specific levels will not be as drastic for metagenomic datasets with a high number of biological samples .
+however , for less comprehensively characterized metagenomes with a few number of samples , the sub - bin stringency should be set with sequencing depth in mind .
+furthermore , applying a high stringency cut - off may result in sub - bins formed around sample - specific gene variants .
+this phenomenon was seen in both human gut datasets analyzed in this study where the number of sub - bins classified as representative ( present in at least 75 % of the samples ) decreased with increasing stringency ( a drop from 15,740 to 10,798at a sequence similarity of 50 and 75 % respectively ) .
+these results are in concordance with the previously reported high diversity of the human gut microbiome between individuals where the overlap at more specific taxonomic levels often is small [ 25 , 26 , 31 ] .
+thus , metagenomes that are genetically diverse will , in general , exhibit a lower rate of stringent sub - bins present in the majority of the samples .
+the sequence similarity cutoff in the sub - binning step should thus be chosen in a way to assure that the clusters are large enough to be representative over the samples , but still specific enough to capture the effect at the right functional level .
+previous shotgun metagenomics studies , both from the human microbiome and environmental samples have shown that natural microbial communities are very complex and show a high diversity , both at the species and , consequently , the functional level [ 25 , 32 , 33 ] .
+in order to capture the change in abundance between different samples in the binning process it is therefore necessary to first capture the high diversity present in each functional domain .
+profile databases such as pfam and tigrfam have been specifically designed to be as broad as possible and thus to include a large number of taxonomically diverse gene variants [ 16 , 17 ] .
+as a result , these domains are general classifications of functions .
+we show in this paper , that for many functional domains only subsets of the annotated sequences change in abundance , which means that the effect might be missed when comparing all the reads associated with that domain .
+the two - step procedure in hirbin makes it possible to detect those changes by first performing a broader annotation and then zooming in at more specific clusters of the functional domain ( in the sub - binning step ) , giving a higher resolution in the binning process .
+it should , however , be emphasized that hirbin does not provide any refined functional information , since the sub - bins are annotated with the same function as their parent bin .
+hirbin will , however , identify functional differences that are only present at the higher resolution .
+for selected sub - bins it is possible to align the sequences to a reference database for further investigation of their function ( can be done directly using the hirbin function blastsubbinsequences ) .
+for example , when the sub - bins for tigr03537 in fig. 3a are compared to genbank ( nr database ) we found that the sequences in sub - bins 1 and 2 ( at 50 % sequence similarity ) matched different variants of the aminotransferases ( additional file 8 ) .
+all sequences in sub - bin 1 annotates as histidinol - phosphate transaminase ( hispat , e.c .
+2.6.1.9 ) involved in histidine biosynthesis [ 34 ] while the sequences in sub - bin 2 annotates as ll - diaminopimelate aminotransferase ( ll - dap - at , e.c. 2.6.1.83 ) , involved in lysine biosynthesis [ 35 ] .
+this shows an example where hirbin was able to separate two functionally different gene variants , and identify one as increasing and one as decreasing in abundance between the studied conditions .
+it should be noted that the hisp aminotransferases in sub - bin 1 were annotated mainly in bacteria from the bacteroidetes phylum ( in bacteroides sp. and prevotella sp. ) , while the ll - dap aminotransferases in sub - bin 2 were mainly found in the firmicutes phylum ( in coprococcus sp. , clostridium sp. and eubacterium sp. ) .
+the observed changes in abundance for these could therefore be an indirect effect of changes in the taxonomic composition between t2d and control and does not necessarily reflect a direct impact on the aminotransferases .
+we argue , however , that it is important to be able to differentiate between these variants in the binning process , in order to identify differentially abundant functions , and facilitating the interpretation of the data .
+the ability of detecting differentially abundant bins and sub - bins is dependent on the reference sequences .
+for many metagenomes , comprehensive catalogs of representative genomes and genes are lacking or completely missing , and contigs assembled de novo from the data , are therefore typically used as references [ 33 ] .
+the approach used by hirbin is general and can be applied to most types of references .
+hirbin can also be combined with different types of databases for annotation of the reference .
+for the datasets analyzed in this study , we used hmm - based annotation using the tigrfam database , which contains a comprehensive catalogue of bacterial functions .
+it is , however , possible to generate annotation based on other functional domains ( e.g. , pfam and foam ) or by blast - based sequence alignments against protein databases ( e.g. , kegg orthologies ) .
+functional annotation of the reference sequences can be performed using the hirbin function functionalannotation , using a database of choice .
+the annotation can also be supplied by the user as a tab - separated annotation file with coordinates of any functional annotation .
+this makes it also possible to combine hirbin with many of the existing binning algorithms .
+furthermore , the gene quantification in hirbin is done by matching reads against the reference sequence .
+hirbin can use a variety of mappers for this purpose , such as bowtie2 [ 36 ] , or mappers using distributed computing for large - scale metagenomes , such as tentacle [ 13 ] .
+hirbin is thus highly adaptable and should hence be applicable to a wide range of metagenomes and experimental designs .
+hirbin uses sample - wide clustering of the functional domains to identify the sub - bins .
+an alternative approach would be to instead cluster the individual reads matching each functional domain .
+this clustering problem is however substantially harder due to the short length of the reads generated by the current sequencing technology ( most modern metagenomes have a read length between 100 and 150 bases ) and the often high error rate [ 37 ] .
+furthermore , the number of reads are larger than the number of proteins , which also would increase the computational complexity .
+the clustering of functional domains in hirbin was done by uclust , which employs a centroid - based algorithm that identify clusters with sequences with a similarity above a specified cut - off [ 38 ] .
+uclust highly efficient and capable to calculate the sub - bins within an acceptable timeframe (< 1 h ) , even for a large number of protein sequences ( there were e.g. , 23 million functional domains in the data from qin et al. [ 25 ]) .
+uclust have been shown to have an overall good and robust performance when clustering a large number of sequences [ 39 ] .
+it should however be pointed out that uclust does not perform hierarchical clustering and there is thus no guarantee that sub - bins at different sequence similarity cutoffs are formed as perfect subsets [ 40 ] .
+for the datasets in this study , this effect was present , but in general minor where 92.5 % of the sub - bins were perfect subsets of a less stringent sub - bin .
+replacing uclust with e.g. , agglomerative hierarchical clustering based on complete linkage , would result in sub - bins that are more homogenous and strictly monotonously decreasing with increased stringency [ 41 ] .
+in order to compare uclust with hierarchical clustering we compared the number of sub - bins produced when clustering the sequences in 4 selected bins using both methods ( additional file 9 ) .
+hierarchical clustering resulted in a moderate increase in the number of sub - bins ( on average 31 %) .
+however , the computational time was up to 2000 times longer using hierarchical clustering due to the high computational complexity ( o ( n ^ 3 ) for agglomerative hierarchical clustering ) .
+thus , uclust constitutes a good compromise between run - time and cluster quality and enables hirbin to be applied to very large reference databases .
+conclusions we present hirbin , a novel method for gene - centric analysis of metagenomics data .
+hirbin extends the standard supervised binning with an unsupervised clustering step , which enables quantification of metagenomes at a sub - bin level .
+this makes it possible to identify changes at a more specific functional level than what is possible by using traditional methods .
+hirbin is therefore useful for studying complex metagenomic datasets where it can facilitate the data interpretation and generate results that are more biologically relevant .
+hirbin is freely available at http :// bioinformatics.math.chalmers.se / hirbin .
+methods hirbin is implemented as a python package and is available at http :// bioinformatics.math.chalmers.se / hirbin .
+hirbin makes use of the stand - alone tools transeq v.6.3.1 ( http :// www.ebi.ac.uk / emboss / transeq /) , hmmer v.3.1b1 [ 42 ] and uclust v 8.0 [ 38 ] for functional annotation and clustering .
+the quantification of the bins and sub - bins can either be done using bowtie2 [ 36 ] together with the bedtools function coveragebed [ 43 ] , or using tentacle [ 13 ] .
+the statistical analysis requires r to be installed ( https :// cran.r - project.org /) .
+hirbin can be used for the entire analysis including supervised functional annotation ( binning ) , unsupervised clustering of the bins ( sub - binning ) , quantification and statistical analysis .
+alternatively , the user can input their own annotation of the reference sequence in gff format , and their own quantification and use hirbin only for sub - binning and statistical analysis .
+since hirbin also outputs an abundance matrix with the counts of all sub - bins it is also possible to use any method for statistical analysis , making the hirbin framework highly flexible and adaptable .
+functional annotation ( supervised ) for a given dataset hirbin inputs reference sequences in fasta format ( typically contigs from a metagenome assembly ) and sequence reads in fastq format .
+the first step is the supervised functional annotation of the reference sequences using the hirbin sub - routine functionalannotation.py. the default annotation is based on tigrfams , but it is possible to use other databases , e.g. , pfam [ 16 ] or cogs [ 19 ] .
+using the default annotation procedure , the reference sequences were translated into all 6 possible reading frames and then annotated using the tigrfam database , release 13.0 [ 17 ] using hmmer v.3.1b1 [ 42 ] , with e - value cutoff 1e - 10 and output format - domtblout .
+the output file from hmmer was then parsed using the hirbin method extractsequences.py and a fasta file with protein sequences of the annotated domains was created to be used as input to the clustering step .
+the hirbin function extractsequences.py includes a parameter - maxacceptableoverlap which specifies if multiple domains should be annotated at the same region of the reference sequence .
+if the parameter p is set to 1 , all domains with an e - value lower than the threshold are reported and if it is lower than 1 , only the best scoring annotation is reported if two annotations overlap each other more than p percent of the total length of the annotation .
+the coordinates of the annotated genes were converted from amino acid sequences to nucleotide reference coordinates , to facilitate in mapping the raw reads to the reference sequence for each annotated domain .
+unsupervised clustering the protein sequences belonging to each tigrfam domain is , for a given amino acid sequence similarity cutoff clustered by hirbin using either uclust ( cluster _ fast in usearch v8.0 ) or agglomerative hierarchical clustering ( cluster _ agg in usearch v8.0 ) [ 38 ] .
+uclust was used for all results presented in the paper .
+the cluster structure was saved into a file to be used later in the analysis .
+quantification and statistical analysis of sub - bins the abundance of each domain was calculated by mapping the illumina reads for each sample to the annotated regions of the reference sequence .
+bad quality sequences were filtered out from the fastq files prior to mapping , by removing reads where at least 50 % of the bases had a quality score less than 10 .
+the quantification can be performed by combining alignment using bowtie2 [ 36 ] with the bedtools function coveragebed [ 43 ] , or using tentacle v.0.1 [ 13 ] and pblat v.35 ( http :// icebert.github.io / pblat /) [ 44 ] using command line arguments " - threads 16 - minidentity 90 - out = blast8 " .
+the mapping results were incorporated into the cluster structure , using the hirbin subroutine calculatesubbins.py forming sub - bins .
+the output from this step was an abundance matrix with the number of sequences that match each sub - bin , in each sample .
+in order to assure that all sub - bins are representative across many samples , hirbin kept only the sub - bins that are represented in at least 75 % of all individuals , and the small sub - bins were filtered out ( this criteria can be changed if needed ) .
+statistical analysis was performed in r using an over - dispersed poisson generalized linear model ( glm ) with a log - likelihood link , similar to the model used in [ 45 ] .
+this model has been shown to perform well in the analysis of gene abundances in metagenomes in comparison with other statistical models [ 8 ] .
+the p - values were corrected for multiple testing using benjamini and hochberg 's false discovery rate ( fdr ) [ 46 ] .
+analysis of metagenomics data for type 2 diabetes vs. control metagenomics sequences of the gut microbiota of 15 diabetic male individuals and 15 healthy male individuals were randomly chosen from the qin et al .
+( 2012 ) [ 24 ] study .
+the sample names of the 30 selected samples are available in additional file 10 .
+raw illumina data was downloaded from the ncbi short read archive ( sra ) and assembled sequences for each sample was downloaded from ftp :// climb.genomics.cn. the data was analyzed with hirbin as described in the previous sections , including annotation of the assembled sequence contigs to the tigrfam database using e - value cutoff 1e - 10 and - maxacceptableoverlap = 1 ( supervised annotation ) , clustering of each tigrfam domain ( unsupervised ) , mapping and calculation of sub - bins .
+the total number of sequences to be clustered was 3,425,805 .
+the unsupervised clustering step was performed two times using 50 and 75 % sequence identity cutoffs , representing a less strict and a stricter clustering .
+(. the clustering took less than 20 min to perform using 12 cpu cores .
+in order to find which sub - bins that overlapped at 50 and 75 % sequence identity cutoffs the uclust output files were investigated to find the sub - bins with overlapping contig ids .
+to identify significantly over - represented go - terms based on the tigrfam significance , integrative analysis was performed for each bin / sub - bin level using gene set enrichment analysis ( gsea ) [ 27 ] as implemented in the piano r - package [ 47 ] .
+as input to the gsea method a ranked list of bins / sub - bins with positive log fold change and a ranked list of bins / sub - bins with negative log fold change was created , based on the fdr .
+the links between tigrfams and go - terms were obtained from tigrfam v .
+13.0 .
+the gsea parameter of the running sum was set to 1 .
+the gsea p - value was calculated by performing 1000 permutations .
+evaluation of statistical power on resampled data metagenomic data from the qin et al .
+( 2010 ) [ 25 ] study was downloaded from http :// gutmeta.genomics.org.cn / including both raw sequence reads and sample - specific metagenomics assemblies for the gut metagenomes of 124 individuals .
+the data was analyzed as before with hirbin forming sub - bins from each tigrfam domain .
+the resampling was done at a given sequence identity clustering level ( between 50 to 80 %) by first selecting 30 random samples and divide them into two groups .
+an effect was introduced to 10 % of the sub - bins by down - sampling of the reads in one of the groups , in the same way as in jonsson et al .
+( 2016 ) [ 8 ] .
+the observed read count of each contig in the sub - bin , y ij ( sub - bin i in sample j ) was replaced with a downsampled value y ij * drawn randomly from a binomial distribution with parameters y ij and 1 / 7 .
+the down - sampling resulted in an average fold change of 7 between groups .
+in this way the variance structure of the metagenome data is maintained .
+the whole resampling procedure was repeated 100 times creating 100 separate data sets .
+since the down - sampling was done at the contig level , the effect could be tracked at the other clustering levels by a python script , using the clustering structure .
+in each round of iteration , a sub - bin at any clustering level was considered to be affected if at least one of the contigs was affected ( i.e. , if the sub - bin overlapped a down - sampled sub - bin at the 80 % sequence identity clustering level ) .
+the statistical power at each clustering level was calculated as the ability to detect the effects introduced at the sub - bin level .
+additional files additional file 1 : results from the statistical analysis of bins and sub - bins for the t2d ( qin [ 24 ]) dataset .
+( xlsx 2318 kb ) additional file 2 : figure showing the mean abundances of the bins that are significant at the bin level .
+( pdf 5 kb ) additional file 3 : results from the gene set enrichment analysis of go - terms for bins and sub - bins .
+( xlsx 584 kb ) additional file 4 : figure showing the sub - bin profile for all sub - bins in the two example bins in fig. 3. ( pdf 4 kb ) additional file 5 : table showing the number of bins and sub - bins at different sequence identity cutoffs for the qin [ 25 ] dataset .
+( xlsx 8 kb ) additional file 6 : figure showing fold changes at the bin level when the resampling is performed at different sub - bin levels .
+( pdf 24 kb ) additional file 7 : histogram showing mean abundances of the bins and sub - bins for the qin [ 24 ] dataset .
+( pdf 5 kb ) additional file 8 : table showing annotations of the sequences of tigr03537 , sub - bin 1 and 2 at 60 % sequence similarity .
+( xlsx 21 kb ) additional file 9 : comparison between uclust and hierarchical clustering .
+table showing the number of clusters and computational times using both methods for 4 selected bins in the qin [ 24 ] dataset .
+( xlsx 8 kb ) additional file 10 : table showing selected samples from the qin [ 25 ] study for the resampling analysis .
+( xlsx 8 kb ) abbreviations fdr false discovery rate go gene ontology gsea gene set enrichment analysis hirbin high - resolution binning hmm hidden markov model ko kegg ortology t2d type 2 diabetes acknowledgements parts of the simulations were performed at the chalmers centre for computational science and engineering ( c3se ) .
+funding this work was funded by the formas research council as part of the nice research environment , the swedish research council , the wallenberg foundation and the university of gothenburg .
+availability of data and material hirbin is implemented as a python package and can be downloaded from http :// bioinformatics.math.chalmers.se / hirbin .
+authors' contributions to , vj and ek designed the study .
+to implemented the method and performed the data analysis .
+vj and ek assisted in the data analysis and the interpretation of the results .
+to drafted the manuscript .
+all authors read , commented and approved the manuscript .
+competing interests the authors declare that they have no competing interest .
+consent for publication not applicable .
+ethics approval and consent to participate not applicable , as this is a secondary analysis of pre - existing data , where human , animal or plant material was not used .
+publisher 's note springer nature remains neutral with regard to jurisdictional claims in published maps and institutional affiliations .
+references 1 .
+metzker ml sequencing technologies - the next generation nat rev genet 2010 11 1 31 46 10.1038 / nrg2626 19997069 2 .
+sankar sa lagier j - c pontarotti p raoult d fournier p - e the human gut microbiome , a taxonomic conundrum syst appl microbiol 2015 38 4 276 86 10.1016 / j.syapm.2015.03.004 25864640 3 .
+kim y koh i rho m deciphering the human microbiome using next - generation sequencing data and bioinformatics approaches methods 2015 79 52 9 10.1016 / j.ymeth.2014.10.022 25448477 4 .
+oulas a pavloudi c polymenakou p pavlopoulos ga papanikolaou n kotoulas g arvanitidis c iliopoulos i metagenomics : tools and insights for analyzing next - generation sequencing data derived from biodiversity studies bioinform biol insights 2015 9 75 88 25983555 5 .
+prakash t taylor td functional assignment of metagenomic data : challenges and applications brief bioinform 2012 13 6 711 27 10.1093 / bib / bbs033 22772835 6 .
+tringe sg von mering c kobayashi a salamov aa chen k chang hw podar m short jm mathur ej detter jc comparative metagenomics of microbial communities science 2005 308 5721 554 7 10.1126 / science.1107851 15845853 7 .
+burke c steinberg p rusch d kjelleberg s thomas t bacterial community assembly based on functional genes rather than species proc natl acad sci 2011 108 34 14288 93 10.1073 / pnas.1101591108 21825123 8 .
+jonsson v osterlund t nerman o kristiansson e statistical evaluation of methods for identification of differentially abundant genes in comparative metagenomics bmc genomics 2016 17 1 1 10.1186 / s12864 - 016 - 2386 - y 26818753 9 .
+glass em wilkening j wilke a antonopoulos d meyer f using the metagenomics rast server ( mg - rast ) for analyzing shotgun metagenomes cold spring harb protoc 2010 2010 1 pdb .
+prot5368 10.1101 / pdb.prot5368 20150127 10 .
+huson dh mitra s ruscheweyh h - j weber n schuster sc integrative analysis of environmental sequences using megan4 genome res 2011 21 9 1552 60 10.1101 / gr.120618.111 21690186 11 .
+bose t haque mm reddy c mande ss cognizer : a framework for functional annotation of metagenomic datasets plos one 2015 10 11 e0142102 10.1371 / journal.pone.0142102 26561344 12 .
+karlsson fh nookaew i nielsen j metagenomic data utilization and analysis ( medusa ) and construction of a global gut microbial gene catalogue plos comput biol 2014 10 7 e1003706 10.1371 / journal.pcbi.1003706 25010449 13 .
+boulund f sjogren a kristiansson e tentacle : distributed quantification of genes in metagenomes gigascience 2015 4 1 1 10 10.1186 / s13742 - 015 - 0078 - 1 25838885 14 .
+angiuoli sv matalka m gussman a galens k vangala m riley dr arze c white jr white o fricke wf clovr : a virtual machine for automated and portable sequence analysis from the desktop using cloud computing bmc bioinformatics 2011 12 1 356 10.1186 / 1471 - 2105 - 12 - 356 21878105 15 .
+kultima jr coelho lp forslund k huerta - cepas j li ss driessen m voigt ay zeller g sunagawa s bork p mocat2 : a metagenomic assembly , annotation and profiling framework bioinformatics 2016 2016 btw183 16 .
+finn rd bateman a clements j coggill p eberhardt ry eddy sr heger a hetherington k holm l mistry j pfam : the protein families database nucleic acids res 2013 2013 gkt1223 17 .
+haft dh selengut jd white o the tigrfams database of protein families nucleic acids res 2003 31 1 371 3 10.1093 / nar / gkg128 12520025 18 .
+prestat e david mm hultman j tas n lamendella r dvornik j mackelprang r myrold dd jumpponen a tringe sg foam ( functional ontology assignments for metagenomes ) : a hidden markov model ( hmm ) database with environmental focus nucleic acids res 2014 42 19 e145 10.1093 / nar / gku702 25260589 19 .
+tatusov rl fedorova nd jackson jd jacobs ar kiryutin b koonin ev krylov dm mazumder r mekhedov sl nikolskaya an the cog database : an updated version includes eukaryotes bmc bioinformatics 2003 4 1 41 10.1186 / 1471 - 2105 - 4 - 41 12969510 20 .
+mao x cai t olyarchuk jg wei l automated genome annotation and pathway identification using the kegg orthology ( ko ) as a controlled vocabulary bioinformatics 2005 21 19 3787 93 10.1093 / bioinformatics / bti430 15817693 21 .
+lee d redfern o orengo c predicting protein function from sequence and structure nat rev mol cell biol 2007 8 12 995 1005 10.1038 / nrm2281 18037900 22 .
+apweiler r bairoch a wu ch barker wc boeckmann b ferro s gasteiger e huang h lopez r magrane m uniprot : the universal protein knowledgebase nucleic acids res 2004 32 suppl 1 d115 9 10.1093 / nar / gkh131 14681372 23 .
+li j jia h cai x zhong h feng q sunagawa s arumugam m kultima jr prifti e nielsen t an integrated catalog of reference genes in the human gut microbiome nat biotechnol 2014 32 8 834 41 10.1038 / nbt.2942 24997786 24 .
+qin j li y cai z li s zhu j zhang f liang s zhang w guan y shen d a metagenome - wide association study of gut microbiota in type 2 diabetes nature 2012 490 7418 55 60 10.1038 / nature11450 23023125 25 .
+qin j li r raes j arumugam m burgdorf ks manichanh c nielsen t pons n levenez f yamada t a human gut microbial gene catalogue established by metagenomic sequencing nature 2010 464 7285 59 65 10.1038 / nature08821 20203603 26 .
+arumugam m raes j pelletier e le paslier d yamada t mende dr fernandes gr tap j bruls t batto j - m enterotypes of the human gut microbiome nature 2011 473 7346 174 80 10.1038 / nature09944 21508958 27 .
+subramanian a tamayo p mootha vk mukherjee s ebert bl gillette ma paulovich a pomeroy sl golub tr lander es gene set enrichment analysis : a knowledge - based approach for interpreting genome - wide expression profiles proc natl acad sci u s a 2005 102 43 15545 50 10.1073 / pnas.0506580102 16199517 28 .
+osterlund t , cvijovic m , kristiansson e. integrative analysis of omics data .
+systems biology .
+2017 ; 6:1 .
+29. knight r jansson j field d fierer n desai n fuhrman ja hugenholtz p van der lelie d meyer f stevens r unlocking the potential of metagenomics through replicated experimental design nat biotechnol 2012 30 6 513 20 10.1038 / nbt.2235 22678395 30 .
+thomas t gilbert j meyer f a 123 of metagenomics .
+in : encyclopedia of metagenomics .
+springer 2015 1 9 31 .
+yatsunenko t rey fe manary mj trehan i dominguez - bello mg contreras m magris m hidalgo g baldassano rn anokhin ap human gut microbiome viewed across age and geography nature 2012 486 7402 222 7 22699611 32 .
+venter jc remington k heidelberg jf halpern al rusch d eisen ja wu d paulsen i nelson ke nelson w environmental genome shotgun sequencing of the sargasso sea science 2004 304 5667 66 74 10.1126 / science.1093857 15001713 33 .
+howe ac jansson jk malfatti sa tringe sg tiedje jm brown ct tackling soil diversity with the assembly of large , complex metagenomes proc natl acad sci 2014 111 13 4904 9 10.1073 / pnas.1402564111 24632729 34 .
+mehta pk hale ti christen p aminotransferases : demonstration of homology and division into evolutionary subgroups eur j biochem 1993 214 2 549 61 10.1111 / j.1432 - 1033.1993.tb17953.x 8513804 35 .
+hudson ao singh bk leustek t gilvarg c an ll - diaminopimelate aminotransferase defines a novel variant of the lysine biosynthesis pathway in plants plant physiol 2006 140 1 292 301 10.1104 / pp.105.072629 16361515 36 .
+langmead b salzberg sl fast gapped - read alignment with bowtie 2 nat methods 2012 9 4 357 9 10.1038 / nmeth.1923 22388286 37 .
+o'rawe ja ferson s lyon gj accounting for uncertainty in dna sequencing data trends genet 2015 31 2 61 6 10.1016 / j.tig.2014.12.002 25579994 38 .
+edgar rc search and clustering orders of magnitude faster than blast bioinformatics 2010 26 19 2460 1 10.1093 / bioinformatics / btq461 20709691 39 .
+plummer e twin j bulach dm garland sm tabrizi sn a comparison of three bioinformatics pipelines for the analysis of preterm gut microbiota using 16s rrna gene sequencing data j proteomics bioinformatics 2015 8 12 283 10.4172 / jpb.1000381 40 .
+schmidt ts matias rodrigues jf von mering c eisen ja ecological consistency of ssu rrna - based operational taxonomic units at a global scale plos comput biol 2014 10 e1003594 10.1371 / journal.pcbi.1003594 24763141 41 .
+corpet f multiple sequence alignment with hierarchical clustering nucleic acids res 1988 16 22 10881 90 10.1093 / nar / 16.22.10881 2849754 42 .
+eddy sr accelerated profile hmm searches plos comput biol 2011 7 10 e1002195 10.1371 / journal.pcbi.1002195 22039361 43 .
+quinlan ar hall im bedtools : a flexible suite of utilities for comparing genomic features bioinformatics 2010 26 6 841 2 10.1093 / bioinformatics / btq033 20110278 44 .
+kent wj blat - the blast - like alignment tool genome res 2002 12 4 656 64 10.1101 / gr.229202 11932250 45 .
+kristiansson e hugenholtz p dalevi d shotgunfunctionalizer : an r - package for functional comparison of metagenomes bioinformatics 2009 25 20 2737 8 10.1093 / bioinformatics / btp508 19696045 46 .
+benjamini y hochberg y controlling the false discovery rate : a practical and powerful approach to multiple testing j r stat soc ser b methodol 1995 1995 289 300 47 .
+varemo l nielsen j nookaew i enriching the gene set analysis of genome - wide data by incorporating directionality of gene expression and combining statistical hypotheses and methods nucleic acids res 2013 2013 gkt111

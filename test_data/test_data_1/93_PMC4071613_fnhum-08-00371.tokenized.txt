@@ -1,0 +1,620 @@
+front hum neurosci front hum neurosci front. hum. neurosci .
+frontiers in human neuroscience 1662 - 5161 frontiers media s.a .
+25018712 4071613 10.3389 / fnhum.2014.00371 neuroscienceoriginal research article the contribution of a central pattern generator in a reflex - based neuromuscular model dzeladini florin * van den kieboom jesse ijspeert auke biorob , school of engineering , institute of bioengineering , ecole polytechnique federale de lausannelausanne , switzerland edited by : federica tamburella , irccs fondazione santa lucia , italy reviewed by : francesca sylos labini , irccs santa lucia foundation , italy ; marco iosa , irccs fondazione santa lucia , italy * correspondence : florin dzeladini , biorob , school of engineering , institute of bioengineering ecole polytechnique federale de lausanne , station 14 , inn 239 lausanne , vaud 1015 , switzerland e - mail : florin.dzeladini @ epfl.ch this article was submitted to the journal frontiers in human neuroscience .
+26 6 2014 2014 8 371 28 2 2014 14 5 2014 copyright ( c ) 2014 dzeladini , van den kieboom and ijspeert .
+2014 this is an open - access article distributed under the terms of the creative commons attribution license ( cc by ) .
+the use , distribution or reproduction in other forums is permitted , provided the original author ( s ) or licensor are credited and that the original publication in this journal is cited , in accordance with accepted academic practice .
+no use , distribution or reproduction is permitted which does not comply with these terms .
+although the concept of central pattern generators ( cpgs ) controlling locomotion in vertebrates is widely accepted , the presence of specialized cpgs in human locomotion is still a matter of debate .
+an interesting numerical model developed in the 90s' demonstrated the important role cpgs could play in human locomotion , both in terms of stability against perturbations , and in terms of speed control .
+recently , a reflex - based neuro - musculo - skeletal model has been proposed , showing a level of stability to perturbations similar to the previous model , without any cpg components .
+although exhibiting striking similarities with human gaits , the lack of cpg makes the control of speed / step length in the model difficult .
+in this paper , we hypothesize that a cpg component will offer a meaningful way of controlling the locomotion speed .
+after introducing the cpg component in the reflex model , and taking advantage of the resulting properties , a simple model for gait modulation is presented .
+the results highlight the advantages of a cpg as feedforward component in terms of gait modulation .
+feedback cpg humans locomotion models biological movement periodicity 1 .
+introduction central pattern generators ( cpgs ) are networks of neural cells that can generate coordinated rhythmic patterns in the absence of sensory feedbacks .
+the idea that cpg control locomotion in lower vertebrates has been widely accepted for several decades ( grillner and wallen , 1985 ) .
+although many observations tend to favor the presence of such components in higher vertebrates ( see mackay - lyons , 2002 for a review ) , the presence of specialized cpgs in human locomotion is still a matter of debate ( dimitrijevic et al. , 1998 ) .
+an interesting numerical model developed by gentaro taga in the 90s' demonstrated the role that cpgs could play in human locomotion .
+it was shown that walking and running could emerge from a rhythmic interaction ( modeled by coupled oscillators , i.e. , cpgs ) , between the central nervous system , the musculo - skeletal - system and the environment .
+the cpgs were modeled as a network of oscillators , coupled with the environment through joint angles and ground reaction forces ( taga , 1994 ) .
+the intriguing robustness of the generated gaits against mechanical perturbations and changes in the environment was attributed to the use of cpgs and feedbacks , respectively , highlighting the important role of both components .
+however , more recently , a neuro - musculo - skeletal model ( denoted fbl , for feedback based locomotion ) solely driven by reflex loops was proposed by geyer and herr ( 2010 ) .
+the model showed a stability to perturbations similar to the previous model , without any cpg components , questioning the conclusions drawn by taga et al. regarding the importance of cpgs to resist perturbations .
+furthermore , the properties of the gaits produced by the fbl model were - - in terms of muscles activity , joints angles and torques patterns - - surprisingly close to those observed in humans .
+yet , an important feature the reflex - driven neuro - musculo - skeletal system was unable to reproduce was the control of speed .
+indeed , while in taga 's model , speed was controlled by a simple unique variable ( the frequency of the oscillators ) , such a strategy is inapplicable in the reflex model .
+although a preliminary speed control strategy has been proposed by song and geyer ( 2012 ) , its complexity compared to the very simple descending signals , originating from the brain stem , able to control locomotion ( found in lower vertebrates , such as the lamprey and the salamander , and even in cats ) makes their relevance , from a biological point of view , questionable .
+given the striking properties of the reflex model , we wanted to study the possible benefits that a cpg would add to the model .
+we hypothesized that the reflex model would benefit from the presence of cpgs in terms of gait speed / step length control .
+the cpg component is derived from the feedback pathways , following an idea from kuo ( 2002 ) , where cpgs are viewed as feedback predictors .
+we use a variety of models combining cpg and feedbacks in different ways to study the relative importance of the different feedbacks / feedforward pathways .
+finally , taking advantage of the properties of the cpg , a simple model for speed modulation is presented .
+2. materials and methods in this section , we describe step - by - step how we generate the cpg - based extension of geyer 's fbl model , referred to as 3fbl ( for feedforward and feedback based locomotion ) .
+we first present our implementation of the fbl model and detail its optimization .
+this model demonstrates that simple delayed feedback loops ( i.e. , delayed linear mapping between sensors state and muscles activities ) combined with a simplified musculoskeletal model ( lower limb model of human based on anthropometric data , actuated by seven hill muscle models per limb ) is sufficient to generate walking at various frequencies and step lengths .
+furthermore , when the objective function used for the optimization process includes a metabolic cost minimization criterion , the generated angles , torques and muscles activation are comparable to human walking data ( replicating results found in geyer and herr , 2010 and wang et al. , 2012 ) .
+despite the interesting properties of the model , an important limitation is that , once a walking gait at a given speed and step length is obtained , the only way to modulate it is by tuning of the multiple feedback gains .
+for example , in song and geyer ( 2012 ) , a speed controller has been derived based on feedback gains tuning .
+the proposed controller is able to switch between gaits of different speeds , but the strategy remains complex .
+in short , speed changes are obtained by switching between different sets of feedback gains ; increasing speed is done by ( 1 ) switching to a set of gains that generate an acceleration , and ( 2 ) once the desired speed is reached , switching to a set of gains that generate a gait of the desired speed .
+the gait modulation strategy we propose is based on evidence from lower vertebrates and quadrupeds suggesting that simple low dimensional descending signals are enough to modulate walking ( speed changes and gait transitions ) ( grillner and wallen , 1985 ) .
+our strategy to introduce cpgs as a feedforward component is based on the assumption that cpgs can be viewed as feedback predictors .
+in other words , cpgs should be able to reproduce any feedback signals generated by a stable walking gait of the fbl model .
+since the feedback signals can be of any shape , we do not want to make strong assumptions on the class of pattern .
+therefore , we will use a special class of oscillators called " morphed non - linear phase oscillators ," that have the ability to generate limit cycles of arbitrary shape ( ajallooeian et al. , 2013 ) .
+note that we do not model individual neurons but rather use an abstract model of biological cpgs represented as a dynamical system exhibiting limit cycle behavior .
+this strategy is commonly used to test hypothesis on the role of biological cpgs ( ijspeert , 2008 ) .
+the cpgs will then be combined with feedback pathways using the strategy presented in kuo ( 2002 ) , offering an elegant and easy way to study the relative importance of the different feedback pathways .
+the proposed strategy will also permit to highlight the pathways that can be used as speed and step length modulators .
+2.1 .
+fbl description the pure feedback - based neuromuscular model of human locomotion ( or fbl model ) refers to a bio - inspired neuromuscular bipedal walking model developed by geyer and herr ( 2010 ) that we reimplemented and use as a starting point for our study .
+the following description is thus largely inspired by their work .
+any differences with the original model will be explicitly stated .
+in this study , all experiments are done using an implementation of the nmm library ( a freely accessible c ++ library that we developed to simulate neuromuscular models1 on the webots robotic environment platform ( michel , 2004 ) .
+this webots implementation2 is based on an anthropometric model of human lower body ( see supplementary figure 3 , anthropometric data from winter , 2009 ) .
+the fbl model uses feedback rules connecting different sources of sensory information ( comprising muscle force and length feedbacks , ground reaction forces and joint angles ) to hill - type muscle models ( details concerning the muscle model can be found in geyer et al. , 2003 ) , which in turn generate effective joints torques .
+a state machine is used to switch between two sets of feedback rules : one to generate the stance phase control ( mainly extensor muscles activity ) and one to generate the swing phase control ( mainly flexor muscles activity ) .
+ground sensors placed under the feet are used to detect the state transition ( takeoff and touchdown ) .
+the generation of the gait cycle is done through reflexes represented by a sequence of time delayed reactions ( see figure 1 ) .
+figure 1 closed loop information flow of the fbl model .
+( a ) sensors signals stimulate ( see equation 1 ) a set of sensory interneurons ( insen ) .
+the sensors signals are represented by the colored line ; 1 represents the muscle sensors , 2 represents the joint overextension / flexion prevention sensors , 3 represents the stability sensor generating a signal to maintain the trunk upright and 4 represents the ground sensors .
+there are four different types of sensory interneurons : instancesen which are active only during stance , inswingsen only during swing , indblsupsen , only during the double support phase and incyclesen during the whole cycle .
+( b ) each insen is connected to a unique motoneuron ( mn ) .
+however a given mn receives inputs from several insen .
+connections between insen and mn follow equation 2 .
+( c ) in turn , each mn stimulates its corresponding muscle tendon unit ( mtu ) .
+( d ) each mtu contributes to a torque ( tau ) on one or two joints , depending on whether it models a uni - or bi - articular muscle .
+finally , the action of all the muscles on the body generates a movement , which induces a change in the sensors state and thereby closes the loop .
+note that in the original model the link between sensors states and muscles activities is direct ( i.e. , no intermediary stage ) , while here the sensors to muscles mapping is separated in three more biologically relevant stages : sensory interneurons ( insen ) , motoneurons ( mn ) and muscle tendon units ( mtu ) .
+note that both the original and the fbl model are computationally equivalent .
+while in the original model the link between sensors states and muscles activities was direct ( i.e. , no intermediate stage ) , in our work we separate the sensors to muscles mapping in three more biologically relevant stages ( see figure 1 for details ) : sensory interneurons ( insen ) , motoneurons ( mn ) and muscle tendon units ( mtu ) .
+the intermediate stages are added in order to prepare the extension of the model and makes no functional differences with the original model , as long as the overall delay between sensors and muscle activities is identical in both models .
+stages a to c are implemented using the connection model defined in section 2.2.4 .
+the sensors to torque mapping noted a to d ( schematically represented in figure 1 ) are presented below ( see supplementary table 3 for a description of the different vector / matrices used ) : sensors to interneurons the activity of all interneurons can be written , in matrix form as : ( 1 ) xinsen = min { 1 , max { 0 , wx ~ sen }} t where xinsen is a vector of sensory interneurons activities , x ~ sen is a vector of delayed sensors activities .
+w is the connection weights matrix linking the sensors and the interneurons .
+table 1 gives the list of the sensory interneurons present in a given limb .
+interneurons to motoneurons given limbs state s = ( sleft , sright ) ( with sleft , sright in s = { st , stend , sw } , where st , sw and stend stand for stance , swing and double support finishing stance respectively ) the activity of all the motoneurons can be written , in matrix form as : ( 2 ) xmn = gsxinsen + xmn0 where : xmn is the vector of motoneurons activities acting on limb l , xinsen is a vector of sensory interneurons activities , in this case we assume no delay between interneurons and motoneurons ( i.e. , x ~ in = xin ) .
+x0mn is a vector of basal motoneurons activities .
+gs is a boolean matrix representing the connection state from interneurons to motoneurons given a limb state s. it ensures that the interneurons act on the motoneurons only when needed ( i.e. , stance feedback loops are active only during stance , swing feedback loops only during swing ) .
+for example if the interneuron i = 18 is connected to a motoneuron j = 3 and active only during left swing then gs ( 3 , 18 ) = 1 if s = ( sw ,.) .
+given a limb state s , the state of the considered limb slimb , where limb can be either left or right is defined as a function of the level of the vertical ground reaction forces grfylimb and the state of the contralateral limb scontra .
+when grfylimb < 0.1 , the limb is considered in swing ( slimb = sw ) .
+if grfylimb >= 0.1 and scontra switches from sw to st then the current limb is in finishing stance ( s = stend ) otherwise the limb is in stance ( slimb = st ) .
+motoneurons to muscle activities a motoneuron acts on only one mtu , consequently the equation linking motoneurons to the mtus stimulation is simply given by : ( 3 ) xmtu = x ~ mn where : xmtu is a vector of mtus stimulation and x ~ mn is a vector of delayed motoneurons activities .
+the mtu stimulation is constrained to the [ 0.01 , 1 ] interval .
+the lower bound of 0.01 is there to model the muscle tone ( i.e. , a minimal level of tension always produced by the motoneurons inervating a muscle ) .
+its purpose is to permit quicker recruitment of muscles by maintaining a minimal non - zero level of tension .
+the mtu activation level a constrained to the [ 0 , 1 ] interval is linked to the mtu stimulation level by a first order differential equation modeling the excitation - contraction coupling : ( 4 ) dadt = taua ( xmtu - a ) , taua = 100 [ s - 1 ] muscle activities to joint torques the overall torque tauj acting on joint j is given by : tauj = summepsilonjtaum,j + taujlig where tauligj is the torque generated by the ligaments of joint j , taum , j = fm . rm ( phij ) is the torque generated by a mtu m on joint j , fm is its force and rm is the moment arm between mtu m and joint j ( constant r0 for hip joints and r0cos ( phi - phimax ) for knee and ankle joints , the r0 and phimax values associated to each muscle - joint couples are given in table 2 ) .
+table 1 list of the fbl sensory interneurons .
+sensory interneurons abbreviation type from to active _ during gas < - - gas mff , st 1b gas gas stance glu < - - glu mff , sw 1b glu glu swing ham < - - ham mff , sw 1b ham ham swing sol < - - sol mff , st 1b sol sol stance ta < - - sol mff , st 1b sol ta stance ( - ) vas < - - vas mff , st 1b vas vas stance ta < - - ta mlf cy 1a ta ta cycle hf < - - ham mlf sw 1a ham hf swing ( - ) hf < - - hf mlf sw 1a hf hf swing ( - ) hf < - - gsif st 3 , 4 ifoot , trunk hf stance ham < - - gsif st 3 , 4 ifoot , trunk ham stance glu < - - gsif st 3 , 4 ifoot , trunk glu stance vas < - - gcf stend 4 cfoot vas stance end ( - ) hf < - - tlf sw 3 trunk hf swing vas < - - knee opf 2 knee vas angle off ( - ) the first column gives the abreviation of the interneuron .
+the abreviation indicates from which sensor the interneuron receives input from and to which mn it sends its output and is constructed as follow : mn < - - insen _ type , active _ during .
+mn represents the motoneuron onto which the interneuron acts .
+if not specified , the motoneuron onto which the interneuron acts is on the same side as the sensors side ( i.e. , ipsilateral ) .
+insen _ type represents the interneuron type .
+there are six different sensory interneurons ; mff ( mtu force feedback ) , mlf ( mtu length feedback ) , gsif ( ground and stability ipsilateral feedback ) , gcf ( ground contralateral feedback ) , opf ( overextension prevention feedback ) , tlf ( trunk lean feedback ) .
+active _ during indicates when the feedback is active ; st : feedback is active during stance , stend : feedback is active during double support finishing stance , sw : feedback is active during swing , cy : feedback is active during the whole cycle , ao : the feedback is active only when the angle of the corresponding joint goes beyond a certain limit , this is used only for the knee joint where the limit is fixed and set to 170degrees .
+the second column gives the type of the interneuron , as described in section 2.2.3 .
+the third and fourth columns indicate the start and target of each feedback pathway .
+the last column specifies in which part of the cycle the feedback is active , the ( - ) sign refers to a inhibitory effect .
+table 2 list of the seven different muscles used in the fbl and derived models : glu for gluteus , hf for hip flexor , vas for vasilus , gas for gastrocnemius , ta for tibialis , ham for hamstring and sol for soleus .
+mtus list and joints related parameters action r0 [ m ] phimax [ deg ] phiref [ deg ] glu hip ext .
+0.1 - 150 hf hip flex .
+0.1 - 180 vas knee ext .
+0.06 165 125 sol ankle ext .
+0.05 110 80 ta ankle flex .
+0.04 80 110 ham hip ext .
+knee flex .
+0.08 - , 180 155 , 180 gas ankle ext .
+knee flex .
+0.05 110 , 140 80 , 165 the last two rows ( ham and gas muscles ) corresponds to bi - articular muscles ( i.e. , they span two joints ) , other rows are for uni - articular muscles .
+the second column shows the resulting action on the joint ( s ) onto which the muscle acts .
+the third column corresponds to the lever arm used for torque calculation .
+the fourth column gives the angle at which the action of the muscle on the joint is maximum ( absent for the hip joint ) .
+the last column gives the reference angle of the muscle ( i.e. , the angle that corresponds to the muscle rest length ) .
+2.2 .
+fbl components 2.2.1 .
+ligament model in animals , a ligament forms the joint that maintains two bones together .
+it also ensures that the angle formed by the bones stays within a given range .
+its action is against the movement and engages only when the angle is beyond a certain limit , which depends on the joints ( see supplementary table 5 ) .
+ligaments are modeled as non - linear spring damper acting as soft limit on the joints ( geyer and herr , 2010 ) .
+when the angle goes beyond the limit of the joint and the angular speed is not big enough to bring back the joint in its normal range a force is generated .
+the resulting torque tauligj acting on joint j is modeled as : ( 5 ) taulig ={ k.deltaphi . ( 1 - omega / omegaref ) if deltaphi > 0 , omega / omegaref > - 10 else where k = 17.19 [ nm / rad ] is the spring damper stiffness , omegaref = 1.74.10 - 2 [ rad / s ] is the reference angular speed , used to normalize the joint angular speed , deltaphi is the angle by which the joint limit is exceeded ( i.e. , difference between the actual angle and the limit angle , the axes are chosen so that deltaphi > 0 when the joint limit is passed ) and omega [ rad - 1 ] is the angular speed ( the axes of rotation are chosen so that omega > 0 when the angle is going toward the joint limit angle ) .
+note that this model of non - linear spring damper is also used in the model of h. geyer to model the ground reaction forces to foot contacts .
+here the contact of the robot with the ground are managed by the physical simulator of webots .
+2.2.2 .
+muscle model the muscle model is based on the hill model ( hill , 1938 ) and was developed by geyer et al .
+( 2003 ) .
+a muscle is modeled together with its respective tendon ( called muscle tendon unit , or mtu ) .
+an active , contractile element ( ce ) with two passive parallel elements ( buffer elasticity be and parallel elasticity pe ) form the muscle , see supplementary figure 4 .
+the active element represents the muscle active contractile element , while the two passive elements model the physical properties of the muscle fibers .
+the be element prevents the muscle from collapsing , while the pe prevents the muscle length from going beyond a certain length .
+the tendon is modeled as a passive element in series with the muscle , called series elasticity ( se ) .
+the full mathematical formulation can be found in geyer et al .
+( 2003 ) .
+the signal sent to the muscle by the motoneuron is related to the activity of the muscle with a first order differential equation accounting for neural delays , see section 2.2.4 .
+the force of a specific muscle j is linked to its activation level aj by : ( 6 ) fce = fmax.fl ( lce ). fv ( vce ). aj where : fce is the muscle force , fmax is the maximum force generated by the muscle , fl and fv respectively models the length - force and velocity - force relationship capturing main biological features of muscles , fl and fv equation can be found in geyer et al .
+( 2003 ) .
+given the muscle diagram depicted in figure 4 and applying newton 's third law of motion , we have that the net force generated by the muscle tendon unit ( fm ) equals the force of the tendon fse : ( 7 ) fm = fse = fce + fpe - fbe the only unknown variables are the length and speed of the contractile element from which all muscle variables can be derived .
+details on how vce is calculated can be found in geyer et al .
+( 2003 ) .
+lce is then derived by integrating vce .
+2.2.3 .
+sensors model there are four different types of sensors ( see figure 1 ) .
+muscle sensors ( type 1 ) : there are two muscle sensors types .
+( 1a ) muscle length sensors , modeling the secondary muscle spindles and ( 1b ) muscle force sensors , modeling the golgi tendons .
+joint overextension / flexion prevention sensor ( type 2 ) : its intensity is proportional to the difference between the maximum tolerated angles and actual joint angle , and its direction is always against the movement .
+it is used to prevent knee joint overextension .
+ground sensor ( type 3 ) : as in the original model ( geyer and herr , 2010 ) , there are two sensors under each foot that feel the reaction forces of the ground , located at the toe and heel position .
+in our case , the heel and toe sensors are provided by a webots module called a touchsensor that returns the cumulative force currently exerted on the sensor 's body .
+then , as in the original model , the value returned by the ground sensor is defined as being equal to the sum of the toe and heel sensors normalized by the total weight of the model .
+stability sensor ( type 4 ) measures the angle of the trunk in world coordinate and is used by stability feedback to bring the trunk toward a reference angle .
+these feedbacks are proportional - derivative control adapted to act on muscles and can be viewed as abstract models of descending pathways responsible for balance control originating from the cerebellum and the vestibular system .
+2.2.4 .
+connection model in the fbl , walking is generated by a sequence of time delayed reactions ( or feedback loops ) that connect sensory interneurons to muscles stimulation .
+the state of the output ( yj ) is modeled as an affine transform of the sum of delayed weighted inputs ( x ~ i = xi ( t - ti , j )) : ( 8 ) yj = f ( w'x ~)= f ( sumiepsilon input ( wj,ix ~ i,j )) = min { 1 , max { 0,sumiepsilon input ( wj,i.xi ( t - ti,j ))+ xj0 }} where the i - th index refers to input i and j - th index refers to the output j. input - output pairs are sensory neurons - sensory interneurons ( stage a ) , sensory interneurons - motoneurons ( stage b ) and motoneurons to mtus stimulation ( stage c ) shown on figure 1 .
+x ~ i , j represent delayed input neuron activities meaning that a change in an input neuron will not affect the output neuron instantaneously but does so after a delay ti , j ( modeling the fact that traveling speed of spikes depend on the properties of the nerve fiber ) .
+the delays are estimated assuming an average nerve fiber conductance of 80 m / s and estimated length between sensors and spinal cord .
+note that the conductance of 80 m / s is the lower bound of extrafusal muscle fibers , golgi tendon organ and muscle spindle ia conduction velocity ( siegel et al. , 2006 ) .
+we use three differents delays .
+a 2.5 ms delay to model the delay from hip muscles sensors and trunk stability sensors to their corresponding sensory interneuron and from the hip motoneurons to hip muscles .
+a 5 ms delay to model the delay from knee muscles sensors and knee joint angles sensors to their corresponding sensory interneurons and from the knee motoneurons to knee muscles and finally .
+a 10 ms delay for the ankle muscles sensors and ground sensors to their corresponding sensory interneuron and from the ankle motoneurons to ankle muscles .
+we assume no delay between sensory interneurons and motoneurons .
+wj , i is the connection weight from input xi to output yj and x0j is the basal activity of the output ( in vector format w is the vector of weights and x ~ is the vector of delayed input activity ) .
+the output is always constrained to the [ 0 , 1 ] interval .
+for a neuron it can be viewed as its normalized firing frequency ( 1 meaning the neuron is firing at its maximum rate and 0 the neuron is not firing at all ) , for an mtu it can be viewed as a percentage of maximum muscle stimulation .
+2.3 .
+fbl simulation environment and optimization the model is implemented as described in geyer et al .
+( 2003 ) and geyer and herr ( 2010 ) , i.e. , 6degrees of freedom all constrained to the sagittal plane and 7 hill type based muscles per limb .
+simulations run with a time step of 1 ms. all differential equations are solved with a fourth order rungekutta method , except for the muscle velocity which is integrated using the euler method ( as described in geyer et al. , 2003 ) .
+in order to ensure convergence of the integration process , the integration time step of the muscle is reduced by a factor of 20 in comparison to the simulation time step .
+concerning the optimization , the open parameters of the system are the motoneurons basal activities ( x0mn in equation 2 ) , the sensors parameters ( trunk reference angle of the stability feedback , muscle length feedback offsets ) and the feedback gains ( non - zero values of matrix win , sen in equation 1 ) .
+the full model has 25 open parameters ( the parameters and their associated ranges are given in supplementary table 1 ) .
+in geyer and herr ( 2010 ) , the parameters values were hand - tuned .
+when using those parameter values in our implementation , the produced gait shows a velocity of 1.1 [ m / s ] .
+the generated angles have a correlation with human data of 0.6 , 0.7 , and 0.9 for the hip , knee , and ankle joint , respectively .
+the differences in produced gait between the original geyer model and our implementation ( for a given set of parameters ) can be explained by the fact that we use a different simulation environment , bringing differences in the contact model and ground sensors .
+in almost all subsequent articles on fbl enhancement , optimization algorithms are used to set the parameters values .
+for example , in song and geyer ( 2012 ) , the parameters were optimized to generate gaits of different speeds .
+the parameters were then analyzed in order to study the possibility to generate a speed controller through the direct modulation of reflex gains .
+the objective function used took into account the difference between target velocity and current velocity , a penalty term accounting for knee overextension and an energy expenditure term based on bhargava et al .
+( 2004 ) .
+in this article we also use optimization to instantiate parameters values of the fbl model .
+since at least two criteria are always used ( i.e. , the minimization of energy and the penalty term accounting for knee overextension , and more as soon as one wants to optimize for an extra parameter , such as speed or step length ) , a good handling of multi - criteria evaluation is mandatory .
+we use a lexicographic ordering extension on top of the pso ( particle swarm optimization kennedy and eberhart , 1995 ) algorithm to handle multi - objectives fitness functions .
+lexicographic ordering can be used only if the objectives can be written as constraints and ensures that the multi - objective optimization remains on the pareto front ( czyzzak and jaszkiewicz , 1998 ; li et al. , 2008 ) .
+instead of using a unique multi - objective function ( the usual average weighted sum or product of the multiple objectives can become difficult , due to the interaction between the different objectives ) , the different objectives are decoupled in single objective functions , that are sequentially optimized in corresponding stages .
+all except the last stage are constraint optimization .
+each solution is evaluated according to one single objective function , following a sequential order .
+the solution is evaluated using the objective function of a given stage until the constraint of that stage is fulfilled .
+therefore , each evaluated solution is defined by a tuple ( s , v ) , where s is the stage reached and v is the fitness value obtained using the objective function of this stage .
+the solutions are then ranked according to their stages s and , within a stage , according to the value of the associated objective function v. in other words , assuming maximization , the following conditions hold : the stage are ordered so that a solution in a higher stage is always considered fitter .
+a solution can be in only one stage .
+solutions in the same stage sj are ordered using the fitness function fj associated to that stage a solution is in stage si with i > 0 , if all the constraints associated to stage j < i are fulfilled but not the one of stage i. here we used 4 stages whose associated fitness functions and continuation criterion are given in supplementary table 4 .
+the first stage optimizes for a walking gait that can cover at least a distance of dlim .
+since the model can generate gaits of various speed , we add a second stage to constrain the speed of the walking solution so as to facilitate further comparison between different obtained solutions .
+the third stage minimizes a penalty term accounting for knee overextension to favor human - like gaits .
+the fourth stage minimizes the metabolic energy expenditure .
+the model used for calculating the energy expenditure is based on a model of the energy consumption of a muscle as described in bhargava et al .
+( 2004 ) and as used in wang et al .
+( 2012 ) .
+since we want to add a feedforward component to modulate the gait , the initial model should have the capacity to manage changes in acceleration , deceleration or step lengths , i.e. , should be robust .
+however , optimizing for energy consumption on a flat ground will not favor the emergence of such gaits .
+in order to circumvent this issue and favor robust solutions , we optimize the feedback parameters on an environment with increasing and decreasing slope .
+the increasing / decreasing slope are modeled as simple trapezoidal structure ( with max slope 5 %) .
+furthermore , the length , slope and distance between trapezoidal structure are randomized ( details concerning the environment can be found in dzeladini , 2013 ) .
+during the optimization process , each solution is evaluated on 5 different randomly generated environments , and only the worst fitness score is considered .
+2.4 .
+fbl extension : 3fbl the extended model is a hybrid feedback and feedforward model , referred to as 3fbl .
+the cpg component ( incpg ) generation is based on an idea from kuo ( 2002 ) , where feedforward signals produced by the cpgs are considered as feedback predictors .
+a direct way of combining such cpgs with feedbacks is to use a proportional term to control the relative importance of the cpg vs. the feedback it predicts , i.e. , given the vector of cpg activities xincpg , equation 2 representing the motoneurons states becomes : ( 9 ) xmn = gs ( alpha - - > xinsen +( 1 - alpha - - >) xincpg )+ xmn0 where : gs , xmn , x0mn and xinsen are the same as in equation 2 .
+xincpg is the vector of feedforward interneurons activities .
+note that here xincpg and xinsen have the same dimension but all the components of xincpg referring to non - modeled sensory interneurons are set to 0 .
+in the 3fbl models only the sensory interneurons related to muscles sensors are modeled with cpgs .
+thereby , limiting the effective number of cpgs to 9 per limb .
+alpha - - > is a vector controlling the relative importance of sensory vs. cpg interneurons : a value of 0 in any of the alphai components will make the corresponding pathway exclusively feedforward - driven , whereas a value of 1 would make it solely feedback - driven ( see figure 2 ) .
+thus , when alpha - - > = 1 , the 3fbl becomes the fbl model .
+conversely , when alpha - - > = 0 , the activity of all the sensory interneurons is ignored and the model becomes a purely feedforward - driven model .
+figure 2 schematic representation of the spinal network for a specific feedback pathway .
+the value of alpha controls the proportion of feedback vs. feedforward. with alpha = 1.0 the feedback pathway is solely feedback - driven. with alpha = 0.0 the feedback pathway becomes a feedforward pathway .
+all values in - between create a feedback / feedforward pathway .
+any incpg is by definition a model of the underlying feedback pathway insen .
+in this work we use two different abstract models of biological cpgs : a dynamical model inosccpg , generating periodic time varying signal and a constant model incstcpg , generating a constant signal ( see section 2.5 for details ) .
+both inosccpg and incstcpg can be viewed as a linear model of the underlying insen .
+the former is a model capturing the shape , timing and average activity while the latter only captures the average activity .
+therefore , their combination with insen can be viewed as a linearization of the underlying feedback pathways .
+indeed , equation 9 can be rewritten as : ( 10 ) xmn = gs ( xincpg + alpha - - >( xinsen - xincpg ))+ xmn0 this representation highlights the fact that , in the 3fbl model , the equation governing the activity of the motoneurons can be viewed as a linear feedforward term , plus a corrective term ( i.e. , the difference between the insen and incpg state ) .
+as expected , the effect of a inosccpg - insen combination is different from the one of a incstcpg - insen combination .
+on the one hand , increasing the proportion of incstcpg can be viewed as reducing the amplitude of the underlying insen , without affecting its mean activity .
+in other words , the proportion of incstcpg vs. insen controls the flatness of the insen .
+on the other hand , combination of incpg and insen will neither significantly affect the shape , nor the average activity of the insen , but will affect the timing .
+2.5 .
+3fbl components 2.5.1 .
+cpg - constant model in order to test whether a very simple model of feedback could already capture enough information to permit modulation , we decided to implement a cpg - constant model , denoted incstcpg .
+incstcpg state , is a constant signal , whose value equals the average underlying insen state .
+the average is calculated only on the part of the cycle where the feedback is active ( e.g. , for feedback active only during the stance , the average is calculated only during stance ) .
+this type of feedforward signal captures the average activity of the underlying feedback pathway .
+when combined with feedbacks ( see section 2.4 ) , the net effect is a flattening of the original feedback signal .
+2.5.2 .
+cpg - oscillator model in the oscillatory model , denoted inosccpg , each feedback predictor is modeled as a dynamical system reproducing the average shape and amplitude of the original feedback signal .
+in other words , cpgs can be viewed as a dynamical approximation of the sensory interneurons states xinsen ( see equation 1 ) .
+the dynamical system used for this purpose is a morphed oscillator ( mo ) ( ajallooeian et al. , 2013 ) .
+this oscillator is able to produce any shape , as long as this shape can be represented by a function that is both 1 - periodic and derivable .
+the differential equation governing the oscillator is the following : ( 11 ) theta .
+= omega ( 12 ) x. = gamma ( g ( theta ) - x )+ dgdtheta . theta. + k where theta. is the frequency of the oscillator , gamma ( here set to 100 ) controls the speed of convergence of the oscillator output x toward the shaping function g ( theta ) , and g ( theta ) is the nominal function that shapes the output of the oscillator , this function is extracted from insen states , see next paragraph .
+2.5.2.1 .
+pattern generation .
+in order for the stability condition of the mo to be fulfilled , the pattern of the cpg must be represented by a first order differentiable 1 - periodic function .
+based on our hypothesis that cpgs can be viewed as feedback predictors , this function should reproduce the typical shape of the corresponding feedback pathway , for each cycle .
+the typical shape is derived as follow : ( 1 ) the sensory signals are recorded from a stable walking solution , ( 2 ) each sensory signal is split into cycles using the ipsilateral limb takeoff event ( for feedback pathways active during swing ) , or the ipsilateral limb touchdown event ( for all other feedback pathways ) , ( 3 ) each resulting sub signal is normalized in the temporal domain , in order to obtain a set of n repetitions of the sensory signal shape p ( theta,i ) , i = [ 1 ,... , n ] , ( 4 ) the shaping function g ( theta ) is then derived using a third order spline interpolation of the mean signal .
+( 13 ) g [ theta ]= 1 / nsumi = 1np [ theta,i ] 2.5.2.2 .
+cpg coupling with the environment .
+all oscillators have the same frequency omega initially set to an estimate of the fbl gait frequency from which the feedback patterns were extracted .
+in order to ensure that cpgs stay synchronized with the gait phases on which they should act , a coupling has to be defined .
+this coupling should ensure that : incpg will always start at the beginning of the gait phases during which it acts , at the touchdown / takeoff events of left limb for incpg acting during left stance / left swing respectively , same holds for right limb .
+this event is called the synchronization event .
+incpg will never starts a new period before the gait phases on which it acts ends .
+consequently there should be four different oscillators driving the different incpg , i.e. , two for each limbs : one that uses touchdown as synchronization event ( used by incpg acting during stance or whole cycle ) and an other one that uses takeoff as synchronization event ( used by incpg acting during swing ) , figure 2b shows the organization of the spinal network .
+each oscillator is coupled to the environment using the following frequency adaptation mechanisms implementing the two requested coupling properties : if the oscillator is too slow compared to the walking frequency , the phase of the central clock is simply restarted and set to 0.0 at the synchronization event ( see supplementary figure 2a ) .
+if the oscillator is going too fast compared to the walking frequency , a slowing down mechanism takes action before the expected synchronization event ( see supplementary figure 2b ) .
+it ensures that signals generated by the mos will not start a new cycle before they should ( e.g. , for oscillators active during stance , before the limb touches the ground ). with both mechanisms turned on , the phase of oscillator i is defined as : ( 14 ) theta.i ={ omega if ti < p . 1wc ( ti ) else ( 15 ) thetai = 0 if ti > 1omega where : thetai is the phase of oscillator i , ti is the time since the last synchronization event and p is the percentage of the phase at which the slowing down mechanism is turned on. c ( t ) is a slowing down function that ensures that theta >= 1.0 , for - all t epsilon r for the slowing down mechanism to enter in action after 90 % of the period of the oscillator ( i.e. , p = 0.9 ) , we can use the following function : c ( ti )= 10omega . exp ( - 10omegati - ln ( 10 )+ 9 ) details on how c ( t ) is derived can be found in dzeladini ( 2013 ) .
+2.5.3 .
+feedback sensitivity scale for a feedback pathway i , the feedback sensitivity is noted fdbseni = 1 - alphai and corresponds to the point at which the gait becomes unstable when ( 1 ) all other feedback pathways are kept as feedbacks ( i.e. , alphaj = 1 for all j != i ) and ( 2 ) the feedback pathway i is combined with an inosccpg .
+a feedback sensitivity of 0 means that the feedback can be fully replaced by its cognate inosccpg predictor without destabilizing the stability of the generated gait .
+2.6 .
+3fbl models in order to demonstrate the effect of feedback and cpg combinations , we created different models combining cpg and feedback components in different ways .
+here we present only the 5 models exhibiting the most interesting properties in terms of speed modulation .
+the 5 models differ in their cpg - feedback combination vectors alpha - - > ( see table 3 for details ) .
+contrary to what might be expected , a 3fbl model with a inosccpg - insen combination vectors of 0.5 for all muscle feedbacks pathways was not good in terms of speed modulation when considering global control variable acting on all cpgs .
+the first 4 models study the effect of a cpg addition on different group of muscles , namely the 3fbloscankle , 3fbloschipa , 3fbloschipb , and 3fbloscbiart .
+the fifth model , referred to as 3fblminfdb , is a minimum feedback gait , designed to study the properties of gait with minimal feedback activity. that model was obtained as follows : incpg are added starting from pathways acting on distal muscles .
+pathways acting on distal muscles use cpg - cst models ( incstcpg ) and pathways acting on proximal muscles use cpg - osc models ( incpg ) , using the lowest possible alpha ( in the [ 0 , 1 ] range ) .
+this methodology was chosen , with the aim of finding a gait with the minimal number of feedbacks .
+note that other cpg - fdb combinations might be found using different methodologies .
+using this methodology , the 3fblminfdb gait generated stable walking , with a feedback activity corresponding to 35 % of the insen related to muscle feedbacks , and 45 % of all the feedbacks ( the feedback activity is defined as sumi ( alphai ) n , where n is the number of feedbacks ) .
+table 3 description of the cpg - fdb combination map for the 5 different 3fbl models .
+each row shows for a given feedback pathway , the type of cpg used ( osc stands for inosccpg and cst for incstcpg ) and the level of cpg - fdb ( i.e. , alpha ) for the 5 different 3fbl models .
+the four first columns shows the most interesting 3fbl models in terms of speed control : 3fbloscankle , with cpgs acting on distal extensor muscles , 3fbloschipa and 3fbloschipb , with cpgs acting on hip muscles and 3fbloscbiart , with cpgs acting on the ham bi - articular muscles .
+the last column shows the combination vector for 3fblminfdb ( i.e. , the minimum feedback model ) .
+note that the 3fblminfdb also replaces the " vas < - - gcf stend " and " hf < - - tlf sw " pathways by a cpg - cst predictor .
+note that only the pathways related to muscle feedbacks are shown .
+even though a full replacement of the " vas < - - gcf stend " pathway by cpg - cst is possible without affecting the produced gait , the effect of a modulation produces no significant effect on the resulting gait ( data not shown ) .
+this pathway is thus not used , except for the 3fblminfdb .
+the knee overextension prevention pathway (" vas < - - knee opf ") and the pathways related to stability ( i.e. , " hf < - - gsif st ," " ham < - - gsif st " , " glu < - - gsif st " and " hf < - - tlf sw ") are not used , as their role as feedback is evident .
+moreover , even though a combination with cpg generates stable walking , walking becomes unstable even with very small modulation of the cpg parameters ( data not shown ) .
+2.7 .
+3fbl modulation : model of supraspinal influences we hypothesize that the use of a cpg component will facilitate speed control .
+indeed , it is known that simple supraspinal signals are sufficient to modulate gait frequency in lower vertebrates and in mammals , as demonstrated by experiments on decerebrated cat walking on a treadmill , where speed changes and gait transitions can be elicited by varying the stimulation of the mesencephalic locomotor region .
+we model two different kinds of descending pathways ( see figure 3 ) : frequency : omega controls the frequency of the cpg - osc ( omega value in equation 14 ) .
+this variable affects all oscillators as they share the same frequency .
+activity modulation : mu modulates the cpg activity of both cpg - osc and cpg - cst .
+effectively , the cpg output xincpg becomes mu . xincpg , with mu > 0 controlling the activity of the cpg .
+figure 3 schematic representation of the spinal network and supraspinal control of the cpg network in the 3fbl model .
+the network is symmetric : left / right part of the figure corresponds to the part of the network acting on right / left limb muscles respectively .
+( a ) suprasinal influences : mu represents the activity modulation pathway and omega the frequency of the cpg network .
+all 4 oscillators share the same omega , but each cpg can have a different mu. if not stated otherwise , all inosccpg and incstcpg share the same amplitude modulation muosc and mucst , respectively .
+( b ) spinal network .
+four oscillators , differing in their synchronization mechanism with the environment , drive the different incpg .
+thetastr,thetaswr,thetaswl and thetastl are used by incpg starting at right limb stance , right limb swing , left limb stance and left limb swing respectively .
+incpg and insen action on mn follows equation 10 .
+the green arrow between sensory and cpg interneurons pathway highlights the fact that each cpg pathway is a model of one sensory pathway .
+( c ) musculoskeletal system , there is one muscle corresponding to each individual motoneurons .
+3. results the results are separated in three parts .
+in the first part , we compare the gait produced by the optimized fbl model with human walking , in terms of metabolic cost , gait harmony and gait kinematics .
+in the second part , we present an analysis of the different feedback pathways of one specific solution of the fbl model .
+we analyse each feedback pathway separately and for each of them study the effect of a combination with their feedforward predictor .
+finally , in the last part , we analyze the 3fbl models in terms of speed control .
+3.1 .
+fbl : feedbacks based locomotion model in order to determine the ability of our optimization process to generate stable gait , we performed 10 runs of the same optimization process ( as described in section 2.3 ) with different random initial condition .
+we observe that the optimization process always converges to a stable and symmetric walking solution , but to different solutions ( local optima ) , hence leading to visually different gaits .
+figure 5f gives a snapshot of the solution 1 during two cycles .
+note that the presented results are , in terms of joint angles , joint torques and muscles activities , qualitatively similar to those presented in the paper describing the original model ( geyer and herr , 2010 ) .
+3.1.1 .
+metabolic cost analysis when comparing the cost of transport ( cot ) between the 10 different solutions , we observed a value ranking from 2.2 to 3.5 [ jm - 1kg - 1 ] ( cot is defined as e / md , where e is the energy consumed during the run , m is the mass of the model , d is the traveled distance ) , see figure 4 .
+five solutions show a cot less than 25 % higher than the net metabolic transport cost of ~ 2.1 [ jm - 1kg - 1 ] found in human subjects of similar heights , weights and walking at the same speed ( weyand et al. , 2010 ) .
+this increase is comparable to the one found in bhargava et al .
+( 2004 ) and can be explained by the fact that , in our model , the upper body is modeled as a single rigid body , while the experimental values used for comparaison are for walking with arm swing .
+indeed , it has been shown that , despite the fact that arm muscles consume energy to produce movement , they can still reduce the walking metabolic cost up to 12 % ( collins et al. , 2009 ) .
+an other reason explaining the higher cot could be the lack of feedbacks for stance preparation .
+indeed , as most of the metabolic cost of walking comes from the stance phase , optimizing the properties of the limb joints before touchdown will affect the efficiency of walking , as shown in donelan et al .
+( 2002 ) .
+figure 4 each gray bar corresponds to one solution of the same optimization process ( optimizing for a stable gait walking at 1.3 m / s ) .
+( a ) normalized cost of transport .
+the red bar corresponds to the normalized cost of transport of human subject of the similar weight and walking speed as our obtained gait ( data from weyand et al. , 2010 ) , the blue bar shows the estimated standard deviation .
+( b ) duration proportion of the different gait phases .
+gr0 corresponds to the ratio between cycle duration and stance duration , gr1 corresponds to the ratio between stance duration and swing duration and gr2 corresponds to the ratio between swing duration and double stance support .
+the red line corresponds to the golden ratio phi = 1 + 52 .
+gr0 , gr1 , and gr2 are known to be statistically similar to the golden ratio in human walking at their preferred speed ( iosa et al. , 2013 ) .
+3.1.2 .
+golden ratio analysis of gait harmony as demonstrated in iosa et al .
+( 2013 ) , the ratios between cycle / stance durations ( noted gr0 , commonly referred to as the duty factor ) , stance / swing durations ( noted gr1 ) , and swing /" double stance support " durations ( noted gr2 ) is similar in healthy humans of different size , corpulence and age walking at preferred ( self - chosen ) speed , and satisfy the golden ratio ( sigma = 1 + 52 ) .
+note that the variability of gr1 is higher than gr0 , and the variability of the gr2 is higher than gr1 .
+we measured those three ratios in our 10 solutions , and observed that gr0 converges to sigma in all cases , gr1 converges to values close to sigma with higher variability and a bias to slightly smaller values , and gr2 is more variable , with a bias to values higher than sigma .
+the bias observed in the cases of gr1 and gr2 indicates that there is a tendency to generate gaits with longer swing and shorter double stance support phases .
+this overestimation of the swing duration can be explained by the fact that our model does not have toes ; the length of the foot being shorter , the legs tend to enter the swing phase earlier .
+3.1.3 .
+gait analysis we then compared the joint angles and torques trajectories of the 10 solutions , with human data ( winter , 2009 ) .
+a correlation analysis revealed that all joints angles and torques are comparable to human data ( see figures 5a,c , if not stated otherwise , the solutions are ordered with increasing cot ) .
+while the ankle torques show high correlation with humans , the hip and knee torques correlations are substantially lower .
+this can be explained by the fact that , in our model , the hip is completely fixed to the trunk .
+we thus do not model the characteristic pelvis movement observed in human walking .
+regarding the joint angle correlations , we can see that the ankle angle correlation is not perfect .
+the low correlation can be explained by the differences in shape in late stance and early swing ( see figure 5b , right ) , which is due to the fact that the toe is not modeled .
+indeed , the lack of toes will make the leg enters in swing earlier , thereby explaining both the reduced minimum angle and the earlier slope inversion ( i.e. , the swing / stance transition ) .
+figure 5 comparison of joints angle , joints torque and muscles activity extracted from the fbl models ( 10 optimization runs ) , with human data .
+human joints angle and torque are taken from winter ( 2009 ) , muscles activities are adapted from perry et al .
+( 1992 ) , as presented in geyer and herr ( 2010 ) .
+( a ) joint angle correlation with human , ( b ) average joint angle compared to human , ( c ) joint torque correlation with human , ( d ) average joint torque compared to human , ( e ) average muscles activity of solution 1 compared to human and ( f ) gait snapshot of the solution 1 over two cycles .
+in ( a,c ) , the bar plots show the correlation with human for the different solutions and for the different joints .
+in ( b,d ) are shown typical human trajectories ( black dotted line : mean , gray : standard deviation ) and two mean trajectories from solution 1 and solution 10 , blue and orange lines respectively .
+each bar corresponds to one solution of the same optimization process ( optimized for a stable gait walking at 1.3 m / s ) , the different solutions are ordered with increasing energy consumption ( same as in figure 4 ) .
+the correlation were calculated on data extracted from 50 strides of steady state walking ( sampling frequency of 1 khz ) , spline interpolation was used to normalize the length of the vectors to 1000 points .
+the average of the normalized vector was then correlated with average human data .
+in ( e ) the subscripts show the compared muscles : ( i ) adductor longus , ( ii ) upper gluteus maximum , ( iii ) vastus lateralis , and ( iv ) semimembranosis .
+note that the data was extracted from a model walking on a flat terrain without noise and external perturbations .
+therefore , the standard deviation of the angles and torques trajectories and muscles activities is very small and thus not visible .
+another interesting difference between the model and human data can be noted at the ankle angle level during early stance .
+indeed , while humans show an initial passive extension during early stance of about 1 / 10th of stance duration ( black dotted line in figure 5b right ) , the model does not show this behavior .
+when looking carefully at the ankle angle pattern for solution 1 an initial passive extension is visible .
+however , this initial passive extension is very short and almost not visible in the figure ( blue line in figure 5b right , the ankle angle does not start at the same place due to a very fast and quick passive extension ) .
+the solution 10 ( orange line in figure 5b ) does not show this behavior at all : the foot touches the ground horizontally .
+several elements can explain this behavior , such as the lack of mechanism ( e.g. , feedback , cpg ) for stance preparation , a shorter swing range ( due to smaller hip range or an under - extension of the knee ) or the way the swing - stance transitions are designed , i.e. , state machine with discrete transition .
+when comparing muscles activities of solution 1 ( see figure 5e ) , we note that all the ankle muscles and hf muscle are close to human data .
+however , the glu , vas and ham muscles do not show the typical activity observed during late swing in humans .
+this is in agreement with the conclusion drawn in the previous paragraph concerning the lack of a mechanism for stance preparation .
+3.2 .
+feedback pathways study 3.2.1 .
+insen signal analysis and prediction since the produced gaits are all symmetric and stable ( i.e. , close to perfectly periodic ) , the feedback signals should be very similar between cycles .
+consequently , the quality of the feedback prediction should be very high ( i.e. , inosccpg should be very close to insen ) .
+in order to study the quality of the prediction , we generated the inosccpg ( as described in section 2.4 ) and ran them in a passive mode ( no action on muscles , i.e. , no link between inosccpg and mn ) .
+the supplementary figure 1 shows the actual insen signals ( dotted lines ) and the reproduced signal ( thick lines ) over one step , for the worst gait ( in terms of feedback prediction quality , i.e. , similarity between insen and inosccpg ) .
+we can see that the prediction is very close to the feedback signals ; the lowest correlation between the original and the reproduced signals is of 0.98 .
+differences are noted as shifts and amplitude differences , and are due to small asymmetries in the gait .
+it is interesting to note that , even if those asymmetries are visible at the level of the feedbacks , their effects on the gait are very small .
+however , even small asymmetries between the insen and their predictors ( inosccpg ) can create instabilities which makes their replacement difficult .
+3.2.2 .
+feedbacks replacement in order to study the possibility of replacing the feedbacks ( insen ) by their full predictors ( inosccpg ) , we ran a systematic search in which we increase beta = 1 - alpha ( i.e. , the proportion of inosccpg ) from 0 to 1.0 using the combination strategy presented in section 2.3.3 .
+the systematic search is done for each feedback pathway i , where betai is increased from 0 to 1 in steps of 0.1 .
+all the others pathways are kept as feedbacks ( i.e. , betaj = 0 , j != i ) .
+the supplementary table 2 shows , for each gait , the number of feedback pathways that could not be fully replaced ( i.e. , the feedback pathways that have a fdbseni != 0 .
+table 4 shows the feedback sensitivity of the 7 best gaits , in terms of the number of feedback pathways that can be replaced , i.e. , in terms of feedback replacement capacity ( see section 2.5.3 for details on the feedback sensitivity scale ) .
+it is interesting to note that feedback pathways acting on ankle muscles have a zero feedback sensitivity value which means that they can be fully replaced by a inosccpg model without loss of stability .
+the muscle length feedback pathway from ham bi - articular muscle acting on the hf muscle always shows a high sensitivity ( for gaits showing meaningful cot ) , highlighting its importance for the stability of the gait .
+even though feedback related to trunk stability ( feedback type 4 ) are crucial to ensure stable walking and to enhance gait resistance to perturbations , they are not part of sensitive feedbacks .
+however , a gait with only one trunk stability feedback replaced is stable only in steady state walking ; as soon as small perturbations ( pushes and / or change in slope ) are exerted on the model , the gait becomes unstable and falls .
+table 4 feedback sensitivity ( see section 2.5.3 ) for the best 7 solutions ( in terms of insen replacement capacity , i.e. , percentage of insen that can not be replaced by a cpg - osc model ) .
+the first column shows the solution , ranked in term of cost of transport ( cot ) .
+the second column gives the name of the feedback pathway .
+the third column shows the feedback sensitivity ( fdbsen ) .
+based on these results , we focus on gait 2 , as it shows a good correlation with human data , a meaningful cot and a low feedback sensitivity , for further analysis .
+3.2.3 .
+feedbacks combination figure 6a shows the effect on the generated gait ( in terms of cot , stride length and speed ) of an increase in the proportion of feedforward vs. feedback signal for one specific pathway while maintaining all the other pathways purely feedback driven ( this was implemented by decreasing the feedback proportion by steps of 0.1 of one component of the alpha - - > vector at a time while keeping all other components at 1 ) .
+figure 6a left and right parts show the combination analysis of feedbacks with incstcpg and inosccpg respectively .
+as expected , the replacement of insen by a constant model ( i.e. , incstcpg ) has more effect on the gait characteristics , compared to the replacement of the insen by an oscillatory model ( i.e. , inosccpg ) .
+this confirms that the latter captures more information from the insen ( i.e. , the shape , timing and amplitude ) .
+figure 6 ( a ) one by one feedback and feedforward combination effects on cost of transport , stride length and speed , for gait number 1 .
+the first column gives the name of the feedback pathway considered .
+the second and third columns show for an insen - incstcpg and an insen - inosccpg respectively , a box plot of the variation of a measured variable when alpha varies from 1 to 0 .
+in the first part of the table the considered variable is the cost of transport ( cot ) , in the second part , the speed and in the third part , the stride length .
+we show the speed and stride length box plot only for the two most interesting pathways in terms of feedback and feedforward combination effect on cot .
+the box plot read as follow : the middle line is the median , the colored line represents 99 % of the data assuming the data are normally distributed and the gray horizontal bar shows the range of the measured variable .
+a very thin box plot ( no colored line visible ) means that the variation of alpha had no effect on the considered variable , feedback pathway and incpg model .
+as expected the insen - incpg combination for any alpha in the [ 0 , 1 ] interval has very little effect on the cot .
+( b ) relationship between incstcpg proportion and gait variables , for two selected feedbacks ( red , " sol < - - ta mff , st " and green , " gas < - - gas mff , st ") .
+left : relationship between stride length and 1 - alpha ( i.e. , the incpg proportion ) , middle : relationship between step duration and 1 - alpha and right : relationship between speed and 1 - alpha .
+despite the higher sensitivity of the incstcpg - insen combination ( i.e. , percentage of insen that could not be replaced by a constant model ( incstcpg ) , several interesting effects of the incstcpg - insen combination are noted , as shown in figure 6 .
+we observe that , for the " sol < - - ta mff , st " and the " hf < - - hf mlf , sw " feedbacks , changes in alpha ( i.e. , proportion of incstcpg vs. insen ) produce large variations in speed and stride length .
+in the case of " sol < - - ta mff , st " , there is a linear relationship between the incstcpg proportion level and both the speed and the stride length .
+a decrease in stride length and speed is observed with the increase in incstcpg level , see figure 6b .
+3.3 .
+3fbl models : feedforward and feedback based locomotion model in the previous section , we showed that all feedbacks can be combined with their cpg predictors , and that interesting properties , such as speed and step length variation , can be achieved , by playing with the cpg - fdb combination level when using cpg - cst predictors .
+while , in the previous section , feedback and cpg combinations were studied one pathway at the time , here we study effect of more complex combinations on 5 different 3fbl models exhibiting the most interesting property in terms of gait speed modulation ( see section 2.6 for details ) .
+3.3.1 .
+3fblminfdb : minimal feedbacks gait the 3fblminfdb model is able to produce stable walking with a global feedback activity reduced from 100 to 45 % .
+its average speed on flat ground is 1.35 [ m / s ] ( 3 % increase compared to the underlying fbl model ) .
+when comparing the joint angles , torques and muscles activities between the two models , almost no differences can be observed at the hip joint ( see figure 7c ) .
+however , differences are noted at the level of the ankle joint ( see figure 7a ) .
+indeed , all muscles activities acting on the ankle joints show different muscle activation patterns than the corresponding fbl model .
+interestingly , the differences observed in muscles activities do not produce important changes in the shape of the torque and angle patterns of the ankle joint .
+nevertheless , the increase in extensor muscles activities produces a steeper increase in joint torque during stance .
+this increase in torques explains the observed increased ankle angle at takeoff .
+in turn , this increase in ankle angle also increases the duration of the stance phase , thereby explaining the observed shift of the knee pick angle in early swing ( see figure 7b ) .
+figure 7 comparison of average joint angles , joint torques and muscles activation pattern between the 3fblminfdb ( black line ) and the fbl models ( dashed line ) for solution 1 .
+( a ) ankle angle , torque and associated muscles activation level , ( b ) knee angle , torque and associated muscles activation level , and ( c ) hip angle , torque and associated muscles activation level .
+the sol muscle shows a different muscle activation pattern , while the " sol < - - sol mff , st " pathway , the only one acting on it , has not been replaced by a cpg ( i.e. , kept as pure feedback , alpha = 1 ) .
+since the 3fblminfdb 's feedback / cpg combination map does not permit a combination of cpg - osc with feedback for this specific pathway ( even with alpha = 0.95 , i.e. , pathway kept almost purely feedback ) , this change in activity is necessary to ensure a stable walking gait .
+this highlights the important stabilizing role that muscle feedbacks play in locomotion .
+it is important to note that , while in a stable walking regime reducing as much as possible the proportion of feedback signals for specific pathways does not significantly affect the generated gait , the replacement of feedbacks considerably reduce the gait robustness to perturbations .
+indeed , recovery after 0.25 [ s ] pushes is reduced from 40 [ n ] to 28 [ n ] compared to the original gait .
+this highlights the importance of feedback to adapt to perturbations .
+even though the 3fblminfdb is valuable , as it shows that a large part of feedbacks can be removed from the fbl model , while a stable walking gait is still produced , it is not surprising that its modulation is almost impossible .
+indeed , since a large part of the feedbacks are removed , even small modulations of cpg parameters render the gait unstable .
+3.3.2 .
+systematic study of supraspinal signal modulation and their effects on gait using the model of supraspinal influences presented in section 2.7 , we ran a systematic search on the effect of cpg amplitude and frequency modulation on the different 3fbl models presented in the previous section , using omega and muosc as parameters ( the parameters are split into 11 values across a given range ([ 0.2 , 2.5 ] for omega and [ 0.1 , 4.0 ] for muosc ) .
+the systematic search on the 4 chosen models acting on different group of muscles ( see figure 8a ) indicates that all the models are stable in a large range of amplitudes and frequencies , except the 3fbloschipa , that shows a more restricted region of stability .
+this can be due to the fact that the 3fbloschipa has more oscillators than the three other models .
+note that the restricted region of stability does not imply a restricted range of speed .
+indeed , small variations in omega ( while muosc remains fixed ) induces noticeable change in speed in this model ; an increase in speed is observed with an increase in frequency .
+in other words , changing the frequency of the 3fbloschipa is sufficient to entrain the whole musculoskeletal system .
+interestingly , this model - - which is the only model with a high number of cpgs acting on proximal muscles - - is the only one that shows an increase in speed when increasing the cpg network frequency .
+this suggest that cpgs acting on proximal muscles are required to produce a frequency - driven entrainment of the system .
+figure 8 systematic search study of cpg parameters ( supraspinal influences ) for the different 3fbl models .
+the systematic search is done for two parameters : omega , the frequency of the cpg network and muosc , the cpg - osc amplitude modulation .
+each column corresponds to a given 3fbl model ( name at the top , see table 3 ) .
+( a ) heat map of the systematic search .
+the color indicates the speed of the gait for a given ( muosc,omega ) pair ( gray color means that the gaits was unstable or asymmetric ) .
+( b ) highest variation in speed possible while maintaining one of the parameters constant ( based on the heat map ) .
+a red / blue line means that ( muosc / omega ) is kept constant , respectively .
+the value of the constant parameter is indicated at the bottom .
+the first row shows the speed , the second the stride length , and the third the step duration .
+note that the 3fblminfdb is not shown as its modulation is almost not possible .
+interestingly , the 3fbloschipb - - which has only two cpgs acting on proximal muscles , compared to four in the case of the 3fbloschipa - - shows almost no change in speed when the frequency omega is modulated ( while muosc is fixed ) .
+possibly , the frequency modulation of only two cpgs at the hip level is not sufficient to produce a frequency - driven entrainment of the system .
+however , increasing muosc leads to a significant decrease in gait velocity .
+this decrease in speed with increasing amplitude is likely an effect of the " hf < - - hf mlf , sw ," as this effect is not observed in the 3fbloscbiart , which differs from the 3fbloschipb model only by the absence of a cpg component for this feedback pathway .
+indeed , the " hf < - - hf mlf , sw " is a negative feedback , and thus increasing the amplitude of its associated cpg ( i.e. , muosc ) will reduce the activity of the hf muscle , reducing the hip flexion velocity and hence increasing the duration of the swing , which in turn decreases the gait speed ( as the stride length does not change significantly ) .
+surprisingly , as little as one oscillator is sufficient to allow significant changes in speed ( shown by the 3fbloscbiart , see figure 8b ) .
+the changes in speed are mainly induced by a modulation of the amplitude muosc , but with an opposite effect compared to the 3fbloschipb ( i.e. , an increase in muosc leads to an increase in the gait velocity ) .
+however , since this effect is accompanied with a shortening of the stride length , this model is unlikely to be relevant ; indeed , in humans an increase in speed is usually concomitant to an increase in stride length ( murray et al. , 1966 ) .
+note that small changes in speed are still possible with a modulation of the frequency omega , both in the case of the 3fbloscbiart and 3fbloschipb , but to a lesser extent than the 3fbloschipa .
+this is expected , as a lower number of cpg - - acting on proximal muscles - - will have a lower frequency - driven entrainment capacity .
+concerning the pathways acting on distal muscles ( i.e. , the 3fbloscankle model ) , large changes in speed and step length are observed .
+however , contrary to what might be expected , an increase in frequency produces a decrease in speed .
+this is an artifact only possible because of the synchronization mechanism used to ensure the lock - in of the cpg with the mechanical system ( see section 2.5.2.2 ) .
+this effect is thus mainly related to a change in the duration of the burst of the feedforward signal ( induced by the change in frequency ) , rather than to an entrainment between the two systems ( i.e. , cpg and musculoskeletal system ) .
+in other words , the observed gait modulations are due to a modulation of the shape of the signal ( change in amplitude and / or duration ) .
+importantly , increases in speed induced by supraspinal influences on the different 3fbl models do not have the same effect on the gait characteristics ( i.e. , stride length and step duration ) .
+modulation of the 3fbloschipa or 3fbloschipb parameters induce very little change in stride length (< 5 %) .
+this is explained by the fact those cpgs are active only during swing and modulate the swing speed , but do not impact the swing length ( and hence the stride length ) .
+conversely , an increase in speed in the 3fbloscankle induces a significant increase in stride length , as increasing the propulsive force will increase the swing length and thereby the stride length .
+as previously mentioned , the opposite effect is observed for the 3fbloscbiart ( i.e. , a decrease in stride length ) .
+in real humans , it is known that , up to a certain point , increases in speed are usually accomplished by a decrease in step duration ( i.e. , increase in frequency ) , as well as by an increase in stride length ( murray et al. , 1966 ) .
+as expected , the 4 models exhibit a decrease in step duration with the increase in speed .
+interestingly , only a modulation occurring on distal muscles also shows an increase in stride length , suggesting the propulsive force modulation as a means of velocity control .
+results suggest 2 ways of controlling speeds : ( 1 ) frequency modulation of cpgs acting on proximal muscles , ( 2 ) modulation of burst duration , amplitude and timing of cpgs acting on distal muscles .
+4. discussion 4.1 .
+fbl the analysis of gaits generated by the optimized fbl model ( see section 3.1 for details ) highlighted several similarities to healthy humans .
+moreover , some solutions of different runs from the same optimization process showed ankle kinematics similarities to children suffering from cerebral palsy , highlighting the role that the fbl model could play in terms of modeling locomotion diseases .
+children with cerebral palsy show a typical ankle flexion ( instead of extension ) in the early stance , followed by a double bump , visible at both the angle and torque level ( iosa et al. , 2010 ) .
+this is conceivably linked to a reduced hip range of motion , a weakness of tibialis anterior and / or a hypertone of gastrocnemious .
+suprisingly some of the solutions described in section 3.1 , such as solution 10 ( orange line in figures 5b,d right ) , show both features observed in children with cerebral palsy , i.e. , ankle flexion in early stance and the double bump visible in both the torque and the angle .
+furthermore , solution 10 shows a smaller hip range of motion compared to solution 1 .
+finally , the tibilias anterior was found less active at the beginning of gait cycle compared to human physiological gait , as reported for children with cerebral palsy .
+conversely , the double bump noted in the model seemed not to be related to an increased muscular activity of gastrocnemious .
+these interesting similarities , as well as the potential role of the model in disease / injury modeling should be further investigated .
+4.2 .
+fbl extension our approach - - to use a dynamical system model of cpgs playing the role of feedback predictors - - offers an easy and intuitive way of studying the relative importance of the different feedback pathways , and allowed us to highlight several aspects regarding speed control .
+4.2.1 .
+cpg modulations on both proximal and distal muscles allow speed control mixing a constant predictor ( cpg - cst ) and feedbacks for as little as one pathway already enables speed and step length control .
+increasing the level of cpg - cst for one specific pathway results in a flattening of the original feedback signal .
+flattening the " sol < - - sol mff , st " feedback ( i.e. , the sol positive muscle force feedback , active during stance ) induces a clear decrease in both the gait speed and stride length , while flattening the " hf < - - hf mlf , sw " feedback ( i.e. , the hf negative muscle length feedback , active during swing ) induces a clear decrease in the gait speed , but has little effect on the stride length ( see figure 6b ) .
+those two observations confirm the intuition that speed changes would arise differently , depending on whether the control is applied during stance or swing .
+while speed control arising from stance control would more likely use extensor distal muscles , a speed control arising from swing control would more likely use proximal muscles .
+on the one hand , to be effective , a control acting during the stance should affect the propulsive force , which is mainly controlled by extensor muscles acting on the ankle joint ( i.e. , sol and gas muscles ) .
+it is thus not surprising that a modulation of feedback pathways acting on ankle extensor muscles during the stance affects the speed of locomotion ( see figure 6a ) .
+the effect on stride length is understood as the result of the modulation of the propulsive force : decreasing the propulsive force will decrease the swing length and thereby decrease the stride length .
+on the other hand , for the control acting during the swing at the level of the hip flexors , the decrease in speed is not accompanied with any clear reduction in stride length ( see figure 6b green ) , meaning that it is the speed of the swing , but not its amplitude that induced the change in speed .
+similarly , the 3fbl models with cpg components acting on different groups of muscles confirm that speed control can arise from distal muscles extensors during the stance phase , and proximal muscles during the swing phase .
+we show that changes in speed , induced by a modulation of feedforward signals acting at the level of the ankle muscles , is unlikely due to a modulation of the frequency of the cpg network ( see section 3.3.2 ) , but rather induced by changes in burst duration and timing .
+conversely , the results from a control acting during the swing at the level of proximal muscles shows that they could , indeed , be due to a modulation of the frequency of a cpg network .
+when the cpg activity is modulated , the rest of the system ( i.e. , the remaining feedbacks ) should adapt to the new conditions .
+therefore , it is the combined effects of both cpgs and feedbacks that changes the gait properties ( such as speed , step length , step duration ) .
+it has already been demonstrated that feedbacks acting at the level of the ankle produce such speed - adaptive behaviors ( markowitz et al. , 2011 ) .
+here we show that this is true regardless of whether the control is applied at the level of proximal or distal muscles .
+the proposed spinal architecture was able to generate speed transition ranging from 0.75 to 1.35 [ m / s ] .
+while this can seem relatively small compared to the controller proposed in song and geyer ( 2012 ) , in which speed transition ranging from 0.8 to 1.6 [ m / s ] were obtained , the strategy proposed in this article has the advantage that changes in speed can be obtained without changing the reflex parameters .
+furthermore , as the proportion of feedbacks vs. cpgs ( i.e. , alpha vector ) of the 3fbl models were hand tuned , larger range of speed could be obtained through optimization .
+finally , co - optimizing the feedback and feedforward components could also increase the range of speed .
+indeed , as already stated , the 3fbl can be viewed as a system made of two components : a feedforward component and a corrective term , accounting for the differences between the feedback and the feedforward pathways ( see section 3.2.3 ) .
+in this context , the fbl model is a 3fbl model where the feedforward component is zero : the feedback parameters of the fbl are thus optimized for a model without any feedforward component .
+in this regard , since the 3fbl models were designed on top of an existing fbl model , the feedback parameters are not optimized to work with a non - zero feedforward component .
+this could also explain the low robustness of the 3fblminfdb model .
+furthermore , in a biological point of view , it is obvious that the feedforward components should evolve together with the feedback components .
+consequently , in the future , we will investigate the co - evolution of the feedforward and feedback components .
+4.2.2 .
+stable locomotion is produced even with a significant decrease in feedback activity the 3fblminfdb model shows that stable locomotion can be produced despite a significant decrease in feedback activity .
+indeed , stable walking is produced even with a 65 % percent reduction in muscle feedback activity .
+as expected , this large decrease in feedback activity reduces the robustness of the gait to external perturbations ( pushes and slope variation ) , and also considerably reduces the possibilities to control the gait ( change in speed / stride length are not possible ) .
+this shows that some pathways are more important than others regarding their role as gait stabilizer which can be beneficial to both perturbation resistance and control of the gait .
+4.2.3 .
+exploiting the low dimensional organization of feedback pathways interestingly , in all the optimized fbl gaits , all the feedback pathways can be represented with as little as 4 signals found by non - negative matrix factorization ( 98 % correlations between the original signals and the reconstructed one , data not shown ) .
+since motoneurons are a simple linear combination of feedback pathways , the same conclusions are valid when analyzing the motoneurons signals .
+this low dimensional representation is also found in humans emg patterns ( clark et al. , 2009 ; dominici et al. , 2011 ) , where only 4 signals , the so - called " motor - primitives ," are necessary to faithfully represent the emg patterns of adult human walking .
+it would thus be interesting to exploit this low dimensional structure when modeling the feedforward components .
+in other words , we could model the cpgs as a set of motor - primitives that can be combined together to generate the different motoneurons states .
+therefore , instead of viewing the cpg as a feedback predictor , we would view it as a motoneuron predictor .
+based on the presented results , our new hypothesis is that the modulation of the timing , amplitude and duration of the motor - primitive will offer a better control of the gait , in terms of speed , stride length , gait transition and adaptation to increasing / decreasing slope .
+5. conclusion in this work , we presented a method to introduce cpgs as feedforward components in a feedback based model of human walking .
+the proposed strategy is based on the idea that , in a feedback driven system , the feedforward component can be viewed as a feedback predictor .
+we implemented the feedback predictors using morph oscillators as abstract models of biological cpgs .
+thanks to the intrinsic robustness inherited from the feedback pathways , the modulation of cpgs network 's frequency and amplitudes were possible , over a broad range , without affecting the overall walking stability .
+furthermore , the modulation of the cpgs network 's parameters allowed smooth and stable speed changes in a range of 0.6 [ m / s ] .
+preliminary results shows that the same strategy can be used to adapt to larges increase in slope ( up to 30 %) and to broader speed range ( up to 0.8 [ m / s ]) suggesting that the idea of using feedback predictor as gait modulator can be extended to a large range of applications , highlighting the role biological cpgs could play on top of a reflex based rhythmic movement .
+conflict of interest statement the authors declare that the research was conducted in the absence of any commercial or financial relationships that could be construed as a potential conflict of interest .
+the work presented here was performed in the symbitron project which is supported by eu research program fp7 , fet - proactive initiative " symbiotic human - machine interaction " ( ict - 2013 - 10 ) under project contract # 611626 and eu research program fp7 , fet - proactive initiative " whole - body adaptive locomotion and manipulation " ( ict - 2013 - 10 ) under project contract # 611832 .
+the symbitron project is coordinated by university of twente and the walkman project by the istituto italiano di tecnologia ( iit ) .
+we thanks steeve berger for its contribution to the implementation of the fbl model .
+we thanks yuri ivanenko , andrea d'avella and nadine ait bouziad for helpful discussions .
+1the nmm library can be found online at https :// bitbucket.org / efx / libnmm ) 2the webots implementation of the nmm library can be found online at https :// bitbucket.org / efx / sml supplementary material the supplementary material for this article can be found online at : http :// www.frontiersin.org / journal / 10.3389 / fnhum.2014.00371 / abstract click here for additional data file .
+references ajallooeian m. van den kieboom j. mukovskiy a. giese m. a. ijspeert a. j. ( 2013 ) .
+a general family of morphed nonlinear phase oscillators with arbitrary limit cycle shape . physica d 263 , 41 - 56 10.1016 / j.physd.2013.07.016 bhargava l. j. pandy m. g. anderson f. c. ( 2004 ) .
+a phenomenological model for estimating metabolic energy consumption in muscle contraction . j. biomech .
+37 , 81 - 88 10.1016 / s0021 - 9290 ( 03 ) 00239 - 2 14672571 clark d. j. ting l. h. zajac f. e. neptune r. r. kautz s. a. ( 2009 ) .
+merging of healthy motor modules predicts reduced locomotor performance and muscle coordination complexity post - stroke . j. neurophysiol .
+103 , 844 - 857 10.1152 / jn.00825.2009 20007501 collins s. h. adamczyk p. g. kuo a. d. ( 2009 ) .
+dynamic arm swinging in human walking . proc. r. soc .
+b biol. sci. 276 , 3679 - 3688 10.1098 / rspb.2009.0664 19640879 czyzzak p. jaszkiewicz a .
+( 1998 ) .
+pareto simulated annealing - - a metaheuristic technique for multiple - objective combinatorial optimization . j. multi - crit. decis. anal .
+7 , 34 - 47 10.1002 /( sici ) 1099 - 1360 ( 199801 ) 7:1 < 34 : : aid - mcda161 > 3.0.co ; 2 - 6 dimitrijevic m. r. gerasimenko y. pinter m. m. ( 1998 ) .
+evidence for a spinal central pattern generator in humansa . ann .
+n.y. acad. sci. 860 , 360 - 376 10.1111 / j.1749 - 6632.1998.tb09062.x 9928325 dominici n. ivanenko y. p. cappellini g. d'avella a. mondi v. cicchese m .
+( 2011 ) .
+locomotor primitives in newborn babies and their development . science 334 , 997 - 999 22096202 donelan j. m. kram r. kuo a. d. ( 2002 ) .
+simultaneous positive and negative external mechanical work in human walking . j. biomech .
+35 , 117 - 124 10.1016 / s0021 - 9290 ( 01 ) 00169 - 5 11747890 dzeladini f .
+( 2013 ) .
+implementation of a human feedback - based locomotion and its control by means of a feedforward component inspired by central pattern generators .
+master thesis , epfl , lausanne geyer h. herr h .
+( 2010 ) .
+a muscle - reflex model that encodes principles of legged mechanics produces human walking dynamics and muscle activities . ieee trans .
+neural syst. rehabil. eng .
+18 , 263 - 273 10.1109 / tnsre.2010.2047592 20378480 geyer h. seyfarth a. blickhan r .
+( 2003 ) .
+positive force feedback in bouncing gaits ?
+proc. r. soc .
+b biol. sci. 270 , 2173 - 2183 10.1098 / rspb.2003.2454 14561282 grillner s. wallen p .
+( 1985 ) .
+central pattern generators for locomotion , with special reference to vertebrates . ann. rev. neurosci .
+8 , 233 - 261 10.1146 / annurev.ne.08.030185.001313 2984978 hill a. v. ( 1938 ) .
+the heat of shortening and the dynamic constants of muscle . proc. r. soc .
+b biol. sci. 126 , 136 - 195 10.1098 / rspb.1938.0050 16709736 iosa m. fusco a. marchetti f. morone g. caltagirone c. paolucci s .
+( 2013 ) .
+the golden ratio of gait harmony : repetitive proportions of repetitive gait phases . biomed. res. int .
+2013 , 1 - 7 10.1155 / 2013 / 918642 23862161 iosa m. morelli d. nanni m. v. veredice c. marro t. medici a .
+( 2010 ) .
+functional taping : a promising technique for children with cerebral palsy . dev. med. child neurol .
+52 , 587 - 589 10.1111 / j.1469 - 8749.2009.03539.x 20041935 ijspeert a. j. ( 2008 ) .
+central pattern generators for locomotion control in animals and robots : a review . neural netw .
+21 , 642 - 653 10.1016 / j.neunet.2008.03.014 18555958 kennedy j. eberhart r .
+( 1995 ) .
+particle swarm optimization , in proceedings of ieee international conference on neural networks , vol. 4 ( perth , wa ) , 1942 - 1948 10.1109 / icnn.1995.488968 kuo a. d. ( 2002 ) .
+the relative roles of feedforward and feedback in the control of rhythmic movements . motor control 6 , 129 - 145 12122223 li b .
+- b. wang l. liu b .
+( 2008 ) .
+an effective pso - based hybrid algorithm for multiobjective permutation flow shop scheduling . ieee trans. syst .
+man cybern .
+a syst. hum .
+38 , 818 - 831 10.1109 / tsmca.2008.923086 mackay - lyons m .
+( 2002 ) .
+central pattern generation of locomotion : a review of the evidence . phys. ther .
+82 , 69 - 83 11784280 markowitz j. krishnaswamy p. eilenberg m. f. endo k. barnhart c. herr h .
+( 2011 ) .
+speed adaptation in a powered transtibial prosthesis controlled with a neuromuscular model . philos. trans. r. soc .
+b biol. sci. 366 , 1621 - 1631 10.1098 / rstb.2010.0347 21502131 michel o .
+( 2004 ) .
+webots : professional mobile robot simulation . j. adv. robot. syst .
+1 , 39 - 42 murray m. p. kory r. c. clarkson b. h. sepic s .
+( 1966 ) .
+comparison of free and fast speed walking patterns of normal men . am. j. phys. med. rehabil .
+45 , 8 - 24 10.1097 / 00002060 - 196602000 - 00002 5903893 perry j. k s. t. davids j. r. ( 1992 ) .
+gait analysis : normal and pathological function . j. pediatr. orthop .
+12 , 815 10.1097 / 01241398 - 199211000 - 00023 siegel a. sapru h. n. siegel h .
+( 2006 ) .
+essential neuroscience .
+philadelphia , pa : lippincott williams and wilkins song s. geyer h .
+( 2012 ) .
+regulating speed and generating large speed transitions in a neuromuscular human walking model , in ieee international conference on robotics and automation ( st paul , mn ) .
+taga g .
+( 1994 ) .
+emergence of bipedal locomotion through entrainment among the neuro - musculo - skeletal system and the environment . physica d 75 , 190 - 208 10.1016 / 0167 - 2789 ( 94 ) 90283 - 6 wang j. m. hamner s. r. delp s. l. koltun v .
+( 2012 ) .
+optimizing locomotion controllers using biologically - based actuators and objectives . acm trans. graph .
+31 , 1 - 11 10.1145 / 2185520.2185521 weyand p. g. smith b. r. puyau m. r. butte n. f. ( 2010 ) .
+the mass - specific energy cost of human walking is set by stature . j. exp. biol .
+213 ( pt 23 ) , 3972 - 3979 10.1242 / jeb.048199 21075938 winter d. a. ( 2009 ) .
+biomechanics and motor control of human movement .
+hoboken , nj : john wiley and sons , inc 10.1002 / 9780470549148

@@ -1,0 +1,418 @@
+plos one plos one plos plosone plos one 1932 - 6203 public library of science san francisco , ca usa 29135991 5685571 10.1371 / journal.pone.0187278 pone - d - 16 - 40087 research articlesocial sciencessociologycommunicationssocial communicationsocial mediafacebookcomputer and information sciencesnetwork analysissocial networkssocial mediafacebooksocial sciencessociologysocial networkssocial mediafacebooksocial sciencessociologycommunicationssocial communicationsocial mediacomputer and information sciencesnetwork analysissocial networkssocial mediasocial sciencessociologysocial networkssocial mediaresearch and analysis methodsmathematical and statistical techniquesstatistical methodsforecastingphysical sciencesmathematicsstatistics ( mathematics ) statistical methodsforecastingbiology and life sciencesneurosciencecognitive sciencecognitive psychologylanguagebiology and life sciencespsychologycognitive psychologylanguagesocial sciencespsychologycognitive psychologylanguagebiology and life sciencespsychologyemotionssocial sciencespsychologyemotionsmedicine and health sciencesmental health and psychiatrymood disordersdepressioncomputer and information sciencesartificial intelligencemachine learningmedicine and health sciencespublic and occupational healthbehavioral and social aspects of health building a profile of subjective well - being for social media users subjective well - being of social media users chen lushi conceptualizationdata curationformal analysisinvestigationmethodologyproject administrationresourcessoftwarevalidationvisualizationwriting - original draftwriting - review & editing1 * gong tao conceptualizationmethodologyresourcessupervisionwriting - review & editing23 * kosinski michal methodologywriting - review & editing4 stillwell david writing - review & editing5 davidson robert l. conceptualizationformal analysismethodologysupervisionwriting - review & editing67 1 institute for language , cognition and computation , school of informatics , university of edinburgh , edinburgh , united kingdom 2 haskins laboratories , new haven , connecticut , united states of america 3 center for linguistics and applied linguistics , guangdong university of foreign studies , guangzhou , china 4 graduate school of business , stanford university , stanford , california , united states of america 5 judge business school , university of cambridge , cambridge , united kingdom 6 two cloaks ltd. , glasgow , united kingdom 7 scientists for eu ltd. , london , united kingdom xia feng editor dalian university of technology , china competing interests : the authors have declared that no competing interests exist .
+* e - mail : lushi.chen @ ed.ac.uk ( lc ) ; gong @ haskins.yale.edu ( tg ) 14 11 2017 2017 12 11 e0187278 7 10 2016 17 10 2017 ( c ) 2017 chen et al 2017 chen et althis is an open access article distributed under the terms of the creative commons attribution license , which permits unrestricted use , distribution , and reproduction in any medium , provided the original author and source are credited .
+subjective well - being includes ' affect ' and ' satisfaction with life ' ( swl ) .
+this study proposes a unified approach to construct a profile of subjective well - being based on social media language in facebook status updates .
+we apply sentiment analysis to generate users' affect scores , and train a random forest model to predict swl using affect scores and other language features of the status updates .
+results show that : the computer - selected features resemble the key predictors of swl as identified in early studies ; the machine - predicted swl is moderately correlated with the self - reported swl ( r = 0.36 , p < 0.01 ) , indicating that language - based assessment can constitute valid swl measures ; the machine - assessed affect scores resemble those reported in a previous experimental study ; and the machine - predicted subjective well - being profile can also reflect other psychological traits like depression ( r = 0.24 , p < 0.01 ) .
+this study provides important insights for psychological prediction using multiple , machine - assessed components and longitudinal or dense psychological assessment using social media language .
+gong acknowledges support by the us national institutes of health grant ( hd - 071988 ) .
+the study is also supported in part by the moe project of the center for linguistics and applied linguistics , guangdong university of foreign studies .
+however , the funders had no role in study design , data collection and analysis , decision to publish , or preparation of the manuscript.data availabilityall result files are available at https :// github.com / gtojty / fb _ ml .
+the result files that we made available on the github repository contain the data necessary to reproduce the tables and figures contained in the document .
+the authors are not authorized , however , to share the individual - level facebook data because it would with be an irb ethics violation - - the privacy of participants would be compromised .
+interested users with appropriate citi certification and irb approval can contact the mypersonality application ( http :// mypersonality.org / wiki / doku.php ? id = database _ use _ guidelines ) for permission to access the original dataset .
+this sensitive and private data is not available directly through the facebook api .
+data availability all result files are available at https :// github.com / gtojty / fb _ ml .
+the result files that we made available on the github repository contain the data necessary to reproduce the tables and figures contained in the document .
+the authors are not authorized , however , to share the individual - level facebook data because it would with be an irb ethics violation - - the privacy of participants would be compromised .
+interested users with appropriate citi certification and irb approval can contact the mypersonality application ( http :// mypersonality.org / wiki / doku.php ? id = database _ use _ guidelines ) for permission to access the original dataset .
+this sensitive and private data is not available directly through the facebook api .
+introduction subjective well - being ( swb ) is a broad concept referring to individuals' cognitive and affective evaluations of their lives .
+the cognitive evaluation is called satisfaction with life ( swl ) , which is self - assessment of one 's own life .
+the affective component is what we usually refer to as " happiness " .
+it is an aggregation of a person 's emotion and mood within a period of time [ 1 ] .
+these two domains have been widely studied due to their interactive effects on our mental health [ 2,3 ] .
+swl is often evaluated by a five - item scale , which assesses individual 's memory - based life experience based on a series of questions [ 4 ] .
+an example question is " are you satisfied with your life ?" such memory - based assessment tends to neglect experience duration , and shows bias towards peak or end experience .
+therefore , one time self - reported swl is subject to distortion of impression management [ 1,5,6 ] .
+a person may report low swl after a recent break - up with a partner , even though many positive events have occurred since the break - up ; in other words , the ' peak experience ' ( break - up ) distorts appraisal of more recent events [ 5 ] .
+in addition to cognitive bias , swl is also subject to a set of internal and external criteria .
+the internal criteria include individuals' mental structures for organizing and interpreting information , and the externally imposed criteria involve a person 's current circumstances such as health , income , and location [ 7 ] .
+swl is a relatively stable variable .
+the test - retest reliability of swl is 0.84 in two months , and 0.54 in four years [ 5 ]. by contrast , affect is less stable .
+affect is a neurophysiological state consisting of hedonic ( pleasure - displeasure ) and arousal values [ 8 ] .
+it can be measured by a single - occasion positive and negative affect schedule ( panas ) [ 9 ] .
+participants are asked to rate how they feel right now , today , during the past week , during the past few weeks , and during the past year .
+the test - retest reliability ranges from 0.54 to 0.68 .
+when participants are asked to recall affect from more distant time points , the responses could be repeatable [ 10 ] , because the responses are guided more by stable traits such as cognitive bias and impression management than by better recollection of affect .
+noting this , psychologists have developed a compensatory approach - - experience sampling .
+following this approach , participants are asked to report their moods several times a day at randomly - selected time points [ 10,11,12 ] .
+since it consists of a series of short - term reports [ 10 ] , the experience sampling is also referred to as moment - based mood report .
+in addition to the moment - based intensity of affect , it has been argued that the basis of affective well - being is formed by the total amount of time during which a person experiences pleasant emotions versus unpleasant ones [ 13 ] .
+the relative frequency of positive affect is highly linked to self - report well - being measures .
+nonetheless , a major limitation of experience sampling is that it is resource - consuming and very demanding for participants .
+therefore , it is difficult or nearly possible to conduct a longitudinal study using this approach .
+recently , researchers have started to make use of social media and digital databases to complement self - reporting .
+social media websites contain large corpora of language data , which may reflect social relations [ 14 ] , emotions , and life events [ 15 ] of the users .
+based on computational approaches , we can utilize social media data to predict users' general happiness [ 16,17,18,19 ] .
+for example , one study attempts to predict users' happiness based on their behaviors on dozens of facebook functions ( e.g. , status updates and number of " likes ") [ 20 ] .
+in another study , a word counting approach is adopted to estimate the swb of the people living 200 years ago based on the language corpora derived from millions of google books from six countries [ 21 ] .
+many of such " big data " models usually predict the variable as a whole [ 22 ] , whereas the predicted variable consists of several constructs .
+for instance , swb consists of affect [ 16,17,18 ] and swl [ 23 ] , and affect should be measured by both intensity and frequency [ 13 ] .
+noting this , in this paper , we adopt a unified approach to predict the major constructs of swb using the status updates provided by the mypersonality project ( http :// www.mypersonality.org /) , and combine the machine - predicted constructs into a swb profile .
+we first use sentiment analysis to infer users' affect from their facebook status updates , and break this affective construct into intensity and frequency .
+we then combine affect with other features to train a machine learning model to predict swl ( fig 1 ) , and estimate prediction performance based on correlation between the machine predicted swl and self - reported swl .
+10.1371 / journal.pone.0187278.g001 fig 1 satisfaction with life prediction model .
+we use elastic net regression to select informative features among sentiment , liwc and lda generated topics for the random forest model .
+the model is trained to fit the self - reported swl score .
+to verify predicted affect based on sentiment analysis , we investigate users' affect scores when they mention different activities , and compare our results with those in a previous experimental study based on moment - based mood reports [ 10 ] .
+we also evaluate the predictive performance of our swb profile consisting of predicted affect and swl scores by correlating the swb profile with depression symptoms .
+previous studies show that both affect and swl are significant predictors of depression [ 24,25 ] .
+an swb profile containing multiple machine - predicted constructs leads to a better prediction of depression symptoms than a swb profile having a single construct .
+methods and materials data and participants our study uses the facebook status updates from individuals who participated in the mypersonality project from january 2009 to december 2011 [ 26 ] .
+the protocol of our study was approved by mypersonality .
+the methods were carried out in accordance with the approved guidelines from mypersonality .
+mypersonality is a facebook - based application providing psychometric tests and corresponding feedbacks to its users .
+some of the participants allowed mypersonality to collect their account ' profiles' and public ' status updates' in facebook .
+currently , mypersonality has over 7.5 million users , of whom 40 % have allowed data retrieval .
+data collection of mypersonality complied with the terms of facebook service .
+all data are anonymized and gathered with opt - in consents for research purposes .
+the sample used in our study contains all the participants ( n = 3324 ) who have not only completed the swl scale between the years 2009 and 2011 but also allowed mypersonality to collect their facebook status updates .
+the number of participants is reduced to 2612 after we filter out users having a small number of status updates ( total number of updates < 30 ) .
+the mean swl score of this population is 4.2 , similar to the estimate of a general population produced by a prominent meta - analysis [ 5 ] .
+the swl scores were measured using a five - item swl scale [ 4 ] , which is suitable for a wide range of age groups and shows good validity and reliability .
+for the main findings reported in this paper , we select the facebook status updates covering the full time - range ( 2009 to 2011 ) to build the swl model , since life satisfaction assessed by the five - item swl scale remains relatively stable over a period of up to four years [ 27 ] .
+in s1 text , we show the outcomes of repeating the same analysis on the data within the 30 days prior to the swl survey for each user .
+these are not included in the main text , because of the reduced sizes of the data .
+all analyses are carried out based on the functions in related packages of r 3.2.4 [ 28 ] .
+data availability : all result files are available at https :// github.com / gtojty / fb _ ml .
+the result files that we made available on the github repository contain the data necessary to reproduce the tables and figures contained in the document .
+the authors are not authorized , however , to share the individual - level facebook data because it would with be an irb ethics violation - - the privacy of participants would be compromised .
+interested users with appropriate citi certification and irb approval can contact the mypersonality application ( http :// mypersonality.org / wiki / doku.php ? id = database _ use _ guidelines ) for permission to access the original dataset .
+this sensitive and private data is not available directly through the facebook api .
+data preprocessing after filtering out the users having few posts (< 30 ) , we clean the remaining status update texts using regular expressions .
+first , hyperlinks and digits are removed .
+" smileys " , usually formed by punctuations , are another type of text - based valence indicator commonly used in social media text [ 29 ] .
+we convert the " smileys " into words for ease of interpretation and further cleaning of the data .
+for instance , " : - )" is replaced by " happyface " , and " : - (" by " sadface " , etc .
+conversion of smileys allows for collation of multiple punctuation patterns to a single concept , e.g. ":)" can be considered as the same ' happyface ' concept .
+it also accounts for the common practice of explicit writing , e.g. ' happyface ' , as a long - form of the punctuation pattern .
+finally , we remove the other punctuations .
+in many natural language processing pipelines , it is a common practice of removing ' stop words ' , e.g. " a " , " am " , " and " , etc .
+in our study , we use pre - defined word and topic lists that have already taken account of stop words .
+feature extraction affect a common approach to evaluate affect is sentiment analysis , which is a family of analyses using word valence to classify the opinion and mood of the text [ 29,30,31 ] .
+valence is the foundation of affect , e.g. fear , anger , etc .
+people 's affect is aroused by the invariant valence of an event or object .
+one of the basic tasks in sentiment analysis is polarity detection , which is a binary classification task with outputs as ' positive ' or ' negative ' [ 31 ] .
+in this study , we adopt the polarity detection approach .
+we use a simple computer algorithm to rate the valence of each status update according to a predefined list of valence words [ 29,32,33 ] .
+a positive valence word adds + 1 to the valence word count , whereas a negative valence word adds - 1 to the valence word count .
+the performance of sentiment analysis is dependent on the list of words used .
+we initially use a published list derived from news reporting ( 6800 words ) [ 34 ] , but social media language is quite distinct from news reporting in style .
+we then augment this list with the words representing the smileys ( e.g. happyface , sadface ) and other valence - related words commonly found in facebook status updates .
+finally , the approach of valence word count is used to generate a sentiment score for each status , which is the sum of valence words divided by the number of status updates of each user .
+here , we normalize by the total number of status updates rather than the number of words in the relevant status text , due to the uneven numbers of words in facebook status updates .
+for example , 50115 status updates contain fewer than four words , 115047 status updates contain more than 20 words , and the other 308007 updates contain 4 to 20 words .
+the total number of status updates is therefore used as an estimate of how many words a user expresses on facebook .
+we then calculate the mean status sentiment score of each user and use it as a feature in the prediction model .
+the relative frequencies of positive and negative status updates are computed as overall positive count divided by the total count of a user and overall negative count divided by the total count of a user .
+considering that the basis of affective well - being is formed by the total amount of time during which a person experiences pleasant emotions versus unpleasant ones [ 27 ] , we create a ratio of status updates for each user ( overall positive count divided by overall negative count ) .
+in sum , the affective features include : the intensity of affect ( mean sentiment score ) , the frequency of affect ( frequency of positive status , frequency of negative status ) , and the ratio of positive status to negative status .
+topic clusters creating topics in a text is a common approach to classify the text .
+in this study , we combine manually created topics and machine created topics as features for the prediction model .
+pennebaker and colleagues defined 66 psychologically meaningful categories called linguistic inquiry and word count ( liwc ) [ 35,36 ] , which have been used to classify text and predict behavior outcomes .
+using pre - defined lists and categories , liwc is also referred to as the " closed - vocabulary " approach .
+a more advanced approach to classify a text according to topics is to generate the topics base on the data for analysis , which is also called the " open - vocabulary " approach .
+for example , latent dirichlet allocation ( lda ) [ 37 ] uses the observed corpus to produce a probabilistic relationship between words , ' topics' and documents .
+the user assumes the number of topics within the corpus , and the solution provides a matrix of probabilities , each item in which records the probability with which each document includes each topic .
+the number of documents is of paramount importance in lda .
+for example , one study based on twitter data ( similar in properties to facebook status updates ) finds that the lda performance stabilizes with at least 4000 documents , and that the larger the number of documents , the more accurate the lda topic results [ 38 ] .
+in our study , we consider the sample of 2612 participants as insufficient for a robust topic creation .
+therefore , we borrow the lda topics generated from 75000 facebook volunteers [ 39 ] .
+there are in total 2000 topics , with 20 or fewer words ' within ' each topic ( a threshold has been applied to the probabilities that link words to topics ) .
+a recent study uses these document - topic probabilities as features to predict swl , but it only achieves a correlation of 0.24 with the self - reported swl [ 40 ] .
+we believe that while the topic lists are meaningful and useful , the truncated topics can produce odd effects in a dataset , especially for users having small total word counts .
+the calculation of the probability that a topic is referred to by a user is : p ( t | u )= sigmawinwordsup ( t | w )* p ( w | u ) ( 1 ) where p ( t | w ) is the probability of a topic , given a word ( calculated from the truncated frequency table ) and p ( w | u ) is the user 's probability of mentioning a word .
+under normal circumstances , every word produces a score for every topic in every user .
+since the table has been truncated , most words do not produce a score for each topic .
+also , p ( t | w ) can be higher than it should be. for example , the word " driveway " only appears in the topic referring to snow clearance for traffic in winter , thus p ( t | w ) = 1 in the published table , whereas the word " ice " has p ( t | w ) = 0.049 for the same topic .
+this overestimates the topic relevance of " driveway " while relatively underestimating " ice. " at the same time , p ( w | u ) is increased when a user has a relatively small total word count , which potentially inflates the importance of words for some users , especially in social media data where users' word counts vary greatly .
+the end result is an artificial increase in the ratio between high and low p ( t | u ) .
+noting this , we adopt a word count approach for the published lda topic words .
+for each user , we concatenate all his / her status update texts into one ' document ' .
+we then compute the document word frequency for all the topic words and sum up the word frequency in each topic to form a topic frequency score .
+a topic frequency score shows how often a document overlaps with the topic .
+the matrix of all topic frequencies of every user is used as a feature in the prediction model ( after elastic net regularization is used for feature reduction , see the next section ) .
+this way of scoring has a different impact on users' score for each topic .
+use of a word increases the user 's score for every topic list containing the word by 1 , regardless of p ( t | u ) .
+if a user mentions " driveway " , we increase his / her score for the winter traffic topic by 1 , but keep the same score for the use of the word " ice. " there are 1147 words that appear only in one topic in the truncated table , where p ( t | w ) = 1 .
+the word count approach reduces the artificial importance of these words .
+at the same time , a user would be given the same score increase of 1 in all six topics that contain the word " ice. " this may conversely inflate the association between the user and some of the topics .
+yet , since status updates are often very brief , there could be a benefit by assuming that a user will not use many topic words even when talking about a topic .
+our word count approach follows this assumption .
+using this approach , the ratio between the highest and lowest topic scores ( where score > 0 ) for any user is reduced , compared to that using the probability formula .
+this provides a more flexible estimation of user - topic relationship .
+topic reduction too many sparse features can pose problems for machine learning algorithms and not all topic clusters are equally informative for predicting swl .
+we thus need to reduce the number of topics clusters to be fed into the prediction model .
+we use elastic net regression [ 41 ] for this purpose .
+elastic net is a regression method that combines the penalizing factors from both ridge and lasso ( least absolute shrinkage and selection operator ) regression methods [ 42 ] .
+it improves upon lasso regression by allowing for correlated variables in the model , whereas lasso is prone to removing all but one variable in a correlated set .
+upon applying such method , some of the regression coefficients may be reduced to zero , which may be removed from the model .
+to minimize the sparsity of the result , we choose a small penalty ( alpha = 0.1 ) .
+to avoid over - fitting over the course of the full pipeline , we split the original sample into a training sample ( n = 1873 ) , used for the elastic net regression and random forest model building , and a testing sample ( n = 739 ) , used to evaluate the prediction performance of the whole pipeline .
+swl prediction model previous studies often use statistical regression algorithms to build prediction models .
+such algorithms assume that the dataset under study can be summarized by a single probability distribution .
+this may lead to high biases .
+alternatively , the algorithms with high - variance profiles such as decision tree or supporting vector machine can generate arbitrarily complex models to better fit data variation [ 43 ] .
+in this study , we choose the random forest as the learning algorithm for the swl model .
+random forest is an efficient algorithm based on an ' aggregation ' idea [ 44 ] .
+it is simply a collection of decision trees whose results are aggregated into one final result .
+its principle is to build multiple binary decision trees by bootstrapping samples randomly selected from the training dataset .
+each tree is trained on a randomly selected sample of the training data , and the predictions are made by the majority vote of these trees .
+in this way , random forest can minimize errors due to bias and variance .
+we conduct a manual search on the number of trees to grow ( ntree ) and the number of variables randomly sampled as candidates at each split ( ntry ) , by creating eight models each having different sets of parameters ( ntree = 500 , 1000 , 1500 , or 2000 ; and ntry = 2 or 3 ) .
+among these models , the one with ntree = 1000 and ntry = 3 generates the best matching results and thus is reported here .
+since bootstrapping uses a random sample of the data , there is also a subset of the training data not used during training .
+this set can be applied to internal validation , namely the ' out - of - bag ' ( oob ) performance estimate ( see the formulas in [ 45 ]) .
+in our study , about 37 % of the training instances end up being out - of - bag in each round .
+the self - reported swl scores serve as the target for training .
+the trained model is used to predict swl for the independent test dataset ( n = 739 ) as a performance estimate for the entire process .
+we use pearson correlation to compare the machine - predicted with the self - reported swl scores , and report root mean square error ( rmse ) .
+as a baseline , we report the performance of a ' naive ' prediction using solely the median value of the self - reported swl scores as the feature in the prediction model .
+to calculate correlation statistics , we add a small distortion ( a variable randomly chosen from a uniform distribution between 0 and 0.001 ) to this median value .
+predictive performance of swl model predictive performance measures the extent to which a score on a test predicts a score based on other measures ( e.g. , to what extent swl scores correlate with the screening test for depression and depressive disorder ) .
+mypersonality provided dozens of measurement scales for users to complete , and motivated participation by feedbacks about the scores obtained .
+some participants completed many scales but uptake was varied .
+among the 2612 users who completed the swl scale , some ( n = 386 ) also completed a ces - d scale on depression symptoms [ 46 ] .
+we use the ces - d scale as the criteria for predictive performance of our swb profile .
+to use machine predicted swl as an input feature in this process , we train a new random forest model on all 2612 users , using the best model parameters found in the process described above and accepting the out - of - bag prediction for swl .
+the out - of - bag estimate is as accurate as the one obtained by using a test set of the same size as the training set [ 45 ] .
+we then evaluate how well each constituent of the machine predicted swb profile ( machine - predicted swl and sentiment features ) and the self - reported swl share information with depression symptoms .
+this is achieved by calculating the correlations between these criterion variables and the ces - d test scores [ 18 ] .
+evaluation of the predictive performance of the swb profile is conducted by random forest .
+we build models using three sets of features : 1 ) sentiment ( mean sentiment , frequencies of negative and positive status updates ) ; 2 ) self - reported swl and sentiment ; 3 ) machine - predicted swl and sentiment ( the swb profile ) .
+we divide the data into a training set ( 70 % , n = 260 ) and a testing set ( 30 % , n = 126 ) , and predict self - reported ces - d scores using random forest .
+performance of the prediction is evaluated by correlating the predicted ces - d values with the self - reported ces - d scores .
+we also report rmse .
+activity sentiment score in addition to the prediction models , we investigate the potential of using the facebook language data as an alternative to ' experience sampling ' .
+a previous experience sampling study [ 10 ] finds that particular activities are associated with different degrees of happiness .
+for example , the affect scores of school activities are generally below the average affect score of all the activities , whereas the affect scores of social activities are rated above the average .
+in our study , we adapt the sentiment analysis described above to the status updates that also contain references to the activities described in that experience sampling study .
+we manually define a topic ( set of words ) for each activity ( e.g. housework includes " vacuum " , " dishes ") , and sum up the sentiment scores of the status updates that contain the selected terms ( see s1 table ) , hereafter ' activity sentiment score ' .
+the selected terms are rated independently by two researchers , and the inter - rater reliability is measured by cohen 's kappa ( kappa = 0.36 , p < 0.01 ) .
+to compare with the experience sampling study , which shows z - scores calibrated on the mean self - reported affect score , we transform activity sentiment scores into z - scores , labeled as activity sentiments .
+results affect sentiment scores reflect the intensity of users' affect .
+among the total 473169 status updates from 2612 users , 184831 are identified as positive , 115915 as negative and 172423 as neutral .
+2088 out of 2612 users have more positive status than negative status .
+sentiment scores of the current sample indicate that people tend to show positive or neutral affect in their status updates .
+users' mean sentiment scores are moderately correlated with the self - reported swl ( r = 0.21 , p < 0.01 ) .
+in our study , the affect computed with the modified list ( including smileys , etc. ) has a similar correlation with the self - reported swl as reported in the previous study [ 47 ] , positive ( r = 0.08 , p < 0.01 ) and negative ( r = - 0.23 , p < 0.01 ) .
+whereas , the affect computed with the original list [ 34 ] is less correlated with the self - reported swl , positive ( r = 0.04 , p < 0.05 ) and negative ( r = - 0.22 , p < 0.01 ) .
+this indicates that the modified sentiment word list can better reflect users' affect than the original list .
+in addition , the correlation matrix shows that the intensity of affect , frequencies of affect and proportion of positive affect are moderately to highly correlated with each other ( see table 1 ) .
+10.1371 / journal.pone.0187278.t001 table 1 correlation matrix of affect features and self - reported swl .
+1. 2. 3. 4. 5. 1.self - reported swl 2 .
+sentiment 0.21 3 .
+positive frequency 0.08 0.68 4 .
+negative frequency - 0.23 - 0.50 0.12 5 .
+positive / negative 0.16 0.68 0.45 - 0.48 all the results have p values less than 0.001 .
+sentiment : mean sentiment score of a user ; positive frequency : proportion of positive status among all status of a user ; negative frequency : proportion of negative status among all status of a user ; positive / negative : ratio between positive and negative frequency .
+computer - selected features the elastic net regression selects 117 topics from the 2000 lda topics and 13 topics from the 66 liwc topics .
+these topics include : school achievements ( e.g. , graduation ) , outdoor activities ( e.g. , fishing , skiing ) , play ( e.g. , game , fun ) , swear words , affirmative behaviors ( e.g. , promise , guarantee ) , entertainment ( e.g. , tv , music ) , negation ( e.g. , should n't , could n't ) , baking , religious , positive or negative feeling , new born ( e.g. , baby , face ) , holiday , physical complaint , school achievement , and nightlife .
+in general , the topics selected by the elastic net regression resemble the internal and external swl criteria as suggested in earlier studies , including : people 's mental structures for interpreting information [ 35 ] and current circumstances [ 1,2 ] .
+physical complaint or school achievement topic reflects how people interpret things that have happened in their lives .
+individuals using more negative feeling words tend to interpret things negatively , which often contributes to depression and anxiety .
+other topics , such as outdoor activities , school achievements , new born , and so on , reflect individuals' current circumstances .
+notably , income , recognized as a major factor contributing to swl , is not identified directly in the facebook status updates , perhaps because explicitly referring to financial status is not considered socially appropriate in public fora like facebook .
+swl model the primary judgment of the performance of our prediction model is the correlation between the self - reported results and the machine - predicted ones .
+for the independent test set ( 30 % of the participants ) , the model using 13 selected liwc as features has a correlation ( r ) of 0.29 with the self - reported swl scores , the model using selected 117 lda topic clusters and affect as features has a much stronger correlation with self - reported value ( 0.34 ) , and the model combining all the three aspects of features produces a correlation of 0.36 , which outperforms a recent study on the same dataset using a different pipeline for predicting swl [ 40 ] .
+all these correlations are significant ( no adjustment for multiple testing ) .
+we also report rmse , which indicates an error range from 1.30 to 1.37 swl units ( where the min swl score is 1.2 and the max is 6.8 ) ( see table 2 ) .
+10.1371 / journal.pone.0187278.t002 table 2 correlations between the prediction performance of the random forest models using different features and self - reported swl .
+feature set r p value rmse baseline ( 1 ) 0.001 0.97 1.37 liwc ( 13 ) 0.29 1.3e - 15 1.32 selected lda ( 117 ) 0.33 < 2.2e - 16 1.32 selected lda + sentiment ( 120 ) 0.34 < 2.2e - 16 1.31 selected lda + selected liwc + sentiment ( 133 ) 0.36 < 2.2e - 16 1.30 the baseline model uses the median of the self - reported swl with variation as feature .
+root mean square error ( rmse ) is relative to a range of swl scores from the full dataset of 1.2 to 6.8 .
+numbers within brackets in the ' feature set ' column are numbers of features in those sets .
+we measure the variable importance inside the random forest model using the ' varimp ' function of the party library , which calculates the standard and conditional variable importance for ' cforest ' using the principle of the ' mean decrease in accuracy ' importance in random forest .
+s2 table shows the variable importance results and s1 fig shows the top 50 important variables in the random forest model .
+predictive performance of subjective well - being profile we find that both the self - reported swl ( r = - 0.27 , p < 0.01 ) and the machine - predicted swl ( r = - 0.23 , p < 0.01 ) are negatively correlated with the self - reported ces - d scores .
+the random forest prediction of ces - d indicates that swb profile is able to boost this prediction of depression symptoms ( see table 3 ) .
+sentiment features alone produce a ces - d prediction that has mild but non - significant correlation with self - reported ces - d ( r = 0.08 , p = 0.381 ) combining the machine - predicted swl and sentiment features can predict depression symptoms ( r = 0.25 , p = 0.005 ) , and combining the self - reported swl and affect can generate more significant results ( r = 0.28 , p = 0.001 ) .
+rmse , reported in table 3 , is roughly 8 for each prediction , from a ces - d range of - 20 to 80 .
+this indicates that machine predicted swl is a useful predictor of ces - d and although the affect / sentiment specific features do not boost the performance greatly , there may be scope for developing language feature variables for this purpose .
+10.1371 / journal.pone.0187278.t003 table 3 correlations between the random forest predicted and self - reported ces - d. feature set r p value rmse baseline ( 1 ) - 0.02 0.689 9.15 sentiment ( 3 ) 0.08 0.381 8.45 self - reported swl + sentiment ( 4 ) 0.28 0.001 7.90 machine - predicted swl + sentiment ( 4 ) 0.25 0.005 7.96 the baseline model uses the median of the self - reported swl with variation as feature .
+significance of the correlation ( p value ) and root mean squared error ( rmse ) is also provided .
+numbers within brackets in the ' feature set ' column are numbers of features in those sets .
+activity sentiment based on the language in facebook status updates , our study finds that people tend to have higher sentiment scores when mentioning meals , chores , holidays , religion , whereas they have low scores when talking about death or diseases , mathematics and school on facebook ( see fig 2 ) .
+these findings show a similar pattern to those of the experience sampling study [ 10 ] .
+one exception is the topic " chores " .
+the experience sampling study finds that people have low affect levels when doing chores , but in our study , the facebook activity sentiment shows an opposite trend .
+facebook sentiment z - score is 0.30 , whereas experience sampling z - score is - 0.21 ( see table 4 ) .
+it is possible that people would like to discuss a chore on social media either before or after they carry out it , but not in the middle of the activity .
+for some people , the anticipation of getting things done may negate their apprehension of work and the sense of achievement after having completed a task may lead to an overall more positive profile .
+however , when people are asked how happy they are while doing the chores , as in the experience sampling method , they 'll very likely give a negative answer .
+our results differ from those of the experience sampling study in that we measure overall impression of affect towards an experience , whereas that study measures affect during an experience .
+the facebook status updates in our study cover more situations than the sampled experiences ( see fig 2 ) .
+our non - intrusive data analysis allows for a broader and potentially more detailed analysis than the intrusive moment - sampling approach .
+10.1371 / journal.pone.0187278.g002 fig 2 activity sentiment scores .
+we compare the facebook activity sentiment scores ( fb activities ( z - scores )) with the activity sentiment scores in the experience sampling study [ 11 ] ( experience sampling ( z - scores )) .
+since some activities were not included in the experience sampling study , the corresponding columns are empty .
+10.1371 / journal.pone.0187278.t004 table 4 facebook activity sentiment .
+activities fb sentiment ( z - scores ) experience sampling ( z - scores ) religion 0.57 holiday 0.39 talk to friend 0.39 0.35 chores 0.30 - 0.21 family 0.27 meal 0.29 0.19 school - 0.03 - 0.21 maths - 0.15 - 0.25 discussion our study explicitly illustrates how machine learning techniques quantify psychological richness in social media language .
+it has been shown that computer - based predictions utilizing social media data can reasonably predict swl and general affect of users [ 13,16,17,21 ] .
+combining both liwc topics and machine generated topics yields the best result in our swl prediction model .
+integrating affect with machine - predicted swl as a swb profile is able to predict depression symptoms .
+these prediction results are clinically important , since swl has been found to be associated with health outcomes [ 22,25,24 ] , economics and historical events [ 20 ] .
+using social media data may allow for less intrusive swl sampling as well as repeated sampling in a way that avoids ' adaptation to the test ' .
+it also offers the option of real time sampling of psychological measures .
+in our study , most of the features in the swl prediction model are selected automatically by computer .
+lda contributes most of the language features to the model .
+considering that the choice of method in lda depends on the number of documents and the lda results generated from the 2612 documents show poor performance in predicting swl ( r = 0.13 ) , we adopt a word count approach making use of an lda term table from a larger study .
+manual comparison of these features with manually created topic lists from the literature shows that machine selection indeed selects factors previously identified as important to swl , including both internal ( e.g. , cognitive structure ) and external ones ( e.g. , health ) .
+therefore , automated , data - driven methods are also able to identify language features comparable to those found in traditional studies based on manually created topics .
+natural language processing studies often use sentiment analysis to investigate affect .
+however , most previous studies involve only the intensity of affect [ 39,16,17,18 ] , whereas the frequency of affect , which is the basis of affective well - being [ 27 ] , has often been ignored .
+our results show that the frequency of negative affect has a higher correlation with swl ( r = - 0.23 , p < 0.01 ) than the intensity of affect ( r = 0.21 , p < 0.01 ) , indicating that the frequency of affect is an important component in sentiment analysis .
+there are a few factors that hinder us from achieving an even higher correlation between machine - predicted and self - reported swl .
+first , facebook users often have a large audience that they may or may not know in their real lives , so they tend to disclose less intimate or negative information to such an audience due to concerns of social desirability [ 48 ] .
+as shown in our sample , 2088 out of the 2612 users have more positive status than negative status .
+in addition , some factors that greatly contribute to swl are hard to detect in language data .
+for example , moderate aspiration is critical to swl ; people with high aspirations in life are less likely to be satisfied with their lives , because they will be disappointed by the gap between what they want and the reality [ 3 ] .
+due to these reasons , facebook status updates may not accurately reflect people 's actual swl levels all the time , especially when others can access users' status updates .
+to achieve a greater correlation with self - reported value , we may combine the data from various social media accounts of a single user .
+for example , aspiration may be more evident in the career profiles like those in linkedin accounts .
+in addition to the prediction models , we also analyze the valence when people mention different activities , objects or situations .
+the valence levels towards certain activities indicated by the facebook language are similar to those found using an experience sampling approach .
+people tend to be happier or less so when engaged in different activities .
+the valence - based approach does not require participants to intentionally report how happy they are , as in the experience sampling study ; instead , the affect level can be inferred from the valence words and smileys in their language .
+this approach is more objective than the experience sampling approach , because participants' specific updates would converge into a more natural and less biased indicator of how they regularly feel , rather than how they might respond when prompted .
+in addition , in an experience sampling study , participants might become annoyed or suffer similar changes when interrupted to be asked how they feel , e.g. during a laborious activity or in an inappropriate place like a theatre or cinema .
+such invasive nature of experience sampling may lead to biases .
+conclusion our study illustrates several advantages of computer models over self - reported evaluation .
+first , clinical studies often measure swl as a criterion for well - being of a patient .
+however , another key construct of swb , affect , is seldom addressed in investigation , because it is laborious to frequently monitor affect through repeated surveys .
+participants in many previous laboratory and clinical studies need to compulsorily report their affect levels many times a day [ 10 ] .
+this would consume considerable time and be unable to measure affect of an individual in the long term , because the experiment usually lasts for at most a few months. by contrast , we adopt a more naturalistic and objective way to assess affect by analyzing the valence in participants' facebook status updates .
+participants report their moods and life events out of their personal intensions .
+second , in longitudinal studies or assessments of intervention outcomes , repeated measurements using the same scale within a short period of time could be inaccurate , because patients may keep providing the same answers ( false ' reliability '). by contrast , the computer prediction model based on natural language from social media is more objective .
+participants do not need to adapt their answers to overt repeated testing .
+in addition , computer - based models can capture subconscious clues like self - esteem or optimism , without being affected by temporary emotions or feelings .
+third , a computer model can access pre - existing longitudinal data with reduced dropout chance and enhanced ability of mapping the progression of pre - clinical pathology .
+accumulation of digital footprints on the internet enables computer models to conduct analyses according to different timelines and to generate results in various stages of an individual 's life .
+participants simply login to the system with a social media account , and the result based on their ten ( or more ) years of digital footprints can be automatically generated within a few minutes .
+our study highlights the necessity of incorporating social media data in multivariate appraisals of psychological situations .
+automatic differentiation of a large volume of social media data into domain specific sentiment , affect , and other attitudes adds decisive values to the usually short and survey - based methodology .
+future work can extend this approach by constructing more comprehensive psychological profiles that consist of multiple machine - assessed components based on combinations of different social media outputs .
+supporting information s1 text investigaton of 30 - day period immediately prior to swl survey completion .
+here we repeat the swl pipeline for a limited time period ( 30 days ) for each user .
+we also study the impact of two different thresholds for minimum number of status updates per user .
+( docx ) click here for additional data file .
+s1 table topic and topic words for facebook activities and the ratings from two raters .
+the list of words relating to activities used for activity sentiment analysis .
+( docx ) click here for additional data file .
+s2 table variable importance table , ranked in descending order .
+the variables are ranked in descending order according to the mean decrease in accuracy .
+( docx ) click here for additional data file .
+s1 fig variable importance graph .
+the graph shows the top 50 important topics in the random forest model .
+( tif ) click here for additional data file .
+gong acknowledges support by the us nih grant ( hd - 071988 ) .
+the study is also supported in part by the moe project of the center for linguistics and applied linguistics , guangdong university of foreign studies .
+the authors thank chung - hong chan from the university of hong kong for offering suggestions on the text mining techniques , maria wolters from the university of edinburgh for offering suggestions on the model .
+roger booth from pennebaker conglomerates , inc .
+for providing the liwc dictionary .
+references 1 kahneman d , riis j . living , and thinking about it : two perspectives on life in the science of well - being. : oxford university press ; 2005 p .
+285 - 304 . 2 diener e . subjective well - being : the science of happiness and a proposal for a national index . american psychologist .
+2000 ; 55 ( 1 ) : p .
+34 - 43 . 11392863 3 ryff c d . happiness is everything , or is it ?
+explorations on the meaning of psychological well - being . journal of personality and social psychology .
+1989 ; 57 ( 6 ) : p .
+1069 . 4 diener e , emmons r , larsen r , griffin s . the satisfaction with life scale . journal of personality assessment .
+1985 ; 49 ( 1 ) : p .
+71 - 75 . doi : 10.1207 / s15327752jpa4901 _ 13 16367493 5 pavot w , diener e . review of the satisfaction with life scale . psychological assessment .
+1993 ; 5 ( 2 ) : p .
+164 - 172 . 6 blaney ph . affect and memory . psychological bulletin .
+1986 ; 99 : p .
+229 - 246 . 3515383 7 lucas r , diener e . subjective well - being in lewis m , haviland - jones j , barrett l , editors .
+handbook of emotions , 3rd edition new york : guilford press ; 2008 p .
+471 - 484 . 8 russell j . core affect and the psychological construction of emotion . psychological review .
+2003 ; 110 ( 1 ) : p .
+145 - 172 . 12529060 9 watson d , clark l , tellegen a . development and validation of brief measures of positive and negative affect : the panas scales . journal of personality and social psychology .
+1998 ; 54 ( 6 ) : p .
+1063 - 1070 . 10 kahneman d . objective happiness in kahneman d , diener e , schwarz n , editors .
+well - being : the foundations of hedonic psychology .
+new york : russell sage foundation pp .
+3 - 25 . ; 1999 p .
+3 - 25 . 11 csikszentmihalyi m , hunter j . happiness in everyday life : the uses of experience sampling . journal of happiness studies .
+2003 ; 4 ( 2 ) : p .
+185 - 199 . 12 kammann r , flett r . affectometer 2 : a scale to measure current level of general happiness . australian journal of psychology .
+1983 ; 35 ( 2 ) : p .
+259 - 265 . 13 diener e , colvin cr , pavot w , allman . the psychic costs of intense positive emotions . journal of personality and social psychology .
+1991 ; 61 ( 3 ) : p .
+492 - 503 . 1941521 14 hu x,t , l. tj , liu h. exploiting social relations for sentiment analysis in microblogging .
+in proceedings of the sixth acm international conference on web search and data mining ; 2013. p. 537 - 546 .
+15 dou w , wang x , ribarsky w , zhou m . event detection in social media data . in ieee visweek workshop on interactive visual text analytics - task driven analytics of social media content ; 2012 p .
+971 - 980 . 16 dodds p , harris k , kloumann i , bliss c , danforth c . temporal patterns of happiness and information in a global social network : hedonometrics and twitter . plos one .
+2011 ; 6 ( 12 ) : p .
+e26752 doi : 10.1371 / journal.pone.0026752 22163266 17 mitchell l , frank mr , harris kd , dodds ps , danforth cm . the geography of happiness : connecting twitter sentiment and expression , demographics , and objective characteristics of place . plos one .
+2013 ; 8 ( 5 ) : p .
+e64417 doi : 10.1371 / journal.pone.0064417 23734200 18 yang c , srinivasan p . life satisfaction and the pursuit of happiness on twitter . plos one .
+2016 ; 11 ( 3 ) : p .
+e0150881 doi : 10.1371 / journal.pone.0150881 26982323 19 cambria e , howard n , xia y , chua ts . computational intelligence for big social data analysis [ guest editorial ] . ieee computational intelligence magazine .
+2016 8 ; 11 ( 3 ) : p .
+8 - 9 . 20 youyou w , kosinski m , stillwell d . computer - based personality judgments are more accurate than those made by humans . proceedings of the national academy of sciences .
+2015 ; 112 : p .
+1036 - 1040 . 21 hills t , proto e , sgroi d. historical analysis of national subjective wellbeing using millions of digitized books .
+in cesifo working paper ; 2015 .
+22 collins s , sun y , kosinski m , stillwell d , markuzon n . are you satisfied with life ?
+predicting satisfaction with life from facebook in social computing , behavioral - cultural modeling , and prediction .
+new york : springer international publishing ; 2015 p .
+24 - 33 . 23 sapolsky rm . the physiology and pathophysiology of unhappiness in kahneman d , diener e , schwarz n , editors .
+well - being : the foundations of hedonic psychology .
+new york : russell sage foundation ; 1999 p .
+453 - 469 . 24 zheng x . a study on relationship between depression and subjective well - being of college student . psychology .
+2016 ; 7 ( 6 ) : p .
+885 . 25 mahmoud jsr , hall la , lennie ta . the relationship among young adult college students' depression , anxiety , stress , demographics , life satisfaction , and coping styles . issues in mental health nursing .
+2012 ; 33 ( 3 ) : p .
+149 - 156 . doi : 10.3109 / 01612840.2011.632708 22364426 26 kosinsk m , stillwell d , t g. private traits and attributes are predictable from digital records of human behavior .
+in proceedings of the national academy of sciences ; 2013 ; usa. p. 5802 - 5805 .
+27 diener e . assessing subjective well - being : progress and opportunities . social indicators research .
+1994 ; 31 ( 2 ) : p .
+103 - 157 . 28 r core team .
+a language and environment for statistical computing .
+vienna ; 2016 [ url http :// www.r - project.org /] .
+29 davidov d , tsur o , rappoport a. enhanced sentiment learning using twitter hashtags and smileys .
+in joshi a , huang c , jurafsky d , editors .
+proceedings of the 23rd international conference on computational linguistics ; 2010. p. 241 - 249 .
+30 erik c . affective computing and sentiment analysis . ieee intelligent systems .
+2016 ; 31 ( 2 ) : p .
+102 - 107 . 31 erik c , dipankar d , sivaji b , feraco a . affective computing and sentiment analysis in cambria e , das d , bandyopadhyay s , feraco a , editors .
+a practical guide to sentiment analysis. : springer international publishing ; 2017 p .
+1 - 10 . 32 barrett l . valence is a basic building block of emotional life . journal of research in personality .
+2006 ; 40 ( 1 ) : p .
+33 - 55 . 33 liu h , lieberman h , selker t. a model of textual affect sensing using real - world knowledge .
+in leake d , johnson l , andrew e , editors .
+proceedings of the 8th international conference on intelligent user interfaces ; 2003 ; new york : acm. p. 125 - 132 .
+34 hu m , liu b. mining opinion features in customer reviews .
+proceedings of nineteeth national conference on artificial intellgience .
+2004 ; : p .
+755 - 760 .
+35 pennebaker j , francis m , booth r . linguistic inquiry and word count : liwc 2001 mahway : nj : lawrence erlbaum associates ; 2001 . 36 tausczik yr , pennebaker jw . the psychological meaning of words : liwc and computerized text analysis methods . journal of language and social psychology .
+2010 ; 29 ( 1 ) : p .
+24 - 54 . 37 blei d , ng a , jordan m . latent dirichlet allocation . journal of machine learning research .
+2003 ; 3 : p .
+993 - 1022 . 38 tang j , meng z , nguyen x , mei q , m z. understanding the limiting factors of topic modeling via posterior contraction analysis .
+in xing e , jebara t , editors .
+proceedings of the 31st international conference on machine learning ; 2014. p. 190 - 198 .
+39 schwartz h , eichstaedt j , kern m , dziurzynski l , ramones s , agrawal m , et al personality , gender , and age in the language of social media : the open - vocabulary approach . plos one .
+2013 ; 8 ( 9 ) : p .
+e73791 doi : 10.1371 / journal.pone.0073791 24086296 40 schwartz h , sap m , kern m , eichstaedt j , kapelner a , agrawal m , et al predicting individual well - being through the language of social media . pacific symposium on biocomputing .
+2016 ; 21 : p .
+516 26776214 41 zou h , hastie t . regularization and variable selection via the elastic net . journal of the royal statistical society : series b ( statistical methodology ) .
+2005 ; 67 ( 2 ) : p .
+301 - 320 . 42 tibshirani r . regression shrinkage and selection via the lasso . journal of the royal statistical society .
+series b ( methodological ) .
+1996 ; 58 ( 1 ) : p .
+267 - 288 . 43 kotsiantis s , zaharakis i , pintelas p . supervised machine learning : a review of classification techniques . informatica .
+2007 ; 31 : p .
+249 - 268 . 44 breiman l . random forests . machine learning .
+2001 ; 45 ( 1 ) : p .
+5 - 32 . 45 breiman l . bagging predictors . machine learning .
+1996 ; 24 ( 2 ) : p .
+123 - 140 . 46 lewis c , dorahy m , schumaker j . depression and satisfaction with life among northern irish adults . journal of social psychology .
+1999 ; 139 : p .
+533 - 535 . doi : 10.1080 / 00224549909598413 10457765 47 jung oh , ozkaya e , larose r . how does online social networking enhance life satisfaction ?
+the relationships among online supportive interaction , affect , perceived social support , sense of community , and life satisfaction . computers in human behavior .
+2014 ; 30 : p .
+69 - 78 . 48 hughes d , rowe m , batey m , lee a . a tale of two sites : twitter vs. facebook and the personality predictors of social media usage . computers in human behaviors .
+2012 ; 28 ( 2 ) : p .
+561 - 569 .

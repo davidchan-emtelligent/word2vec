@@ -1,0 +1,517 @@
+front bioeng biotechnol front bioeng biotechnol front. bioeng. biotechnol .
+frontiers in bioengineering and biotechnology 2296 - 4185 frontiers media s.a .
+28894735 5581332 10.3389 / fbioe.2017.00048 bioengineering and biotechnologyoriginal research navigating the functional landscape of transcription factors via non - negative tensor factorization analysis of medline abstracts roy sujoy 12 yun daqing 3 madahian behrouz 4 berry michael w .
+5 deng lih - yuan 4 goldowitz daniel 6 homayouni ramin 127 * 1bioinformatics program , university of memphis , memphis , tn , united states 2center for translational informatics , university of memphis , memphis , tn , united states 3computer and information sciences program , harrisburg university of science and technology , harrisburg , pa , united states 4department of mathematical sciences , university of memphis , memphis , tn , united states 5department of electrical engineering and computer science , university of tennessee , knoxville , tn , united states 6center for molecular medicine and therapeutics , university of british columbia , vancouver , bc , canada 7department of biological sciences , university of memphis , memphis , tn , united states edited by : mattia pelizzola , fondazione istituto italiano di technologia , italy reviewed by : zhi - ping liu , shandong university , china ; ka - chun wong , city university of hong kong , hong kong * correspondence : ramin homayouni , rhomayon @ memphis.edu specialty section : this article was submitted to bioinformatics and computational biology , a section of the journal frontiers in bioengineering and biotechnology 28 8 2017 2017 5 48 18 5 2017 31 7 2017 copyright ( c ) 2017 roy , yun , madahian , berry , deng , goldowitz and homayouni .
+2017 roy , yun , madahian , berry , deng , goldowitz and homayounithis is an open - access article distributed under the terms of the creative commons attribution license ( cc by ) .
+the use , distribution or reproduction in other forums is permitted , provided the original author ( s ) or licensor are credited and that the original publication in this journal is cited , in accordance with accepted academic practice .
+no use , distribution or reproduction is permitted which does not comply with these terms .
+in this study , we developed and evaluated a novel text - mining approach , using non - negative tensor factorization ( ntf ) , to simultaneously extract and functionally annotate transcriptional modules consisting of sets of genes , transcription factors ( tfs ) , and terms from medline abstracts .
+a sparse 3 - mode term x gene x tf tensor was constructed that contained weighted frequencies of 106,895 terms in 26,781 abstracts shared among 7,695 genes and 994 tfs .
+the tensor was decomposed into sub - tensors using non - negative tensor factorization ( ntf ) across 16 different approximation ranks .
+dominant entries of each of 2,861 sub - tensors were extracted to form term - gene - tf annotated transcriptional modules ( atms ) .
+more than 94 % of the atms were found to be enriched in at least one kegg pathway or go category , suggesting that the atms are functionally relevant .
+one advantage of this method is that it can discover potentially new gene - tf associations from the literature .
+using a set of microarray and chip - seq datasets as gold standard , we show that the precision of our method for predicting gene - tf associations is significantly higher than chance .
+in addition , we demonstrate that the terms in each atm can be used to suggest new go classifications to genes and tfs .
+taken together , our results indicate that ntf is useful for simultaneous extraction and functional annotation of transcriptional regulatory networks from unstructured text , as well as for literature based discovery .
+a web tool called transcriptional regulatory modules extracted from literature ( tremel ) , available at http :// binf1.memphis.edu / tremel , was built to enable browsing and searching of atms .
+biomedical text mining tensor factorization tensor decomposition multiway analysis applied multilinear algebra transcription factors 1 introduction the complexity of organisms is correlated with the number of mechanisms by which gene expression is regulated in response to environmental and developmental signals ( levine and tjian , 2003 ; chen and rajewsky , 2007 ; davidson , 2010 ) .
+transcriptional regulation involves complex gene regulatory networks ( grns ) , consisting of structural proteins involved in chromatin remodeling and transcription factors that regulate the core transcriptional machinery ( djebali et al. , 2012 ) .
+an active area of research is focused on integration of various high - throughput " omic " data in order to understand how genes are functionally regulated and involved in physiological and pathological processes ( gerstein et al. , 2012 ) .
+however , aggregation and annotation of gene regulatory networks ( grns ) from various sources remain challenging .
+some grn annotation is available in repositories such as kegg ( kanehisa et al. , 2004 ) and go ( ashburner et al. , 2000 ) .
+however , these knowledge bases are incomplete and too general to provide specific insights into grns .
+more recent efforts have focused on manually integrating grn information from various data sources ( liu et al. , 2015 ) .
+in addition , methods to automatically annotate grns based on semantic relationships in the biomedical literature are beginning to be developed ( chen et al. , 2014 ) .
+currently , there are more than 23 million citations in medline , many of which describe relationships between gene products and molecular and cellular processes .
+there is , therefore , a growing need to develop automated text - mining techniques to utilize knowledge in the biomedical literature to interpret genome - wide experimental data as well as to aid in the manual curation processes ( rebholz - schuhmann et al. , 2012 ) .
+in addition to knowledge extraction , literature mining methods provide a valuable resource for knowledge discovery based on implicit associations in the literature .
+the concept of literature - based discovery ( lbd ) was introduced by swanson several decades ago and is increasingly being discussed in the scientific community ( swanson , 1986 ; blagosklonny and pardee , 2002 ; soldatova and rzhetsky , 2011 ) .
+several co - occurrence based - lbd approaches , such as copub mapper ( alako et al. , 2005 ) , pubgene ( jenssen et al. , 2001 ) , chilibot ( chen and sharp , 2004 ) , and geneways ( rzhetsky et al. , 2004 ) , have been developed .
+other approaches have focused on capturing higher order implicit associations , i.e. , associations between any pair of entities that do not directly share any abstracts but may share abstracts with other common entities ( burkart et al. , 2007 ) .
+a few approaches have focused on mining tf specific regulatory associations from the literature .
+dragon tf association miner ( pan et al. , 2004 ) is a web - based tool that accepts as input a set of abstracts , and identifies and extracts tf associations with gene ontology terms found within the text .
+natural language processing ( nlp ) techniques have been used to identify sentences pertaining to transcriptional regulation and to extract relationships from pubmed abstracts for reconstructing regulatory networks ( chen and sharp , 2004 ; saric et al. , 2006 ; rodriguez - penagos et al. , 2007 ; chen et al. , 2014 ) .
+vector space models have been investigated in annotation of regulatory networks by prioritizing medline abstracts likely to have high cis - regulatory content ( aerts et al. , 2008 ) .
+a bootstrapping method has been used to identify gene targets for input tfs ( wang et al. , 2011 ) .
+additional efforts have concentrated on novel tf discovery by analyzing protein mentions and related contextual information in literature to determine whether a given protein might be a tf ( yang et al. , 2009 ) .
+matrix factorization based dimensionality reduction techniques such as singular value decomposition ( svd ) and non - negative matrix factorization ( nmf ) have been used to extract latent functional relationships between genes and terms from the biomedical literature .
+we previously demonstrated that svd can extract both explicit ( direct ) and implicit ( indirect ) relationships between genes , from the biomedical literature with better accuracy than term co - occurrence methods ( homayouni et al. , 2005 ) .
+subsequently , we applied this approach to prioritize putative tfs for microarray - derived differentially expressed gene sets ( roy et al. , 2011 ) and to prioritize , cluster , and functionally annotate micrornas ( roy et al. , 2016 ) .
+the main drawback of svd is that while it is robust in identifying similarities between entities , it is difficult to determine exactly why they are related .
+this is due to the fact that the columns of factor matrices can contain negative values , needed to accomplish the best fit numerically in a lower dimensional subspace , which do not have a natural interpretation .
+as an alternative , non - negative matrix factorization ( nmf ) was developed to simplify the interpretation of factors by restricting the entries in factor matrices to have non - negative values ( lee and seung , 1999 ; berry et al. , 2007 ) .
+the columns can be interpreted as parts of the original data and the high magnitude entities in the like - numbered column pairs of the two factor matrices can be interpreted as a bicluster .
+nmf has been used successfully to simultaneously cluster genes along with their related terms ( chagoyen et al. , 2006 ; heinrich et al. , 2008 ; tjioe et al. , 2010 ) .
+both nmf and svd can only be applied to two mode data .
+however , biological networks may contain more than two types of entities whose interactions must be analyzed simultaneously .
+tensor factorizations are multiway generalizations of matrix factorizations ( de lathauwer et al. , 2000 ; kolda and bader , 2009 ; qiao et al. , 2017 ) .
+they have been used in the bioinformatics domain ( luo et al. , 2017 ) to integrate and analyze gene expression data from different sources simultaneously ( omberg et al. , 2007 ; du et al. , 2009 ; li and ngom , 2010 ; li et al. , 2011 ; acar et al. , 2012 ) .
+in the text mining domain , multiway decompositions have been used for clustering chatroom data ( acar et al. , 2005 ) , scenario discovery ( bader et al. , 2008b ) , discussion tracking ( bader et al. , 2008a ) , personalized web search ( sun et al. , 2005 ) , and web link analysis ( kolda et al. , 2005 ) .
+previously , we presented a proof of concept method to simultaneously extract and functionally annotate putative transcriptional modules for a small set of interferon modulated genes ( roy et al. , 2014 ) .
+in this study , we aimed to simultaneously extract genes and their regulatory tfs along with the terms that functionally characterize their relationships on a genome - wide scale .
+we formulated a 3 - mode term x gene x tf tensor containing log - scaled frequencies of terms in abstracts shared between genes and tfs .
+the tensor was decomposed using non - negative tensor factorization ( ntf ) into sub - tensors at different low rank approximations .
+the sub - tensors were interpreted as annotated transcriptional modules ( atms ) consisting of genes and tfs along with the terms that annotate the functional relationship between them .
+we assessed the validity of the atms using go and kegg annotations and the performance of the ntf method in literature - based discovery using a set of microarray and chip - seq datasets .
+we demonstrate that the method can predict downstream target genes for tfs as well as go classifications based on the knowledge in biomedical literature .
+2 materials and methods 2.1 gene - tf document collection for every mouse gene , pubmed citations were obtained from the gene2pubmed repository available at ncbi .
+these citations are assigned either by professional staff at the national library of medicine or by the scientific research community via gene reference into function ( gene rif ) portal .
+since these citations are manually curated , we expect to have a very high precision for tagging correct citations to genes .
+we further filtered the non - specific citations by removing pmids that referred to more than 10 genes as these citations usually described high - throughput experiments mentioning a large number of genes with little to no significant functional information .
+after filtering , 21,022 mouse genes with at least one assigned citation remained in the collection .
+among these , 1,111 genes were identified as tfs in the animaltfdb transcription factor database ( zhang et al. , 2012 ) .
+out of the remaining 19,911 non tf genes , 7,695 genes were found to share at least one citation with at least one tf out of 994 tfs .
+a total of 45,229 gene - tf pairs with at least one shared citation were identified .
+for each such gene - tf pair , an abstract document was constructed by concatenation of titles and abstracts for each shared citation .
+a total of 26,781 unique citations were utilized in creating the abstract documents .
+2.2 construction of term x gene x tf tensor text to matrix generator parser ( zeimpekis and gallopoulos , 2006 ) was used to parse terms from the collection of gene - tf documents .
+all punctuation ( excluding hyphens and underscores ) and capitalization were ignored .
+in addition , articles and other common , non - distinguishing words were discarded using a stop list .
+terms less than three characters in length were filtered out .
+a total of 106,895 terms remained after all the filtering .
+a 3 - mode term x gene x tf sparse tensor was created where the entries of the tensor were frequencies of terms in abstracts shared between genes and tfs .
+tensor construction from gene - tf documents is depicted in figure s1 in supplementary material using a toy example with a small number of genes , tfs , and terms .
+the sparse tensor had 5,451,735 non - zero elements out of possible 817,621,682,850 ( 106,895 x 7,695 x 994 ) elements resulting in density of 6.66779 x 10 - 06 .
+in order to discount the effect of high frequency common terms in favor of more specific terms that might be better delineators between gene - tf combinations , each tensor entry fijk was scaled and transformed into lijk : ( 1 ) lijk = log2 ( 1 + fijk ) , where fijk is the frequency of the ith term in the document corresponding to the jth gene and the kth tf .
+2.3 calculation of non - negative tensor factorization given a 3 - mode data tensor x of size m x n x p , with m mode - 1 entities ( terms ) , n mode - 2 entities ( genes ) , and p mode - 3 entities ( tfs ) , and a desired approximation rank k , the parafac ( harshman , 1970 ) or candecomp ( carroll and chang , 1970 ) model approximates x as a sum of k rank - 1 sub - tensors , each formed by the scaled outer product of a set of three vectors of lengths m , n , and p. the set of k vectors for each mode are usually grouped together in factor matrices a , b , and c of sizes m x k , n x k , and p x k , respectively .
+the columns of the factor matrices are normalized to unit length and the accumulated weight stored in a scaling vector lambda .
+in addition , a constraint is imposed on the solution such that lambda1 >= lambda2 >= ...
+>= lambdak .
+the tensor is expressed as : ( 2 ) x = sumi = 1k lambda i ( aiobioci ) , where ai , bi , and ci represent the ith columns of the factor matrices a , b , and c , respectively ; and o denotes the outer product .
+a common approach to fitting the parafac model to data is an alternating least squares ( als ) algorithm ( tomasi and bro , 2006 ) , where one cycles over all factor matrices and performs a least - squares update for one factor matrix while holding all the others constant .
+we implemented a variant of the parafac model called non - negative tensor factorization ( ntf ) that constrains the factor matrices to be non - negative .
+the goal of ntf is to find the best fitting non - negative matrices ainr + mxk , binr + nxk , and cinr + pxk in the parafac model that fit the data in x , corresponding to the following minimization problem : ( 3 ) mina,b,c || x - sumi = 1k aiobioci || f where f is the frobenius norm .
+the norm of a tensor is similar to that of a matrix : ( 4 ) || x || 2 = sumi,j,k ( xijk ) 2 .
+a tensor can be matricized or flattened by rearranging the elements in a matrix .
+x ( m x np ) represents 1 - mode matricization of x , which is a matrix of size m x np where the index n runs the fastest over the columns and p the slowest .
+the matricized tensor can be expressed as : ( 5 ) xmxnp =~ a ( c (.) b )' , where (.) represents the khatri - rao product ( smilde et al. , 2004 ) and ' denotes the matrix transpose operator .
+the kronecker product of matrices a and b is given by : ( 6 ) a (*) b =[ a11ba12b ... a1nba21ba22b ... a2nb ............ am1bam2b ... amnb ] and the khatri - rao product is defined as column wise kronecker product : ( 7 ) a (.) b =[ a11b1a12b2 ... a1nbna21b1a22b2 ... a2nbn ............ am1b1am2b2 ... amnbn ] .
+the 2 - mode and 3 - mode matricizations can be similarly expressed as : ( 8 ) xnxmp =~ b ( c (.) a )' ( 9 ) xpxmn =~ c ( b (.) a )' .
+to compute a k - factorization with ntf , we first initialized a , b , and c using the absolute values of k leading left singular vectors of the 1 - mode , 2 - mode , and 3 - mode matricizations , respectively .
+this initialization was performed to make the subsequent ntf computation deterministic as well as to provide a potentially suboptimal starting point that may require less iterations to converge ( boutsidis and gallopoulos , 2008 ) .
+each of the 3 matrices was treated as a non - negative matrix factorization ( nmf ) sub - problem : ( 10 ) minainr + mxk || x ( mxnp ) - a ( c (.) b )'|| f ( 11 ) minbinr + nxk || x ( nxmp ) - b ( c (.) a )'|| f ( 12 ) mincinr + pxk || x ( pxmn ) - c ( b (.) a )'|| f and solved in succession using the multiplicative update rule ( welling and weber , 2001 ) modified to incorporate in for stability .
+for example , to solve for a the update rule is : ( 13 ) airho < - - airho ( x ( mxnp ) z ) irho ( az'z ) irho + in , z =( c (.) b ) .
+the in is a small number 10 - 9 added to the denominator in order to add stability to the calculation and guard against introducing a negative number from numerical underflow .
+the approximation rank k > 0 of ntf corresponds to the number of 3 - way associations ( sub - tensors ) whose additive contributions approximate the information in the data tensor .
+each triad { ai , bi , ci } , for i = 1 , ... , k , defines scores for a set of terms , genes , and tfs for a particular 3 - way association in the corpus .
+the scaling factor lambdai ( after normalization ) indicates the weight of the association for triad i. ntf was applied to the term x gene x tf log weighted frequency tensor using functions from matab tensor toolbox ( bader and kolda , 2012 ) .
+the procedure is described graphically in figure 1 .
+figure 1 overview of the ntf - based procedure .
+gene - tf documents ( a ) are parsed to construct term x gene x tf tensor ( b ) .
+the tensor is factorized via ntf to generate non - negative factor matrices for terms , genes , and tfs ( c ) .
+for a given approximation rank k , the entities corresponding to the high magnitude entries in each triad of columns ( one from each matrix ) ( d ) can be interpreted as an annotated transcriptional module ( atm ) comprising of genes and tfs functionally annotated by the corresponding terms ( e ) .
+2.4 interpretation of sub - tensors as annotated transcriptional modules ( atms ) a k - factorization delivers k sub - tensors .
+a sub - tensor i can be reconstructed via the outer products of the ith columns of the three non - negative factor matrices corresponding to terms , genes and tfs , respectively .
+for each such triad , the entities corresponding to the high magnitude scores in each column contribute more to the information content in the sub - tensor than the low magnitude ones and are , therefore , deemed more significant .
+we construed the triplet of sets of such significant genes , tfs , and terms as an annotated transcriptional module ( atm ) .
+each atm contained genes and tfs representing dominant elements of a putative transcriptional network , along with terms describing the functional interaction between these genes and tfs .
+in order for the atms to be consistent with observed biological networks in terms of the number of entities , we established upper bounds for the number of genes , tfs , and terms in the atms .
+we observed the distribution of numbers of genes and tfs in 249 kegg pathways and found a maximum of 184 genes and 21 tfs in a single pathway ( after excluding the outliers ) .
+for the terms , we chose the upper bound of 300 as this is usually the maximum number of words allowed for publication abstracts and may be adequate to describe a transcriptional network .
+for a given column and an upper bound n , we first obtained a truncated list d containing n highest scoring entities .
+we then calculated the number of significant ( high magnitude ) entities required to approximate the information content in the list as described in alter et al .
+( 2000 ) .
+briefly , contributions of each score gi were computed as pi = gis , where s = sumj = 1n gj ( sum of all scores ) .
+subsequently , we calculated the normalized entropy of the list as : ( 14 ) e = - sumi = 1n pilog ( pi ) log ( n ) , which is the fraction of information content in the list relative to a completely random list of the same size .
+the number of significant entities s was calculated as : ( 15 ) s = max ( 1 ,| pi > 1n.e |) .
+2.5 performance evaluation of atms functional enrichment analysis was performed using two different human curated datasets .
+for the first set , we downloaded the list of 249 mouse related manually curated pathways and their associated genes present in the kyoto encyclopedia of genes and genomes ( kegg ) ( kanehisa et al. , 2004 ) .
+for the second set , we downloaded the list of 12,418 mouse related gene ontology ( go ) ( ashburner et al. , 2000 ) categories and their associated genes .
+the set of genes and tfs belonging to each atm was evaluated for functional enrichment in the aforementioned kegg pathways and go categories using a hypergeometric test as described in tavazoie et al .
+( 1999 ) .
+as a control , we compared the enrichment frequencies of atms to a set of 1,000 randomly generated gene - tf sets containing 8 genes and 2 tfs from the tensor .
+the numbers 8 and 2 depict the median number of genes and tfs across all 2,861 atms .
+to create each random gene - tf set , 8 genes out of 7,695 genes constituting the tensor were randomly picked .
+similarly 2 tfs were randomly picked from 994 tfs in the tensor .
+this process was repeated 1,000 times .
+the area under the curve ( auc ) was used as a measure of quality of the terms associated with atms .
+the auc will have the value of 1 for perfect ranking ( all relevant terms at the top ) , 0.5 for randomly generated ranking , and 0 for the worst possible ranking ( all relevant terms at the bottom ) ( hanley and mcneal , 1982 ) .
+the terms in the descriptions of kegg and go categories served as the gold standards .
+precision was used as a measure of accuracy of the gene - tf associations in an atm .
+it was calculated as the ratio of the number of common entities ( genes and tfs ) between an atm and the gold standard set , to the number of entities in the atm .
+mathematically , the formula was defined as : ( 16 ) |{ genes and tfs in atm } intersection { genes and tfs in gold standard set }||{ genes and tfs in atm }| .
+in addition , a set of atm precision values was tested for significance by computing a right - tailed two - sample welch 's t - test ( press , 1992 ) between the precisions for the atms being evaluated , and the precisions for 200 x n randomly generated gene - tf sets from the tensor .
+for each of n atms being evaluated , 200 gene - tf sets were randomly generated containing the same distribution of genes and tfs as the atm .
+redundancy between any two sets of entities of the atms was computed as the jaccard coefficient between the sets , which is defined as the ratio of the number of elements in the intersection and the number of elements in the union .
+the jaccard coefficient will have a value of 0 for disjoint sets and a value of 1 for duplicate sets .
+3 results unlike other matrix factorization approaches , it is computationally difficult to estimate the true rank of a tensor ( hastad , 1990 ) .
+therefore , we computed ntf at 16 approximation ranks k = 1 , 2 , 3 , 5 , 10 , 15 , 20 , 25 , 30 , 50 , 100 , 200 , 300 , 500 , 700 , and 900 .
+for every k , ntf required less than 60 iterations to satisfy a tolerance of 10 - 4 in the relative change of fit .
+for a given approximation rank k , all genes , tfs , and terms in each of the k sub - tensors were ranked based on their scores as demonstrated in figure 1 .
+we then used an entropy based method to determine the score threshold and to define relevant genes , tfs , and terms within an annotated transcriptional module ( atm ) as described in materials and methods .
+figure s2 in supplementary material shows the frequency distribution of genes , tfs , and terms computed for each of the 2,861 atms produced across all ks. the median number of tfs (~ 2 ) and terms (~ 60 ) was stable across all k factorizations .
+in contrast , the median number of genes in atms decreased with increasing k. a total of 3,608 unique genes , 772 unique tfs , and 11,697 unique terms occurred across all 2,861 atms .
+3.1 tensor landscape as a function of approximation rank k a k - factorization expresses the three - way gene regulatory interaction information in the tensor as additive superposition of latent information content in k sub - tensors .
+an approximation with k = 1 is expected to summarize the information content as the most dominant ( or representative ) transcriptional network gleaned from the literature , while k = 2 expresses the information content as superposition of two most dominant transcriptional networks .
+as k increases , the factorizations are expected to reveal more specific networks .
+in order to quantitatively examine the information content across different k , we calculated a diversity coefficient d for each type of entity in the atms obtained at various k factorizations .
+for each entity type , we defined the diversity coefficient as the ratio of the number of unique entities in the union of all k >= 2 atms , and the total number of entities in the tensor .
+figure 2 shows the diversity coefficients for genes , tfs , and terms .
+as expected , we found that the diversity of tfs , genes , and terms in the atms increased with increasing k. in addition , we computed the pairwise redundancy using the mean jaccard coefficient between any two sets of entities in the atms for k >= 2 ( figure s3 in supplementary material ) .
+we found that while the overall diversity increases with increasing k , the pairwise redundancy between the entities remained constant , and that for any given k - factorization , the atms were disjoint .
+taken together , these results indicate that at higher k , we were able to extract unique regulatory modules with more specific functional annotations .
+figure 2 diversity coefficients of genes , tfs , and terms in atms across various k - factorizations .
+3.2 functional validation of atms to comprehensively evaluate the functional relevance of atms generated by our method , we examined if the genes and tfs in the atm were significantly ( p - value <= 0.05 , hypergeometric test as described in materials and methods ) enriched in kegg or go categories .
+we found that more than 94 % of the 2,861 atms were enriched in at least one kegg or go category .
+this result indicates that tensor factorization across all ks produced biologically relevant atms .
+the median number of enriched categories in all atms at each k value was greater than chance ( figure 3 ) .
+also , the number of enriched kegg and go categories per atm was higher at lower k. this result indicates that at lower k , atm genes , and tfs have a broad range of functions , consistent with our earlier observation that the diversity and specificity of atms increased with higher k ( figure 2 ; figure s3 in supplementary material ) .
+consistent with these observations , we found that the diversity of enriched kegg and go categories in atms increased at higher k ( figure s4 in supplementary material ) , while the pairwise redundancy between categories remained low as k increased ( figure s5 in supplementary material ) .
+taken together , these results suggest that the gene - tf atms are more functionally specific at higher k. figure 3 frequency of significantly ( p <= 0.05 ) enriched kegg ( a ) and go ( b ) categories for atms across various k - factorizations .
+as a control , the enrichment frequency of 1,000 randomly ( r ) generated gene sets are shown at the far right of each panel .
+interestingly , we found a higher diversity of kegg pathways than go categories at all k values ( figure s4 in supplementary material ) .
+this result suggests that kegg pathways can be more specific than go categories .
+some kegg and go categories were very frequent among all atms .
+for instance , among the top ten overrepresented kegg pathways , five were related to cancer , four related to infection , and one related to cytokine signaling ( table s1 in supplementary material ) .
+on the other hand , among the top ten overrepresented go categories , four were related to development , three were related to regulation of gene expression , two related to cell proliferation , and one related to protein phosphorylation ( table s2 in supplementary material ) .
+finally , we evaluated the accuracy of the terms identified by ntf for each atm by comparing them with kegg and go annotations .
+for each atm enriched in at least one kegg pathway or go category , we created a gold standard using all of the terms in the titles and descriptions of the enriched pathways and categories .
+we compared the top atm terms against these gold standards by examining the area under the curve ( auc ) of receiver operating characteristics ( roc ) curves .
+we found that more than 80 % of the 2,861 atms produced aucs above 0.6 .
+there was no change in median auc across k , albeit the range of aucs increased with increasing k ( figure 4 ) .
+the deviation of the median auc from the lowest point increased faster with increasing k than the deviation from the highest point .
+this indicates that at higher k , some ntf - derived functional annotations are much less consistent with the descriptors of kegg and go categories .
+figure 4 distribution of aucs for the terms associated with each atm across various k - factorizations against kegg ( a ) and go ( b ) category titles and descriptions .
+3.3 prediction of gene - tf associations a unique advantage of our approach is that it enables literature based discovery , i.e. , new potential gene - tf interactions may be deduced from implied associations in the literature in the absence of direct ( experimental ) evidence .
+to evaluate the performance of our method in predicting potentially new gene - tf relationships , we used two different types of experimental data as gold standards .
+chromatin immunoprecipitation sequencing ( chip - seq ) is a genome wide technology that identifies direct binding sites for specific transcription factors on gene promoters .
+on the other hand , microarray expression analysis of tissues with a targeted deletion of specific transcription factor identifies downstream genes whose expression levels are either directly or indirectly altered by the transcription factor .
+we used a set of previously published chip - seq data for four transcription factors ( cebpalpha , e2f4 , foxa1 , and foxa2 ) in either liver or 3t3 - l1 cells ( macisaac et al. , 2010 ) as gold standard validation sets .
+to evaluate our method , we focused only on the atms which contained the gold - standard tf. the number of atms for the four gold - standard tfs ranged from 11 to 54 and the number of genes and tfs in all the atms for the gold - standard tfs ranged from 34 to 112 and 8 to 45 , respectively ( table 1 ) .
+to calculate the average precision for each gold - standard tf , we compared the union of genes and tfs in all atms against the chip - seq validation set .
+the number of genes in the four validation sets ranged from 938 to 8,595 genes .
+as shown in table 1 , the average precision of our method ranged between 11 % ( foxa1 , liver ) and 91 % ( e2f4 , 3t3 - l1 ) .
+except for foxa2 , all gene - tf associations extracted by our method were significantly ( p <= 0.05 , welch 's t - test ) higher than chance .
+the average precisions for a given tf in two different tissues varied , indicating that binding sites are tissue dependent .
+these results indicate that ntf is accurate for identifying tf target genes from the biomedical literature .
+importantly , we found that 14 - 39 % of the target genes predicted by our method were based on implied associations in the literature .
+an explicit association refers to the cases when a gene and a tf share an abstract , whereas an implicit association is inferred based on shared terms among genes or tfs in the same atm .
+this result suggests that our method is useful for making literature based discoveries .
+table 1 performance of ntf using chip - seq data sets .
+tf ( geo accession id ) tissue atm count genes in all atms tfs in all atms genes in validation set average precision p - value explicit % implicit % cebpa ( gsm427088 ) liver 13 48 11 8,411 0.49 7.26e - 05 0.86 0.14 cebpa ( gsm427093 ) 3t3 - l1 cells 13 48 11 2,836 0.34 9.39e - 06 0.82 0.18 e2f4 ( gsm427091 ) liver 22 34 8 7,134 0.82 5.08e - 16 0.69 0.31 e2f4 ( gsm427094 ) 3t3 - l1 cells 22 34 8 8,595 0.91 4.71e - 17 0.61 0.39 foxa1 ( gsm427090 ) liver 11 47 9 938 0.11 3.46e - 02 0.71 0.29 foxa2 ( gsm427089 ) liver 54 112 45 6,366 0.21 9.14e - 01 0.74 0.26 our literature mining method identifies gene - tf associations based on functional information in the biomedical abstracts .
+thus , it is possible that some of the gene predictions by our method are not the primary gene targets of the tfs , but rather genes in similar functional pathways whose expression levels are affected indirectly via a downstream tf. to test this possibility , we evaluated our method using four microarray datasets as gold standards .
+these datasets include differentially expressed genes in different mouse tissues ( cerebellum , retina , or choroid plexus ) as a consequence of targeted deletions in specific tfs ( atoh1 ( ha et al. , 2015 ) , pax6 ( ha et al. , 2015 ) , and otx2 ( omori et al. , 2011 ; johansson et al. , 2013 )) .
+the number of genes and tfs in all the atms for the gold - standard tfs ranged from 57 to 152 and 34 to 62 , respectively ( table 2 ) .
+the number of genes in the validation sets ranged from 2,137 ( atoh1 , cerebellum ) to 11,689 ( otx2 , choroid plexus ) .
+the average precision for all four validation sets ranged from 0.33 to 0.42 and were all significantly ( p <= 0.05 , welch 's t - test ) higher than chance .
+importantly , approximately 27 - 63 % of the predictions from our method were based on implied associations extracted from the literature .
+since transcriptional regulation by tfs are tissue specific , we narrowed the atms to those which explicitly mentioned the experimental tissue .
+we calculated average precision for atms that contained either one or two keywords associated with the tissue .
+in all but one case ( otx2 , choroid ) , the average precision values improved when we considered only the tissue - relevant atms .
+table 2 performance of ntf using microarray data sets .
+tf knockout ( geo id ) tissue # of atms total # genes total # tfs # genes in validation set average precision base atm associations (%) base ( p - value ) base + ( keyword ) base + ( keywords ) explicit implicit atoh1 cerebellum 38 73 36 2,137 0.33 ( p < 9.07e - 07 ) 0.50 ( cerebellum ) 0.71 ( cerebellum , rhombic ) 0.37 0.63 pax6 cerebellum 74 152 62 3,036 0.38 ( p < 2.87e - 18 ) 0.54 ( cerebellum ) 0.57 ( cerebellum , rhombic ) 0.73 0.27 otx2 ( gse21900 ) retina 41 57 34 6,181 0.36 ( p < 5.31e - 06 ) 0.523 ( retina ) - 0.51 0.49 otx2 ( gse27630 ) choroid plexus 41 57 34 11,689 0.42 ( p < 3.1e - 05 ) 0.28 ( choroid ) - 0.68 0.32 average precision values were determined for all atms which included the target tf ( base ) or base modules that also included one or two keywords associated with the experimental tissue .
+an explicit association refers to the cases when a gene and a tf share an abstract , whereas an implicit association is inferred among genes or tfs in the same atm .
+next , we focused on one dataset ( atoh1 ) to carefully examine the characteristics of each atm .
+as indicated above , the average precision across all 38 atoh1 atms was 0.33 .
+however , the precision of individual atoh1 atms ranged between 0 and 0.85 ( figure 5 ) .
+in general , higher k produced higher precision , indicating that higher classification specificity is correlated with precision .
+interestingly , precision was not correlated with whether atoh1 was ranked first in the atm .
+the average precision was 0.23 for the 17 atms in which atoh1 was top ranked .
+in contrast , atoh1 was first ranked in only one of the top three atms with the highest precision ( figure 5 ) .
+finally , six atms had a precision of 0 .
+upon examination , we found that these atms were significantly enirched ( p <= 0.05 ) for " auditory receptor cell differentiation " and other go categories related to ear development .
+consistent with these go classifications , the terms in the atms were related to hair cell differentiation and development .
+thus , it is likely that the precision of these atms is low because the gold standard was derived from microarray experiments using cerebellar tissue rather than auditory tissue .
+figure 5 precision values for all 38 atoh1 atms .
+++ denotes atms in which atoh1 was ranked first ; red bars denote atms that include the term " cerebellum " ; green bars denote atms that include the term " rhombic " ; brown bars denote atms which include both " cerebellum " and " rhombic " as terms ; and blue bars denote atms that include neither " cerebellum " or " rhombic " as terms .
+finally , as a benchmark , we compared the predictions of our method with those obtained by regnetwork ( liu et al. , 2015 ) for the same experimental chip - seq and tf knockout microarray datasets described above as gold standards .
+regnetwork is a database containing target predictions for tfs , which have been sourced from more than 20 interaction databases .
+tables s3 and s4 in supplementary material show the precisions obtained by ntf along with those obtained by regnetwork predictions. with the chip - seq gold standards , we found that the average precision of ntf method was 0.48 compared to 0.38 for regnetwork .
+ntf outperformed in 4 out of 6 chip - seq datasets .
+for the two other datasets , regnetwork outperforms but only marginally .
+in contrast , with the tf knockout microarray gold standards , the average precision of ntf ( 0.37 ) was better than that of regnetwork ( 0.16 ) .
+ntf precision was higher for 3 out of the 4 microarray datasets .
+importantly , regnetwork predicted targets for foxa1 and otx2 did not match any targets in the gold - standard datasets , whereas ntf identified target genes with 0.11 and 0.42 precision , respectively ( tables s3 and s4 in supplementary material ) .
+3.4 prediction of functional classifications current methods for functional interpretation of high - throughput genomic data rely on manually curated knowledge bases , such as go , kegg , and a variety of other resources .
+it is generally accepted that the rate of manual curation is not sufficient for the amount of genomic data that is being generated in various species ( baumgartner et al. , 2007 ) .
+moreover , there is a quantifiable bias in manually curated knowledge bases toward more popular genes and a substantial drift in the annotation of genes over time ( gillis and pavlidis , 2013 ) .
+previous work have focused on using text - mining approaches to enhance curation of go and other knowledge bases ( chagoyen et al. , 2006 ; couto et al. , 2006 ; thomas et al. , 2015 ; peng et al. , 2016 ) .
+here , we examine the performance of our ntf approach in predicting ( suggesting ) go classifications .
+go predictions were based on two approaches : ( 1 ) guilt - by - association ( gba ) or ( 2 ) term mapping .
+in the gba approach , new genes or tfs were assigned to a go category which is significantly enriched for one or more atms .
+these new genes or tfs are part of the atms but have not been explicitly assigned to the enriched go category by the curators .
+in the term mapping approach , novel and more specific go categories for a given atm were predicted based on the number of terms from the atm that overlapped with go category descriptions .
+these new go categories were not significantly enriched for the atm under consideration .
+the results for both approaches were evaluated by manual examination of the biomedical literature .
+in order to evaluate the gba approach , for the 38 atms containing atoh1 , we randomly chose 3 go categories that were found to be significantly enriched in some of those atms ( table 3 ) .
+for example , for category " axon guidance " that was significantly enriched for 24 atms containing a total of 104 genes and tfs , only 16 genes and / or tfs were explicitly assigned to the category by the go curators .
+upon manual examination of sentences in medline abstracts , we found that out of the 104 genes and tfs , 29 were functionally related to axon guidance .
+among the 29 , 11 were already assigned to the go category but the rest ( 18 ) were not .
+the latter are candidates for assignment to the " axon guidance " category , potentially increasing the assignment of new genes and tfs to the category by 1.6 - fold .
+five of the existing go assignments could not be validated through manual evaluation .
+overall , for three randomly selected significantly enriched go categories ( table 3 ) , the gba method increased the assignment of new genes by an average of 1.2 - fold .
+the average precision for the go assignment by this method was 0.27 ( 0.14 - 0.38 range ) .
+notably , on average , 52 % ( 26 - 100 % range ) of the existing go annotations were not validated by our manual analysis , indicating that there is substantial error in go curation ( table 3 ) .
+table 3 significantly enriched go categories for atoh1 modules for evaluating guilt - by - association ( module membership ) .
+go category (# of enriched atms ) atm genes # go curated manual validation assigned unassigned assigned unassigned axon guidance ( 24 ) 104 16 88 11 18 neuron migration ( 15 ) 78 15 63 11 19 neural crest cell migration ( 1 ) 35 4 31 0 5 in order to evaluate the term mapping approach , for the 38 atms containing atoh1 , we predicted 7 novel go categories whose names and descriptions were found to have high overlap with the terms from some of those atms ( table 4 ) but were not significantly enriched for any atm .
+for example , for category " spinal cord oligodendrocyte cell differentiation " whose description had high overlap with the terms of 3 atms containing a total of 44 genes and tfs , only 1 gene or tf was explicitly assigned to the category by the go curators .
+this low number contributes to the reason the category was not significantly enriched for any of the 3 atms .
+upon manual examination of sentences in medline abstracts , we found that out of the 44 genes and tfs , 9 were functionally related to spinal cord oligodendrocyte cell differentiation .
+among these , 1 was already assigned to the go category but the rest ( 8 ) were not .
+the latter genes and tfs are candidates for assignment to the category , potentially increasing the assignment of new genes and tfs to the category by 8 - fold , which make the category a plausible candidate for being significantly enriched for the atms whose terms have high overlap with the category description .
+on average , 3.9 - fold ( 1 - to 8 - fold range ) more genes were assigned to novel predicted go categories , but with an average precision of 0.15 ( 0.06 - 0.23 range ) ( table 4 ) .
+most of these categories were more specific than the currently enriched categories .
+table 4 predicted go categories for atoh1 modules based on term mapping .
+go category (# of atms with high term overlap ) atm genes # go curated manual validation assigned unassigned assigned unassigned spinal cord oligodendrocyte cell differentiation ( 3 ) 44 1 43 1 8 central nervous system vasculogenesis ( 1 ) 35 1 34 0 2 cajal - retzius cell differentiation ( 2 ) 24 0 24 - 2 roof plate formation ( 3 ) 13 1 12 1 2 schwann cell development ( 3 ) 15 0 15 - 2 cerebellar granular layer development ( 6 ) 34 0 34 - 7 cerebellar purkinje cell layer development ( 7 ) 34 0 34 - 5 in general , the terms associated with atms provide a greater level of functional specificity than structured categories in ontologies .
+for example , figure 6c shows the genes , tfs , and terms associated with one atm in which atoh1 is top ranked .
+as a comparison , the enriched go and kegg categories are also displayed .
+whereas the go categories indicate that this group of genes and tfs are associated with inner ear development and auditory receptor cell differentiation , the terms ( shown in italics below ) in the atm suggest that they are involved in differentiation of the sensory hair cells in the cochlea located in the organ of corti .
+atoh1 is a basic helix loop helix ( bhlh ) domain transcription factor involved in early development .
+targeted deletion of atoh1 gene in mice results in loss of hair cells in the organ of corti ( chonko et al. , 2013 ) .
+several gene symbols also appear in the top ranked terms such as sox2 , notch , jag1 , prox1 , and math1 .
+interestingly , math1 is the alias for atoh1 .
+direct evidence suggests that notch1 and jag1 signaling pathway is required for activation of sox2 and atoh1 expression ( neves et al. , 2011 ) .
+activation of atoh1 by sox2 transcription factor is required for hair cell development in cochlea with respect to both expansion of the progenitor cells in the cochlear epithelium and initation of hair cell differentiation ( kiernan et al. , 2005 ; kempfle et al. , 2016 ) .
+conversely , prox1 transcription factor directly suppresses atoh1 expression .
+sox2 is expressed in type 2 vestibular hair cells and in supporting cochlear and vestibular epithelium ( hume et al. , 2007 ) .
+figure 6 screen shot of tremel ( transcription regulatory modules extracted from literature ) tool .
+( a ) search feature allows the user to query genes , tfs , or terms across all 2,861 atms .
+in addition , complex queries involving a combination of any of the three entities can be performed by adding another query box .
+( b ) overview display shows all of the atms which relate to the query with respect to the rank of the query entity , k , and atm number .
+( c ) displays the ranked genes , tfs , and terms for the selected atm in panel ( b ) .
+in addition , the enriched go and kegg categories are displayed in order for the user to quickly compare the ntf terms against human curation .
+3.5 tremel web tool in order to facilitate manual examination of individual atms , e.g. , the aforementioned atoh1 atms , the publicly available web tool called transcriptional regulatory modules extracted from literature ( tremel ) was developed .
+it is accessible at http :// binf1.memphis.edu / tremel .
+tremel provides a searchable interface for the genes , tfs , and terms for all 2,861 atms ( figure 6 ) .
+the user can query the tool with either genes , tfs or terms , or a combination of any of the 3 types of entities in additional query boxes .
+the entity type can be selected from the drop down list to the right of each search box .
+clicking the "+" button to the left of the first search box opens an additional search box .
+a maximum of 3 search boxes are allowed .
+the gene and tf queries need to be the official symbols designated by the national center for biotechnology information ( ncbi ) .
+only one symbol is allowed per search box .
+the term query can be any single keyword such as " cancer ," " neuron ," " transcription ," etc .
+all queries are case insensitive .
+the output of the tool consists of two panels .
+the top panel is comprised of a 3 - dimensional interactive plot that shows all atms containing the search box entities , as points .
+the axes of the plot correspond to the ntf approximation rank k , the atm # , and the rank of the queried entity ( first search box only ) in the atms .
+an atm can be selected in the panel by clicking on its corresponding point in the 3 - d plot .
+the color of the selected point changes to red and the colors of the remaining points corresponding to all other atms are depicted in terms of similarity to the selected atm .
+the most similar atms are colored in shades of red while the least similar ones are colored in shades of blue .
+the similarity between any two atms is calculated as the jaccard coefficient between the sets of genes and tfs in the respective atms .
+upon initial search completion , one atm is preselected and colored in red .
+this initial selection is performed in a manner such that the atm with the lowest queried entity rank is picked .
+ties are resolved in favor of the atm with the lowest ntf approximation rank .
+the bottom panel contains several sub - panels , each corresponding to an atm point in the first panel .
+the top sub - panel corresponds to the selected atm , and the remaining atms are ordered according to their similarity to the selected atm .
+each sub - panel displays the ranked genes , tfs and terms of the corresponding atm , as well as the enriched go categories and kegg pathways .
+clicking a sub - panel expands it to display its contents , and closes the previously open sub - panel .
+the contents of only one sub - panel are viewable at a time .
+4 discussion we have shown for the first time that ntf can be used effectively to simultaneously extract and functionally annotate transcriptional networks from the biomedical literature on a genomic scale .
+ntf is able to generalize and overcome data sparsity to produce interpretable low rank approximations .
+the atms comprised of genes , tfs , and terms were evaluated by several approaches .
+more than 94 % of the gene - tf atms were enriched in at least one kegg or go category .
+in addition , there were considerable overlap ( auc values above 0.6 ) between the ntf - derived terms and the descriptions of the enriched kegg and go categories .
+importantly , ntf identified more specific terms related to genes and tfs than what is currently available in kegg and go databases ( table 4 ; figure 6 ) .
+thus , our approach provides more flexibility for scientists to search with a broader range of terms to identify relevant transcriptional networks directly from the literature .
+to assist researchers in exploring and discovering functional insights about transcriptional networks , we developed the web tool tremel , which provides a searchable interface for the genes , tfs , and terms for all 2,861 atms ( figure 6 ) .
+we validated our ntf derived atms using a number of different data sources , including go ( manually curated ) , kegg ( manually curated ) , chip - seq ( experimental ) , and tf knockout microarray ( experimental ) .
+we also compared our gene - tf association predictions with those obtained by regnetwork and found that overall , the ntf method produced comparable or better precision ( specificity ) compared to the regnetwork .
+however , calculating recall ( sensitivity ) using these data sources may not be appropriate because none of the data sources are 100 % accurate and complete .
+manual curation is known to be incomplete ( baumgartner et al. , 2007 ) and high - throughput experimental datasets are highly variable for technical reasons .
+indeed , in table 4 we show a few examples where ntf term annotations were more specific and relevant than the enriched go categories .
+in addition , we showed that ntf performed comparably to or better than human curated regnetwork , which is an aggregated database of tf - gene interactions .
+however , unlike the ntf approach , predicted targets of regnetwork for two out of ten transcription factors examined did not match any targets in the gold - standard datasets ( tables s3 and s4 in supplementary material ) .
+finally , since the ntf literature mining approach extracts conceptual and functional associations between tfs and genes , we would not expect very high precision with any of the experimental benchmarks for several reasons .
+genomic assays are highly tissue specific , whereas the functional associations in the literature may not necessarily be focused on a specific tissue .
+chip - seq assays detect only direct interaction between tfs with gene promoters , whereas the microarray experiments identify both direct and indirect tf - gene associations .
+finally , both chip - seq and microarray experiments are prone to false - discovery due to multiple hypothesis testing .
+as estimation of the true tensor rank is computationally difficult , we opted for a more exploratory approach where we evaluated factorization at several approximation ranks ( k ranging from 1 to 900 ) .
+kegg / go pathway divergence analysis ( figure s3 in supplementary material ) , and experimental data validation ( figure 5 ) and manual evaluation indicated that more specific pathways are delineated at higher k. consistent with this notion , we found that the median number of enriched kegg / go categories were substantially lower at higher k ( figure 3 ) .
+on the other hand , this seemingly low number of enrichment could be partially due to shortcomings of kegg and go annotations as we demonstrated after manual analysis ( tables 3 and 4 ) and previously documented by gillis and pavlidis ( 2013 ) .
+the interpretation of sub - tensors in our method allows for redundancy in atms , where certain entities may occur in multiple atms from the same k - factorization .
+we believe that this makes biological sense as a tf might be involved in different functions or pathways depending on the set of genes with which it interacts .
+for instance , analysis of atoh1 atms revealed that some of its atms were related to early cerebellar development , whereas other atms were related to hair cell development in the auditory system .
+this approach is an improvement over previous work by our group and others using nmf ( heinrich et al. , 2008 ; tjioe et al. , 2010 ) , where the factors were interpreted to have only disjoint biclusters and a set of genes were associated with the best set of associated terms .
+taken together , our results demonstrate that ntf is a promising technique to simultaneously extract genes , tfs and related terms to identify and predict gene regulatory networks from the biomedical literature .
+the method and tool presented here are not intended to be comprehensive ( high recall ) nor a replacement of high - throughput experiments .
+however , we have shown that it is a valuable exploratory tool which can help researchers make new mechanistic discoveries and help human curators to quickly annotate gene function based on the vast amount of knowledge in the biomedical literature .
+in addition , our work sets the stage to apply this technique to other areas in systems biology such as simultaneous extraction of terms with mirnas and their target genes , small molecules and protein targets , as well as drugs and diseases .
+author contributions sr and rh designed the research and wrote the manuscript .
+sr and bm analyzed the results .
+dy developed the web tool .
+mb and l - yd contributed mathematical and statistical methods .
+dg contributed biological experimental data for validation .
+rh supervised the research and assisted with the interpretation of results .
+all authors reviewed the manuscript .
+conflict of interest statement the authors declare that the research was conducted in the absence of any commercial or financial relationships that could be construed as a potential conflict of interest. funding .
+this work was supported in part by the memphis research consortium and the university of memphis center for translational informatics .
+supplementary material the supplementary material for this article can be found online at http :// journal.frontiersin.org / article / 10.3389 / fbioe.2017.00048 / full # supplementary - material .
+click here for additional data file .
+references acar e. camtepe s. a. krishnamoorthy m. s. yener b .
+( 2005 ) .
+" modeling and multiway analysis of chatroom tensors ," in intelligence and security informatics , eds kantor p. muresan g. roberts f. zeng d. d. wang f .
+- y. chen h .
+( berlin - heidelberg : springer ) , 256 - 268 . acar e. plopper g. e. yener b .
+( 2012 ) .
+coupled analysis of in vitro and histology tissue samples to quantify structure - function relationship . plos one 7 : e32227 . 10.1371 / journal.pone.0032227 22479315 aerts s. haeussler m. van vooren s. griffith o. l. hulpiau p. jones s. j. ( 2008 ) .
+text - mining assisted regulatory annotation . genome biol .
+9 , r31 . 10.1186 / gb - 2008 - 9 - 2 - r31 18271954 alako b. veldhoven a. van baal s. jelier r. verhoeven s. rullmann t .
+( 2005 ) .
+copub mapper : mining medline based on search term co - publication . bmc bioinformatics 6 : 51 . 10.1186 / 1471 - 2105 - 6 - 51 15760478 alter o. brown p. o. botstein d .
+( 2000 ) .
+singular value decomposition for genome - wide expression data processing and modeling . proc. natl. acad. sci. u.s.a .
+97 , 10101 - 10106 . 10.1073 / pnas.97.18.10101 10963673 ashburner m. ball c. a. blake j. a. botstein d. butler h. cherry j. m. ( 2000 ) .
+gene ontology : tool for the unification of biology . nat. genet .
+25 , 25 10.1038 / 75556 10802651 bader b. w. berry m. w. browne m .
+( 2008a ) .
+" discussion tracking in enron email using parafac ," in survey of text mining ii , eds berry m. w. castellanos m .
+( london , uk : springer - verlag ) , 147 - 163 . bader b. puretskiy a. berry m .
+( 2008b ) .
+" scenario discovery using nonnegative tensor factorization ," in progress in pattern recognition , image analysis and applications , eds ruiz - schulcloper j. kropatsch w .
+( berlin - heidelberg : springer - verlag ) , 791 - 805 . bader b. w. kolda t. g. ( 2012 ) .
+matlab tensor toolbox version 2.5 .
+available at : http :// www.sandia.gov /~ tgkolda / tensortoolbox / index - 2.5.html baumgartner w. a. cohen k. b. fox l. m. acquaah - mensah g. hunter l .
+( 2007 ) .
+manual curation is not sufficient for annotation of genomic databases . bioinformatics 23 , i41 - i48 . 10.1093 / bioinformatics / btm229 17646325 berry m. w. browne m. langville a. n. pauca v. p. plemmons r. j. ( 2007 ) .
+algorithms and applications for approximate nonnegative matrix factorization . comput. stat .
+data anal .
+52 , 155 - 173 . 10.1016 / j.csda.2006.11.006 blagosklonny m. v. pardee a. b. ( 2002 ) .
+conceptual biology : unearthing the gems . nature 416 , 373 - 373 . 10.1038 / 416373a 11919607 boutsidis c. gallopoulos e .
+( 2008 ) .
+svd based initialization : a head start for nonnegative matrix factorization . pattern recognit .
+41 , 1350 - 1362 . 10.1016 / j.patcog.2007.09.010 burkart m. f. wren j. d. herschkowitz j. i. perou c. m. garner h. r. ( 2007 ) .
+clustering microarray - derived gene lists through implicit literature relationships . bioinformatics 23 , 1995 . 10.1093 / bioinformatics / btm261 17537751 carroll j. d. chang j. j. ( 1970 ) .
+analysis of individual differences in multidimensional scaling via an n - way generalization of eckart - young decomposition . psychometrika 35 , 283 - 319 . 10.1007 / bf02310791 chagoyen m. carmona - saez p. shatkay h. carazo j. m. pascual - montano a .
+( 2006 ) .
+discovering semantic features in the literature : a foundation for building functional associations . bmc bioinformatics 7 : 41 . 10.1186 / 1471 - 2105 - 7 - 41 16438716 chen g. cairelli m. j. kilicoglu h. shin d. rindflesch t. c. ( 2014 ) .
+augmenting microarray data with literature - based knowledge to enhance gene regulatory network inference . plos comput. biol .
+10 : e1003666 . 10.1371 / journal.pcbi.1003666 24921649 chen h. sharp b .
+( 2004 ) .
+content - rich biological network constructed by mining pubmed abstracts . bmc bioinformatics 5 : 147 . 10.1186 / 1471 - 2105 - 5 - 147 15473905 chen k. rajewsky n .
+( 2007 ) .
+the evolution of gene regulation by transcription factors and micrornas . nat. rev. genet .
+8 , 93 - 103 . 10.1038 / nrg1990 17230196 chonko k. t. jahan i. stone j. wright m. c. fujiyama t. hoshino m .
+( 2013 ) .
+atoh1 directs hair cell differentiation and survival in the late embryonic mouse inner ear . dev. biol .
+381 , 401 - 410 . 10.1016 / j.ydbio.2013.06.022 23796904 couto f. m. silva m. j. lee v. dimmer e. camon e. apweiler r .
+( 2006 ) .
+goannotator : linking protein go annotations to evidence text . j. biomed. discov. collab .
+1 , 19 . 10.1186 / 1747 - 5333 - 1 - 19 17181854 davidson e. h. ( 2010 ) .
+emerging properties of animal gene regulatory networks . nature 468 , 911 - 920 . 10.1038 / nature09645 21164479 de lathauwer l. de moor b. vandewalle j .
+( 2000 ) .
+a multilinear singular value decomposition . siam j. matrix anal. appl .
+21 , 1253 - 1278 . 10.1137 / s0895479896305696 djebali s. davis c. merkel a. dobin a. lassmann t. mortazavi a .
+( 2012 ) .
+landscape of transcription in human cells . nature 489 , 101 - 108 . 10.1038 / nature11233 22955620 du m. zhang s. w. wang h .
+( 2009 ) .
+tumor classification using high - order gene expression profiles based on multilinear ica . adv .
+bioinformatics 2009 , 926450 . 10.1155 / 2009 / 926450 19956422 gerstein m. b. kundaje a. hariharan m. landt s. g. yan k .
+- k. cheng c .
+( 2012 ) .
+architecture of the human regulatory network derived from encode data . nature 489 , 91 - 100 . 10.1038 / nature11245 22955619 gillis j. pavlidis p .
+( 2013 ) .
+assessing identity , redundancy and confounds in gene ontology annotations over time . bioinformatics 29 , 476 - 482 . 10.1093 / bioinformatics / bts727 23297035 ha t. swanson d. larouche m. glenn r. weeden d. zhang p .
+( 2015 ) .
+cbgrits : cerebellar gene regulation in time and space . dev. biol .
+397 , 18 - 30 . 10.1016 / j.ydbio.2014.09.032 25446528 hanley j. a. mcneal b. j. ( 1982 ) .
+a simple generalization of the area under the roc curve to multiple class classification problems . radiology 143 , 29 - 36 . 10.1148 / radiology.143.1.7063747 7063747 harshman r. a. ( 1970 ) .
+foundations of the parafac procedure : models and conditions for an " explanatory " multi - modal factor analysis . ucla work. pap. phon .
+16 , 1 - 84 . hastad j .
+( 1990 ) .
+tensor rank is np - complete . j. algorithms 11 , 644 - 654 . 10.1016 / 0196 - 6774 ( 90 ) 90014 - 6 heinrich k. e. berry m. w. homayouni r .
+( 2008 ) .
+gene tree labeling using nonnegative matrix factorization on biomedical literature . comput. intell. neurosci .
+2008 , 2 . 10.1155 / 2008 / 276535 18431447 homayouni r. heinrich k. wei l. berry m. w. ( 2005 ) .
+gene clustering by latent semantic indexing of medline abstracts . bioinformatics 21 , 104 . 10.1093 / bioinformatics / bth464 15308538 hume c. r. bratt d. l. oesterle e. c. ( 2007 ) .
+expression of lhx3 and sox2 during mouse inner ear development . gene expr .
+patterns 7 , 798 - 807 . 10.1016 / j.modgep.2007.05.002 17604700 jenssen t. k. laegreid a. komorowski j. hovig e .
+( 2001 ) .
+a literature network of human genes for high - throughput analysis of gene expression . nat. genet .
+28 , 21 - 28 . 10.1038 / 88213 11326270 johansson p. a. irmler m. acampora d. beckers j. simeone a. gotz m .
+( 2013 ) .
+the transcription factor otx2 regulates choroid plexus development and function . development 140 , 1055 - 1066 . 10.1242 / dev.090860 23364326 kanehisa m. goto s. kawashima s. okuno y. hattori m .
+( 2004 ) .
+the kegg resource for deciphering the genome . nucleic acids res .
+32 , d277 - d280 . 10.1093 / nar / gkh063 14681412 kempfle j. s. turban j. l. edge a. s. ( 2016 ) .
+sox2 in the differentiation of cochlear progenitor cells . sci. rep .
+6 , 23293 . 10.1038 / srep23293 26988140 kiernan a. e. pelling a. l. leung k. k. tang a. s. bell d. m. tease c .
+( 2005 ) .
+sox2 is required for sensory organ development in the mammalian inner ear . nature 434 , 1031 - 1035 . 10.1038 / nature03487 15846349 kolda t. g. bader b. w. ( 2009 ) .
+tensor decompositions and applications . siam rev .
+51 , 455 10.1137 / 07070111x kolda t. g. bader b. w. kenny j. p. ( 2005 ) .
+" higher - order web link analysis using multilinear algebra ," in fifth ieee international conference on data mining ( houston , tx : ieee computer society ) , 8 . lee d. d. seung h. s. ( 1999 ) .
+learning the parts of objects by non - negative matrix factorization . nature 401 , 788 - 791 . 10.1038 / 44565 10548103 levine m. tjian r .
+( 2003 ) .
+transcription regulation and animal diversity . nature 424 , 147 - 151 . 10.1038 / nature01763 12853946 li w. liu c. c. zhang t. li h. waterman m. s. zhou x. j. ( 2011 ) .
+integrative analysis of many weighted co - expression networks using tensor computation . plos comput. biol .
+7 : e1001106 . 10.1371 / journal.pcbi.1001106 21698123 li y. ngom a .
+( 2010 ) .
+" non - negative matrix and tensor factorization based classification of clinical microarray gene expression data ," in 2010 ieee international conference on bioinformatics and biomedicine ( bibm ) ( hong kong : ieee computer society ) , 438 - 443 . liu z .
+- p. wu c. miao h. wu h .
+( 2015 ) .
+regnetwork : an integrated database of transcriptional and post - transcriptional regulatory networks in human and mouse . database 2015 , bav095 . 10.1093 / database / bav095 26424082 luo y. wang f. szolovits p .
+( 2017 ) .
+tensor factorization toward precision medicine . brief. bioinform .
+18 , 511 - 514 . 10.1093 / bib / bbw026 26994614 macisaac k. d. lo k. a. gordon w. motola s. mazor t. fraenkel e .
+( 2010 ) .
+a quantitative model of transcriptional regulation reveals the influence of binding location on expression . plos comput. biol .
+6 : e1000773 . 10.1371 / journal.pcbi.1000773 20442865 neves j. parada c. chamizo m. giraldez f .
+( 2011 ) .
+jagged 1 regulates the restriction of sox2 expression in the developing chicken inner ear : a mechanism for sensory organ specification . development 138 , 735 - 744 . 10.1242 / dev.060657 21266409 omberg l. golub g. h. alter o .
+( 2007 ) .
+a tensor higher - order singular value decomposition for integrative analysis of dna microarray data from different studies . proc. natl. acad. sci. u.s.a .
+104 , 18371 10.1073 / pnas.0709146104 18003902 omori y. katoh k. sato s. muranishi y. chaya t. onishi a .
+( 2011 ) .
+analysis of transcriptional regulatory pathways of photoreceptor genes by expression profiling of the otx2 - deficient retina . plos one 6 : e19685 . 10.1371 / journal.pone.0019685 21602925 pan h. zuo l. choudhary v. zhang z. leow s. h. chong f. t. ( 2004 ) .
+dragon tf association miner : a system for exploring transcription factor associations through text - mining . nucleic acids res .
+32 ( suppl. 2 ) , w230 - w234 . 10.1093 / nar / gkh484 15215386 peng j. wang t. wang j. wang y. chen j .
+( 2016 ) .
+extending gene ontology with gene association networks . bioinformatics 32 , 1185 - 1194 . 10.1093 / bioinformatics / btv712 26644414 press w. h. ( 1992 ) .
+numerical recipes in c : the art of scientific computing .
+cambridge : cambridge university press . qiao x. liu x. chen y .
+- w. liu z .
+- p .
+( 2017 ) .
+multi - dimensional data representation using linear tensor coding . iet image process .
+11 , 492 - 501 . 10.1049 / iet - ipr.2016.0795 rebholz - schuhmann d. oellrich a. hoehndorf r .
+( 2012 ) .
+text - mining solutions for biomedical research : enabling integrative biology . nat. rev. genet .
+13 , 829 - 839 . 10.1038 / nrg3337 23150036 rodriguez - penagos c. salgado h. martinez - flores i. collado - vides j .
+( 2007 ) .
+automatic reconstruction of a bacterial regulatory network using natural language processing . bmc bioinformatics 8 : 293 . 10.1186 / 1471 - 2105 - 8 - 293 17683642 roy s. curry b. c. madahian b. homayouni r .
+( 2016 ) .
+prioritization , clustering and functional annotation of micrornas using latent semantic indexing of medline abstracts . bmc bioinformatics 17 : 350 . 10.1186 / s12859 - 016 - 1223 - 2 27766940 roy s. heinrich k. phan v. berry m. w. homayouni r .
+( 2011 ) .
+latent semantic indexing of pubmed abstracts for identification of transcription factor candidates from microarray derived gene sets . bmc bioinformatics 12 ( suppl .
+10 ) : s19 . 10.1186 / 1471 - 2105 - 12 - s10 - s19 22165960 roy s. homayouni r. berry m. w. puretskiy a. a. ( 2014 ) .
+" nonnegative tensor factorization of biomedical literature for analysis of genomic data ," in in data mining for service , ed. yada k .
+( berlin - heidelberg : springer ) , 97 - 110 . rzhetsky a. iossifov i. koike t. krauthammer m. kra p. morris m .
+( 2004 ) .
+geneways : a system for extracting , analyzing , visualizing , and integrating molecular pathway data . j. biomed. inform .
+37 , 43 - 53 . 10.1016 / j.jbi.2003.10.001 15016385 saric j. jensen l. j. ouzounova r. rojas i. bork p .
+( 2006 ) .
+extraction of regulatory gene protein networks from medline . bioinformatics 22 , 645 10.1093 / bioinformatics / bti597 16046493 smilde a. k. bro r. geladi p. wiley j .
+( 2004 ) .
+multi - way analysis with applications in the chemical sciences .
+chichester , uk : wiley . soldatova l. n. rzhetsky a .
+( 2011 ) .
+representation of research hypotheses . j. biomed .
+semantics 2 , 1 10.1186 / 2041 - 1480 - 2 - s2 - i1 21569604 sun j. t. zeng h. j. liu h. lu y. chen z .
+( 2005 ) .
+" cubesvd : a novel approach to personalized web search ," in proceedings of the 14th international conference on world wide web ( chiba : acm ) , 382 - 390 . swanson d. r. ( 1986 ) .
+fish oil , raynaud 's syndrome , and undiscovered public knowledge . perspect. biol. med. 30 , 7 10.1353 / pbm.1986.0087 3797213 tavazoie s. hughes j. d. campbell m. j. cho r. j. church g. m. ( 1999 ) .
+systematic determination of genetic network architecture . nat. genet .
+22 , 281 - 285 . 10.1038 / 10343 10391217 thomas p. durek p. solt i. klinger b. witzel f. schulthess p .
+( 2015 ) .
+computer - assisted curation of a human regulatory core network from the biological literature . bioinformatics 31 , 1258 - 1266 . 10.1093 / bioinformatics / btu795 25433699 tjioe e. berry m. homayouni r .
+( 2010 ) .
+discovering gene functional relationships using faun ( feature annotation using nonnegative matrix factorization ) . bmc bioinformatics 11 ( suppl .
+6 ) : s14 10.1186 / 1471 - 2105 - 11 - s6 - s14 tomasi g. bro r .
+( 2006 ) .
+a comparison of algorithms for fitting the parafac model . comput. stat .
+data anal .
+50 , 1700 - 1734 . 10.1016 / j.csda.2004.11.013 wang h. c. chen y. h. s. kao h. y. tsai s. j. ( 2011 ) .
+inference of transcriptional regulatory network by bootstrapping patterns . bioinformatics 27 , 1422 - 1428 . 10.1093 / bioinformatics / btr155 21450714 welling m. weber m .
+( 2001 ) .
+positive tensor factorization . pattern recognit. lett .
+22 , 1255 - 1261 . 10.1016 / s0167 - 8655 ( 01 ) 00070 - 8 yang h. keane j. bergman c. m. nenadic g .
+( 2009 ) .
+assigning roles to protein mentions : the case of transcription factors . j. biomed. inform .
+42 , 887 - 894 . 10.1016 / j.jbi.2009.04.001 19364541 zeimpekis d. gallopoulos e .
+( 2006 ) .
+" tmg : a matlab toolbox for generating term - document matrices from text collections ," in grouping multidimensional data , eds kogan j. nicholas c. teboulle m .
+( berlin - heidelberg : springer ) , 187 - 210 . zhang h. m. chen h. liu w. liu h. gong j. wang h .
+( 2012 ) .
+animaltfdb : a comprehensive animal transcription factor database . nucleic acids res .
+40 , d144 - d149 . 10.1093 / nar / gkr965 22080564

@@ -1,0 +1,255 @@
+j healthc eng j healthc eng jhe journal of healthcare engineering 2040 - 2295 2040 - 2309 hindawi 29065644 5396472 10.1155 / 2017 / 7862672 research article computer - aided clinical trial recruitment based on domain - specific language translation : a case study of retinopathy of prematurity http :// orcid.org / 0000 - 0003 - 4971 - 8809 zhang yinsheng 1 * http :// orcid.org / 0000 - 0002 - 3006 - 1459 zhang guoming 2 * http :// orcid.org / 0000 - 0001 - 6393 - 217x shang qian 3 * 1school of management and e - business , zhejiang gongshang university , hangzhou , zhejiang 310018 , china 2pediatric retinal surgery department , shenzhen eye hospital , shenzhen key ophthalmic laboratory , the second affiliated hospital of jinan university , shenzhen , guangzhou 518040 , china 3management school , hangzhou dianzi university , hangzhou , zhejiang 310018 , china * yinsheng zhang : zhangys @ zjgsu.edu.cn * guoming zhang : zhang - guoming @ 163.com and * qian shang : shangqian _ xwz @ 163.com academic editor : xiang li 2017 5 4 2017 2017 7862672 10 11 2016 5 2 2017 copyright ( c ) 2017 yinsheng zhang et al .
+2017 this is an open access article distributed under the creative commons attribution license , which permits unrestricted use , distribution , and reproduction in any medium , provided the original work is properly cited .
+reusing the data from healthcare information systems can effectively facilitate clinical trials ( cts ) .
+how to select candidate patients eligible for ct recruitment criteria is a central task .
+related work either depends on dba ( database administrator ) to convert the recruitment criteria to native sql queries or involves the data mapping between a standard ontology / information model and individual data source schema .
+this paper proposes an alternative computer - aided ct recruitment paradigm , based on syntax translation between different dsls ( domain - specific languages ) .
+in this paradigm , the ct recruitment criteria are first formally represented as production rules .
+the referenced rule variables are all from the underlying database schema .
+then the production rule is translated to an intermediate query - oriented dsl ( e.g. , linq ) .
+finally , the intermediate dsl is directly mapped to native database queries ( e.g. , sql ) automated by orm ( object - relational mapping ) .
+national natural science foundation of china71602044humanities and social sciences foundation of ministry of education of china15yjc630106natural science foundation of zhejiang provincelq16g020006shenzhen science and technology innovation committee201602293000443jcy20140414114853651research center of information technology and economic and social development , zhejiang province , china 1 .
+introduction clinical trials ( cts ) are the building blocks for evidence - based medicine ( ebm ) .
+clinical trials are typically performed under the guidance of clinical trial protocols ( ctps ) , which are standardized guidelines for conducting ct. a ctp contains several components , including purpose , study design , recruitment criteria of subjects , treatment of subjects , assessment of efficacy , assessment of safety , adverse events , quality control and assurance , and ethics .
+among them , " recruitment criteria " ( or " eligibility criteria ") is an essential step for conducting cts .
+the recruitment criteria specify a set of common features that define the population subset of interest .
+these features include age , gender , habit , diagnosis , stage of disease development , surgery history , and genetic data .
+the recruitment criteria usually contain both " inclusion " and " exclusion " rules , which define required and unwanted features , respectively .
+for certain cts , the criteria could be quite complex , making the patient enrollment very challenging. with the rapid development of healthcare it ( hit ) , electronic patient data acquired during the clinical care process offers a new approach to facilitate the recruitment procedure .
+much work has been reported concerning the previously mentioned approach .
+the traditional way of this approach usually relies on dba ( database administrator ) or clinical engineers .
+the criteria are initially written in natural language form by ct protocol authors or clinical researchers .
+then , the engineers translate the narrative criteria into native database query language , such as sql .
+due to the professional barrier and possible ambiguity of natural language , such criteria translation can be inaccurate .
+secondly , the involvement of engineers has increased both human resource and communication cost .
+for these reasons , some researchers chose to develop computer - aided tools or clinical trial recruitment support systems ( ctrss ) to facilitate the recruitment procedure .
+the following manuscript will introduce some of the related work .
+2. related work european researchers built the transform query workbench tool [ 1 ] to author , store , and execute clinical data queries to identify potential subjects for clinical studies .
+this tool can create recruitment criteria in computable representations .
+then the criteria are translated into executable queries in institution - specific databases .
+the query workbench tool uses the clinical data integration model ( cdim ) [ 2 ] as an intermediate standard ontology , so it can support queries across multiple heterogeneous data sources .
+the uk cancergrid [ 3 ] project designs a widely accepted clinical trial model by controlled vocabulary and common data elements ( cdes ) .
+based on this model , a cancer data query system has been developed which supports data sharing across cancergrid - compliant clinical trial boundaries .
+penberthy et al .
+[ 4 ] designed a ct matching system .
+the system allows users to define the recruitment criteria through a form - based gui tool .
+then the system will perform periodical automatic screening against patients in the information system .
+matched subjects will be sent to researchers via emails .
+the breastcancertrials.org [ 5 ] project creates a ct matching website whose targeting audience is patients .
+it uses self - reported patient data collected by web - based forms to match against existing registered cancer cts and recommend patients with available cts .
+patients can also redirect themselves to participating research sites .
+breastcancertrials.org can increase patients' awareness to participate cancer cts , and can improve patient data usage among multiple ct research groups .
+there are also several experimental researches that use more sophisticated methods , such as natural language processing ( nlp ) [ 6 ] and semantic web [ 7 ] , to facilitate the automatic extraction and comparison of recruitment criteria and patient data .
+generally speaking , much research work focuses on querying across heterogeneous sources , and uses form - alike structured data entry ( sde ) techniques to author recruitment criteria .
+these sde tools are usually designed according to some intermediate information model ( or ontology ) .
+based on this model , the recruitment criteria and referenced data elements can be defined in formal representations , which have the unique advantage in data exchange and semantic interoperability .
+however , this paradigm requires mapping between the intermediate model and individual databases when performing patient queries .
+such mapping work can be quite knowledge - intensive and time - consuming , and due to information granularity and semantic differences , the mapping of certain data elements can be extremely difficult or even unsupported. with such concern , this paper tries an alternative method that uses direct syntax translation to avoid model mapping .
+the following manuscript will introduce the method and a corresponding case study in detail .
+3. method 3.1 .
+knowledge representation of clinical trial recruitment criteria the first step of this study is the knowledge representation of recruitment criteria and relevant patient data .
+an analysis on knowledge representation will help to determine whether a certain kind of information model or formal language has the ability to represent all related entities ( e.g. , concepts and rules ) in this domain .
+following are two typical recruitment criteria used in clinical trials .
+these two examples are related to retinopathy of prematurity ( rop ) , which is the target disease in our case study .
+example 1 .
+consider the following : [ aim of ct ] assess the anti - neovascularization activity of intravitreal bevacizumab , as determined by regression of neovascular vessels of retinopathy of prematurity ( rop ) , in neonates with acute stage 3 rop in zone i or posterior zone ii with plus disease .
+[ recruitment criteria ] birth weight <= 1500 grams gestational age <= 30 weeks diagnosis = stage 3 rop in zone i or posterior zone ii drug use = bevacizumab ( avastin ( r )) without congenital systemic anomaly without congenital ocular abnormality .
+example 2 .
+consider the following : [ aim of ct ] assess pan - vegf ( vascular endothelial growth factor ) blockade for the treatment of retinopathy of prematurity .
+[ recruitment criteria ] gestational age <= 30 weeks gestational age <= 36 1 / 7 weeks diagnosis = type 1 pre - threshold rop no prior treatment without media opacity precluding fundus visualization without ocular or periocular infection ( s ) .
+as seen from the examples , typical ct recruitment criteria consist of a set of medical concepts ( e.g. , birth weight , gestational age , and diagnosis ) and a rule condition composed of these concepts ( e.g. , birth weight <= 1500 grams && gestational age <= 30 weeks && ( diagnosis = stage 3 rop in zone i || diagnosis = posterior zone ii ) ) .
+in this study , we chose the production rule as the knowledge representation for ct recruitment criteria .
+in runtime , the data sources should feed the rule with actual patient data for succeeding query or reasoning .
+3.2 .
+patient query for ct recruitment by syntax translation clinical data can be conveyed in two styles .
+one is natural language ( nl ) , which is extensively used by humans in daily life .
+the other is formal language ( fl ) or domain - specific language ( dsl ) , which is usually designed for a specific purpose and contains a limited set of symbols and syntax .
+typical fls / dsls include the arabic numbers and arithmetic symbols used in mathematics , the molecular formula in chemistry , and programming languages .
+the data carried by nl are usually " unstructured " while the data conveyed by fl / dsl are mostly " structured. " though fl / dsl may lack expressiveness than nl , they are much more suitable for computers to parse and process .
+the essence of patient query in ct recruitment is the translation of nl ( recruitment criteria from ctp or clinical researchers ) to fl / dsl ( e.g. , sql ) .
+although there is related work that uses nlp techniques to facilitate the translation of nl to fl / dsl , there is a gap between research and real application .
+nlp ( especially for chinese nl ) is still premature and many studies use the more reliable sde instead .
+in these studies , the recruitment criteria are first authored in certain formal representation by sde .
+next , the formally represented criteria need to be converted to database - specific queries ( e.g. , sql ) .
+as mentioned before , many studies depend on a sharable model or ontology and have to handle the mapping between the sharable model and individual data sources .
+such a mapping work can be a quite complicated , knowledge - intensive , and time - consuming task .
+as an alternative , this paper proposed a method based on dsl syntax translation , other than ontology mapping .
+our method directly uses the underlying database 's schema as a reference model for the sde tool and its generated production rules. that is , all rule variables in the sde tool come from data fields in the database schema .
+for example , the sde tool outputs a production rule "[ birthweight ] < 1.0 && [ gestationalageinweeks ] < 30 " .
+in this rule , the "[ birthweight ]" and "[ gestationalageinweeks ]" rule variables have corresponding " birthweight " and " gestationalageinweeks " data fields in the underlying database schema .
+the next step is to convert such production rules to query - oriented dsl .
+the query - oriented dsl is provided in many modern programming languages , such as java , c # , and vb.net .
+take linq ( language - integrated query ) as an example .
+in microsoft . net framework , linq is a language subset of c # and vb.net .
+linq supports nearly 40 operators , including " select ," " from ," " in ," " where ," and " order by. " with linq , programmers can directly write sql - style c # or vb.net codes to query underlying data providers , such as orm ( object - relational mapping ) , odbc ( open database connect ) , or xml ( extensible markup language ) files .
+because our case study is conducted in the context of microsoft.net framework and the sql server relational database , we will use linq for demonstration purposes .
+for other technical platforms , there are also equivalent technologies , such as jinq , linq4j , and jaque , for the java platform .
+after the production rule is converted to linq , linq to native - sql conversion is automatically supported by the orm provider , and no extra effort is required .
+in the previously mentioned process , the production rule , linq , and sql are all strictly constrained fls / dsls , so the syntactic conversion between them is explicit and unambiguous .
+in addition , these dsls all use the underlying database schema as the reference model , so there is no need for a complex concept mapping .
+such concept mapping is a well - known issue in medical informatics , aka the " curly braces " problem [ 8 ] , which involves mapping external clinical data to rule variables in the rule expression .
+figure 1 illustrates the comparison of different paradigms .
+paradigm a depends on dba to translate clinicians' narrative recruitment criteria to native database queries .
+as mentioned before , such manual translation can sometimes be inaccurate due to professional barrier and the ambiguous nature of nl. paradigm b uses sde to author formally represented criteria based on a sharable model .
+the formally represented criteria are then translated to sql by underlying mappings between the sharable model and individual database .
+paradigm c , which is proposed in this paper , also uses sde to author recruitment criteria in the form of the production rule , but does not involve any data mapping jobs .
+in the following manuscript , we will introduce a case study to demonstrate our method and give more details on system implementation .
+4. case study and system implementation 4.1 .
+clinical settings the case study is conducted in shenzhen eye hospital , which is a 200 - bed class iii specialized hospital in china .
+since 2013 , we have been developing a rop ( retinopathy of prematurity ) management system for the pediatric retinal surgery department .
+rop , aka terry syndrome , is a common eye disease for prematurely born babies , especially those with low birth weight and early gestation age .
+rop is related with disorganized growth of retinal blood vessels resulting in retinal scarring or detachment .
+without early screening and timely intervention , rop can lead to severe visual impairments or even blindness .
+rop has become a major reason for children blindness .
+it is estimated that china has at least 0.2 million rop newborns each year .
+rop has now become a nonneglectable problem in china , whereas rop - oriented information systems are scarce on the chinese market .
+under this circumstance , we built this rop management system to help clinicians to manage rop screening information and track patient disease development .
+the rop management system is also designed as a regional telemedicine system .
+it covers not only the rop screening cases in shenzhen eye hospital , but also those from partner hospitals , such as shenzhen dapeng - district maternity hospital , meizhou people 's hospital ( guangdong province , china ) , and puning people 's hospital ( fujian province , china ) .
+these partner hospitals can upload rop - related data ( e.g. , retcam imaging , newborn info ) to central data repository via the system .
+then the rop medical team in shenzhen eye hospital will help to diagnose these cases .
+until now , the system has enrolled more than 22,238 patient cases .
+the demo version of the system is http :// ropd.brahma.pub. with the advent of " big data era ," how to effectively use the collected data has become a great concern for both clinicians and researchers .
+supporting clinical trial ( ct ) is one of the typical applications of clinical data .
+4.2 .
+computer - aided ct recruitment based on paradigm c proposed in figure 1 , we developed a computer - aided ct recruitment module as a subsystem in the rop management system .
+the kernel idea of this system is to reuse the patient data in the central data repository for clinical research purposes .
+as mentioned before , the ct recruitment criteria vary from study to study .
+to fulfill different requirements , we developed a versatile sde tool ( figure 2 ) by which clinicians can author customized search patterns .
+the output of the sde tool are production rules , as the formal representation of ct recruitment criteria .
+after the production rule is generated , it needs to be converted to native queries towards the underlying data repository .
+figure 3 gives a concrete example of this conversion process .
+in figure 3 , the production rule is first translated to linq lambda expressions ( the anonymous function inside the " where " clause ) .
+then , the linq is automatically translated to a corresponding native sql query by orm .
+it should be noted that both the linq and sql code snippets in figure 3 use only one entity set / data table : " integratedview. " in reality , patient - related data are often dispersed among multiple data tables .
+for example , in our rop management system , there are " patient master table ," " patient visit table ," and " patient surgery table. " sometimes , users have to make joint queries between multiple tables .
+in order to reduce complexity , we created a database view " integratedview " by joining existing tables .
+although " integratedview " is a " virtual table ," it is a fully functioning searchable object just as physical tables are , and it is equally supported by orm .
+such a view not only integrates data from multiple tables , but also reduces complexity by providing a unified logical schema .
+this schema is referenced by all modules across the systems , including the following : ( 1 ) the data fields ( figure 2 ) used to compose production rules ; ( 2 ) the entity set (" domaindbcontext.integratedview ") and entity properties ( e.g. , " x.surgery ," " x.birthweight ") in linq ; and ( 3 ) and the final sql code transformed by orm .
+based on the dsl - conversion process , the original ct recruitment criteria represented in production rule has been ultimately converted to a native sql statement on the underlying database .
+the returned patients will be shown as an html table .
+users can export the search result into excel or csv ( comma - separated value ) files .
+they can also check each individual patient , and assign a specific " ct research tag " to this patient .
+4.3 .
+evaluation the ct recruitment system was first brought on line in august 2015 .
+until now ( november 2016 ) , system logs show there have been 230 user queries .
+although we have not yet conducted a large - scale scientific evaluation on the system , we have collected plenty of feedbacks from both end users and clinical engineers .
+based on these feedbacks , several aspects of the system can be evaluated .
+( 1 ) implementation cost .
+as mentioned before , the criteria authoring sde tools used in many related works are based on a shared information model or ontology , and the mapping of the shared model to native database queries can be quite complicated and time consuming .
+the method proposed in this paper does not use such an intermediate model , so the mapping effort is saved and the implementation cost is relatively low .
+in addition , this method uses linq as an intermediate dsl .
+because both linq and the recruitment criteria production rules are strictly constrained dsls , the conversion between them is unambiguous and easy to achieve .
+what is more , linq can use orm as the data provider , so the conversion between linq and sql can be automated by orm .
+( 2 ) dsl expression power .
+in this study , the sde tool uses production rule to author ct recruitment criteria .
+the expression power of the dsl determines how well the criteria can be represented and processed by the information system .
+table 1 shows the operators and data types used in the production rule dsl .
+although the dsl only supports a limited set of operators ( e.g. , it does not support assignment "=" and arithmetic operators "+ , - , * , /") , it has satisfied the ct recruitment requirements in 230 query tasks since its first deployment .
+the expression power of this dsl lies in two aspects : ( 1 ) complex rules can be composed by the combination of fundamental primitives .
+( 2 ) the wild card supported in this system effectively handles the free - text data fields .
+in the production rule dsl , "%" represents any text and can be used to compose complicated literal patterns .
+this wild card is natively supported by the underlying sql engine .
+( 3 ) performance .
+a quantitative evaluation of the system performance is carried out on a cloud - computing virtual machine ( cpu : dual core 2.39 ghz , ram : 4 gb , os : windows server 2012 r2 datacenter 64 - bit edition , db : sql server 2012 express ) .
+the total consumed time of a ct recruitment query task contains 4 parts : ( 1 ) rule validation .
+the system first checks whether the rule expression can be parsed as a well - structured tree ( using the antlr library ) .
+( 2 ) dsl translation : " production rule - > linq - > sql . "
+( 3 ) sql query : the query execution time by the underlying db server .
+( 4 ) client processing : time consumed by the web browser , including ajax calls to the server side and html rendering ( show server - returned records in web page ) .
+three ct recruitment rules in different complexity are tested .
+as seen from table 2 , the most time - consuming parts are the sql query and client processing , while the rule validation and dsl translation cost little .
+it can also been seen that as the rule complexity grows up , the consumed time of the dsl translation process and the underlying sql server does not scale up dramatically .
+this shows that the computer - aided ct recruitment system has a good performance curve in regard to rule complexity .
+( 4 ) rule variable extensibility .
+after the first release of the ct recruitment system , one frequent request posed by end users is supporting more data fields ( rule variables ) .
+in the beginning , we only provided a few basic data fields in the rule authoring tool , such as birthday , gestation age , birth weight , and diagnosis .
+however , as users conduct more cts , they continually request to extend more data fields , such as family disease history , drug use during pregnancy , and cpap ( continuous positive airway pressure ) treatment .
+to meet these frequent requests , we developed the rule authoring sde tool based on pure web - client technologies ( html and javascript ) , and the rule authoring tool is decoupled from server - side rule parsing and execution logics .
+when needing to extend a new rule variable , clinical engineers only need to extend a few lines of html and javascript codes for the authoring tool .
+because the rule variable name and data type are the same as the corresponding data field in the database , the recruitment criteria rule produced by the authoring tool can be directly parsed and executed by the successive modules without any further modification .
+in this sense , the rule variable extensibility is quite satisfying and the system maintenance workload is greatly reduced .
+( 5 ) query accuracy and recall rate .
+accuracy and recall rate are the two common measures for assessing query systems .
+for our system , we found that these two measures depend on how well the users write the rule expressions .
+the system is just an " executor " of the search rule .
+as there is no nlp or fuzzy - logic module in the system that could bring " uncertainty " or " ambiguity ," the system itself does not compromise the overall query accurate and recall rate. by the rule authoring tool , the users can constantly improve query accuracy and recall rate by routine techniques , such as joining multiple variable conditions , increasing or decreasing thresholds , and adding more logical branches .
+5. conclusions and discussions the ct recruitment system has been used in shenzhen eye hospital for more than a year .
+clinical evaluation and feedback has proven its usability .
+the system is also well received by system developers and clinical engineers : the development and maintenance cost is significantly low , and the extensibility is also satisfying .
+such positive reviews are mainly due to two features of the system .
+( 1 ) the system directly uses the underlying database schema as a reference model for all related modules , such as the rule authoring tool , the intermediate linq code , and the final sql query .
+in this way , the system complexity and data - mapping efforts are greatly reduced .
+( 2 ) the system uses the query - oriented dsl ( e.g. , linq in c # and vb.net ; jinq , linq4j , and jaque in java ) as an intermediate formal language .
+such dsl uses similar syntax as production rules and sql , and are supported by orm data providers .
+in this way , the translation process from recruitment criteria to native database queries is greatly simplified .
+compared to other related work , this study has several limitations and arguments .
+( 1 ) data integration and knowledge sharing .
+much existing related work focus on how to achieve data sharing and data query across heterogeneous clinical data sources .
+the core method of these works is a common ontology or data model .
+for each data source , a middleware or data mapping module is provided to map the individual database to the shared model .
+the rule authoring tool also depends on the shared model , so the recruitment criteria are represented in a sharable computable form , and can be distributed as sharable knowledge assets .
+on the other hand , because the rop management system in our case study already has a central data repository that collects and stores data from multiple hospitals ( in other words , the data integration work has been shifted down to the underlying data repository ) , we do not focus on the data integration issue from heterogeneous data sources .
+our method does not need a shared ontology or data mapping middleware .
+however , the disadvantage is also apparent : the recruitment criteria rules created by the authoring tool are tightly coupled with the local database schema .
+in other words , the rules are " institution - specific " and are difficult to be distributed as sharable knowledge assets .
+( 2 ) extending rule variables .
+as mentioned before , the rule variables provided by the rule authoring sde tool come from the underlying database schema .
+in this way , the rule variables referenced in the rule expression can be " recognized " and " processed " by all related modules in the system .
+such a design incurred some argument : what if the user wants to add a medical concept / rule variable that does not exist in current database schema ?
+we can analyze this argument in 3 cases : ( a ) the concept is a high - level or coarse - grained concept , compared to the data fields in the database .
+for this case , the high - level concept can usually be composed by existing fine - grained items .
+for example , a user wants to use a " most severe diagnosis " concept , and the database has " most severe diagnosis od " and " most severe diagnosis os " data fields ( od = right eye , os = left eye ) .
+a criteria rule of "[ most severe diagnosis ] = rop _ stage4a " concept can be represented as "[ most severe diagnosis od ] = rop _ stage4a || [ most severe diagnosis os ] = rop _ stage4a " .
+( b ) the concept is a low - level or fine - grained concept .
+it is usually more difficult and complex to handle this case .
+for example , the user wants to use " rop zone " and " rop stage " as rule variables , but the database only has a string - typed " diagnosis " data field .
+a rule of "[ rop zone ] = 1 && [ rop stage ] = 3 " can be represented as "[ diagnosis ] = % zone1stage3 % || [ diagnosis ] = % stage 3 in zone 1 %" (% is a wild card ) .
+however , due to the unconstraint nature of natural language , not all eligible patients can be covered by the previously mentioned rule , which will compromise the recall rate .
+moreover , for many cases , it can even be impossible to compose an equal representation with coarse - grained data fields .
+( c ) the concept is totally new to the current database .
+for example , the user wants to do some genotype research , but there are no genetic data fields in the underlying database .
+for these cases , the only solution in the context of our proposed method is to extend the database schema .
+in summary , case ( a ) is well supported in the system , case ( b ) is partially supported , and case ( c ) is not supported .
+for unsupported cases , the only feasible solution is to extend the database schema to add new data fields .
+( 3 ) make use of unstructured clinical data .
+in this case study , the data stored in the rop management system are mostly well formatted and structured .
+however , some relevant patient information still remains in the non - structured form ( e.g. , scanned handwritten retcam report , and eye surgery record ) .
+how to use these narrative data is a long - existing problem faced by clinical researchers , and the promising nlp technologies have always been a hot research area .
+joint query on both structured and nonstructured data will be a meaningful research topic for our ct recruitment system .
+another kind of important nonstructured data is medical imaging .
+for rop , the retcam image is a very important evidence for diagnosis .
+how to extract morphological or even physiological information from the retcam image is a challenging and meaningful task .
+combining the imaging data will further improve the patient query result .
+acknowledgments this study is supported by the national natural science foundation of china ( 71602044 ) , humanities and social sciences foundation of ministry of education of china ( 15yjc630106 ) , natural science foundation of zhejiang province of china ( lq16g020006 ) , and shenzhen science and technology innovation committee , prc ( 201602293000443 , jcy20140414114853651 ) .
+this study is also supported by the research center of information technology and economic and social development , zhejiang province , china .
+conflicts of interest the authors declare that there is no conflict of interest regarding the publication of this paper .
+1 arvanitis t. n. kuchinke w. transform query workbench journal of clinical bioinformatics 2015 5 1 , article s16 1 2 25767694 2 ethier j .
+- f. dameron o. curcin v. a unified structural / terminological interoperability framework based on lexevs : application to transform journal of the american medical informatics association 2013 20 5 986 994 23571850 3 calinescu r. harris s. gibbons j. davies j. cross - trial query system for cancer clinical trials innovations and advanced techniques in computer and information sciences and engineering 2007 netherlands springer 4 penberthy l. brown r. puma f. dahman b. automated matching software for clinical trials eligibility : measuring efficiency and flexibility contemporary clinical trials 2010 31 3 207 217 10.1016 / j.cct.2010.03.005 2 - s2.0 - 77950867408 20230913 5 cohen e. belkora j. tyler j. adoption , acceptability , and accuracy of an online clinical trial matching website for breast cancer journal of medical internet research 2012 14 4 , article e97 10.2196 / jmir.1855 2 - s2.0 - 84871694777 22784878 6 wagholikar a. nguyen a. fung m. a method for matching patients to advanced prostate cancer clinical trials electronic journal of health informatics 2014 8 1 , article e6 7 patel c. o. cimino j. j. semantic query generation from eligibility criteria in clinical trials american medical informatics association annual symposium proceedings2007 p .
+1070 8 kraus s. enders m. prokosch h .
+- u. castellanos i. lenz r. sedlmayr m. accessing complex patient data from arden syntax medical logic modules artificial intelligence in medicine 2015 in press 10.1016 / j.artmed.2015.09.009 2 - s2.0 - 84949651809 26603750 figure 1 comparison of the patient query paradigms used in clinical trial recruitment ( demonstrated in the case of relational database ) .
+paradigm a depends on clinical engineers or dba to translate clinical researchers' natural language representation of recruitment criteria into database - specific query language , for example , sql .
+paradigm b uses sde tools to author formally represented criteria based on a sharable model .
+the criteria are then translated to sql by the underlying mapping between the sharable model and individual database .
+paradigm c uses sde to author recruitment criteria in the form of the production rule , which is then translated into linq syntax .
+linq to sql conversion is naturally supported by orm - like technologies .
+dba = database administrator ; sde = structured data entry ; dsl = domain - specific language ; linq = language - integrated query ; sql = structured query language ; orm = object - relational mapping .
+figure 2 sde for authoring ct recruitment criteria .
+the left panel is a list of data fields that can be used as rule variables in the search patterns .
+these data fields come from the database schema of the central data repository .
+the right panel is a graphical rule editor .
+it supports conditional predicates ( composed of rule variables and comparison operators , e.g. , [ birthweight ] <= 1.5 ) , logical operators ( and , or , and not ) , and parentheses ( specify precedence ) .
+for each rule variable , the available comparison operators are strictly confined based on its data type .
+if the variable is numeric or date type , allowed comparison operators will be ">= , <= , > , < , = , !=" .
+if the variable is string type , the allowed comparison operator will be "=," and the rhs ( right - hand side ) constant can be a string literal with wild cards ("%") .
+the sequence of rule components can be adjusted by drag and drop .
+furthermore , the graphical editor can generate a rule expression into the textual editor .
+the textual editor also allows the user to directly edit rule expression with autocomplete ( intellisense ) utilities .
+figure 3 example of converting production rule to native database query .
+( 1 ) first , the production rule is translated to an intermediate dsl , such as linq .
+( 2 ) then , the linq dsl is translated to native database query automated by the orm module .
+table 1 language primitives of the production rule dsl .
+primitives type description && logical operator logical and || logical operator logical or ! logical operator logical not > comparison operator greater than >= comparison operator greater than or equal < comparison operator less than <= comparison operator less than or equal == comparison operator equal != comparison operator not equal ( operator precedence left parenthesis ) operator precedence right parenthesis [ variable identifier text between "[" and "]" is interpreted as a variable name ] variable identifier boolean data type for example , true / false numeric data type for example , 1.0 date data type for example , " 2016 - 12 - 25 " string data type for example , " stage 3 rop in zone i " % wild card wild card for string comparison table 2 query performance result of the computer - aided ct recruitment system .
+ct recruitment rules in different complexity rule description rule validation dsl translation sql query client processing total time [ birthweight ] <= 1.0 && [ gestationalageweek ] < 29 find patients whose birth weight <= 1 kg and gestational age < 29 weeks < 1 ms < 1 ms 151 ms 285 ms 436 ms [ birthweight ] <= 1.5 && [ gestationalageweek ] <= 30 && [ birthday ] >= 2014 - 01 - 01 && ([ mostseverediagnosisod ] == % retin % || [ mostseverediagnosisos ] == % retin % ) find patients born after 2014 and whose birth weight <= 1.5 kg and gestational age <= 30 weeks and who have retina - related diseases < 1 ms < 1 ms 157 ms 289 ms 446 ms [ birthweight ] <= 1.5 && [ gestationalageweek ]<= 30 && [ birthday ] >= 2014 - 01 - 01 && ( [ numberoffetus ] >= 2 || [ homozygotic ] == true || [ motherage ] >= 35 || [ oxygenmethod ] == % oxygen % || [ systemicdiseasehistory ] == % apnea % || ( [ pregnancystatus ] == % htn % || [ pregnancystatus ] == % dm % || [ pregnancystatus ] == % pih %) || [ pregnancymedication ] == % corticosteroids % || ( [ mostseverediagnosisod ] == % rop % || [ mostseverediagnosisos ] == % rop % || [ mostseverediagnosisod ] == % retin % || [ mostseverediagnosisos ] == % retin % ) || ( [ familydiseasehistory ] == % retin % || [ familydiseasehistory ] == % fundus %) ) find patients born after 2014 and whose birth weight <= 1.5 kg and gestational age <= 30 weeks and who meet one of the following conditions : homozygotic multiple birth , mother age >= 35 , oxygen therapy history , osas , having at least one of htn , dm , or pih during pregnancy , using corticosteroids during pregnancy , having retina - related diseases , or having family disease history of retina or fundus - related diseases 1 ms < 1 ms 159 ms 283 ms 443 ms the results are averaged on 10 tests .
+detailed result can be downloaded from http :// ropd.brahma.pub / pages / 20170130.xls .

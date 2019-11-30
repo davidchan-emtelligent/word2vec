@@ -1,0 +1,448 @@
+sensors ( basel ) sensors ( basel ) sensors sensors ( basel , switzerland ) 1424 - 8220 mdpi 29562684 5876672 10.3390 / s18030909 sensors - 18 - 00909 article intrinsic sensing and evolving internal model control of compact elastic module for a lower extremity exoskeleton wang likun 12 du zhijiang 1 dong wei 1 * shen yi 2 zhao guangyu 3 1 state key laboratory of robotics and system , harbin institute of technology , harbin 150080 , china ; likunwang @ hit.edu.cn ( l.w. ) ; duzj01 @ hit.edu.cn ( z.d . )
+2 school of astronautics , harbin institute of technology , harbin 150080 , china ; shen @ hit.edu.cn 3 weapon equipment research institute , china ordnance industries group , beijing 102202 , china ; guangyuzhao1980 @ gmail.com * correspondence : dongwei @ hit.edu.cn ; tel. : + 86 - 0451 - 8641 - 8441 - 18 19 3 2018 3 2018 18 3 909 15 1 2018 06 3 2018 ( c ) 2018 by the authors .
+2018 licensee mdpi , basel , switzerland .
+this article is an open access article distributed under the terms and conditions of the creative commons attribution ( cc by ) license ( http :// creativecommons.org / licenses / by / 4.0 /) .
+to achieve strength augmentation , endurance enhancement , and human assistance in a functional autonomous exoskeleton , control precision , back drivability , low output impedance , and mechanical compactness are desired .
+in our previous work , two elastic modules were designed for human - robot interaction sensing and compliant control , respectively .
+according to the intrinsic sensing properties of the elastic module , in this paper , only one compact elastic module is applied to realize both purposes .
+thus , the corresponding control strategy is required and evolving internal model control is proposed to address this issue .
+moreover , the input signal to the controller is derived from the deflection of the compact elastic module .
+the human - robot interaction is considered as the disturbance which is approximated by the output error between the exoskeleton control plant and evolving forward learning model .
+finally , to verify our proposed control scheme , several experiments are conducted with our robotic exoskeleton system .
+the experiment shows a satisfying result and promising application feasibility .
+series elastic module human - robot interaction evolving internal model control distributed gaussian process force control exoskeleton 1 .
+introduction in the past two decades , several types of prostheses , orthoses , and exoskeletons have been developed to meet the demand for human - limb assistance [ 1,2,3 ] , interface of virtual reality [ 4,5 ] , and strength augmentation [ 6 ] owing to dramatic progress in computing , sensing , as well as control .
+thus , various studies have been devoted to developing novel compact mechanical structures and corresponding control methodologies .
+to follow the human intention efficiently ( i.e. , discrete or rhythmic movements ) , the sensing system should provide full information for the exoskeleton controller .
+a feasible design of the hybrid assistive limb exoskeleton [ 7 ] focuses on the electromyographical ( emg ) signals .
+besides , the human intention is collected by applying a pattern recognition technique .
+however , the main limitation is that the emg signals suffer heavily from unwanted noise and overlap of the spectrum with other signals .
+an alternative is based on the physical interaction sensor system , which aims directly onto the mapping between the human - robot interaction ( hri ) and the system state variables .
+this interaction mainly depends on the impedance delivered from the pilot to the exoskeleton and vice versa [ 8,9 ] .
+therefore , an impedance interaction model and corresponding force control methodology are desired [ 10,11 ] .
+moreover , an open - loop impedance controller is designed in [ 12 ] for a specific task without feedback derived from the force sensors .
+an improvement was made in [ 13 ] , which takes the feedback term into consideration .
+nevertheless , the control system could hardly tell apart the hri and the system disturbance .
+thus , there are still substantial uncertainties with respect to model error .
+for rehabilitation therapy dealing with the interaction force and a delicate haptic interface , a more accurate impedance dynamic model is required [ 14 ] .
+thus , several methods of the self - tuning impedance variables are presented in [ 15 ] to fulfill the requirement .
+in addition , a series elastic module has been designed to provide high - fidelity hri .
+however , owing to the stochastic human - exoskeleton coupling model , the uncertainties of interaction cannot be avoided .
+apart from the identification process of the interaction model , disturbance observer is a typical technique trick for coping with the dynamic uncertainties , as detailed in [ 16 ] .
+accordingly , the interaction uncertainty is compensated by the observation from the feedback loop as well as disturbance observer [ 17 ] .
+nevertheless , a critical limitation of such a controller is that the control performance highly relies on the prior knowledge of the control plant .
+besides , in order to obtain an approximation of the interaction torque between the exoskeleton and the user , an independent - joint - based disturbance observer in combination with gravity compensation and friction cancellation is proposed in [ 18 ] .
+nevertheless , the independent joint - based implementation includes coupled multi - degrees of freedom ( dof ) dynamics effects .
+to enhance control performance and system stability in the presence of model uncertainties , kim and bae propose a novel time - delay robust control algorithm in [ 19 ] .
+thus , derived from the time - delay design conception , the model uncertainty and the hri disturbance are compensated according to previous observations .
+thus , the desired performance can be maintained since the disturbance and the time - delay problem are solved .
+however , the parameters of the time - delay term should also be identified , and the corresponding identification process was not well addressed .
+an innovation made in [ 20 ] is that the approach takes the human model into consideration .
+in existing passivity - based algorithms , the human model is simplified as a passive system .
+however , the control performance cannot be guaranteed , owing to the simple human coupling model .
+in [ 20 ] , the human model is defined as a second - order dynamic system whose parameters are updated with an adaptive approach .
+although the control performance is well - defined , it only works when the system can be given as a second - order environment .
+another example of the force control of the series elastic actuator ( sea ) takes the effect of load motion compensation into account and includes the excellent work in [ 21 ] .
+moreover , a force control with acceleration feedback of series elastic actuators is introduced in [ 22 ] .
+although this method exhibits higher performance accuracy and robustness and is easy to implement , the feasible application is only based on the assumption that the acceleration can be computed analytically or numerically .
+in order to provide relatively low output impedance across the entire frequency spectrum , a novel cable - driven actuation for the lower extremity exoskeleton is designed in [ 23 ] .
+although the performance is sufficient , the output - impedance variations can still be achieved by several closed - loop interaction control methodologies [ 24 ] .
+moreover , also driven by the flexible bowden cable transmission , two kinds of series elastic actuators ( i.e. , linear compression spring and helical torsion spring ) are presented in [ 25,26 ] for small - scale exoskeleton application ; indeed , the linear springs make the mechanical system more bulky over the finger .
+therefore , considering the above limitations , a novel compact elastic module for lower extremity exoskeleton and its corresponding control methodology - - so - called evolving internal model control ( eimc ) - - are designed and proposed in this paper .
+based on our previous work [ 27 ] , the elastic module consists of two parts ( i.e. , the distal module for compliant control and the proximal module for hri detection ) .
+the crucial drawback of our previous work is that the pilot feels uncomfortable with the proximal elastic module and the mechanical structure is bulky .
+in terms of the excellent work in [ 28 ] , a novel high - power series elastic actuator has been proposed .
+however , the work is mainly designed for rehabilitation purposes .
+moreover , the experiments are only tested on a hardware platform .
+the assistance performance with a human subject is not presented .
+in this paper , we only apply the distal module to achieve both tasks , and the control concept is given in figure 1 .
+for enhancing the robustness of the control system , a distributed online learning forward model is introduced .
+consequently , the hri can be seen as the disturbance to the control system , and should be compensated .
+a crucial feature of our control strategy is that the model uncertainties are addressed by the online learning model and the hri is approximated by the position error between the output of the forward model and the exoskeleton .
+however , in most control scenarios , the measured noise , the model uncertainties , and the hri are all considered as the system disturbance , and cannot be distinguished .
+to improve readability , the main contribution is presented as follows : ( 1 ) based on the intrinsic sensing properties , a novel compact elastic module is designed to provide the input signal for the controller .
+moreover , the compact elastic module is also utilized for the compliant actuation .
+( 2 ) to improvement the control performance , a novel control scheme - - so - called evolving internal model control - - is proposed in this paper .
+the control scheme aims to compensate the system disturbance and model uncertainties by the difference between the exoskeleton control plant and the forward learning model .
+( 3 ) in order to enhance the system robustness , distributed online model learning is introduced in this paper .
+additionally , the main issue of the computation expense is addressed with the distributed learning framework , and the hyper - parameters for each gaussian process are updated with the markov chain monte carlo ( mcmc ) algorithm .
+( 4 ) finally , to demonstrate our control scheme , the model learning procedure as well as the system properties are tested on our exoskeleton robotic system with several experiments .
+the remainder of the paper is organized as follows : after the introduction , section 2 is devoted to discussing the intrinsic sensing and the mechanical design of the compact elastic module in light of the biomechanical inspiration .
+in section 3 , the main routine of the eimc scheme is outlined , along with the discussion of the distributed evolving model learning .
+the implementation of the experiments and the comparison of the control methods are presented in section 4 .
+finally , section 5 concludes with a summary .
+2. compact elastic module in few exoskeleton design scenarios , the mechanical structure is designed as a rigid body robotic system and the biomechanical aspect may not been well considered .
+consequently , the wearer may feel uncomfortable since the natural movement is constrained .
+in this section , we first discuss the motion range and actuation from the point view of the biomechanical inspiration .
+then , the design of a compact elastic module is introduced , and the corresponding sensing properties are carefully explained .
+2.1. from the biomechanical inspiration human biomechanics should be taken into consideration when designing an exoskeleton robot , " since human legs have inherent damping as well as stiffness properties " [ 29 ] .
+in almost all daily human life , the leg joints can be simplified as damped spring and mass - - especially for sitting , standing up and walking .
+the viscous damping is of great importance in the functioning of movement primitives .
+such a property plays a significant role in shock absorbing as well as maintaining stability .
+towards the aim of forming a mechanical scheme of an exoskeleton , all the design layouts almost fall into three classical types ; i.e. , anthropomorphic , non - anthropomorphic , and pseudo - anthropomorphic .
+an anthropomorphic scheme seeks to match all the human body physical properties precisely ( i.e. , limb length , joint range , and misalignment ) .
+nevertheless , in practice , scarcely a perfect anthropomorphic system can be designed regarding critical requirements ranging from exact end - effector matching as well as joint misalignment .
+besides , although non - anthropomorphic design concepts are widely used in many scenarios , it is quite difficult to fulfill all the possible maneuvers ( deep squats and turning corners ) for ankle joints .
+therefore , we consider the above limits and design our exoskeleton based on pseudo - anthropomorphic architecture .
+this means that the developed mechanical scheme is kinematically similar to the human biomechanics ; i.e. , three dofs at both ankle and hip joints , one dof for the knee joint .
+moreover , at the very least , the range of each joint should cover the range of human locomotion and less than the maximum range of human motion for safety concerns .
+thus , the whole range of every joint is given in table 1 .
+to fulfill the requirement of normal human walking [ 30,31 ] assistance , the exoskeleton robotic system should provide a large range of torques , and the selection of the proper electric motors should be well considered since the maximum speed and torque are limited ( presented in figure 2 ) .
+in our situation , since the maximum continuous speed and torque of the selected motor ( re40 , maxon motor company , sachseln , switzerland ) [ 32 ] are 8200 rpm and 0.181 nm , the corresponding parameters should be designed in proper scope .
+thus , a spur gearhead ( 26:1 ) and a pair of bevel gears ( 4:1 ) ( given in figure 3 ) are applied to adjust the speed and torque to 78.8 rpm and 18.8 nm , separately .
+the maximum angular speed is near 60 rpm for the strength augmentation , and the exoskeleton should be capable of tracking the human primitives in real - time .
+therefore , the maximum driven torque ( 268 nm ) is large enough for the exoskeleton actuation plus the stall torque ( 249 nm ) .
+2.2 .
+designing and sensing of a compact elastic module in our previous work [ 27 ] , two elastic modules were applied for compliant control and human intention recognition , separately .
+in this paper , we only use one elastic module and combine the intrinsic sensing property of the elastic module and the compliant actuation to improve the compactness of mechanical design , presented in figure 4a .
+the deflection of the elastic module is measured through the right encoder , while the incremental joint position is obtained by the left encoder .
+consequently , the input to the controller is interpreted as the deflection of the elastic module .
+moreover , the hri force is compensated by our proposed eimc and will be carefully explained in the next section .
+since the estimation of human motion recognition highly depends on the accuracy and stability of the physical hri , the elastomer is of great significance in the sensor design .
+the common options of topology structures are symmetrical and centrosymmetric .
+the main drawbacks of the symmetrical structures are higher processing costs and less optimized parameters .
+based on the analysis in [ 33 ] , the architecture of spiral and double helix are usually neglected .
+additionally , the linearity and the stiffness cannot be guaranteed , owing to the backlash .
+therefore , we design a centrosymmetric structure elastic module , as shown in figure 4b. with the parallelogram - like deflection between the inner circle and outer circle , the human motion is measured by the deflection of the elastic module through the encoder .
+moreover , the designed parameters are given in table 2 .
+a calibration procedure is required for sensing in a robotic system , and a calibration platform was designed as presented in figure 4c .
+the body of the elastic module is grounded on the platform , and the deflection is measured with the encoder mounted on the outer ring .
+additionally , the external torque is generated by the force - bearing bar .
+the measurement signal is obtained from a programmable multi - axis controller ( pmac , delta , chatsworth , ca , usa ) .
+during the calibration experiment , the loading cell straining on the elastic module ranges from 100 g to 2.5 kg with 50 g increments .
+the results given in figure 4d show that the stiffness is ke = 60.2 nm / rad .
+compared with simulation , the calculation error is 4.5 % .
+moreover , the resolution 0.1 nm is guaranteed by the 12 - bit resolution magnetic encoder .
+3. evolving internal model control the internal model control [ 34,35 ] is one of the standard applied model - based techniques for nonlinear control systems .
+however , for lower extremity exoskeleton systems , the dynamic model is not easy to obtain .
+although several black - box modeling methods [ 36,37 ] have been combined with internal model control for dynamic model identification , the barriers are mainly associated with the curse of dimensionality .
+in this section , we briefly introduce the essential properties of internal model control and carefully address the modeling issue with our proposed online learning algorithm .
+3.1 .
+internal model control with gaussian process for realizing ideal motor control of an exoskeleton which interacts with a pilot , the joint friction , hri , and inertia should be compensated .
+compared with the internal model control , the primary limits of the classical control theory fail to explicitly model the dynamic system according to a classical feedback loop .
+thus , to enhance the control performance , internal model control is employed in this paper .
+in [ 38 ] , the forward model is learned with a full gaussian process .
+the prediction of the gaussian process provides mean as well as variance .
+this variance can be seen as the level of confidence of the prediction , which is a crucial advantage compared with neural network or fuzzy models .
+note also that the variance is explicitly applied when the data - stream subset should be updated ( remove data pair or add data pair ) .
+moreover , owing to the gaussian process theory , each time step prediction is approximated as a gaussian process , which is determined by the mean and the variance .
+as shown in figure 5 , the reference input to the controller is related to the desired position .
+the motor command generated by the controller is sent to the control plant and a forward model .
+thus , compared with the output from the control plant , disturbance from the environment may cause differences between the predicted positions and the actual system states .
+the designed filter balances the robustness to the model uncertainties and the desired closed - loop behavior of the control system .
+compared with the other state - of - the - art control algorithms , the crucial advantages consist of the following properties .
+property 1 ( dual stability criterion ) .
+if the model is accurate , the stability of both plant and controller is sufficient for overall system stability .
+property 2 ( perfect controller ) .
+if the controller can be achieved as the inverse of the model , the perfect controller can be obtained .
+since the exoskeleton is a typical robotic system with high coupling and inherent nonlinearity , we apply adaptive computed torque control to address this issue .
+thus , without loss of generality , the driven torque is given as : ( 1 ) tau = h ^( theta )( theta d + kde. + kpe )+ c ^( theta,theta. ) theta. + g ^( theta ) , where h ^ , c ^ , and g ^ denote the estimations of the inertial matrix , the centrifugal and coriolis term , and the gravitational matrix , respectively .
+considering the real exoskeleton dynamic model , we have ( 2 ) h ( theta ) theta + c ( theta,theta. ) theta. + g ( theta )= h ^( theta )( theta d + kde. + kpe )+ c ^( theta,theta. ) theta. + g ^( theta ) , where h , c , and g denote the inertial matrix , the centrifugal and coriolis term , and the gravitational matrix , respectively .
+in light of the linear connection of the inertial parameters , we have ( 3 ) h ^( theta )( e + kde. + kpe )= h ~( theta ) theta + c ~( theta,theta. ) theta. + g ~( theta ) ( 4 ) = y ( theta,theta. , theta ) p , with h ~= h - h ^ , c ~= c - c ^ , and g ~= g - g ^ .
+note that only p includes all the inertial parameters .
+to demonstrate the stability , we transform the equation into the following form : ( 5 ) x. = 0i - kp - kdx + 0 - iphip = ax + bp , with x =[ et,e.t ] t and phi = h ~ - 1y .
+therefore , the control system is stable , since both kp and kd are defined as positive definite matrix .
+moreover , p is evolved according to p. = gamma - 1phitbtrx , where gamma is also denoted as a positive definite matrix .
+besides , the following lyapunov equation should be satisfied and r is the only solution : ( 6 ) atr + ra = - q. since the control system is stable , the first property is easily satisfied .
+regarding the second property , the perfect controller which can be designed as the inverse of the dynamic model is quite difficult to obtain , owing to hri disturbance and model uncertainties .
+however , if the accurate model can be achieved , the disturbance can be compensated to the next time step control input .
+therefore , the precision of the robotic exoskeleton system can be enhanced .
+3.2 .
+offline distributed learning of forward model although the gaussian process is widely applied in many robotics programs , the computation expense is a strong barrier to the implementation of online model learning .
+the distributed forward model learning proposed in this paper aims to lower the computational burden by explicitly applying several subsets of the training data .
+in the past five years , the sparse gaussian process has been widely used in spatiotemporal modeling [ 39 ] as well as robotics reinforcement learning [ 40 ] .
+however , it is inconceivable to use sparse approximations with a data set size of n =~ o ( 107 ) [ 41 ] .
+to further reduce computation expense , we employ distributed computations as an alternative method .
+in [ 41 ] , the application of the distributed gaussian process for deterministic test point has been validated .
+in this paper , we extend for a more complicated task ( i.e. , the distributed gaussian process for test point with a distribution ) .
+" a gaussian process is a collection of random variables , any finite number of which have a joint gaussian distribution " [ 42 ] .
+consider a regression problem y = f ( x )+ epsiloninr , where xinrd .
+the likelihood p ( y | f ( x ))= n ( f ( x ) , sigmaepsilon2 ) explains for the i.i.d. measurement noise epsiloninn ( 0,sigmaepsilon2 ) .
+the states of the system are joint position q and angular velocities q. .
+moreover , the control signal u < 40 nm is constrained for safety concerns and selected with a random value for training .
+thus , the forward model is implemented as a gaussian regression , where the training inputs are defined as tuples xi ( t ) = ( qt , q.t , ut ) and differences yi ( t ) = deltaqt = qt + 1 - qt as training target , with i = 1 ,... , t. throughout this paper , the squared exponential kernel k with automatic relevance determination is given as ( 7 ) k ( xi ( t ),( xj ( t )))= alpha2exp ( - 12 ( xi ( t ) - xj ( t )) tlambda - 1 ( xi ( t ) - xj ( t ))) , where theta ={ lambda,alpha2 } ( length - scales vector lambda , signal variance alpha2 ) .
+under the distributed framework , we assume that the m gaussian processes ( gps ) are independent .
+thus , the marginal likelihood p ( y | x,theta ) for a full gp training set can be decomposed into the product of m individual parts ( 8 ) p ( y | x,theta )= productk = 1mpk ( y ( k )| x ( k ) , theta ) , where each term pk is characterized by the kth gp. in addition , we share a set of hyper - parameters theta for all the k gps .
+to optimize the hyper - parameter theta , a common method is maximized with the evidence maximization .
+however , in this paper , we employ more efficient method ( i.e. , expectation maximization with monte carlo sampling ) .
+additionally , the expectation step aims to compute the posterior distribution of the states q ( x )= p ( x ( k )| y ( k ) , theta ) .
+since the posterior distribution is not gp and is difficult to compute analytically , we draw several samples from the posterior distribution according to monte carlo sampling .
+consequently , the true distribution which is not a gp is approximated by a gp distribution .
+thus , the marginal likelihood can be given by monte carlo integration .
+for the maximization step , the hyper - parameters are obtained from maximizing the expected likelihood eq [ p ( x ( k )| y ( k ) , theta )] with stochastic conjugate gradient .
+the main routine is given in algorithm 1 .
+therefore , the learning procedure is implemented with 10 multiprogramming ( gp c ++ library [ 43 ]) under a distributed framework .
+note that the data is collected with proportional derivative ( pd ) control on the above - described system , and each data volume contains 1000 data pairs .
+as can be seen in figure 6a , the learning procedure requires about 30 - 40 trials each gp. since the evolution function is initialized with a random condition , the first step penalty may be different .
+moreover , during the training , the graphic interpretation of monte carlo sampling is given in figure 7 .
+consequently , with 20 samples , the distribution can be approximated by a gp distribution .
+in order to verify the distributed learning forward model , the 600 unused data pairs are tested with the model , given in figure 6 .
+in addition , as can be seen in the figure 6 , the hip joint model propagates the uncertain input ( with system noise ) to a next - step output joint position with nearly 0.01 rad in the learning region of interest .
+algorithm 1 : calculate hyper - parameters value with monte carlo expectation maximization input : training data x ( k ) , y ( k ) , where kin1 ,... , m ; output : hyper - parameters theta ; to combine the m gps to obtain a whole prediction , we compare four fusion algorithms ; i.e. , product - of - gp - experts ( poe ) [ 44 ] , generalized poe ( gpoe ) [ 45 ] , the bayesian committee machine ( bcm ) [ 46 ] , and the robust bayesian committee machine ( rbcm ) [ 41 ] .
+to choose a fusion method , we tested one dimension problem [ 47 ] with the four algorithms .
+as shown in figure 8 and table 3 , compared to the full gp prediction ( negative log - likelihood ( nll ) : - 3.12 ) , both poe ( nll : - 3.22 ) and bcm ( nll : - 3.25 ) overestimate the variance in the region of interest and result in overconfident precision .
+although a more robust solution is desired , the predictive result of the rbcm ( nll : - 2.54 ) is too conservative .
+on the contrary , the gpoe ( nll : - 2.81 ) provide a more reasonable prediction mean and variance .
+therefore , considering the above analysis , the gpoe is applied in a distributed inference framework as shown in algorithm 2 .
+moreover , propagating through a nonlinear system , the output is not a gp model .
+thus , the output distribution can be seen as a gaussian mixture and evaluated by monte carlo approach .
+algorithm 2 : inference with markov chain monte carlo input : training data d = x ( k ) , y ( k ) , where kin1 ,... , m , hyper - parameters theta ; output : the inference mean mu * and variance sigma * ; 3.3 .
+online distributed evolving of forward model in this subsection , we seek to present an online model learning algorithm .
+such an algorithm is desired since the training data collected under the implementation of another control scheme is not entirely precise or when the dynamics model is time - varying .
+in addition , although the reinforcement learning is applied to several robotic cases [ 48,49 ] , leaning an exoskeleton dynamic model with human interaction is not recommended due to safety concerns .
+for online learning implementation , the critical barrier is computation expense .
+based on our distributed prediction scheme in section 3.2 and inspired by the interesting work in [ 50 ] , we propose a distributed online evolving model learning methodology , and its main routine is given in algorithm 3 .
+algorithm 3 : distributed online model evolving input : observation ( z * , y ( z *)) , predictive distribution n ( mu ( z *) , sigma2 ( z *)) ; output : updated hyper - parameters thetanew ; the general concept of the distributed evolving model can be explained in the following steps : first , for m initial data sets with trained hyper - parameters , the new observations z * , such as sensor data derived from encoder , inertial measurement unit ( imu ) , drivers , and deflection of compact module are added to difference m sets ii for next step evaluation ; second , calculate each j informative gain using igains [ j ] data sets iij with data j , where j = 1 ,... , n ; according to the informative gains , find the observation with the worst information gains and remove it to form a new data set iinew ; finally , the new hyper - parameter iinew should be recalculated in terms of ii as well as theta , and the updated covariance k is obtained .
+the procedure is repeated for every incoming loop until a terminate command is received or there is no more available data .
+not akin to the algorithm in [ 50 ] , the judge condition of adding a new observation only depends on the prediction variance .
+to be more specific , if the prediction variance is higher than the threshold value , it can be seen that the model is not confident , even though the difference between the predictive mean and its threshold is small enough .
+moreover , the hyper - parameters are calculated by the sum of the marginal likelihood of the m gps according to algorithm 1 .
+therefore , the whole control scheme as shown in figure 9 can be introduced as follows .
+( 1 ) first , the desired position thetamdesired can be obtained from the deflection ei of the elastic module .
+if the pilot keeps a steady pose , there is no incremental difference between the motor position and the human joint angle .
+therefore , the desired position thetamdesired is zero .
+( 2 ) second , the input to the adaptive controller consists of the desired position thetamdesired as well as the error position compensation deltathetacom from the feedback loop .
+( 3 ) then , the same torque command is sent to the distributed online model and the exoskeleton system with the signal amplification by the driver .
+moreover , the m new observation pairs are evaluated with algorithm 3 and the additional data will be added to the new m subsets if the condition is satisfied .
+( 4 ) finally , based on the internal model control framework , the error position deltathetacom is compensated through the feedback loop .
+besides , the low - pass filter is applied to enhance the robustness of the control system .
+online computation expense : the main issue of the gaussian process online learning algorithm is the computation cost .
+as summarized in table 4 , if n is defined as the data size , the training and prediction of the full gaussian process scale in o ( n3 ) and o ( n2 ) .
+this inherent weakness limits the practical application .
+in terms of the sparse gaussian process , the computation burden is lowered by implicitly or explicitly using a subset of the data ( q =~ n / 10 ) .
+nevertheless , it is impossible to apply gaussian process to a training set size of ( n >= o ( n7 )) .
+hence , to further improve the computation efficiency , " the distributed gaussian process can handle arbitrary large data sets " with sufficient hierarchical product - of - expert model [ 41 ] , which is used in our offline model learning .
+since we cannot capture all the possible scenarios , the distributed online model evolving is employed in this paper .
+thus , under the distributed framework , computing the inverse covariance of the incoming data stream for m subsets scales in o ( mp3 ) or o ( mp2 ) for covariance updating or only subset changing in light of [ 50 ] .
+concerning the inference , our proposed online algorithm scales in o ( mp2 ) .
+4. experiment although the control system for the compact elastic module is designed and explained in the previous part , it is crucial to verify the performance of several experiments .
+the capabilities of the control system ( e.g. , the control precision , disturbance rejection , and minimal impedance and back drivability with the human subject ) will be demonstrated in the following .
+4.1 .
+hardware configuration the following experiments are verified on our single - leg exoskeleton robotic platform , as shown in figure 10 .
+the platform is designed as an ergonomic system for strength augmentation as well as endurance enhancement .
+the motion range for each joint has been carefully explained in section 2 , along with the mechanical structure of actuation with the compact elastic module .
+for our situation , three kinds of voltage ( i.e. , 5 v , 12 v , and 24 v ) are desired .
+the overall control scheme is written in embedded pc , and the driven commands are sent to the electric motors through copley driver .
+moreover , the pmac ( programmable multi - axis controller , delta , chatsworth , ca , usa ) is utilized for motion planning and signal collection .
+4.2 .
+target tasks this experiment specifically targets three robot - aided tasks .
+4.2.1 .
+system properties since the additive part of the input to the controller is derived from the feedback control loop , a low - pass filter is desired to enhance the system robustness .
+therefore , the frequency scope of the designed filter should at least cover the range of bandwidth of the human motion .
+moreover , the filter should not be sensitive to the system noise in the high - frequency domain .
+consequently , the candidates of our filter have the following form : f ( s )= sumk = 0m ( taus ) k ( taus + 1 ) n [ 52,53 ] .
+in our case , the n and m are set to be 3 and 1 .
+moreover , the uncertainties delta are the difference of the exoskeleton plant between stance and swing phase [ 17 ] .
+the system bandwidth is a crucial parameter to evaluate the control performance of the system , since the frequency components of the human motion are up to 4 - 8 hz , as detailed in [ 54 ] .
+to respond to the control signal quickly , the bandwidth should at least cover the frequency components of the human motion .
+in this task , the experimental preparation is the same as detailed previously .
+both pd algorithm and our proposed method were tested on our exoskeleton system without a human subject .
+to evaluate the control precision , we conducted a simple experiment with specified position signals on the same exoskeleton system .
+the first - period signal was the zero pose command ; the knee joint of the exoskeleton was asked to keep a steady position to evaluate the control performance with existing static friction force and bias force .
+the second period was to control the exoskeleton with sinuous - like position command to test the control performance against the model uncertainties .
+the compared algorithm was also a classic pd control scheme .
+4.2.2 .
+algorithm comparison with human subject to verify the output impedance and back drivability of the control system with the compact elastic module , the sway experiment with a human subject ( subject a ) is presented in this task .
+the human subject was asked to sway his leg naturally in the experiment , as shown in figure 11 .
+note that the hri was made possible with the compliant cuff .
+the compared state - of - the - art algorithms are derived from [ 17,33 ] .
+the reason for choosing these two algorithms for comparison is because the experimental hardware is also a single - leg exoskeleton system with series elastic actuators and the algorithms are also based on the compensation of the human interaction , which is considered as the disturbance of the control system .
+however , the core idea of such algorithms is disturbance observer .
+since the control performance for the exoskeleton robot is difficult to verify , we follow the same evaluation tool ( i.e. , root - mean - square error ( rmse )) used in [ 17,33 ] to test the effectiveness of our proposed method .
+4.2.3 .
+experiment with different individuals although we aim to provide a control scheme for any human subject since the forward model is first learned offline and designed to be evolved online , the control performance should be verified with different human subjects .
+thus , the human subjects' information is briefly given in table 5 .
+similar to the comparison task , the human subjects were asked to naturally to sway their leg , and the system hardware was also the same as detailed above .
+4.3 .
+experimental results and discussion 4.3.1 .
+system properties results in terms of the enhancement of the closed - loop robustness , the filter was designed to eliminate high - frequency disturbance .
+the main issue for such a filter is the balance between the robustness against the disturbance and the disturbance rejection .
+if the frequency range of the filter is too extensive , the system noise poses a threat to the stability .
+if the frequency range of the filter is too narrow , the disturbance cannot be well compensated .
+the three candidate filters with the time constants 0.15 , 0.075 , and 0.030 are given in figure 12 .
+since the magnitude response of the filter should remain below and closed to the uncertainty 1 / delta .
+hence , the filter with the time constant 0.15 ( in solid black line ) was chosen .
+the experimental results as presented in figure 13a show that the system can generate the desired input up to nearly 11 hz , which for actuation with the compact elastic module is sufficient .
+however , the bandwidth of the pd controller is only 4 hz , and the control performance may be " conservative " .
+the rest information of our algorithm given in the nichols chart in figure 13b is the phase margin ( 89.99 deg ) , gain margin ( 100 db ) , and peak magnification ( 1.2 db ) .
+therefore , the open - loop control system is stable .
+in order to test the control precision , the experiment implemented in figure 14 compares the pd control method with our proposed algorithm .
+since the static friction effect and bias force exist all the time , they pose a threat to the control precision .
+as shown in figure 14a , the pd controller is strongly influenced by the friction effect or the measurement noise - - even if the input to the controller is zero position .
+however , the same situation is better with our proposed algorithm , owing to disturbance compensation and system error adjustment .
+moreover , a tracking error occurs almost at time 3.5 s with 4o in figure 14a , while at the same high jerk the error is less than 2o in figure 14b .
+consequently , the rsme of the pd control is 5.78 % , while the rmse of the proposed control scheme is 2.07 % .
+4.3.2 .
+results of the algorithm comparison with human subject since human locomotion is not always the same , the trajectory given in figure 15 may be slightly different .
+additionally , since our task is to follow the human motion in real - time , the exoskeleton tries to track the joint motion according to the deflection of the elastic module measured by the encoder .
+therefore , in both hip and knee trajectories , the error occurs mostly in the high jerk , as shown in figure 15a,b. to quantitatively verify the control precision , the rmse was computed for hip joint 3.26 % and knee joint 2.89 % , respectively .
+moreover , in order to actuate the exoskeleton effectively and interpret the human intention precisely , the resistive torque should be minimized .
+consequently , the human subject will feel more comfortable and natural during the experiment .
+thus , the desired torque and actual torque of both joints are given in figure 15c,d. additionally , the rmse for hip joint and knee joint were 4.36 % and 4.73 % , respectively .
+additionally , compared with the other algorithms , the rmses of the torque error of the knee joint were 5.5 % [ 17 ] and 9 % [ 33 ] , as given in table 6 .
+thus , our control scheme can provide more precise driven torque and may be more suitable for an exoskeleton application .
+4.3.3 .
+experimental results with different individuals the experimental results of different individuals are reported in figure 16 and figure 17 .
+since the forward model is learned for the exoskeleton dynamic model and evolved online , the control scheme should be efficient for any human subject .
+thus , we added three volunteers' ( subjects b , c , and d ) experimental results in figure 16 .
+comparing the eight figures of the different joint motion of different individuals ( i.e. , figure 16a,c,e,g,i,k and figure 15a,b ) , although the exoskeleton tracks various human trajectories derived from several human subjects , the control precision can be guaranteed .
+moreover , to verify the online efficiency of the proposed algorithm , the experimental results of the torque tracking performance are given in figure 16b,d,f,h,j,k and figure 15c,d. since the human subjects' trajectories are different , the driven torque for hip and knee joints is not the same .
+consequently , to demonstrate the control performance of rejecting the human disturbance for four human subjects , the rmse comparison of torque error is presented in figure 17 .
+the maximum of the rmse percentage was less than 5.32 for the knee joint , while the maximum of the rmse percentage was 4.69 .
+5. conclusions in applications related to exoskeletons driven with physical hri , the precision of the physical sensing is still a substantial barrier to enhancing the control performance .
+in this paper , an elastic module is proposed to improve the compactness of the mechanical structure .
+moreover , with its intrinsic sensing property , a corresponding control scheme - - so - called evolving internal model control - - is introduced .
+this scheme aims to improve the control precision with compensation from the difference between the exoskeleton and distributed forward model .
+additionally , in order to adjust the forward model in real - time , a distributed online evolving model is presented to address this issue and lower the computation expense. from the experimental results , our proposed control scheme can provide more extensive bandwidth and less tracking errors compared with the pd control algorithm .
+moreover , the rmse value of torque errors also indicates a lower output impedance .
+thus , the proposed compact mechanical structure and its control algorithm may provide a feasible solution for human - machine interaction applications .
+future work will focus on more complicated specific tasks , such as running , left weighting , and whole body assistance .
+acknowledgments part of this work received funding from the national science foundation of china under grant no .
+51521003. we gratefully acknowledge the constructive comments and suggestions of the reviewers .
+author contributions likun wang and yi shen conceived and designed the experiments ; likun wang , wei dong and zhijiang du performed the experiments ; likun wang analyzed the data ; guangyu zhao contributed experiment platform and devices ; likun wang and wei dong wrote the paper .
+conflicts of interest the authors declare no conflict of interest .
+references 1 .
+schabowsky c.n. godfrey s.b. holley r.j. lum p.s. development and pilot testing of hexorr : hand exoskeleton rehabilitation robot j. neuroeng. rehabil .
+2010 7 36 10.1186 / 1743 - 0003 - 7 - 36 20667083 2 .
+esquenazi a. talaty m. packel a. saulino m. the rewalk powered exoskeleton to restore ambulatory function to individuals with thoracic - level motor - complete spinal cord injury am. j. phys. med. rehabil .
+2012 91 911 921 10.1097 / phm.0b013e318269d9a3 23085703 3 .
+kolakowsky - hayner s.a. crew j. moran s. shah a. safety and feasibility of using the ekso ( tm ) bionic exoskeleton to aid ambulation after spinal cord injury j. spine 2013 4 003 10.4172 / 2165 - 7939.s4 - 003 4 .
+bouzit m. burdea g. popescu g. boian r. the rutgers master ii - new design force - feedback glove ieee / asme trans. mechatron .
+2002 7 256 263 10.1109 / tmech.2002.1011262 5 .
+nikolakis g. tzovaras d. moustakidis s. strintzis m.g. cybergrasp and phantom integration : enhanced haptic access for visually impaired users proceedings of the 9th conference speech and computerst .
+petersburg , russia20 - 22 september 2004 6 .
+kazerooni h. exoskeletons for human power augmentation proceedings of the ieee / rsj international conference on intelligent robots and systems ( iros 2005 ) edmonton , ab , canada2 - 6 august 2005 3459 3464 7 .
+cruciger o. schildhauer t.a. meindl r.c. tegenthoff m. schwenkreis p. citak m. aach m. impact of locomotion training with a neurologic controlled hybrid assistive limb ( hal ) exoskeleton on neuropathic pain and health related quality of life ( hrqol ) in chronic sci : a case study disabil. rehabil. assist. technol .
+2016 11 529 534 10.3109 / 17483107.2014.981875 25382234 8 .
+kiguchi k. hayashi y. an emg - based control for an upper - limb power - assist exoskeleton robot ieee trans. syst .
+man cybern .
+part b 2012 42 1064 1071 10.1109 / tsmcb.2012.2185843 22334026 9 .
+wang s. wang l. meijneke c. van asseldonk e. hoellinger t. cheron g. ivanenko y. la scaleia v. sylos - labini f. molinari m. design and control of the mindwalker exoskeleton ieee trans .
+neural syst. rehabil. eng .
+2015 23 277 286 10.1109 / tnsre.2014.2365697 25373109 10 .
+jimenez - fabian r. verlinden o. review of control algorithms for robotic ankle systems in lower - limb orthoses , prostheses , and exoskeletons med. eng. phys .
+2012 34 397 408 10.1016 / j.medengphy.2011.11.018 22177895 11 .
+bouteraa y. abdallah i.b. exoskeleton robots for upper - limb rehabilitation proceedings of the 13th international multi - conference on systems , signals & devices ( ssd ) leipzig , germany21 - 24 march 2016 1 6 12 .
+tsukahara a. hasegawa y. sankai y. gait support for complete spinal cord injury patient by synchronized leg - swing with hal proceedings of the ieee / rsj international conference on intelligent robots and systemssan francisco , ca , usa25 - 30 september 2011 1737 1742 13 .
+carignan c.r. cleary k.r. closed - loop force control for haptic simulation of virtual environments electron. j. haptics res .
+2000 1 2 14 .
+bae j. kong k. tomizuka m. gait phase - based control for a rotary series elastic actuator assisting the knee joint j. med. devices 2011 5 31010 10.1115 / 1.4004793 15 .
+bae j. tomizuka m. a gait rehabilitation strategy inspired by an iterative learning algorithm mechatronics 2012 22 213 221 10.1016 / j.mechatronics.2012.01.009 16 .
+vallery h. ekkelenkamp r. van der kooij h. buss m. passive and accurate torque control of series elastic actuators proceedings of the ieee / rsj international conference on intelligent robots and systems ( iros 2007 ) san diego , ca , usa29 october - 2 november 2007 3534 3538 17 .
+kong k. bae j. tomizuka m. control of rotary series elastic actuator for ideal force - mode actuation in human - robot interaction applications ieee / asme trans. mechatron .
+2009 14 105 118 10.1109 / tmech.2008.2004561 18 .
+ugurlu b. nishimura m. hyodo k. kawanishi m. narikiyo t. proof of concept for robot - aided upper limb rehabilitation using disturbance observers ieee trans. hum. mach. syst .
+2015 45 110 118 10.1109 / thms.2014.2362816 19 .
+kim s. bae j. force - mode control of rotary series elastic actuators in a lower extremity exoskeleton using model - inverse time delay control ( mitdc ) ieee / asme trans. mechatron .
+2017 22 1392 1400 10.1109 / tmech.2017.2687979 20 .
+calanca a. fiorini p. human - adaptive control of series elastic actuators robotica 2014 32 1301 1316 10.1017 / s0263574714001519 21 .
+calanca a. muradore r. fiorini p. impedance control of series elastic actuators : passivity and acceleration - based control mechatronics 2017 47 37 48 10.1016 / j.mechatronics.2017.08.010 22 .
+calanca a. fiorini p. a rationale for acceleration feedback in force control of series elastic actuators ieee trans. robot .
+2018 34 48 61 10.1109 / tro.2017.2765667 23 .
+veneman j. ekkelenkamp r. kruidhof r. van der helm f. van der kooij h. design of a series elastic - and bowden cable - based actuation system for use as torque - actuator in exoskeleton - type training proceedings of the 9th international conference on rehabilitation robotics ( icorr 2005 ) chicago , il , usa28 june - 1 july 2005 496 499 24 .
+zinn m. roth b. khatib o. salisbury j.k. a new actuation approach for human friendly robot design int. j. robot. res .
+2004 23 379 398 10.1177 / 0278364904042193 25 .
+agarwal p. fox j. yun y. o'malley m.k. deshpande a.d. an index finger exoskeleton with series elastic actuation for rehabilitation : design , control and performance characterization int. j. robot. res .
+2015 34 1747 1772 10.1177 / 0278364915598388 26 .
+agarwal p. deshpande a.d. series elastic actuators for small - scale robotic applications j. mech. robot .
+2017 9 31016 10.1115 / 1.4035987 27 .
+long y. du z.j. chen c.f. wang w.d. dong w. development of a lower extremity wearable exoskeleton with double compact elastic module : preliminary experiments mech. sci. 2017 8 249 258 10.5194 / ms - 8 - 249 - 2017 28 .
+accoto d. carpino g. sergi f. tagliamonte n.l. zollo l. guglielmelli e. design and characterization of a novel high - power series elastic actuator for a lower limb robotic orthosis int. j. adv. robot. syst .
+2013 10 359 10.5772 / 56927 29 .
+zhang l. xu d. makhsous m. lin f. stiffness and viscous damping of the human leg proceedings of the 24th annual meeting of the american society of biomechanicschicago , il , usa19 - 22 july 2000 30 .
+kirtley c. cga normative gait database 2006 available online : http :// guardian.curtin.edu.au / cga / data /( accessed on 7 march 2018 ) 31 .
+winter a. biomechanical data resources , gait data .
+international society of biomechanics 2006 available online : https :// isbweb.org / data /( accessed on 7 march 2018 ) 32 .
+motor maxon maxon motor company 2015 available online : https :// www.maxonmotor.com ( accessed on 7 march 2018 ) 33 .
+kong k. bae j. tomizuka m. a compact rotary series elastic actuator for human assistive systems ieee / asme trans. mechatron .
+2012 17 288 297 10.1109 / tmech.2010.2100046 34 .
+garcia c.e. morari m. internal model control .
+a unifying review and some new results ind. eng. chem .
+process des. dev .
+1982 21 308 323 10.1021 / i200017a016 35 .
+rivera d.e. morari m. skogestad s. internal model control : pid controller design ind. eng. chem .
+process des. dev .
+1986 25 252 265 10.1021 / i200032a041 36 .
+rivals i. personnaz l. nonlinear internal model control using neural networks : application to processes with delay and design issues ieee trans .
+neural netw .
+2000 11 80 90 10.1109 / 72.822512 18249741 37 .
+li s. gu h. fuzzy adaptive internal model control schemes for pmsm speed - regulation system ieee trans. ind. inform .
+2012 8 767 779 10.1109 / tii.2012.2205581 38 .
+gregorcic g. lightbody g. internal model control based on a gaussian process prior model proceedings of the american control conferencedenver , co , usa4 - 6 june 2003 volume 6 4981 4986 39 .
+luttinen j. ilin a. efficient gaussian process inference for short - scale spatio - temporal modeling proceedings of the fifteenth international conference on artificial intelligence and statisticsla palma , spain21 - 23 april 2012 741 750 40 .
+long y. du z.j. dong w. wang w.d. human gait trajectory learning using online gaussian process for assistive lower limb exoskeleton wearable sensors and robots springer singapore 2017 165 179 41 .
+deisenroth m.p. ng j.w. distributed gaussian processes proceedings of the 32nd international conference on machine learninglille , france6 - 11 july 2015 42 .
+rasmussen c.e. williams c.k. gaussian processes for machine learning mit press cambridge , ma , usa 2006 volume 1 43 .
+blum m. gaussian process library for machine learning 11th november 2012 version 0.1.4available online : https :// github.com / mblum / libgp ( accessed on 7 march 2018 ) 44 .
+ng j.w. deisenroth m.p. hierarchical mixture - of - experts model for large - scale gaussian process regression arxiv 2014 1412.3078 45 .
+cao y. fleet d.j. generalized product of experts for automatic and principled fusion of gaussian process predictions arxiv 2014 1410.7827 46 .
+tresp v. a bayesian committee machine neural comput .
+2000 12 2719 2741 10.1162 / 089976600300014908 11110133 47 .
+kitagawa g. monte carlo filter and smoother for non - gaussian nonlinear state space models j. comput. graph. stat .
+1996 5 1 25 48 .
+cui y. matsubara t. sugimoto k. pneumatic artificial muscle - driven robot control using local update reinforcement learning adv. robot .
+2017 31 397 412 10.1080 / 01691864.2016.1274680 49 .
+muelling k. boularias a. mohler b. peters j. learning strategies in table tennis using inverse reinforcement learning biol. cybern .
+2014 108 603 619 10.1007 / s00422 - 014 - 0599 - 1 24756167 50 .
+petelin d. kocijan j. control system with evolving gaussian process models proceedings of the ieee workshop on evolving and adaptive intelligent systems ( eais ) paris , france11 - 15 april 2011 178 184 51 .
+snelson e. ghahramani z. sparse gaussian processes using pseudo - inputs proceedings of the 18th international conference on neural information processing systemsvancouver , bc , canada5 - 8 december 2005 1257 1264 52 .
+chen w.h. disturbance observer based control for nonlinear systems ieee / asme trans. mechatron .
+2004 9 706 710 10.1109 / tmech.2004.839034 53 .
+chen w.h. ballance d.j. gawthrop p.j. o'reilly j. a nonlinear disturbance observer for robotic manipulators ieee trans. ind. electron .
+2000 47 932 938 10.1109 / 41.857974 54 .
+winter d.a. biomechanics and motor control of human movement john wiley & sons hoboken , nj , usa 2009 figure 1 abstract analogy between the human and the exoskeleton .
+the control system can be seen as a high - level neural system of the exoskeleton .
+according to the high - level control signal , the actuator can drive the exoskeleton mechanical structure .
+thus , to obtain an input to the controller , the human intention is interpreted from the physical human - machine interaction ( phmi ) between the pilot and the exoskeleton .
+figure 2 provement of electric motor selection .
+for electric actuation , the power of the selected electric motors should cover the range of the joint torque during normal human walking .
+for safety concerns and efficiency , we chose the re40 dc motor ( 150 w ) from the maxon motor company .
+( a ) motion range of the knee joint ; ( b ) motion range of the hip joint .
+figure 3 mechanism of joint power transmission .
+considering the scope of the joint torque and compactness of the mechanism , we chose the above scenario ( i.e. , electric motor with spur gearhead and bevel gears ) .
+( a ) electric motor re40 and spur gearhead ( 26:1 ) ; ( b ) bevel gears ( 4:1 ) .
+figure 4 ( a ) configuration of the compact elastic module ; 1 : shank segment , the torsional elastic module , 2 : encoder , 3 : encoder support , 4 : thigh segment , 5 : bevel gear pair , 6 : torsional elastic module , and 7 : encoder .
+( b ) front view of the torsional elastic module ; properties of the designed torsional elastic module are given in table 2 .
+( c ) the calibration platform ; 1 : bracket , 2 : encoder , 3 : force - bearing bar , 4 : torsional elastic module , 5 : position pin .
+( d ) calibration result of the elastic module ; experimental data is presented in the solid blue line , while the simulation data are given in the red dashed line .
+figure 5 a general representation of the internal model control .
+the design concept of the internal model control is to compensate for errors or make adjustments from the desired outputs .
+thus , two primary parts of the control algorithm are the forward model and feedback loop used to enhance the control performance .
+figure 6 learning procedure and cross - validation of the distributed forward model .
+( a ) learning procedure hyper - parameters of 10 gps ; ( b ) cross - validation of learned forward model .
+the efficient training process has been explained in the above figure .
+in addition , since the trust region of the trained model is about 0.57 deg , the precision for the practical experiment can be accepted .
+figure 7 graph interpretation of the monte carlo sampling .
+note that the true distribution is not a gp as given with a dashed blue line , and it is evaluated as a gp shown in the solid blue line with 20 samples .
+figure 8 comparison of four data fusion methods ( product - of - gp - experts ( poe ) , generalized poe ( gpoe ) , bayesian committee machine ( bcm ) , robust bayesian committee machine ( rbcm )) for the distributed forward model .
+in each subfigure , the confidence interval of the comparison algorithm is filled between two black lines .
+additionally , the full gp to be approximated is shown in the gray shaded area , representing 95 % of the confidence interval , and the ground truth is given in blue dashed line .
+we apply nll ( negative log - likelihood ) to evaluate the fusion performance presented in table 3 .
+( a ) poe ; ( b ) gpoe ; ( c ) bcm ; ( d ) rbcm .
+figure 9 general representation of the evolving internal model control .
+figure 10 exoskeleton robotics system .
+the whole control system consists of the embedded pc , programmable multi - axis controller ( pmac ) , copley actuators , power supplement , and required auxiliary facilities integrated into the control enclosure .
+figure 11 experiment with the human subject ( subject a ) during the swing phase of normal locomotion .
+( a ) heel rise ; ( b ) initial swing ; ( c ) middle swing ; ( d ) terminal swing ; ( e ) heel strike ; ( f ) full ground contact. with the compliant interaction between the user and exoskeleton , the human subject was asked to sway his left leg naturally .
+the human intention is recognized by the deflection of the elastic modules mounted on both hip and knee joints .
+figure 12 the design of the feedback - loop filter .
+since the filter is employed to enhance the closed - loop robustness , the frequency scope of the designed filter should cover the range of bandwidth of the human motion .
+moreover , the filter is supposed to remain below and closed to the uncertainties 1 / delta .
+figure 13 the bode diagram and the nichols chart of the control system .
+( a ) frequency response for different control scheme ; ( b ) nichols chart for different control schemes .
+for verifying the open - loop stability , the bode diagram and nichols chart are presented with the pd control algorithm and our proposed algorithm .
+although both algorithms are stable in the open - loop , the bandwidth of our proposed algorithm is more extensive and hence responds more quickly .
+in addition , the control system with the pd controller may lose information of the normal high - frequency motion .
+figure 14 comparison of the pd control method and our proposed algorithm with the same planning trajectory without human factor .
+figure 15 experiment with a human subject .
+( a ) knee joint tracking and corresponding tracking error ; ( b ) hip joint tracking and corresponding tracking error ; ( c ) desired torque and actual torque of knee joint ; ( d ) desired torque and actual torque of hip joint .
+figure 16 experiment with the other three human subjects during the swing phase of normal locomotion .
+the results of three human subjects ( b , c , d ) are presented in order from the first row to the third row .
+( a ) hip joint tracking and corresponding tracking error of human subject b ; ( b ) desired torque and actual torque of hip joint of human subject b ; ( c ) knee joint tracking and corresponding tracking error of human subject b ; ( d ) desired torque and actual torque of knee joint of human subject b ; ( e ) hip joint tracking and corresponding tracking error of human subject c ; ( f ) desired torque and actual torque of hip joint of human subject c ; ( g ) knee joint tracking and corresponding tracking error of human subject c ; ( h ) desired torque and actual torque of knee joint of human subject c ; ( i ) hip joint tracking and corresponding tracking error of human subject d ; ( j ) desired torque and actual torque of hip joint of human subject d ; ( k ) knee joint tracking and corresponding tracking error of human subject d ; ( l ) desired torque and actual torque of knee joint of human subject d. figure 17 rmse comparison of torque error for four human subjects .
+sensors - 18 - 00909 - t001 _ table 1 table 1 joints ranges of motion .
+joints dof scope hip flexion / extension - 45o - 90o adduction / abduction - 20o - 35o medial / lateral rotation - 35o - 35o knee flexion / extention 0o - 85o ankle plantarflexion / dorsiflextion - 30o - 25o pronation / external rotation - 25o - 15o inversion / eversion - 15o - 10o sensors - 18 - 00909 - t002 _ table 2 table 2 properties of the elastic module .
+parameters values stiffness 60.2 nm / rad diameter of outer circle 60 mm diameter of inner circle 8 mm maximum torsion torque 4 nm thickness 5 mm maximum deflection 0.087 rad resolution 0.1 nm sensors - 18 - 00909 - t003 _ table 3 table 3 nll comparison of four fusion methods with full gaussian process ( gp ) .
+methods full gp poe gpoe bcm rbcm nll - 3.12 - 3.22 - 2.81 - 3.25 - 2.54 sensors - 18 - 00909 - t004 _ table 4 table 4 comparison of computation cost .
+methods gp [ 42 ] sparse gp [ 51 ] distributed gp [ 41 ] proposed method training o ( n3 ) o ( nq3 ) o ( mp3 ) o ( mp3 ) or o ( mp2 ) prediction o ( n2 ) o ( nq2 ) o ( mp2 ) o ( mp2 ) sensors - 18 - 00909 - t005 _ table 5 table 5 human subjects .
+subject gender age ( years ) mass ( kg ) height ( m ) status a m 25 80 1.83 healthy b m 28 90 1.75 healthy c m 25 70 1.80 healthy d m 26 90 1.80 healthy sensors - 18 - 00909 - t006 _ table 6 table 6 rsme comparison of three algorithms .
+rsme control with disturbance observer [ 17 ] force control for compact rotary series elastic actuator [ 33 ] proposed control hip not mentioned not mentioned 4.36 % knee 9 % 5.5 % 4.73 %

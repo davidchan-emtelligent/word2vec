@@ -1,0 +1,494 @@
+methods ecol evol methods ecol evol 10.1111 /( issn ) 2041 - 210x mee3 methods in ecology and evolution 2041 - 210x john wiley and sons inc .
+hoboken 27110344 4832290 10.1111 / 2041 - 210x.12466 mee312466 standard paperpopulation genetics and evolution the effect of genetic structure on molecular dating and tests for temporal signal g. g. r. murray et al. murray gemma g. r. 1 wang fang 1 harrison ewan m .
+2 paterson gavin k .
+2 3 mather alison e .
+2 4 harris simon r .
+4 holmes mark a .
+2 rambaut andrew 5 welch john j .
+1 gilbert m .
+1 department of geneticsuniversity of cambridgedowning streetcambridge cb2 3ehuk 2 department of veterinary medicineuniversity of cambridgemadingley roadcambridge cb3 0esuk 3 school of biological , biomedical and environmental sciencesuniversity of hullcottingham roadhull hu6 7rxuk 4 wellcome trust sanger institutehinxton cb10 1sauk 5 institute of evolutionary biologyuniversity of edinburghking 's buildingsedinburgh eh9 3fluk * correspondence author .
+e - mail : ggrm2 @ cam.ac.uk 22 9 2015 1 2016 7 1 10.1111 / mee3.2016.7.issue - 1 80 89 26 6 2015 23 8 2015 ( c ) 2015 the authors .
+methods in ecology and evolution published by john wiley & sons ltd on behalf of british ecological society .
+this is an open access article under the terms of the creative commons attribution license , which permits use , distribution and reproduction in any medium , provided the original work is properly cited .
+summary ' dated - tip ' methods of molecular dating use dna sequences sampled at different times , to estimate the age of their most recent common ancestor .
+several tests of ' temporal signal ' are available to determine whether data sets are suitable for such analysis .
+however , it remains unclear whether these tests are reliable .
+we investigate the performance of several tests of temporal signal , including some recently suggested modifications .
+we use simulated data ( where the true evolutionary history is known ) , and whole genomes of methicillin - resistant staphylococcus aureus ( to show how particular problems arise with real - world data sets ) .
+we show that all of the standard tests of temporal signal are seriously misleading for data where temporal and genetic structures are confounded ( i.e. where closely related sequences are more likely to have been sampled at similar times ) .
+this is not an artefact of genetic structure or tree shape per se , and can arise even when sequences have measurably evolved during the sampling period .
+more positively , we show that a ' clustered permutation ' approach introduced by duchene et al .
+( molecular biology and evolution , 32 , 2015 , 1895 ) can successfully correct for this artefact in all cases and introduce techniques for implementing this method with real data sets .
+the confounding of temporal and genetic structures may be difficult to avoid in practice , particularly for outbreaks of infectious disease , or when using ancient dna .
+therefore , we recommend the use of ' clustered permutation ' for all analyses .
+the failure of the standard tests may explain why different methods of dating pathogen origins have reached such wildly different conclusions .
+bayesian dating dated - tips pathogen origins permutation tests staphylococcus aureus medical research council studentshipissac newton trustwellcome trust issfwellcome trust098051source - schema - version - number2.0component - idmee312466cover - datejanuary 2016details - of - publishers - convertorconverter : wiley _ ml3gv2 _ to _ nlmpmc version : 4.8.6 mode : remove _ fc converted : 22.04.2016 introduction molecular dating uses evolutionary change between homologous dna sequences to infer the time since their most recent common ancestor ( t mrca ) .
+if the genomes were sampled at similar times , then this inference requires external temporal information , such as a known rate of evolution , to calibrate the molecular clock .
+but if the genomes were sampled at sufficiently different times , then the sampling dates are all the temporal information required ( rambaut 2000 ; drummond , pybus & rambaut 2003b ; drummond et al. 2003a ) .
+such ' dated - tip ' methods have been particularly useful in the study of viral and bacterial pathogens and have been used to understand the origins and spread of diseases , as well as transmission pathways within a single outbreak ( e.g. smith et al. 2009 ; didelot et al. 2012 ; mcadam et al. 2012 ; gire et al. 2014 ) .
+dated - tip methods are only valid if there is temporal signal in the data .
+this will not be the case if the sampling period was too short for sufficient evolutionary change to occur or if evolutionary rates were too variable ( drummond , pybus & rambaut 2003b ; firth et al. 2010 ; duchene et al. 2015a ) .
+however , evolutionary rates are often unknown , and molecular dating methods will usually converge on an estimate whether or not temporal signal is present ( firth et al. 2010 ) .
+as such , it is crucial to test the molecular data for temporal signal .
+several approaches have been used to test for temporal signal .
+the simplest is a linear regression of phylogenetic root - to - tip distance against sampling date ( buonagurio et al. 1986 ; shankarappa et al. 1999 ; korber et al. 2000 ; drummond , pybus & rambaut 2003b ) .
+if sampling dates are sufficiently different , then more recently sampled sequences will have undergone substantially more evolutionary change than earlier sampled sequences , and this should create a strong positive correlation .
+this test obviously requires a rooted phylogeny , and when the root is unknown , it is common to estimate the root simultaneously with the regression , so as to maximize the model fit ( drummond et al. 2003a ) .
+significance is not generally calculated , because root - to - tip distances are non - independent , but navascues , depaulis & emerson ( 2010 ) suggest using permutation , asking whether the correlation is stronger than expected if the sampling dates were assigned to sequences at random .
+linear regression is a crude method of molecular dating , but analogous tests can be used with more formal methods .
+most commonly , the t mrca or rate estimate from a bayesian dated - tip analysis is used as the test statistic .
+if more recently sampled sequences have undergone more molecular evolution , then the true sampling dates should yield a t mrca that differs substantially from the equivalent estimates with the sampling dates randomly permuted over sequences ( ramsden , holmes & charleston 2009 ; e.g. duffy & holmes 2009 ; firth et al. 2010 ; fraile et al .
+2011 ; pagan & holguin 2013 ; duchene , holmes & ho 2014b ; duchene et al .
+2015a ) .
+finally , a distinct approach uses model selection and compares the fit of models with the sampling dates included or excluded , thereby failing to take special account for any evolution that might have taken place during the sampling period ( rambaut 2000 ; drummond , pybus & rambaut 2003b ; drummond et al. 2003a ; baele et al. 2012 ) .
+temporal signal is confirmed if the inclusion of the sampling dates improves the fit .
+all of the approaches above are widely used , but it is not clear how well they identify temporal signal , especially if we define temporal signal as the ability of a data set to yield reliable date estimates .
+previous studies have shown that dated - tip methods can be unreliable not only for data with too short a sampling period or too variable an evolutionary rate , but also for data with strong population structure ( navascues & emerson 2009 ) or imbalanced trees ( duchene , duchene & ho 2015b ) .
+furthermore , duchene et al .
+( 2015a ) showed that the bayesian permutation test gave false evidence of temporal signal for simulated data where the sampling period was too short , but where clusters of closely related sequences were sampled at the same time , that is where temporal and genetic structures were confounded .
+to solve this problem , they introduced a ' clustered permutation approach ' where dates were randomly reassigned among clusters of sequences sampled on the same date .
+here , we investigate the performance of tests of temporal signal on a variety of simulated and real - world structured data sets .
+we show that while structured data can generate accurate estimates of the t mrca with dated - tip methods , when temporal and genetic structures are confounded , estimates are consistently misleading , regardless of the level of temporal structure in the data .
+we further show that the standard tests of temporal signal fail to identify data sets that result in unreliable estimates when temporal and genetic structures are confounded .
+we demonstrate that the clustered permutation approach of duchene et al .
+( 2015a ) can be applied to both the regression and bayesian tests for temporal signal , and that it successfully identifies those data sets that give reliable estimates in the presence of confounded genetic structure .
+finally , through analysis of two sets of whole - genome data from staphylococcus aureus , with very different sampling periods , we develop methods of applying these tests to real data and show that confounding can arise naturally from clinical sampling practice , suggesting that the unreliable date estimates may be widespread .
+materials and methods data sets details of our simulated and real data sets are provided in the supporting information .
+basic dating analyses we estimated the t mrca for all of our data sets using beast v1.8 ( drummond et al. 2012 ) .
+in all cases , we used a constant population size coalescent prior for the node ages , and ( except for bayes factor calculations ) the beauti v1.8 default priors for all other parameters ( drummond et al. 2012 ) .
+after each run , convergence was assessed using tracer v1.6 ( rambaut et al. 2014 ) and burn - in removed as required .
+for the t mrca , we recorded the maximum a posteriori ( map ) estimate , estimated from the mcmc using the venter mode estimator from the r package modeest ( venter 1967 ; poncet 2012 ) , and the 95 % highest posterior density ( hpd ) interval .
+for the simulated data sets , we fit the same evolutionary model that was used to simulate the data , namely the hky + gamma substitution model and a strict molecular clock .
+for the reanalysis of the s. aureus data , we also used the hky + gamma substitution model .
+for the data from holden et al .
+( 2013 ) , we used the uncorrelated log - normal relaxed molecular clock ( replicating the published analysis ) , whereas for the data from paterson et al .
+( 2015 ) we used a strict clock due to the small number of variable sites .
+tests of temporal signal regression test to regress phylogenetic root - to - tip distance against sampling date , we obtained crude root - to - tip distances from a neighbour - joining tree estimated using a k80 nucleotide substitution model with the ape package in r ( paradis , claude & strimmer 2004 ) .
+following the path - o - gen software ( rambaut 2013 ) , the root was fit simultaneously with the regression , so as to minimize the residual mean squares ( see also korber et al. 2000 ) .
+following the suggestion of navascues , depaulis & emerson ( 2010 ) , the significance of the regression was assessed by random permutation of the sampling dates over the sequences , using the correlation coefficient as the test statistic .
+for all reported results , we generated 1000 replicates of the data , with the sampling dates randomly permuted .
+the p - value is the proportion of replicates with a test statistic greater than or equal to the true value .
+the null hypothesis is that a negligible amount of evolution took place between the sampling dates , so that the correlation observed can be attributed to stochastic variation in molecular branch length estimates and ( when the root is not known independently ) to our having rooted the tree to maximize clocklikeness .
+bayesian dating permutation tests to test for temporal signal using bayesian dating , each analysis was repeated 10 times , after randomly permuting the sampling dates across sequences ( e.g. ramsden , holmes & charleston 2009 ) .
+we then asked whether the t mrca estimate from the true data was outlying when compared with the estimates from the randomly permuted data .
+this is not standard hypothesis test , since each of the 11 estimates is associated with uncertainty , and therefore , p - values were not calculated .
+we note that the choice of the t mrca as a test statistic is somewhat arbitrary , and that other alternatives ( such as mean rate ) could also be used .
+unless one or other statistic was of particular interest , statistics might be preferred whose posterior distributions are easier to estimate from the mcmc .
+clustered permutation tests the permutation tests described above assume that the sampling dates are exchangeable under the null .
+this will not be true if closely related sequences were preferentially sampled at the same date .
+a heuristic approach to dealing with this artefact was introduced by duchene et al .
+( 2015a ) .
+their approach is to randomize dates over clusters of sequences , rather than individual sequences .
+clusters are defined as monophyletic clades , which were sampled at the same time .
+if we have n clusters , then the maximum number of permutations of these clusters is n ! , and if each sampling date is associated in more than one of the clusters , then the total number of unique permutations is n ! productidatesmi - 1 where m i is the number of clusters associated with sampling date i. when this number is suitably small , it is easiest to generate all possible permutations .
+for example , in fig. 1c,d , there were only 3 !
+= 6 possible permutations , which made 1 / 6 the smallest possible p - value for these extreme cases .
+for the simulated data , we identified single - date clusters from a neighbour - joining tree , rooted to minimize the residual mean squares of a linear regression of sampling time against root - to - tip distance ( see results for definitions for real data ) .
+all tests were implemented in r scripts ( r core team 2014 ) , which are provided in the supporting information .
+figure 1 the left - hand column shows schematic representations of the tree topologies over which evolution was simulated .
+the grey triangle represents the variable branching patterns of a simulated coalescence process .
+the middle column shows results of the regression of root - to - tip distance against sampling date .
+a significant positive correlation is consistent with the presence of temporal signal .
+p - values were obtained by random permutation of sampling dates across sequences ( p ) or monophyletic clusters of sequences that shared a sampling date ( p clust ) .
+the right - hand column shows the maximum a posteriori estimate of the tmrca with 95 % highest posterior density intervals ( red ) as inferred using beast .
+these are compared to equivalent estimates from data sets with the sampling dates randomly permuted across sequences ( purple ) , or clusters of sequences ( blue ) .
+for the model selection approach , we report the increase in aicm values when sampling dates were included in the analysis .
+( a ) and ( b ) represent a ' balanced ' sampling strategy where each clade was sampled equally thoroughly at each of the sampling times ; ( c ) and ( d ) represent a confounded sampling strategy where each clade was sampled at a different time .
+for ( a ) and ( c ) , true temporal structure is high , such that a substantial amount of molecular evolution could occur between the sampling dates , while for ( b ) and ( d ) , temporal structure is low .
+tests of model fit a final test of temporal signal is to compare some measure of model fit for phylogenetic analyses with or without sampling dates ( baele et al. 2012 ) .
+in practice , for the ' no dates' model , to keep the two cases as similar as possible , we set all sequences to the most recent sampling date in the original data set .
+we compared two model comparison statistics .
+the aicm is computationally cheap and robust to specification of improper priors .
+it can also be transformed into a true hypothesis test , using akaike weights ( burnham & anderson 2002 ) .
+to do this , when the ' with dates' model was preferred , the relative support for this model , equivalent to the p - value , was calculated as w = 1 + e12deltaaicm - 1 , where deltaaicm is the improvement in the fit .
+aicm was estimated in tracer v1.6 ( rambaut et al. 2014 ) , which was also used to check convergence .
+to calculate bayes factors , we used the path sampling approach with 100 steps , as implemented in beast v.2 ( baele et al. 2012 ; bouckaert et al. 2014 ) .
+the method relies on the specification of priors that are proper ( integrating to unity ) , and not too diffuse ( baele et al. 2012 ) .
+( this may be difficult for data sets where a priori plausible date or rate estimates span several orders of magnitude. ) we set the mean rate prior to a gamma distribution with a shape parameter of 0.1 and a scale parameter of 1 , the standard deviation of the rate prior to an exponential distribution with a mean of 1 , the population size prior to an exponential distribution with a mean of 100 , the hky transition - transversion parameter prior to a gamma distribution with a shape parameter of 2 and a scale parameter of 1 , and the between - site rate gamma shape prior to an exponential distribution of mean 1 .
+results dating artefacts with simulated data to illustrate the performance of tests of temporal signal on genetically structured samples , we simulated molecular data sampled on three different dates , from a highly structured population , consisting of three distinct and equally related clades , whose most recent common ancestor lived 10 000 years before the present ( ybp ) , evolving at a comparable rate to some bacteria and viruses ( 1.6 x 10 - 6 subs per site per year ) .
+we applied the standard tests of temporal signal to these simulated data and estimated their t mrca ( fig. 1 ) .
+we first simulated data with a high degree of temporal structure , by selecting three sampling dates such that an average of 20 nucleotide substitutions per genome occurred between each sampling .
+we also assumed a ' balanced ' sampling scheme , such that all three genetic clades were sampled equally thoroughly on all three dates. with this high temporal structure , and balanced sampling , the dating was a success .
+when correlating root - to - tip distance with sampling dates , all of the 1000 simulated data sets showed the signature of temporal signal ( see fig. s1a for a histogram of r - values ) .
+figure 1a shows a detailed analysis of a single typical replicate , with a permutation test , confirming that the correlation was unlikely to have arisen by chance ( fig. 1a , middle column ; see also table s1 ) ; indeed , for these simulated data , variation around the regression line must be attributed to stochastic variation in the substitution process , or to estimation error in the branch lengths .
+the intercept of the regression was also similar to the true t mrca used to simulate the data .
+bayesian molecular dating with beast ( drummond et al. 2012 ) also performed well ( fig. 1a , right - hand column ) : the t mrca estimate ( red point ) was accurate and precise , and also highly outlying when compared with replicate analyses with sampling dates randomly permuted ( purple points ) .
+we next simulated data with the same balanced sampling , but little temporal structure , that is with sampling dates that were so close that only 0.2 substitutions per genome were expected between them ( fig. 1b ) .
+in this case , t mrca estimates were highly inaccurate , but tests of temporal signal correctly indicated that these estimates could not be trusted .
+in particular , none of the 1000 data sets gave high r - values ( fig. s1b ) , and tests confirmed that similar results could be obtained after randomly permuting the sampling dates .
+therefore , with balanced sampling ( fig. 1a,b ) , tests of temporal signal perform well .
+performance declined substantially when sampling was confounded with genetic structure , that is when each genetic clade was sampled on a different date ( fig. 1c,d ) .
+in these cases , estimates of the t mrca were highly inaccurate , but tests of temporal signal wrongly indicated that the inaccurate dates could be trusted .
+these artefacts occurred both when there was high temporal structure ( fig. 1c ) , and when there was low temporal structure ( fig. 1d ) .
+indeed , with low temporal structure , over a third of the simulated data sets showed a high correlation between sampling date and root - to - tip distance ( fig. s1d ) , and a typical data set gave strong evidence of temporal signal , despite yielding a wildly inaccurate estimate of the t mrca : 51 ybp , as opposed to the true value of 10 000 ybp .
+to show why confounding misleads molecular dating , fig. 2 illustrates two sections of phylogeny with the same sampling period , but different levels of confounding .
+( a ) will tend to give better results than ( b ) for two connected reasons .
+first , in ( b ) the sampling period constitutes a much smaller proportion of the lineages that connect sequences sampled at different times .
+secondly , ( a ) contains two quasi - independent opportunities to measure the evolutionary change between the sampling dates , while in ( b ) , the measurements are clearly non - independent .
+as such , fig. 2 suggests that the failure of random permutation can be understood , intuitively , as an inflation of the true sample size , when there is confounding .
+for this reason , one way to correct for the artefact is to identify genetic clusters ( monophyletic groups ) in the data that share a sampling date , and then permute dates over these clusters , rather than over the individual sequences ( duchene et al. 2015a ). with this approach ( a ) would contain four clusters , but ( b ) would contain only two , and so a clustered permutation test will be less likely to reach significance .
+figure 2 illustrative phylogenies in which genetic and temporal structure are ( a ) unconfounded or ( b ) confounded .
+grey arrows describe the distance between pairs of sequences sampled on different dates ( t 0 and t 1 ) .
+when duchene et al. ' s ( 2015a ) method of clustered permutation was applied to our simulated data , performance remained good with balanced sampling ( fig. 1a,b : p clust for regression , blue points for the bayesian analysis ) and improved dramatically with confounded sampling ( fig. 1c,d ) .
+in particular , with confounded sampling , neither test of temporal signal reached significance , indicating - correctly - that both date estimates were unreliable .
+clustered permutation corrects for the confounding of genetic and temporal structure , but sometimes this confounding can arise from the evolutionary process itself , and not from sampling artefacts .
+any evolutionary change in the genetic constitution of a population could lead to sequences sampled on the same date being more closely related to each other .
+a classic example is the ' ladderized ' genealogy of influenza a , caused by regular selective sweeps ( grenfell et al .
+2004 ) , but the same effect could arise from genetic drift ( gray , pybus & salemi 2011 ) .
+in either case , temporal and genetic structures are inherently confounded , and so clustered permutation becomes conservative .
+to explore the power of the clustered tests in this situation , we simulated ladderized genealogies with high temporal structure ( fig. s2 ) .
+results showed that the clustered permutation approach was still able to detect the temporal signal ( an appreciable rate of false negatives arose only when the basal clade was monophyletic , and fewer than four clusters were simulated ) .
+dating artefacts with whole genomes of methicillin - resistant s. aureus figure 1 illustrates dating artefacts with extreme cases , but the same artefacts occur with more realistic data .
+in the supporting information , we demonstrate this with simulations ( tables s1 - s3 , figs s1 and s3 ) , but it can also be observed with real - world data .
+to see this , we reanalysed 157 complete genomes of epidemic methicillin - resistant s. aureus sequence type ( st ) 22 , sampled over a 17 - year period ( holden et al. 2013 ) .
+in agreement with holden et al .
+( 2013 ) , we estimated the t mrca of these sequences as 1980 , 28 years prior to the youngest sample ( fig. s4 ) .
+several lines of evidence suggest that this t mrca is plausible .
+first , all tests indicated very strong temporal signal ( fig. 3 , table s4 ) ; secondly , the inferred rate of evolution is consistent with previous estimates from s. aureus ( weinert et al .
+2012 ) ; and finally , this dating places the acquisition of fluoroquinolone resistance at the time and location where fluoroquinolone drugs were first tested in uk clinical trials ( holden et al. 2013 ) .
+figure 3 dating analyses for staphylococcus aureus genomes sampled over 17 years .
+plots show the maximum a posteriori ( map ) estimates of the tmrca , with 95 % highest posterior density ( hpd ) intervals .
+( a ) shows the estimate from the complete data set ( red ) , and from random ( purple ) or confounded ( blue ) subsamples , all with the same common ancestor and range of sampling dates .
+( b ) shows estimates from subsamples with a narrower sampling range , and a different true tmrca .
+red dashed lines and shaded areas describe the best estimate of the tmrca and its 95 % hpd interval as inferred from the complete data set .
+grey dashed lines show the youngest possible tmrca , as determined by the oldest sample .
+below are the results of tests of temporal signal and confounding .
+for beast permutation tests : v indicates that the true map estimate lay outside of the range of the map estimates from the randomized data sets , vv indicates that the true map estimate is not within the hpd intervals of the estimates from randomized data sets , and vvv indicates that the hpd interval of the true estimate does not overlap with the hpd intervals of estimates from the randomized data sets .
+for the model selection approaches , we report the probability that the model without sampling dates is the ' true ' model ( aicm analysis ) , or the bayes factor support for the inclusion of sampling dates ( kass & raftery 1995 ) .
+tests indicating temporal signal are in bold ; * p < 0.05 ; ** p < 0.01 .
+we next re - estimated the t mrca after subsampling the s. aureus strains .
+these subsamples were chosen to transect the same root node and to retain the 17 - year sampling period ( illustrated in fig. s4a - f ). with these constraints , we chose strains either at random ( reproducing the ' balanced ' sampling of fig. 1a,b ) or in clusters sampled in the same year ( reproducing the ' confounded ' sampling of fig. 1c,d ) .
+in all cases , the balanced subsampling provided consistent estimates of the t mrca ( fig. 3a , purple points ) , albeit with wider credible intervals , reflecting the reduced sample size .
+however , the confounded subsamples produced much younger dates ( fig. 3a , blue points ) .
+in addition , all six subsamples gave evidence of temporal signal using the standard tests .
+if we were to trust these standard tests , we might draw quite different conclusions about the evolution of antibiotic resistance in the uk. the same applies when we analysed subsamples collected over a 3 - year period ( fig. s4g,h ) .
+given evolutionary rates for these strains , fewer than 7 nucleotide substitutions per genome would be expected during this entire sampling period , and so this produces ' low temporal structure ' data sets .
+for both data sets , the estimated t mrca differed from its true value ( as inferred from the complete data set ; fig. 3b , red dashed line ) .
+for the balanced subsample , all tests confirmed this lack of temporal signal , but the standard tests failed for the confounded subsample , resulting in false confidence in an inaccurate and deceptively precise estimate of the t mrca ( fig. 3b ) .
+as with the simulated data , these problems can be solved by using the clustered permutation approach of duchene et al .
+( 2015a ) .
+if we define clusters as monophyletic groups sampled in same year , regression and bayesian approaches both correctly identified the data sets that yielded inaccurate estimates of the t mrca .
+however , for these data , there is something arbitrary about the choice to cluster by year ( we might also have chosen to cluster by month ) .
+this highlights the need for a test of confounding that can be applied to real - world data sets .
+an obvious choice is a mantel test of the correlation between pairwise genetic distances and absolute differences in sampling dates .
+applying this test to the s. aureus data successfully identified the confounding in all of the confounded data sets , and in one of the smallest balanced data sets ( fig. 3 ) .
+we then repeated the mantel test after clustering the data ( using the average pairwise genetic between clusters , and the absolute difference between sampling years ) .
+this test confirmed that our choice to cluster sampling dates by year was sufficiently coarse - grained to eliminate the signal of confounding in these data ( fig. 3 ) .
+model selection approach a test for temporal signal not considered so far , is to compare the fit of models with the sampling dates either included (' with dates ') or ignored (' no dates ') ( rambaut 2000 ; drummond , pybus & rambaut 2003b ; drummond et al. 2003a ; baele et al. 2012 ) .
+various measures and estimators of model fit are available ( rambaut 2000 ; suchard , weiss & sinsheimer 2003 ; kitchen , miyamoto & mulligan 2008 ; baele et al. 2012 ) .
+we initially tried the aicm , an analogue of the akaike information criterion , which is estimated from the mcmc ( raftery et al. 2007 ; baele et al. 2012 ) .
+on simulated data , the aicm approach performed very well , showing strong support for the ' with dates' model whenever the t mrca was well estimated , and weak or no support when the t mrca was poorly estimated ( fig. 1 , table s1 ) .
+however , for the real s. aureus data , only one subsample gave evidence of temporal signal , and this was a confounded subsample where the t mrca estimate was extremely poor ( fig. 3 ; table s4 ) .
+we next calculated full bayes factors , using path sampling ( baele et al. 2012 ; bouckaert et al. 2014 ; leache et al. 2014 ) .
+this had the opposite problem : all but one subsample yielded strong support for the ' with dates' model .
+as such , model selection led to false confidence in inaccurate estimates of the t mrca .
+the failure of this approach is initially surprising , since it makes no explicit assumptions about random sampling or exchangeability .
+since the approach worked well on simulated data ( which used a strict clock and known substitution process ) , this is probably explained by model inadequacy .
+evolutionary models may be good enough to provide accurate estimates of the t mrca , and yet sufficiently different from reality to render unreliable a comparison of model fit with and without sampling dates .
+it is also notable that the bayes factor approach worked well when sampling was random , but not when sampling was confounded ( fig. 3 ; table s4 ) .
+this might be a failure analogous to ' overfitting ' , given the reduction in effective sample sizes in the confounded data sets ( fig. 2 ) .
+application to data from a single outbreak examples above used data that were subsampled in a contrived way , but the same artefacts can arise with complete data sets .
+to illustrate this , we analysed whole genomes of s. aureus st22 , from a single disease outbreak .
+these samples were obtained from a veterinary hospital over approximately 2 months , initially from a dog admitted to the clinic ( 141 isolates ) , and then from a staff member ( 34 isolates ) involved in the dog 's treatment ( paterson et al. 2015 ) .
+dated - tip analyses of these data placed the t mrca of the dog strains on the day after the dog 's admission to the hospital , and the closely related strains from the staff member at c .
+12 weeks earlier ( fig. 4 , for the dog samples , and fig. s5 , for the staff member samples , red points ) .
+together , these estimates suggest a scenario in which the dog was infected in the hospital , possibly by a staff member with a long - standing infection , and where transmission was likely associated with a strong bottleneck ( since all of the genetic variation in the dog can be traced back to a single feasible transmission event ) .
+figure 4 the bayesian dating test for staphylococcus aureus strains sampled from a dog during an outbreak in a veterinary hospital .
+differences in the degree of clustering with sampling date are apparent between the phylogenies estimated with ( the mcc tree from the bayesian dated - tip analysis ) and without the use of temporal information ( a neighbour - joining tree ) .
+colour and symbol shape represent strains sampled on the same date .
+the plot shows the maximum a posteriori estimates of the tmrca ( on a log scale ) with 95 % highest posterior density intervals .
+the true estimate ( red ) is compared to estimates with the sampling dates randomly permuted across sequences ( purple ) , or across single - date clusters identified from the neighbour - joining tree ( blue ) , or the mcc tree ( green ) .
+the blue horizontal line indicates the date of admission of the dog into the veterinary hospital .
+significance levels are described in the legend of fig. 3. standard tests of temporal signal supported this scenario .
+for the dog samples , mantel tests yielded no evidence of confounding of temporal and genetic structures ( p = 0.88 ) , and permutation tests of the bayesian dates detected temporal signal ( fig. 4 purple points ) even , weakly , with clustered permutation ( fig. 4 , blue points ) .
+however , a combined analysis of all 175 isolates shows that this t mrca estimate - and thus the epidemiological inference - is probably unreliable .
+in particular , the genealogies of the dog and staff samples are intermingled , implying that they share a most recent common ancestor ( fig. s6 ; paterson et al. 2015 ) .
+what is wrong with the analysis above ?
+the answer is clear from comparing a neighbour - joining tree to the maximum clade consensus ( mcc ) tree from the beast analyses ( fig. 4 ) .
+the neighbour - joining tree has very little resolution reflecting the low genetic diversity in these data and confirms that the level of confounding is weak .
+in contrast , the beast tree is fully resolved and contains very high levels of confounding ( mantel tests using patristic distances : p < 0.001 ; fig. 4 , and table s5 ) .
+this shows that , in the absence of phylogenetic signal , the dating algorithm has enhanced the confounding , clustering the sequences by date to improve the fit of its clock model .
+( we note that no such difference was found in data sets analysed in earlier sections , where the data contained much higher levels of genetic diversity. ) it is important to note that low levels of genetic diversity would not be a problem , were there not also some genuine confounding of temporal and genetic structures , for in the absence of any confounding , a random permutation approach would succeed .
+for these s. aureus data , weak confounding - undetected by the mantel test - probably arose from the clinical sampling practice .
+in particular , different sets of anatomical sites of the dog were sampled on different dates ( in part , as a consequence of the progression of the disease ) , and genetic structure was associated with these sites ( paterson et al. 2015 ) .
+as a result , we find genetic structure between the earliest dog samples , and those taken on later dates ( permutation test of hudson 's f st estimator : p < 0.001 ; hudson , slatkin & maddison 1992 ) , although not between the two later dates .
+when phylogenetic resolution is low , there are two ways to test for temporal signal , which avoid the artefact described above .
+the first is to use the regression approach , with a phylogeny that was inferred without making any assumptions about molecular rates .
+the second is to use the clustered bayesian dating permutation approach , but with clusters identified from the mcc tree ( fig. 4 , green points ) .
+both approaches found no temporal signal in our s. aureus data ( from either the dog , or the staff member ; fig. s5 ) , confirming that t mrca estimates from these data cannot be trusted .
+discussion molecular dates obtained with ' dated - tip ' methods are reliable only if the sequence data exhibit temporal signal .
+as such , we cannot trust dates obtained from these methods unless we can also trust the tests for temporal signal .
+we have shown that all of the standard tests of temporal signal can be severely misled for data sets where temporal and genetic structures are confounded , that is when closely related sequences are more likely to have been sampled at similar times .
+our results show that the reliability of date estimates cannot be determined from the degree of genetic structure per se ( data sets in fig. 1a - d had equally high levels of structure ) , nor from the number of sequences sampled ( fig. 3a shows that subsamples of any size can yield both inaccurate and accurate estimates ) and nor from the overall range of the sampling dates , or level of temporal structure ( which was held constant across both figs 1a,c and 3a ) .
+however , we have shown that when confounding is present , the clustered permutation approach of duchene et al .
+( 2015a ) , can give good results , whether applied to linear regression or bayesian dating , and to data with or without temporal structure .
+we have also introduced some refinements to the approach of duchene et al .
+( 2015a ) , which show how clustered permutation can be best applied to real - world data .
+in particular , we have shown how a mantel test , comparing genetic distance and difference in sampling dates , can identify data sets where confounding is present ( fig. 3 ) .
+we have also shown how the same test can confirm whether a particular choice of clusters has successfully removed the confounding ( this is particularly useful when samples were taken on a very large range of dates , as in the s. aureus data from holden et al. ( 2013 ) .
+finally , we have shown that an additional problem can arise for data with low levels of phylogenetic resolution , when dating algorithms may enhance the true level of confounding .
+we have suggested that , to mitigate this problem , clusters should be chosen from the tree estimated in the dating analysis ( fig. 4 ) .
+the problem of confounding , discussed here , may explain some previously noted failures of the dated - tip approach .
+for example , navascues & emerson ( 2009 ) showed that inaccurate estimates of the t mrca could be obtained in structured populations when ancient and modern sequences came from different genetic clusters .
+indeed , confounding is likely to be particularly severe when the temporal information comes from a small number of ancient dna sequences .
+similarly , duchene , duchene & ho ( 2015b ) showed that inaccurate results could be obtained when trees were highly imbalanced .
+again , this might result from confounding , since imbalanced trees contain smaller clades , which are more likely to share a sampling date just by chance ( this possibility is supported by simulations showing that unbalanced trees can give reliable results when sampling is balanced ; fig. s3f ) .
+finally , we have suggested that confounding is likely to be common when serially sampled - pathogen genomes are used to study the course of a single outbreak .
+this is partly because confounding can arise naturally from clinical sampling practice .
+for example , different individuals will often be sampled at different times ( harris et al. 2013 ; paterson et al .
+2015 ) , and these individuals will generally contain distinct populations of a pathogen , resulting from transmission barriers between individuals , and population bottlenecks during transmission events .
+the same also applies to different tissues within an individual ( e.g. sacristan et al. 2003 ; lee et al. 2008 ; paterson et al .
+2015 ) and to different geographic locations ( holmes 2008 ) .
+we have also shown that the confounding may be enhanced when little evolutionary change has taken place , which may often be the case during a single outbreak .
+consistent with this prediction , we have presented data from an outbreak of s. aureus where standard tests provide support for date estimates - and thereby transmission scenarios - that are doubtful on other grounds ( paterson et al. 2015 ) .
+if confounding of temporal and genetic structures is common , then many dated - tip analyses may need revisiting .
+a remarkably common finding in the study of pathogen evolution has been that plausible biogeographic scenarios imply much slower evolutionary rates ( and so much older t mrca ) , than are obtained from dated - tip analyses of serially sampled genomes ; often , these estimates differ by several orders of magnitude ( sharp & simmonds 2011 ) .
+we have shown that artefactual evidence of temporal signal often leads to false confidence in dates that bear no relation to the true age of divergence ( see , e.g. fig. 1d ) .
+as such , results reported here may explain some of the wilder disagreements about pathogen origins .
+supporting information fig. s1 .
+the distribution of signed r 2 values from regressions of phylogenetic root - to - tip distance against sampling date , for each of 1000 simulated data sets. fig. s2 .
+results of tests of temporal signal for data simulated with a high level of temporal signal , but a ladderised genealogy , in which genetic structure arises over time from the evolution of a single population. fig. s3 .
+the topologies over which data was simulated. fig. s4 .
+the mcc tree produced from 157 methicillin - resistant s. aureus genomes from holden et al .
+( 2013 ). fig. s5 .
+the bayesian dating test for s. aureus strains sampled from a staff member ( 34 isolates ) during an outbreak in a veterinary hospital ( paterson et al.2015 ). fig. s6 .
+a genealogy of the strains sampled from the dog and the staff member from ( paterson et al. 2015 ) .
+click here for additional data file .
+table s1 .
+results of tests of temporal signal and dating analyses for simulated data sets with a true tmrca of 10 000 ybp .
+table s2 .
+the parameters used to simulate data sets .
+table s3 .
+simulation results when ' high ' and ' low ' temporal signal were created by adjusting the substitution rate instead of the sampling dates ( see table s2 ) .
+table s4 .
+tests of temporal signal for an s. aureus data set from holden et al .
+( 2013 ) and subsamples of these data .
+table s5 .
+tests of temporal signal for two s. aureus data sets from a single outbreak .
+click here for additional data file .
+appendix s1 .
+materials and methods .
+click here for additional data file .
+appendix s2 .
+a description of the r scripts used to implement a test of confounding temporal and genetic structure and two tests of temporal signal , that can be applied to serially - sampled sequence data .
+click here for additional data file .
+appendix s3 .
+an r script that provides functions used in in the tests .
+click here for additional data file .
+appendix s4 .
+an r script for a regression of phylogenetic root - to - tip distance against sampling date with both standard and clustered permutation tests .
+click here for additional data file .
+appendix s5 .
+an r script for both standard and clustered randomisations of dates over sequences in beast xml files .
+click here for additional data file .
+appendix s6 .
+an r script for a mantel test of confounding of genetic and temporal distances .
+click here for additional data file .
+appendix s7 .
+an example sequence data input file .
+click here for additional data file .
+appendix s8 .
+an example tree input file .
+click here for additional data file .
+appendix s9 .
+an example beast xml input file .
+click here for additional data file .
+acknowledgements ggrm is supported by a medical research council studentship .
+jjw was supported by the issac newton trust and wellcome trust issf .
+aem and srh are supported by wellcome trust grant 098051 .
+data accessibility the two s. aureus data sets discussed are provided in holden et al .
+( 2013 ) and paterson et al .
+( 2015 ) .
+r scripts of the all tests described have been uploaded as online supporting information .
+references baele , g .
+, lemey , p .
+, bedford , t .
+, rambaut , a .
+, suchard , m.a .
+& alekseyenko , a.v .
+( 2012 ) improving the accuracy of demographic and molecular clock model comparison while accommodating phylogenetic uncertainty . molecular biology and evolution , 29 , 2157 - 2167 . 22403239 bouckaert , r .
+, heled , j .
+, kuhnert , d .
+, vaughan , t .
+, wu , c .
+- h .
+, xie , d .
+, suchard , m.a .
+, rambaut , a .
+& drummond , a.j .
+( 2014 ) beast 2 : a software platform for bayesian evolutionary analysis . plos computational biology , 10 , e1003537 . 24722319 buonagurio , d.a .
+, nakada , s .
+, parvin , j.d .
+, krystal , m .
+, palese , p .
+& fitch , w.m .
+( 1986 ) evolution of human influenza a viruses over 50 years : rapid , uniform rate of change in ns gene . science , 232 , 980 - 982 . 2939560 burnham , k.p .
+& anderson , d.r .
+( 2002 ) model selection and multimodel inference : a practical information - theoretic approach , 2nd edn springer , new york , ny. didelot , x .
+, eyre , d.w .
+, cule , m .
+, ip , c.l .
+, ansari , m.a .
+, griffiths , d. et al ( 2012 ) microevolutionary analysis of clostridium difficile genomes to investigate transmission . genome biology , 13 , r118 . 23259504 drummond , a.j .
+, pybus , o.g .
+& rambaut , a .
+( 2003b ) inference of viral evolutionary rates from molecular sequences . advances in parasitology , 54 , 331 - 358 . 14711090 drummond , a.j .
+, pybus , o.g .
+, rambaut , a .
+, forsberg , r .
+& rodrigo , a.g .
+( 2003a ) measurably evolving populations . trends in ecology & evolution , 18 , 481 - 488 . drummond , a.j .
+, suchard , m.a .
+, xie , d .
+& rambaut , a .
+( 2012 ) bayesian phylogenetics with beauti and the beast 1.7 . molecular biology and evolution , 29 , 1969 - 1973 . 22367748 duchene , d .
+, duchene , s .
+& ho , s.y.w .
+( 2015b ) tree imbalance causes a bias in phylogenetic estimation of evolutionary timescales using heterochronous sequences . molecular ecology resources , 15 , 785 - 794 . 25431227 duchene , s .
+, holmes , e.c .
+& ho , s.y.w .
+( 2014 ) analyses of evolutionary dynamics in viruses are hindered by a time - dependent bias in rate estimates . proceedings of the royal society b , 281 , 20140732 . 24850916 duchene , s .
+, duchene , d .
+, holmes , e.c .
+& ho , s.y.w .
+( 2015a ) the performance of the date - randomisation test in phylogenetic analyses of time - structured virus data . molecular biology and evolution , 32 , 1895 - 1906 . 25771196 duffy , s .
+& holmes , e.c .
+( 2009 ) validation of high rates of nucleotide substitution in geminiviruses : phylogenetic evidence from east african cassava mosaic viruses . journal of general virology , 90 , 1539 - 1547 . 19264617 firth , c .
+, kitchen , a .
+, shapiro , b .
+, suchard , m.a .
+, holmes , e.c .
+& rambaut , a .
+( 2010 ) using time - structured data to estimate evolutionary rates of double - stranded dna viruses . molecular biology and evolution , 27 , 2038 - 2051 . 20363828 fraile , a .
+, pagan , i .
+, anastasio , g .
+, saez , e .
+& garcia - arenal , f .
+( 2011 ) rapid genetic diversification and high fitness penalties associated with pathogenicity evolution in a plant virus . molecular biology and evolution , 28 , 1425 - 1437 . 21131559 gire , s.k .
+, goba , a .
+, andersen , k.g .
+, sealfon , r.s.g .
+, park , d.j .
+, kanneh , l. et al ( 2014 ) genomic surveillance elucidates ebola virus origin and transmission during the 2014 outbreak . science , 345 , 1369 - 1372 . 25214632 gray , r.r .
+, pybus , o.g .
+& salemi , m .
+( 2011 ) measuring the temporal structure in serially - sampled phylogenies . methods in ecology and evolution , 2 , 437 - 445 . 22121470 grenfell , b.t .
+, pybus , o.g .
+, gog , j.r .
+, wood , j.l.n .
+, daly , j.m .
+, mumford , j.a .
+& holmes , e.c .
+( 2004 ) unifying the epidemiological and evolutionary dynamics of pathogens . science , 303 , 327 - 332 . 14726583 harris , s.r .
+, cartwright , e.j .
+, torok , m.e .
+, holden , m.t .
+, brown , n.m .
+, ogilvy - stuart , a.l. et al ( 2013 ) whole - genome sequencing for analysis of an outbreak of meticillin - resistant staphylococcus aureus : a descriptive study . the lancet infectious diseases , 13 , 130 - 136 . 23158674 holden , m.t.g .
+, hsu , l .
+- y .
+, kurt , k .
+, weinert , l.a .
+, mather , a.e .
+, harris , s.r. et al ( 2013 ) a genomic portrait of the emergence , evolution , and global spread of a methicillin - resistant staphylococcus aureus pandemic . genome research , 23 , 653 - 664 . 23299977 holmes , e.c .
+( 2008 ) evolutionary history and phylogeography of human viruses . annual review of microbiology , 62 , 307 - 328 . hudson , r.r .
+, slatkin , m .
+& maddison , w.p .
+( 1992 ) estimation of levels of gene flow from dna sequence data . genetics , 132 , 583 - 589 . 1427045 kass , r.e .
+& raftery , a.e .
+( 1995 ) bayes factors . journal of the american statistical association , 90 , 773 - 795 . kitchen , a .
+, miyamoto , m.m .
+& mulligan , c.j .
+( 2008 ) utility of dna viruses for studying human host history : case study of jc virus . molecular phylogenetics and evolution , 46 , 673 - 682 . 17977749 korber , b .
+, muldoon , m .
+, theiler , j .
+, gao , f .
+, gupta , r .
+, lapedes , a .
+, hahn , b.h .
+, wolinsky , s .
+& bhattacharya , t .
+( 2000 ) timing the ancestor of the hiv - 1 pandemic strains . science , 288 , 1789 - 1796 . 10846155 leache , a.d .
+, fujita , m.k .
+, minin , v.n .
+& bouckaert , r.r .
+( 2014 ) species delimitation using genome - wide snp data . systematic biology , 63 , 534 - 542 . 24627183 lee , h.y .
+, perelson , a.s .
+, park , s .
+- c .
+& leitner , t .
+( 2008 ) dynamic correlation between intrahost hiv - 1 quasispecies evolution and disease progression . plos computational biology , 4 , e1000240 . 19079613 mcadam , p.r .
+, templeton , k.e .
+, edwards , g.f .
+, holden , m.t.g .
+, feil , e.j .
+, aanensen , d.m. et al ( 2012 ) molecular tracing of the emergence , adaptation , and transmission of hospital - associated methicillin - resistant staphylococcus aureus . proceedings of the national academy of sciences , 109 , 9107 - 9112 . navascues , m .
+, depaulis , f .
+& emerson , b.c .
+( 2010 ) combining contemporary and ancient dna in population genetic and phylogeographical studies . molecular ecology resources , 10 , 760 - 772 . 21565088 navascues , m .
+& emerson , b.c .
+( 2009 ) elevated substitution rate estimates from ancient dna : model violation and bias of bayesian methods . molecular ecology , 18 , 4390 - 4397 . 19735451 pagan , i .
+& holguin , a .
+( 2013 ) reconstructing the timing and dispersion routes of hiv - 1 subtype b epidemics in the caribbean and central america : a phylogenetic story . plos one , 8 , e69218 . 23874917 paradis , e .
+, claude , j .
+& strimmer , k .
+( 2004 ) ape : analyses of phylogenetics and evolution in r language . bioinformatics , 20 , 289 - 290 . 14734327 paterson , g.k .
+, harrison , e.m .
+, murray , g.g.r .
+, welch , j.j .
+, warland , j.h .
+, holden , m.t.g. et al ( 2015 ) capturing the cloud of diversity reveals complexity and heterogeneity of mrsa carriage , infection and transmission . nature communications , 6 , 6560 . poncet , p .
+( 2012 ) .
+modeest : mode estimation . available from : http :// cran.r - project.org / web / packages / modeest / index.html .
+r core team ( 2014 ) r : a language and environment for statistical computing .
+r foundation for statistical computing , vienna , austria http :// www.r - project.org .
+raftery , a.e .
+, newton , m.a .
+, satagopan , j.m .
+& krivitsky , p.n .
+( 2007 ) .
+estimating the integrated likelihood via posterior simulation using the harmonic mean identity bayesian statistics 8 ( eds bernardo j.m .
+, bayarri m.j. berger j.o .
+, david a.p .
+, heckerman d .
+, smith a.f.m .
+& west m .
+) , pp .
+371 - 416 . oxford university press , oxford , uk. rambaut , a .
+( 2000 ) estimating the rate of molecular evolution : incorporating non - contemporaneous sequences into maximum likelihood phylogenies . bioinformatics , 16 , 395 - 399 . 10869038 rambaut , a .
+( 2013 ) path - o - gen v1.4 . available from http :// tree.bio.ed.ac.uk / software / pathogen / .
+rambaut , a .
+, suchard , m.a .
+, xie , d .
+& drummond , a.j .
+( 2014 ) tracer v1.6 . available from http :// beast.bio.ed.ac.uk / tracer .
+ramsden , c .
+, holmes , e.c .
+& charleston , m.a .
+( 2009 ) hantavirus evolution in relation to its rodent and insectivore hosts : no evidence for codivergence . molecular biology and evolution , 26 , 143 - 153 . 18922760 sacristan , s .
+, malpica , j.m .
+, fraile , a .
+& garcia - arenal , f .
+( 2003 ) estimation of population bottlenecks during systemic movement of tobacco mosaic virus in tobacco plants . journal of virology , 77 , 9906 - 9911 . 12941900 shankarappa , r .
+, margolick , j.b .
+, gange , s.j .
+, rodrigo , a.g .
+, upchurch , d .
+, farzadegan , h. et al ( 1999 ) consistent viral evolutionary changes associated with the progression of human immunodeficiency virus type 1 infection . journal of virology , 73 , 10489 - 10502 . 10559367 sharp , p.m .
+& simmonds , p .
+( 2011 ) evaluating the evidence for virus / host co - evolution . current opinion in virology , 1 , 436 - 441 . 22440848 smith , g.j.d .
+, vijaykrishna , d .
+, bahl , j .
+, lycett , s.j .
+, worobey , m .
+, pybus , o.g. et al ( 2009 ) origins and evolutionary genomics of the 2009 swine - origin h1n1 influenza a epidemic . nature , 459 , 1122 - 1125 . 19516283 suchard , m.a .
+, weiss , r.e .
+& sinsheimer , j.s .
+( 2003 ) testing a molecular clock without an outgroup : derivations of induced priors on branch - length restrictions in a bayesian framework . systematic biology , 52 , 48 - 54 . 12554439 venter , j.h .
+( 1967 ) on estimation of the mode . the annals of mathematical statistics , 38 , 1446 - 1455 . weinert , l.a .
+, welch , j.j .
+, suchard , m.a .
+, lemey , p .
+, rambaut , a .
+& fitzgerald , j.r .
+( 2012 ) molecular dating of human - to - bovid host jumps by staphylococcus aureus reveals an association with the spread of domestication . biology letters , 8 , 829 - 832 . 22628096

@@ -1,0 +1,209 @@
+scientificworldjournal scientificworldjournal tswj the scientific world journal 2356 - 6140 1537 - 744x hindawi publishing corporation 24959628 4052489 10.1155 / 2014 / 790103 research article mobility - assisted on - demand routing algorithm for manets in the presence of location errors http :// orcid.org / 0000 - 0001 - 7246 - 7687 vu trung kien kwon sungoh * school of electrical engineering , university of ulsan , ulsan 680 - 749 , republic of korea * sungoh kwon : sungoh @ ulsan.ac.kr academic editor : zhongmei zhou 2014 18 5 2014 2014 790103 7 3 2014 30 4 2014 copyright ( c ) 2014 t. k. vu and s. kwon .
+2014 this is an open access article distributed under the creative commons attribution license , which permits unrestricted use , distribution , and reproduction in any medium , provided the original work is properly cited .
+we propose a mobility - assisted on - demand routing algorithm for mobile ad hoc networks in the presence of location errors .
+location awareness enables mobile nodes to predict their mobility and enhances routing performance by estimating link duration and selecting reliable routes .
+however , measured locations intrinsically include errors in measurement .
+such errors degrade mobility prediction and have been ignored in previous work .
+to mitigate the impact of location errors on routing , we propose an on - demand routing algorithm taking into account location errors .
+to that end , we adopt the kalman filter to estimate accurate locations and consider route confidence in discovering routes. via simulations , we compare our algorithm and previous algorithms in various environments .
+our proposed mobility prediction is robust to the location errors .
+http :// dx.doi.org / 10.13039 / 501100002568 university of ulsan 1 .
+introduction a mobile ad hoc network ( manet ) [ 1 ] consists of a set of wireless mobile nodes that dynamically exchange data among themselves without relying on any fixed infrastructure .
+because of their easy deployment and extension , manet application scenarios include emergency and rescue operations , conference settings , car networks , and personal networking .
+due to limited transmission ranges and infrastructure - free networks , each node in such networks has the responsibility not only to discover new routes but also to relay messages .
+the most challengeable problem of manets [ 2 ] is how to adapt the topology changing that affects the performance of the network [ 3 , 4 ] .
+due to changeable topology , routes from sources to destinations may be suddenly broken and nodes have to discover other available routes to deliver data .
+the ad hoc on - demand distance vector routing algorithm ( aodv ) was proposed as a reactive routing algorithm to allow mobile nodes to quickly adapt to topology changes and link breaks in mobile ad hoc networks [ 5 ] .
+to find a possible route , the aodv makes a source flood a routing request message over the network and discovers a route based on the principle of the shortest path .
+the amount of overhead messages for route discovery and route maintenance depends on the longevity of routing paths .
+the awareness of link and path durations can improve routing performance in such mobile networks [ 6 - 8 ] .
+in [ 9 , 10 ] , the authors modeled the distribution of path duration and analyzed the relation between path duration and other factors such as relative speed , transmission range , and number of hops .
+their analysis shows that routing protocol with higher path duration can improve the network performance .
+in [ 11 ] , the authors also investigate the distribution of path duration and then design a scheme to select a route with the largest expected duration and provide reliable network services in manets .
+location information enables nodes to predict mobility and estimate path durations more accurately .
+in [ 12 - 14 ] , the authors proposed schemes to improve routing performance with location awareness .
+the proposed algorithms in [ 12 , 13 ] anticipate the link expiration time ( let ) based on measured locations and velocities and were applied to routing protocols to reduce overheads in [ 12 ] or to select the most reliable route that has the longest path duration [ 13 ] .
+in [ 14 ] , the link duration time is adaptively applied to route maintenance in order to reduce unnecessary overhead .
+however , lifetime of link may be incorrectly calculated due to location errors that lead to incorrect hello frequency setting .
+in practical deployment scenarios , location errors intrinsically occur in measurement [ 15 ] , even if locations are measured by the global positioning system ( gps ) receiver .
+such imperfect location information leads imperfect mobility prediction , which results in performance degradation .
+however , the previous work assumed error - free location information and developed routing algorithms .
+in [ 12 ] , the impact of location errors on routing performance was provided only by simulations , but there is no effort to improve routing performance in such noisy information environments .
+therefore , it is necessary to develop an efficient routing that is robust to location errors .
+in this paper , we proposed a mobility - assisted on - demand routing algorithm in the presence of location errors in order to mitigate the impact of location errors on routing performance .
+to that end , the algorithm adopts the kalman filter to compensate for the measurement location errors and estimate link durations to reduce overheads and select reliable routes .
+we also consider the confidence level of route in selecting the best route. via simulations , we compare our proposed algorithm with previous algorithms .
+the rest of this paper is organized as follows .
+in section 2 , we describe the system model and problem .
+in section 3 , we propose the kalman filter based routing algorithm with mobility prediction for location correction and route selection .
+in section 4 , we provide numerical results to analyze the impact of location errors and the efficient of our proposal in the presence of location errors , and we conclude the paper in section 5 .
+2. system model and problem 2.1 .
+system model in this paper , we consider a mobile wireless network that supports multihop routing .
+the network is modeled as a set n of mobile nodes with transmission range r and a set l of communication links ( i , j ) between nodes i and j in n. link ( i , j ) is called valid or connected link at time t k when the distance between nodes i and j at time t k is less than or equal to the transmission range r ; that is , ( 1 ) | xi ( tk ) - xj ( tk )|<= r , where x i ( t k ) and x j ( t k ) are locations of nodes i and j , respectively , and | x | stands for a euclidian distance of vector x. otherwise , link ( i , j ) is considered broken or disconnected , because the two nodes are out of their communication range .
+the link duration of link ( i , j ) is defined as the time interval for which the link is valid .
+due to a limited transmission range , packets are delivered from a source to a destination in a multihop manner via a route , which is defined as a set of links .
+for given source and destination nodes , s and d , respectively , h possible routes at time t k are denoted as r ( s,d ) ( h )( t k ) for h in h = { 1 ,... , h } , which consists of | r ( s,d ) ( h )( t k )| links .
+to find a route from a source to a destination and maintain routes , each mobile node employs the aodv routing algorithm , which is one of the reactive routing protocols and frequently adopted in mobile ad hoc networks .
+2.2 .
+overview of aodv the aodv [ 5 ] routing algorithm consists of two main operations : route discovery and route maintenance .
+route discovery is initiated by a source node that has data to send a destination node and does not have an active route in its routing table .
+to find a valid route to the destination , the source node broadcasts a route request ( rreq ) message , including a sequence number , to neighboring nodes .
+the rreq message is flooded through the entire network until the message reaches the destination or an intermediate node that has a valid route to the destination .
+each node that receives the rreq message stores a reverse route to the source and then broadcasts the message to their neighboring nodes if the node is not the destination and the rreq message is not a duplicate .
+when the rreq message arrives at a destination node or at an intermediate node that has a valid route to the destination , the node sends a route reply ( rrep ) message to the neighboring node in a reverse route in a unicast manner .
+the rrep message contains the number of hops to reach the destination node and the sequence number for the destination .
+a node receiving the rrep message sends this message to the source via the stored reverse route and then creates or updates a forward route to the destination .
+route maintenance is performed by nodes after route discovery operation , in order to maintain local connectivity and routes .
+nodes periodically send a hello message to their neighbors to check if links are connected .
+if a node does not receive any hello message from its neighbors during a certain time period , referred to as the lifetime of hello message , the node assumes that the link to the neighbor is currently disconnected and reports the link failure to the source corresponding to the link via a route error ( rrer ) message .
+2.3 .
+location awareness and performance enhancement in a mobile ad hoc network , the location information of nodes helps to improve routing performance , such as packet delivery rate and overhead by estimating node mobility .
+in a route discovery operation , the route with the longest lifetime can be selected to reduce the number of transmission failures and the number of overheads to find a new route [ 13 ] .
+to reduce overhead messages , instead of a fixed period for hello message , the adaptive period is proposed using link lifetime to achieve high protocol efficiency in [ 14 ] .
+to predict mobility , the previous work proposed a location prediction scheme [ 12 ] , which is defined as ( 2 ) x ^ i ( tk + deltat )= xi '( tk )+ vi - - >( tk ) deltat , where x ^ i ( tk + deltat ) , x i '( t k ) , and vi - - >( tk ) are the predicted location of node i at time t k + deltat , a measured location at time t k , and a measured velocity at time t k , respectively .
+if individual velocities of nodes are not available in ( 2 ) , the nodes can approximately estimate their velocities using the previously stored location information [ 15 ] as follows .
+for t k > t k - 1 , the velocity of node i at time t k is approximately expressed as ( 3 ) vi - - >( tk )~ xi '( tk ) - xi '( tk - 1 ) tk - tk - 1 .
+based on the mobility prediction , nodes estimate link durations corresponding to adjacent nodes , and destination nodes choose the longest lifetime route among candidates .
+since a link between two nodes is connected only if the distance between the two nodes is less than or equal to their transmission range , the estimated link duration ldt ( i,j ) between nodes i and j is defined as ( 4 ) ldt ( i,j )= max deltat ( 5 ) subject to d ^( i,j )( tk + deltat )<= r , where d ^( i,j )( tk + deltat ) is the estimated distance between nodes i and j elapsed time deltat from current time t k. a route consists of ordered links and is disconnected if one of the links is broken .
+hence , the route expiration time ret ( s,d ) ( h ) of a route r ( s,d ) ( h ) between nodes s and d is expressed as ( 6 ) ret ( s,d )( h )= min ( i,j ) inr ( s,d )( h ) ldt ( i,j ) for h in h. the most reliable route can be chosen among candidate routes based on ( 6 ) .
+2.4 .
+location errors and estimation problem in practice , location errors inevitably exist in measurement .
+however , in previous work , mobility prediction used perfect location information receiving from the gps devices or other techniques [ 16 , 17 ] .
+the imperfect location information induces erroneous mobility estimate , which results in performance degradation .
+for example , let x i ( t k ) and x i '( t k ) be the real location and the measured location of node i at time t k. then , based on measured locations x i '( t k ) and x j '( t k ) of nodes i and j , respectively , after elapsed time deltat from time t k , the estimated distance d ^ i '( tk + deltat ) between the two nodes is less than the transmission range r and the link between two nodes is considered connected , even though node j locates out of the transmission range of node i ; that is , the communication link between two nodes is disconnected , as shown in figure 1 .
+hence , we propose a routing algorithm in the presence of location errors in measurement to mitigate the impact of imperfect location information .
+3. proposed algorithm in this section , we proposed an on - demand routing algorithm robust to location errors with mobility prediction .
+in manets , the mobility prediction plays a great role in predicting the link lifetime and the route lifetime , which can reduce overhead messages and improve routing performance [ 13 ] .
+however , as shown in figure 1 , location errors in measurement provide an incorrect mobility prediction , which induces wrong decision for routing .
+to mitigate the impact of such errors on mobility prediction and routing decision , we adopt two schemes : location error correction and route confidence .
+3.1 .
+location correction and mobility prediction we employ the discrete kalman filter , which is a set of recursive mathematical equations and supports the estimation of states in such way that minimizes the variance of estimation errors .
+the recent updates with previous measured location compensate current location for measurement errors .
+in this paper , the process errors are ignored and the main focus is the measurement errors .
+a detail of the discrete kalman filter is presented in [ 18 ]. from ( 2 ) , the current or future location depends on the previous location .
+the location errors are defined as the difference between the actual location and the measurement location .
+let w i be the location errors at node i , which is the additive noise ; then , the measurement location of node i at time t k can be expressed as x i '( t k ) = x i ( t k ) + w i ( t k ) .
+for each node i in n , let state matrix x be defined as x ( tk )=[ x ( tk ) v - - >( tk )] t with real location x and velocity v - - > ; then , x ( t k ) denotes the actual state at time t k. in the same way , we define the measurement state x '( t k ) at time t k as x '( tk )=[ x '( tk ) v ' - - >( tk )] t. during time interval deltat , which is the elapsed time from the previous updated time t k - 1 until current time t k , that is , deltat = t k - t k - 1 , the node moves from x ( t k - 1 ) to x ( t k ) such that x ( tk )= x ( tk - 1 )+ deltatv - - >( tk ) .
+hence , the measured velocity vi ' - - >( tk ) is ( 7 ) vi ' - - >( tk )= xi '( tk ) - xi '( tk - 1 ) deltat = v - - > i ( tk )+ 1deltatwi ( tk,tk - 1 ) , where w i ( t k , t k - 1 ) is the sum of measurement errors at times t k and t k - 1 .
+suppose that during elapsed time deltat the velocity is constant ; that is , v - - >( tk )= v - - >( tk - 1 ) .
+the actual state x ( t k ) and measurement state x '( t k ) can be written as ( 8 ) x ( tk )=[ 1deltat01 ] x ( tk - 1 ) x '( tk )=[ 1001 ] x ( tk )+ w ( tk ) , where w ( tk )=[ w ( tk )( 1 / deltat ) w ( tk,tk - 1 )] t. denote that matrix a ( tk - 1 )=[ 1deltat01 ] and that matrix b =[ 1001 ] .
+the matrix a ( t k - 1 ) represents the state change and the matrix b describes the relation between the actual state and measurement state .
+the above equation can be rewritten as ( 9 ) x ( tk )= a ( tk - 1 ) x ( tk - 1 ) x '( tk )= bx ( tk )+ w ( tk ) .
+since the actual state x ( t k ) cannot directly be acquired , we define x ^ - ( tk ) as a priori estimate at time t k for a given state prior to time t k , and x ^( tk ) as a posteriori estimate state at time t k for a given measurement state x '( t k ) .
+let p - ( t k ) and p ( t k ) be a priori estimate error covariance and a posteriori estimate error covariance , respectively , and they can be expressed by ( 10 ) p - ( tk )= e [( x ( tk ) - x ^ - ( tk ))( x ( tk ) - x ^ - ( tk )) t ] ( 11 ) p ( tk )= e [( x ( tk ) - x ^( tk ))( x ( tk ) - x ^( tk )) t ] .
+to find the best estimate of the current state , we apply the kalman filter .
+the operation of the kalman filter includes two mechanisms : time update and measurement update .
+the time update process is responsible for predicting the current estimate state based on the previous state by computing x ^ - ( tk ) and p - ( t k ) as follows : ( 12 ) x ^ - ( tk )= atk - 1x ^( tk - 1 ) , p - ( tk )= a ( tk - 1 ) p ( tk - 1 ) at ( tk - 1 ) .
+after the time update operation , the measurement update corrects the measurement state as follows : ( 13 ) k ( t )= p - ( tk ) bt ( bp - ( tk ) bt + r ) - 1x ^( tk )= x ^ - ( tk )+ k ( tk )( x '( tk ) - bx ^ - ( tk )) p ( tk )=( i - k ( tk ) b ) p - ( tk ) , where k ( t k ) and r are the kalman gain and the measurement error covariance , respectively .
+after that , the operation is repeated and the estimate state is measured based on the previous state and measurement state .
+each node updates and tracks its current location based on periodically or eventually measured locations as the process of the discrete kalman filter algorithm , which is summarized in figure 2 .
+in implementation , the measurement error covariance r is measured prior to the operation of the kalman filter .
+the measurement error covariance is determined by the variance of measurement noise by obtaining some off - line sample measurement [ 18 ] .
+the initial value for each state x ^( t0 ) is set to the measured information at the beginning .
+in addition , we can obtain the confidence level of a link duration from the a posteriori estimate error covariance matrix p ( t k ) .
+the a posteriori estimate error covariance matrix in ( 11 ) can be reexpressed as ( 14 ) p ( tk )=[ e [ ex2 ( tk )] e [ 1deltat ( ex2 ( tk ) - ex ( tk ) ex ( tk - 1 ))] e [ 1deltat ( ex2 ( tk ) - ex ( tk ) ex ( tk - 1 ))] e [ 1deltat2 (( ex ( tk ) - ex ( tk - 1 ))) 2 ]] , where ex ( tk )= x ( tk ) - x ^( tk ) .
+the square root of the expected square error e [ e x 2 ( t k )] is equivalently considered as the standard deviation in the engineering community [ 19 ] .
+hence , the root - mean - square error , e [ ex2 ( tk )] , is equivalently the standard deviation of errors , and e [ exi2 ( tk )+ exj2 ( tk )]/ v - - >( i,j ) , denoted as epsilon , becomes the confidence level of link duration of link ( i , j ) .
+3.2 .
+the enhanced mobility prediction routing protocol in this subsection , we develop a mobility prediction - based routing protocol in the presence of location errors .
+our goal of mobility prediction is to find the longest ret and to avoid the risky link .
+the risky link that is defined as a link with vulnerable link duration time ( ldt ) seems to be dead or to be no longer alive in a short time after discovering .
+when new data arrive at a node , the source node finds an active route associated with the corresponding destination in its routing table , as in section 2.2 .
+if no active route exists , the source node initiates route discovery to find a route to the destination node by broadcasting a rreq message with recently updated location information and the standard deviation e [ ex2 ( tk )] of location error to neighboring nodes .
+the ret field and the hop count field in the rreq message are initially set to infinity and one , respectively .
+upon reception of rreq , a node computes the link duration time between the rreq sender and itself , which implies the estimated lifetime of the link , from ( 5 ) .
+to compute link durations in ( 5 ) , nodes use the compensated location information x ^( tk ) instead of the measured location information x '( t k ) .
+to exclude the risky link , the node compares ldt value with the confidence level epsilon of ldt , which is computed from the standard deviations of the rreq sender and itself .
+if the ldt value is less than epsilon , the node discards the rreq .
+otherwise , the ldt value updates a ret value in the rreq .
+if the ldt is smaller than the ret in the rreq , the receiving node replaces the ret value by the new ldt .
+if the rreq receiver is not the destination of the rreq , the node broadcasts the receiving rreq to other nodes after increasing the hop count by one until the rreq reaches the destination .
+in the case when a node is the destination of rreq , the node waits for time interval t w and collects rreqs whose destination is the node .
+after the time interval t w , the destination chooses the longest route among the received routes and replies a rrep message after setting the lifetime field as the corresponding ret .
+rrep receivers relay the rrep message in a unicast manner until the rrep reaches the source , as described in section 2.2 .
+the details of proposed algorithm , aodv with enhanced mobility prediction ( emp ) , are described in figure 3 .
+for route maintenance , we adopt the adaptive period for hello messages as in [ 14 , 20 ] , referred to as hello interval adjustment ( hia ) , to reduce the overheads instead of a fixed period .
+when receiving a rreq from node i , node j estimates link duration ldt ( i,j ) in figure 3 and set the period for hello frequency to ( 15 ) max { tmin , min iinnj ldt ( i,j ) beta } , where t min is the minimum value for the hello period , n j is a set of the nodes that establish active links with node j , and beta is a control parameter .
+the value of beta is greater than or equal to 1 , which aims to adjust the hello frequency .
+4. performance evaluation we evaluate the performance of our proposed algorithms by using the network simulator ns - 2 [ 21 ] .
+for simulations , there are 100 nodes initially distributed in an area of 2 km by 1.5 km and the transmission range of each node is set to 250 m. we run simulations with ten different random seeds and average the simulation results .
+the random waypoint mobility ( rwp ) [ 22 ] model is used as a referenced mobility model , in which mobile nodes move from their current locations to new locations by randomly choosing directions and speeds .
+upon arrival at a destination , after a pause time , they choose another random destination in the simulation area and travel toward the destinations with a uniformly distributed speed between the maximum speed and minimum speed .
+we set the pause time to zero to represent constant mobility .
+the constant bit rate ( cbr ) traffic under the user datagram protocol ( udp ) is used to accurately compare different routing protocols with a sending rate of 4 packets per second and 512 bytes of packet size .
+the parameter settings are listed in table 1 .
+two metrics are used for evaluating the network performance : the packet delivery rate and the normalized routing load .
+the packet delivery ratio is defined as the ratio of the number of generated packets to the number of packets received at the corresponding destinations .
+for the amount of overhead packets , we count the number of packets used for route discovery and route maintenance .
+for comparison , the total number of overhead packets is normalized by the number of packets successfully delivered to destinations .
+to evaluate the performance improvement , our emp routing protocol is compared with mobility prediction - based aodv routing protocol with route discovery mechanism [ 13 ] and the conventional aodv routing protocol in various noisy environments .
+for simplicity , the mobility prediction - based aodv routing protocol is denoted by the classic mobility prediction ( mp ) .
+for simulations , we assume that the location errors of each node i are gaussian random variables with zero mean and standard deviation sigma i. firstly , we compare the performance of our enhanced mobility prediction emp with the previous work mp in the presence of location errors by varying the standard deviation of location errors from 3 m ( 1.12 % of transmission range ) to 50 m ( 20 % of transmission range ) .
+secondly , we fix the standard deviation of location errors to 20 m ( 8 % of transmission range ) and show the network performance under different impact of network environments , such as the impact of node velocity , traffic load , and node density .
+for each scenario , the hia mechanism is enabled or disabled to show the impact of adaptive hello period .
+4.1 .
+the performance of the kalman filter based enhanced mobility prediction in the presence of location errors to compare our emp routing protocol with the mp routing protocol , ten source - destination pairs generate 4 packets per second during the simulation time .
+for mobility , each node follows the rwp mobility model with randomly selected speed between 1 m / s and 20 m / s. our proposal incorporates the kalman filter to remove the location errors in order to reduce the impact of location errors and predicts the link duration time more accurately .
+the emp can also improve the network performance by limiting the number of route discovery due to the dangerous link with an uncertain link duration time .
+the node establishing the uncertain link duration time does not allow forwarding the rreq messages .
+therefore , the discovered route becomes a better candidate for route selection and the number of overhead messages is significantly decreased .
+in figure 4 ( a ) , the packet delivery rates of emp , mp , and aodv routing protocols are compared .
+as the standard deviation of location errors increases , the packet delivery rate of the mp routing protocol is decreased faster than that of emp .
+when the standard deviation of location errors is behind a certain level ( 20 m in this case ) , the packet delivery rate of the mp routing protocol is lower than that of the aodv routing protocol .
+the large location errors lead to poor mobility prediction , which results in performance degradation .
+however , the packet delivery rate of our proposed routing protocol emp outperforms mp and aodv routing protocols in all the cases and is robust to the location errors .
+figure 4 ( b ) shows the normalized routing loads of emp , mp , and aodv routing protocols .
+as the standard deviation of location errors increases , the normalized routing loads of mp and emp increase due to inaccurate prediction .
+the normalized routing load of mp increases faster than that of emp and is even greater than that of the conventional aodv .
+however , the emp just slightly increases the routing overhead , which demonstrates that our proposed algorithm is robust to location errors .
+figures 5 ( a ) and 5 ( b ) show the packet delivery rate and the normalized routing load when the hia is enabled for the mobility prediction - based routing protocol .
+the hia mechanism is used for reducing the unnecessary hello messages .
+the aodv routing protocol sets the hello frequency to 1 second and the aodv - i sets the hello frequency to 20 seconds .
+as the location errors increase , the performance of mp is degraded .
+it is because the mp routing cannot estimate the true value of link duration that leads to incorrect route selection .
+therefore , the selected route is unreliable and unstable so that the source node has to handle the route more frequently .
+when the standard deviation of location errors is larger than 40 m , the performance of the mp routing is lower than the aodv - i routing .
+the inaccurate link duration for selecting the route and setting the hello interval causes the performance degradation of mobility prediction - based routing protocol without location error compensation .
+4.2 .
+the impact of node velocity we study the impact of node velocity on routing performance in various network environments .
+the node mobility has a great impact on network performance [ 23 , 24 ] since the change of topology leads to more exchanging messages in order to find and maintain new routes .
+during simulations , performances are compared in three different mobile environments : low mobility , medium mobility , and high mobility .
+for the low mobility environment , we set the speed for rwp to 1 m / s , which is a pedestrian speed ( 3.6 km / h ) .
+we also set 10 m / s and 20 m / s ( 72 km / h ) as the node speeds for the medium mobility and the high mobility environments , respectively .
+figure 6 shows that the packet delivery rate decreases as the node velocity increases since routes are more frequently broke and more overhead messages are necessary due to fast topology change , as shown in figure 7. whether hello interval for route maintenance is fixed or adaptive to mobility , aodv with mobility prediction is better than the conventional aodv in the presence of location errors , as shown in [ 12 ] .
+our algorithm , which compensates for location errors , outperforms the others and is close to the case ( emp - wo ) when location information is error - free .
+therefore , our proposed routing protocol emp can adapt to the scalability network even in the presence of location errors .
+4.3 .
+the impact of traffic load traffic load can affect the performance of routing protocols .
+to study the impact of traffic load , we vary the number of source - destination pairs to deliver generated data .
+for mobility , each node also follows the rwp mobility model with randomly selected speed between 1 m / s and 20 m / s. figure 8 shows the packet delivery rates. by increase of the number of source - destination pairs in the network , due to transmission collision and congestion , the packet delivery rates are reduced .
+in figures 8 ( a ) and 8 ( b ) , our algorithm outperforms the others and is almost close to the emp - wo , which assumes no location errors in measurement and is an upper bound of the performance. that means that our proposed algorithm emp is robust to the location errors .
+figure 9 reports the normalized routing load when increasing the traffic load .
+in figure 9 ( a ) , the hia mechanism is disabled , the mp needs to exchange more routing messages caused by the location errors , whereas the emp can reduce the amount of routing overhead as compared to the mp and the original aodv .
+when the hia mechanism is enabled , a large number of hello messages are reduced , but the hello message still contributes well to the local connectivity management .
+the emp and emp - wo routing protocol can sharply reduce a great number of overheads as compared with the mp and the original aodv routing protocol .
+4.4 .
+the impact of node density in this subsection , we study the impact of node density on routing performance by varying the number of nodes from 75 nodes to 200 nodes as shown in figures 10 and 11 .
+if the number of nodes is too small , feasible routes between sources and destinations may not exist in the network so that the routing performance improves as the number of nodes increases in the network .
+however , above a certain number of nodes , the larger number of node hinders packet delivery due to larger overhead messages required to maintain and discover routes .
+the emp still outperforms the mp with respect to the packet delivery rate and the overhead in the presence of location errors .
+5. conclusion this paper proposed an on - demand routing algorithm with enhanced mobility prediction that takes into account the location errors .
+imperfect location information induces the performance degradation , but location errors in measurement were ignored in previous work .
+in the presence of location errors , we develop an on - demand routing algorithm collaborating to the kalman filter to predict node mobility .
+since the kalman filter provides the root - mean - square error between the actual location and estimated location , the proposed algorithm excludes unreliable links considering the confidence levels of links .
+the estimated link duration adapts to the route maintenance period to reduce overheads. via simulations , our proposed algorithm is robust to location errors and outperforms the previous algorithms .
+acknowledgment this work was supported by the 2013 research fund of university of ulsan .
+conflict of interests the authors declare that there is no conflict of interests regarding the publication of this paper .
+1 ismail d jaafar m mobile ad hoc network overview proceedings of the asia - pacific conference on applied electromagneticsdecember 2007 1 8 2 - s2.0 - 52949126778 2 corson s macker j rfc 2501 routing protocol performance issues and evaluation considerations on mobile ad hoc networking , 1999 3 camp t boleng j davies v a survey of mobility models for ad hoc network research wireless communications and mobile computing 2002 2 5 483 502 2 - s2.0 - 0038675868 4 bai f sadagopan n helmy a a framework to systematically analyze the impact of mobility on performance of routing protocols for adhoc networks 2 proceedings of the 22nd annual joint conference on the ieee computer and communications societies ( infocom ' 03 ) april 2003 825 835 2 - s2.0 - 0041438387 5 perkins ce royer em ad - hoc on - demand distance vector routing proceedings of the 2nd ieee workshop on mobile computing systems and applicationsfebruary 1999 90 100 2 - s2.0 - 34347349933 6 tsao cl wu yt liao w kuo jc link duration of the random way point model in mobile ad hoc networks 1 proceedings of the ieee wireless communications and networking conferenceapril 2006 367 371 2 - s2.0 - 34249739574 7 jiang s he d rao j a prediction - based link availability estimation for routing metrics in manets ieee / acm transactions on networking 2005 13 6 1302 1312 2 - s2.0 - 29844452246 8 luo h laurenson di link - duration - oriented route lifetime computation for aodv in manet proceedings of the international conference on wireless communications and signal processingoctober 2010 1 4 2 - s2.0 - 79952177160 9 bai f sadagopan n krishnamachari b helmy a modeling path duration distributions in manets and their impact on reactive routing protocols ieee journal on selected areas in communications 2004 22 7 1357 1373 2 - s2.0 - 4444357036 10 namuduri k pendse r analytical estimation of path duration in mobile ad hoc networks ieee sensors journal 2012 12 6 1828 1835 2 - s2.0 - 84860543264 11 la rj han y distribution of path durations in mobile ad hoc networks and path selection ieee / acm transactions on networking 2007 15 5 993 1006 2 - s2.0 - 36148946424 12 hicks jt walker jq ii mobility prediction and routing in ad hoc wireless networks international journal of network management 2001 11 1 3 30 2 - s2.0 - 0035110977 13 hu x wang j wang c mobility - adaptive routing for stable transmission in mobile ad hoc networks journal of communications 2011 6 1 79 86 2 - s2.0 - 80051971996 14 chao l aiqun h reducing the message overhead of aodv by using link availability prediction proceedings of the 3rd international conference on mobile ad - hoc and sensor networks ( msn ' 07 ) 2007 springer 113 122 15 kwon s shroff nb geographic routing in the presence of location errors computer networks 2006 50 15 2902 2917 2 - s2.0 - 33746633405 16 misra p enge p global positioning system : signals , measurements and performance 2010 ganga - jamuna press 17 drawil n amar h basir o gps localization accuracy classification : a context - based approach ieee transactions on intelligent transportation systems 2013 14 1 262 273 18 welch g bishop g an introduction to the kalman filterchapel hill , nc , usa department of computer science , university of north carolina at chapel hill 19 weisstein ew standard deviation , from mathworld - - a wolfram web resource 20 hernandez - cons n kasahara s takahashi y dynamic hello / timeout timer adjustment in routing protocols for reducing overhead in manets computer communications 2010 33 15 1864 1878 2 - s2.0 - 77955714104 21 fall k varadhan k the ns manual ( formerly ns notes and documentation ) , 2005 22 hyytia e koskinen h lassila p penttinen a roszik j virtamo j random waypoint model in wireless networks 2005 helsinki , finland networks and algorithms : complexity in physics and computer science 23 wu yt liao w tsao cl lin tn impact of node mobility on link duration in multihop mobile networks ieee transactions on vehicular technology 2009 58 5 2435 2442 2 - s2.0 - 66449092569 24 amjad k stocker aj impact of node density and mobility on the performance of aodv and dsr in manets proceedings of the 7th international symposium on communication systems , networks and digital signal processingjuly 2010 61 65 2 - s2.0 - 78149245579 figure 1 estimated link duration .
+figure 2 the kalman filter based location correction process .
+figure 3 the kalman filter based enhanced mobility prediction ( emp ) .
+figure 4 impact of location errors - - fixed hello interval .
+figure 5 impact of location errors - - flexible hello interval .
+figure 6 packet delivery rate versus node velocity .
+figure 7 normalized routing load versus node velocity .
+figure 8 packet delivery rate versus traffic load .
+figure 9 normalized routing load versus traffic load .
+figure 10 packet delivery rate versus node density .
+figure 11 normalized routing load versus node density .
+table 1 parameter settings .
+parameter values network simulator ns - 2.34 simulation area 2 km x 1.5 km number of mobile nodes 100 simulation time 900 s mobility model random way point pause time 0 s packet generation rate 4 packets / s packet size 512 bytes transmission range 250 m

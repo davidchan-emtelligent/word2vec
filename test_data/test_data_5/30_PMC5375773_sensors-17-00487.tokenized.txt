@@ -1,0 +1,360 @@
+sensors ( basel ) sensors ( basel ) sensors sensors ( basel , switzerland ) 1424 - 8220 mdpi 28257060 5375773 10.3390 / s17030487 sensors - 17 - 00487 article parameter selection and performance comparison of particle swarm optimization in sensor networks localization cui huanqing 12 * shu minglei 2 song min 3 wang yinglong 2 younis mohamed f. academic editor 1 shandong province key laboratory of wisdom mine information technology , shandong university of science and technology , qingdao 266590 , china 2 shandong provincial key laboratory of computer networks , shandong computer science center ( national supercomputer center in jinan ) , jinan 250101 , china ; shuml @ sdas.org ( m.s. ) ; wangyl @ sdas.org ( y.w . )
+3 computer science department , michigan technological university , houghton , mi 49931 , usa ; mins @ mtu.edu * correspondence : smart0193 @ 163.com 01 3 2017 3 2017 17 3 487 24 12 2016 28 2 2017 ( c ) 2017 by the authors .
+2017 licensee mdpi , basel , switzerland .
+this article is an open access article distributed under the terms and conditions of the creative commons attribution ( cc by ) license ( http :// creativecommons.org / licenses / by / 4.0 /) .
+localization is a key technology in wireless sensor networks .
+faced with the challenges of the sensors' memory , computational constraints , and limited energy , particle swarm optimization has been widely applied in the localization of wireless sensor networks , demonstrating better performance than other optimization methods .
+in particle swarm optimization - based localization algorithms , the variants and parameters should be chosen elaborately to achieve the best performance .
+however , there is a lack of guidance on how to choose these variants and parameters .
+further , there is no comprehensive performance comparison among particle swarm optimization algorithms .
+the main contribution of this paper is three - fold .
+first , it surveys the popular particle swarm optimization variants and particle swarm optimization - based localization algorithms for wireless sensor networks .
+secondly , it presents parameter selection of nine particle swarm optimization variants and six types of swarm topologies by extensive simulations .
+thirdly , it comprehensively compares the performance of these algorithms .
+the results show that the particle swarm optimization with constriction coefficient using ring topology outperforms other variants and swarm topologies , and it performs better than the second - order cone programming algorithm .
+wireless sensor networks particle swarm optimization localization parameter selection performance comparison 1 .
+introduction wireless sensor networks ( wsns ) are an important infrastructure of the internet of things used for sensing the surrounding information , whose applications can be classified into monitoring and tracking in the fields of military and public [ 1 ] .
+in these applications , spatial information is one of the most important contexts of the sensed data , and the location information can support the coverage , routing , and many other operations of a wsn .
+however , the sensor nodes of a wsn are usually deployed in an ad hoc manner without any prior knowledge of their locations , so it is essential to determine the node 's location , which is referred to as localization .
+a possible solution is to equip each sensor node with a global positioning system ( gps ) device , but it is not suitable for large - scale deployment due to the constraints of cost and energy .
+hence , only a part of sensor nodes ( named anchors ) are equipped with gps devices .
+these anchors serve as references to the other nodes ( named unknown nodes ) , which are to be localized .
+there exist well - organized overviews of sensor localization algorithms [ 2,3 ] .
+localization consists of ranging and estimation phases .
+in the ranging phase , the nodes measure their distances from anchors using received signal strength , time of arrival , time difference of arrival , link quality indicator , or angle of arrival .
+in the estimation phase , the node 's position is estimated based on the ranging information .
+a popular estimation approach is to formulate the localization problem as an optimization problem , and then use an optimization algorithm to solve the problem .
+traditional optimization algorithms are widely used in localization [ 4,5,6,7 ] , such as least square , maximum - likelihood , semi - determined programming , and second - order cone programming .
+recently , soft computing algorithms have been widely applied to solve this problem [ 8,9 ] , such as cuckoo search algorithm [ 10 ] , artificial neural network [ 11 ] , bacterial foraging algorithm [ 12 ] , bat algorithm [ 13 ] , and biogeography - based optimization [ 9,14 ] .
+particle swarm optimization ( pso ) is also an important soft computing algorithm which models the behavior of a flock of birds .
+it utilizes a population of particles to represent candidate solutions in a search space , and optimizes the problem by iteration to move these particles to the best solutions with regard to a given measure of quality .
+compared with the above algorithms , the advantages of particle swarm optimization are the following [ 15,16,17 ] .
+ease of implementation on hardware or software .
+high - quality solutions because of its ability to escape from local optima .
+quick convergence .
+recently , pso has been used in many issues of wsns [ 17,18 ] .
+this paper focuses on the pso - based localization algorithms for static wsns , where all sensors are static after deployment .
+some pso - based localization algorithms with different population topologies are compared in cao et al .
+[ 19 ] .
+however , they do not consider the recently - proposed pso - based localization algorithms , nor do they give parameter selections .
+the existing pso 's parameter selection guidelines [ 16 ] are not based on the objective function in localization problem of wsn , so these parameters cannot achieve the optimal localization performance .
+the main contributions of this paper are as follows .
+it surveys the popular particle swarm optimization variants and particle swarm optimization - based localization algorithms for wireless sensor networks .
+it presents parameter selection of nine particle swarm optimization variants and six types of swarm topologies by extensive simulations .
+it comprehensively compares the performance of these algorithms .
+the rest of the paper is organized as follows .
+the localization problem and pso are introduced in section 2 .
+section 3 surveys the pso - based localization algorithms , and section 4 presents their parameter selections .
+section 5 compares the performance of pso - based localization algorithms .
+section 6 concludes the paper and presents the future work .
+2. statements of localization problem and pso 2.1 .
+localization problem for static wsns a wsn is a network of n sensor nodes , including na anchors and nu unknown nodes , where na << nu. the wsn is deployed in a two - dimensional region of interest at random .
+the region is often assumed as a square of side - length l. suppose all the sensor nodes have the same communication range , which is a circle of radius r. two sensor nodes are called neighbors if one of them lays in the communication range of the other , and the distance between them can be measured .
+obviously , an unknown node can be localized if it has at least three neighboring anchors .
+since na << nu , the localization of static wsns is an iterative procedure .
+the unknown nodes with at least three neighboring anchors are localized first , and then the other unknown nodes are localized based on the information of neighboring anchors and localized unknown nodes iteratively .
+both the anchors and localized unknown nodes are called reference nodes in this paper .
+during localization , suppose an unknown node uj ( j = 1,2 ,... , nu ) has n neighboring reference nodes .
+let d ^ kj be the measured distance between uj and reference node bk ( k = 1,2 ,... , n ) , ( x ^ uj,y ^ uj ) , and ( xuj,yuj ) be the estimated and actual positions of uj , and ( xbk,ybk ) be the position of bk. then , the localization result should satisfy ( 1 ) d ^ kj =( x ^ uj - xbk ) 2 +( y ^ uj - ybk ) 2 .
+the distances measured by any ranging method are inaccurate , so it is impossible to find an accurate solution to ( 1 ) .
+let d ~ kj be the right part of ( 1 ) , and be referred to as estimated distance .
+obviously , ( 2 ) d ~ kj != d ^ kj because of the inaccurate measured distances .
+then , the purpose of localization is to minimize the difference between d ^ kj and d ~ kj , which is ( 3 ) f1 = sumk = 1nd ^ kj - d ~ kj2 .
+for most ranging techniques , the measurement error is related to the distance between the two sensor nodes , and larger distances cause larger error [ 20 ] .
+hence , weight wk is introduced so that the nearer neighboring reference nodes a play greater role in localization , as shown in ( 4 ) .
+( 4 ) f2 = sumk = 1nwkd ^ kj - d ~ kj2 , where wk is the weight of the neighboring reference node bk of uj , defined as ( 5 ) wk = 1d ^ kjsumk = 1n1d ^ kj. besides , the following equations are also discussed in related literature : ( 6 ) f3 = 1nf1 ( 7 ) f4 = 1nf2 which are , respectively , the average of f1 and f2 on number of neighboring reference nodes n. equations ( 3 ) , ( 4 ) , ( 6 ) and ( 7 ) are called objective functions .
+2.2 .
+particle swarm optimization the pso - based localization algorithm uses pso to solve one of the above objective functions .
+because the wsn considered in this paper is in a two - dimensional region , the search space of the pso is constrained to two - dimensions .
+let m be the number of particles of the pso .
+particle i occupies three two - dimensional vectors pi , qi , and vi , representing its current location , previous best position , and current velocity .
+besides , gb denotes the position of the best particle so far .
+in each iteration , particle i updates its position and velocity according to the following equations .
+( 8 ) vij = omegavij + c1phi1j ( qij - pij )+ c2phi2j ( gbj - pij ) pij = pij + vijj = 1,2 , where c1 and c2 are cognitive and social acceleration coefficients , respectively , phi1j and phi2j are random numbers uniformly distributed in ( 0,1 ) , and omega is the inertia weight .
+c1 propels the particle towards the position where it had the best fitness , while c2 propels the particle towards the current best particle .
+the stochastic vi may become too high to keep all particles in the search space .
+hence , vmax is introduced [ 16 ] to bound vij within the range [ - vmax,vmax ] .
+omega is an important parameter .
+linearly decreasing and simulated annealing types are the best ones of all adjustment methods [ 21 ] .
+due to the computational and memory constraints of sensor nodes , the linearly decreasing method is adopted in many pso - based localization algorithms , which is ( 9 ) omega = omegamax - omegamax - omegamintmaxxt where tmax is the maximum number of allowable iterations , omegamax and omegamin are maximum and minimum weights , respectively , and t is the current iteration .
+as we can see , pso needs each particle to communicate / connect with the other particles to obtain gb. the connections among particles are called topology .
+there are two kinds of topologies : global - best and local - best .
+the former allows each particle to access the information of all other particles , and the latter only allows each particle to access the information of its neighbors according to different local - best topology [ 22,23 ] .
+because each particle has a different swarm of neighboring particles in its local - best topology , this topology ensures that the particles have full diversity .
+local - best topology uses lbi instead of gb to represent the best position of the neighboring particles of particle i , and its update function is : ( 10 ) vij = omegavij + c1phi1j ( qij - pij )+ c2phi2j ( lbij - pij ) pij = pij + vijj = 1,2 .
+here , c2 propels the particle towards the current best particle within the corresponding sub - swarm of this particle .
+the most popular local - best swarm topologies include : ring topology : each particle is affected by its k immediate neighbors .
+star / wheel topology : only one particle is in the center of the swarm , and this particle is influenced by all other particles .
+however , each of the other particles can only access the information of the central particle .
+pyramid topology : the swarm of particles are divided into several levels , and there are 4l particles in level l ( l >= 0 ) , which form a 2lx2l mesh .
+von neumann topology : all particles are connected as a toroidal , and each particle has four neighbors , which are above , below , left , and right particles .
+random topology : each particle chooses neighbors randomly at each iteration .
+we utilize the second algorithm proposed in [ 24 ] to generate the random topology .
+2.3 .
+evaluation criteria of pso - based localization algorithms localization error .
+the localization error of unknown node uj is defined as ej = 1r ( x ^ uj - xuj ) 2 +( y ^ uj - yuj ) 2 .
+the mean and standard deviation of localization error are denoted by e and sigmae , respectively .
+number of iterations .
+this is the number of iterations of pso to achieve the best fitness .
+the mean and standard deviation of the number of iterations are denoted by itr and sigmaitr , respectively .
+in wsn applications , the localization error depends on ranging error , gps error , localization error accumulation , and the localization algorithm .
+the ranging error results from the distance measurement technique , and the gps error determines the errors of anchors' positions .
+both ranging and gps errors are assumed to obey gaussian distribution , and they are denoted by e. the accumulated localization error comes from the iterative localization procedure : some unknown nodes may utilize localized unknown nodes to localize themselves , while the positions of these localized unknown nodes already have localization error .
+3. a survey of pso - based localization algorithms 3.1 .
+basic procedure of pso - based localization algorithms after measuring the distance between sensor nodes , each unknown node estimates its location by algorithm 1 .
+in this algorithm , line 1 determines the particles' search space , which is the intersection region of the radio range of all neighboring reference nodes of this sensor node .
+after initialization in line 2 , it uses an iterative process to estimate the position ( lines 3 to 7 ) .
+note that the update process of line 6 is different according to different pso - based localization algorithms .
+algorithm 1 pso - based localization algorithm 1 : determine the particles' search space .
+2 : initialize a swarm of particles in the search space with random positions and velocities .
+3 : while stop criteria are not met do 4 : compute the fitness values of all particles .
+5 : compute qi , lbi , and / or gb .
+6 : update each particle .
+7 : end while 3.2 .
+pso - based localization algorithms the basic pso algorithm using ( 8 ) is the most popular one among all pso - based localization algorithms , and we use wpso ( weighted - pso ) to represent it for convenience .
+the first wpso - based localization algorithm was proposed in [ 25 ] , which uses ( 6 ) as the objective function .
+wpso is also applied to the localization problem of ultra - wide band sensor networks in [ 26,27 ] .
+in a static sensor network , some unknown nodes may not have enough neighbor anchors to localize themselves , so [ 28 ] applies dv ( distance vector ) - distance to make all unknown nodes have distances to at least three anchors , and then it uses wpso to localize .
+in order to make wpso 's convergence rate fast , [ 29 ] introduces a threshold to constrain a change of fitness function .
+due to the inaccurate distance measurements , flip ambiguity is popular during localization , but this problem is not considered by the aforementioned algorithms .
+in [ 30 ] , wpso in conjunction with two types of constraints is used to cope with this problem .
+besides two - dimensional sensor networks , wpso is also applied to localize three - dimensional wsns [ 27,31,32 ] and underwater wsns [ 33 ] .
+different from the above algorithms , a mobile anchor - assisted wpso - based localization algorithm is proposed in [ 20,34 ] , which only uses one mobile anchor to provide distance range to all unknown nodes while it traverses the sensor network .
+besides localization , [ 35 ] also applies wpso to the real - time autonomous deployment of sensor nodes ( including anchors and unknown nodes ) from an unmanned aerial vehicle .
+besides wpso , many variants of pso algorithms have been proposed to improve the performance .
+the most representative algorithms are listed below .
+constricted pso ( cpso ) .
+wpso has the disadvantages of early convergence and swarm explosion , so cpso [ 36 ] introduces the constriction coefficient chi to conquer these disadvantages : ( 11 ) vij = chi ( vij + phi1j ( qij - pij )+ phi2j ( gbj - pij )) pij = pij + vijj = 1,2 , where chi = 22 - c - c2 - 4c , c = c1 + c2 > 4.0 .
+cpso eliminates the vmax in wpso .
+it performs better than wpso in many problems [ 36 ] .
+h - best pso ( hpso ) .
+global - and local - best pso algorithms have their own advantages and disadvantages .
+combining these two algorithms , hpso [ 9,14 ] divides the particles into several groups , and particle i is updated based on gb , lbi , and qi , per the following equation : ( 12 ) vij = omegavij + c1phi1j ( qij - pij )+ c2phi2j ( gbj - pij )+ c3phi3j ( lbij - pij ) pij = pij + vijj = 1,2 .
+here , c3 is the same as c2 of ( 10 ) , and phi3j is a random number uniformly distributed in ( 0,1 ) .
+hpso provides fast convergence and swarm diversity , but it utilizes more parameters than wpso .
+pso with particle permutation ( ppso ) .
+in order to speed up the convergence , ppso [ 37 ] sorts all particles such that f ( pi )<= f ( pj ) , if i <= j , and replaces the positions of particles [ m2 ]+ 1 to m with positions close to p1 .
+the rule of replacement is : ( 13 ) p [ m2 ]+ k,j = p1j + rhokjj = 1,2 ; k = 1,2 ,...,[ m2 ] , where rhokj is a random number uniformly distributed in ( - 0.5,0.5 ) .
+extremum disturbed and simple pso ( epso ) .
+sometimes , pso easily fall into local extrema .
+epso [ 38 ] uses two preset thresholds t0 and tg to randomly churn qi and gb to overcome this shortcoming .
+the operators of extremal perturbation are : ( 14 ) qij '= phi4jqij,gbj '= phi5jgbjj = 1,2 .
+let t0 and tg be evolutionary stagnation iterations of qi and gb , respectively .
+in ( 14 ) , if t0 <= t0 ( tg <= tg ) , phi4j ( phi5j ) is 1 ; otherwise , phi4j ( phi5j ) is a random number uniformly distributed in [ 0,1 ] .
+for particle i , the update function of epso is ( 15 ) pij = etaijomegapij + c1phi1j ( qij ' - pij )+ c2phi2j ( gbj ' - pij ) j = 1,2 , where etaij is used to control the movement direction of particle i to make the algorithm convergence fast , which is defined as ( 16 ) etaij = pij - gbj ( pi1 - gb1 ) 2 +( pi2 - gb2 ) 2j = 1,2 .
+dynamic pso ( dpso ) .
+each particle in dpso [ 19 ] pays full attention to the historical information of all neighboring particles , instead of only focusing on the particle which gets the optimum position in the neighborhood .
+for particle i , the update function of dpso is ( 17 ) pij = pij + c1 ( pij - pij ')+ c2ksumk = 1k ( qkj - pij )+ c3phi3jksumk = 1k | qkj - qij | j = 1,2 , where k is the number of neighboring particles of the ith particle .
+pi ' is the previous position of the ith particle .
+note that c1 , c2 , and c3 are just weights without physical meaning .
+binary pso ( bpso ) .
+bpso [ 39 ] is used in binary discrete search space , which applies a sigmoid transformation to the speed attribute in update function , so its update function of particle i is ( 18 ) vij = omegavij + c1phi1j ( qij - sigmoid ( pij ))+ c2phi2j ( gbj - sigmoid ( pij )) pij = pij + vijj = 1,2 , where sigmoid ( pij ) is defined as ( 19 ) sigmoid ( pij )= 1ifphi6 < 211 + e - vij - 0.50otherwise phi6 is a random number .
+pso with time variant omega , c1 , and c2 ( tpso ) .
+tpso [ 19 ] employs time - varying c1 , c2 , and omega ( see equation ( 9 )) to achieve proper balance between global and local exploitation , where ( 20 ) c1 =( c1f - c1s ) ttmax + c1s,c2 =( c2f - c2s ) ttmax + c2s , where c1s , c1f , c2s , and c2f are initial and final values of c1 and c2 , respectively .
+pso with particle migration ( mpso ) [ 40 ] .
+mpso enhances the diversity of particles and avoids premature convergence .
+mpso randomly partitions particles into several sub - swarms , each of which evolves based on tpso , and some particles migrate from one sub - swarm to another during evolution .
+in one word , the above - mentioned pso variants aim to overcome one or more drawbacks of wpso , but they also introduce additional operations .
+3.3 .
+comparison between pso and other optimization algorithms the above - mentioned algorithms are also compared with the other algorithms in corresponding references , and table 1 summarizes the comparison results .
+the bacterial foraging algorithm models the foraging behavior of bacteria that thrive to find nutrient - rich locations .
+each bacterium moves using a combination of tumbling and swimming .
+tumbling refers to a random change in the direction of movement , and swimming refers to moving in a straight line in a given direction .
+the simulated annealing algorithm originated from the formation of crystals from liquids .
+initially , the simulated annealing algorithm is in a high energy state .
+at each step , it considers some neighbouring state of the current state , and probabilistically decides between moving the system to one neighbouring state or staying in the current state .
+these probabilities ultimately lead the system to move to states of lower energy .
+artificial neural networks model the human brain in performing an intelligent task .
+it integrates computational units ( neurons ) in multi - layers , and these layers are connected by adjustable weights .
+three traditional layers are input , hidden , and output .
+the biogeography - based optimization algorithm is motivated by the science of biogeography , which investigates the species distribution and its dynamic properties from past to present spatially and temporally .
+in this algorithm , the candidate solutions and their features are considered as islands and species , respectively .
+species migrate among islands , which is analogous to candidate solutions' interaction .
+4. parameter selections of pso - based localization algorithms given a problem to be solved , the performance of a pso depends on its parameters .
+although theoretical analysis can guide the parameter selection , this analysis can occupy large space , such as [ 43 ] , which exceeds the limit of this paper .
+on the other hand , extensive experimentation has been used widely in the parameter selection or performance analysis of pso [ 15,21,23 ] .
+therefore , we try to choose the best parameter by experiments instead of theoretical analysis .
+because some parameters of hpso and ppso have been calibrated in corresponding references , we only calibrate parameters of wpso , cpso , mpso , tpso , bpso , epso , and dpso , and m and vmax of ppso and hpso .
+4.1 .
+simulation setup the pso - based localization algorithms are implemented in c language , and the results are analyzed by matlab .
+because our aim is to decide the best parameters , we only perform the localization procedure on one unknown node , denoted by u1 .
+suppose the actual position of u1 is ( xu1,yu1 )=( 0,0 ) , and nb reference nodes are deployed within the communication range of u1 .
+considering the error e during distance measurements , d ^ k1 ( k = 1,2 ,... , nb ) is defined as ( 21 ) d ^ k1 = dk1 + alpha , where dk1 is the real distance between u1 and bk , alpha is a random number that follows a normal distribution with mean 0 and variance dk1e .
+the simulation setup is shown in table 2 .
+for convenience , we use a : b : c to represent the set of [ a,a + b ,... , c ] in this paper .
+the parameter selection procedure is : using vmax = 0.5r and m = 20,30,40,50 to find out the best c1 , c2 , c3 , and omega .
+using the best c1 , c2 , c3 and omega to choose m. using the best c1 , c2 , c3 , omega and m to choose vmax .
+using the best c1 , c2 , c3 , omega , m and vmax to compare fitness functions .
+we use f3 as the objective function of pso to choose the best parameters , because it is the most popular fitness used in pso - based localization algorithms .
+the stopping criteria is ( 22 ) f3 ( x )<= 10 - 4ort > tmax , which means the fitness value f3 ( x ) achieves an allowable precision 10 - 4 or the number of iteration t exceeds pre - defined threshold tmax .
+we generate 100 tests with each combination of different e , r , and nb , and we utilize each algorithm to estimate the position of u1 by 100 runs for each test case , under each group of pso 's parameters .
+the results are the average of these runs .
+a localization algorithm should have the best performance regardless of nb , because nb is different to each unknown node in real applications of wsn .
+hence , the impacts of nb on parameter selection are not analyzed .
+4.2 .
+best parameters of pso - based localization algorithms taking the selection of c1 and c2 of wpso with global - best model as an example , the selection approach is introduced .
+we first calibrate c1 and c2 without considering the specific value of e , because we may not know e during localization .
+the results are the averages of all e. figure 1a,b show that the impacts of c1 and c2 on localization errors are very little : the gap between the minimum and maximum e ( sigmae ) is about 4.42x10 - 5 ( 1.79x10 - 4 ) .
+on the contrary , figure 1c,d show that itr and sigmaitr reduce with the decrease of c1 and c2. with different c1 and c2 , the difference between the maximum and minimum itr ( sigmaitr ) is about 31.03 ( 11.70 ) .
+the best choices are c1 = 1.7 - 1.8 and c2 = 1.7 - 1.8 , which occupy 96.2 % optimal number of iterations for all cases .
+further , we investigate the impacts of c1 and c2 on localization performance under each e , and we find that c1 = 1.7 - 1.8 and c2 = 1.7 - 1.8 are still the best choice for each e. similar approaches have been applied to other parameters and algorithms , and the resulting best parameters are shown in table 3 .
+because mpso and hpso already divide the swarm of particles into several sub - swarms which are similar with local - best models , we only analyze their global - best models .
+4.3 .
+performance comparison of fitness function figure 2a,b shows that itr of f4 is [ 306.86 , 326.41 ] , which is about 89.65 % - 91.57 % of those of f1 , f2 , and f3 .
+figure 2c,d shows that f4 is still the best .
+in detail , f3 and f4 has almost the same e , which is [ 0.035 , 0.048 ] .
+however , f4 has the minimal sigmae .
+the performance of each fitness function using the other pso algorithms with different swarm topologies also shows that f4 outperforms the other functions in all cases .
+5. performance comparisons of pso - based localization algorithms 5.1 .
+simulations setup the performance of all pso algorithms is compared by simulations of a whole wsn .
+the parameters of each pso variant are set based on section 4 .
+during localization , we utilize iterative localization to localize as many unknown nodes as possible .
+we also demonstrate the impact of radio irregularity on the localization performance of different algorithms , because the actual transmission range of sensor nodes is not a perfect circle due to multi - path fading , shadowing , and noise .
+the radio model in [ 44 ] is used to represent the degree of irregularity d. based on this model , there is an upper bound r and a lower bound ( 1 - d ) r of the communication range .
+the simulation setups are : l = 100 units , nu = 100:100:500 , na = 10:10:50 , r = 25:10:45 units , e = 0:0.05:0.2 , d = 0:0.1:0.5 .
+5.2 .
+comparisons of different swarm topologies in same pso there are 2250 test cases to simulate , and the best swarm topology should outperform the other ones in most test cases , instead of in several test cases .
+therefore , we count the number of optimal values of each swarm topology of all test cases , and try to find the topology which achieves the optimal values in most test cases .
+the " optimal values " are the evaluation criteria mentioned in section 2.3 .
+the results are shown in figure 3 .
+for wpso , von neumann and ring topologies perform almost the same , and they outperform the other topologies .
+ring topology can gain the optimal e , sigmae , itr , and sigmaitr in more than 93.2 % , 99.5 % , 98.1 % , and 99.5 % of test cases , respectively , and von neumann topology can gain the optimal e , sigmae , itr , and sigmaitr in more than 93.4 % , 99.5 % , 97.5 % , and 99.5 % of test cases , respectively .
+it is hard to say which topology is the best for some algorithms , because none of these topologies performs the best in all four percentages .
+in this case , we give more importance to e than the other criteria .
+taking ppso as an example ( figure 3d ) , its global - best and von neumann topologies are obviously better than the others , but von neumann outperforms global - best model in e , while global - best model is better than von neumann in the other three criteria .
+since we put e as the first criterion to choose the best swarm topology , von neumann is the best one which achieves optimal e in more than 92.3 % cases , while the percentage of global best model is 70.7 % .
+using a similar idea , the best swarm topologies of all algorithms are : ring topology for wpso , cpso , and tpso ; von neumann topology for ppso and dpso ; random topology for epso and bpso .
+furthermore , we compare the performance of different swarm topologies used in the same pso algorithm , with different nu , na , r , d , e one by one , and we find these results are consistent with the aforementioned results .
+5.3 .
+comparison of pso - based localization algorithms using the results introduced in section 4 , the pso - based localization algorithms are compared .
+5.3.1 .
+general analysis in general , as shown in figure 4 , cpso and ppso needs fewer iterations than the other pso - based localization algorithms .
+in fact , the average itr of all test cases required by cpso and ppso are 220.16 and 222.29 , respectively , while those of wpso , tpso , mpso , hpso , epso , dpso , and bpso are 312.88 , 484.99 , 268.84 , 281.68 , 310.26 , 253.52 , and 252.47 , respectively .
+sigmaitr of cpso is also the smallest ( 6.67 ) , while sigmaitr of the other algorithms are larger than 10 .
+on the other hand , cpso and ppso achieve the optimal e for more than 89.69 % of test cases , and the optimal sigmae for more than 60.84 % of test cases .
+furthermore , the average e and sigmae of all test cases of cpso and ppso are the first two best ones among all algorithms .
+cpso has the least operations during one iteration among all algorithms .
+compared with cpso , the other algorithms need more parameters and operations such , as vmax , particle sort , or migration .
+in one word , cpso is the best pso - based localization algorithm .
+5.3.2 .
+impacts of network parameters on performance in order to analyze the impacts of network setups on localization performance , cpso is taken as an example , because we find that the other algorithms have the same trends as cpso , except the variation range .
+as illustrated in figure 5 , we cannot draw any rule of the impacts of nu and na on itr , sigmaitr .
+however , e and sigmae decrease as na increases , because the more anchors exist in a wsn , the less unknown nodes need iterative localization , as shown in figure 6 .
+figure 6 shows that the number of unknown nodes localized by neighboring anchors instead of localized unknown nodes under na = 500 is about two times the number under na = 100 .
+table 4 denotes that the variations are very small except sigmaitr .
+e and sigmae are almost the same , but cpso and ppso have the smallest itr . from figure 7a,b , we can see that d impacts the localization error very little , where e ( sigmae ) only differs less than 0.003 ( 0.006 ) with the same e and different d. however , e affects the localization error greatly : a larger e leads to a larger localization error .
+as shown in figure 7c , itr is minimal when d = e = 0 , and it increases significantly when both d and e are greater than 0 .
+however , it keeps almost the same when d > 0 and e > 0 , which can also be proved from table 5 .
+on the contrary , sigmaitr reaches maximum when d = e = 0 , and it decreases when both d and e are greater than 0 , as shown in figure 7d .
+table 5 shows that e and sigmae of epso , dpso , and bpso are larger than the other algorithms , and d and e have little impacts on itr , but sigmaitr varies very much under different d and e. figure 8a,b denote that the larger r has higher localization precision .
+e of epso , dpso , and bpso are larger than the other algorithms , while the other algorithms have almost the same e . moreover , e of epso and dpso decrease with increasing r , while those of the other algorithms show little change .
+sigmae has the same rule as e , as shown in figure 8b .
+figure 8c,d show that the impacts of r on the number of iterations are very little , and cpso and ppso requires the fewest iterations , while tpso needs the most iterations .
+5.4 .
+comparison between cpso and socp table 1 shows the comparison between pso and the other optimization algorithms .
+we compare cpso and second - order cone programming ( socp ) in this section , because socp is also a popular optimization algorithm used in localization problems [ 4,5 ] , and cpso has not been compared with socp .
+the socp algorithm is implemented in matlab by cvx [ 45 ] .
+as shown in figure 9 , cpso with global - best model outperforms socp under different nu , na , d , and e. e and sigmae of cpso are 0.0085 - 0.0684 and 0.0526 - 0.1311 , respectively , and those of socp are 0.2909 - 0.3549 and 0.2707 - 0.3 , respectively .
+further , socp takes much longer than cpso .
+for example , there are 450 test cases when nu = 100 , and socp uses 2 hours and 58 minutes to obtain the results , while cpso only takes 12 minutes .
+6. conclusions as a classical swarm intelligence algorithm , particle swarm optimization has many advantages over other optimization algorithms to solve the localization problem of wireless sensor networks , and many particle swarm optimization - based localization algorithms have been proposed in recent years , but it lacks of parameter selection and comprehensive comparison of these algorithms .
+this paper surveys the existing particle swarm optimization - based localization algorithms , and chooses the best parameters based on simulations .
+further , we compare currently widely - used particle swarm optimization - based localization algorithms with six types of swarm topologies , and the results show that particle swarm optimization with constriction coefficient and ring topology is the best choice to solve the localization algorithm of wireless sensor networks .
+acknowledgments this research is supported by the open research fund from shandong provincial key laboratory of computer networks , grant no. sdklcn - 2015 - 03 .
+author contributions huanqing cui and minglei shu conceived and designed the experiments ; huanqing cui and yinglong wang performed the experiments ; huanqing cui analyzed the data ; huanqing cui and min song wrote the paper .
+conflicts of interest the authors declare no conflict of interest .
+references 1 .
+yick j. mukherjee b. ghosal d. wireless sensor network survey comput. netw .
+2008 52 2292 2330 10.1016 / j.comnet.2008.04.002 2 .
+cheng l. wu c. zhang y. wu h. li m. maple c. a survey of localization in wireless sensor network int. j. distrib. sens. netw .
+2012 2012 962523 10.1155 / 2012 / 962523 3 .
+han g. xu h. duong t.q. jiang j. hara t. localization algorithms of wireless sensor networks : a survey telecommun. syst .
+2011 48 1 18 4 .
+naddafzadeh - shirazi g. shenouda m.b. lampe l. second order cone programming for sensor network localization with anchor position uncertainty ieee trans. wirel. commun .
+2014 13 749 763 10.1109 / twc.2013.120613.130170 5 .
+beko m. energy - based localization in wireless sensor networks using second - order cone programming relaxation wirel. pers. commun .
+2014 77 1847 1857 10.1007 / s11277 - 014 - 1612 - 7 6 .
+erseghe t. a distributed and maximum - likelihood sensor network localization algorithm based upon a nonconvex problem formulation ieee trans .
+signal inf. process. netw .
+2015 1 247 258 10.1109 / tsipn.2015.2483321 7 .
+ghari p.m. shahbazian r. ghorashi s.a. wireless sensor network localization in harsh environments using sdp relaxation ieee commun. lett .
+2016 20 137 140 10.1109 / lcomm.2015.2498179 8 .
+kulkarni r.v. forster a. venayagamoorthy g.k. computational intelligence in wireless sensor networks : a survey ieee commun. surv. tutor .
+2011 13 68 96 10.1109 / surv.2011.040310.00002 9 .
+kumar a. khoslay a. sainiz j.s. singh s. computational intelligence based algorithm for node localization in wireless sensor networks proceedings of the 2012 6th ieee international conference intelligent systems ( is ) sofia , bulgaria 6 - 8 september 2012 431 438 10 .
+cheng j. xia l. an effective cuckoo search algorithm for node localization in wireless sensor network sensors 2016 16 1390 10.3390 / s16091390 27589756 11 .
+chuang p.j. jiang y.j. effective neural network - based node localisation scheme for wireless sensor networks iet wirel. sens. syst .
+2014 4 97 103 10.1049 / iet - wss.2013.0055 12 .
+kulkarni r.v. venayagamoorthy g.k. cheng m.x. bio - inspired node localization in wireless sensor networks proceedings of the ieee international conference on systems , man and cybernetics ( smc 2009 ) san antonio , tx , usa 11 - 14 october 2009 205 210 13 .
+goyal s. patterh m.s. modified bat algorithm for localization of wireless sensor network wirel. pers. commun .
+2016 86 657 670 10.1007 / s11277 - 015 - 2950 - 9 14 .
+kumar a. khoslay a. sainiz j.s. singh s. meta - heuristic range based node localization algorithm for wireless sensor networks proceedings of the 2012 international conference on localization and gnss ( icl - gnss ) starnberg , germany 25 - 27 june 2012 1 7 15 .
+li z. liu x. duan x. comparative research on particle swarm optimization and genetic algorithm comput. inf. sci. 2010 3 120 127 16 .
+jordehi a.r. jasni j. parameter selection in particle swarm optimization : a survey j. exp. theor. artif. intell .
+2013 25 527 542 10.1080 / 0952813x.2013.782348 17 .
+kulkarni r.v. venayagamoorthy g.k. particle swarm optimization in wireless sensor networks : a brief survey ieee trans. syst .
+man cybern .
+c 2011 41 262 267 10.1109 / tsmcc.2010.2054080 18 .
+gharghan s.k. nordin r. ismail m. ali j.a. accurate wireless sensor localization technique based on hybrid pso - ann algorithm for indoor and outdoor track cycling ieee sens. j. 2016 16 529 541 10.1109 / jsen.2015.2483745 19 .
+cao c. ni q. yin c. comparison of particle swarm optimization algorithms in wireless sensor network node localization proceedings of the 2014 ieee international conference on systems , man and cybernetics ( smc ) san diego , ca , usa 5 - 8 october 2014 252 257 20 .
+xu l. zhang h. shi w. mobile anchor assisted node localization in sensor networks based on particle swarm optimization proceedings of the 2010 6th international conference on wireless communications networking and mobile computing ( wicom ) chengdu , china 23 - 25 september 2010 1 5 21 .
+han w. yang p. ren h. sun j. comparison study of several kinds of inertia weights for pso proceedings of the 2010 ieee international conference on progress in informatics and computing ( pic ) shanghai , china 10 - 12 december 2010 280 284 22 .
+valle y.d. venayagamoorthy g.k. mohagheghi s. hernandez j.c. harley r.g. particle swarm optimization : basic concepts , variants and applications in power systems ieee trans. evol. comput .
+2008 12 171 195 10.1109 / tevc.2007.896686 23 .
+medina a.j.r. pulido g.t. ramirez - torres j.g. a comparative study of neighborhood topologies for particle swarm optimizers proceeding of the international joint conference computational intelligence funchal , madeira , portugal 5 - 7 october , 2009 152 159 24 .
+clerc m. back to random topology available online : http :// clerc.maurice.free.fr / pso / random _ topology.pdf ( accessed on 28 february 2017 ) 25 .
+gopakumar a. jacob l. localization in wireless sensor networks using particle swarm optimization proceeding of the iet international conference on wireless , mobile and multimedia networks beijing , china 11 - 12 january 2008 227 230 26 .
+gao w. kamath g. veeramachaneni k. osadciw l. a particle swarm optimization based multilateration algorithm for uwb sensor network proceedings of the canadian conference on electrical and computer engineering ( ccece ' 09 ) budapest , hungary 3 - 6 may 2009 950 953 27 .
+okamoto e. horiba m. nakashima k. shinohara t. matsumura k. particle swarm optimization - based low - complexity three - dimensional uwb localization scheme proceedings of the 2014 sixth international conf on ubiquitous and future networks ( icufn ) shanghai , china 8 - 11 july 2014 120 124 28 .
+chuang p.j. wu c.p. employing pso to enhance rss range - based node localization for wireless sensor networks j. inf. sci. eng .
+2011 27 1597 1611 29 .
+liu z. liu z. node self - localization algorithm for wireless sensor networks based on modified particle swarm optimization proceedings of the 2015 27th chinese control and decision conference ( ccdc ) qingdao , china 23 - 25 may 2015 5968 5971 30 .
+mansoor - ul - haque f.a.k. iftikhar m. optimized energy - efficient iterative distributed localization for wireless sensor networks proceedings of the 2013 ieee international conference on systems , man , and cybernetics ( smc ) manchester , uk 13 - 16 october 2013 1407 1412 31 .
+wei n. guo q. shu m. lv j. yang m. three - dimensional localization algorithm of wireless sensor networks base on particle swarm optimization j. china univ. posts telecommun .
+2012 19 7 12 10.1016 / s1005 - 8885 ( 11 ) 60451 - 2 32 .
+dong e. chai y. liu x. a novel three - dimensional localization algorithm for wireless sensor networks based on particle swarm optimization proceedings of the 2011 18th international conference on telecommunications ( ict ) ayia napa , cyprus 8 - 11 may 2011 55 60 33 .
+zhang y. liang j. jiang s. chen w. a localization method for underwater wireless sensor networks based on mobility prediction and particle swarm optimization algorithms sensors 2016 16 212 10.3390 / s16020212 26861348 34 .
+zhang x. wang t. fang j. a node localization approach using particle swarm optimization in wireless sensor networks proceedings of the 2014 international conference on identification , information and knowledge in the internet of things ( iiki ) beijing , china 17 - 18 october 2014 84 87 35 .
+kulkarni r.v. venayagamoorthy g.k. bio - inspired algorithms for autonomous deployment and localization of sensor nodes ieee trans .
+syst. , man , cybern .
+c 2010 40 663 675 10.1109 / tsmcc.2010.2049649 36 .
+clerc m. kennedy j. the particle swarm - explosion , stability , and convergence in a multidimensional complex space ieee trans. evol. comput .
+2002 6 58 73 10.1109 / 4235.985692 37 .
+monica s. ferrari g. swarm intelligent approaches to auto - localization of nodes in static uwb networks appl .
+soft comput .
+2014 25 426 434 10.1016 / j.asoc.2014.07.025 38 .
+zhang q. cheng m. a node localization algorithm for wireless sensor network based on improved particle swarm optimization lect .
+note elect. eng .
+2014 237 135 144 39 .
+zain i.f.m. shin s.y. distributed localization for wireless sensor networks using binary particle swarm optimization ( bpso ) proceedings of the 2014 ieee 79th vehicular technology conference ( vtc spring ) seoul , korea 18 - 21 may 2014 1 5 40 .
+ma g. zhou w. chang x. a novel particle swarm optimization algorithm based on particle migration appl. math. comput .
+2012 218 6620 6626 41 .
+guo h. low k.s. nguyen h.a. optimizing the localization of a wireless sensor network in real time based on a low - cost microcontroller ieee trans. ind. electron .
+2011 58 741 749 10.1109 / tie.2009.2022073 42 .
+namin p.h. tinati m.a. node localization using particle swarm optimization proceedings of the 2011 seventh international conference on intelligent sensors , sensor networks and information processing ( issnip ) adelaide , australia 6 - 9 december 2011 288 293 43 .
+liu q. wei w. yuan h. zha z. li y. topology selection for particle swarm optimization inf. sci. 2016 363 154 173 10.1016 / j.ins.2016.04.050 44 .
+bao h. zhang b. li c. yao z. mobile anchor assisted particle swarm optimization ( pso ) based localization algorithms for wireless sensor networks wirel. commun. mob. comput .
+2012 12 1313 1325 10.1002 / wcm.1056 45 .
+cvx research cvx : matlab software for disciplined convex programming available online : http :// cvxr.com / cvx / ( accessed on 28 february 2017 ) figure 1 localization performance of different c1 and c2 using wpso with global - best model .
+( a ) e ; ( b ) sigmae ; ( c ) itr ; ( d ) sigmaitr .
+figure 2 localization performance of different f using wpso with global - best model. ( a ) itr ; ( b ) sigmaitr ; ( c ) e ; ( d ) sigmae .
+figure 3 percentage of each swarm topology achieving the optimal values .
+( a ) wpso ; ( b ) cpso ; ( c ) tpso ; ( d ) ppso ; ( e ) epso ; ( f ) dpso ; ( g ) bpso .
+figure 4 percentage of pso - based localization achieving the optimal values .
+figure 5 impacts of nu and na on the localization performance of cpso .
+( a ) e ; ( b ) sigmae ; ( c ) itr ; ( d ) sigmaitr .
+figure 6 number of unknown nodes localized by neighboring anchors under different nu and na with cpso .
+figure 7 impacts of d and e on localization performance of cpso .
+( a ) e ; ( b ) sigmae ; ( c ) itr ; ( d ) sigmaitr .
+figure 8 impacts of r on localization performance .
+( a ) e ; ( b ) sigmae ; ( c ) itr ; ( d ) sigmaitr .
+figure 9 comparison of cpso and socp .
+( a ) e of different nu and na ; ( b ) sigmae of different nu and na ; ( c ) e of different d and e ; ( d ) sigmae of different d and e. sensors - 17 - 00487 - t001 _ table 1 table 1 advantages of particle swarm optimization ( pso ) - based localization algorithms .
+hpso : h - best pso ; ppso : pso with particle permutation ; wpso : weighted - pso .
+algorithm references comparative advantages of pso wpso [ 12,35 ] bacterial foraging algorithm faster wpso [ 25 ] simulated annealing more accurate wpso [ 41 ] gauss - newton algorithm more accurate wpso [ 26,31 ] least square more accurate wpso [ 42 ] simulated annealing , semi - definite programming faster , more accurate wpso [ 28 ] artificial neural network more accurate wpso [ 32 ] least square faster , more accurate hpso [ 9,14 ] biogeography - based optimization faster ppso [ 37 ] two - stage maximum - likelihood , plane intersection faster , more accurate sensors - 17 - 00487 - t002 _ table 2 table 2 simulations setup .
+cpso : constricted pso ; dpso : dynamic pso ; epso : extremum disturbed and simple pso ; mpso : pso with particle migration ; tpso : pso with time variant omega , c1 , and c2 .
+type values network r = 5:10:45 , e = 0.05:0.05:0.2 , nb = 3:20 general a vmax = 0.1r : 0.1r : 2r , m = 5:5:100 , tmax = 500 wpso , epso omegamax = 1.4 : - 0.1:0.9 , omegamin = 0.4 : - 0.1:0 , c1 = 1.7:0.1:2.5 , c2 = 1.7:0.1:2.5 cpso c1 = 2.05:0.05:2.5 , c2 = 2.05:0.05:2.5 mpso , tpso omegamax = 1.4 : - 0.1:0.9 , omegamin = 0.4 : - 0.1:0 , c1i = c2f = 3 : - 0.25:0.25 , c2i = c1f = c1 - 0.25 : - 0.25:0.25 hpso omega = 0.7 , c1 = c2 = c3 = 1.494 ppso omega = 1 , c1 = c2 = 2.0 bpso omega = 1.0 : - 0.1:0 , c1 = 1.7:0.1:2.5 , c2 = 1.7:0.1:2.5 dpso c1 = 1.0:0.1:0.1 , c2 = 2.5 : - 0.1:1.5 , c3 = 0:0.1:1.0 a the parameters used by all pso variants .
+sensors - 17 - 00487 - t003 _ table 3 table 3 parameter selections of pso - based localization algorithms .
+bpso : binary pso .
+variant topology [ c1,c2,c3 ] [ omegamax,omegamin ] m vmax wpso global - best [ 1.7 - 1.8,1.7 - 1.8 , - - ] [ 0.9,0 ] 30 0.1r pyramid [ 1.7,1.7 - 1.8 , - - ],[ 1.8,1.7 , - - ] [ 0.9,0 ] 21 0.1r random [ 1.7,1.7 - 1.8 , - - ] [ 0.9,0 ] 30 0.1r von neumann [ 1.7,1.7 - 1.8 , - - ],[ 1.8,1.7 ] [ 0.9,0 ] 25 0.1r ring [ 1.7,1.7 - 1.8 , - - ],[ 1.8,1.7 , - - ] [ 0.9,0 ] 25 0.1r star [ 1.7,1.7 - 1.8 , - - ],[ 1.8,1.7 , - - ] [ 0.9,0 ] 25 0.1r cpso global - best [ 2.4,2.5 , - - ],[ 2.45,2.45 - 2.5 , - - ] - - 10 - - pyramid [ 2.45,2.5 , - - ],[ 2.5,2.45 - 2.5 , - - ] - - 21 - - random [ 2.5,2.5 , - - ] - - 10 - - von neumann [ 2.45,2.45 - 2.5 , - - ],[ 2.5,2.4 - 2.5 , - - ] - - 10 - - ring [ 2.45,2.5 , - - ],[ 2.5,2.4 - 2.5 , - - ] - - 10 - - star [ 2.4,2.5 , - - ],[ 2.45,2.45 - 2.5 , - - ] - - 10 - - tpso global - best [ 0.5,0.25 , - - ],[ 0.75 - 1,0.25 - 0.5 , - - ] [ 0.9,0 ] 25 0.1r pyramid [ 0.5 - 1,0.25 , - - ],[ 0.75,0.25 - 0.5 , - - ] [ 0.9,0 ] 21 0.1r random [ 0.5,0.25 , - - ],[ 0.75 - 1,0.25 - 0.5 , - - ] [ 0.9,0 ] 30 0.1r von neumann [ 0.5 - 1.25,0.25 , - - ] [ 0.9,0 ] 25 0.1r ring [ 0.75 - 1.25,0.25 - 0.5 , - - ] [ 0.9,0 ] 25 0.1r star [ 0.5 - 1,0.25 - 0.25 , - - ] [ 0.9,0 ] 15 0.1r ppso all [ 2.0,2.0 , - - ] omega = 1.0 20 - 40 0.1r epso global - best [ 2.5,1.7 , - - ] [ 1.4,0.4 ] 45 0.1r pyramid [ 2.5,1.8 , - - ] [ 1.4,0.4 ] 21 0.1r random [ 2.4,2.5 , - - ] [ 0.9,0 ] 20 0.1r von neumann [ 2.4,2.5 , - - ] [ 0.9,0 ] 30 0.1r ring [ 2.4,2.5 , - - ] [ 0.9,0 ] 25 0.1r star [ 2.4,2.5 , - - ] [ 0.9,0 ] 20 0.1r dpso global - best [ 0.7 / 0.8,2.1,0.4 / 0.5 ] - - 75 0.1r pyramid [ 0.7 / 0.8 / 0.9,2.3,0.4 ] - - 21 0.1r random [ 0.9,2.3,0.4 ] - - 30 0.1r von neumann [ 0.7 / 0.8 / 0.9,2.3,0.4 ] - - 35 0.1r ring [ 0.7 / 0.8 / 0.9,2.3,0.4 ] - - 35 0.1r star [ 0.7 / 0.8,2.1,0.4 / 0.5 ] - - 45 0.1r bpso global - best [ 2.1 / 2.2,1.7 , - - ] omega = 1.4 / 1.5 75 0.1r pyramid [ 2.3 / 2.4,1.7 , - - ] omega = 1.4 21 0.1r random [ 1.9,2.0 , - - ] omega = 1.3 / 1.4 / 1.5 75 0.1r von neumann [ 2.0 - 2.3,1.7 , - - ] omega = 1.5 80 0.1r ring [ 2.1 / 2.2,1.7 , - - ] omega = 1.4 / 1.5 35 0.1r star [ 2.5,1.9 , - - ] omega = 1.3 80 0.1r mpso global - best [ 1 / 1.25,0.25 / 0.5 , - - ],[ 1.5,0.25 , - - ] [ 0.9,0 ] 45 0.1r hpso global - best [ 1.494,1.494,1.494 ] omega = 0.7 45 0.1r sensors - 17 - 00487 - t004 _ table 4 table 4 variation range of different nu and na. criteria wpso cpso tpso ppso mpso hpso epso dpso bpso itr 311.6 - 314.9 219.1 - 221.8 482.4 - 485.8 220.8 - 225.6 267.8 - 270.6 279.6 - 285.5 304.6 - 316.6 252.2 - 254.7 251.1 - 252.7 sigmaitr 13.91 - 19.96 3.39 - 14.92 40.64 - 50.77 7.86 - 20.34 9.06 - 14.57 17.94 - 27.31 83.20 - 90.10 0.78 - 16.83 3.38 - 19.27 e 0.02 - 0.04 0.02 - 0.04 0.02 - 0.044 0.03 - 0.05 0.02 - 0.05 0.02 - 0.04 0.14 - 0.27 0.17 - 0.23 0.06 - 0.08 sigmae 0.02 - 0.09 0.02 - 0.08 0.02 - 0.09 0.02 - 0.08 0.03 - 0.10 0.02 - 0.10 0.14 - 0.41 0.10 - 0.29 0.06 - 0.13 sensors - 17 - 00487 - t005 _ table 5 table 5 variation range of different d > 0 and e > 0 .
+criteria wpso cpso tpso ppso mpso hpso epso dpso bpso itr 359.7 - 366.1 269.2 - 270.6 485.0 - 486.7 271.0 - 273.2 316.6 - 320.9 327.3 - 335.5 308.6 - 311.4 269.3 - 269.7 262.2 - 262.6 sigmaitr 13.3 - 17.65 4.62 - 7.82 39.99 - 43.6 9.36 - 13.62 8.68 - 12.79 18.65 - 22.84 85.49 - 86.80 0.89 - 2.79 3.47 - 5.34 e 0.01 - 0.04 0.01 - 0.04 0.01 - 0.04 0.01 - 0.04 0.01 - 0.04 0.01 - 0.04 0.16 - 0.19 0.17 - 0.19 0.16 - 0.17 sigmae 0.03 - 0.07 0.03 - 0.07 0.03 - 0.07 0.03 - 0.07 0.03 - 0.08 0.04 - 0.08 0.22 - 0.26 0.17 - 0.21 0.17 - 0.19

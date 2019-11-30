@@ -1,0 +1,504 @@
+syst biol syst .
+biol sysbio sysbio systematic biology 1063 - 5157 1076 - 836x oxford university press 26821913 4851174 10.1093 / sysbio / syv118 syv118 society of systematic biologists symposium articles computational performance and statistical accuracy of * beast and comparisons with other methods ogilvie huw a .
+1 heled joseph 23 xie dong 23 drummond alexei j .
+23 * 1evolution , ecology and genetics , research school of biology , the australian national university , canberra , australia ; 2department of computer science , university of auckland , auckland , new zealand ; 3allan wilson centre for molecular ecology and evolution , university of auckland , auckland , new zealand ; * correspondence to be sent to : department of computer science , university of auckland , auckland , new zealand ; e - mail : alexei @ cs.auckland.ac.nz associate editor : david posada 5 2016 28 1 2016 28 1 2016 65 3 381 396 9 6 2015 24 7 2015 7 12 2015 ( c ) the author ( s ) 2016 .
+published by oxford university press on behalf of the society of systematic biologists .
+2016 this is an open access article distributed under the terms of the creative commons attribution license ( http :// creativecommons.org / licenses / by / 4.0 /) , which permits unrestricted reuse , distribution , and reproduction in any medium , provided the original work is properly cited .
+under the multispecies coalescent model of molecular evolution , gene trees have independent evolutionary histories within a shared species tree .
+in comparison , supermatrix concatenation methods assume that gene trees share a single common genealogical history , thereby equating gene coalescence with species divergence .
+the multispecies coalescent is supported by previous studies which found that its predicted distributions fit empirical data , and that concatenation is not a consistent estimator of the species tree .
+* beast , a fully bayesian implementation of the multispecies coalescent , is popular but computationally intensive , so the increasing size of phylogenetic data sets is both a computational challenge and an opportunity for better systematics .
+using simulation studies , we characterize the scaling behavior of * beast , and enable quantitative prediction of the impact increasing the number of loci has on both computational performance and statistical accuracy .
+follow - up simulations over a wide range of parameters show that the statistical performance of * beast relative to concatenation improves both as branch length is reduced and as the number of loci is increased .
+finally , using simulations based on estimated parameters from two phylogenomic data sets , we compare the performance of a range of species tree and concatenation methods to show that using * beast with tens of loci can be preferable to using concatenation with thousands of loci .
+our results provide insight into the practicalities of bayesian species tree estimation , the number of loci required to obtain a given level of accuracy and the situations in which supermatrix or summary methods will be outperformed by the fully bayesian multispecies coalescent .
+bayesian phylogenetics concatenation gene tree multispecies coalescent phylogenomics species tree supermatrix introduction in recent years , a number of new techniques have applied next - generation sequencing to phylogenetics and phylogeography ( mccormack et al. 2013 ) .
+these new methods include target enrichment strategies ( mamanova et al. 2010 ) like exon capture ( bi et al. 2012 ) , anchored phylogenomics ( lemmon et al .
+2012 ) , and ultra - conserved elements ( faircloth et al. 2012 ) , as well as rad sequencing ( baird et al. 2008 ; davey et al. 2011 ) .
+as a result , genome - wide samples of large numbers of loci from multiple individuals and multiple species have become increasingly common .
+this trend is rapidly shifting the modus operandi of systematic biology from phylogenetics to phylogenomics .
+this move to phylogenomics has also heralded a rapid development and uptake of species tree inference methods that acknowledge and model the discordance among individual gene trees .
+as with the field of phylogenetics , there is a broad acceptance that probabilistic model - based methods are preferable ; however , the amount of data produced by next - generation technologies has also spurred the development of faster methods that do not utilize all the available data and employ statistical shortcuts such as admitting no uncertainty in individual gene trees ( kubatko et al. 2009 ; liu et al. 2009 ) .
+bayesian species tree estimation the theory of incomplete lineage sorting and its implications for phylogenetic inference has been appreciated for some time ( pamilo and nei 1988 ) , and early approaches to applying this theory inferred the species tree that minimizes deep coalescences using gene tree parsimony ( maddison 1997 ; page and charleston 1997 ; slowinski and page 1999 ) .
+the fully probabilistic application of the theory to molecular sequence analysis has only begun more recently with the introduction of bayesian implementations of the multispecies coalescent ( rannala and yang 2003 ; edwards et al. 2007 ; liu 2008 ; liu et al. 2008 ; heled and drummond 2010 ) .
+this model embeds gene trees within a birth - death or pure yule species tree , and within each lineage ( or branch ) of the species tree , gene trees are assumed to follow a coalescent process ( heled and drummond 2010 ) .
+prior to the development of these methods , it was necessary to assume that the history of each gene is shared and equal to the history of the species tree being studied .
+however , gene trees evolve within a species tree and the approximation of equating them becomes increasingly problematic as one samples more loci , when in reality each have distinct gene tree topologies and divergence times .
+the multispecies coalescent brings together coalescent and birth - death models of time - trees into a single model .
+it describes the probability distribution of one or more gene trees that are nested inside a species tree .
+the species tree describes the relationship between the sampled species , or sometimes , sampled populations that have been separated for long periods of time relative to their population sizes .
+in the latter case it may be referred to as a population tree instead .
+the initial implementations of the multispecies coalescent made very simple assumptions including no recombination within each locus and free recombination between loci .
+although these simple assumptions can be robust to violation , including some forms of gene flow ( heled et al. 2013 ) ( but see leache et al .
+2014 ) , researchers have begun to acknowledge that additional processes ( such as hybridization ) may need to be incorporated ( joly et al. 2009 ; kubatko 2009 ; chung and ane 2011 ; yu et al. 2011 ; camargo et al. 2012 ) .
+a number of simulation studies have also looked at various facets of performance of bayesian species tree estimation including the influence of missing data ( wiens and morrill 2011 ) , the influence of low rates and rate variation among loci ( lanier et al .
+2014 ) and comparisons of performance with " supermatrix " concatenation approaches ( degiorgio and degnan 2010 ; larget et al .
+2010 ; leache and rannala 2011 ; bayzid and warnow 2013 ) .
+although these modeling advances are exciting , in the face of a next - generation data deluge , this study asks and answers the following , heretofore unanswered questions : ( i ) how do fully bayesian multispecies coalescent methods scale to data sets of hundreds of loci ?
+( ii ) how much more accurate will phylogenetic species tree estimates be with more sequence data ?
+( iii ) when should one use a multispecies coalescent approach instead of computationally more efficient bayesian supermatrix approaches , or summary methods which do not use all available data ?
+to address the first of these questions , we investigate the computational performance of the * beast implementation of the multispecies coalescent ( heled and drummond 2010 ) , so as to assess the feasibility of conducting phylogenomic analyses using existing computational tools .
+to shed light on the second question , we investigate how estimation accuracy improves with increasing loci .
+to address the final question , we investigate how the statistical accuracy of the multispecies coalescent compares with concatenation across a broad range of conditions .
+we also investigate the statistical accuracy of the multispecies coalescent , supermatrix and summary methods using simulations based on two published sequence data sets ; rad tag sequences from a study of the sino - himalayan plant clade cyathophora ( eaton and ree 2013 ) , and rna - seq assemblies from a study of primates ( perry et al. 2012 ) .
+cyathophora , a section of the genus pedicularis originating in the late miocene or the pliocene , is probably no older than 8 ma ( yang and wang 2007 ) and is therefore a shallow study system .
+in contrast , primates are a deep study system , as the oldest split in this order is estimated to have occurred in the cretaceous around 80 ma ( tavare et al. 2002 ; steiper and young 2006 ; wilkinson et al. 2011 ) .
+methods using simulation , we investigated the trends in computational performance and statistical accuracy of the multispecies coalescent model as implemented in beast 2 (* beast ) , and its statistical accuracy relative to other methods of species tree inference .
+in designing these simulation studies there were a number of parameters to consider .
+the key parameters that might determine performance of inference under the multispecies coalescent are as follows : n : the number of species .
+ni : the number of individuals sampled per species .
+nl : the number of independent loci .
+ns : the number of sites in a single locus .
+ne : the effective population sizes of extant and ancestral species .
+tau : the branch lengths in units of time or expected substitutions .
+another factor which may influence * beast performance is whether the molecular evolution of each locus has been more or less clock - like. of all these parameters it is the number of loci nl , the number of sites in a single locus ns , and the number of individuals per species ni that are largely determined by experimental design .
+in addition , a complete specification of a multispecies coalescent model requires a speciation model ( parameterized model of the species tree ) , a substitution model ( model of the relative rates and base frequencies ) , and a clock model describing the absolute rate of evolution across the branches of each gene tree .
+in the following sections we describe the choices of parameters , models , and simulation conditions for our computational experiments .
+species and gene trees for all experiments were simulated using biopy ( http :// www.cs.auckland.ac.nz /~ yhel002 / biopy / , last accessed december 25 , 2015 ) , which simulates gene trees contained within species trees according to the multispecies coalescent process .
+sequence alignments were also simulated using biopy for experiments 1 and 2 , and seq - gen ( rambaut and grass 1997 ) was used to simulate nucleotide alignments for experiment 3 .
+experiment 1 : performance of * beast with increasing numbers of loci the first set of simulations we performed was primarily aimed at understanding the effect that increasing the number of loci has on the computational performance and statistical accuracy of bayesian species tree estimation .
+we simulated 100 random ( rapidly speciating ) species trees of each of three different sizes , n = 5,8,13 , using the birth - death process ( kendall 1948 ; nee et al. 1994 ; gernhard 2008 ) .
+in all cases , the speciation rate was lambda = 1 and the extinction rate was mu = 0.2 ( nominally per million years ) .
+for 5 - species trees we considered ni = 2,4,8 , for 8 - species trees ni = 2,4 and for 13 - species trees ni = 2 .
+for each combination of n and ni we simulated up to 256 gene trees .
+gene alignments were simulated from these gene trees using an hky substitution model ( hasegawa et al. 1985 ) and a strict clock .
+all sequences were simulated with a substitution rate of 1 % per lineage per million years , a transition / transversion ratio kappa of 4 , equal base frequencies and a strict clock .
+for each * beast analysis , the substitution rate was fixed at 1 % , and a single kappa value and set of base frequencies for all loci was estimated .
+the locus length was 200 sites each to mimic short - read next - generation sequence data .
+finally , we drew successively larger subsets of each group of alignments to form a set of * beast analyses ( heled and drummond 2010 ) .
+we considered increasing numbers of loci on a logarithmic scale , that is nlin { 2,4,8,16,32,64,128,256 } .
+if the effective sample size ( ess ) of either the log posterior or the age of the species tree in an analysis was not >= 200 after the initial mcmc chain was completed , we used the resume function in beast 2 ( bouckaert et al .
+2014 ) to extend the mcmc chain from the final state of the previous run , until sufficient samples were obtained to achieve a minimum ess of 200 .
+for each combination of nl , n and ni , mcmc chains were resumed until at least 90 out of 100 replicates had sufficient ess values .
+all statistics and trees were logged at a sampling rate of 1 sample per 25,000 states , and the mcmc chains that needed extension were combined into a single long chain .
+pseudocode for the experimental protocol can be found in algorithm s1 in supplementary material on dryad at http :// dx.doi.org / 10.5061 / dryad.02tf9 .
+ess per hour was not calculated using the total cpu time for the combined chain because resumed runs were not restricted to a single type of cpu and hence were not directly comparable .
+instead , the initial mcmc chain for each condition and replicate was restricted to a single type of cpu ( intel e5 - 2680 @ 2.70 ghz ) , and million states per hour of cpu time was calculated based on the number of states and cpu time of the initial chain .
+to calculate ess per million states , the ess of the age of the species tree was divided by the million post - burnin states in the combined chain .
+to calculate ess per hour , ess per million states was multiplied by million states per hour .
+all replicates were used to calculate average ess rates , including those with ess values < 200 .
+the main measure of error used in this study , " relative species tree error ," incorporates both topological and branch length error by building on the previously described measure " rooted branch score " ( rbs ; heled and bouckaert 2013 ) .
+given two trees t1 and t2 , the sets of monophyletic clades c present in each tree are defined as c1 and c2 .
+the length of the branch which extends rootward from the most recent common ancestor ( mrca ) of a clade is defined as b ( c ) .
+given these definitions , the rooted branch score is defined as the sum of all absolute differences in branch lengths b ( c ) between trees t1 and t2 : ( 1 ) rbs ( t1,t2 )= sumcinc1unionc2 | b ( 1 )( c ) - b ( 2 )( c )|. by convention , the branch length of a clade that is missing from a tree is zero , so the topological error of absent or erroneous clades will be weighted by the true or estimated branch length respectively .
+we define the relative species tree error et to be the posterior expectation of the rooted branch score distance rbs between the estimated species tree t ^ and the true species tree ttrue , normalized by the tree length of the true species tree ltrue : ( 2 ) et = 1k.sumi = 1krbs ( ttrue,t ^ i ) ltrue .
+this measure summarizes the error over the entire posterior distribution by averaging the rbs for each i posterior sample t ^ i drawn from the entire set of posterior samples of size k. we normalize by the length of the true species tree to make the error comparable between species trees of differing units and / or number of species .
+replicates with insufficient ess values were excluded when calculating average relative species tree error , because the posterior distributions of species trees for those replicates might be inadequately sampled .
+a post hoc analysis was performed to investigate the residual variation in ess rates and relative species tree error , after accounting for the number of loci , individuals and species in each replicate .
+spearman 's rank correlation was used to calculate correlation coefficients between the residuals and various tree and alignment parameters .
+p - values for each correlation were computed using asymptotic t approximation , and then corrected for multiple comparisons based on 48 tests per set of residuals ( benjamini and hochberg 1995 ) .
+mean population size was calculated as the mean of all per - branch effective population sizes .
+species tree asymmetry is the variance sigman2 in the number of nodes between each tip and the tree root ( kirkpatrick and slatkin 1993 ) .
+mean tree height difference is the mean difference in height between each gene tree and the species tree .
+mean deep coalescences is the mean number of deep coalescences for each gene as calculated by dendropy 4.0.3 ( sukumaran and holder 2010 ) .
+the mean parsimonious mutations is the parsimonious ( minimum ) number of mutations required per site given the true gene tree , again calculated by dendropy .
+mean variable site count is the mean number of sites per locus with more than one extant allele , and mutations per variable site is the total number of parsimonious mutations required divided by the total number of variable sites .
+experiment 1 was performed using the pan cluster provided by new zealand escience infrastructure and hosted at the university of auckland ( http :// www.eresearch.auckland.ac.nz / en / centre - for - eresearch / research - facilities / computing - resources.html , last accessed december 25 , 2015 ) .
+this high performance compute cluster provides access to linux compute nodes with 2.7 and 2.8ghz intel xeon cpus , and approximately 8 gb of ram per cpu core .
+experiment 2 : comparing a bayesian multispecies coalescent approach with a bayesian supermatrix approach in the second set of simulations , we compare the statistical accuracy of the multispecies coalescent to partitioned concatenation , both as implemented in beast 2 .
+we refer to these methods as * beast and bayesian supermatrix respectively .
+specifically we tested the hypothesis that the comparative accuracy would depend on mean branch length in coalescent units of tau ( 2ne ) - 1 .
+for every combination of n = 4,5,6,8 and nl = 1,2,4 , we simulated species trees with a range of branch lengths in coalescent units .
+in order to vary branch lengths , species trees were simulated with expected root heights of r = 12,1,2,4,8,16 ( nominally in millions of years ) and population sizes chosen from ne = 14,12,1 ( nominally in units of million individuals ) , changing the coalescent branch length unit numerator and denominator respectively .
+additional expected root heights were included where the most accurate method switches from * beast to bayesian supermatrix , to obtain denser sampling in that part of parameter space .
+species trees were generated under the pure birth yule model ( yule 1924 ) .
+the birth rate for each combination of parameters was set to lambda = 1rsumk = 2n1k , that is , the birth rate which generates trees with an expected root height of r. these settings roughly correspond to mammalian nuclear genes of species with an effective population size of one - quarter , one half or one million individuals .
+a single individual per species was simulated for all loci .
+we used the jukes - cantor substitution model ( jukes and cantor 1969 ) and a strict clock model for each locus , but with rate variation between loci .
+the mutation rate for the first locus was fixed at mu0 = 0.01 , and the rates for other loci drawn from the range [ mu0 / f,mu0xf ] .
+we used f = 3 , giving a factor of 9 between the fastest and slowest possible rates .
+the rate was drawn in log space , so there is equal density of slower and faster rates around mu0 .
+the number of sites per alignment ( ns ) was fixed at 1000 .
+we generated 100 replicates for each combination of n , nl , r and ne. for each unique combination of n , r and ne only one set of 100 species trees was generated and used ( regardless of nl ) to minimize species tree sampling error when analyzing the effect of increasing nl. gene trees and extant sequences were generated separately for each replicate and for each value of nl. both bayesian supermatrix and * beast analyses used a yule prior on the species tree , with a uniform prior of [ 1 / 100,100 ] on lambda , and a separate partition per locus each with a strict clock model , where the clock rate of the first partition was fixed to the truth ( mu0 ) and the other rates were estimated .
+the * beast effective population size hyperparameter ( popmean ) was given a uniform prior in the range [ 15,5 ] , and all population sizes were estimated .
+the bayesian supermatrix analysis used a fixed chain length of 4 million states , sampling every 1000 states .
+the * beast analysis used a fixed chain length of 40 million states , sampling every 10,000 states .
+the ess values of the posterior , likelihood and prior statistics of each chain were estimated , and replicates where the ess was < 200 for any of those statistics were discarded .
+for each combination of n , nl and method there were never more than 4 % of replicates discarded for this reason ( figure s10 in supplementary material available on dryad ) .
+as with experiment 1 , this experiment was performed using the nesi pan cluster .
+experiment 3 : many - method comparison of species tree inference using parameters estimated from two phylogenomic data sets the purpose of the third set of simulations was two - fold : to check that the trends in statistical accuracy observed for the first two sets of simulations held for empirically derived simulations , and to compare statistical accuracy across a range of species tree inference methods .
+to simulate more realistic trees and sequences , we derived a range of properties and phylogenetic parameters from two empirical phylogenomic data sets for use as simulation parameters .
+the biallelic species tree inference method snapp ( bryant et al .
+2012 ) was used to estimate speciation birth rates and effective population sizes because it did not require phasing the sequence data .
+to estimate base frequencies , substitution rates , between - site rate variation , and between - locus rate variation , we used a bayesian supermatrix analysis with a yule prior on the species tree .
+a detailed description of sequence data processing and snapp and beast settings is given in supplementary material available on dryad .
+we simulated 100 replicates each of " deep " and " shallow " yule species trees of n = 12 and n = 8 respectively , using the inferred empirical birth rates , with per - branch population sizes picked from a gamma distribution of shape 2 and a mean equal to the mean inferred population sizes .
+for the deep species trees we simulated 512 gene trees , and for the shallow species trees we simulated 4096 gene trees within each species tree , each with two individuals per species .
+for each simulated gene tree , we chose a strict clock rate from the gamma distribution defined by the inferred shape parameters and scale parameters .
+nucleotide sequences were simulated for every locus using the empirically derived gtr + g base frequencies , substitution rates , and gamma rate variation from the applicable study .
+as the shallow study used 64nt rad tags , we picked that fixed length for sequence simulations based on that study .
+for simulations based on the deep study , each simulated alignment length was randomly sampled ( with replacement ) from the original alignment lengths of the deep study .
+species trees were reconstructed from simulated sequences using five different multi - locus inference methods ; * beast , bayesian supermatrix , mp - est ( liu et al .
+2010 ) , raxml version 8 ( stamatakis 2014 ) , and bionj ( gascuel 1997 ) .
+we tested * beast performance given nl = 1,2,4,8 for the deep study based simulations and nl = 1,2,4,8,16,32 for the shallow study based simulations .
+for all simulations , we tested the performance of bayesian supermatrix given nl = 1,2,4,8,16,32,64,128,256,512 .
+for the deep study simulations we tested raxml , bionj , and mp - est with nl = 1,2,4,8,16,32,64,128,512 .
+for the shallow study simulations , we also analyzed nl = 1024,2048,4096 .
+both * beast and mp - est can infer species trees utilizing more than one individual per species , and we tested both methods using ni = 1,2 .
+all gtr + g rates were estimated for * beast and bayesian supermatrix analyses .
+for raxml analyses , only gtr + g substitution rates were estimated and empirical base frequencies were used .
+clock rate distribution parameters and clock rates for each locus were estimated for * beast and bayesian supermatrix analyses .
+loci were not partitioned for raxml analyses , so per - locus clock rates could not be estimated for that method .
+the raxml maximum likelihood algorithm used was " new rapid hillclimbing. " pairwise distances matrices calculated by raxml were used to generate neighbor - joining trees using the bionj algorithm implemented in paup * version 4.0a142 ( http :// paup.csit.fsu.edu / , last accessed december 25 , 2015 ) .
+* beast and beast trees are implicitly rooted because they are ultrametric , and raxml and bionj trees were midpoint rooted .
+mp - est uses gene trees as input data , which were inferred using raxml .
+the same settings used for raxml species tree inference were used for gene tree inference , and gene trees were midpoint rooted .
+for each replicate mp - est was set to make 10 independent runs , and the species tree with the highest pseudo - likelihood was retained for further analysis .
+the beast and * beast chains were run on the raijin cluster provided by the national computational infrastructure ( http :// nci.org.au / systems - services / national - facility / peak - system / raijin / , last accessed december 25 , 2015 ) .
+this cluster provides access to linux compute nodes with 2.6 ghz intel xeon sandy bridge cpus , and 4 gb of ram was requested per run .
+further details of beast and * beast chains are provided in supplementary material available on dryad .
+raxml and mp - est were run on the cluster provided by the genome discovery unit of the australian cancer research foundation biomolecular resource facility .
+jobs on this cluster ran on linux compute nodes with a variety of intel xeon and amd opteron cpus , and 2 gb of ram was requested per raxml or mp - est job .
+results experiment 1 : performance of * beast with increasing numbers of loci computational performance we evaluated the scaling of computational performance of * beast as a function of the number of loci analyzed .
+we recorded the elapsed computational time for each replicate analysis running in a single thread .
+this was then used to calculate the effective number of samples per hour ( ess per hour ) , to measure the computational effort required to produce a sample from the posterior for a given number of loci .
+the ess per hour relationship ( fig. 1a , s3 in supplementary material available on dryad ) suggests that a power law fits the scaling of computational performance .
+the linear relationship in the log - log plot indicates that a power law fits well for the range from 32 to 256 loci .
+we extrapolate that for n = 5 , ni = 2 and nl >= 32 , ess per hour follows a power law with a slope and intercept of - 3.06 +/ - 0.04 and 16.34 +/ - 0.18 , respectively .
+figure 1 .
+trends in ess per hour and relative species tree error as a function of the number of loci .
+a ) ess per hour for analyses of 5 species each with 2 individuals .
+each box - and - whisker shows the variance in mixing across a hundred replicate data sets for each number of loci .
+b ) the median ess per hour as a function of number of loci , with trend lines for each combination of number of species and individuals per species .
+solid shapes indicate the median value for each category , and regression lines were calculated using all replicates for each category .
+c ) relative error for 5 species each with 2 individuals , with each box - and - whisker showing the variance in relative error between replicates .
+numbers above the graph area indicate how many replicates were included for each number of loci .
+d ) the relative error in the estimated species tree as a function of the number of loci , with trend lines for each combination of number of species and individuals per species .
+solid shapes indicate the median value for each category , and regression lines were calculated using all replicates for each category with sufficient ess .
+applying this functional relationship , we could estimate the computational cost to analyze a similar data set with a larger number of loci .
+for example , given 5 species and 2 individuals in the simulation , the predicted ess per hour is 0.54 for 256 genes , which indicates it would take approximately 369 cpu hours to attain an ess of 200 .
+we can therefore estimate that a similar analysis of 1024 loci would take roughly 1064 cpu days .
+nevertheless , an analysis of this size might be achieved within 2 months by parallelizing the problem into 20 independent mcmc chains for 2 months each and discarding a few days of burnin from each of them , to achieve on the order of 10 independent samples from each chain .
+variation in ess per hour between replicates was observed under all tested conditions ( figure s3 in supplementary material available on dryad ) .
+the slowest replicate relative to the median rate for any condition was a 5 species , 2 individuals and 256 genes outlier , 94x slower than the median rate for that combination ( fig. 1a ) .
+this replicate would require approximately 1500 cpu days to attain an ess of 200 .
+however , this was an extreme case as the next slowest replicate for that combination was another outlier only 6.4x slower than the median rate , and would require only 100 cpu days to attain the same ess value .
+the slope of the expected computational performance as a function of number of loci does not vary with the number of species or the number of individuals ( fig. 1b ) , although a larger range of n and ni would need to be examined to understand the scaling relationship of computational performance with those quantities .
+for analyses larger than 5 species and 2 individuals , the power law range appears to begin at nl >= 16 .
+combining all simulation results , a multiple linear regression describing a response variable y ( e.g. , ess per hour ) as a function of three explanatory variables : number of loci nl , number of species n , and number of individuals per species ni , can be constructed as follows : ( 3 ) log ( y )= beta1log ( nl )+ beta2n + beta3ni + alpha .
+taking the ess per hour as the response variable , the linear regression estimates of the coefficients are beta1 = - 2.81 +/ - 0.02 , beta2 = - 0.42 +/ - 0.01 , beta3 = - 0.46 +/ - 0.01 , and the intercept is alpha = 17.98 +/ - 0.13 .
+at least within the range of parameters examined here , it appears that the beta1 coefficient is not greatly influenced by n and ni ( fig. 1b ) .
+we also considered the scaling of the number of effective samples per million states ( ess per million states ) in the mcmc analyses .
+this quantity is complementary to our first result ; it is easier to investigate as it does not require running all simulations on identical and dedicated hardware .
+computational time for methods like * beast is dominated by the phylogenetic likelihood , which is calculated for all site patterns given a proposed tree ( yang et al. 1994 ) .
+because * beast infers a separate gene tree for each locus , the time per state will be linear with the number of loci assuming the average number of site patterns per locus is independent of the total number of loci .
+this assumption of independence holds for experiment 1 because loci were subsetted uniformly .
+adapting the terminology of equation ( 3 ) , the slope of ess per hour ( beta1h ) will be simply related to the slope of ess per million states ( beta1s ) : beta1h = beta1s + 1 .
+however because cpu time per site pattern depends on the specific hardware employed , the intercept of ess per hour ( alphah ) cannot be predicted from that of ess per million states ( alphas ) .
+as expected , ess per million states also exhibits a power law in the number of loci ( figure s4 in supplementary material available on dryad ). by assigning the ess per million states to y in the multiple linear regression in equation 3 , the estimated coefficients are beta1 = - 1.87 +/ - 0.02 , beta2 = - 0.28 +/ - 0.01 , beta3 = - 0.24 +/ - 0.01 , and the estimated intercept is alpha = 9.07 +/ - 0.12 .
+the difference in slope between ess per million states and ess per hour is ( - 1.87 ) - ( - 2.81 )= 0.94 , very close to 1 as predicted .
+as with ess per hour , observations used for the linear regression were restricted to nl >= 32 for the 5 species , 2 individual case and nl >= 16 for other cases .
+using the example of 5 species and 2 individuals , the slope and intercept are - 1.97 +/ - 0.04 and 7.86 +/ - 0.18 respectively , so the predicted ess per million states for 256 individuals is 0.047 ( figure s4a in supplementary material available on dryad ) .
+it would therefore take approximately 4.3 billion states to obtain an ess of 200 .
+we can extrapolate that a similar analysis of 1024 loci would require an mcmc chain of roughly 4.3x ( 1024256 ) 1.97 =~ 66 billion states .
+statistical accuracy we also calculated the relative error in the species tree estimate for each replicate .
+for some larger analyses it was challenging to achieve acceptable ess values for every replicate , even with chain lengths of several billion states and access to high - performance computational infrastructure .
+to retain the larger analyses without biasing statistical accuracy , we excluded replicates in which the ess of either the log posterior or the species tree age was smaller than 200 .
+all remaining replicates were used for a linear regression analysis of the contribution of the number of loci to relative species tree error .
+this analysis revealed a power law relationship from 2 to 256 loci ( fig. 1c , s5 in supplementary material available on dryad ) .
+given 5 species and 2 individuals , the slope and intercept are - 0.435 +/ - 0.007 and - 0.889 +/ - 0.026 respectively , so the relative species tree error predicted by the power law for 256 loci is 0.037. by extrapolation , we would therefore estimate that the relative error of a 1024 loci analysis would decrease to 0.037x ( 1024256 ) - 0.435 =~ 0.020 .
+linear regression analysis of relative species tree error for all combinations of n and nl showed little variation in the trend line slope between conditions ( fig. 1d ). by assigning the relative species tree error to y in the multiple linear regression in equation ( 3 ) , the estimated coefficients are beta1 = - 0.433 +/ - 0.003 , beta2 = - 0.066 +/ - 0.002 , beta3 = - 0.070 +/ - 0.002 , and the estimated intercept is alpha = - 0.481 +/ - 0.022 .
+more details for all multiple linear regression models are available in supplementary material available on dryad .
+trends in topology - only accuracy inferred using rooted robinson - foulds ( rrf ) scores are also presented in supplementary material as dryad , figure s9 and table s12 available on dryad .
+finally , we also analyzed the number of species tree topologies sampled in each posterior distribution .
+it appears that for the analyses involving 8 and 13 species there is a rapid reduction in the number of topologies in the 95 % credible set with increasing numbers of loci , but it does not follow a power law ( figure s7 in supplementary material available on dryad ) .
+post hoc analysis of convergence and species tree error experiment 1 was designed to investigate the relationship between the number of loci nl , number of species n and number of individuals ni on ess rates and statistical accuracy .
+although these variables explained most of the variation in ess rates and accuracy , residual variation was present between the 100 replicates of each combination of nl , n and ni ( fig. 1a and c ) .
+the correlations between this residual variation and a collection of phylogenetic statistics that could be extracted from the simulated trees and alignments were studied in a post hoc analysis .
+the only tree or alignment statistic that was significantly correlated with ess per hour consistently across all conditions was mean tree height difference ( table 1 ) .
+this statistic is the mean difference in height between each gene tree and the species tree .
+the positive correlation observed for this parameter suggests that when gene trees are taller relative to the species tree , the ess rate will be higher and * beast will converge more quickly .
+table 1 .
+spearman correlation of tree and alignment parameters with ess per hour 5n , 2ni 5n , 4ni 5n , 8ni 8n , 2ni 8n , 4ni 13n , 2ni species tree height 0.068 0.222 *** 0.362 *** - 0.036 0.180 *** 0.120 mean population size 0.075 - 0.048 - 0.086 - 0.020 - 0.101 0.121 species tree asymmetry - 0.238 *** - 0.088 - 0.045 - 0.125 * 0.013 - 0.068 mean deep coalescences - 0.122 ** - 0.225 *** - 0.295 *** 0.020 - 0.079 0.044 mean parsimonious mutations 0.099 0.148 *** 0.122 * - 0.013 0.124 * 0.074 mean variable site count 0.088 0.228 *** 0.294 *** - 0.045 0.146 ** 0.042 mean tree height difference 0.246 *** 0.355 *** 0.315 *** 0.421 *** 0.340 *** 0.398 *** mutations per variable site 0.030 - 0.066 - 0.123 * 0.046 0.016 0.057 * p < 0.05 , ** p < 0.01 , *** p < 0.001 .
+in contrast to ess per hour , several statistics were consistently significantly correlated with relative species tree error ( table 2 ) .
+the height of the species tree and the number of variable sites per locus were negatively correlated with relative error .
+this result is somewhat intuitive , as taller species trees will have longer branches which are easier to resolve , and the number of variable sites is an obvious proxy for the amount of information in each locus .
+relative error was positively correlated with the mean number of deep coalescences and the number of mutations per variable site .
+those correlations suggest that data sets with more incomplete lineage sorting will be more difficult to resolve , and that saturated sites may increase uncertainty .
+table 2 .
+spearman correlation of tree and alignment parameters with species tree error 5n , 2ni 5n , 4ni 5n , 8ni 8n , 2ni 8n , 4ni 13n , 2ni species tree height - 0.734 *** - 0.582 *** - 0.330 *** - 0.702 *** - 0.537 *** - 0.580 *** mean population size 0.103 * 0.078 0.006 0.118 * 0.004 0.076 species tree asymmetry 0.041 0.011 0.035 - 0.170 *** - 0.181 *** - 0.050 mean deep coalescences 0.665 *** 0.573 *** 0.273 *** 0.647 *** 0.522 *** 0.591 *** mean parsimonious mutations - 0.387 *** - 0.199 *** - 0.025 - 0.372 *** - 0.184 *** - 0.378 *** mean variable site count - 0.587 *** - 0.494 *** - 0.242 *** - 0.607 *** - 0.530 *** - 0.642 *** mean tree height difference 0.194 *** 0.186 *** 0.196 *** 0.173 *** 0.207 *** 0.127 * mutations per variable site 0.416 *** 0.306 *** 0.152 ** 0.333 *** 0.220 *** 0.148 * * p < 0.05 , ** p < 0.01 , *** p < 0.001 .
+experiment 2 : statistical accuracy of * beast relative to bayesian supermatrix to assess the statistical accuracy of the * beast relative to the standard bayesian supermatrix approach , we conducted a simulation study where we simulated species trees with a broad range of mean branch lengths for varying numbers of species and loci .
+gene coalescences occur prior to species divergence times , and the severity of this discrepancy will depend on species tree branch lengths in units of coalescent time .
+because the multispecies coalescent accounts for this phenomenon but the bayesian supermatrix approach does not , we expected the multispecies coalescent to outperform the bayesian supermatrix approach for trees with shorter branch lengths .
+the " species tree error ratio " eta / etb is a measure of the comparative accuracy and is specified as follows , where a is * beast and b is bayesian supermatrix : ( 4 ) etaetb = 1ka.sumi = 1karbs ( ttrue,t ^ ai ) 1kb.sumi = 1kbrbs ( ttrue,t ^ bi ) .
+values below 1 indicate lower error , or equivalently superior accuracy , when using * beast instead of bayesian supermatrix .
+for all numbers of species tested , the statistical accuracy of * beast was superior to bayesian supermatrix for trees with shorter mean branch lengths ( fig. 2 ) .
+using loess regression , it is clear that as the number of loci increases , * beast performance improves relative to bayesian supermatrix because for a given mean branch length , the species tree error ratio decreases as the number of loci increases ( fig. 2 ) .
+figure 2 .
+species tree error ratio (* beast / beast ) as a function of the average species tree branch length ( in coalescent units ) for trees of 4 , 5 , 6 , and 8 species .
+data points are below 1 ( black line ) where the * beast error is lower than the beast error , indicating that * beast was more accurate than beast .
+data points above 1 show the opposite .
+only results with both mean branch lengths and error ratios between 0.1 and 10.0 are included .
+the red , green , and blue lines show the local regression for one , two and four locus estimates , respectively .
+the shaded region indicates where the crossover point depended on the combination of simulation parameters chosen - - * beast was always preferred for average branch lengths shorter than this zone .
+for all numbers of species and loci tested , there is a mean branch length crossover point where for shorter mean branch lengths , * beast is expected to outperform bayesian supermatrix , and vice versa for longer mean branch lengths .
+the crossover point depends on the number of loci ; as the number of loci increases , the point shifts right ( fig. 2 ) , indicating that * beast is expected to outperform bayesian supermatrix for a larger range of mean branch lengths , consistent with the general trend of improved performance of * beast when increasing the number of loci .
+within the parameter region explored in this experiment , depending on the number of species , loci and the effective population sizes , the crossover point was found in the range 0.382tau ( 2ne ) - 1 to 5.416tau ( 2ne ) - 1 ( figure s11 in supplementary material available on dryad ) .
+for mean branch lengths shorter than 0.382tau ( 2ne ) - 1 , * beast was preferred regardless of the parameters explored , even when using a single locus ( fig. 2 ) .
+the crossover point given a single locus was always below 0.5tau ( 2ne ) - 1 ( figure s11 in supplementary material available on dryad ) and given longer mean branch lengths the relative performance of bayesian supermatrix was higher than for multi - locus inference ( fig. 2 ) .
+this implies that * beast is still useful for single - locus studies of species trees with short branches , but should be applied with caution .
+experiment 3 : inferred parameters of phylogenomic data sets and multi - method comparison sequence data sets from two published studies were realigned and reanalyzed to calculate their empirical properties and phylogenetic parameters .
+besides the expected difference in speciation rate ( which for the shallow study rate was over six times faster , corresponding to much shorter branch lengths ) , the shallow plant study sequences were very at rich , whereas the deep primate study sequences were moderately gc rich ( table 3 ) .
+c < - > t substitutions were a greater proportion of all substitutions for the deep study , but the between - site gamma rate variation was flatter .
+the mean effective population size ne of the deep study was estimated to be only 2.4 % that of the shallow study .
+table 3 .
+experiment 3 data set properties and mean values of inferred parameters phylogenetic depth shallow deep clade name cyathophora primates taxonomic rank section order sequence data rad tag rna - seq in - group ns 8 12 base frequency : a 0.290 0.266 base frequency : c 0.212 0.240 base frequency : g 0.204 0.263 base frequency : t 0.294 0.231 a < - > c rate 0.367 0.152 a < - > g rate 0.940 0.694 a < - > t rate 0.246 0.100 c < - > g rate 0.305 0.155 c < - > t rate 1.000 1.000 g < - > t rate 0.353 0.127 gamma rate variation 0.0383 0.233 speciation birth rate 125.3 20.7 per - branch ne 6.35x10 - 3 1.53x10 - 4 locus length 64nt 110 - 3511nt clock variation shape 6.22 5.15 clock variation scale 0.173 0.195 all inferred parameters are rounded to three significant figures or one decimal place , whichever is more precise .
+the original publication of cyathophora sequences and phylogeny suggested that p. rex subsp .
+rockii is sister to subsp .
+rex and subsp .
+lipskyana ( eaton and ree 2013 ) .
+the most common species tree topology seen in both snapp and bayesian supermatrix posterior distributions supports this placement ( figures s16 and s17 in supplementary material available on dryad ) .
+the original study left open the question of p. thamnophila monophyly but raised the possibility that the apparent paraphyly of this species , as replicated by our reanalysis , is an artifact of introgression ( eaton and ree 2013 ) .
+species trees inferred by snapp and bayesian supermatrix from reanalysis of the deep phylogenetic study ( figure s18,s19 ) agreed with the accepted primate phylogeny ( perry et al. 2012 ) .
+analysis of empirical - based simulations we simulated species trees , gene trees , and sequences based on the estimated parameters of both data sets ( table 3 ) , and refer to these simulations as shallow and deep phylogenetic simulations respectively .
+the mean branch length of the simulated shallow species trees was 0.539tau ( 2ne ) - 1 , compared with 159.8tau ( 2ne ) - 1 for the simulated deep species trees .
+we computed the relative species tree error for all * beast analyses of these simulations .
+the relative species tree errors for all values of nl and ni considered were computed for both simulation types .
+a power law appeared to fit the relationship between relative error and number of loci for values of nl >= 2 , so log - log linear regression analyses were restricted to nl >= 2 .
+the log - log slope connecting relative error and the number of loci appears mostly independent of ni for shallow phylogenetic simulations .
+for deep simulations , the trend lines for ni = 1 and ni = 2 were very close , implying that multiple individuals did not improve accuracy for those simulations ( figure 3 ) .
+figure 3 .
+the relative species tree error as a function of the number of loci for empirical - based simulations .
+both shallow and deep phylogenetic simulation results are presented .
+solid and hollow shapes are the median value for each category , and regression lines were calculated using all replicates for each category .
+this result is consistent with the initial set of simulations reported in " statistical accuracy. " however , the log - log slopes varied substantially between * beast inference of shallow and deep phylogenetic simulations .
+the difference in power law exponents inferred using multiple linear regression ( tables s13 and s14 in supplementary material available on dryad ) between shallow and deep simulations was ( - 0.365 ) - ( - 0.568 )= 0.203 .
+results from the initial simulation study , detailed in " computational performance ," suggest that a power law relationship of ess and number of loci only applies to * beast analyses of 16 to 32 loci and above .
+as we only inferred deep phylogenetic trees utilizing up to 8 loci and shallow phylogenetic trees up to 32 loci using * beast , we cannot make firm conclusions regarding the scaling laws of ess performance using this set of simulations .
+alternative methods for multi - locus phylogenetic inference the second analysis we conducted based on the empirically derived shallow and deep phylogenetic simulations was a comparison of common multi - locus methods of species tree inference .
+this encompassed the bayesian multispecies coalescent (* beast ) , bayesian supermatrix ( beast ) , maximum - likelihood supermatrix ( raxml ) , neighbor - joining ( bionj ) , and summary coalescent ( mp - est ) methods .
+as some methods provide only a single best tree estimate in place of a posterior distribution of trees , we used common ancestor summary trees ( cat ; heled and bouckaert 2013 ) for * beast and bayesian supermatrix analyses in this comparison .
+based on relative species tree error , * beast outperformed all other methods for any given number of loci for the shallow simulations .
+the statistical accuracy of bayesian supermatrix , raxml and bionj all plateaued beyond 64 loci for the shallow simulations , whereas * beast appears to follow a power law as previously suggested ( fig. 4a ) .
+the statistical accuracy of all methods improves with increasing numbers of loci for the deep simulations , however we limited the simulations to a maximum of 8 loci when running * beast .
+the statistical accuracy of all methods tested was similar up to 8 loci , but for larger numbers of loci bayesian supermatrix analysis was superior and bionj was inferior to raxml ( fig. 4b ) .
+figure 4 .
+statistical accuracy of multiple species tree inference methods as a function of the number of loci .
+shallow phylogenetic simulation results ( a , c , e ) and deep results ( b , d , f ) are both presented .
+measures of statistical accuracy used here are relative species tree error a ) and b ) which incorporates branch length and topological error , pendant edge length bias c ) and d ) which highlights biased branch lengths inferred by noncoalescent methods at the tips of the tree , and rooted robinson - foulds scores e ) and f ) which are a purely topological measure .
+all solid shapes in subfigures a - d show trimmed means ( 25 % trim to reduce the influence of outliers ) , or untrimmed means for subfigures e ) and f ) .
+vertical range lines show 95 % confidence intervals for each mean , calculated by bootstrapping .
+a major factor causing the poor performance of methods other than * beast for the shallow simulations is a bias when estimating pendant edge ( also known as leaf or tip ) length .
+although the mean bias of estimated pendant edge length trends towards zero for * beast , other methods converge on a bias of approximately 350 % , meaning estimated pendant edges are on average 4.5x the true length ( fig. 4c ) .
+in contrast , there is only a small positive bias using methods other than * beast for the deep simulations ( fig. 4d ) .
+relative species tree error incorporates both topological error and branch length error .
+to separate these two components , we calculated the mean rrf score as a measure of purely topological error - - estimated topologies more distant from the truth will have higher rrf scores .
+for shallow simulations , * beast was the best - performing method , and the topological accuracy of both * beast and mp - est was improved given two individuals per species ( fig. 4e ) .
+for deep simulations , all methods other than * beast and mp - est converged at near - zero topological error given 512 loci ( fig. 4f ) .
+* beast was limited to a maximum of 8 loci , but its performance for a given number of loci was very close to bayesian supermatrix .
+the topological accuracy of mp - est was inferior to all other methods analyzed .
+discussion and conclusions we have demonstrated by simulation that the multispecies coalescent ( as implemented in * beast ) can be applied to some problems involving hundreds of loci .
+in order to analyze the performance of * beast with hundreds of loci under various conditions , with 100 replicates per condition and given finite computational resources , we made choices partly based on computational expediency .
+these included relatively limited numbers of species and individuals , and assuming a strict molecular clock .
+more complexity in the sense of more parameters to estimate , for example denser taxon sampling or relaxed clocks , would be expected to require more computational time than the analyses reported here .
+researchers studying the evolutionary histories of organisms are not burdened by the need to test hundreds of replicates across many conditions , and can therefore conduct larger analyses using * beast .
+for example , a recent study of neotropical cotingas ( cotingidae : aves ) applied * beast to resolve a species tree of 67 extant bird lineages , and used a lognormal relaxed clock for each locus with molecular rate calibrations to infer absolute divergence times .
+ess rates for all logged statistics were greater than 200 and convergence was also confirmed graphically , demonstrating that * beast can be applied to real phylogenetic data sets with many taxa , and may also be used with a relaxed clock ( berv and prum 2014 ) .
+power laws describe * beast scaling behavior for the various numbers of species , individuals and loci analyzed in this study , power laws could be used to describe the observed trends in computational performance of * beast , and in the statistical accuracy of the fully bayesian multispecies coalescent .
+in terms of computational performance , this provides a benchmark for the efficiency of bayesian mcmc approaches to inference under the multispecies coalescent .
+our results are a product of the particular algorithm design decisions that the authors of * beast have made , and we hope that power law exponents can be improved upon by subsequent efforts to produce more efficient algorithms for inference under the multispecies coalescent model .
+in contrast , the power law that describes the decrease in estimation uncertainty associated with inference of the species tree with increasing number of loci is a fundamental property of the model itself , and will hold regardless of the details of the algorithmic approach to inference under this model .
+it therefore represents a fundamental feature of the problem of species tree inference. with these results , it is possible to extrapolate what one might expect to achieve by expanding data from a small pilot study to a more comprehensive sample of the genomic material of a set of study species or individuals .
+the decrease in relative species tree error given different numbers of species and individuals was investigated in experiment 1 .
+other phylogenetic parameters were fixed , including the locus length , substitution model and population size distributions .
+possibly because of this , the variation in power law exponents was minimal .
+experiment 3 in contrast compared shallow and deep phylogenies with larger and smaller population sizes respectively , and associated alignments of short fixed - length loci and longer variable - length loci respectively .
+clock rate variation and substitution model rates also differed between conditions .
+power law exponents did vary between experiment 1 and both the shallow and deep inferences in experiment 3 ; exponents were - 0.433 , - 0.365 and - 0.568 respectively .
+this is important because larger exponents imply a greater decrease in relative species tree error , so additional loci will lead to a larger improvement in accuracy of inferred species trees than with a smaller exponent .
+given a hypothetical pilot study of 16 loci , it may be of interest what the decrease in error would be for a full study of 256 loci .
+because the number of loci in this scenario is increased 16 times , the reduction in relative species tree error of the full study compared with the pilot study would be 1.0 - 16 - 0.433 =~ 70 % if the study is similar to experiment 1 , 1.0 - 16 - 0.365 =~ 64 % if it is similar to the shallow phylogenetic simulations , or 1.0 - 16 - 0.568 =~ 79 % if it similar to the deep phylogenetic simulations .
+what these calculations should remind us about the power law relationship is that expanding data from 1 to 16 loci provides as great an increase in statistical accuracy as expanding from 16 to 256 loci. that is , for each subsequent locus added there is a diminishing return with regards to statistical accuracy .
+the power laws describing computational performance can also be used to predict the increase in computational time and chain length required to achieve sufficient sampling of the posterior distribution .
+in experiment 1 , the power law coefficient for the log number of loci was - 2.81 for ess per hour and - 1.87 for ess per million states .
+given the previous example going from 16 to 256 loci , the amount of time required for sufficient sampling of data sets similar to experiment 1 would increase by 162.81 =~ 2408 times .
+the chain length ( number of states ) required would increase by 161.87 =~ 180 times .
+some residual variation in ess rates was observed after accounting for the number of individuals , species , and loci in each analysis .
+this was unsurprising as the operators used by * beast are stochastic ( hohna and drummond 2012 ) , so even when applied to the same data ess rates are expected to vary between runs .
+consistent with this expectation , the only nonstochastic contribution identified in our post hoc analysis was a moderate correlation between residual ess per hour and the average gene and species tree height difference .
+it is possible that the parameters which were kept constant in our analysis ( e.g. , the substitution rate , or the number of sites per loci , or the choice of a strict molecular clock ) may change the relationship between the number of loci and computational performance or statistical accuracy .
+given a sequence data set with substantially different properties from experiment 1 , increasing the number of loci might have a smaller or larger effect on computational performance .
+* beast compared with other methods a previous simulation study which analyzed the scaling behavior of * beast and other methods used just two species trees to report on topological accuracy given a range ( 5 , 10 , 25 , and 50 ) of number of loci , and produced ambiguous results ( bayzid and warnow 2013 ) .
+because we simulated a new species tree for each replicate , we are able to make more general observations regarding relative performance .
+as expected , the relative performance of * beast is higher when branch lengths are shorter .
+the relative performance of * beast is also higher as the number of loci is increased ( fig. 2 ) .
+the primary measure we chose to explore statistical accuracy , relative species tree error , incorporates both branch length and topological error .
+this measure is particularly relevant for molecular dating and downstream analyses of macroevolution and ecology .
+for example , the pdc measure of phylogenetic diversity and the bisse model of binary character influence on birth and death rates both assume accurate tree topologies and branch lengths ( maddison et al. 2007 ; cadotte et al. 2008 ) .
+when inferring species trees with shorter branch lengths , * beast using tens of loci outperformed supermatrix methods by this measure , even when other methods were able to utilize thousands of loci ( fig. 4a ) .
+if instead branch lengths are irrelevant for a study , * beast still outperformed other methods for a given number of loci when inferring the topology of shallow species trees ( fig. 4e ) .
+however , when using thousands of loci , other methods were able to outperform * beast because * beast was restricted to tens of loci .
+for certain species trees concatenation is statistically inconsistent ( roch and steel 2015 ) and might not outperform * beast even when using thousands of loci .
+for deeper phylogenetic trees , * beast performed similarly to the bayesian supermatrix method , which in turn was superior to raxml given larger numbers of loci ( fig. 4b and f ) .
+unpartitioned concatenation is known to potentially change the branch lengths and topology of estimated trees relative to partitioned concatenation ( kainer and lanfear 2015 ) , so this difference may be due to method configuration rather than a quality of the statistical method employed ( maximum likelihood ) .
+regardless , as * beast requires substantially more computational time , concatenation methods may be preferable in this case .
+multispecies coalescent methods assume free recombination between loci , and no recombination within loci .
+short sequences dispersed throughout a genome , including rad tags , can be justifiably used with coalescent methods as violations of both assumptions are likely to be limited .
+however , shortcut coalescence methods like mp - est suffer from high gene tree estimation error when applied to these short sequences ( mirarab et al. 2014a ; springer and gatesy 2016 ) .
+in our study , mp - est was inferior to * beast and similar to concatenation when inferring shallow phylogenies using short , rad tag - like sequences ( fig. 4e ) .
+when inferring deep phylogenies mp - est was inferior to both * beast and concatenation ( fig. 4f ) , despite the longer loci used for those simulations .
+newer fast multispecies coalescent methods such as astral ( mirarab et al .
+2014b ) and svdquartets ( chifman and kubatko 2014 ) may perform better at inferring species tree topology - - the latest iteration of astral is both faster and less sensitive to gene tree error than mp - est ( mirarab and warnow 2015 ) .
+however because these methods compute unrooted species trees without branch lengths , they cannot be compared with other methods using relative species tree error or rrf scores .
+practical implications for applied phylogenetics systematists can use the results of this study as a guide to choosing an appropriate phylogenetic method .
+if both a priori estimates or boundaries of root height ( clade age ) and extant effective population sizes are available for a particular study system , and the yule process is a good fit for that system , an approximate estimate of branch length in coalescent units can be made before selecting a particular method .
+previous work has shown that the expected mean branch length of a yule tree is equal to 1 / 2lambda ( steel and mooers 2010 ) .
+under the yule model this value is related to the expected root height : ( 5 ) 12lambda = r2 ( hn - 1 ) , where r is the expected root height and hn is the nth harmonic number ( where n is the number of species ) .
+the expected branch length b in coalescent units of tau ( 2ne ) - 1 is therefore : ( 6 ) b = 12lambda.12ne = 14.rhn - 1.1ne .
+the mean root height of the shallow simulations was 0.01315 , and the mean of the reciprocal extant population sizes 1 / ne was 302.05 .
+the approximate branch length in coalescent units based on these averages is : ( 7 ) b = 14.rhn - 1.1ne = 14.0.01315hn - 1.302.05 = 0.578 .
+this approximate value is quite close to the sample mean of simulated branch lengths ; 0.539tau ( 2ne ) - 1 .
+based on the results of experiment 2 , this value of b is towards the lower bound of the crossover zone , and * beast will be preferred under most conditions ( fig. 2 ) .
+as with experiment 1 , parameters which were kept constant may move this crossover point to be more or less favorable to * beast .
+the results of experiment 3 will inform researchers with access to phylogenomic data in the order of hundreds or thousands of loci on how to select an appropriate inference method .
+if branch lengths are at all important , either for reporting divergence times or for downstream analyses which require a species tree , using a subset of loci with * beast will be superior to using all loci with other methods tested for shallow phylogenies ( fig. 4a ) .
+if instead only the topology of the species tree is of interest , concatenation methods may be superior to fully bayesian multispecies coalescent methods like * beast until improvements can be made to their computational performance ( fig. 4e and f ) .
+open questions in phylogenomic inference our results point to a number of areas for further research into the performance of species tree inference .
+when using a single locus for species tree inference , experiment 2 shows bayesian supermatrix analysis outperforming * beast for trees with longer branch lengths .
+this may be due to the population size priors used in * beast .
+however , our many - method comparison shows similar performance for both methods given species trees with long branch lengths .
+because deep phylogenetic trees from experiment 3 were longer than the longest trees from experiment 2 , this may point to a zone of intermediate branch lengths where * beast performs poorly given a single locus .
+for all simulations we assumed a constant rate of speciation , however many lineages of life have undergone rapid radiations .
+it may be that when inferring species trees of clades containing ancient rapid radiations the performance of phylogenetic methods is closer to the shallow simulations than the deep simulations , and hence * beast becomes the preferred method .
+sequence alignments were generated and subsetted uniformly for all simulations regardless of the number of loci used for each analysis .
+in practice , researchers may reasonably choose longer , more informative loci when subsetting phylogenomic data sets for use with methods like * beast which are computationally intensive .
+this may improve the relative performance of * beast given a subset of the most informative loci relative to supermatrix or summary methods using thousands of loci .
+however , whole proteins and transcripts can span genomic regions hundreds of thousands of nucleotides long , so recombination within loci will be common .
+the use of whole proteins or transcripts with coalescent methods has been dubbed " concatalescence " to reflect this violation ( gatesy and springer 2013 , 2014 ) .
+if these long sequences are instead split into their constituent exons , the assumption of free recombination between loci may be violated due to short intronic distances .
+further studies are needed to resolve which violation is less harmful to statistical accuracy .
+conclusion and future directions the multispecies coalescent is applicable to a wider range of conditions than has been suggested by more limited simulation studies .
+our results confirm that the multispecies coalescent is especially suited to the estimation of shallower evolutionary relationships .
+we have also demonstrated that scaling of * beast to problems involving hundreds of loci is feasible , however very long chains and / or crude parallelization approaches need to be employed .
+we anticipate that the increasing availability of phylogenomic sequence data will motivate further improvements to the computational efficiency of fully bayesian inference under the multispecies coalescent model , which should allow for analysis of hundreds or even thousands of loci across tens or hundreds of species .
+these improvements will need to scale efficiently on many - core systems such as cluster supercomputers , as such systems offer vastly greater computing power than any desktop workstation .
+acknowledgments the authors wish to acknowledge the contribution of new zealand escience infrastructure ( nesi ) high - performance computing facilities to the results of this research , which are funded jointly by nesi 's collaborator institutions and through the ministry of business , innovation & employment 's research infrastructure program .
+this research was undertaken with the assistance of resources from the national computational infrastructure ( nci ) , which is supported by the australian government .
+the authors also thank craig moritz who provided valuable suggestions to improve this work .
+supplementary material supplementary material , including tables and figures can be found in the dryad data repository : http :// dx.doi.org / 10.5061 / dryad.02tf9 .
+funding this work was supported by a rutherford discovery fellowship awarded to a.j.d. by the royal society of new zealand .
+h.a.o. was supported by an australian laureate fellowship awarded to craig moritz by the australian research council ( fl110100104 ) .
+references baird n.a. etter p.d. atwood t.s. currey m.c. shiver a.l. lewis z.a. selker e.u. cresko w.a. johnson e.a .
+2008 rapid snp discovery and genetic mapping using sequenced rad markers . plos one 3 : e3376 . 18852878 bayzid m.s. warnow t .
+2013 naive binning improves phylogenomic analyses . bioinformatics 29 : 2277 - 2284 . 23842808 benjamini y. hochberg y .
+1995 controlling the false discovery rate : a practical and powerful approach to multiple testing . j. royal stat. soci. ser .
+b methodol .
+57 : 289 - 300 . berv j.s. prum r.o .
+2014 a comprehensive multilocus phylogeny of the neotropical cotingas ( cotingidae , aves ) with a comparative evolutionary analysis of breeding system and plumage dimorphism and a revised phylogenetic classification . mol. phylogenet. evol .
+81 : 120 - 136 . 25234241 bi k. vanderpool d. singhal s. linderoth t. moritz c. good j .
+2012 transcriptome - based exon capture enables highly cost - effective comparative genomic data collection at moderate evolutionary scales . bmc genomics 13 : 403 . 22900609 bouckaert r. heled j. kuhnert d. vaughan t. wu c.h. xie d. suchard m.a. rambaut a. drummond a.j .
+2014 beast 2 : a software platform for bayesian evolutionary analysis . plos comput. biol .
+10 : e1003537 . 24722319 bryant d. bouckaert r. felsenstein j. rosenberg n.a. roychoudhury a .
+2012 inferring species trees directly from biallelic genetic markers : bypassing gene trees in a full coalescent analysis . mol. biol. evol .
+29 : 1917 - 1932 . 22422763 cadotte m.w. cardinale b.j. oakley t.h .
+2008 evolutionary history and the effect of biodiversity on plant productivity . proc .
+natl acad. sci. usa 105 : 17012 - 17017 . 18971334 camargo a. avila l.j. morando m. sites j.w .
+2012 accuracy and precision of species trees : effects of locus , individual , and base pair sampling on inference of species trees in lizards of the liolaemus darwinii group ( squamata , liolaemidae ) . syst. biol .
+61 : 272 - 288 . 22076301 chifman j. kubatko l .
+2014 quartet inference from snp data under the coalescent model . bioinformatics 30 : 3317 - 3324 . 25104814 chung y. ane c .
+2011 comparing two bayesian methods for gene tree / species tree reconstruction : simulations with incomplete lineage sorting and horizontal gene transfer . syst. biol .
+60 : 261 - 275 . 21368324 davey j.w. hohenlohe p.a. etter p.d. boone j.q. catchen j.m. blaxter m.l .
+2011 genome - wide genetic marker discovery and genotyping using next - generation sequencing . nat. rev. genet .
+12 : 499 - 510 . 21681211 degiorgio m. degnan j.h .
+2010 fast and consistent estimation of species trees using supermatrix rooted triples . mol. biol. evol .
+27 : 552 - 569 . 19833741 eaton d.a.r. ree r.h .
+2013 inferring phylogeny and introgression using radseq data : an example from flowering plants ( pedicularis : orobanchaceae ) . syst. biol .
+62 : 689 - 706 . 23652346 edwards s.v. liu l. pearl d.k .
+2007 high - resolution species trees without concatenation . proc .
+natl acad. sci. usa 104 : 5936 - 5941 . 17392434 faircloth b.c. mccormack j.e. crawford n.g. harvey m.g. brumfield r.t. glenn t.c .
+2012 ultraconserved elements anchor thousands of genetic markers spanning multiple evolutionary timescales . syst. biol .
+61 : 717 - 726 . 22232343 gascuel o .
+1997 bionj : an improved version of the nj algorithm based on a simple model of sequence data . mol. biol. evol .
+14 : 685 - 695 . 9254330 gatesy j. springer m.s .
+2013 concatenation versus coalescence versus " concatalescence " . proc .
+natl acad. sci. usa 110 : e1179 . 23460702 gatesy j. springer m.s .
+2014 phylogenetic analysis at deep timescales : unreliable gene trees , bypassed hidden support , and the coalescence / concatalescence conundrum . mol. phylogenet. evol .
+80 : 231 - 266 . 25152276 gernhard t .
+2008 the conditioned reconstructed process . j. theoret. biol .
+253 : 769 - 778 . 18538793 hasegawa m. kishino h. yano t .
+1985 dating the human - ape splitting by a molecular clock of mitochondrial dna . j. mol. evol .
+22 : 160 - 174 . 3934395 heled j. bouckaert r .
+2013 looking for trees in the forest : summary tree from posterior samples . bmc evol. biol .
+13 : 221 . 24093883 heled j. bryant d. drummond a.j .
+2013 simulating gene trees under the multispecies coalescent and time - dependent migration . bmc evol. biol .
+13 : 44 . 23418788 heled j. drummond a .
+2010 bayesian inference of species trees from multilocus data . mol. biol. evol .
+27 : 570 - 580 . 19906793 hohna s. drummond a.j .
+2012 guided tree topology proposals for bayesian phylogenetic inference . syst. biol .
+61 : 1 - 11 . 21828081 joly s. mclenachan p.a. lockhart p.j .
+2009 a statistical approach for distinguishing hybridization and incomplete lineage sorting . am. naturalist 174 : e54 - e70 . 19519219 jukes t. cantor c. munro h .
+1969 evolution of protein molecules . mammalian protein metabolism .
+new york : academic press , p .
+21 - 132 . kainer d. lanfear r .
+2015 the effects of partitioning on phylogenetic inference . mol. biol. evol .
+32 : 1611 - 1627 . 25660373 kendall d.g .
+1948 on the generalized " birth - and - death " process . ann. math. stat .
+19 : 1 - 15 . kirkpatrick m. slatkin m .
+1993 searching for evolutionary patterns in the shape of a phylogenetic tree . evolution 47 : 1171 - 1181 . kubatko l.s. carstens b.c. knowles l.l .
+2009 stem : species tree estimation using maximum likelihood for gene trees under coalescence . bioinformatics 25 : 971 - 973 . 19211573 kubatko l.s .
+2009 identifying hybridization events in the presence of coalescence via model selection . syst. biol .
+58 : 478 - 488 . 20525602 lanier h.c. huang h. knowles l.l .
+2014 how low can you go ?
+the effects of mutation rate on the accuracy of species - tree estimation . mol. phylogenet. evol .
+70 : 112 - 119 . 24060367 larget b.r. kotha s.k. dewey c.n. ane c .
+2010 bucky : gene tree / species tree reconciliation with bayesian concordance analysis . bioinformatics 26 : 2910 - 2911 . 20861028 leache a.d. harris r.b. rannala b. yang z .
+2014 the influence of gene flow on species tree estimation : a simulation study . syst. biol .
+63 : 17 - 30 . 23945075 leache a.d. rannala b .
+2011 the accuracy of species tree estimation under simulation : a comparison of methods . syst. biol .
+60 : 126 - 137 . 21088009 lemmon a.r. emme s.a. lemmon e.m .
+2012 anchored hybrid enrichment for massively high - throughput phylogenomics . syst. biol .
+61 : 727 - 744 . 22605266 liu l. pearl d.k. brumfield r.t. edwards s.v .
+2008 estimating species trees using multiple - allele dna sequence data . evolution 62 : 2080 - 2091 . 18462214 liu l. yu l. edwards s .
+2010 a maximum pseudo - likelihood approach for estimating species trees under the coalescent model . bmc evol. biol .
+10 : 302 . 20937096 liu l. yu l. pearl d.k. edwards s.v .
+2009 estimating species phylogenies using coalescence times among sequences . syst. biol .
+58 : 468 - 477 . 20525601 liu l .
+2008 best : bayesian estimation of species trees under the coalescent model . bioinformatics 24 : 2542 - 2543 . 18799483 maddison w.p. midford p.e. otto s.p .
+2007 estimating a binary character 's effect on speciation and extinction . syst. biol .
+56 : 701 - 710 . 17849325 maddison w.p .
+1997 gene trees in species trees . syst. biol .
+46 : 523 - 536 . mamanova l. coffey a.j. scott c.e. kozarewa i. turner e.h. kumar a. howard e. shendure j. turner d.j .
+2010 target - enrichment strategies for next - generation sequencing . nat. methods 7 : 111 - 118 . 20111037 mccormack j.e. hird s.m. zellmer a.j. carstens b.c. brumfield r.t .
+2013 applications of next - generation sequencing to phylogeography and phylogenetics . mol. phylogenet. evol .
+66 : 526 - 538 . 22197804 mirarab s. bayzid m.s. warnow t .
+2014a evaluating summary methods for multilocus species tree estimation in the presence of incomplete lineage sorting . syst. biol .
+mirarab s. reaz r. bayzid m.s. zimmermann t. swenson m.s. warnow t .
+2014b astral : genome - scale coalescent - based species tree estimation . bioinformatics 30 : i541 - i548 . 25161245 mirarab s. warnow t .
+2015 astral - ii : coalescent - based species tree estimation with many hundreds of taxa and thousands of genes . bioinformatics 31 : i44 - i52 . 26072508 nee s. holmes e.c. may r.m. harvey p.h .
+1994 extinction rates can be estimated from molecular phylogenies . philos. transact. r. soci .
+b biol. sci. 344 : 77 - 82 . page r.d.m. charleston m.a .
+1997 from gene to organismal phylogeny : reconciled trees and the gene tree / species tree problem . mol. phylogenet. evol .
+7 : 231 - 240 . 9126565 pamilo p. nei m .
+1988 relationships between gene trees and species trees . mol. biol. evol .
+5 : 568 - 583 . 3193878 perry g.h. melsted p. marioni j.c. wang y. bainer r. pickrell j.k. michelini k. zehr s. yoder a.d. stephens m. pritchard j.k. gilad y .
+2012 comparative rna sequencing reveals substantial genetic variation in endangered primates . genome res .
+22 : 602 - 610 . 22207615 rambaut a. grass n.c .
+1997 seq - gen : an application for the monte carlo simulation of dna sequence evolution along phylogenetic trees . computer appl. biosci .
+13 : 235 - 238 . rannala b. yang z .
+2003 bayes estimation of species divergence times and ancestral population sizes using dna sequences from multiple loci . genetics 164 : 1645 - 1656 . 12930768 roch s. steel m .
+2015 likelihood - based tree reconstruction on a concatenation of aligned sequence data sets can be statistically inconsistent . theoret. popul. biol .
+100 : 56 - 62 . slowinski j.b. page r.d.m .
+1999 how should species phylogenies be inferred from sequence data ?
+syst. biol .
+48 : 814 - 825 . 12066300 springer m.s. gatesy j .
+2016 the gene tree delusion . mol. phylogenet. evol .
+94 , part a : 1 - 33 . 26238460 stamatakis a .
+2014 raxml version 8 : a tool for phylogenetic analysis and post - analysis of large phylogenies . bioinformatics 30 : 1312 - 1313 . 24451623 steel m. mooers a .
+2010 the expected length of pendant and interior edges of a yule tree . appl. math. lett .
+23 : 1315 - 1319 . steiper m.e. young n.m .
+2006 primate molecular divergence dates . mol. phylogenet. evol .
+41 : 384 - 394 . 16815047 sukumaran j. holder m.t .
+2010 dendropy : a python library for phylogenetic computing . bioinformatics 26 : 1569 - 1571 . 20421198 tavare s. marshall c.r. will o. soligo c. martin r.d .
+2002 using the fossil record to estimate the age of the last common ancestor of extant primates . nature 416 : 726 - 729 . 11961552 wiens j.j. morrill m.c .
+2011 missing data in phylogenetic analysis : reconciling results from simulations and empirical data . syst. biol .
+60 : 719 - 731 . 21447483 wilkinson r.d. steiper m.e. soligo c. martin r.d. yang z. tavare s .
+2011 primate divergences through an integrated analysis of palaeontological and molecular data . syst. biol .
+60 : 16 - 31 . 21051775 yang f.s. wang x.q .
+2007 extensive length variation in the cpdna trnt - trnf region of hemiparasitic pedicularis and its phylogenetic implications . plant syst. evol .
+264 : 251 - 264 . yang z. goldman n. friday a .
+1994 comparison of models for nucleotide substitution used in maximum - likelihood phylogenetic estimation . mol. biol. evol .
+11 : 316 - 324 . 8170371 yule g.u .
+1924 a mathematical theory of evolution based on the conclusions of dr. j.c. willis . philos. transact. r. soci .
+b biol. sci. 213 : 21 - 87 . yu y. than c. degnan j.h. nakhleh l .
+2011 coalescent histories on phylogenetic networks and detection of hybridization despite incomplete lineage sorting . syst. biol .
+60 : 138 - 149 . 21248369

@@ -1,0 +1,288 @@
+sensors ( basel ) sensors ( basel ) sensors ( basel , switzerland ) 1424 - 8220 mdpi 24599190 4003943 10.3390 / s140304271 sensors - 14 - 04271 article pypetree : a tool for reconstructing tree perennial tissues from point clouds delagrange sylvain * jauvin christian rochon pascal institute of temperate forest sciences ( isfort ) , university of quebec in outaouais ( uqo ) , 58 rue principale , ripon , qc j0v1v0 , canada ; e - mails : cjauvin @ gmail.com ( c.j. ) ; rochon.pascal @ uqo.ca ( p.r . )
+* author to whom correspondence should be addressed ; e - mail : sylvain.delagrange @ uqo.ca ; tel. : + 1 - 819 - 595 - 3900 ( ext. 2934 ) ; fax : + 1 - 819 - 595 - 2214 .
+3 2014 04 3 2014 14 3 4271 4289 01 11 2013 17 2 2014 19 2 2014 ( c ) 2014 by the authors ; licensee mdpi , basel , switzerland .
+2014 this article is an open access article distributed under the terms and conditions of the creative commons attribution license ( http :// creativecommons.org / licenses / by / 3.0 /) .
+the reconstruction of trees from point clouds that were acquired with terrestrial lidar scanning ( tls ) may become a significant breakthrough in the study and modelling of tree development .
+here , we develop an efficient method and a tool based on extensive modifications to the skeletal extraction method that was first introduced by verroust and lazarus in 2000 .
+pypetree , a user - friendly and open - source visual modelling environment , incorporates a number of improvements into the original skeletal extraction technique , making it better adapted to tackle the challenge of tree perennial tissue reconstruction .
+within pypetree , we also introduce the idea of using semi - supervised adjustment tools to address methodological challenges that are associated with imperfect point cloud datasets and which further improve reconstruction accuracy .
+the performance of these automatic and semi - supervised approaches was tested with the help of synthetic models and subsequently validated on real trees .
+accuracy of automatic reconstruction greatly varied in terms of axis detection because small ( length < 3.5 cm ) branches were difficult to detect .
+however , as small branches account for little in terms of total skeleton length , mean reconstruction error for cumulated skeleton length only reached 5.1 % and 1.8 % with automatic or semi - supervised reconstruction , respectively .
+in some cases , using the supervised tools , a perfect reconstruction of the perennial tissue could be achieved .
+terrestrial lidar scanning ( tls ) tree reconstruction skeleton l - system validation procedure colonisation algorithm botanical trees 1 .
+introduction terrestrial lidar scanning ( tls ) measures the precise location of objects in 3d space and , consequently , represents a promising tool for studying large and complex organisms such as trees [ 1,2 ] .
+in recent years , it has become an efficient alternative to established forest inventory methods for obtaining data on forest structure [ 3 - 5 ] and has also been used to extract whole - tree or crown traits from a tree or a group of trees [ 6 - 9 ] .
+because trees are generally tall and have complex crowns , in situ measurements and analysis of structural attributes are often difficult , if not impossible , to perform .
+while a limited number of fixed and mobile canopy cranes exist , ground - based methods are still needed , as they are more practical .
+when coupled with plant modelling , realistic reconstructions of botanical trees can substantially improve the quality of functional plant models [ 10 ] .
+furthermore , incorporating realistic 3d structures into modelling efforts could lead to significant advances in our understanding of plant functional ecology and performance [ 11 - 13 ] .
+moreover , studies using virtual tree models that have been developed from tls data result in improved realistic surveys .
+such models indeed include the imprint that is left by all real past stochastic events on the studied tree .
+however , significant work is still needed to obtain automated and reliable methods able to exploit such data , especially in an ecological context [ 14 ] .
+several recent studies have devised algorithms to perform tree reconstruction from tls - acquired point clouds [ 8,9,15 - 19 ] .
+although these studies have yielded promising results ( from saplings to adult trees ) , empirical validation of these tools is rarely performed .
+the issue of validating the reconstructed models is quite difficult in itself , given the size , the 3d arrangement , and the complexity of real trees .
+as a consequence , only a few studies have investigated quantitative methods for doing so [ 8,9,17 ] .
+moreover , several challenges still need to be addressed to improve the completeness of models that result from imperfect point cloud data [ 19 ] , especially for botanical and developmental studies .
+for instance , foliage reconstruction still needs to be performed using l - system - based modelling [ 16,17,20 ] or allometric relationships [ 8 ] .
+l - systems may be more appropriate for larger trees for which the exact position of photosynthetic tissues is not the most important criterion , as compared to foliage density or total surface [ 21 ] .
+however , the precise reconstruction of the main skeleton , including small - and medium - size branches , remains crucial for displaying an appropriate distribution of foliage [ 17 ] .
+conversely , allometric relationships are well suited for displaying foliage surfaces within individual crown , but this is only possible when skeleton reconstruction meets very high standards .
+to provide an efficient and multi purposes tool , we have therefore created pypetree , an open - source modelling environment that is focused upon the full reconstruction of tree perennial tissues , which are the basis for adequate botanical tree reconstruction .
+the pypetree reconstruction engine is based on the skeletal extraction algorithm that was introduced by verroust and lazarus [ 22 ] , which we have extensively studied to devise a series of improvements .
+we have specifically focused on making the algorithm better - suited to the task of botanical tree reconstruction .
+pypetree also includes a tool to create l - system - based synthetic models , the surfaces of which can be sampled to produce relatively realistic datasets for validation and development purposes .
+here , we describe the model interface and also validate the accuracy of pypetree reconstructions against actual field measurements taken from several sapling tree species .
+2. experimental section the method of reconstruction in pypetree is based on an algorithm that was devised by verroust and lazarus [ 22 ] , and which allows the user to extract " skeletal curves " from 3d point clouds .
+this algorithm finds the implicit skeletal curve of a surface - sampled object by computing four distinct graph structures ( n , g , s and k ) , each one of which is sequentially derived from the preceding structure .
+in this section , we will describe and discuss each component to highlight particular aspects that are relevant to the task of tree perennial tissue modelling in pypetree ( also see the conceptual diagram of pypetree in appendix material figure a1 ) .
+2.1 .
+the neighbourhood graph ( n ) from the raw point cloud data ( p ) , the original method computes the neighbourhood graph ( n ) with euclidean proximity constraints in terms of a maximal number of neighbours ( k ) .
+in original method of verroust and lazarus [ 22 ] , the criterion for a suitable value of k is simply that the resulting graph should be fully connected .
+this may work well for simpler and more regularly shaped objects .
+however , for complex shapes like trees , we have found that it is better to compute n in terms of a search radius ( r ) for each point , without any limit on the number of neighbours ( k = infinity ) .
+given that both the sampling density ( i.e. , the average distance between the points ) and the minimal distance between the object features are known , this yields greater control over the form and integrity of the tree features that are encoded in the resulting connectivity graph .
+in the context of botanical tree reconstruction , we found that reliance upon a fixed number of neighbours easily leads to spurious connections between the trunk and small branches , which in turn causes problems later in the modeling process with respect to the structures that are derived from it. in contrast , using a search radius ensures that points separated by " gaps " shorter than the chosen distance will not be linked .
+this is of a special importance in our context , as botanical trees typically possess a dense network of small branches , which can be quite close to one another , especially as we reach higher into their canopy .
+in contrast to the original method , an optimal value for r in our setting does not necessarily imply a fully connected graph .
+as tls datasets are prone to occlusion problems , some parts of the scene may be missing , which can result in a poorly connected graph if r is below a certain threshold .
+although it might be tempting to augment the value of the connectivity parameters ( r ) to avoid this problem , it is actually preferable to begin with a model with some disconnected components to prevent subsequent false links between distinct small branches .
+in other words , maintaining a high value for k ( k = infinity being too time - consuming for calculations ) to avoid spurious connection , together with the inclusion of connecting points that are based on a search radius ( r ) just below the minimum branch length to be detected , will produce the best results for n. the ideal connectivity structure that results from this first processing stage is one that optimizes the trade - off between graph density and the structural integrity of the features .
+this trade - off is very much dependent upon raw scan quality and , more specifically , upon occlusion .
+in cases where occlusion remains a great concern , some visual and interactive approaches might be considered ( see " interactive adjustment tools " section ) rather than increasing r .
+2.2 .
+the geodesic graph ( g ) we compute the shortest path from every point in n to the source point using dijkstra 's shortest path algorithm [ 23 ] .
+in pypetree , the source point is defined as the one with the lowest height coordinate , and corresponds to the base of the tree trunk .
+the resulting graph g ( a sub - graph of n ) , along with the path edge distances , can be thought as a representation of the geodesic space of the tree surface , with the many dimensions spanning from the trunk source to the tips of the branches , along each path .
+2.3 .
+the level sets ( s ) the original method defines the level sets s as a partitioning of p in k - quantized distance bins ( in other words , the sets of points that are located at approximately constant distances from the source ) , which can be computed using the information that is contained in g. because of the particular structure of trees , it makes more sense in our context to define the level sets ( d ) in terms of the minimal branch length .
+if d is greater than this real minimal length , it will not be possible to distinguish finer features , and segmentation resolution will not be sufficient .
+conversely , if d is lower than the real minimal branch length , then segmentation resolution will possibly create false branches .
+typically , near the base of a tree , the level sets will be associated with single cylinder cuts ( i.e. , those composing the trunk ) .
+higher up the trunk , they will tend to fragment into many branch cuts , which we will then need to segment .
+the segmentation of the particular level set si ( with si subset p ) is accomplished by extracting the connected components of ni , i.e. , the sub - graph that was obtained by the intersection of n with the points in si. note these two differences between the original method and ours at this stage : we reuse information contained in n ( i.e. , the point links based on distance ) to facilitate the segmentation of sets of points at the same level .
+this step avoids the computation of additional level - specific neighbourhood graphs .
+our level sets are extended within the geodesic space ( whereas they are thin " rings " in the original method ) ; this helps to stabilise the segmentation process , as a thin - level set is associated with a greater chance of misconnection because of its low density .
+2.4 .
+the skeleton ( k ) once the branch cuts have been segmented into connected components , their centroids will constitute the nodes of the tree skeleton graph k ( for clarity , note that k not - subset p , rather than by extension of any data structure that has been computed so far : n , g and s ) .
+the edges of this graph are formed by connecting the k - nodes at level i ( corresponding to the centroids of segments found in ni ) to the ones at the level below i - 1 by following the geodesic paths passing through them ( g intersection si intersection si - 1 ) .
+this downward direction constrains skeleton graph construction in a manner useful for botanical tree reconstruction .
+indeed , a node at a certain level cannot be linked to more than one node a level below , which is not true in the upward direction .
+2.5 .
+additional modelling features and tools to maximise its usefulness and efficiency in the context of tree perennial tissue reconstruction , we have also introduced the following set of modifications to the original method .
+2.5.1 .
+false tip pruning there is a maximal value for d , beyond which it is not possible to segment small features because of insufficient segmentation resolution ( see also section 2.3 ) .
+however , a small value for d introduces some instability into the segmentation process .
+reducing the size of the level set sub - graphs increases their chances of being misconnected , which then results in the creation of spurious k - nodes ( i.e. , false branches ) .
+given that n connectivity was optimised ( by optimising the r parameter that was based on original point cloud quality and expected minimal branch length ; see section 2.1 ) , it was not possible to augment n 's density to reduce the d parameter .
+in other words , there is a trade - off between the connectivity level , which must be low enough to prevent fusion of distinct features , and segmentation resolution , which must be high enough to distinguish between them .
+for cases where this optimal compromise is not obtainable , it is possible to mitigate these segmentation problems once the skeleton structure has been computed .
+because it is a tree ( i.e. , in the mathematical sense ) , the tip nodes of the skeleton are easily identifiable as those without child nodes .
+to these , we apply a test to detect the existence of g paths that lead to higher geodesic levels .
+if any such path is found , the node , together with all of its ancestors down to the next branching intersection , can be removed , as it is considered a " false tip " .
+2.5.2 .
+skeleton smoothing the combined effects of increasing branching resolution and using the pruning tool usually produce skeletons with broken lines , especially when scan quality of the original image is low ( i.e. , when scans have very low point density ) .
+to counter this , we smooth the skeleton by using a moving average ( of length w , a user - defined parameter ) , which is applied from the tip of every branch to the base of the trunk .
+2.5.3 .
+volume reconstruction the final step in perennial tissue reconstruction is the assignment of a radius value to every skeleton segment , to model its thickness .
+we do this by collecting the level set " starting points ," i.e. , the g path nodes that first cross the level boundaries , when going upward from the source .
+these subsets of points are arranged in approximate circles the plane of which is perpendicular to the local branch direction .
+the mean radius can thus be computed and used as the branch base radius .
+to represent the truncated cone form of tree segments , the radii of all segments are smoothed to generate the complete final model .
+validation of branch diameters that were provided by pypetree was performed against direct measurements that were obtained from a second study dealing with ice accretion on tree branches [ 24 ] .
+2.5.4 .
+interactive adjustment tools after the development and testing of our reconstruction algorithm , we argue thatany automatic reconstruction methods generally require extensive parameter tuning because of the variability in the quality of the original scans and because of diverse range of complexity in crown architectures .
+in turn , the question of the trade - off between the time spent adjusting parameters and improvement in resulting model accuracy ( and how much accuracy is required ) can be raised .
+also , because tls data acquisition process remains complex , imperfect datasets are common and are thus likely to pose difficulties in implementing automated processes [ 19 ] .
+therefore , we propose an alternative that incorporates a certain degree of human input .
+this semi - supervised reconstruction process refers to user - assisted , interactive model manipulation and guidance ( both in - process as well as post - processing options ) .
+the pypetree user interface is designed around the notion of a visual tree model , which is composed of two types of primitives : a series of articulation spheres , which are connected by truncated cones ( or tubes , the radii of which are defined by their enclosing spheres ) .
+the manipulation of a sphere directly affects its connected tubes ; creating , moving , resizing or deleting one will result in the model transformation that one would intuitively expect .
+2.5.5 .
+synthetic model creator in order to overcome the challenges of obtaining validation information from the scanned trees , and to overcome the challenges of obtaining validation information from the scanned trees , and to allow for the rapid evaluation of our reconstruction algorithm , we have devised a method to create artificial trees , which is fully integrated into the pypetree environment .
+to be useful in our context , such models should possess the following two properties : they are structured as a simplified , but reasonably realistic tree perennial structure ( i.e. , in allometric terms ) for which we can collect structural measures for comparison and validation , and they use a point - sampling method that produces results approximating those of a real tls ( i.e. , surface sampling and small random perturbations , possibly due to technical flaws ) .
+the first goal is met by using an l - system grammar [ 25 ] , viz. , a set of recursive rules where the symbols govern the evolution ( or " growing ") of geometric elements .
+when the rules are iteratively applied , they allow the creation of complex tridimensional structures such as trees or other plants [ 26,27 ] .
+the basic geometric elements of our artificial model are truncated cones , which correspond to branch segments , with length and radius variation being governed by additional parameters .
+for instance , the single - rule grammar in equation ( 1 ) would yield a simple y - shaped structure after one iteration : ( 1 ) f - - > f [< - - f ][ - - > f ] the f symbol governs the creation of a segment , while the < - - and - - > symbols impose directional changes .
+the [ and ] symbols correspond to a stack mechanism to spawn new branches recursively. from these models ( i.e. , from user defined parameters and simulation results ) we can collect structural information for validation purposes .
+to provide stochasticity within the virtual structure , branching angles and segment sizes vary according to a normal distribution for which the means and variances are user - defined .
+the second property is obtained with a surface sampling mechanism that is applied to every segment .
+a point is first uniformly sampled from the truncated cone - side surface , with the two caps excluded .
+to simulate measurement errors that depend upon the device or its operational environment , a random perturbation displaces it away from the surface , following an exponential law ( i.e. , with an exponentially shrinking likelihood as the displacement grows ) .
+the density of points per unit of surface and the scale of the exponential perturbation are user - defined parameters .
+the set of points that results from this process can be interpreted as a sampling of the exterior surface of the tridimensional synthetic model with no occlusion .
+occlusion can be artificially added by deleting groups of points manually .
+the point cloud can be stored as a set of 3d coordinates , ready to be used as an artificial target for pypetree algorithms .
+3. reconstruction of a synthetic tree : first level of validation in this section , we will detail the reconstruction process of pypetree for a synthetic tree model with the following parameters ( all of the size values are in metres ) : rule : a - - > [^ fa ] + + + [ - - > fa ] , axiom : fa angle mean : 30degrees ; standard deviation ( sd ) : 5degrees initial segment length : 1 segment length scaling : 0.75 ; sd : 0.1 initial segment radius : 0.1 segment radius scaling mean : 0.75 ; sd : 0.1 number of iterations : 7 sampling density per surface unit : 2000 sampling surface deviation ( exp .
+scale ) : 0.001 given the aforementioned parameters , pypetree generates the model that is illustrated in figure 1a .
+the synthetic model occupies a 2.83 x 4.02 x 4.33 m volume and is the approximate size of a tree sapling .
+the model produced 128 tips and 256 segments , with the smallest being 0.13 m long. from this synthetic model , we produced a virtual point cloud of 13,474 points ( figure 1b ) being representative of tls scene produced from three scans after registration and raw data cleaning and filtering [ 8 ] .
+average distance between points was 0.011 m in the point cloud that was created .
+this synthetic model was designed to present a realistic and challenging model in terms of its size and branching structure .
+the sampling density for the point cloud that was created is lower than what raw data that are produced by a tls instrument would yield , but this aspect actually makes the problem algorithmically harder because of the reduction of the number of points over objects minimal separation distance ratio .
+3.1 .
+neighbourhood and connectivity repair tool in figure 2 , we demonstrate how decreasing the value of r increases the fragmentation of n in different unconnected components and suggests r = 0.06 is the best , since it yields a single connected component for the whole tree .
+however , at this point the operator should validate that using this r value , certain fine features in the canopy are not fused together .
+if yes , a lower r value represents a better compromise that maintains branching sensitivity and quality , while creating several unconnected components ( see figure 2b ). from here , the operator can use the connectivity repair tool by manipulating a " selection sphere " ( figure 3 ) .
+this connection sphere can be used to force complete ( many - to - many ) connection of its enclosed points and provide a fully connected model , at an ideal density level .
+3.2 .
+level sets the level sets are easy to compute on our synthetic model since the maximal value for d could be estimated as the smallest branch segment that is expected .
+for our virtual example , d is theoretically optimal at 0.13 m , and any value under 0.13 m will avoid ramification omissions and fit perfectly to the model ( figure 4 ) .
+however , one should determine target minimum segment length and set d close to this value to prevent " false branch " creation .
+3.3 .
+branch manipulation tools and skeleton smoothing in a close - up of the upper parts of the tree , figure 5 illustrates the use of the branch creation tool .
+in this part of the crown , where disconnection that results from too large a value of d may occur , this tool allows the addition of tips or the connection of segments that have not automatically detected .
+finally , figure 6 summarises the gain in reconstruction quality ( number of tips , branch insertion angles , and segment radii ) that is made using the semi - supervised tools of pypetree .
+first , we performed an initial reconstruction with a d value higher than the minimum segment length that produced 126 tips ( figure 6a ) .
+second , we performed manual adjustments ( i ) for omitted segments using the branch creation tool ; and ( ii ) shaped the tree skeleton using the smoothing tool , which can correct some branching point displacements , depending upon the level set settings that were chosen in previous steps ( figure 6b ) .
+here , we consider the semi - supervised reconstruction as perfect by using the proportion of retrieved branch tips .
+this proxy is acceptable for complex branching structure , since perfect detection of the number of tips refers to perfect detection of ramification , which includes segment length and branching rate .
+4. reconstruction of real trees : second level of validation in this section , we first report the reconstruction of an individual elm ( ulmus americana l. ) of 2.5 m height , from a point cloud ( acquired with a tls device ilris - 3d , optech , vaughan , on , canada ) of 120,000 points with a minimal 0.01 m distance between points ( figure 7a ) .
+to obtain this scene and minimise occlusion , four scans were performed from four contrasting directions during leaf - off conditions .
+this greatly helped in obtaining a more robust point cloud , but discontinuities still occurred in some inner parts of the tree after registration .
+to validate reconstruction , we counted all tips for long - and short - shoots of first - , second - and third - order axes ( table 1 ) , following the classification method of barthelemy and caraglio [ 28 ] .
+to get an idea of the total cumulated length , we then calculated the mean length of each type of axis from a random subsampling of what ( table 1 ) .
+figure 7 shows the automatic reconstruction of the tree , which allowed the detection of up to 90 % of the 1st - and 2nd - order axis numbers , but only 25 % of the smallest axis order ( cf. table 1 , and figure 7b,c ) .
+we have estimated , based on the mean length of each axis order , the automatic reconstruction that led to the reconstruction of 85 % of total cumulated length .
+it worths noting that this value is certainly underestimated , since omitted objects are generally the smallest of their order , but we attributed to them the mean size of order type .
+despite accuracy of axis detection comparable to that of other methods [ 29 ] , our approach led to higher total length detection since only the smallest branches were omitted .
+the use of supervised tools improved model reconstruction , mainly by ( i ) connecting components that were isolated because of occlusion ( i.e. , gaps of 3 cm ) ; and ( ii ) creating short branches .
+after three hours of work , reconstruction increased to 78 % of total number of axes detected and 93 % of total cumulated length ( table 1 ) .
+better reconstruction seems impossible due to point cloud quality , especially in the lower part of the tree where branches are severely tangled .
+the accuracy of semi - supervised reconstruction makes it suitable for botanical or architectural studies , such as the investigation of the exploration ( long axes ) vs. exploitation ( short axes ) trade - off in trees [ 28 ] .
+one should acknowledge , however , the expense of time that was associated with this gain .
+when the aim of extracting tree metrics such as tree height and diameter or crown volume are for forestry purposes [ 8,17 ] , this precision is obviously not necessary and the automatic method remains appropriate .
+in a second validation exercise , we have tested pypetree on the reconstruction of a series of sugar maple ( acer saccharum marsh. ) and yellow birch ( betula alleghaniensis britt. ) individuals that were grown in a nursery under different light levels for three years ( figure 8 ) .
+scan settings and registration procedures were the same as the aforementioned elm tree .
+it should be noted that sugar maple architecture is less ramified than that of yellow birch , and a reduction in the amount of light that is available during growth tends to decrease ramification further .
+for this exercise , we have taken care to identify each segment , its position with respect to the parent axes , and its length , to allow precise quantitative validation .
+two main validation parameters were then used to evaluate the quality of the reconstruction : ( i ) axis detection ; and ( ii ) cumulative length detection .
+validation results for the automatic reconstruction are presented in table 2 and show that axis omission varies between 15.8 % and 42.9 % .
+these values are rather high with respect to axis detection .
+however , these missing axes accounted for little in total individual length since the error on cumulative length detection only ranged between 2.2 % and 9.1 % ( table 2 ) .
+overall , mean detection error reached 25.6 % and 5.1 % , for axis and length detection , respectively .
+moreover , reconstruction quality reached very high standards using the supervised adjustment tools. with less than 1 h of work per tree , several small branches were successfully added , decreasing axis omission by more than half ( i.e. , 12.3 %) .
+in the case of e1 , perfect axis detection was achieved with semi - supervised reconstruction ( table 3 , figure 8 ) .
+the error on cumulative length detection was consequently kept under 3.2 % , with a mean of 1.8 % for the four trees ( table 3 ) .
+this validation exercise confirms that the length of certain branches was under the threshold imposed by the level sets parameter ( d ) , but could be detected by the operator .
+according to these results , the overall complexity of a tree structure does not seem to affect automatic branch reconstruction .
+segment length is clearly the limiting factor and 90 % of the omitted axes in our validation exercise were under 3.5 cm length ( data not shown ) .
+considering the relatively simple architecture of these trees , if semi - supervised reconstruction did not allow for the detection of these small branches , only an increase in point cloud quality ( i.e. , via tls device improvement ) may allow their detection .
+in summary , whether the method was semi - supervised or not , pypetree allows very high quality reconstruction .
+it does miss some small axes with lengths generally under 3.5 cm , but the importance of these axes is minimal in the total cumulated skeleton length of a tree .
+pypetree is thus currently very adequate for an accurate reconstruction of seedlings and saplings .
+recently , pypetree was used successfully in the reconstruction and extraction of traits for isolated branches in an ice accretion study [ 24 ] .
+pypetree is potentially adequate for bigger trees and more complex architectures , but only with the help of higher quality scans ( high resolution tls devices ) or modelling for the finest parts .
+5. software notes pypetree is written in python , using the vtk [ 30 ] visualisation toolkit , as well as the networkx [ 31 ] and scipy [ 32 ] libraries ( for graph algorithms and k - d tree - based nearest - neighbour searches ) .
+the reconstruction process that has been discussed in this article is integrated into the user interface as a " wizard ," i.e. , a set of stage - specific window dialogs , within which it is easy to navigate back and forth , to study and modify the effects of certain parameter configurations .
+this modular organisation of the programme was designed with the goal of easing the integration of other reconstruction methods and tools that can be added or simply replace any step of the reconstruction .
+in addition , pypetree is open - source software and possible collaborations and improvements by the user community are encouraged .
+6. conclusions we have studied an existing reconstruction technique and improved it in the context of tree perennial tissue modelling and analysis .
+in addition to some core algorithmic modifications to augment its accuracy , enhancements include some operator - assisted tools built in the visual interface of our pypetree programme , as well as a " virtual tree builder " allowing testing efficiently and validating programme modifications .
+we have shown that the use of this platform can result in high quality reconstructions for small trees and isolated branches , but still required a good knowledge of the studied target ( i.e. , mainly the minimum expected branch length ) and , in some cases , a supervised effort .
+pypetree is thus well suited for the study of tree perennial tissue volume and development , crown volume and organisation , as well as botanical issues that are based on axis ordering .
+when coupled with allometric relationships or modelling exercises to replace foliage , pypetree can also explore issues concerning the 3d functioning of trees ( e.g. , light interception , water transport and transpiration ) .
+we thus argue that based on present tls device precision : ( i ) the development of a purely automatic method to reconstruct very high quality models remains a challenging problem ( even on saplings ) due to size limitations of some tree axes and ( ii ) the effort that is spent in developing algorithms and tuning the parameters of a purely automatic method may be balanced by the use of well - designed supervised adjustment tools. of course , automatic methods are obviously suitable for specific uses such as extracting rough tree metrics for forestry purposes .
+however , building on our findings , our next objectives would be to study the effects of ever - improving tls sensing technology on pypetree reconstruction capabilities .
+we thank richard fournier 's laboratory at universite de sherbrooke for valuable help and discussion at the beginning of the pypetree project and for the loan of the ilris tls instrument .
+this research was made possible with funding from nserc ( natural sciences and engineering research council of canada ) through a discovery grant to sd. we also thank ariane paquin , alexandre fouillet and isabeau pratte , who carried out the validation measurements on the elm tree , and audrey hardy and etienne guertin , who performed the sugar maple and yellow birch sapling reconstruction and validation exercise , as well as william f.j. parsons ( cef ) for the english edition and his constructive remarks .
+finally we wish to thank the wide and helpful community of developers always available on the internet forums .
+authors contributions : sylvain delagrange provided the original idea for the use and modification of the v & l algorithm to reconstruct tree perennial tissues .
+sylvain delagrange took the leadership on the manuscript writing and was responsible for the design and the analyses of the validation procedure .
+christian jauvin worked on the design and research of the reconstruction algorithm .
+christian jauvin developed the pypetree software , as well as its semi - supervised approach .
+pascal rochon had a significant contribution in the development of several reconstruction steps and was in charge of tls data acquisition and extraction for validation purpose .
+appendix figure a1 .
+conceptual diagram of the pypetree approach .
+conflicts of interest the authors declare no conflict of interest .
+references 1 .
+mendez v. catalan h. rosell j.r. arno j. sanz r. tarquis a. simlidar - - simulation of lidar performance in artificially simulated orchards biosyst. eng .
+2012 111 72 82 2 .
+nielsen m. slaughter d.c. gliever c. vision - based 3d peach tree reconstruction for automated blossom thinning ieee trans. ind. inf .
+2012 8 88 196 3 .
+henning j.g. radtke p.j. detailed stem measurements of standing trees from ground - based scanning lidar for. sci. 2006 52 67 80 4 .
+moorthy i. miller j.r. berni j.a.j. zarco - tejada p. hu b. chen j. field characterization of olive ( olea. europaea l. ) tree crown architecture using terrestrial laser scanning data agric. for. meteorol .
+2011 151 204 214 5 .
+lovell j. jupp d. newnham g. culvenor d. measuring tree stem diameters using intensity profiles from ground - based scanning lidar from a fixed viewpoint pandrs 2011 66 46 55 6 .
+sanz - cortiella r. llorens - calveras j. escola a. arno - satorra j. ribes - dasi m. masip - vilalta j. rosell - polo j.r. innovative lidar 3d dynamic measurement system to estimate fruit - tree leaf area sensors 2011 11 5769 5791 22163926 7 .
+llorens j. gil e. llop j. escola a. ultrasonic and lidar sensors for electronic canopy characterization in vineyards : advances to improve pesticide application methods sensors 2011 11 2177 2194 22319405 8 .
+delagrange s. rochon p. reconstruction and analysis of a deciduous sapling using digital photographs or terrestrial - lidar technology ann. bot. lond .
+2011 108 991 1000 9 .
+raumonen p. kaasalainen m. akerblom m. kaasalainen s. kaartinen h. vastaranta m. lewis p. fast automatic precision tree models from terrestrial laser scanner data remote sens .
+2013 5 491 520 10 .
+dejong t.m. da silva d. vos j. escobar - gutierrez a.j. using functional - structural plant models to study , understand and integrate plant development and ecophysiology ann. bot. lond .
+2011 108 987 989 11 .
+valladares f. gianoli e. gomez j. ecological limits to plant phenotypic plasticity new phytol .
+2007 176 749 763 17997761 12 .
+vos j. evers j.b. buck - sorlin g.h. andrieu b. chelle m. de visser p.h.b. functional - structural plant modelling : a new versatile tool in crop science j. exp. bot .
+2010 61 2101 2115 19995824 13 .
+onoda y. salunga j.b. akutsu k. aiba s. yahara t. anten n.p.r. tradeoff between light interception efficiency and light use efficiency - implications for species coexisting in one - sided light competition j. ecol .
+2014 102 162 175 14 .
+dassot m. constant t.f.m. the use of terrestrial lidar technology in forest science : application fields , benefits and challenges ann. for. sci. 2011 68 959 974 15 .
+runions a. lane b. prusinkiewicz p. modeling trees with a space colonization algorithm proceeding of the eurographics workshop on natural phenomenaprague , czech republic3 - 4 september 2007 p .
+9 16 .
+xu h. gossett n. chen b. knowledge and heuristic - based modeling of laser - scanned trees acm trans. graphic .
+2007 10.1145 / 1289603.1289610 17 .
+cote j .
+- f. widlowski j .
+- l. fournier r. verstraete m. the structural and radiative consistency of three - dimensional tree reconstructions from terrestrial lidar remote sens. environ .
+2009 113 1067 1081 18 .
+preuksakarn c. boudon f. ferraro p. durand j .
+- b. nikinmaa e. godin c. reconstructing plant architecture from 3d laser scanner data proceeding of the 6th international workshop on functional - structural plant models , fspm10 , university of californiadavis , ca , usa14 - 16 september 2010 19 .
+bucksch a. lindenbergh r.c. menenti m. skeltre - robust skeleton extraction from imperfect point clouds vis. comput .
+2010 26 1283 1300 20 .
+cote j. fournier r. egli r. an architectural model of trees to estimate forest structural attributes using terrestrial lidar environ. modell. softw .
+2011 26 761 777 21 .
+sterck f. crown development in tropical rain forest trees in gaps and understorey plant. ecol .
+1999 143 89 98 22 .
+verroust a. lazarus f. extracting skeletal curves from 3d scattered data vis. comput .
+2000 16 15 25 23 .
+dijkstra e.w. a note on two problems in connexion with graphs numer. math .
+1959 1 269 271 24 .
+nock c.a. greene d. delagrange s. follett m. fournier r. messier c. in situ quantification of experimental ice accretion on tree crowns using terrestrial laser scanning .
+scanning plos one 2013 10.1371 / journal.pone.0064865 25 .
+lindenmayer a. mathematical models for cellular interactions in development : i. filaments with one - sided inputs j. theor. biol .
+1968 18 280 299 5659071 26 .
+mech r. prusinkiewicz p. visual models of plants interacting with their environment proceedings of the 23rd annual conference on computer graphics and interactive techniquesnew orleans , la , usa4 - 9 august 1996 397 410 27 .
+prusinkiewicz p. lindenmayer a. hanan j. development models of herbaceous plants for computer imagery purposes comput. graph .
+1988 22 141 150 28 .
+barthelemy d. caraglio y. plant architecture : a dynamic , multilevel and comprehensive approach to plant form , structure and ontogeny ann. bot. lond .
+2007 99 375 407 29 .
+bucksch a. fleck s. automated detection of branch dimensions in woody skeletons of leafless fruit photogramm. eng. rem. sens .
+2011 7 229 240 30 .
+the visualisation toolkit available online : http :// www.vtk.org ( accessed on 12 december 2013 ) 31 .
+networx available online : http :// networkx.lanl.gov ( accessed on 12 december 2013 ) 32 .
+scipy available online : http :// www.scipy.org ( accessed on 12 december 2013 ) figure 1 .
+( a ) 3d representation of the synthetic tree model that was created from l - system with 7 iterations .
+the model produced 256 segments and 128 tips ; ( b ) 3d point cloud created from the synthetic model ( 13,474 points ) .
+figure 2 .
+effects of neighbourhood search radius r on n. different colours refer to unconnected components ( a ) r = 0.04 ( 14 components ) ; ( b ) r = 0.05 ( two components ) and ( c ) r = 0.06 ( one component ) .
+figure 3 .
+close - up of a tree section ( a ) before and ( b ) after the assembly of two disconnected components using the connectivity repair tool .
+figure 4 .
+point cloud segmentation using a level set value ( d ) of 0.09 m. here , 50 levels were created and all tips ( i.e. , 128 ) were detected .
+figure 5 .
+close - up of a tree section ( a ) before and ( b ) after using the branch creation tool .
+figure 6 .
+( a ) non - optimal reconstruction of the synthetic model ( 126 tips detected among the 128 ) ; ( b ) perfect semi - supervised reconstruction ( 128 tips ) , using smoothing ( w = 3 ) and the use branch creation tools .
+figure 7 .
+automatic elm reconstruction .
+( a ) original point cloud from tls ( 120,000 points ) ; ( b ) automated reconstruction using the following parameter combination : r = 0.025 ; d = 0.025 ; w = 3 ; ( c ) close - up of the elm canopy showing the detection of the long axis but omission of some short second - order axes .
+figure 8 .
+reconstruction of 3 - year - old saplings grown under contrasting light regimes .
+( a ) e1 : sugar maple under low light reconstructed using k = 10 , r = 0.03 , d = 100 and w = 5 ; ( b ) e3 : sugar maple under high light reconstructed using k = 4 , r = 0.03 , d = 90 and w = 5 ; ( c ) b1 : yellow birch under low light reconstructed using k = 5 , r = 0.02 , d = 30 and w = 3 ; ( d ) b3 : yellow birch under high light reconstructed using k = 7 , r = 0.01 , d = 100 and w = 5 .
+table 1 .
+validation results for the elm tree reconstruction .
+real data were acquired in the field and compared to automatic reconstruction and semi - supervised reconstruction .
+both the number of segments and the cumulated estimated length of all segments were used to validate the reconstructions .
+axis ordering system is based on barthelemy and caraglio [ 28 ] .
+axis order real elm treemeasurements automatic reconstruction semi - supervised reconstruction number mean length ( m ) cumulated length ( m ) number cumulated length ( m ) number cumulated length ( m ) 1st 29 0.59 17.34 28 16.74 29 17.34 2nd 74 0.23 17.33 67 15.69 72 16.86 3rd 132 0.04 5.56 85 3.58 110 4.63 4th 131 0.02 3.63 34 0.94 75 2.08 total (% of real tree ) 366 ( 100 %) 43.87 ( 100 %) 214 ( 58 %) 36.96 ( 85 %) 286 ( 78 %) 40.92 ( 93 %) table 2 .
+validation results for the automatic reconstruction of 3 - year - old sugar maple ( e1 and e3 ) and yellow birch ( b1 and b3 ) saplings that were grown under contrasting light regimes .
+axis ordering system is based on barthelemy and caraglio [ 28 ] .
+tree id axis cumulative length ^ 1st order m / r * 2nd and 3rd order m / r * total m / r * error % cm m / r * error % e1 7 / 3 0 / 0 7 / 4 42.9 79.5 / 72.3 9.1 e3 16 / 12 1 / 1 17 / 13 25.0 275.5 / 263.7 4.3 b1 16 / 13 13 / 10 29 / 23 18.8 420.5 / 401.4 4.6 b3 19 / 16 19 / 15 38 / 31 15.8 1219.0 / 1193.3 2.2 mean error 25.6 5.1 * m states are for information that was directly measured on the sapling , while r states are for information that was extracted from the pypetree reconstructions ; ^ for this validation exercise , the actual length of each axis was measured .
+table 3 .
+validation results for the semi - supervised reconstruction of 3 - year - old sugar maple ( e1 and e3 ) and yellow birch ( b1 and b3 ) saplings that were grown under contrasting light regimes .
+axis ordering system is based on barthelemy and caraglio [ 28 ] .
+tree id axis cumulative length ^ total m / r * error % total m / r * error % e1 7 / 7 0.0 79.5 / 80.0 0.6 e3 17 / 14 21.4 275.5 / 266.7 3.2 b1 29 / 25 16.0 420.5 / 411.0 2.3 b3 38 / 34 11.8 1219.0 / 1206.7 1 mean error 12.3 1.8 * m states were for information that was directly measured on the sapling , while r states were for information that was extracted from the pypetree reconstructions ; ^ for this validation exercise , the actual length of each axis was measured .

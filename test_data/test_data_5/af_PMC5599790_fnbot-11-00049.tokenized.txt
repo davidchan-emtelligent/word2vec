@@ -1,0 +1,685 @@
+front neurorobot front neurorobot front. neurorobot .
+frontiers in neurorobotics 1662 - 5218 frontiers media s.a .
+28951719 5599790 10.3389 / fnbot.2017.00049 neuroscienceoriginal research human - derived disturbance estimation and compensation ( dec ) method lends itself to a modular sensorimotor control in a humanoid robot lippi vittorio * mergner thomas neurology , university clinics of freiburg freiburg , germany edited by : manish sreenivasa , heidelberg university , germany reviewed by : egidio falotico , sant'anna school of advanced studies , italy ; malte schilling , bielefeld university , germany * correspondence : vittorio lippi vittorio.lippi @ uniklinik - freiburg.de 08 9 2017 2017 11 49 31 1 2017 24 8 2017 copyright ( c ) 2017 lippi and mergner .
+2017 lippi and mergnerthis is an open - access article distributed under the terms of the creative commons attribution license ( cc by ) .
+the use , distribution or reproduction in other forums is permitted , provided the original author ( s ) or licensor are credited and that the original publication in this journal is cited , in accordance with accepted academic practice .
+no use , distribution or reproduction is permitted which does not comply with these terms .
+the high complexity of the human posture and movement control system represents challenges for diagnosis , therapy , and rehabilitation of neurological patients .
+we envisage that engineering - inspired , model - based approaches will help to deal with the high complexity of the human posture control system .
+since the methods of system identification and parameter estimation are limited to systems with only a few dof , our laboratory proposes a heuristic approach that step - by - step increases complexity when creating a hypothetical human - derived control systems in humanoid robots .
+this system is then compared with the human control in the same test bed , a posture control laboratory .
+the human - derived control builds upon the identified disturbance estimation and compensation ( dec ) mechanism , whose main principle is to support execution of commanded poses or movements by compensating for external or self - produced disturbances such as gravity effects .
+in previous robotic implementation , up to 3 interconnected dec control modules were used in modular control architectures separately for the sagittal plane or the frontal body plane and successfully passed balancing and movement tests .
+in this study we hypothesized that conflict - free movement coordination between the robot 's sagittal and frontal body planes emerges simply from the physical embodiment , not necessarily requiring a full body control .
+experiments were performed in the 14 dof robot lucy posturob ( i ) demonstrating that the mechanical coupling from the robot 's body suffices to coordinate the controls in the two planes when the robot produces movements and balancing responses in the intermediate plane , ( ii ) providing quantitative characterization of the interaction dynamics between body planes including frequency response functions ( frfs ) , as they are used in human postural control analysis , and ( iii ) witnessing postural and control stability when all dofs are challenged together with the emergence of inter - segmental coordination in squatting movements .
+these findings represent an important step toward controlling in the robot in future more complex sensorimotor functions such as walking .
+sensory - motor system humans neuromechanical modeling modular control architecture humanoid robot experiments seventh framework programme10.13039 / 501100004963600698610454 introduction human posture control modeling and neurorobotics human postural control attracts considerable interest in healthcare research worldwide for reasons such as " fall of the elderly " and neurological impairments such as ataxia in cerebellar patients or deficient movement control in parkinson 's disease .
+developing model - based diagnostics as well as therapeutic and rehabilitative interventions is an important aim of this research .
+engineering - inspired approaches to model the human sensorimotor control and its failures have a long tradition ( e.g. , nashner , 1972 ; hajos and kirchner , 1984 ; johansson et al. , 1988 ; kuo , 1995 ; fitzpatrick et al. , 1996 ) .
+these approaches often address reactive postural responses to well - controlled external stimuli , which lend themselves to system identification , whereas the exact input for voluntary movements is generally unknown .
+two of the following recent modeling approaches were especially influential , yet their clinical application can often prove to be problematic .
+one modeling approach used system state estimation based on multi - sensory integration under noise optimization principles .
+this approach builds on biological textbook knowledge on human sensors and anthropometrics and , based on this knowledge and engineering principles , analyzes the human posture control using noise optimizing principles ( van der kooij et al. , 2001 ; kuo , 2005 ) .
+for example , it predicts that , whenever possible , posture control preferentially uses proprioceptive rather than vestibular information , as the vestibular information is the one containing more noise .
+these models allow general predictions on human preferences for certain sensory environments and may define which sensory deficit in patients tends to increase the danger of falling .
+however , poor correspondence of these models with human neurophysiology and anatomy restricts its clinical usefulness for diagnosing more specific posture control problems of an individual patient .
+the other modeling approach used time series or frequency domain data gathered from posture control experiments in humans to establish the simplest model compatible with known human physiology and anatomy that would allow reproduction of the data with identified model parameters .
+best known is the independent channel ( ic ) model of peterka ( 2002 ) for single inverted pendulum ( sip ) scenarios .
+it identifies sensory weights depending on the proper selection and interpretation of results using different stimuli and test conditions. from extensions of this model to more complex scenarios it was concluded that available engineering methods are in principle capable of arriving at multi - segmental control models .
+however , the increasing model complexity and the proliferation of parameters tend to reduce the chance of unequivocally identifying the control parameters in health and disease ( mergner and peterka , 2017 ) .
+the problem is aggravated by non - linearities of the human control system ( described as detection thresholds in maurer et al. , 2006 ) .
+as such , there currently exists a dilemma as to which methodology can be used to establish model - based diagnostics and therapeutic or rehabilitative interventions for patients with impaired postural control .
+the goal of the present study is to contribute to a heuristic solution. by this we mean a practicable solution that proceeds from an established model of the human control in the sip scenario and uses plausible arguments and steps for its extension to more degrees of freedom ( dofs ) .
+to evaluate the appropriateness of these steps , we test their effects in special - purpose humanoid robots with human - inspired anthropometrics , sensors , and actuators .
+in this way a " real world " challenge is imposed which accounts for noisy and inaccurate sensors and non - ideal actuation and mechanics .
+for as much correspondence as possible to the human situation , these tests are performed in the same testbed that is also used for the human subjects , i.e. , in a human posture control laboratory .
+as described below , first steps in this heuristic approach have successfully been performed .
+point of departure was the " disturbance estimation and compensation " ( dec ) model for the sip scenario , which shares basic similarities with the ic model ( mergner et al. , 2003 ; maurer et al. , 2006 ; mergner , 2010 ) .
+while several extension steps have been described previously ( see section previous and current steps in the heuristic approach ) , here we report on an extension to a 14 dof robot and examine whether a modular architecture consisting of a net of dec controls in the robot 's sagittal plane cooperates in a conflict - free way with a corresponding but independent net of dec controls in the frontal plane during both disturbance compensation and commanded (" voluntary ") movements .
+the following subsections aim to combine state of the art human sensorimotor issues with recent robotics issues dealing with posture control .
+here and in later sections , we include brief descriptions on the current state of our bottom - up implementation of a human - like postural control in robots .
+first , we briefly review the biological basis of the dec model ( section main features of the human dec model ) , then consider related issues in neuroscience and robotics ( section modular control issues in neuroscience and robotics ) , and finally present a list of the previously performed steps in our neurorobotics approach and the new steps taken in this study ( section previous and current steps in the heuristic approach ) .
+main features of the human dec model both the dec model and the clearly simpler ic model can describe results from the same protocols for human balance control experiments .
+the ic model is a linear model that analytically describes human sway responses to support surface tilt in the frequency domain based on a control by proprioceptive , vestibular , and visual feedback channels ( peterka , 2002 ) .
+the model allows for identification of important features of the human postural control system , the most important ones being time delays in the order of 100 - 200 ms associated with low loop gain and , as a consequence , soft mechanical compliance , and low energy consumption .
+it also identifies sensory reweighting , meaning that humans adjust their use of sensory information to changes in perturbation amplitude and modality .
+while the ic model describes this feature by using different sets of control parameters , the dec model ( figure 1 ) is able to predictively describe the data from various experimental conditions with one set of control parameters .
+the dec model contains synthetic and holistic features - synthetic in the sense that it uses disturbance estimations inspired from studies on multisensory fusions in human self - motion perception ( mergner et al. , 1997 ; mergner and rosemeier , 1998 ) , holistic in the sense that it also integrates the control of movements in a single structure .
+figure 1 schema of dec control of the ankle joint in the single inverted pendulum , sip , scenario with support surface tilt forward ( this model is the basis for the modular control architexture in multi - dof systems ) .
+four external disturbances ( external force fext , gravitational force fg , foot - space rotation alphafs and foot - space linear acceleration xfs ) give rise to the joint torques ( text , tgrav , tprop , and tin (= inertial ) , respectively ) .
+sensors ( vest , vestibular ; prop , proprioceptive ; torque ) are actually networks that combine signals from a variety of transducers ( e.g. , 3 vest sensors result from vestibular canal - otolith intractions ; mergner et al. , 2009 ) to yield information on the following physical quantities : xhx , head acceleration in x ( sagittal forward ) direction , and alphahs and alpha.hs , head - in - space angle and angular velocity ( dashes indicate proprioceptive coordinate transformation to lower body segments , see figure 2 ; here they point out that in the sip scenario these vestibular signals refer to the whole body above the anke joints , includinging the legs , i.e. , alphals and alpha.ls ) ; alphalf and alpha.lf represent leg - to - foot angle and angular velocity , respectively .
+colored boxes derive disturbance estimates ( indicated by hats ) from the reported physical quantities .
+variable foot - in - space angular velocity ( alpha.fs ) is time - integrated leading to the estimate alpha ^ fs of foot - in - space position ; by means of this signal the proprioceptive signal alphalf is being " upgraded " ( transformed ) into space coordinates ( alphals ') .
+c , neural controler ; deltat , lumped neural time delay ; alphals ! , desired leg - space angle .
+box 1 / mgh transforms torque into an equivalent of an angle .
+passive stiffness and its modulation ( in humans achieved by muscle co - contration ) is omited here for simplicity ( compare ott et al. , 2016 as to its role for control stability ) .
+in current versions of the dec concept , the input may be varied in three ways depending on the task .
+the task shown in this figure is to reach and maintain a given orientation of the supported body segment , here the leg segment ( in fixed alignment with upper body ) , in space ( alphals !) .
+in situations where the body com changes with the body configuration or load distribution , the task refers to the body com in space ( bs ; alphabs !) and requires that the current com location is taken into account in the control .
+this has been experimentally tested and modeled for human responses in ankle and hip joints to support surface tilts in the sagittal plane ( hettich et al. , 2014 ) .
+as an intuitive third possibility , one may want to reach and maintain a given joint angle , which in the scenario of this figure would mean to command the leg - foot angle alphalf !
+as input and to neglect estimate alpha ^ fs. the dec model extends upon the engineering concept of the servo control by negative feedback ( see wiener , 1948 , for the early developments of the concept ) .
+in neurology , merton ( 1953 ) used this concept to explain the role of the muscle stretch reflex for the control of posture and movements .
+he posits that a pd - controller adjusts the force of the muscles so as to produce the desired pose or movement .
+this would be achieved through negative feedback from proprioceptive sensors , i.e. , by feeding the controller with the difference between the desired and the sensed joint angle .
+however , later researchers considered this concept to be problematic .
+one reason was that the biological time delay in the feedback loop does not allow for stable performance when large external disturbances such as gravity require high loop gains ( see mcintyre and bizzi , 1993 ) .
+the dec model overcomes this problem by estimating the external disturbances and commanding the servo to produce the extra force required for their compensation .
+the underlying principle is known in control theory under different names , e.g. , " feed forward disturbance correction " ( roffel and betlem , 2006 ) ; similar ( luecke and mcguire , 1968 ; zhong et al. , 2012 ) ; in german consistently " storgrobetaenaufschaltung ;" bleisteiner et al. , 1961 ) .
+the dec mechanisms operate context - and intent - dependently ( mergner , 2010 ) .
+in the terminology of sensorimotor physiology , we subsume them in contradistinction to " short latency reflexes " under " long latency reflexes ," which are known to be modifiable by higher brain centers such as the cerebral cortex ( see pruszynski and scott , 2012 ) .
+disturbance compensation in the dec is thought to arise reactively with unforeseen external disturbances as well as in the form of predicted - sensory estimates , issued by higher brain centers with foreseen external or self - produced disturbances .
+such a " proactive " compensation is assumed to be advantageous compared to a " reactive " one due to short central time delays and absence of sensory noise , leading to more stable control ( see maurer et al. , 2006 ) .
+noticeably , several reactive and proactive compensatory actions may arise simultaneously , even during voluntary movements ( i.e. , the " superposition law " applies despite the non - linarities in the disturbance estimates ) .
+as previously explained in more detail ( maurer et al. , 2006 ) , humans use several sensory inputs ( proprioceptive , vestibular , visual , haptic contact , torque , and pressure ) for posture control .
+they combine this information in various ways to estimate physical variables such as joint angle and angular velocity from muscle spindle , skin receptor , tendon organ , and torque inputs , as well as head linear and angular acceleration from vestibular otolith and semicircular canal inputs , for example. from the estimated physical variables , the dec model then derives estimates of four classes of disturbances that may influence the torque acting on the skeletal joints ( colored boxes in figure 1 ) : ( 1 ) rotation and ( 2 ) translation of the support ( be this a supporting body segment or an external support ) , ( 3 ) gravity and other field forces , and ( 4 ) contact forces (" external torque ") .
+as depicted in figure 1 ( which refers to the sip scenario ) , in the case of balancing , the input of the model is the desired angle of the leg segment ( here for sip ) in space alphals ! , a signal that is thought to stem from higher brain centers including the cerebral cortex .
+the cortex builds a coherent and continuously updated sensorimotor model of the body as a whole from many input sources .
+this is often referred to as " body schema :" a conception from neurology that has found its way into humanoid robotics ( morasso , 2013 ) .
+in the dec model , noticeably , both the cortical movement commands from the body schema and the conscious perception of the produced movement almost exclusively reflect kinematics .
+signals related to stereotypically occurring forces from gravity , link inertia , inter - link coupling forces , etc. are hidden , so to speak , because they are compensated by the dec mechanism ( details in mergner , 2010 ) .
+in this form , the dec concept qualified for a modular control architecture in scenarios with > 1 dof ( see section previous and current steps in the heuristic approach ) .
+modular control as a concept has attracted considerable interest earlier in neuroscience and robotics .
+the following section points out differences to the present concept .
+modular control issues in neuroscience and robotics in the dec concept , a modular control by two dec modules has been used for the modeling of human ankle joint and hip joint responses to support surface tilt and for mimicking the responses in a robot ( hettich et al. , 2014 ) .
+further work supported this idea of a modular control , for example when we added a third dec control in a robot for proactive squatting in the knee joints during reactive balancing ( ott et al. , 2016 and https :// www.youtube.com / watch ? v = 3alctmw3ei4 ) .
+generally , modularity is often applied at the level of kinematics , as is the case in neuroscience with " movement synergies ," where each control module commands a subset of the controlled dofs .
+specifically , a kinematic synergy is often defined as a function mapping a scalar value to several dofs .
+such synergies are often used to reduce the dimensionality of the control problem with the result that the number of controlled synergies is smaller than the total number of dofs .
+the principle has not only inspired research of human walking ( e.g. , ivanenko et al. , 2003 ) , but also various fields of humanoid control ( hauser et al. , 2007 ) .
+noticeably , however , the number of required synergies in complex movements may reach the number of dofs .
+this may happen for example when movement control is organized in terms of eigenmovements ( alexandrov et al. , 2017 ) where the aim is to free the control from coupling forces stemming from other movements .
+certain synergies studied in humans , such as torque synergies , are so far largely neglected in robotics .
+another related concept is that of motor primitives , originally meaning basic kinematic , dynamic , or muscular building blocks of movements arising at neuronal levels ( flash and hochner , 2005 ) .
+generally , motor primitives can be combined in several ways , i.e. , to act simultaneously by summing them or to obtain superposition of effects , as is the case with synergies , or serial effects when using them in a sequence , as with predefined trajectories or velocity profiles .
+the concept of motor primitives has found extensive application in robotics for learning of motor tasks ( schaal et al. , 2003 ) .
+some implementations of modularity are not only advantageous in that they reduce complexity in control design , but also in increasing control robustness ( in case one module fails , remaining modules can take over ) .
+compared to these modularity concepts , the architecture of combining dec modules is clearly distinct .
+here , each dof of the human skeletal system is controlled by one dec module .
+this even applies to situations where two or more modules do the same job and conceptually may be viewed as one module ( e.g. , during sagittal body sway about the two ankle joints with aligned axes and the body weight equally distributed on both feet ) .
+each module determines the torque to be applied to the controlled dof .
+the desired trajectory is specified as an input to each module .
+all modules have essentially the same structure and have no internal model of the whole system .
+yet , the modules operate not completely independently of each other , because they exchange sensory information through coordinate transformation across the joints that interconnect the body segments ( figure 2a ) .
+compared to the above examples of modular control , the dec model can be defined as a low level control system that takes care of the fundamental task of posture control for undisturbed motor execution and acts at the level of joint kinematics .
+coordination between different joints may emerge from the interaction between the modules and the body mechanics under task , even if no kinematic synergy is explicitly specified .
+for example , hip - ankle coordination in the experiments of hettich et al .
+( 2014 ) emerged from the tasks for the ankle and hip controllers to maintain the body com over the feet as base of support and the trunk upright , respectively .
+figure 2 ( a ) schematic representation of the interconnections between the dec control modules , in terms of down - channeling and up - channeling of sensory information in a given body plane ( here sagittal plane ; compare figure 4 for analogies in the frontal plane ) .
+shown by solid downward arrows is the distribution of the vestibular signal " head angle with respect to the gravitational vertical " ( alphahs ) .
+analog distributions hold for the angular velocity signal alpha.hs and the head linear acceleration signal in x ( sagittal forward ) direction , xhx .
+the gray upward arrows show the up - channeling of processed signals , representing the causal physical interactions in a stack of superimposed body segments .
+for example , up channeling of alpha ^ fs from the ankle module to the knee module and fusing it with the proprioceptive alphalf signal may be used in the knee module as a predictor of alphahs ( a mechanism that bypases the sensory feedback chain and increases control stability ) .
+this up - channeling is especially effective if the support surface is stationary , whereby alpha ^ fs becomes subthreshold ( through a velocity threshold ) and with it the effect of the particularly noisy vestibular alpha.hs signal ; see mergner et al. , 2009 ) .
+( b ) picture of lucy posturob ( from right and behind ) balancing on the motion platform in the human posture control laboratory .
+further aspects will be considered in section discussion .
+previous and current steps in the heuristic approach in previous works , the dec model was subjected to " real world " tests , separately for the sagittal and the frontal plane .
+the tests were performed with humanoid robots equipped with human - inspired sensors , actuation , and anthropomorphic properties in the human posture control laboratory .
+robot responses to support surface tilt in the sagittal plane were successfully compared to human responses once in a sip scenario ( mergner et al. , 2009 ) and later in a dip scenario ( hettich et al. , 2014 ) .
+the latter study also showed that it sufficed to use interconnected dec control modules for the ankle and the hip joints in order to simulate the human responses in the robot ( for simplification , the joints on both sides were mechanically coupled ) .
+interestingly , the ankle - hip coordination emerged from the interconnection of the two modules ( see section modular control issues in neuroscience and robotics ) .
+subsequent experiments focused on a transfer of dec to the frontal plane ( 14 dof robot ; lippi et al. , 2016 ) and the use of the knee joints to test the control of squatting movements in the sagittal plane .
+to this end , realization of the control in simulink ( the mathworks inc. , natick , usa ) and using force controlled actuation allowed us to transfer the dec control to the dlr robot toro for comparison with a fully model - based control ( ott et al. , 2016 and https :// www.youtube.com / watch ? v = 3alctmw3ei4 ) .
+this study investigates whether the networks of dec modules previously controlling the robots' sagittal plane and frontal plane separately would adequately cooperate when combined during movements in intermediate planes .
+specifically , we asked whether the physical linkages given by the robot 's body suffice to guarantee adequate cooperation between the sensorimotor controls , or whether a supervising full body model or some other form of software linkage between the two networks would be required .
+the experiments are performed in a robot with 14 dofs ( lucy posturob , figure 2b ) using one and the same set of control parameters for non - trivial scenarios that draw on the scalability of the dec modular control .
+the tests included both voluntary movements and balancing responses to passive body motions in an intermediate plane .
+postural and control stability across all dof of the robot were tested when the robot performed squatting movements in the knee joints , evoking the emergence of inter - segmental coordination in the ankle and hip joints .
+further experiments aimed to provide a quantitative characterization of the robot 's balancing responses in terms of frfs ( as they are used in human postural control analyses ) and tested postural stability when increasing frequency of voluntary movements simultaneously in the sagittal and frontal body planes up to the performance limits .
+methods - - robotic platform and experimental procedures humanoid robot lucy posturob the posturob iii robot , lucy posturob ( details in figure 3 ) , was constructed as a humanoid of 1.5 m body height and ~ 20 kg body weight with anthropometric parameters inspired by winter ( 1990 ) .
+its body consists of the upper body ( hat , for head , arms , and trunk ) , pelvis , the two thighs , shanks ( lower leg ) , and foot segments , all made of aluminum and interconnected by hinge joints .
+the total of 14 dof ( figures 3a,b ) comprise 2 dof per ankle joint , 1 per knee , 3 per hip , and 2 dof for the lower vertebral column (" lumped " dofs across the vertebrae of the back bone ) .
+figure 3 details of the humanoid robot lucy .
+( a ) scheme of the 14 degrees of freedom .
+( b ) picture of lucy posturob ( arms represented by weights ; vestibular system is located in head ; no visual system is currently provided by the eyes ; electronics for actuation is contained in the pelvis ) .
+( c ) details of foot with actuation ( a , dc motor ; b , spindle ; c , enconder ; d , load cell as torque sensor ) .
+actuation is the same in all dofs .
+using an analog acquisition board , a pc read from mechatronic sensors the signals joint torque , joint angular position and velocity , and the anterior - posterior and medio - lateral pressure distribution under each foot ( not used in the present experiments ) .
+the same computer also read via usb the signals from a custom - made human - inspired artificial vestibular system ( mergner et al. , 2009 ) .
+the dec control model was implemented and executed as a compiled simulink model ( real - time windows target , the mathworks inc. , natick , usa ) .
+the control system worked at 200 hz. the delay of the system as a whole is estimated to be 20 ms ( which corresponds approximately to the value to which we adjusted all sensory signals for correct time - matched interactions in the disturbance estimations ) .
+this delay is , admittedly , shorter that the lumped delays identified in humans ( see section main features of the human dec model ) .
+however , additional features have to be added to the dec control modules in the lucy robot before we can aim to repeat some of our experiments with more human - inspired time delays ( as in hettich et al. , 2014 ) .
+the vestibular sensor was fixed to the robot 's hat segment .
+a bio - inspired algorithm ( mergner et al. , 2009 ) fuses the inputs from 3 accelerometers and 3 gyrometers to estimate ( i ) hat angular velocity in space , ( ii ) hat angle with respect to the gravitational vertical , and ( iii ) linear acceleration of the upper hat end representing head position ( compare figure 3a ) .
+joint actuation was achieved by dc electric motors ( part a in figure 3c ) that rigidly interconnected the two links by a screw / spindle system ( part b ) .
+the spindle drive transformed the rotational movement of the motors into a lever movement , as measured by a linear potentiometer , part c , for producing joint angle .
+an inner torque control loop was implemented on the on - board robot electronics , receiving the torque command signal from the higher - level bio - inspired dec algorithms on the pc. the force sensor , part d in figure 3c , measured the tangential force acting on the joint in order to compute the joint torque signal used ( i ) in the dec control loop and ( ii ) in the on - board control of the torque .
+disturbance estimation in multiple dof system the four estimated disturbances in a dec control module are not directly available as sensory inputs and are hence reconstructed through inter - sensory interactions .
+the sensory inputs used in these and our previous robot experiments with the dec model are from the vestibular system , joint proprioception and joint torque ( compare figure 1 ) .
+currently unconsidered are visual self - motion cues for balancing ( see asslander et al. , 2015 ) , and foot pressure cues .
+in the multi - segment human body , the sensor fusions for the disturbance estimates use signals from both local sensors ( proprioceptive joint angle and angular velocity sensors and torque sensors ) and remote ( e.g. , vestibular ) sensors .
+the vestibular signals in lucy are conveyed to the control modules through down - channeling from their source in the head , as schematically shown in figure 2 .
+additional information is required for the disturbance estimations concerning mass and inertia distribution of the supported body segments with respect to the supporting joint , as described for the sip scenario in mergner ( 2010 ) .
+to further account for momentary changes of these parameters in the multi - segment system , lippi et al .
+( 2013 ) provided a general description of the down - channeling of the processed sensory information .
+in particular , for the two disturbance estimators of support rotation and gravitational torque , alpha ^ fs and t ^ grav ( see figure 1 ) , the com location of all segments above a given supporting joint is calculated step - wise downwards .
+this allows for treating the coms of all supported segments in a given joint as if they were the com of a single - segment body .
+for example , with sagittal support surface tilts the hip joints compensate the gravity impact from any upper body lean , while the ankle joints are compensating the gravity effect due to the lean of the whole body com .
+this example also shows that , while the action of a control module is local , the estimated disturbances represent global effects acting on the body .
+for the support surface translation estimates t ^ in , the simplification by down - channeling concerns the joint torque produced by the combined inertial forces exerted by all upper body segments , while for the contact force estimates t ^ ext it is the torque produced by combined forces having impact on the supported segments .
+the sensor fusions used to reconstruct these global variables are distributed among modules and are based on signal exchanges between modules .
+the present study explains the generalized concepts of disturbance estimations with down and up channeling between modules ( figure 2 ) in more detail .
+it is worth noting that an advantage of using up - channeling is that the information of the physical variables conveyed upward are already processed at a lower level .
+this is especially relevant for the estimate of support surface tilt in the ankle joint .
+running the input velocity signal through a threshold reduces noise of this estimate ( see below ) .
+the up - channeling of this signal is used in upper segments , instead of the local input signals in these segments , which carry more noise .
+this up - channeled foot ( support ) - in - space signal contributes to the computation of the variables controlled by the servo loops of the higher modules .
+module inputs and outputs are shown in table 1 .
+included are also the inputs coming directly from the sensory system ( e.g. , joint angle ) .
+these sensor fusions are described here in more detail than before , using a generalized notation that allows for an arbitrary number of dofs .
+table 1 signals and parameters used in the sensor fusion process .
+signal symbol description body in space sway , up - channeled alphabsn ^ angle sway of the com of all the segments above the controlled link , obtained using the upchanneled alphafsn ^ signal .
+it can be used in the servo loop as controlled variable body in space sway , down - channeled alphabsn angle sway of the com of all the segments above the controlled link , obtained using the down - channeled alphafsnsignal .
+it is used to compute external disturbances .
+desired value for the controlled variable alphalfn ! , alphabsn ! , alphalsn !
+reference for joint angle ( lf ) , body com orientation in space ( bs ) and link orientation in space ( ls ) proprioceptive input alphalfn the angular position of the controlled joint .
+used to compute alphafsn and alphalsn ^ .
+it can be used in the servo loop as controlled variable .
+foothold link orientation in space , downchanneled alphafsn orientation in space of the link supporting the controlled joint , it is used to compute alphabsnand it is passed to the underlying module as alphalsn .
+foothold link orientation in space , up - channeled alphafsn ^ in the module controlling the support joint it is computed using alpha.fsn as shown in equation ( 1 ) .
+in the other modules it is up - channeled from the underlying module as alphalsn ^ .
+controlled link in space rotation speed , down - channeled .
+alpha.fsn it is down - channeled and used for the computation of alphafs0 ^ .
+controlled link in space orientation down - channeled .
+alphalsn ^ angle sway of the com of all the segments above the controlled link .
+it is used to compute external disturbances .
+controlled link in space orientation up - channeled .
+alphalsn ^ it can be used in the servo loop as controlled variable center of mass position in the controlled plane comn position in space of the center of mass of all the links above the n th joint .
+it is down - channeled so that in each module it can be updated to take in account the controlled body segment .
+mass of all the segments above the controlled joint mupn this parameter is down - channeled .
+each module is updating it adding the mass of the controlled link , that is an internal parameter moment of inertia of all the segments above the controlled joint jupn the moment of inertia is down - channeled and updated in each module on the basis of the internal parameters describing the controlled link and the configuration of the body .
+support surface tilt in the sip scenario of figure 1 , an estimate of support surface tilt is obtained by combining a vestibular derived leg - in - space signal and a local ankle proprioceptive leg - on - foot signal .
+specifically , the signal used to compensate the support surface rotation is derived from the rotation speed of the foot in space , when the foot is in firm contact with the support surface alphafs1. .
+( 1 ) alphafs1 ^= integral0trho ( alpha ^ fs.1 ) - kalpha ^ fs1 dtau in the generalized notation used , the pedix fs stands for foothold in space , i.e. , the orientation in space of the link under the controlled joint , which represents an extension of the variable foot in space .
+similarly , in the following the variables ls for link in space and lf for link to foothold denote the generalization of the variables leg in space and leg to foot as used in the sip and the dip ( double inverted pendulum ) case before ( mergner , 2010 ; hettich et al. , 2013 ; lippi et al. , 2013 ) .
+this notation now allows for a description of the sensor fusion process with a generic number of modules , where the index n represents the position of the controlled joint ( n = 1 is the ankle , n = 2 the knee , etc. ) .
+for specific cases , a notation referring to the names of body segments can be used for simplicity , as shown in figure 2a where ts for example means thigh in space .
+all the signals in ( 1 ) are estimates , with the hat denoting here the up - channeled estimate , rho (.) is the threshold function and t the current time .
+the integration is leaky ( modulated by the term k ) .
+given the threshold theta > 0 , the function rho (.) is defined as ( 2 ) rho ( alpha )={ alpha + theta alpha <= - theta0 , - theta < alpha < theta alpha - theta alpha >= theta the value of theta is a parameter of the control module .
+the presence of the threshold function rho (.) introduces a gain non - linearity in the balance behavior ( i.e. , larger support surface tilts are more compensated than smaller ones ) , as previously observed in human experiments ( e.g. , hettich et al. , 2014 ) .
+the estimate of support surface tilt from equation ( 1 ) is used to reconstruct the orientation in space of the link above the controlled joint alphalsn ^ inside each module .
+the signal is up - channeled and fused with the proprioceptive input throughout all the modules of a given body plane .
+the resulting value in the nth module is ( 3 ) alphalsn ^= alphafs1 ^+ sumk = 1nalphalfk this is different with the other three sensory disturbance estimates ( below ) , in that these are based on the down - channeled position .
+this scheme reproduces human - like responses in robot experiments and model simulations .
+however , the interactions between up - channeled and down - channeled signals in the general case are still under research .
+field forces such as gravity the gravity torque tg in the general case is calculated by ( 4 ) tg = mupngcomxn where comxn is the horizontal component of the position of the center of mass com n of all the segments above the controlled joint .
+the estimated com n is computed performing the weighted sum ( 5 ) comn =( comn + 1 + ln [ cos ( alphalsn ) sin ( alphalsn )]) mupn + 1 + hncos ( alphalsn ) m nmupn where ln is the length of the link controlled by the joint and hn is the distance of the com of the nth link from the nth joint , m n is the mass of the nth link , and mupn the total mass of all the links above the nth joint .
+the inverted hat denotes estimators based on down - channeled signals .
+the modules can be set to use comxn or to apply a small angle approximation as done in previous experiments ( mergner , 2010 ; hettich et al. , 2014 ) .
+the estimate then becomes ( 6 ) tg = mupngh ~ nalphabsn where the expression alphabsn = atan2 ( comyn , comxn ) represents the angular sway in space of the center of the body mass above the nth joint , while h ~ n is the average height of the com of all the segments above the controlled joint .
+support surface linear acceleration in the presence of support surface acceleration described in the reference system of the support , an inertial force on the center of mass of the body arises .
+the external acceleration is computed for each joint .
+the part of the vestibular head acceleration signal not explained by trunk rotation at the hip or at any joint below is taken to stem from support surface acceleration .
+this is expressed as ( 7 ) alphaexternal = alphavestibular - alphaself where the acceleration produced by the joint movements is : ( 8 ) aselfn = aselfn + 1 + lnd2dt2 [ sin ( alphalsn ) cos ( alphalsn )] the disturbance inertial torque then results from ( 9 ) tin = aexternalcom nmupn for simplicity , here only the horizontal translation is considered ( 10 ) tin = x externalcomynmupn contact force disturbance ( such as a push or pull ) humans may sense amount and location of a force exerting impact on the body directly ( locally ) , and in addition may sense the impact that the force has on their balancing in terms of the evoked center of pressure ( cop ) shifts under the feet , which is proportional to ankle torque .
+recall the sip case scenario of figure 1 , where the external torque text affects the sensory measure of the actively produced torque ( ta ) .
+it contributes together with the gravitational torque , inertial torque , passive torque ( from muscle and connective tissues ) and total torque ( tg , tin , tp , and ta , respectively ) to text , which thus is given by ( 11 ) text = ta - tg - tin - tp - ta the term ta is computed using the down - channeled signal alphabsn and , jupn , the moment of inertia of the supported body segments as ( 12 ) ta = ddt ( dalphabsndt jupn ) this expression takes in account that also jupn may change with respect to time due to the movements of other dof .
+similarly to mupn , also jupn is computed down - channeling information through the modules .
+for simplicity the down - channeled value is the moment of inertia computed as ( 13 ) jupn ~= jupn + 1 ~+ mupn || comn + 1 - comn || 2 + jn + mn || comlinkn - comn || 2 where jn and comlinkn are , respectively , the moment of inertia and the position of the com of the nth link .
+the moment of inertia used in equation ( 12 ) is ( 14 ) jupn = jupn +~ mupn || comn || 2 compensating the estimated text may imply that , in a system with neural time delays , positive feedback in ta requires a limitation of the compensation ( gain < 1 , low - pass filtering ) , similarly to the case of the translation estimator .
+model simulations suggest that humans may deal with these flaws by transiently increasing passive stiffness , which has zero time delay , through co - contraction of antagonistic muscles pairs .
+servo loop and compensation of external disturbances the disturbance compensation is implemented by summing the disturbance estimates with the input of the controller ( pd ) with negative sign for compensation ( compare figure 1 ) .
+in the case of the support surface tilt this can be seen as a coordinate transformation of the controlled variable from joint coordinates to space coordinates .
+the other disturbances are normalized by mupngh ~ n , which represents an angle equivalent to the torque , i.e. , the angle that would produce the torque evoked by gravity during body ( or segment ) lean in linear approximation .
+this makes the input of the pd controller homogeneous .
+the torque commanded by the servo controller in the nth module is defined by ( 15 ) ta = kp [ epsilon - ( tg + tin + text )/ mupngh ~ n ] + kd [ epsilon .
+- ( t.g + t.in + t.ext )/ mupngh ~ n ] where kp and kd are the proportional and the derivative gain , respectively , and epsilon is the error of the controlled variable as computed using the up - channeled information ( 16 ) epsilon ={ alphalsn !
+- alphalsn ^ if the controlled variable is alphalsn alphabsn !
+- alphabsn ~ if the controlled variable is alphabsnalphalfn !
+- alphalfnif the controlled variable is alphalfn where alphabsn ~ is an estimate of the com sway of all the links above the controlled joint , as computed using the up - channeled variable alphalsn ^ .
+the effect of each disturbance input and of the error signal of the servo loop can be adjusted by gains ( specified as control module parameters ) .
+in contrast , the relation between proportional ( kp ) and derivative ( kd ) gain is fixed for all disturbances .
+gravity compensation with lasting body lean represents a special case .
+modeling of human responses to slow support surface tilts yielded better results when using a pid controller instead of a pd controller ( mergner et al. , 2003 ; peterka , 2003 ) for force feedback as an alternative for the i , see peterka ( 2009 ) .
+the solution used here is a gain elevation in the gravity estimator for low frequencies ( schweigart and mergner , 2008 ) .
+as an alternative , ott et al .
+( 2016 ) used a pid controller for the servo in robot experiments and in addition a specific pd controller for each disturbance estimator .
+the dec implementation used in the robot experiments of ott et al .
+( 2016 ) included feedback from passive joint stiffness and damping .
+in humans , passive stiffness and damping amount to ~ 10 % of the active stiffness and damping , stemming mainly from connective tissue properties of muscles and tendons .
+having impact with virtual zero latency , they improve control stability in face of the considerable time delays of the reflexive loops ( lumped delay >= 100 ms for the ankle joint ) .
+their implementation in the robot experiments of ott et al .
+( 2016 ) helped in stabilizing the control , as was the case in our previous experiments with posturob ii ( hettich et al. , 2014 ) .
+implementation of passive stiffness and damping in the lucy robot is still pending .
+further , the implementation of predicted - sensory estimates with pro - active movements , whose effectiveness has been shown before in posturob i ( mergner , 2010 ) , awaits implementation in lucy .
+dec control in the frontal plane and combined in the sagittal and frontal planes conceptually , one dec control module can be used to control both legs during stance control in the sagittal plane , as realized in our robot experiments in posturob i and ii ( mergner et al. , 2009 ; hettich et al. , 2014 ) .
+this applies when the two legs and feet are aligned in parallel such that the rotations in the two ankle joints occur approximately around a common axis ( for special conditions in which humans weight the proprioceptive input into the controls of the two legs independently of each other , see pasma et al. , 2012 ) .
+analogous simplifications hold for the hip joints when extending the control to upper body rotations , and to the knee joints when considering vertical body movements .
+a mechanically special situation (" four bar linkage ") with only one dof is given with biped balancing in the frontal plane .
+in this study , stance width with approximately parallel legs is exclusively considered ( figure 3a ) .
+in particular , the torque produced in the frontal plane around the ankle joints is relatively small , but the legs can overall produce a large torque on the support surface and hence on the body com for body stabilization and movements .
+inspired by a model interpretation of human balancing in the frontal plane ( goodworth and peterka , 2010 ) , lippi et al .
+( 2016 ) suggested for the lucy robot a preliminary generalization of the dec control to the frontal plane , formalizing the body kinematics as a double inverted pendulum .
+the four bar linkage system with one degree of freedom for the lower body control applies if the knee movements are negligible ( true with moderate disturbances ) and when the feet are continuously kept in contact with the support surface .
+then , a simplified model in terms of the sip scenario applies to lower body sways about a virtual ankle joint between the two actual feet and can be connected by a virtual link to the pelvis joint ( figure 4a ) .
+body balancing is then achieved in terms of controlling the position of the com of the whole body in the frontal plane by applying the appropriate torque to the support surface and maintaining the vertical orientation of the hat segment above the pelvis .
+the desired torque for the virtual joint is distributed in the robot on the four actuated joints ( ankles and hips ) .
+using the control equations of the previous section , two dec modules suffice for the control in the frontal plane , for simplification , one for the lower body and one for the upper body .
+figure 4 ( a ) balance control in the frontal plane modeled as a double inverted pendulum .
+( b ) for balancing during the squatting experiments ( see section experimental procedures and testbed ( 5 ) , voluntary squatting movements and figure 10 ) , the control is extended to employ 6 dec control modules that control 10 mechanical dofs in the frontal and sagittal planes .
+note that horizontal hip control is passive proportional - derivative ( pd ) .
+this full body posture control can , in principle , be used to start gait .
+low loop gain provides mechanical compliance ( and keeps energy consumption low ) .
+the frontal and sagittal planes are mechanically coupled in the physical robot , as are the intermediate planes between them .
+theoretically , the interaction between the planes could be considered problematic in terms of coupling forces if the two planes are controlled independently of each other .
+our hypothesis in this study for the control system of lucy is that , in face of the low loop gain for the disturbance compensations used in the control , the coupling between the dynamics in the two planes is not critical and should allow us to control the two planes independently of each other .
+independent control in the frontal and sagittal planes based on kinematic synergies has been successfully applied for posture control in a small position - controlled humanoid in earlier studies ( hauser et al. , 2007 ) .
+in the experiments reported below , lucy was freely standing while actively controlling its balance in the sagittal and frontal planes using the two sets of dec control modules : one set for the sagittal plane and the other set for frontal plane , while the controls of the horizontal - plane in the hip joints were " passive " through local joint angle proportional and derivative ( pd ) " proprioceptive " feedback ( indicated in red in figure 4b ) .
+experimental procedures and testbed performance of the dec system was investigated experimentally when it controlled the sensorimotor behavior of the humanoid robot during balancing of upright stance while compensating external disturbances and self - produced disturbances arising from voluntary movements .
+voluntary movements were produced by defining a reference trajectory for the specific control variables ( see below ) .
+during the experiments ( figure 2b ) , the robot was standing on a 6 dof motion platform ( stewart platform ) in a human posture control laboratory ( mergner et al. , 2003 ) .
+motions of the robot were recorded by capturing motion signals from the robot 's internal sensors ( same as used for its control ) for comparison between desired and actual poses or movements .
+the responses to external disturbances were recorded using an external opto - electronic device ( optotrak 3020 ; northern digital inc. ; waterloo , canada ) .
+list of experiments performed : test : balancing of com during upright stance on periodically tilting support surface ( ss ) - - this tested steady state balancing performance .
+disturbance : sinusoidal ss tilts of peak - to - peak ( pp ) 2degrees at 0.1 and 0.2 hz were applied in three trials : ( a ) sagittal plane , ( b ) frontal plane , and ( c ) 45degrees with respect to the sagittal and frontal planes .
+aim : demonstration of stable balancing in all three planes , with cooperative effects for c from the simultaneous balancing in the sagittal and frontal planes .
+test : balancing of com during upright stance as in ( 1 ) , but with transient tilts of the ss. this experiment allowed us to distinguish between static and dynamic balancing performance .
+disturbance : ss tilts with raised cosine velocity profile ( dominant frequency , 0.2 hz ) of peak - to - peak 4degrees were applied again in three trials : ( a ) in the sagittal plan , ( b ) in the frontal plane , and ( c ) 45degrees with respect to frontal and sagittal planes .
+aim : evaluation of static and dynamic balancing performances in the sagittal and frontal planes and their cooperative effects occurring in the intermediate plane .
+test : balancing of com during upright stance while pseudo - randomly tilting the ss using the prts stimulus1 .
+this stimulus allowed us to describe the balancing behavior in terms of frfs .
+disturbance : support surface tilts of peak - to - peak ( pp ) 1degrees , 2degrees , 4degrees , and 8degrees .
+disturbance waveform : prts1 ( 0.016 - 2.2 hz ) , applied again in the sagittal , the frontal , and the 45degrees intermediate planes .
+analysis : spectral analysis of the angular excursions of the body com in space .
+aim : demonstration of stable balancing in the sagittal and frontal planes across a broad spectrum of tilt frequencies and the cooperative effects occurring between the balancing in the two planes .
+varying stimulus amplitude would allow us to test for the human - like non - linearity of responses ( expected from the velocity threshold in the ankle module , see equations 1 and 2 ) .
+test : voluntary rapid full body movements in the intermediate sagittal - frontal plane .
+movement command : starting from a leaning body com position in an intermediate plane with 45degrees orientation with respect to sagittal and frontal planes , a fast voluntary movement was commanded to reorient the com into the vertical position above the feet , using step function references for all the commanded dofs .
+the movement was repeated six times to observe the variability of the response .
+a similar movement was also performed in the frontal plane and in the sagittal plane separately .
+this allowed us to observe how the coupling effects are affecting the dynamic response in the two planes .
+aim : demonstrating proactive movements and testing the robustness of the system in face of strong self - produced disturbances including coupling effects between different joints and between the two controlled planes .
+test : squatting movements ( knee bending ) .
+movement and task commands : raised sinusoids with 4degrees amplitude at 0.17 hz were used for commanding knee - bending in repetitive cycles from and back to straight. with the instructed tasks of com balancing in the ankle and hip joints , the commanded knee - bending was associated with reactive compensatory movements of the whole body in the ankle joints and of the upper body in the hip joints .
+the task of the pelvis - hat joint was to maintain a vertical hat orientation in space .
+aim : this test challenged the robot 's postural stabilization in that all dofs in the sagittal and frontal planes were interacting .
+demonstrating postural stability with the " emerging " movements of the whole body in the ankle joints and of the upper body in the hip joints were secondary aims of the test .
+for corresponding experiments restricted to the sagittal plane in a 3 dof dec implementation in the toro robot of dlr , see : https :// www.youtube.com / watch ? v = 3alctmw3ei4 ) .
+test : voluntary full body movement at increasing speed .
+movement and task commands : voluntary body sway movements were commanded simultaneously in the sagittal and frontal planes ( the result was a combined movement in some intermediate plane ) .
+the common reference signal followed a sinusoidal function with linearly increasing frequency ( i.e. , chirp signal ) .
+the amplitude of the reference signal was set to 1degrees in the sagittal plane and to 2degrees in the frontal plane .
+the frequency range was ~ 0.2 - 0.7 hz. aim : this experiment tests the frequency limits of the active body sway in the sagittal and frontal planes of the ankle joints .
+while the previous tests were performed within the margins of the system 's stability ( to characterize the normal behavior of the system ) , this test pushes the robot beyond these margins to performance limits .
+experimental results in the robot experiments , we investigated how the dec control mechanisms in the sagittal and frontal body planes interact through mechanical coupling of the robot 's body in producing reactive responses to external disturbances applied in the 45degrees intermediate plane ( sections responses to sinusoidal support surface tilts ; responses to raised cosine support surface tilts ; responses to prts support surface tilts ) .
+a further experiment investigated this interaction for rapid voluntary full body lean movements in the intermediate plane , which were generated by commanding combined action in the sagittal and frontal planes ( section commanded fast full - body movements in the intermediate plane ) .
+a fifth experiment ( section voluntary squatting movements ) tested control stability across all dofs of lucy during commanded squatting .
+responses to sinusoidal support surface tilts lucy 's steady state postural responses in terms of body com sway evoked by the sinusoidal support surface tilts are shown in figure 5 .
+the responses to the +/ - 2degrees tilts in the sagittal and frontal plane at 0.2 hz ( figures 5a1,b1 ) and 0.1 hz ( figure 5a2,b2 ) are compared with corresponding responses in the intermediate 45degrees plane ( figures 5c1,c2 ) .
+note that compensation is similarly stable in all three stimulus planes , with some residual com lean resulting in the direction of the tilt .
+this under - compensation is " human - like ," stemming mainly from imperfect support surface tilt estimations in the dec modules with gain < 1 and velocity threshold ( see notches around maxima and minima ) .
+figure 5 lucy 's sway responses are balancing its body com during sinusoidal support surface tilt stimuli of +/ - 2degrees about horizontal .
+the stimuli were applied at stimulus frequencies of 0.2 hz and 0.1 hz in the sagittal plane ( a1,a2 ) , frontal plane ( b1,b2 ) and in an intermediate ( 45degrees diagonal ) plane ( c1,c2 ) .
+all sway responses show some under - compensation ( body slightly sways in direction of support surface tilt ) .
+the responses show slow fluctuations , stemming mainly from vestibular noise ( but never showed lasting drifts that might have led to loss of balance ) .
+see text for further details .
+responses to raised cosine support surface tilts figure 6 shows lucy 's com transient and static sway responses in the sagittal , frontal , and intermediate plane to support surface tilt stimuli with raised cosine velocity profile and amplitude of 4degrees with respect to the horizontal .
+dynamic and static response components reflect under - compensation of the tilt stimulus similarly as observed in figure 6 .
+the responses in the intermediate plane approximately reflect the sum of the responses in the sagittal and frontal planes .
+the finding of larger dynamic responses in the sagittal as compared to the frontal plane mainly reflects a stronger effect from body inertia .
+we can further note an absence of static error when the support surface has moved back to the horizontal position , owing to properties of the support surface tilt estimator with velocity threshold and leaky integrator ( see equation 1 ) .
+figure 6 lucy is balancing its body com during support surface tilt stimuli with " raised cosine velocity " waveform ( 4degrees excursions from horizontal ) .
+the tilt was applied in the sagittal plane ( a ) , frontal plane ( b ) , and in the intermediate diagonal plane ( 45degrees degrees from the frontal ) ( c ) .
+the robot 's responses are slightly under - compensating the disturbances ( compare figure 5 ) .
+( waveform resembles that of most human voluntary movements ; it is derived from a bell - shaped velocity profile , v ( t ) = - a . f . cos ( 2pift ) + a . f , where t is time , a is angular displacement , and f is dominant frequency ) .
+responses to prts support surface tilts testing the robot with the prts stimulus allowed us to more comprehensively characterize the frequency and amplitude behavior of the system .
+being composed of several velocity step functions , this stimulus has a power spectrum with significant components over the whole range of the frequencies that are of interest here to describe the system dynamics [ compare section experimental procedures and testbed ( 3 )] .
+the stimulus was applied with different amplitudes ( pp 1 , 2 , 4 , and 8degrees ) for the support surface tilts in the robot 's sagittal , frontal , and intermediate body plane .
+lucy 's prts responses in terms of time series data are shown in figure 7 .
+they again show under - compensation as in the previous experiments with the sine and raised cosine stimuli .
+here , the under - compensation exhibits a non - linearity upon increase in stimulus amplitude .
+the non - linearity stands out better in figure 8 where the responses are expressed in the upper panels of the corresponding frfs as sway ( error ) gain ( zero with full compensation and unity if body motion equals platform motion ) .
+note that gain in figures 8a,b decreases with increasing stimulus amplitude , being lowest with the pp 8degrees stimulus - - again as can be expected from the velocity threshold contained in the support surface tilt estimation .
+the basic feature in terms of gain , phase , and coherence resemble each other across the tests in the three body plane tested ( figures 8a - c ) .
+interestingly , we observe a smaller amplitude non - linearity for low frequencies in the intermediated plane ( figure 8c ; also compare across in figures 7b1 - b3 ) .
+again , we can observe that the coupling between the two planes does no harm to the stability of the system .
+figure 7 body com sway responses of lucy to prts support surface tilts of peak - peak amplitudes of 1 - 8degrees ( a ) presented as averaged ( n = 6 ) time series ( b1 sagittal plane , b2 frontal plane , and b3 intermediate plane ) .
+note that the shown responses represent under - compensation of the stimuli , which is relatively more pronounced for small than for large stimuli ( compare gain curves in figure 8 ) .
+figure 8 lucy 's sway responses in the sagittal , frontal and intermediate planes ( a - c ) in terms of frequency response functions ( frfs ) and coherence functions ( bottom ) from response averages of 6 repetitions of the prts stimulus .
+shown are gain , phase and coherence curves over frequency for the four indicated peak - peak stimulus amplitudes .
+gain of zero would indicate ideal tilt compensation , a gain of unity that the evoked body com excursion equals the tilt excursion .
+the phase gives the temporal response to stimulus relation .
+coherence is a measure of the frequency dependent signal - to - noise ratio .
+note non - linearity of gain curves ( due to the threshold applied to alpha.fsn ) in ( a,b ) , less so in ( c ) .
+commanded fast full - body movements in the intermediate plane this test challenged the robustness of the modular control in face of rapid self - produced movements in the sagittal - frontal 45degrees intermediate plane .
+the movement is associated with strong disturbances acting mainly through coupling forces arising between most of the robot 's controlled dofs .
+the test may be critical in a system with distributed modular controls that have time delays .
+figure 9a shows the path of the com sway in the two planes from the starting position at the right upper corner back to primary position ( coordinates x = 0 cm , y = 0 cm ) .
+the complex path of the return reflects differences in the system 's control and mechanical compliance in the two planes .
+the figure 9b reports the temporal relaxation in the frontal plane ( red ) and the sagittal plane ( green ) following the step .
+the panel shows decaying oscillations of the relaxation .
+in the frontal plane , the rise time amounted to 0.584 s , the settling time to 5.115 s , and the overshoot to 33.2 % of the step with a peak time of 1.620 s. the corresponding values for the sagittal plane were 0.621 s rise time , 5.141 s for the settling time , and an overshoot of 60.3 % .
+this experiment shows differences in the dynamics in the two body planes , with larger oscillations in the sagittal plane due to higher compliance in this plane .
+overall , it demonstrates stable performance when the control and mechanics in the robot 's sagittal and frontal planes are dynamically interacting in rapid movements .
+figure 9 ( a,b ) return of body com back to primary position in the course of repeated rapid voluntary movements of the com in intermediate plane .
+starting from an eccentric position ( 2.3 cm forward , 1.7 cm on the right ) , the robot was commanded to perform a rapid return of the com to the upright position .
+the system response is shown in ( a ) and the com trajectories are shown in ( b ) ( for commands , see profiles of dashed and dotted step functions ) .
+( c,d ) in order to visualize the coupling effects between the two body planes , additional experiments were performed where the robot moved only in the sagittal plane ( c ) and only in the frontal plane ( d ) .
+note that all plots are displayed with the same scales to facilitate the comparisons .
+the control was always active in both planes to keep the system stable .
+in the additional experiments shown in panels figures 9c,d , the movement was restricted to the sagittal and frontal plane , respectively .
+they demonstrate that a rapid movement in one plane has only a small effect on the com in the other plane .
+the cross talk from the sagittal to the frontal plane is again clearly larger than vice versa .
+note that the responses in figures 9c,d are similar to those shown in figure 9b with respect to the actively moved component .
+this suggests that the controllers efficiently compensate the disturbance produced by the coupling between the planes .
+note also that in all three experiments ( figures 9a - c ) the control was active in all the dofs of the sagittal and frontal planes in order to keep the body upright .
+voluntary squatting movements in this experiment , lucy performed repetitive squatting knee - bending movements with reactive balancing movements occurring mainly in the ankle and hip joints [ see section experimental procedures and testbed ( 5 )] .
+this experiment challenged lucy 's movement and balancing performance in a situation where all dofs in the sagittal and frontal planes were interacting .
+the robot successfully performed this test ( see film sections in figure 10 and film in supplementary materials ) .
+lucy executes the voluntary and reactive movements in the sagittal plane , while the frontal plane controls prevent falling by keeping the body upright .
+no kinematic synergy is imposed explicitly and the resulting joint configurations are produced by the interactions between the modules .
+figure 10 lucy performing squatting movements .
+the robot was commanded to perform knee bending at 0.17 hz while balancing to keep the body upright .
+the observed coordination between knee , ankle , and hip movements ( in terms of compensatory bending in hip and ankle joints ) is a property emerging from the interaction between the control modules during the squatting movements ( see text ) .
+voluntary full body movement at increasing frequency in this experiment , lucy performed voluntary body sway movements in the frontal plane and in the sagittal plane simultaneously .
+the reference trajectory was a sinusoid with increasing frequency ( chirp signal ) with the amplitude of 1degrees in the frontal plane and 2degrees in the sagittal plane .
+in contrast to the previous experiments , which were aimed to characterize the behavior produced by the dec control within the margins of stability of the system ( frequency range similar to that used in human posture control experiments ) , this trial was performed to the limit of failure ( until the robot 's feet lost contact with the support surface ) .
+the resulting movements are shown in figure 11 .
+in the low frequency range up to 0.4 hz , tracking performance was almost accurate in both planes. with further increase in frequency , the responses in the sagittal plane develop a peak and then get smaller , while the responses in the frontal plane remain essentially similar as before and then increase in amplitude , before the response becomes unstable at 0.65 hz , where the robot lost contact with the support surface .
+thus , notably , this task pushed the robot to its stability limits .
+this owed mainly to limitations of the actuators , which were not designed for high frequencies and torques ( which also would exceed human capabilities ) .
+interferences between the sagittal and the frontal plane are relatively small , which supports our notion that the two planes of the robot 's body can be controlled by two independent control systems .
+figure 11 lucy performing a body sway in the ankle joints in the sagittal and the frontal plane simultaneously at increasing frequency ( indicated at top of panels ; time at bottom ) .
+the responses in the sagittal plane show a peak around 0.42 hz. for higher frequencies , response amplitude tends to decrease .
+the response in the frontal plane increases markedly above 0.6 hz. the recording was finished ( right boundaries ) when the robot 's feet started to lose contact with the support surface due to large oscillations in the frontal plane .
+the difference in the dynamic responses in the two planes is mainly due to the body mechanics , i.e. , the different size of the support base and the different mass distribution ( which humans may account for by adjustments in the control , as future work may show ) .
+discussion the main aim of our neurorobotics approach is to investigate whether the networks of dec modules so far used separately for the sagittal plane and frontal plane ( lippi et al. , 2016 ; ott et al. , 2016 ) would adequately cooperate with each other without using a supervising full body model or some other form of software linkage between the two networks .
+in particular , we asked whether the mechanical coupling between the planes given by the physics of the robot 's body would provide postural stability when the robot performs movements in the 45degrees plane intermediate to the sagittal and frontal planes , or when it balances external perturbations in this plane .
+we envisaged that the underlying dec with both voluntary movements and postural reactions follows the rules of vector decomposition from the intermediate into the sagittal and frontal planes .
+in the experiments 1 - 5 , the robot performed well within the stability margins based on the mechanical properties of the robot and the dynamics of the controls in the two planes , as ascertained empirically also in experiment 6 ( figure 11 ) .
+the described experiments and results considerably contribute to our aim of building a robotic system to further develop our human - derived dec control with the ultimate goal of mirroring in robot experiments the human sensorimotor functions .
+this approach is complex and cannot be reached in one step , but requires several steps .
+the here - described steps comprise the cooperation between control modules in the frontal and sagittal planes of our modular control architecture , the testing of both reactive and proactive movement controls in view of control stability including mechanical aspects , and to provide measures such as frequency responses functions for robot - human comparisons .
+the current steps are important for further dec developments that aim to implement in future steps more complex sensorimotor functions such as human - like walking .
+the main computational challenge we expected in the present experiments was control stability in face of the feedback time delay of 20 ms , which is still much shorter than the known human time delay .
+furthermore , the physical anisotropy of the robot 's body in the sagittal and frontal planes represented a challenge .
+this arises among others from differences in body inertia and length of the base of support between the two planes , as reflected in the different responses to external disturbances and the different dynamic performance in voluntary squatting movements shown in the results section ( figures 5 - 8 , 10 ) .
+yet , the robot successfully mastered with the same set of control parameters the disturbance and movement scenarios we applied .
+thus , our finding demonstrate that the modular dec control architecture is able to coordinate the movements across the robot 's 14 dof without signal exchange between the dec module nets for the sagittal and the frontal planes or some higher order control mechanism .
+this is reminiscent of the so - called embodied approaches ( e.g. , brooks , 1991 ) according to which the body or other loops through the physical world can mediate interaction effects directly , i.e. , without the need of explicit connections at control levels .
+the frequency responses functions obtained in the present experiments give us a comparison basis for future experiments in robots and humans .
+the following discussion firstly considers related issues in humanoid robotics and the relevance for robotic neuro - rehabilitation ( section related issues in humanoid robotics and relevance for robotic neuro - rehabilitation ) , then insights for the modeling of the human postural control ( section insights for the modeling of the human postural control ) , and finally future steps and developments expected for the extended dec concept ( section future steps and developments expected for the extended dec concept ) .
+related issues in humanoid robotics and relevance for robotic neuro - rehabilitation taking human bipedal control in standing and walking as a basis for comparison is an important research topic in humanoid robotics ( torricelli et al. , 2014 ) .
+one reason is that human postural and movement skills are still considered to be superior to those of robots , being more robust and efficient , and also covering a wider range of external conditions ( nori et al. , 2014 ) .
+another reason is that humanoids acting in the human sphere may profit from human - like sensorimotor behavior when interacting with humans and their world .
+among the various tasks of sensorimotor control , maintaining balance is a primary task in the dec concept as well as a basic rule that is followed in many fields of humanoid robotics .
+secondary tasks can be performed in parallel with this primary task exploiting the kinematic redundancy of the robot , e.g. , by projecting the secondary task into the null space of the jacobian of the balancing task ( sentis and khatib , 2005 ) .
+care is generally taken to constrain secondary tasks such that they are not conflicting with the balancing task .
+in the present work , multiple tasks are achieved simultaneously , defined by different control variables for different modules .
+for example , in the squatting movement ( section voluntary squatting movements ) , the ankle module balances the body , while the knee module performs the vertical body motion and the other modules balance the com of the supported body segments .
+in general , each module controls a joint ( mechanical or virtual ) , along with all other segments supported by it. this works under the assumption that the controlled variable is affected directly by the controlled joint angle in that every rotation of the ankle joint produces the same rotation of the com of the whole body around the ankle .
+for upright stance , the relation between com sway and ankle joint is ( 17 ) ddalphalf1alphabs1 = 1 , so that the servo controller can use the ankle control torque to control alphabs1 .
+the dynamic effects of joint movements on the supporting links are here neglected .
+the integration of tasks in which a joint is controlled in order to produce an effect on the supporting links , e.g. , using hip movements to control sheer forces under the feet , is currently still an open issue in the dec concept .
+an often - used balance control based on sensory signals is in humanoid robotics the method of the zero moment point ( zmp ) criterion ( vukobratovic and borovac , 2004 ) .
+it allows for balancing against moderate disturbances , which do not require hand contact or a step .
+this method has been successfully applied in robots with stiff actuation to adjust actual to desired zmp , e.g. , for walking ( hirai et al. , 1998 ; sentis and khatib , 2006 ) .
+however , many robots nowadays use compliant joints , as is the case with lucy and the human system .
+the compliance has advantages for robot - world interactions such as collisions and for robot - human interactions .
+however , the control of compliant joints is more complex due to higher complexity of the dynamics .
+on the other hand , an important advantage of compliant actuation based on passive stiffness and damping is its immediate response to impact , starting well before time - consuming sensory feedback mechanisms take action ( haddadin et al. , 2007 ) .
+this is comparable to the immediate passive stiffness " feedback loop " in humans from muscles , tendons , and connective tissues , where previous modeling and robot experiments suggested an improved control stability in face of considerable sensory , neural and muscular time delays ( antritter et al. , 2014 ; ott et al. , 2016 ) .
+while passive stiffness was implemented in posturob i and ii of this laboratory by using pneumatic muscles and in some experiments springs as tendons ( e.g. , mergner et al. , 2009 ) , it has not yet been implemented in lucy .
+this is one of the aims for future experiments with lucy ( see section future steps and developments expected for the extended dec concept ) .
+in the dec - controlled robots including lucy , compliant behavior and low energy consumption are positive side effects from the low control loop gain , which in humans appears to be mainly related to control stability in face of the biological time delays .
+effects of the compliance showed up in the presented experiments in the form of residual body sway following external disturbances as well as overshoot and under - damped dynamics with fast voluntary movements .
+a particularly important beneficial side effect of using low actuation torques was that the robot 's feet did not loose contact with the support surface in the experiments 1 - 5 .
+the effects that passive stiffness has for reducing impact magnitude and improving energy efficiency has been an issue in actuator design ( e.g. , ham et al. , 2009 ) and recently has received considerable interest in humanoid robotics .
+the method has been combined for example with active compliance modulation in the robot coman ( li et al. , 2012 ) .
+in this robot , joint stiffness is modulated in response to an external disturbing force by shifting desired body com such that the resulting center of pressure ( cop ) shift compensates for the disturbance .
+this mechanism is employed in combination with other assisting mechanisms that controlled upper body orientation and energy dissipation .
+furthermore , flexible robots such a humanoids with compliant " ankle " and " hip " joint equivalents have been controlled with the so - called reaction null space ( rns ) formalisms that aim for a reactionless motion control via a feed forward mechanism and an error compensation via feedback ( nenchev , 2013 ) .
+currently , our experiments do not include large perturbations ; this topic remains to be addressed in future work ( section future steps and developments expected for the extended dec concept ) .
+for example , explicit inspirations from human balancing research for humanoids often address the " ankle strategy " and " hip strategy " ( nishio et al. , 2006 ) .
+in the " ankle strategy ," ankle torque suffices to produce shifts of the body cop to compensate moderate perturbations , whereas the " hip strategy " becomes involved or dominates when the cop is expected to exceed the limits of the support base for balancing , be these limits determined by the feet or a restricted or compliant support surface .
+another limiting factor is the maximal ankle torque .
+the hip movement then generates horizontal ground forces in order to keep the com over the base of support ( nashner and mccollum , 1985 ) .
+these bio - inspired dynamic balance mechanisms have been technically realized in a compliant humanoid robot by hyon et al .
+( 2007 ) and other groups .
+measures related to com and cop shifts were found to describe postural stability decision limits with increasing perturbation magnitude in three steps : from ( 1 ) " cop balancing " in the ankle joints via ( 2 ) " centroidal moment point , cmp , balancing " in the hip joints involving a moment about the com , up to ( 3 ) a rescue step , often resulting in a double support ( stephens , 2007 ) .
+simulations showed that human " hip " and " ankle " balancing strategies tend to emerge in the presence of perturbations of different magnitudes from the same optimization criterion ( atkeson and stephens , 2007 ) .
+these robotic studies in turn provide inspirations from robotics back to human posture control research .
+as stated in section introduction , an important aspect of the dec control is its modularity .
+modular concepts have been widely applied before to both the analysis of human movement and the control of robots .
+in general , the concept of modular control implies the subdivision of the control problem into several sub - problems that can be managed by separate control modules .
+such modules may interact in different ways , e.g. , directly by exchange of signals or through the effects they produce on the system .
+control modularity has been defined at different levels of abstraction .
+for example , in the " behavior - based " control systems several sub - behaviors may operate in concert with each other , organized according to a hierarchical principle ( brooks , 1991 ) .
+in the context of posture control for biped humanoids , such sub - behaviors can be used to control low - level tasks like joint torque profiles , or to process higher - level issues such as adapting control parameters to contextual situations , or performing specific reactive adjustments .
+for example , an implementation on a simulated humanoid is shown in luksch ( 2010 ) .
+higher - level functionalities can emerge from the complexity of behavior based systems .
+recently , the integration of internal representations has been considered in behavior based system research ; this allows for a direct solution of issues such as movement planning .
+it finds its basis in that several tasks in biological systems are considered to rely on internal representations for inverse modeling , forward models and sensor fusion ( schilling , 2011 ) .
+internal representations are different from a behavior in that they are not designed specifically as tasks , but instead have a general validity , as e.g. , realized in the principle of mean of multiple computations ( mmc ) .
+this method can represent body kinematics independently from the specific task and be generalized to arbitrary joint configurations ( e.g. , of a planar arm in schilling , 2011 or of a hexapod in schilling and cruse , 2008 ) .
+the dec control , on the other hand , is specifically addressing posture control and disturbance rejection .
+yet , although its bottom - up control design by the integration of locally acting modules shows interesting emerging properties such as segment coordination , it is not expected in general to cover higher level aspects of motor control .
+an integration of dec with the above methods can be imagined , e.g. , in a set up where high level processing receives sensory input preprocessed through the dec sensor fusions and where the high level controller outputs into the dec posture control , e.g. , estimates of disturbances that are self - produced by voluntary movements .
+another modularity concept , the modular modality frame model ( ehrenfeld and butz , 2013 ) , envisages multiple cross - coordinations between cortical sensorimotor representations for processing states of the body and the body parts and the integration of corresponding multisensory information with bayesian optimality .
+again , this concept addresses probabilistic mechanisms of the body schema for movement planning and commanding , whereas the dec concept deals with the postural control that , on a lower level , helps movement execution by disturbance compensation .
+yet , parallels to the dec concept possibly exist concerning multisensory processing .
+specifically , the dec concept combines in a first step signals from a variety of transducers to obtain estimates of relevant physical variables .
+in a second step , from these estimated physical variables estimates then the four disturbances are derived .
+this two - step transformation of transducer signals into estimates of disturbances occurs without probability weighting .
+the processing in the dec involves at least partially known transfer characteristics and noise properties and aims to fulfill the commanded task , using a direct reconstruction of the physical relationship between disturbing forces , joint positions and transducer stimulation .
+the uncertainty of the results caused by the sensor noise ( mainly vestibular noise ; van der kooij and peterka , 2011 ) can partially be mitigated by thresholds ( mergner et al. , 2009 ) and disturbance prediction ( mergner , 2010 ) .
+estimated disturbances smaller than a given threshold are excluded from the compensation and the control process .
+this prevents noise from sensory signals that are not participating in the control from influencing the system .
+to which extent this approach fulfills optimality criteria remains to be investigated .
+exchange of knowledge and inspirations between the robotic and the human domains is especially relevant when it comes to the use of robotic sensorimotor devices such as exoskeletons for neuro - rehabilitation and assistive devices in the development of new invasive or non - invasive stimulation methods to intervene with human sensorimotor functions and more .
+knowing the neural control mechanisms behind human sensorimotor behavior will likely prove to be a key for ensuring an intuitive and safe use of such devices by patients .
+a related consideration concerns the observation in the present experiments that the robot was able to balance across a broad range of scenarios and conditions using the same sets of control parameters , while automatically adjusting its motor performance to changes in stimulus modality and amplitude , this in combination with the afore discussed low loop gain , and soft mechanical compliance and low energy consumption .
+versatility of the control is instrumental for the sensorimotor behavior in a rich and changing environment , which represents a major and still open challenge in the field of humanoid robotics and robotics - inspired assistive devices .
+the concept of a modular dec architecture may provide a realistic solution in face of these challenges .
+insights for the modeling of the human postural control the coordination of disturbance compensation observed in our experiments when using support tilts in the intermediate plane resulted from mechanical forces that were produced by the controls for the sagittal and frontal planes .
+a human skeletal body equipped with sensors , actuators and dec control modules can be expected to function similarly to lucy .
+we take this as evidence that the dec control can be considered as a valid control concept for human reactive postural control .
+this even applies if the realization in humans would differ in some respect from that of our robot .
+differences may owe to the much larger number of sensory transducer and actuators in humans as compared to the robot , which may reflect the fact that humans are experiencing and producing a richer spectrum of sensorimotor behaviors than currently faced by lucy .
+one may object that here exists a conflict between the dec concept and the notion of those neuroscientists , who assume that movement planning and commanding at the level of the cortical homunculus ( compare section introduction ) entails a full - body control .
+note , however , that the cortical motor commands , with few exceptions , do not reach the spinal motor centers directly .
+rather , the commands pass through and interact with subcortical structures , mainly the basal ganglia and cerebellum , where they undergo modifications .
+thereby , they may better fit to the dec concept .
+in this view , one important role of these subcortical structures is to complement the voluntary movement commands by predicted - sensory disturbance estimates .
+these centrally generated estimates are thought to represent fast and low - noisy predictions of the sensory - derived disturbance estimates evoked by the movements , which they substitute for compensation .
+this allows for a distinction between self - produced and external disturbances and thus allows compensating both even when they occur in superposition ( maurer et al. , 2006 ; mergner , 2010 ) .
+although the robot experiments provide no direct insights into human postural control , they may provide valuable support for one or the other hypothetical model when this is tested in robot experiments for " real world " robustness ( see section introduction ) .
+this neurorobotics approach will allow neuroscientists and roboticists to compare different models both with respect to specific and general performance criteria ( e.g. , versatility , failsafe robustness , etc. ) .
+for example , a concept of how humans may deal with inter - link coupling forces using eigenmovements has recently been tested in a robot of this laboratory , where it successfully passed the " real world " test ( alexandrov et al. , 2017 ) .
+the dec concept provides an alternative solution for the problem of inter - segmental force coupling in terms of a bundle of counter measures , which include the dec mechanisms for text and tacc in figure 1 , modulation of passive stiffness and damping , and the use of waveforms for commanded movement trajectories , which are optimized for low acceleration and jerk ( compare waveform in figure 6 ) .
+in the previous robot experiments of hettich et al .
+( 2014 ) , the dec concept was restricted to the dip scenario and used for the ankle and hip control estimated parameters , which were directly derived from the modeling of human reactive movements .
+the control parameters related to mass and com heights of the robot 's segments previously used were adjusted in the present experiments to lucy accordingly .
+this does not apply , however , to the lumped time delay .
+instead , a delay of 20 ms was used for all joints , which is clearly less than that used previously or and cannot be considered " human - like. " identified lumped delays for the ankle joint control in our previous experiments were >= 100 ms. we have not yet tested such lumped delays in lucy , but plan to test them together with a number of yet pending robot implementations of related other issues such as the aforementioned envisaged solution for the inter - segmental coupling forces , the up - channeling of control parameters , and the passive stiffness and damping .
+a further aim is to replace the concept of a lumped time delay by the biologically more appropriate concept of " short latency reflexes " ( local proprioceptive mechanisms with latencies of 20 - 40 ms ) and " long latency reflexes " ( responses with latencies of 60 - 300 ms , which involve volition and intention ; compare mergner , 2010 ). with the integration of these mechanisms we expect stabilizing effects also for coupling forces and a better dynamic performance in faces of challenges that may occur during walking .
+this also may apply when horizontal body segment movements are included into the control , such as rapid head movements during gaze shifts ( falotico et al. , 2017 ) .
+in future experiments , we also will address in more detail the emergence of conflict - free interactions between control constituents , as we observed it in our previous and present robot experiments .
+it allowed here the superposition of voluntary movements and reactive compensations of external disturbances , but also may allow superposition of two or more disturbances at a time .
+compliance to the superposition law may represent an important criterion when judging a given robot performance as human - like .
+future steps and developments expected for the extended dec concept to develop the robotic model of the human sensorimotor system further , we consider the following steps important : installing the ability for an automatic reconfiguration of the control model for certain tasks such as walking .
+there , it will account for changes in the robot 's configuration with the alternation between the double leg support and the single leg support while the other leg swings .
+smooth human - like walking in future dec implementations may furthermore benefit from dec extensions in terms of whole body coordination , which may includes the upper body , and it will involve integration of an open loop gait pattern ( compare lapeyre et al. , 2013a,b ) .
+predictions of disturbance estimates through both down - and up - channeling of signals that are produced during voluntary and reactive movements - - with an expected improvement of control stability from lower noise and shorter time delay as compared to sensor - derived signals .
+further improvement of control stability by using passive stiffness modulation during contact force and support translation disturbances and during rapid voluntary and passive movements .
+addition of visual self - motion information to improve the balance performance of lucy .
+improvements of accuracy and noise of vestibular and proprioceptive sensor information through interaction with the visual signal can be expected on the basis of human experiments ( e.g. , asslander et al. , 2015 ) .
+superposition of more than one external perturbation ( e.g. , support surface tilts and contact forces ) during quite stance and voluntary movements .
+implementation of human - derived lumped time delays .
+attempts to mimic sensorimotor impairments of neurological patients using dec - controlled robots ( compare mergner et al. , 2009 , for balance model without vestibular function ) .
+author contributions vl and tm performed the experiment and collected and analyzed the data , performed the computer simulations .
+both authors contributed to the interpretation of the data , drafted and critically revised the manuscript and finally approved the manuscript for submission .
+conflict of interest statement the authors declare that the research was conducted in the absence of any commercial or financial relationships that could be construed as a potential conflict of interest .
+1prts stands for pseudo - random ternary sequence stimulus ( see peterka , 2002 ) .
+it allows evaluation of gain of the disturbance - evoked body excursion and its phase and coherence ( e.g. , with support surface tilt ) over a defined frequency range .
+data processing comprises a spectral analysis of the stimulus vs. the body ( e.g. , com ) angular excursions in space using a discrete fourier transform .
+the pseudorandom sequence of the tilts makes them unpredictable for humans .
+see hettich et al .
+( 2014 ) for details of the stimulus used. funding .
+this research is supported by the by the european commission ( fp7 grant 600698 h2r and 610454 embalance ) .
+supplementary material the supplementary material for this article can be found online at : http :// journal.frontiersin.org / article / 10.3389 / fnbot.2017.00049 / full # supplementary - material click here for additional data file .
+references alexandrov a. v. lippi v. mergner t. frolov a. a. hettich g. husek d .
+( 2017 ) .
+human - inspired eigenmovement concept provides coupling - free sensorimotor control in humanoid robot . front. neurorobot .
+11 : 22 . 10.3389 / fnbot.2017.00022 28487646 antritter f. scholz f. hettich g. mergner t .
+( 2014 ) .
+stability analysis of human stance control from the system theoretic point of view , in 2014 european control conference , ecc 2014 ( strasbourg ) , 1849 - 1855 . asslander l. hettich g. mergner t .
+( 2015 ) .
+visual contribution to human standing balance during support surface tilts . hum. mov. sci. 41 , 147 - 164 . 10.1016 / j.humov.2015.02.010 25816794 atkeson c. g. stephens b .
+( 2007 ) .
+multiple balance strategies from one optimization criterion , in 7th ieee - ras international conference on humanoid robots ( pittsburgh , pa ) , 57 - 64 . bleisteiner g. v. mangoldt w. henninger h. oetker r .
+( 1961 ) .
+handbuch der regelungstechnik .
+berlin ; heidelberg : springer . brooks r .
+( 1991 ) .
+new approaches to robotics . science 253 , 1227 - 1232 . 10.1126 / science.253.5025.1227 17831441 ehrenfeld s. butz m. v. ( 2013 ) .
+the modular modality frame model : continuous body state estimation and plausibility - weighted information fusion . biol. cybern .
+107 , 61 - 82 . 10.1007 / s00422 - 012 - 0526 - 2 23090574 falotico e. cauli n. kryczka p. hashimoto k. berthoz a. takanishi a .
+( 2017 ) .
+head stabilization in a humanoid robot : models and implementations . auton .
+robots 41 , 349 - 365 . 10.1007 / s10514 - 016 - 9583 - z fitzpatrick r. burke d. gandevia s. c. ( 1996 ) .
+loop gain of reflexes controlling human standing measured with the use of postural and vestibular disturbances . j. neurophysiol .
+76 , 3994 - 4008 . 8985895 flash t. hochner b .
+( 2005 ) .
+motor primitives in vertebrates and invertebrates . curr. opin. neurobiol .
+15 , 660 - 666 . 10.1016 / j.conb.2005.10.011 16275056 goodworth a. d. peterka r. j. ( 2010 ) .
+influence of stance width on frontal plane postural dynamics and coordination in human balance control . j. neurophysiol .
+104 , 1103 - 1118 . 10.1152 / jn.00916.2009 20427616 haddadin s. schaffer a. hirzinger g .
+( 2007 ) .
+safety evaluation of physical human - robot interaction via crash - testing , in robotics : science and systems conference ( rss 2007 ) , 395 - 407 . available online at : http :// www.phriends.org / rss _ 07b.pdf hajos a. kirchner w .
+( 1984 ) .
+the control of body posture in man during electrical stimulation of the vestibular system , in sensory experience , adaptation and perception , eds spillmann l. wooten b. r. ( hillsdale , mi ; london : lawrence erlbaum ) , 255 - 280 . ham r. sugar t. vanderborght b. hollander k. lefeber d .
+( 2009 ) .
+compliant actuator designs . ieee robot. automat. mag .
+16 , 81 - 94 . 10.1109 / mra.2009.933629 hauser h. neumann g. ijspeert a. j. maass w .
+( 2007 ) .
+biologically inspired kinematic synergies provide a new paradigm for balance control of humanoid robots , in humanoid robots , 2007 7th ieee - ras international conference ( pittsburgh , pa ) , 73 - 80 . hettich g. lippi v. mergner t .
+( 2013 ) .
+human - like sensor fusion mechanisms in a postural control robot , in proceedings of the international congress on neurotechnology , electronics and informatics ( freiburg ) , 152 - 160 . hettich g. asslander l. gollhofer a. mergner t .
+( 2014 ) .
+human hip - ankle coordination emerging from multisensory feedback control . hum. mov. sci. 37 , 123 - 146 . 10.1016 / j.humov.2014.07.004 25150802 hirai k. hirose m. haikawa y. takenaka t .
+( 1998 ) .
+the development of honda humanoid robot . ieee int. conf. robot. automat .
+2 , 1321 - 1326 . 10.1109 / robot.1998.677288 hyon s. h. hale j. g. cheng g .
+( 2007 ) .
+full - body compliant human - humanoid interaction : balancing in the presence of unknown external forces . ieee trans. robot .
+23 , 884 - 898 . 10.1109 / tro.2007.904896 ivanenko y. p. grasso r. zago m. molinari m. scivoletto g. castellano v .
+.
+( 2003 ) .
+temporal components of the motor patterns expressed by the human spinal cord reflect foot kinematics . j. neurophysiol .
+90 , 3555 - 3565 . 10.1152 / jn.00223.2003 12853436 johansson r. magnusson m. akesson m .
+( 1988 ) .
+identification of human postural dynamics . ieee trans. biomed. eng .
+35 , 858 - 869 . 10.1109 / 10.7293 3192235 kuo a. d. ( 1995 ) .
+an optimal control model for analyzing human postural balance . ieee trans. biomed. eng .
+42 , 87 - 101 . 10.1109 / 10.362914 7851935 kuo a. d. ( 2005 ) .
+an optimal state estimation model of sensory integration in human postural balance . j. neur. eng .
+2 : s235 . 10.1088 / 1741 - 2560 / 2 / 3 / s07 16135887 lapeyre m. rouanet p. oudeyer p. y. ( 2013a ) .
+the poppy humanoid robot : leg design for biped locomotion , in 2013 ieee / rsj international conference on intelligent robots and systems ( iros ) ( tokyo ) , 349 - 356 . lapeyre m. rouanet p. oudeyer p. y. ( 2013b ) .
+poppy humanoid platform : experimental evaluation of the role of a bio - inspired thigh shape , in 2013 13th ieee - ras international conference on humanoid robots ( humanoids ) ( tokyo ) , 376 - 383 . li z. vanderborght b. tsagarakis n. g. colasanto l. caldwell d. g. ( 2012 ) .
+stabilization for the compliant humanoid robot coman exploiting intrinsic and controlled compliance , in ieee international conference on robotics and automation ( st. paul , mn ) , 2000 - 2006 . lippi v. mergner t. hettich g .
+( 2013 ) .
+a bio - inspired modular system for humanoid posture control , in proceedings of iros 2013 workshop on neuroscience and robotics " towards a robot - enabled , neuroscience - guided healthy society ," eds ugur e. oztop e. morimoto j. ishii s .
+( tokyo ) .
+lippi v. mergner t. szumowski m. zurawska m. s. zielinska t .
+( 2016 ) .
+human - inspired humanoid balancing and posture control in frontal plane , in romansy 21 - robot design , dynamics and control , eds parenti - castelli v. schiehlen w .
+( udine : springer international publishing ) , 285 - 292 . luecke r. h. mcguire m. l. ( 1968 ) .
+analysis of optimal composite feedback - feedforward control . aiche j .
+14 , 181 - 189 . 10.1002 / aic.690140131 luksch t .
+( 2010 ) .
+human - like control of dynamically walking bipedal robots .
+munich : verlag dr. hut . maurer c. mergner t. peterka r. j. ( 2006 ) .
+multisensory control of human upright stance . exp .
+brain res .
+171 , 231 - 250 . 10.1007 / s00221 - 005 - 0256 - y 16307252 mcintyre j. bizzi e .
+( 1993 ) .
+servo hypotheses for the biological control of movement . j. mot. behav .
+25 , 193 - 202 . 12581989 mergner t .
+( 2010 ) .
+a neurological view on reactive human stance control . annu. rev .
+control 34 , 177 - 198 . 10.1016 / j.arcontrol.2010.08.001 mergner t. huber w. becker w .
+( 1997 ) .
+vestibular - neck interaction and transformation of sensory coordinates . j. vestib. res .
+7 , 347 - 367 . 9218246 mergner t. maurer c. peterka r. j. ( 2003 ) .
+a multisensory posture control model of human upright stance . prog .
+brain res .
+142 , 189 - 201 . 10.1016 / s0079 - 6123 ( 03 ) 42014 - 1 12693262 mergner t. peterka r. j. ( 2017 ) .
+human sense of balance , in humanoid robotics : a reference , eds goswami a. vadakkepat p .
+( springer ) .
+mergner t. rosemeier t .
+( 1998 ) .
+interaction of vestibular , somatosensory and visual signals for postural control and motion perception under terrestrial and microgravity conditions - - a conceptual model . brain res. rev .
+28 , 118 - 135 . 10.1016 / s0165 - 0173 ( 98 ) 00032 - 0 9795180 mergner t. schweigart g. fennell l .
+( 2009 ) .
+vestibular humanoid postural control . j. physiol .
+paris 103 , 178 - 194 . 10.1016 / j.jphysparis.2009.08.002 19665555 merton p. a. ( 1953 ) .
+speculations on the servo control of movement , in the spinal cord , eds malcom j. l. gray j. a. b. wolstenholme g. e. w. ( boston , ma : little brown ) , 247 - 260 . morasso p .
+( 2013 ) .
+what is the use of the body schema for humanoid robots ?
+int. j. mach .
+conscious 5 , 75 - 94 . 10.1142 / s1793843013400064 nashner l. m. ( 1972 ) .
+vestibular postural control model . kybernetik 10 , 106 - 110 . 10.1007 / bf00292236 4537349 nashner l. m. mccollum g .
+( 1985 ) .
+the organization of human postural movements : a formal basis and experimental synthesis . behav .
+brain sci. 8 , 135 - 150 . 10.1017 / s0140525x00020008 nenchev d. n. ( 2013 ) .
+reaction null space of a multibody system with applications in robotics . mech. sci. 4 , 97 - 112 . 10.5194 / ms - 4 - 97 - 2013 nishio a. takahashi k. nenchev d. n. ( 2006 ) .
+balance control of a humanoid robot based on the reaction null space method , in intelligent robots and systems , 2006 ieee / rsj international conference on 1996 - 2001 ( beijing ) .
+nori f. peters j. padois v. babic j. ivaldi s .
+( 2014 ) .
+whole - body motion in humans and humanoids , in new research frontiers for intelligent autonomous systems , 81 - 92 . available online at : http :// hal.upmc.fr / hal - 01053094 ott c. henze b. hettich g. seyde t. n. t. n. roa m. a. m. a. lippi v .
+( 2016 ) .
+good posture , good balance : comparison of bioinspired and model - based approaches for posture control of humanoid robots . ieee rob. autom. mag .
+23 , 22 - 33 . 10.1109 / mra.2015.2507098 pasma j. h. boonstra t. a. campfens s. f. schouten a. c. van der kooij h .
+( 2012 ) .
+sensory reweighting of proprioceptive information of the left and right leg during human balance control . j. neurophysiol .
+108 , 1138 - 1148 . 10.1152 / jn.01008.2011 22623486 peterka r. j. ( 2002 ) .
+sensorimotor integration in human postural control . j. neurophysiol .
+88 , 1097 - 1118 . 10.1152 / jn.00605.2001 12205132 peterka r. j. ( 2003 ) .
+simplifying the complexities of maintaining balance . eng. med. biol. mag .
+ieee 22 , 63 - 68 . 10.1109 / memb.2003.1195698 12733461 peterka r. j. ( 2009 ) .
+comparison of human and humanoid robot control of upright stance . j. physiol .
+paris 103 , 149 - 158 . 10.1016 / j.jphysparis.2009.08.001 19665564 pruszynski j. a. scott s. h. ( 2012 ) .
+optimal feedback control and the long - latency stretch response . exp .
+brain res .
+218 , 341 - 359 . 10.1007 / s00221 - 012 - 3041 - 8 22370742 roffel b. betlem b .
+( 2006 ) .
+process dynamics and control : modeling for control and prediction .
+hoboken , nj : john wiley & sons . schaal s. peters j. nakanishi j. ijspeert a .
+( 2003 ) .
+control , planning , learning , and imitation with dynamic movement primitives , in workshop on bilateral paradigms on humans and humanoids , ieee international conference on intelligent robots and systems ( las vegas , nv ) , 1 - 21 . schilling m .
+( 2011 ) .
+universally manipulable body models - - dual quaternion representations in layered and dynamic mmcs . auton .
+robots 30 , 399 - 425 . 10.1007 / s10514 - 011 - 9226 - 3 schilling m. cruse h .
+( 2008 ) .
+the evolution of cognition - - from first order to second order embodiment , in modeling communication with robots and virtual humans , eds wachsmuth i. knoblich g .
+( berlin , springer ) , 77 - 108 . schweigart g. mergner t .
+( 2008 ) .
+human stance control beyond steady state response and inverted pendulum simplification . exp .
+brain res .
+185 , 635 - 653 . 10.1007 / s00221 - 007 - 1189 - 4 18030458 sentis l. khatib o .
+( 2005 ) .
+synthesis of whole - body behaviors through hierarchical control of behavioral primitives . int. j. hum. robot .
+2 , 505 - 518 . 10.1142 / s0219843605000594 sentis l. khatib o .
+( 2006 ) .
+a whole - body control framework for humanoids operating in human environments , in proceedings 2006 ieee international conference on robotics and automation ( orlando , fl ) , 2641 - 2648 . stephens b .
+( 2007 ) .
+humanoid push recovery , in 7th ieee - ras international conference on humanoid robots , humanoids 2007 ( pittsburgh , pa ) , 589 - 595 . torricelli d. mizanoor r. s. m. gonzalez j. lippi v. hettich g. asslaender l .
+( 2014 ) .
+benchmarking human - like posture and locomotion of humanoid robots : a preliminary scheme , in conference on biomimetic and biohybrid systems ( cham : springer ) , 320 - 331 . van der kooij h. jacobs r. koopman b. van der helm f .
+( 2001 ) .
+an adaptive model of sensory integration in a dynamic environment applied to human stance control . biol. cybern .
+84 , 103 - 115 . 10.1007 / s004220000196 11205347 van der kooij h. peterka r. j. ( 2011 ) .
+non - linear stimulus - response behavior of the human stance control system is predicted by optimization of a system with sensory and motor noise . j. comp. neurosci .
+30 , 759 - 778 . 10.1007 / s10827 - 010 - 0291 - y 21161357 vukobratovic m. borovac b .
+( 2004 ) .
+zero - moment point - - thirty five years of its life . int. j. of humanoid robot .
+1 , 157 - 173 . 10.1142 / s0219843604000083 wiener n .
+( 1948 ) .
+cybernetics : control and communication in the animal and the machine .
+cambridge , ma : the technology press ; new york , ny : john wiley & sons , inc . winter d. a. ( 1990 ) .
+biomechanics and motor control of human movement , 2nd edn .
+new york , ny : wiley . zhong h. pao l. de callafon r .
+( 2012 ) .
+feedforward control for disturbance rejection : model matching and other methods , in ieee 24th chinese control and decision conference ( ccdc ) ( taiyuan ) , 3528 - 3533 .

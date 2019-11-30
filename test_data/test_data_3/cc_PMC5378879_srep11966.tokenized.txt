@@ -1,0 +1,480 @@
+sci rep sci rep scientific reports 2045 - 2322 nature publishing group 26202601 5378879 srep11966 10.1038 / srep11966 article identification of a multi - cancer gene expression biomarker for cancer clinical outcomes using a network - based algorithm martinez - ledesma emmanuel 12 verhaak roeland g.w .
+23 trevino victor a1 1 grupo de enfoque e investigacion en bioinformatica , departamento de investigacion e innovacion , escuela nacional de medicina , tecnologico de monterrey , monterrey , nuevo leon 64849 , mexico 2 department of genomic medicine , the university of texas md anderson cancer center , houston , texas 77030 , usa 3 department of bioinformatics and computational biology , the university of texas md anderson cancer center , houston , texas 77030 , usa a vtrevino @ itesm.mx 23 07 2015 2015 5 11966 13 12 2014 11 06 2015 copyright ( c ) 2015 , macmillan publishers limited 2015 macmillan publishers limitedthis work is licensed under a creative commons attribution 4.0 international license .
+the images or other third party material in this article are included in the article 's creative commons license , unless indicated otherwise in the credit line ; if the material is not included under the creative commons license , users will need to obtain permission from the license holder to reproduce the material .
+to view a copy of this license , visit http :// creativecommons.org / licenses / by / 4.0 / cancer types are commonly classified by histopathology and more recently through molecular characteristics such as gene expression , mutations , copy number variations , and epigenetic alterations .
+these molecular characterizations have led to the proposal of prognostic biomarkers for many cancer types .
+nevertheless , most of these biomarkers have been proposed for a specific cancer type or even specific subtypes .
+although more challenging , it is useful to identify biomarkers that can be applied for multiple types of cancer .
+here , we have used a network - based exploration approach to identify a multi - cancer gene expression biomarker highly connected by esr1 , prkaca , lrp1 , jun and smad2 that can be predictive of clinical outcome in 12 types of cancer from the cancer genome atlas ( tcga ) repository .
+the gene signature of this biomarker is highly supported by cancer literature , biological terms , and prognostic power in other cancer types .
+additionally , the signature does not seem to be highly associated with specific mutations or copy number alterations .
+comparisons with cancer - type specific and other multi - cancer biomarkers in tcga and other datasets showed that the performance of the proposed multi - cancer biomarker is superior , making the proposed approach and multi - cancer biomarker potentially useful in research and clinical settings .
+cancer is typically classified by tissue - specific scores such as the gleason score in prostate cancer1 , the dukes or astler - coller in colon cancer2 , or figo in cervical cancer3 .
+these have been generalized by tnm staging4 .
+more recently , high - throughput technologies have generated unprecedented molecular characterizations of cancer types , such as the genomic portrayals provided by the cancer genome atlas ( tcga ) research network567 .
+several cancer types have been divided into subtypes using tcga data about gene expression8 , mutations9 , copy number alterations10 , microrna expression11 , pseudogenes12 , or even biological processes such as inflammation13 .
+nevertheless , specific subtypes across cancer types seem to share common gene expression properties such as correlations1415 , stromal and immune signatures16 , or mesenchymal signatures17 .
+clinically , better or alternative methods to identify cancer risk groups are always needed .
+although point mutations and chromosomal alterations are currently the subject of active research , a large reservoir of public research has been devoted to the study of gene expression1819 , which is the most broadly studied class of molecular data for cancer so far .
+more importantly , gene expression is a consequence of cumulative genetic and epigenetic alterations. with the goal of clinically stratifying samples into risk groups , several gene expression biomarkers have been proposed for a large variety of cancer types202122232425 .
+however , most biomarkers have been identified and designed for a specific type of cancer .
+moreover , some biomarkers can be applied only to specific subtypes ; for example , biomarkers exist specifically for grade 2 in colon cancer26 and estrogen receptor - positive and lymph node - negative in breast cancer27 .
+many proposed gene signatures may not even be considered for clinical use because they could not be reliably validated in other cohorts28 .
+in some cases , a lack of agreement has also been reported among gene expression signatures obtained for the same type of cancer29 .
+in addition , it was recently shown that biomarkers identified for only one cancer type perform modestly or poorly even when clinical data are considered30 .
+gene expression biomarkers that can be applied for a broad range of cancers could be highly useful in research and clinical settings .
+in clinics , such biomarkers may serve as a standard assessment for facilitating the interpretation and broad application of laboratory test results , simplifying laboratory protocols , and reducing costs .
+in research , these biomarkers may help to elucidate broadly observed biological mechanisms and possible drug targets .
+nevertheless , gene expression biomarkers that can be applied to more than one cancer type are scarce .
+most studies exploit specific properties to identify multi - cancer signatures .
+for example , signatures have been identified from metastasis - specific solid tumors31 , or found to be associated with chromosomal instability32 , therapy - failures33 , proliferation signatures34 , subsequent cancers35 , and embryonic stem - cell like gene expression36 .
+distinct algorithms and strategies have been used to identify biomarkers for more than 10 years .
+these methods include variable selection by shrinkage3738 , penalization3940 , clustering41 , differential expression4243 , or simply by selection of the top - ranked genes using a univariate cox score21 , among many others44 .
+most of these methods nevertheless do not consider a priori biological information to identify gene signatures .
+the use of biological information adds a layer of validation and prioritization45 that can be exploited for biomarker discovery .
+common approaches that consider biological information use networks such as protein - protein interactions ( ppi ) or gene ontologies , which drives the search for modules or terms that could function as gene signatures .
+for example , a set of significant subnetwork biomarkers to classify breast cancer metastasis was identified by performing a greedy search starting from seed genes and then adding neighbor genes46 .
+these subnetworks were then compared with a null distribution of random subnetworks .
+similarly , this algorithm was adapted for a web server that provides network - based biomarkers for survival data47 .
+a network module - based approach applied a markov clustering algorithm to the correlation of the ppi matrix identifying modules associated with patient survival48 .
+an algorithm similar to that used by google for ranking web pages has been proposed to order genes according to their association with survival outcomes49 .
+modularity has also been suggested as an indicator of breast cancer prognosis as determined by an algorithm to find intramodular highly co - expressed and highly interconnected " hub " genes and intermodular hub genes with low co - expression50 .
+moreover , gene ontology has also been used to identify metastasis network modules combining highly predictive gene ontology sets51 .
+to the best of our knowledge , these network - based approaches have not been tailored to produce network - based multi - cancer biomarkers .
+here we describe a network - based approach that explores , in parallel , gene - to - gene connections in multiple cancer datasets while maximizing the overall association of the subnetwork with clinical outcomes .
+we implemented this network - based algorithm using , as a proof of concept , the human protein reference database ( hprd ) 52 , 12 tcga cancer types53 , and a composite cox - based model54 .
+in these training datasets , the results showed that a gene signature of 41 genes was capable of predicting risk groups across cancer types with high precision .
+analysis of a large collection of clinical outcome cancer datasets that included cancers types reported by several authors and many cancer types that were not included in the training datasets validated these results .
+the predictive power of the biomarker was higher than that of clinical information alone and improved when combined .
+our results suggest that it is possible to identify general , compact , and biologically driven gene expression biomarkers for multiple cancer types .
+material and methods datasets we used data from 12 cancer types that belong to the tcga pan - cancer project repository53 accessed in january 2013 , compiled in 11 datasets ( http :// nature.com / tcga ) .
+detailed lists of datasets , genes and samples used are shown in table 1 and supplementary table 1 .
+level 3 data were used .
+only gene symbols present in all cancer types were used .
+microarray data ( agilent and affymetrix ) were transformed using quantile normalization .
+rna - seq data were log2 transformed and quantile normalized .
+biological networks we used the protein - protein interaction ( ppi ) network from the human protein reference database ( hprd ) 52 accessed in march 2013 .
+the network covered 9,465 genes and 37,080 interactions .
+only genes found in both the tcga datasets and the network were used .
+performance of network modules we used gene expression values from each cancer type fitting a cox model to measure the level of association of a given gene signature .
+for biomarkers specific to a cancer - type , the negative logarithm of the log - rank test ( nllrt ) was used to assess and drive the network - based search .
+for the multi - cancer biomarker , we used the nllrt of a reference cancer - type minus the range of the nllrt from the remaining cancer - types .
+subtracting the range of values gave preference to less variable signatures , helping to avoid over - fitting to specific cancer types .
+we used gbm as the reference cancer - type because its performance was the lowest across the cancer type - specific runs .
+nevertheless , we also used other cancer types as reference and compared the results .
+to assess the overall performance of the prediction after biomarker identification , we used the concordance index ( c - index ) measure , which is similar to the area under the receiving operating curve55 .
+c - index values close to 0.5 are referred to as random risk predictions whereas c - index values close to 1 are interpreted as nearly perfect risk predictions .
+to represent the performance of biomarkers graphically , we split the samples by the median of the prognostic index to designate low - and high - risk groups .
+the prognostic index is the linear component of the exponential function in the cox model .
+network clinical association ( nca ) algorithm figure 1 shows a graphical representation of the nca algorithm .
+the algorithm proceeds in cycles , starting with the determination of the performance of an isolated gene ( a seed gene ) across all datasets .
+then , a module growth cycle is performed , in which all connected genes are explored , one gene at a time , generating as many grown modules as connections .
+in the exploration , the performance of the module is evaluated using the nllrt value described above .
+afterwards , only the top 5 % of the modules whose nllrt value improved after the addition of new connections are considered for the next growth cycle .
+the procedure continues until no improvement is observed .
+the algorithm starts by using each gene as a seed .
+this algorithm functions as a type of hill - climbing algorithm .
+scripts or executables of this algorithm are available from the corresponding author .
+validation analysis to determine the significance of the c - index values , we generated a null distribution composed of 10,000 random models of 41 genes for the tcga datasets we used .
+to assess the c - index prediction of the biomarkers in datasets other than tcga , we used survexpress56 , which provides evaluations of gene lists across cancer types .
+for this , we used normalized datasets that included overall survival times ( without considering recurrence , metastases , or relapse ) and only those studies containing more than 30 samples .
+for replicated genes , we selected the highest expressed probe .
+analyses were performed in r ( http :// cran.r - project.org /) .
+for biological validation , we used msigdb and david5758 to determine which biological terms were associated with the biomarker gene lists .
+we also compared the c - index values of our multi - cancer biomarker with those of other multi - cancer biomarkers reported in the literature .
+for model comparisons including clinical features ( e. g. cancer staging ) , we used the " other factors " option in survexpress .
+results identification of biomarkers for specific cancer types we first executed the nca algorithm ( fig. 1 ) for each of the 11 cancer datasets .
+we focused on the network modules with the highest performance value .
+the results shown in table 2 suggest that , in general , several network modules existed for each cancer type , from 84 for lusc to 10,303 for blca .
+most cancer types generated modules with about 9 genes , ranging in size from 4 for kirc to 14 for lusc .
+to generate a biomarker that is representative of all modules for a specific cancer type , we used the genes that most frequently occurred in modules ( around 41 genes for comparisons with the multi - cancer biomarker ) .
+the list of genes obtained is provided in supplementary table 2 .
+comparisons of the genes used for these biomarkers across cancer types showed that the pairwise gene overlap was low ( ranging from 0 to 5 , see fig. 2a ) .
+although the specific genes used for each biomarker were clearly different , indicating that the biomarkers are cancer type - specific , the prediction across cancer types was surprisingly satisfactory ; the average c - index values were higher than 0.75 ( fig. 2b and supplementary table 3 ) .
+almost all cancer type - specific biomarkers showed c - index values higher than 0.70 for about 8 cancer types ( fig. 2c ) .
+we observed consistent c - index values within each cancer type almost irrespective of the network - based biomarker ( fig. 2d ) .
+for instance , all biomarkers had a c - index value about 0.97 for blca and 0.95 for coadread but about 0.65 for ov and 0.62 for gbm .
+nevertheless , a random signature analysis indicated that only 14 of the 121 c - index values ( 11.5 %) were significant , mainly those of cancer type - specific biomarkers within the same cancer type dataset ( excluding blca and coadread , see fig. 2a and supplementary table 3 ) .
+identification of a multi - cancer biomarker to generate a broadly predictive biomarker , we used the nca algorithm and considered the 11 datasets in the same run .
+we estimated a composite performance score based on the individual performance of all cancer types .
+we maximized the overall performance by taking the nllrt of a reference cancer type ( glioblastoma ) and subtracting the range of nllrt values of the other cancer types .
+in this way , genes generating large deviances for specific cancer types were avoided in favor of the inclusion of genes that improved the prediction in many cancer types .
+two very similar modules consisting of 44 genes were identified ( table 2 ) .
+only 6 genes were not present in both modules ( jdp2 , kif5b , ntrk3 , mmp13 , tgfb1 , and tgfbrap1 ) .
+therefore , we used the genes present in both modules as the overall multi - cancer biomarker .
+the identified network biomarker was composed of 41 genes highly connected by esr1 , prkaca , lrp1 , jun and smad2 ( fig. 3a ) .
+this gene signature was able to discriminate between low - and high - risk groups efficiently in the 11 cancer datasets ( fig. 3b and table 3 ) through the statistical association of specific genes ( fig. 3c ) .
+the log - rank test and the cox model fitting were highly significant across cancer types ( table 3 ) .
+the average c - index value across cancer types was 0.81 ranging from 0.65 to 1 .
+eight of these 11 predictions were significant according to a randomization analysis ( fig. 2b and supplementary table 3 ) .
+the highest c - index predictions were observed for blca and coadread , whereas the lowest c - index predictions were observed for gbm and ov. in a comparison of the predicted low - and high - risk groups ( splitting the prognostic index by the median ) , we observed several genes differentially expressed across cancer types , except in blca ( fig. 3c and table 3 ) .
+apart from lmo4 and ddx5 , the other 39 genes were differentially expressed between risk groups in two or more cancer types .
+lmo4 was not differentially expressed in any cancer but was significantly associated with gbm , luad , and lusc according to the cox model .
+ddx5 was highly differentially expressed in luad and associated with three cancer types according to the cox model .
+similarly , 36 genes were associated with the cox model for two cancer types or more .
+surprisingly , esr1 was not associated with cox models but was differentially expressed in two cancer types and served as a hub for connecting 10 genes .
+an overrepresentation analysis of the 41 genes using msigdb57 and david58 revealed important biological associations across pathways , transcriptional control , gene ontologies , and other biological terms ( fig. 3d ) .
+some of these pathways are well known to be associated with cancer , such as the mapk59 , lkb160 , eralpha61 , and ngf62 pathways .
+some genes were highly associated with transcription factors such as sp163 , gene ontologies such as signaling , and other biological terms such as immune system , copy number gains in cancer , and mir - 18 targets .
+in addition , at least 36 of the 41 genes have been associated in the literature with one or more cancer types ( fig. 3d ) .
+these findings support the utility of determining which genes predicted specific cancer types and suggest that the signature we generated is robust across cancer subtypes .
+comparison of the multi - cancer and cancer type - specific biomarkers it has been proposed that molecular processes may be similar across cancer types141564 .
+consequently , a biomarker of clinical outcomes in a specific cancer type may be a good biomarker in a different cancer type .
+therefore , we compared our 12 biomarkers to identify similarities .
+in terms of gene content ( supplementary table 2 ) , the multi - cancer ( multi - nca ) biomarker was not particularly similar to the cancer type - specific biomarkers ( fig. 2a ) .
+indeed , the biomarker most similar to others was ov , which contained 17 genes ( 29 occurrences ) that overlapped with other biomarkers out of the 418 unique genes .
+this similarity was considerably higher than that of the multi - nca , which had 9 genes ( 17 occurrences ) overlapping and that of the most specific biomarker , gbm , which had only 4 genes ( 5 occurrences ) in common with the other biomarkers .
+a comparison of the average c - index values across biomarkers and cancer types showed that the multi - nca biomarker was , overall , the best ( average c - index = 0.81 ) but it was closely followed by ov and brca ( average c - index of 0.80 and 0.79 respectively ; fig. 2 ) .
+the c - index of the multi - nca biomarker was almost always better than those of the cancer type - specific biomarkers ( fig. 2d ) .
+nevertheless , in each cancer type , the c - index was higher using the cancer type - specific biomarker than using the multi - nca biomarker ( by 0.047 on average ) .
+despite this , an analysis of 10,000 random biomarkers showed that 8 of 11 c - index predictions of the multi - nca biomarker were significant ( fig. 2b and supplementary table 3 ) whereas the c - indexes in most cancer type - specific biomarkers were significant only in one or two cancer types ( ov in three and marginally in two more ) .
+in terms of prediction power per cancer type , the blca and coadread average c - index values were , by far , the highest ( both 0.98 ) .
+in contrast , the c - indexes for gbm and ov were the lowest ( 0.62 and 0.65 respectively ) .
+comparisons with clinical features although biomarkers can be a useful clinical tool to predict outcomes , some of the generated biomarkers may not actually be useful in clinical practice if the gene signature does not add predictive power beyond that of the usual clinical features30 .
+to assess this , we determined the c - index of the multi - nca biomarker and the available clinical features per cancer type .
+the supplementary figure 1 shows that the multi - nca biomarker adds between 0.04 and 0.30 of prediction power over clinical features alone .
+in contrast , the clinical features add only between 0 and 0.075 over the biomarker alone .
+overall , in most cancer types ( except kirc ) the biomarker makes better predictions than clinical features alone .
+these results suggest that the multi - nca signature adds a considerable level of predictive power to clinical features .
+we also determined whether the multi - nca signature was sensitive to stratifications using cancer features .
+for this , we used the widely used cancer staging system for each cancer type to compare the performance of c - indexes across cancer stages .
+as shown in supplementary figure 2 , c - index values varied somewhat across stages , perhaps influenced by the number of tcga samples available per stage. of note , in brca stage iiia , in kirc stage iii and iv , ov stage iiib , and ucec stage iiic , the c - indexes were lower than 0.05 relative to the overall c - indexes for corresponding cancer types ( in these cases the estimation considered more than 20 samples ) .
+nevertheless , the c - index value is still acceptable for most stages .
+this stratification provides an estimation of the response of markers across a wide spectrum of subtypes .
+external comparison and validation of biomarkers for external validation of the multi - nca biomarker , we compared the c - index with other 5 multi - cancer biomarkers proposed by other authors326566 representing signatures of chromosome instability ( cin70 ) 32 , multiple cancer - related pathways ( poised gene cassette , pgc ) 65 , mesenchymal transition ( mes ) 66 , mitotic chromosomal instability ( cin ) 66 , and lymphocyte infiltration ( lym ) 66 .
+the 41 genes in the multi - nca biomarker did not overlap with any of the genes in cin70 , pgc , mes , cin , and lym ( supplementary table 2 ) .
+the average c - index for the lym biomarker was 0.796 , just below that of our multi - nca biomarker , which was 0.809 ( supplementary table 3 ) .
+the c - index for lym was nevertheless significant in only 3 tcga datasets compared with 8 datasets for the multi - nca biomarker , suggesting that our multi - cancer biomarker is superior to the lym biomarker .
+to evaluate the prediction accuracy of the biomarkers in cancer data other than tcga , we used survexpress56 to analyze the multi - nca and the cancer type - specific biomarkers we generated , and the multi - cancer biomarkers generated by other - authors .
+we used 122 cancer datasets containing 19,105 samples spanning about 20 types of tissues ( supplementary table 4 ) .
+these datasets covered cancer types not used to develop the nca - based biomarkers such as cancer of the bone , esophagus , eye , liver , prostate , pancreas , and skin , as well as medulloblastomas and astrocytomas , and others .
+we performed two analyses , the first averaging all 122 datasets , and the second normalizing the average per tissue .
+the second analysis was more important because some tissues have been more studied than others such as lung , ovary , breast , brain , and colon .
+in addition , some cohorts are reported in various datasets .
+the results showed that our multi - nca biomarker was one of the top biomarkers evaluated ; it was the most accurate in the per - tissue analysis and close to the most accurate in all datasets ( fig. 4 and supplementary table 4 ) .
+compared with other multi - cancer biomarkers , our multi - nca signature was more accurate in the per tissue analysis than the cin , cin70 , pgc , lym , and mes signatures .
+among these , the mes was the best in the per - tissue analysis while lym was first considering all datasets .
+comparison of multi - cancer module evaluation functions the results reported here represented by the multi - nca biomarker were obtained using gbm as the reference cancer type minus the range of all other cancer types examined .
+we also explored the performance of the network - based marker generation using other functions and other cancer types as reference .
+we first tested the obvious average function , followed by the average minus the range .
+as demonstrated in supplementary figure 4 , using only the average function generated the poorest performance , which was improved by subtracting the range but still lower than using gbm as the reference minus the range .
+then , we tested the other three cancer types used as references : luad , ov , and brca .
+interestingly , using luad as the reference generated a lower performance than that of gbm in all cancer types , whereas using ov generated almost the same overall performance as gbm .
+surprisingly , using brca as the reference resulted in a better performance than that of gbm in 7 cancer types ( only luad showed a decrease ; the overall increase in performance was 0.025 ) .
+discussion we used nca , a network - based algorithm , to identify biomarkers highly predictive of survival outcomes in cancer .
+we first identified biomarkers for specific cancers and then identified a multi - cancer biomarker for 12 cancer types .
+interestingly , the gene content varied greatly across biomarkers but the performance was similar when evaluated in each cancer type ( fig. 2d ) .
+these results suggest that c - index values are more dependent on cancer type than on gene content of the biomarker .
+consequently , survival outcomes may be more difficult to predict in some cancer types than in others .
+for instance , survival was easier to predict in blca and coadread than in ov and gbm .
+this is also supported by the fact that c - index values close to 1 for blca and coadread were not significant since random markers also showed high c - index values while c - indexes of 0.66 for ov and 0.65 in gbm were highly significant compared with random markers .
+the ov - nca biomarker was the second most accurate biomarker across cancer types ( fig. 2c ) even though it was developed using the ovarian serous cystadenocarcinoma dataset only .
+a comparison of the ov biomarker ( supplementary figure 3 ) with the multi - nca biomarker ( fig. 3 ) showed that , surprisingly , the ovarian biomarker had more connections than the multi - nca biomarker .
+however , the number of differentially expressed genes , the cox model statistics , and the biological terms associated with the signature were more appropriate in the multi - nca biomarker than in the ov biomarker .
+the multi - nca was able to significantly predict survival outcomes in 5 more cancer types than the ov biomarker ( fig. 2b ) , and it was more accurate in the per - tissue analysis ( fig. 4 ) than the ov biomarker .
+these findings indicate that the multi - nca biomarker was more suitable for multi - cancer predictions than the ov biomarker .
+nevertheless , it would be interesting to explore why the ov biomarker was highly predictive of outcomes across cancers .
+although ovarian cancer was hard to predict , glioblastoma was even harder but the gbm biomarker was less accurate than the ov biomarker ( figs 2c and 4 ) , so it cannot be easily linked to prediction difficultness .
+ovarian serous cystadenocarcinoma can be divided into various subtypes defined by immunoreactive , mesenchymal , proliferative , and differentiated characteristics6 .
+these characteristics represent universal tumorigenic processes and are observed in other types of cancer as well6 .
+this heterogeneity is reflected in the relatively high number of individuals ( 578 ) included in the tcga ovarian dataset16 , although a similar number of samples was included in glioblastoma and invasive breast carcinoma ( table 1 ) .
+in addition , the five genes ( jun , prkaca , smad2 , esr1 , and bcl3 ) shared by the ov and multi - nca biomarkers form a small network module and are recognized as cancer - related genes .
+further analysis is needed to explore the reasons for the apparently high inter - cancer accuracy of the ov biomarker .
+none of the c - index values in blca or in coadread were significant in the random model test even though the c - index values reached 1 because 46 % and 12 % of the random models respectively were equally predictive .
+moreover , in blca , none of the genes were differentially expressed between risk groups .
+although the low number of samples could influence these results ( only 54 samples in blca and 151 in coadread ) , confirmed results in larger cohorts would imply that many predictive signatures may exist .
+in our study , the multi - nca did not depend on the number of samples per cancer type but in the nllrt of each cancer type .
+thus , the selection of the best signature was imposed by other cancer types rather than by blca and coadread .
+this may explain why none of the genes was significant in blca .
+nevertheless , these findings do not necessarily indicate that these genes in blca are not important .
+for instance , high expression of calr has been associated with high risk in bladder cancer67 .
+hras gains have been found in bladder cancer cell lines and have been related to urothelial tumorigenesis68 .
+itga4 is part of a methylation gene set used for the detection of bladder cancer69 .
+in coadread , akt isoforms ( including akt1 ) are associated with high expression of cd133 and cd44 ( cancer stem cell markers ) and radiation resistance in colon cancer cells70 .
+high expression of ddx5 ( previously known as p68 ) is related to the transition from polyp to adenoma and then to adenocarcinoma71 .
+high levels of dut protein expression are predictive for tumor resistance to chemotherapy in colorectal cancer72 .
+finally , up - regulation of jun is related to the invasiveness of colorectal cancer cells .
+these findings clearly indicate that the biomarker genes are biologically related to blca and coadread .
+the performance comparisons of the multi - nca with clinical features suggest that the multi - nca signature adds predictive power to clinical features .
+nevertheless , these comparisons also showed that the predictive power of the multi - nca biomarker might vary across cancer stages .
+this may indicate that the biomarker is somehow influenced by the high representation of specific cancer subtypes in the tcga studies .
+for example , the results in brca were highly influenced by stage ii samples , which accounted for more than 50 % of total samples , whereas stage iv samples represented only 3 % of samples .
+other cancer types showed similar staging biases .
+inclusion of more samples ( as is happening with the tcga and the international cancer genome consortium datasets ) and prefiltering of data to balance stage representation may be good strategies to improve the identification of multi - cancer biomarkers .
+the c - index value of our multi - nca biomarker was higher than that of other previously reported multi - cancer biomarkers , but not substantially .
+the c - index values of mes and cin70 were just below that of our multi - nca biomarker .
+some of the other multi - cancer biomarkers however use more genes for the prediction ( supplementary table 2 ) .
+still , these comparisons highlight the fact that our multi - nca biomarker is highly competitive among the others reported .
+the network - based strategy that we used emphasizes the fact that using biological information coupled with gene selection is a powerful strategy to generate biomarkers ; this conclusion is consistent with results from other studies464748495051 .
+however , the network - based strategy that we used is different from other approaches in various ways ( supplementary table 5 ) .
+first , we directly evaluated a cox model that is capable of identifying combinatorial features more robustly than univariate - oriented approaches47 , classifiers464951 or components48 .
+second , unlike in other algorithms , we did not prefilter genes to decrease the complexity of the exploration47 .
+third , we used population - dependent selection of the most improved models allowing us to explore more combinations than would be possible using other algorithms4647 .
+finally , to generate a multi - cancer biomarker , we expanded the cox evaluation to multiple datasets by subtracting the range of all nllrt values from the nllrt value of a reference cancer .
+we used the hprd protein - protein interaction network in our approach .
+in principle , however , the nca approach can be applied to other biological networks such biogrid73 , irefweb74 , string75 , and to genetic regulatory networks such as motevo76 and the conserved transcription factor binding sites track in ucsc ( https :// genome.ucsc.edu ) .
+the nca algorithm is not limited to gene expression data or to survival analysis as the response variable .
+the exploration of diverse biological networks , genomic data , and response variables may lead to the identification of better or alternative multi - cancer biomarkers .
+the identification of novel or alternative multi - cancer biomarkers is also valuable because such biomarkers can represent different biological phenomena that may help to elucidate specific cancer features .
+for example cin70 was identified from chromosome instability32 , mes from mesenchymal transition66 , and lym from lymphocyte infiltration66 .
+our multi - nca biomarker represents a protein - network - based biomarker .
+in this context , our multi - nca biomarker does not share genes with other multi - cancer markers and shares only 5 genes with the ov biomarker also identified here .
+we tested diverse module evaluation functions in which we varied the reference cancer type .
+we observed that the biomarkers found , and their performance depended on this evaluation .
+these results have deep implications : the choice of the module - growth function is critical , the function used can be improved , and the approach can generate alternative markers .
+it would be interesting to explore other functions combined with more cancer types .
+recent results have explored the correlation between gene expression and genomic changes such as copy number alterations77 .
+in this context , the predictive power of the multi - nca biomarker appeared to be specific for gene expression because mutations and copy number alterations were not highly related ( supplementary table 6 ) .
+the search for mutation signatures associated with clinical outcomes is starting30 .
+given the sparseness of the mutational spectrum across cancers , it is difficult to realize that a general mutation signature could be found .
+it would be exciting to see whether approaches like our proposal are capable of providing interesting solutions .
+the identification of multi - cancer biomarkers may lead to proposals of novel diagnostic tools and therapeutic schemes .
+in this context , using dgidb78 we observed that 22 of the 41 genes of the multi - cancer biomarker were known drug targets ( supplementary table 7 ) .
+thus , our approach may also shed light on which targets can be assayed in future experiments .
+additional information how to cite this article : martinez - ledesma , e. et al. identification of a multi - cancer gene expression biomarker for cancer clinical outcomes using a network - based algorithm. sci. rep .
+5 , 11966 ; doi : 10.1038 / srep11966 ( 2015 ) .
+supplementary material supplementary information we thank conacyt and tecnologico de monterrey cat220 for funds .
+we also thank erica goodoff , guy cardineau , sean scott , and raquel cuevas for writing editions .
+the results shown here are in whole or part based upon data generated by the tcga research network : http :// cancergenome.nih.gov / .
+helpap b .
+& egevad l. modified gleason grading .
+an updated review . histol histopathol 24 , 661 - 666 ( 2009 ) .
+19283673 astler v. b. & coller f. a. the prognostic significance of direct extension of carcinoma of the colon and rectum . ann surg 139 , 846 - 852 ( 1954 ) .
+13159135 mutch d. m. , berger a .
+, mansourian r .
+, rytz a .
+& roberts m. a. microarray data analysis : a practical approach for selecting differentially expressed genes . genome biol 2 , preprint0009 ( 2001 ) .
+edge s. b. & compton c. c. the american joint committee on cancer : the 7th edition of the ajcc cancer staging manual and the future of tnm . ann surg oncol 17 , 1471 - 1474 , 10.1245 / s10434 - 010 - 0985 - 4 ( 2010 ) .
+20180029 brennan c. w. et al. the somatic genomic landscape of glioblastoma . cell 155 , 462 - 477 , 10.1016 / j.cell.2013.09.034 ( 2013 ) .
+24120142 network , c. g. a. r. integrated genomic analyses of ovarian carcinoma . nature 474 , 609 - 615 , 10.1038 / nature10166 ( 2011 ) .
+21720365 network , c. g. a. comprehensive molecular portraits of human breast tumours . nature 490 , 61 - 70 , 10.1038 / nature11412 ( 2012 ) .
+23000897 verhaak r. g. et al. integrated genomic analysis identifies clinically relevant subtypes of glioblastoma characterized by abnormalities in pdgfra , idh1 , egfr , and nf1 . cancer cell 17 , 98 - 110 , 10.1016 / j.ccr.2009.12.020 ( 2010 ) .
+20129251 alexandrov l. b. et al. signatures of mutational processes in human cancer . nature 500 , 415 - 421 , 10.1038 / nature12477 ( 2013 ) .
+23945592 zack t. i. et al. pan - cancer patterns of somatic copy number alteration . nat genet 45 , 1134 - 1140 , 10.1038 / ng.2760 ( 2013 ) .
+24071852 hamilton m. p. et al. identification of a pan - cancer oncogenic microrna superfamily anchored by a central core seed motif . nat commun 4 , 2730 , 10.1038 / ncomms3730 ( 2013 ) .
+24220575 han l. et al. the pan - cancer analysis of pseudogene expression reveals biologically and clinically relevant tumour subtypes . nat commun 5 , 3963 , 10.1038 / ncomms4963 ( 2014 ) .
+24999802 yu x. et al. the pan - cancer analysis of gene expression patterns in the context of inflammation . mol biosyst 10 , 2270 - 2276 , 10.1039 / c4mb00258j ( 2014 ) .
+24958091 martinez e. et al. comparison of gene expression patterns across 12 tumor types identifies a cancer supercluster characterized by tp53 mutations and cell cycle defects . oncogene , 10.1038 / onc.2014.216 ( 2014 ) .
+hoadley k. a. et al. multiplatform analysis of 12 cancer types reveals molecular classification within and across tissues of origin . cell 158 , 929 - 944 , 10.1016 / j.cell.2014.06.049 ( 2014 ) .
+25109877 yoshihara k. et al. inferring tumour purity and stromal and immune cell admixture from expression data . nature communications 4 , 11 , 10.1038 / ncomms3612 ( 2013 ) .
+byers l. a. et al. an epithelial - mesenchymal transition gene signature predicts resistance to egfr and pi3k inhibitors and identifies axl as a therapeutic target for overcoming egfr inhibitor resistance . clin cancer res 19 , 279 - 290 , 10.1158 / 1078 - 0432.ccr - 12 - 1558 ( 2013 ) .
+23091115 rung j .
+& brazma a. reuse of public genome - wide gene expression data . nat rev genet 14 , 89 - 99 , 10.1038 / nrg3394 ( 2013 ) .
+23269463 baker m. gene data to hit milestone . nature news 487 , 282 , 10.1038 / 487282a ( 2012 ) .
+finak g. et al. stromal gene expression predicts clinical outcome in breast cancer . nat med 14 , 518 - 527 , 10.1038 / nm1764 ( 2008 ) .
+18438415 li z. et al. identification of a 24 - gene prognostic signature that improves the european leukemianet risk classification of acute myeloid leukemia : an international collaborative study . j clin oncol 31 , 1172 - 1181 , 10.1200 / jco.2012.44.3184 ( 2013 ) .
+23382473 chen r. et al. a meta - analysis of lung cancer gene expression identifies ptk7 as a survival gene in lung adenocarcinoma . cancer res 74 , 2892 - 2902 , 10.1158 / 0008 - 5472.can - 13 - 2775 ( 2014 ) .
+24654231 peng z. et al. an expression signature at diagnosis to estimate prostate cancer patients' overall survival . prostate cancer prostatic dis 17 , 81 - 90 , 10.1038 / pcan.2013.57 ( 2014 ) .
+24394557 verhaak r. g. et al. prognostically relevant gene signatures of high - grade serous ovarian carcinoma . j clin invest 123 , 517 - 525 , 10.1172 / jci65833 ( 2013 ) .
+23257362 chibon f. et al. validated prediction of clinical outcome in sarcomas and multiple types of cancer on the basis of a gene expression signature related to genome complexity . nat med 16 , 781 - 787 , 10.1038 / nm.2174 ( 2010 ) .
+20581836 maak m. et al. independent validation of a prognostic genomic signature ( coloprint ) for patients with stage ii colon cancer . ann surg 257 , 1053 - 1058 , 10.1097 / sla.0b013e31827c1180 ( 2013 ) .
+23295318 paik s. et al. a multigene assay to predict recurrence of tamoxifen - treated , node - negative breast cancer . n engl j med 351 , 2817 - 2826 , 10.1056 / nejmoa041588 ( 2004 ) .
+15591335 venet d .
+, dumont j. e. & detours v. most random gene expression signatures are significantly associated with breast cancer outcome . plos comput biol 7 , e1002240 , 10.1371 / journal.pcbi.1002240 ( 2011 ) .
+22028643 ein - dor l .
+, zuk o .
+& domany e. thousands of samples are needed to generate a robust gene list for predicting outcome in cancer . proc natl acad sci usa 103 , 5923 - 5928 , 10.1073 / pnas.0601231103 ( 2006 ) .
+16585533 yuan y. et al. assessing the clinical utility of cancer genomic and proteomic data across tumor types . nat biotechnol 32 , 644 - 652 , 10.1038 / nbt.2940 ( 2014 ) .
+24952901 daves m. h. , hilsenbeck s. g. , lau c. c. & man t. k. meta - analysis of multiple microarray datasets reveals a common gene signature of metastasis in solid tumors . bmc med genomics 4 , 56 , 10.1186 / 1755 - 8794 - 4 - 56 ( 2011 ) .
+21736749 carter s. l. , eklund a. c. , kohane i. s. , harris l. n. & szallasi z. a signature of chromosomal instability inferred from gene expression profiles predicts clinical outcome in multiple human cancers . nat genet 38 , 1043 - 1048 , 10.1038 / ng1861 ( 2006 ) .
+16921376 glinsky g. v. , berezovska o .
+& glinskii a. b. microarray analysis identifies a death - from - cancer signature predicting therapy failure in patients with multiple types of cancer . j clin invest 115 , 1503 - 1521 , 10.1172 / jci23412 ( 2005 ) .
+15931389 starmans m. h. et al. robust prognostic value of a knowledge - based proliferation signature across large patient microarray studies spanning different cancer types . br j cancer 99 , 1884 - 1890 , 10.1038 / sj.bjc.6604746 ( 2008 ) .
+18985037 wan y. w. , qian y .
+, rathnagiriswaran s .
+, castranova v .
+& guo n. l. a breast cancer prognostic signature predicts clinical outcomes in multiple tumor types . oncol rep 24 , 489 - 494 ( 2010 ) .
+20596637 ben - porath i. et al. an embryonic stem cell - like gene expression signature in poorly differentiated aggressive human tumors . nat genet 40 , 499 - 507 , 10.1038 / ng.127 ( 2008 ) .
+18443585 tibshirani r .
+, hastie t .
+, narasimhan b .
+& chu g. diagnosis of multiple cancer types by shrunken centroids of gene expression . proc natl acad sci usa .
+jan 20 ; 99 , 6567 - 6572 ( 2002 ) .
+tibshirani r. the lasso method for variable selection in the cox model . stat med 16 , 385 - 395 ( 1997 ) .
+9044528 zou h .
+& hastie t. regularization and variable selection via the elastic net . journal of the royal statistical society : series b ( statistical methodology ) 67 , 301 - 320 , 10.1111 / j.1467 - 9868.2005.00503.x ( 2005 ) .
+yoshihara k. et al. high - risk ovarian cancer based on 126 - gene expression signature is uniquely characterized by downregulation of antigen presentation pathway . clin cancer res 18 , 1374 - 1385 , 10.1158 / 1078 - 0432.ccr - 11 - 2725 ( 2012 ) .
+22241791 park y. y. et al. development and validation of a prognostic gene - expression signature for lung adenocarcinoma . plos one 7 , e44225 , 10.1371 / journal.pone.0044225 ( 2012 ) .
+22970185 tusher v. g. , tibshirani r .
+& chu g. significance analysis of microarrays applied to the ionizing radiation response . proc natl acad sci usa .
+jan 20 ; 98 , 5116 - 5121 ( 2001 ) .
+stratford j. k. et al. a six - gene signature predicts survival of patients with localized pancreatic ductal adenocarcinoma . plos med 7 , e1000307 , 10.1371 / journal.pmed.1000307 ( 2010 ) .
+20644708 saeys y .
+, inza i .
+& larranaga p. a review of feature selection techniques in bioinformatics . bioinformatics 23 , 2507 - 2517 ( 2007 ) .
+17720704 moreau y .
+& tranchevent l. c. computational tools for prioritizing candidate genes : boosting disease gene discovery . nat rev genet 13 , 523 - 536 , 10.1038 / nrg3253 ( 2012 ) .
+22751426 chuang h. y. , lee e .
+, liu y. t. , lee d .
+& ideker t. network - based classification of breast cancer metastasis . mol syst biol 3 , 140 , 10.1038 / msb4100180 ( 2007 ) .
+17940530 li j .
+, roebuck , p. , grunewald , s .
+& liang , h. survnet : a web server for identifying network - based biomarkers that most correlate with patient survival data . nucleic acids res 40 , w123 - 126 , 10.1093 / nar / gks386 ( 2012 ) .
+22570412 wu g .
+& stein l. a network module - based method for identifying cancer prognostic signatures . genome biol 13 , r112 , 10.1186 / gb - 2012 - 13 - 12 - r112 ( 2012 ) .
+23228031 winter c. et al. google goes cancer : improving outcome prediction for cancer patients by network - based ranking of marker genes . plos comput biol 8 , e1002511 , 10.1371 / journal.pcbi.1002511 ( 2012 ) .
+22615549 taylor i. w. et al. dynamic modularity in protein interaction networks predicts breast cancer outcome . nat biotechnol 27 , 199 - 204 , 10.1038 / nbt.1522 ( 2009 ) .
+19182785 li j. et al. identification of high - quality cancer prognostic markers and metastasis network modules . nat commun 1 , 34 , 10.1038 / ncomms1033 ( 2010 ) .
+20975711 keshava prasad t. s. et al. human protein reference database - - 2009 update . nucleic acids res 37 , d767 - 772 , 10.1093 / nar / gkn892 ( 2009 ) .
+18988627 weinstein j. n. et al. the cancer genome atlas pan - cancer analysis project . nat genet 45 , 1113 - 1120 , 10.1038 / ng.2764 ( 2013 ) .
+24071849 bradburn m. j. , clark t. g. , love s. b. & altman d. g. survival analysis part ii : multivariate data analysis - - an introduction to concepts and methods . br j cancer 89 , 431 - 436 , 10.1038 / sj.bjc.6601119 ( 2003 ) .
+12888808 harrell f. e. , lee k. l. & mark d. b. multivariable prognostic models : issues in developing models , evaluating assumptions and adequacy , and measuring and reducing errors . statistics in medicine 15 , 361 - 387 ( 1996 ) .
+8668867 aguirre - gamboa r. et al. survexpress : an online biomarker validation tool and database for cancer gene expression data using survival analysis . plos one 8 , e74250 , 10.1371 / journal.pone.0074250 ( 2013 ) .
+24066126 subramanian a. et al. gene set enrichment analysis : a knowledge - based approach for interpreting genome - wide expression profiles . proceedings of the national academy of sciences of the united states of america 102 , 15545 - 15550 ( 2005 ) .
+16199517 huang da w .
+, sherman b. t. & lempicki r. a. systematic and integrative analysis of large gene lists using david bioinformatics resources . nat protoc 4 , 44 - 57 , 10.1038 / nprot.2008.211 ( 2009 ) .
+19131956 wagner e. f. & nebreda a. r. signal integration by jnk and p38 mapk pathways in cancer development . nat rev cancer 9 , 537 - 549 , 10.1038 / nrc2694 ( 2009 ) .
+19629069 hardie d. g. & alessi d. r. lkb1 and ampk and the cancer - metabolism link - ten years after . bmc biol 11 , 36 , 10.1186 / 1741 - 7007 - 11 - 36 ( 2013 ) .
+23587167 deroo b. j. & korach k. s. estrogen receptors and human disease . j clin invest 116 , 561 - 570 , 10.1172 / jci27987 ( 2006 ) .
+16511588 molloy n. h. , read d. e. & gorman a. m. nerve growth factor in cancer cell death and survival . cancers ( basel ) 3 , 510 - 530 , 10.3390 / cancers3010510 ( 2011 ) .
+24212627 li l .
+& davie j. r. the role of sp1 and sp3 in normal and cancer cell biology . ann anat 192 , 275 - 283 , 10.1016 / j.aanat.2010.07.010 ( 2010 ) .
+20810260 hanahan d .
+& weinberg r. a. hallmarks of cancer : the next generation . cell 144 , 646 - 674 , 10.1016 / j.cell.2011.02.013 ( 2011 ) .
+21376230 yu k. et al. a precisely regulated gene expression cassette potently modulates metastasis and survival in multiple solid cancers . plos genet 4 , e1000129 , 10.1371 / journal.pgen.1000129 ( 2008 ) .
+18636107 cheng w. y. , ou yang t. h. & anastassiou d. biomolecular events in cancer revealed by attractor metagenes . plos comput biol 9 , e1002920 , 10.1371 / journal.pcbi.1002920 ( 2013 ) .
+23468608 chao m. p. et al. calreticulin is the dominant pro - phagocytic signal on multiple human cancers and is counterbalanced by cd47 . sci transl med 2 , 63ra94 , 10.1126 / scitranslmed.3001375 ( 2010 ) .
+pinto - leite r. et al. genomic characterization of three urinary bladder cancer cell lines : understanding genomic types of urinary bladder cancer . tumour biol 35 , 4599 - 4617 , 10.1007 / s13277 - 013 - 1604 - 3 ( 2014 ) .
+24459064 yu j. et al. a novel set of dna methylation markers in urine sediments for sensitive / specific detection of bladder cancer . clin cancer res 13 , 7296 - 7304 , 10.1158 / 1078 - 0432.ccr - 07 - 0861 ( 2007 ) .
+18094410 sahlberg s. h. , spiegelberg d .
+, glimelius b .
+, stenerlow b .
+& nestor m. evaluation of cancer stem cell markers cd133 , cd44 , cd24 : association with akt isoforms and radiation resistance in colon cancer cells . plos one 9 , e94621 , 10.1371 / journal.pone.0094621 ( 2014 ) .
+24760019 shin s .
+, rossow k. l. , grande j. p. & janknecht r. involvement of rna helicases p68 and p72 in colon cancer . cancer res 67 , 7572 - 7578 , 10.1158 / 0008 - 5472.can - 06 - 4652 ( 2007 ) .
+17699760 ladner r. d. et al. dutp nucleotidohydrolase isoform expression in normal and neoplastic tissues : association with survival and response to 5 - fluorouracil in colorectal cancer . cancer res 60 , 3493 - 3503 ( 2000 ) .
+10910061 chatr - aryamontri a. et al. the biogrid interaction database : 2013 update . nucleic acids res 41 , d816 - 823 , 10.1093 / nar / gks1158 ( 2013 ) .
+23203989 turinsky a. l. , razick s .
+, turner b .
+, donaldson i. m. & wodak s. j. navigating the global protein - protein interaction landscape using irefweb . methods mol biol 1091 , 315 - 331 , 10.1007 / 978 - 1 - 62703 - 691 - 7 _ 22 ( 2014 ) .
+24203342 franceschini a. et al. string v9.1 : protein - protein interaction networks , with increased coverage and integration . nucleic acids res 41 , d808 - 815 , 10.1093 / nar / gks1094 ( 2013 ) .
+23203871 arnold p .
+, erb i .
+, pachkov m .
+, molina n .
+& van nimwegen e. motevo : integrated bayesian probabilistic methods for inferring regulatory sites and motifs on multiple alignments of dna sequences . bioinformatics 28 , 487 - 494 , 10.1093 / bioinformatics / btr695 ( 2012 ) .
+22334039 ojesina a. i. et al. landscape of genomic alterations in cervical carcinomas . nature 506 , 371 - + , 10.1038 / nature12881 ( 2014 ) .
+griffith m. et al. dgidb : mining the druggable genome . nat methods 10 , 1209 - 1210 , 10.1038 / nmeth.2689 ( 2013 ) .
+24122041 pandey s. n. , dixit m .
+, choudhuri g .
+& mittal b. lipoprotein receptor associated protein ( lrpap1 ) insertion / deletion polymorphism : association with gallbladder cancer susceptibility . int j gastrointest cancer 37 , 124 - 128 , 10.1007 / s12029 - 007 - 9002 - y ( 2006 ) .
+17987404 chin y. r. , yuan x .
+, balk s. p. & toker a. pten - deficient tumors depend on akt2 for maintenance and survival . cancer discov 4 , 942 - 955 , 10.1158 / 2159 - 8290.cd - 13 - 0873 ( 2014 ) .
+24838891 wakefield a. et al .
+bcl3 selectively promotes metastasis of erbb2 - driven mammary tumors . cancer res 73 , 745 - 755 , 10.1158 / 0008 - 5472.can - 12 - 1321 ( 2013 ) .
+23149915 bandini s. et al. early onset and enhanced growth of autochthonous mammary carcinomas in c3 - deficient her2 / neu transgenic mice . oncoimmunology 2 , e26137 , 10.4161 / onci.26137 ( 2013 ) .
+24228231 chien w. et al. expression of connective tissue growth factor ( ctgf / ccn2 ) in breast cancer cells is associated with increased migration and angiogenesis . int j oncol 38 , 1741 - 1747 , 10.3892 / ijo.2011.985 ( 2011 ) .
+21455569 mazurek a. et al .
+ddx5 regulates dna replication and is required for cell proliferation in a subset of breast cancer cells . cancer discov 2 , 812 - 825 , 10.1158 / 2159 - 8290.cd - 12 - 0116 ( 2012 ) .
+22750847 holst f. et al. estrogen receptor alpha ( esr1 ) gene amplification is frequent in breast cancer . nat genet 39 , 655 - 660 , 10.1038 / ng2006 ( 2007 ) .
+17417639 mange a. et al. serum autoantibody signature of ductal carcinoma in situ progression to invasive breast cancer . clin cancer res 18 , 1992 - 2000 , 10.1158 / 1078 - 0432.ccr - 11 - 2527 ( 2012 ) .
+22322670 langer s. et al. jun and fos family protein expression in human breast cancer : correlation of protein expression and clinicopathological parameters . eur j gynaecol oncol 27 , 345 - 352 ( 2006 ) .
+17009623 sum e. y. et al. overexpression of lmo4 induces mammary hyperplasia , promotes cell invasion , and is a predictor of poor outcome in breast cancer . proc natl acad sci usa 102 , 7659 - 7664 , 10.1073 / pnas.0502990102 ( 2005 ) .
+15897450 bauer j. a. et al. identification of markers of taxane sensitivity using proteomic and genomic analyses of breast tumors from patients receiving neoadjuvant paclitaxel and radiation . clin cancer res 16 , 681 - 690 , 10.1158 / 1078 - 0432.ccr - 09 - 1091 ( 2010 ) .
+20068102 natarajan t. g. et al. epigenetic regulator mll2 shows altered expression in cancer cell lines and tumors from human breast and colon . cancer cell int 10 , 13 , 10.1186 / 1475 - 2867 - 10 - 13 ( 2010 ) .
+20433758 rizki a. et al. a human breast cell model of preinvasive to invasive transition . cancer res 68 , 1378 - 1387 , 10.1158 / 0008 - 5472.can - 07 - 2225 ( 2008 ) .
+18316601 moody s. e. et al. prkaca mediates resistance to her2 - targeted therapy in breast cancer cells and restores anti - apoptotic signaling . oncogene 0 , 10.1038 / onc.2014.153 ( 2014 ) .
+stratford a. l. et al. targeting p90 ribosomal s6 kinase eliminates tumor - initiating cells by inactivating y - box binding protein - 1 in triple - negative breast cancers . stem cells 30 , 1338 - 1348 , 10.1002 / stem.1128 ( 2012 ) .
+22674792 reinholz m. m. et al. differential gene expression of tgf beta inducible early gene ( tieg ) , smad7 , smad2 and bard1 in normal and malignant breast tissue . breast cancer res treat 86 , 75 - 88 , 10.1023 / b : brea.0000032926.74216.7d ( 2004 ) .
+15218362 slyskova j. et al. functional , genetic , and epigenetic aspects of base and nucleotide excision repair in colorectal carcinomas . clin cancer res 18 , 5878 - 5887 , 10.1158 / 1078 - 0432.ccr - 12 - 1380 ( 2012 ) .
+22966016 zhang j. t. et al. downregulation of cftr promotes epithelial - to - mesenchymal transition and is associated with poor prognosis of breast cancer . biochim biophys acta 1833 , 2961 - 2969 , 10.1016 / j.bbamcr.2013.07.021 ( 2013 ) .
+23916755 ahmed d. et al. a tissue - based comparative effectiveness analysis of biomarkers for early detection of colorectal tumors . clin transl gastroenterol 3 , e27 , 10.1038 / ctg.2012.21 ( 2012 ) .
+23324654 bae j. a. et al. an unconventional kitenin / erbb4 - mediated downstream signal of egf upregulates c - jun and the invasiveness of colorectal cancer cells . clin cancer res 20 , 4115 - 4128 , 10.1158 / 1078 - 0432.ccr - 13 - 2863 ( 2014 ) .
+24893630 nagy n. et al. galectin - 8 expression decreases in cancer compared with normal and dysplastic human colon tissue and acts significantly on human colon cancer cell migration as a suppressor . gut 50 , 392 - 401 ( 2002 ) .
+11839721 slattery m. l. , lundgreen a .
+, herrick j. s. & wolff r. k. genetic variation in rps6ka1 , rps6ka2 , rps6kb1 , rps6kb2 , and pdk1 and risk of colon or rectal cancer . mutat res 706 , 13 - 20 , 10.1016 / j.mrfmmm.2010.10.005 ( 2011 ) .
+21035469 grabowski p. et al. heterogeneous expression of neuroendocrine marker proteins in human undifferentiated carcinoma of the colon and rectum . ann n y acad sci 1014 , 270 - 274 ( 2004 ) .
+15153444 spisak s. et al. applicability of antibody and mrna expression microarrays for identifying diagnostic and progression markers of early and late stage colorectal cancer . dis markers 28 , 1 - 14 , 10.3233 / dma - 2010 - 0677 ( 2010 ) .
+20164542 maldonado v .
+& melendez - zajgla j. role of bcl - 3 in solid tumors . mol cancer 10 , 152 , 10.1186 / 1476 - 4598 - 10 - 152 ( 2011 ) .
+22195643 weber r. g. , rieger j .
+, naumann u .
+, lichter p .
+& weller m. chromosomal imbalances associated with response to chemotherapy and cytotoxic cytokines in human malignant glioma cell lines . int j cancer 91 , 213 - 218 ( 2001 ) .
+11146447 romao l. f. et al. connective tissue growth factor ( ctgf / ccn2 ) is negatively regulated during neuron - glioblastoma interaction . plos one 8 , e55605 , 10.1371 / journal.pone.0055605 ( 2013 ) .
+23383241 nicolasjilwan m. et al. addition of mr imaging features and genetic biomarkers strengthens glioblastoma survival prediction in tcga patients . j neuroradiol , 10.1016 / j.neurad.2014.02.006 ( 2014 ) .
+russo a .
+& o'bryan j. p. intersectin 1 is required for neuroblastoma tumorigenesis . oncogene 31 , 4828 - 4834 , 10.1038 / onc.2011.643 ( 2012 ) .
+22266851 qiang l. et al. isolation and characterization of cancer stem like cells in human glioblastoma cell lines . cancer lett 279 , 13 - 21 , 10.1016 / j.canlet.2009.01.016 ( 2009 ) .
+19232461 beghini a. et al. the neural progenitor - restricted isoform of the mark4 gene in 19q13.2 is upregulated in human gliomas and overexpressed in a subset of glioblastoma cell lines . oncogene 22 , 2581 - 2591 ( 2003 ) .
+12735302 chang c. c. et al. connective tissue growth factor activates pluripotency genes and mesenchymal - epithelial transition in head and neck cancer cells . cancer res 73 , 4147 - 4157 , 10.1158 / 0008 - 5472.can - 12 - 4085 ( 2013 ) .
+23687336 rampias t. et al. ras / pi3k crosstalk and cetuximab resistance in head and neck squamous cell carcinoma . clin cancer res 20 , 2933 - 2946 , 10.1158 / 1078 - 0432.ccr - 13 - 2721 ( 2014 ) .
+24696319 menendez s. t. et al. frequent aberrant expression of the human ether a go - go ( heag1 ) potassium channel in head and neck cancer : pathobiological mechanisms and clinical implications . j mol med ( berl ) 90 , 1173 - 1184 , 10.1007 / s00109 - 012 - 0893 - 0 ( 2012 ) .
+22466864 muro - cacho c. a. , rosario - ortiz k .
+, livingston s .
+& munoz - antonia t. defective transforming growth factor beta signaling pathway in head and neck squamous cell carcinoma as evidenced by the lack of expression of activated smad2 . clin cancer res 7 , 1618 - 1626 ( 2001 ) .
+11410498 tan w. et al. role of inflammatory related gene expression in clear cell renal cell carcinoma development and clinical outcomes . j urol 186 , 2071 - 2077 , 10.1016 / j.juro.2011.06.049 ( 2011 ) .
+21944129 penzvalto z. et al. identifying resistance mechanisms against five tyrosine kinase inhibitors targeting the erbb / ras pathway in 45 cancer cell lines . plos one 8 , e59503 , 10.1371 / journal.pone.0059503 ( 2013 ) .
+23555683 spitz m. r. et al. variants in inflammation genes are implicated in risk of lung cancer in never smokers exposed to second - hand smoke . cancer discov 1 , 420 - 429 , 10.1158 / 2159 - 8290.cd - 11 - 0080 ( 2011 ) .
+22586632 chang c. c. et al. connective tissue growth factor and its role in lung adenocarcinoma invasion and metastasis . j natl cancer inst 96 , 364 - 375 ( 2004 ) .
+14996858 lu y. et al. a gene expression signature predicts survival of patients with stage i non - small cell lung cancer . plos med 3 , e467 , 10.1371 / journal.pmed.0030467 ( 2006 ) .
+17194181 karachaliou n. et al .
+brca1 , lmo4 , and ctip mrna expression in erlotinib - treated non - small - cell lung cancer patients with egfr mutations . j thorac oncol 8 , 295 - 300 , 10.1097 / jto.0b013e31827db621 ( 2013 ) .
+23407556 meng h. et al. stromal lrp1 in lung adenocarcinoma predicts clinical outcome . clin cancer res 17 , 2426 - 2433 , 10.1158 / 1078 - 0432.ccr - 10 - 2385 ( 2011 ) .
+21325077 kobayashi k. et al. identification of genes whose expression is upregulated in lung adenocarcinoma cells in comparison with type ii alveolar cells and bronchiolar epithelial cells in vivo . oncogene 23 , 3089 - 3096 , 10.1038 / sj.onc.1207433 ( 2004 ) .
+14755238 jin y. et al .
+nedd9 promotes lung cancer metastasis through epithelial - mesenchymal transition . int j cancer 134 , 2294 - 2304 , 10.1002 / ijc.28568 ( 2014 ) .
+24174333 lara r. et al. an sirna screen identifies rsk1 as a key modulator of lung cancer metastasis . oncogene 30 , 3513 - 3521 , 10.1038 / onc.2011.61 ( 2011 ) .
+21423205 szymanowska - narloch a. et al. molecular profiles of non - small cell lung cancers in cigarette smoking and never - smoking patients . adv med sci 58 , 196 - 206 , 10.2478 / ams - 2013 - 0025 ( 2013 ) .
+24451080 rolle c. e. et al. combined met inhibition and topoisomerase i inhibition block cell growth of small cell lung cancer . mol cancer ther 13 , 576 - 584 , 10.1158 / 1535 - 7163.mct - 13 - 0109 ( 2014 ) .
+24327519 kikuchi r. et al. promoter hypermethylation contributes to frequent inactivation of a putative conditional tumor suppressor gene connective tissue growth factor in ovarian cancer . cancer res 67 , 7095 - 7105 , 10.1158 / 0008 - 5472.can - 06 - 4567 ( 2007 ) .
+17671176 darb - esfahani s. et al. estrogen receptor 1 mrna is a prognostic factor in ovarian carcinoma : determination by kinetic pcr in formalin - fixed paraffin - embedded tissue . endocr relat cancer 16 , 1229 - 1239 , 10.1677 / erc - 08 - 0338 ( 2009 ) .
+19675076 neyns b. et al. expression of the jun family of genes in human ovarian cancer and normal ovarian surface epithelium . oncogene 12 , 1247 - 1257 ( 1996 ) .
+8649827 wang h. et al .
+nedd9 overexpression is associated with the progression of and an unfavorable prognosis in epithelial ovarian cancer . hum pathol 45 , 401 - 408 , 10.1016 / j.humpath.2013.10.005 ( 2014 ) .
+24439227 isaksson h. s. , sorbe b .
+& nilsson t. k. whole genome expression profiling of blood cells in ovarian cancer patients - prognostic impact of the cyp1b1 , mtss1 , ncald , and nop14 . oncotarget 5 , 4040 - 4049 ( 2014 ) .
+24961659 wang y. et al. ras - induced epigenetic inactivation of the rrad ( ras - related associated with diabetes ) gene promotes glucose uptake in a human ovarian cancer model . j biol chem 289 , 14225 - 14238 , 10.1074 / jbc.m113.527671 ( 2014 ) .
+24648519 davies s. et al. effects of bevacizumab in mouse model of endometrial cancer : defining the molecular basis for resistance . oncol rep 25 , 855 - 862 , 10.3892 / or.2011.1147 ( 2011 ) .
+21240464 li l .
+& guan k. l. microtubule - associated protein / microtubule affinity - regulating kinase 4 ( mark4 ) is a negative regulator of the mammalian target of rapamycin complex 1 ( mtorc1 ) . j biol chem 288 , 703 - 708 , 10.1074 / jbc.c112.396903 ( 2013 ) .
+23184942 pressinotti n. c. et al. differential expression of apoptotic genes pdia3 and map3k5 distinguishes between low - and high - risk prostate cancer . mol cancer 8 , 130 , 10.1186 / 1476 - 4598 - 8 - 130 ( 2009 ) .
+20035634 ito r. et al. usefulness of tyrosine hydroxylase mrna for diagnosis and detection of minimal residual disease in neuroblastoma . biol pharm bull 27 , 315 - 318 ( 2004 ) .
+14993794 the authors declare no competing financial interests .
+author contributions e.m. and v.t. designed the study and analyzed the data .
+r.g.w.v. contributed data , materials , analysis tools , and discussions .
+e.m. and v.t. wrote the manuscript with contributions from r.g.w.v. all authors commented and approved the final manuscript .
+figure 1 schematic representation of the network clinical association algorithm ( nca ) .
+starting from a single seed gene ( black ) , the first cycle generates modules that include the seed gene and each of the connected genes ( blue ) .
+the 6 modules of 2 genes are then evaluated by their goodness of fit in a cox survival model .
+only those grown modules that improve ( filled blue circles ) the evaluation are considered for the next grow cycle .
+only a proportion of the best improved modules are further explored in the next cycle ( represented by a percentage of the distribution of all modules , shown in green , evaluated in the 4th cycle ) .
+this procedure continues until no improvement is observed .
+the nca algorithm was run for each cancer type and for all cancer datasets ( multi - nca ) .
+figure 2 comparison of biomarkers generated by the network clinical association ( nca ) algorithm .
+panel a shows the number of genes that were included in any two biomarkers .
+underlined numbers represent the number of genes per biomarker .
+red indicates high overlaps and blue indicates no overlap .
+the " sum " row shows the total number of overlaps with other biomarkers while the " unique " row shows the number of unique genes that overlap .
+panel b shows the c - index evaluation of nca biomarkers ( rows ) across cancer datasets ( columns ) .
+underlined numbers represent the biomarkers evaluated within the cancer dataset .
+red indicates high values within the cancer dataset ( column ) and blue indicates low values .
+boldface and framed values represent significant predictions using 10,000 random models of the same length .
+the " average " row shows the average c - index per cancer type and the " average " column shows the mean c - index per biomarker .
+panel c shows the nca biomarkers ( horizontal ) evaluated in all datasets using c - index ( vertical axis ) .
+the mean is shown as a horizontal line .
+panel d shows cancer types ( horizontal ) evaluated with all biomarkers using c - index ( vertical axis ) .
+figure 3 the multi - nca biomarker identified when all databases were combined .
+panel a shows the genes and network identified .
+the connections correspond to data from the ppi database used .
+the most connected genes were prkaca , esr1 , lrp1 , smad2 and jun .
+panel b shows the risk group prediction ( splitting the prognostic index by the median ) of the multi - nca biomarker across cancer datasets .
+panel c depict the color - coded differential expression of genes between risk groups .
+darker red indicates more significant differences .
+the scales were estimated in - log10 of the t test p value .
+only p values < 0.01 are highlighted .
+darker purple indicates more significant hazard ratio associations within the cox model .
+the scales were expressed in - log10 of the z p value .
+only p values < 0.05 are highlighted .
+panel d shows , in the top , the curated biological terms and pathways associated with the genes composing the biomarker .
+the associations of genes with specific cancers based on the literature are shown at the bottom .
+figure 4 evaluation of all biomarkers in survexpress using c - index .
+pgc biomarker derived from other authors is not shown ( 0.74 for all datasets and 0.81 for per tissue ) to emphasize biomarkers with higher c - index values .
+table 1 cancer datasets used for our study .
+id type samples / censored platform blca bladder urothelial carcinoma 54 / 35 rna - seq brca breast invasive carcinoma 502 / 437 agilent coadread * colon and rectum adenocarcinoma 151 / 134 agilent gbm glioblastoma 538 / 116 affymetrix hnsc head and neck squamous cell 283 / 164 rna - seq kirc kidney renal clear cell 468 / 313 rna - seq laml acute myeloid leukemia 168 / 60 rna - seq luad lung adenocarcinoma 255 / 175 rna - seq lusc lung squamous cell 205 / 120 rna - seq ov ovarian serous cystadenocarcinoma 578 / 276 affymetrix ucec uterine corpus endometrial carcinoma 333 / 305 rna - seq multi all cancers above 3535 / 2135 * colon and rectal adenocarcinoma datasets ( coadread ) were fused as in the tcga pan - cancer analyses .
+table 2 networks modules obtained for each cancer type using the nca algorithm .
+type modules module size network - based biomarker size top genes * blca 10,303 10 41 smad2 , runx2 , abtb1 , st5 , cebpb , setdb1 , cebpg brca 485 9 42 jak2 , nfkbia , tbp , rxra , vav1 , hes5 , nfkbib coadread 252 13 36 eef1a1 , foxg1 , gadd45g , mapk9 , myoc , smad2 gbm 2,142 9 42 efemp2 , mapk3 , tp53 , top1 , ccdc6 , srebf1 , gja1 hnsc 661 9 41 dusp16 , krt8 , raf1 , med1 , pparg , ywhab , fabp1 kirc 2,841 4 41 ar , hgs , runx1 , bcl3 , brca1 , stat2 , itga8 laml 584 8 42 gucy2c , ptpra , src , stat5b , was , kcnq5 , calm1 luad 808 9 42 dok1 , fut4 , insr , itgb2 , shc1 , ptprc , khdrbs1 lusc 84 14 37 brca1 , ets2 , hif1a , jun , lmo4 , pias3 , rbbp7 ov 421 9 42 tbp , lck , esr2 , rb1 , jun , eef1a1 , bcl3 ucec 1,570 10 41 crebbp , gtf2b , csnk2a1 , ctnnb1 , hoxd4 , hipk1 , pten multi 2 44 41 ** esr1 , prkaca , lrp1 , jun , smad2 , snap25 , itns1 * the complete lists of genes and samples used are shown in supplementary table 1 .
+** highest connected genes .
+genes in boldface type are repeated more than once in this list .
+table 3 cox model results showing how well the multi - nca cancer biomarker fit across datasets .
+cancer type c - index log rank test cox p - value significant genes differential expressed genes blca 1.00 6.3 3.3 0 0 brca 0.80 9.4 7.8 11 17 coadread 1.00 4.7 2.5 7 8 gbm 0.65 5.8 5.7 8 19 hnsc 0.75 7.7 7.0 9 15 kirc 0.74 8.7 8.1 5 21 laml 0.77 11 9.6 9 10 luad 0.81 5.1 4.7 13 16 lusc 0.77 8.5 7.4 13 9 ov 0.66 9.2 5.8 11 18 ucec 0.92 5.7 3.5 19 13

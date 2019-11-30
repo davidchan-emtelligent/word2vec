@@ -1,0 +1,534 @@
+nucleic acids res nucleic acids res nar nar nucleic acids research 0305 - 1048 1362 - 4962 oxford university press 24875477 4081082 10.1093 / nar / gku465 computational biology cooperative gene regulation by microrna pairs and their identification using a computational workflow schmitz ulf 1 * lai xin 2 winter felix 1 wolkenhauer olaf 13 vera julio 2 gupta shailendra k .
+14 1 department of systems biology and bioinformatics , university of rostock , rostock , germany 2 laboratory of systems tumor immunology , department of dermatology , university hospital erlangen , friedrich - alexander - university erlangen - nuremberg , germany 3 stellenbosch institute for advanced study ( stias ) , wallenberg research centre at stellenbosch university , stellenbosch , south africa 4 department of bioinformatics , csir - indian institute of toxicology research , 226001 lucknow , uttar pradesh , india * to whom correspondence should be addressed .
+tel : + 49 381 498 7576 ; fax : + 49 381 498 7572 ; email : ulf.schmitz @ uni - rostock.de 01 8 2014 28 5 2014 28 5 2014 42 12 7539 7552 10 5 2014 18 4 2014 22 12 2013 ( c ) the author ( s ) 2014 .
+published by oxford university press on behalf of nucleic acids research .
+2014 this is an open access article distributed under the terms of the creative commons attribution license ( http :// creativecommons.org / licenses / by / 3.0 /) , which permits unrestricted reuse , distribution , and reproduction in any medium , provided the original work is properly cited .
+micrornas ( mirnas ) are an integral part of gene regulation at the post - transcriptional level .
+recently , it has been shown that pairs of mirnas can repress the translation of a target mrna in a cooperative manner , which leads to an enhanced effectiveness and specificity in target repression .
+however , it remains unclear which mirna pairs can synergize and which genes are target of cooperative mirna regulation .
+in this paper , we present a computational workflow for the prediction and analysis of cooperating mirnas and their mutual target genes , which we refer to as rna triplexes .
+the workflow integrates methods of mirna target prediction ; triplex structure analysis ; molecular dynamics simulations and mathematical modeling for a reliable prediction of functional rna triplexes and target repression efficiency .
+in a case study we analyzed the human genome and identified several thousand targets of cooperative gene regulation .
+our results suggest that mirna cooperativity is a frequent mechanism for an enhanced target repression by pairs of mirnas facilitating distinctive and fine - tuned target gene expression patterns .
+human rna triplexes predicted and characterized in this study are organized in a web resource at www.sbi.uni - rostock.de / triplexrna / .
+cover - date2014 introduction micrornas ( mirnas ) are a well conserved and abundant class of ~ 22 nt long functional rna molecules that regulate the expression of most protein coding genes at the post - transcriptional level ( 1 ) .
+multiple predictions and growing experimental evidence suggest that many genes are targets of concerted mirna regulation ( 1 - 3 ) .
+their expression is fine - tuned through a cellular context - dependent regulation by multiple mirnas , where mirnas can either induce translational repression or target mrna degradation ( 4 ) .
+thereby , the mirna - target regulation machinery can realize elaborate gene control functions , including noise buffering or homeostasis , and can ultimately mediate distinct target expression patterns appropriate to the demand of different biological processes ( 3,5,6 ) .
+however , deregulated mirnas have also been associated with the pathogenesis and the progression of many diseases , including cancer ( 7 ) .
+another remarkable aspect about mirnas is that they provide a valuable source for diagnostic and prognostic markers for a growing number of human pathologies ; especially those mirnas found in body fluids ( 8,9 ) .
+besides , mirnas became a popular subject for the design of novel therapeutic interventions .
+for details see the reviews by seto ( 10 ) and kasinski and slack ( 11 ) .
+the phenomenon of cooperating mirnas has , so far , not received extensive attention .
+it has been shown that pairs of mirnas can synergistically regulate mutual targets to facilitate a more effective target repression ( 3,12 - 13 ) , while the distance between the seed binding sites of a mirna duet may affect the strength of target down - regulation ( 14 ) .
+in this context , saetrom et al. were able to determine an optimal seed site distance ( 13 - 35 nt ) for mirna cooperation ( 13 ) .
+the concept of mirna cooperativity implies a possible sophisticated mechanism of regulation of mirna targets ( figure 1 ) .
+for example , we have shown previously that higher quantities of mirnas , as well as the phenomenon of synergistic target regulation , can work as an efficient noise buffer for target expression triggered by external stimuli ( 3 ) .
+furthermore , selective expression of cooperating mirnas could be adopted by cells to facilitate distinctive and fine - tune gene expression patterns to meet the requirements in different biological scenarios ( 3,15 ) .
+so far , only a few cases of synergistic target regulation by cooperating mirnas have been identified and confirmed .
+vella et al. were the first to validate this phenomenon in caenorhabditis elegans ( 12 ) .
+later , this was confirmed in hela cells by saetrom et al. , who also determined the seed distance constraint required for optimal target repression ( 13 ) .
+in our own previous work we have analyzed this phenomenon and validated it in human sk - mel - 147 melanoma cells for the case of p21 which is regulated by mirna - 93 and mir - 572 ( 3 ) .
+figure 1 .
+general principle of cooperative target regulations by pairs of mirnas .
+the illustration on the left shows how a target mrna can be repressed by either a single mirna or by a pair of cooperating mirnas .
+while in the first case mirna and target form a duplex structure , the second case leads to the formation of a rna triplex .
+on the right side , we illustrated the repressive effect on the target that is induced either by a single mirna ( red and blue lines ) or by two cooperating mirnas ( green dashed line ) .
+even if the expression of the cooperating mirnas is only mildly up - regulated an enhanced repressive effect can be observed as compared to the cases where single mirnas are highly up - regulated .
+in the present work , we propose a workflow for the identification and analysis of novel animal rna triplexes composed of two cooperating mirnas and a mutual target mrna .
+we have implemented the workflow and analyzed the human genome for cases of putatively cooperating mirnas and their respective common targets .
+more specifically , we first made a whole human genome analysis in order to identify putative rna triplexes based on predicted target sites and their respective seed site distance .
+second , we analyzed the local secondary structure of the identified triplexes and computed the equilibrium probabilities of the inherent complexes ( based on a partition function ) .
+then , we determined their thermodynamic profiles by performing molecular dynamics simulations ( mds ) .
+finally , we constructed a kinetic model of synergistic target regulation by cooperating mirnas and simulated the target repression efficiency .
+in summary , our results indicate that the phenomenon of cooperative mirna - target repression is a prevalent mechanism of post - transcriptional gene regulation that affects thousands of human genes .
+to make our results available to the public we have designed a database named as triplexrna .
+the database contains all predicted human target genes of synergistic mirna regulation , including graphical illustrations of triplex secondary structures , their gibbs - free energies ( i.e. triplex - free energies ) and predicted equilibrium concentrations .
+the database can be accessed at : www.sbi.uni - rostock.de / triplexrna / .
+materials and methods predicted and validated microrna target interactions miranda ( 16 ) predicted mirna binding sites in human target genes were extracted from the microrna.org web site ( hg19 _ predictions _ s _ c _ aug2010.txt ) .
+we chose miranda because of its high sensitivity and large relative overlap with other prediction algorithms ( 17,18 ) .
+however , only those target sites of conserved mirnas and with good prediction scores ( mirsvr score ) were considered .
+experimentally validated mirna - target interactions were derived from the mirtarbase database ( 19 ) .
+secondary structure and minimum free energy prediction 3 ' untranslated region ( utr ) sequences of target genes were extracted from the refseq gene track of the university of california santa cruz ( ucsc ) table browser ( grch37 / hg19 ; ( 20 )) .
+mirna sequences were extracted from the mirbase database ( release 20 ; ( 21 )) .
+for structure prediction of the rna complexes , sequences of mature mirnas and the target subsequence that encloses both mirna target sites were used .
+secondary structure and triplex - free energy ( tfe ; a.k.a. gibbs - free energy deltag ) of rna triplexes were determined with the mfe tool from the nupack software package ( 22 ) .
+in nupack the full partition function ( except for pseudo - knots ) of rna complexes is computed in dilute solution .
+rna triplexes as depicted in supplementary figure s1 were visualized using the command line version of the rna structure drawing tool varna ( version 3.9 ; ( 23 )) .
+statistical analysis all statistical analyses were performed using the r statistical computing software ( version 3.0.1 ) .
+3d structure modeling and mds 3d model design for the detailed 3d model of two mirna - argonaute hybrids ( mir - 20a / hago2 ) attached to one stretch of target 3 ' utr ( neurl1b mrna ) we retrieved the crystal structure of mir - 20a / hago2 determined by elkayam et al .
+( 24 ) through x - ray crystallography from the protein data bank ( pdb id : 4f3t ) .
+all nucleotides and amino acid residues missing in the complex were modeled using accelrys ( r ) discovery studio package .
+the accuracy of the modeled mir - 20a was ascertained by calculating the backbone root - mean - square deviation of its selected bases from the template which was less than 4 a. for the construction of initial complexes of mrna with two mir - 20a / hago2 hybrids , we used the patchdock web server that performs docking between macromolecules based on shape complementarity principles ( 25 ) by providing mrna - mirna binding site information. from various docking poses suggested by the patchdock server , we manually inspected every pose and selected the best complex which has maximum number of interacting bases between mrna and mirna along with a preserved seed binding .
+we optimized the structure using the smart minimizer algorithm in accelrys ( r ) discovery studio .
+however , because of the unavailability of crystal structures of other mirnas in complex with argonaute ( ago ) and computational feasibility we modeled the 3d structure of other rna triplexes and their intrinsic rna duplexes without considering ago in the following way : initial tertiary structure of the rna triplexes as well as their two intrinsic rna duplexes ( mrna + mirna1 and mrna + mirna2 ) were computed using the rnacomposer web server ( 26 ) .
+rnacomposer is a fully automated tool for constructing large rna 3d structures from user provided secondary structure information .
+therefore , the local secondary structures of the rna complexes ( bracket notation of concatenated rnas units ) were used as input .
+the retrieved 3d structures were edited using the build and edit nucleic acid tool in accelrys ( r ) discovery studio 3.5 to separate the three rna units in the complex : first , the phosphodiester bonds were deleted that connect ( i ) the last base of mrna and first base of mirna1 ; ( ii ) last base of mirna1 and first base of mirna2 .
+second , the capnucleotide function was used to change the phosphate group at 5 ' of all the rna units to a hydroxyl group so that two consecutive nucleotides of various rna units cannot form phosphodiester bonds with each other in the complex .
+after structure editing , the charmm27 force field was assigned to the rna complexes , which is a superset of the charmm22 force field with the additional coverage for nucleic acids ( 27,28,29 ) .
+the nucleic acids parameters of the charmm27 force field have been successfully used in many mds studies involving rna in the past ( 30 - 32 ) .
+the geometry of the initial 3d structure of rna complexes was optimized using the smart minimizer protocol available in accelrys ( r ) discovery studio 3.5 to remove steric overlap that produces bad contacts .
+the smart minimizer was run for a maximum of 5000 steps with the minimization rms gradient tolerance of 0.1 kcal /( mol x a ) to exit from the minimization routine in case the average gradient is less than or equal to the tolerance .
+mds setup mds were performed using the simulation protocol available with accelrys ( r ) discovery studio 3.5 .
+the optimized structure of the complexes was heated gradually from 50 to 300 k by scaling the velocity of each atom in a total of 10 000 steps with the iteration time step of 1 fs in order to prepare the system for the production run .
+after the heating phase , equilibration was performed to stabilize the system around the target temperature of 300 k by periodically reassigning velocities to each atom .
+the initial velocity of all the atoms was taken from the maxwellian distribution at temperature 300 k by employing leapfrog verlet algorithms with the time step of 1 fs for 10 000 steps .
+rna complexes were verified for their stability after the equilibration phase .
+for stable complexes , md production simulations were performed for initially 100 ps duration .
+the canonical thermodynamic ensemble , i.e. constant - temperature and constant - volume ensemble ( nvt ) was selected for the production run .
+the motions of the molecules were recorded in the form of an output trajectory after every 1000 steps .
+hydrogen bond monitors were applied to trajectory frames to investigate the stability of mrna and mirnas interactions during the course of simulation .
+the production phase for stable complexes after 100 ps of initial run was further extended for another 400 ps to check the stability of the rna complexes .
+all the simulation steps were carried out in the generalized born with a simple switching ( gbsw ) implicit solvent model for the better approximation of the solvent effect on the complex .
+gbsw has been made computationally less expensive by replacing its computationally expensive molecular surface approximation with a van der waals - based surface with a smooth dielectric boundary ( 33 ) .
+the implicit solvent dielectric constant was set to 80 .
+lower and higher cutoff distance for non - bonded interactions were set to 10 and 12 a. the non - bonded lists were maintained for the atom pairs within the distance of 14 a beyond which the non - bonded interactions were ignored .
+input atomic radii were taken from nina et al. as recommended for the charmm27 force field ( 34 ) .
+shake constraint was applied to fix all bonds involving hydrogen bonds .
+complex equilibrium concentrations the equilibrium concentrations in dilute solution for all considered complexes were computed using the tools complexes and concentrations ( nupack package ; ( 22 )) and were based on an initial concentration of 100 nm ( nanomolar ) for each rna species involved .
+the equilibrium concentrations of rna triples were used for parameterizing the kinetic model of synergistic target regulation by pairs of mirnas .
+kinetic model calibration and simulation equilibrium concentrations of rna triples and the potential energy values of inherent duplexes and the triplexes were used to characterize the association and disassociation rate constants of duplexes and triplexes , respectively .
+the calibrated model was used to simulate the repression of the target genes by the cooperative mirna pairs .
+to this end , the parameters accounting for the expression of the two mirnas ( tfmirnai ) were modulated in an interval of [ 10 - 1 102 ] which represents the down - and up - regulation of the mirnas .
+the steady states of the target protein were computed for different combinations of mirna expression .
+due to the normalization mentioned above , the target expression levels computed were constrained between 0 ( target is silenced ) and 1 ( no repression ) .
+simulations were performed using copasi version 4.11 ( 35 ) .
+results workflow for the identification and analysis of rna triplexes our proposed workflow for the identification and analysis of rna triplexes in animal genomes includes six steps that sequentially increase the level of detail and confidence in the functionality of the predicted synergistic target regulation ( figure 2 ) .
+these six steps include : ( i ) the identification of mirna target sites in the 3 ' utr of gene targets ; ( ii ) the identification of putatively cooperating mirna pairs with target sites in close proximity ; ( iii ) the prediction and analysis of the local secondary structure of the predicted rna triplexes ; ( iv ) the prediction of the 3d triplex structure including ago and the determination of the triplex thermodynamic profile by mds ; ( v ) the determination of equilibrium concentrations ( respectively binding affinities ) of the inherent rna complexes ( monomers , duplexes and triplexes ) and ( vi ) the determination of the target repression efficiency by simulations of a kinetic model .
+figure 2 .
+workflow diagram .
+the diagram shows the six steps that we propose for the identification of gene targets that are efficiently regulated by two cooperating mirnas .
+in each step the diagram indicates the approach used and the expected results. by advancing toward the end of the workflow only the most significant candidates from the initial set will remain .
+in the following paragraphs we motivate and discuss each of the six steps in the computational identification and analysis of rna triplexes .
+we then show how to implement the workflow and apply it on the human genome for the identification of cooperating human mirnas and their mutual target genes .
+step 1 - mirna target site identification in this step target sites of mirnas in mrna transcripts are predicted .
+functional target sites are typically found in the 3 ' utr of the mrna .
+there is a plethora of mirna target prediction algorithms available .
+some use sequence , contextual , structural and / or evolutionary constraints for their predictions .
+others are trained with experimental data from mirna transfection / knockout experiments .
+different mirna target prediction approaches have been reviewed , for example , in ( 34,36 - 37 ) .
+obviously , the most reliable target sites can only be inferred from experimental evidence .
+approaches for the experimental validation of mirna target sites are discussed in ( 38 ) .
+step 2 - target site distance determination target sites with seed site distances ranging between 13 and 35 nt in the 3 ' utr of target mrnas are identified ( 13 ) .
+these neighboring target sites are considered the basis for synergistic target regulation .
+therefore , mirna pairs that can hybridize with these sites can induce an enhanced target repression by a cooperative action on their mutual target .
+computational predictions suggest that many genes have multiple , sometimes dozens of mirna target sites in their 3 ' utr .
+based on that , one can also detect a large number target sites in close proximity .
+however , it is likely that not all of the so detected putative rna triplexes will be functional .
+rather , one will retrieve a significant number of false positive predictions .
+it is , therefore , necessary to perform a more comprehensive analysis of target site pairs and their respective mirnas in order to identify functional rna triplexes in terms of synergistic target regulation and to minimize false positive predictions .
+the following steps in our workflow provide an in silico analysis pipeline which can be used to enhance accuracy in the search for candidates of synergistic target regulation and reduce the risk of experimental failure in the attempt to validate functional triplexes .
+step 3 - secondary structure prediction and analysis in the third step , the local secondary structure of putative rna triplexes is predicted .
+one reason to do this is the possibility to see if the seed bindings of both mirnas are being preserved in the minimum free energy structure of the triplexes ( supplementary figure s1 ) .
+the seed binding has been described as a crucial factor in functional mirna - target interactions ( 39,40 ) .
+furthermore , from the predicted free energy one can evaluate the thermodynamic stability of an rna complex .
+hybridization energy values are frequently used as feature in algorithms for the identification of functional mirna - mrna duplexes ( 41,42 ) .
+thus , more stable triplexes may likewise enable more efficient target repression .
+due to the importance of structure stability for triplex function , we further propose a more comprehensive approach to predict the energy profiles of rna triplexes , which builds on the secondary structure .
+step 4 - molecular dynamics simulation the fourth step of our workflow proposes the prediction and analysis of detailed 3d models of cooperative target regulation composed of two mirna - ago hybrids attached to the 3 ' utr of the target mrna , followed by thermodynamic profiling by performing mds .
+for a realistic model we require the crystal structure of the mirnas in complex with ago .
+as the crystal structure is unavailable for most mirna - ago complexes we suggest modeling rna triplex structures without incorporating ago instead .
+thereby , the computational complexity is reduced and analytical throughput will be increased .
+in this case , the tertiary triplex structure is predicted based on the local secondary structure .
+methods for template - based and template - free rna 3d structure modeling have been reviewed in ( 43 ) .
+based on the mds those rna triplexes can be identified that are thermodynamically more stable than their inherent mrna - mirna duplex structures .
+results from this and the following step are pre - requisites for the prediction of the target repression efficiency and the synergistic effect achieved by the cooperating mirnas .
+step 5 - equilibrium concentration prediction here , we suggest predicting the equilibrium concentrations ( binding affinities ) of the inherent monomers and complexes ( duplex and triplex ) .
+a partition function algorithm can be used , in case of a fixed volume ( of dilute solution ) , to compute the equilibrium probability distribution of each possible complex that can be formed by the mirna pair and its target ( 44 ) .
+thus , equilibrium concentrations of single molecules , duplexes and triplexes are computed based on a given initial concentration .
+the results are used to infer , whether molecular binding affinities will predominantly lead to the formation of rna triplexes which may be required for cooperative mirna target regulation .
+step 6 - repression efficiency calculation ultimately , we suggest estimating the target repression efficacy and the synergistic effect achieved by the cooperating mirnas by performing mechanistic model simulations .
+here , a mechanistic model of the involved reactions , including rnas syntheses , complex formations / dissociations and degradations , is used to simulate target steady states for different concentrations of the regulatory mirnas. by comparing different scenarios ( as described in the case study further below ) one can determine if a mirna pair cooperates in the target regulation ( synergistic phenomenon ) or , in contrary , just coregulates its mutual target ( additive regulation ) .
+we have implemented and applied the proposed workflow in order to identify all human rna triplexes composed of two cooperating mirnas and a mutual target .
+this case study will be described in detail in the following paragraphs .
+identification and analysis of human rna triplexes we derived a collection of putatively cooperating mirnas and their mutual targets by first extracting predicted mirna target interactions from the microrna.org repository , which is based on the miranda target prediction algorithm ( 16,45 ) .
+the miranda algorithm , which uses sequence composition , conservation and thermodynamic stability as criteria for predicting mirna target sites , is a rather sensitive method , but has the highest relative overlap with predictions from other algorithms ( 36 ) .
+therefore , we consider miranda as a representative of the majority of existing mirna target prediction algorithms .
+seed site distance saetrom et al. disclosed a distance constraint of 13 - 35 nt for target sites of cooperating mirnas ( 13 ) .
+based on this constraint and the predicted mirna target interactions we identified 17 259 human genes ( out of 19 898 ; ~ 87 %) as putative targets of cooperative post - transcriptional regulation by 29 060 distinct mirna pairs .
+see the frequency of triplex numbers predicted for genes in figure 3 .
+in the course of the proposed workflow the number of target genes decreased with each of the following steps , toward a smaller subset of high - confidence targets .
+figure 3 .
+histogram of triplex counts per single gene target in the human genome .
+based on predicted mirna - target interactions and the constraint for putative triplexes to be formed when seed site distances are in the range of 13 - 35 nt we can observe that most genes can form dozens of triplexes with pairs of cooperating mirnas , while in some cases even more than hundred triplexes are possible with a single gene ( blue bars ; y - axis has been truncated ; frequencies for values > 250 have been added up at the right - most tick mark on the x - axis ) .
+however , this is not a realistic scenario and therefore we suggest to apply cut - offs for the predicted triplex equilibrium concentrations ( e.g. tec > 50 nm , green bars ) and for the predicted tfe ( e.g. tfe <= - 41.24 kcal / mol , red bars ) .
+this leads to a reduction in the number of predicted triplexes as per gene and results a set of stable high - confidence triplexes composed of two cooperating mirnas and a mutual target .
+we plotted histograms of the seed site distance frequencies for different triplex structure conformations in supplementary figure s2 .
+however , among the identified target site pairs we did not observe any preferential seed distance , despite a frequency decline toward larger distances .
+conservation there is evidence that targets with conserved seed sites face stronger mirna - mediated repression ( 1 ) , which is in line with the observations made by ( 46 ) who found an enrichment of down - regulated targets with conserved mirna binding sites in mirna transfection experiments .
+this suggests that target site conservation is a valid determinant for functional mirna - target regulation .
+surprisingly , we observed that triplexes with pairs of strongly conserved target sites tend to have lower predicted triplex equilibrium concentrations , i.e. in these scenarios triplex formation is not favored ( supplementary figure s3 ; conservation based on phastcons score ; ( 47 )) .
+in contrary , weakly conserved target site pairs tend to have higher predicted triplex concentrations .
+one possible explanation for this observation is that mirnas with strongly conserved target sites are inherently effective regulators of the corresponding target gene , whereas weakly conserved target sites are often non - functional and require support by a second proximate mirna target site to enhance , through synergy , the repression of the target .
+interestingly , this trend cannot be observed for the mrna - mirna duplexes that may arise from rna triples ( supplementary figure s3 ) .
+however , by solely considering the predicted mirna target sites and the seed distance constraint we found that each mirna is putatively cooperating with almost all ( or all ) other mirnas in the regulation of some target mrna .
+obviously , these criteria are not enough for the identification of functional rna triplexes .
+rather , we have to determine if rna triples form thermodynamically stable triplexes and if there exists a strong binding affinity among the involved molecules .
+these criteria are additional pre - conditions for a cooperative target regulation .
+therefore , we determined the local secondary structure for the predicted triplexes and analyzed it for conformational and architectural patterns .
+segregating non - functional triplexes by free energy and free energy gain values secondary structure predictions revealed rna triples which are energetically in favor of a mirna - mrna duplex and leave one mirna isolated .
+we discarded these triplexes from further analysis ( see the supplementary materials for more information on structural conformations of rna triplex secondary structures ) .
+this reduced the number of putative target genes from 17 259 to 15 062 genes .
+along with the local secondary structure we predicted the tfe , respectively , gibbs - free energy ( deltagtriplex ) .
+according to muckstein et al. the efficiency of rna interference correlates with the binding energies of sirnas / mirnas to their respective mrna target ( 48 ) .
+this suggests that thermodynamic stability of rna triplexes may be a crucial determinant for mirna cooperativity and the strength of synergistic target repression .
+thus , the number of candidates for synergistic target regulation will certainly reduce by applying a filter that discards rna triplexes with a predicted tfe higher than a certain cut - off .
+for example , the average number of cooperation partners per mirna drops from 242.29 ( no cut - off ) to 23.0 by applying a cut - off at deltagtriplex = - 41.24 kcal / mol , while the number of targets is reduced to 1779 genes only .
+this cut - off value is 3 standard deviations below the mean tfe of all predicted rna triplexes ( z = 3 ) .
+this z - value was proposed in ( 49 ) for mirna - target duplexes .
+furthermore , we compared the tfe values of the predicted triplexes with the conceivable duplexes formed by the components of a rna triple ( deltadeltag = deltagtriplex - deltagduplex _ min ) .
+in 674 310 predicted rna triplexes , we found only one case ( mir - 137 : : myb : : mir - 374a ) where duplex formation was slightly beneficial in terms of free energy ( deltagtriplex = - 9.56 ; deltadeltag = 0.22 ) .
+however , in this case seed bindings of the involved mirnas were not preserved in the predicted triplex structure .
+nevertheless , we observed that the free energy gained through triplex formation can be small , e.g. in case of mir - 1 : : pros1 : : mir - 320b ( deltagtriplex = - 24.16 ; deltadeltag = - 0.48 ) but also rather high as in case of mir - 197 : : cntn5 : : mir - 320a ( deltagtriplex = - 43.06 kcal / mol ; deltadeltag = - 24.08 kcal / mol ) .
+thus , determining the tfe gain ( deltadeltag ) has been used as another step toward the identification of stable and effective rna triplexes .
+the rna triplex structure that includes mirna - mirna hybridization is typically built at the cost of seed site preservation , i.e. for at least one of the two mirnas the 5 ' end is not hybridizing with the designated seed site in the target but with the 3 ' end of the other mirna ( see , for example , supplementary figure s4d ) .
+as seed binding is crucial for efficient target repression ( 39,40 ) , we discarded this structural conformation from the set of rna triplex candidates , which reduces the number of target genes to 14 956 , when no other filter is applied. by discarding all other triplexes that have no preserved seed bindings the number of targets was reduced to 14 527 .
+the role of ago proteins in rna triplexes mirnas are embedded in the rna - induced silencing complex when exerting their function .
+more specifically they are bound to ago proteins which they guide to their designated target sites .
+to know more about the interplay of two cooperating mirnas with ago and their mutual target mrna we adopted 3d modeling and investigated the impact of ago on the rna triplex ' binding affinity .
+therefore , we utilized the structure of human argonaute - 2 ( hago2 ) in complex with mir - 20a previously generated by elkayam et al .
+( 24 ) at 2.2 a resolution ( pdb id : 4f3t ) as basis for 3d modeling .
+among the previously identified putative targets of synergistic mirna regulation , we found two mrnas , namely , neurl1b and zbtb24 , with two mir - 20a binding sites that reside in close proximity .
+we selected the neurl1b - mir - 20a - mir - 20a triplex to observe if ago proteins have any impact on the stability of mirna - mrna hybridization in neighboring binding sites .
+for the analysis we built three models : ( i ) mir - 20a / hago2 attached to the first binding site in neurl1b mrna ; ( ii ) mir - 20a / hago2 attached to the second binding site and ( iii ) one mir - 20a / hago2 complex attached to each of the two neighboring binding sites in the neurl1b mrna .
+all three 3d models are depicted in figure 4 .
+figure 4 .
+neurl1b mrna and mir - 20a / hago2 interaction .
+( a ) mir - 20a / hago2 complex hybridized to the first binding site in neurl1b mrna .
+( b ) mir - 20a / hago2 complex hybridized to the second binding site in neurl1b mrna .
+( c ) one mir - 20a / hago2 complex attached to each of the two neighboring binding sites in the neurl1b mrna .
+mir - 20a as stick model is colored in green at the first binding site and colored in red at second binding site .
+both ago proteins are shown as solid ribbon and amino acid residues are colored in a continuous gradient from blue at the n - terminus through white to red at the c - terminus .
+neurl1b mrna 3 ' utr fragments are depicted as yellow backbone with ladder - shaped base pairs .
+in the rna triplex shown in ( c ) , a black circle indicates the position of the interacting amino acid residue ( ago1 : thr555 - ago2 : arg110 ) between the two ago proteins .
+interestingly , we observed that the complex with two sets of mir - 20a / hago2 bound to neurl1b was more stable ( potential energy : - 61,822.58 kcal / mol ) than both complexes with a single unit of mir - 20a / hago2 ( potential energy : - 34,129.67 and - 23,869.30 kcal / mol ) .
+the 3d model of the rna triplex in association with two ago proteins suggests that it is the interaction between the two ago proteins that provides additional stability for the rna triplex ( neurl1b - mir - 20a - mir - 20a ) .
+as experiments by saetrom et al .
+( 13 ) have shown the optimal seed site distance for mirna cooperativity is 13 - 35 nt ; our results also indicate that if the seed sites are too close (< 13 nt ) , there might be steric hindrance between the two ago units , while in case the seed sites are too far apart (> 35 nt ) , there may not be any interaction between two ago proteins that would contribute toward the stability of the rna triplex .
+mds to disclose unstable rna triplexes to further investigate triplex stability and thermodynamic profiles of selected triplexes we performed mds .
+to this end , we selected candidates that represent extreme cases for the tfe value ( 3x low and 3x high deltag ) and the free energy gained by triplex formation compared to the inherent duplexes ( 3x low and 3x high deltadeltag ) .
+the 12 selected candidates are listed in table 1 .
+table 1 .
+rna triplexes selected for 3d structure modeling and mds .
+energy parameter mrna mirna1 mirna2 triplex energy ( kcal / mol ) free energy gain ( kcal / mol ) high minimum free energy values rps6ka5 mir - 410 mir - 590 - 3p - 12.263 - 4.782 htra2 mir - 374a mir - 374a - 11.363 - 3.982 znf121 mir - 374a mir - 374a - 10.363 - 4.682 low minimum free energy values eda2r mir - 125a - 3p mir - 370 - 57.963 - 22.282 muc1 mir - 145 mir - 326 - 55.963 - 15.282 abt1 mir - 214 mir - 491 - 5p - 51.163 - 16.182 high free energy gain golm1 mir - 296 - 3p mir - 330 - 5p - 47.263 - 21.482 ccdc3 mir - 138 mir - 551b - 55.263 - 21.782 plxnb1 mir - 197 mir - 320d - 49.863 - 23.482 low free energy gain nphp1 mir - 194 mir - 340 - 16.963 - 1.782 kat2b mir - 106b mir - 590 - 3p - 22.263 - 1.682 c19orf69 mir - 190 mir - 590 - 3p - 25.063 - 1.582 representatives from the three different secondary structure patterns have been selected based on the tfe value and the free energy gained through triplex formation .
+structural patterns are discussed in detail in the supplementary materials .
+subsequently , we derived the duplex and triplex 3d structures for the selected candidates .
+as the crystal structure for mirna - ago complexes in these candidates is unavailable we modeled the rna triplex structures without ago .
+all the initial 3d models were optimized using the smart minimizer energy minimization protocol in accelrys ( r ) discovery studio to remove any of the steric overlaps that produce bad atomic contacts and to obtain the stable structure with minimum free energy .
+the energy minimized 3d models of rna triplexes are provided as supplementary pdb files 1 - 12 .
+we performed mds experiments using the simulation protocol available with accelrys ( r ) discovery studio 3.5 to underpin the hypothesis that triplexes are thermodynamically more stable and thus favorable as compared to their inherent duplex structures .
+for this , we examined the hydrogen bonds formed between mirna and mrna strands and considered the complex stable as long as there is any hydrogen bond present during the production run of the mds .
+we first calculated the time for which mrna and mirna were bonded in the duplex structures and then determined if the binding time increased in case of the triplex structure .
+furthermore , we considered 100 ps as threshold time for rna triplexes to be selected as potential cases of mirna cooperativity .
+in summary , we defined the following constrains for candidates of functional rna triplexes : \ documentclass [ 12pt ]{ minimal } \ usepackage { amsmath } \ usepackage { wasysym } \ usepackage { amsfonts } \ usepackage { amssymb } \ usepackage { amsbsy } \ usepackage { upgreek } \ usepackage { mathrsfs } \ setlength {\ oddsidemargin }{ - 69pt } \ begin { document } }{}\ begin { equation *} st _{ triplex } \ ge 100ps ; and \ end { equation *}\ end { document } \ documentclass [ 12pt ]{ minimal } \ usepackage { amsmath } \ usepackage { wasysym } \ usepackage { amsfonts } \ usepackage { amssymb } \ usepackage { amsbsy } \ usepackage { upgreek } \ usepackage { mathrsfs } \ setlength {\ oddsidemargin }{ - 69pt } \ begin { document } }{}\ begin { equation *} st _{ triplex } > \ min \ left \{ {\ begin { array }{*{ 20 } c } { st _{ mir1 \_ duplex } } \\ { st _{ mir2 \_ duplex } } \\ \ end { array }} \ right .
+\ end { equation *}\ end { document } where \ documentclass [ 12pt ]{ minimal } \ usepackage { amsmath } \ usepackage { wasysym } \ usepackage { amsfonts } \ usepackage { amssymb } \ usepackage { amsbsy } \ usepackage { upgreek } \ usepackage { mathrsfs } \ setlength {\ oddsidemargin }{ - 69pt } \ begin { document } }{}$ st _{ triplex }$\ end { document } is the stability time , i.e. the duration for which both mirna strands are attached to the mrna target through hydrogen bonds ; \ documentclass [ 12pt ]{ minimal } \ usepackage { amsmath } \ usepackage { wasysym } \ usepackage { amsfonts } \ usepackage { amssymb } \ usepackage { amsbsy } \ usepackage { upgreek } \ usepackage { mathrsfs } \ setlength {\ oddsidemargin }{ - 69pt } \ begin { document } }{}$ st _{ mir1 \_ duplex } \;{\ rm and }\ ; st _{ mir2 \_ duplex }$\ end { document } denote the stability times of the mirna1 - mrna and mirna2 - mrna hybrids in the mds production run. from our selected candidates these constraints were fulfilled by the three triplexes with the low minimum free energy values and the three triplexes with the strong free energy gain ( table 2 ) .
+table 2 .
+stability time of rna complexes during mds production run ( in pico seconds ) .
+gene in rna duplex in rna triplex mrna + mirna1 mrna + mirna2 mrna + mirna1 mrna + mirna2 rps6ka5 139 145 62 92 htra2 72 72 116 75 znf121 250 250 58 91 eda2r 206 468 218 449 muc1 249 192 179 500 abt1 327 338 239 399 golm1 500 395 118 500 ccdc3 500 479 500 500 plxnb1 333 74 207 387 nphp1 113 203 47 44 kat2b 106 323 500 100 c19orf69 257 214 74 196 cdkn1a 42 301 126 473 complexes , where the triplex is stable for more than 100 ps and the stability time of any of the mirnas exceeds that of their corresponding duplexes , were considered as potential triplex to show mirna cooperativity ( in shaded rows ) .
+therefore , the simulation results for most of our selected candidates met our expectations , i.e. that triplexes with low tfe value and strong free energy gain are more stable than their inherent duplexes .
+this again supports our hypothesis that tfe and free energy gain are crucial factors for determining whether or not a triplex formed by a target gene and a cooperative mirna pairs is functional .
+however , one candidate that was unexpected to fulfill these constrains was the triplex involving the gene kat2b and the mirnas mir - 106b and mir - 590 - 3p which has little free energy gain but a moderately low tfe value ( - 22.26 kcal / mol ) .
+the complex stability times of the selected rna triplexes are shown in table 2 .
+for illustration purposes we captured the molecular dynamics for the case of one stable rna triplex ( mir - 138 : : ccdc3 : : mir - 551b ) and one unstable rna triplex ( mir - 374a : : htra2 : : mir - 374a ; see supplementary videos s1 and s2 ) .
+to demonstrate a proof of principle we repeated the described protocol for the rna triplex composed of mirna - 93 : : cdkn1a : : mirna - 572 for which we previously validated the synergistic effect the two mirnas show in the repression of their mutual target ( 13 ) .
+our simulations show that the duplexes mirna - 572 : : cdkn1a and mirna - 93 : : cdkn1a are stable for 42 and 301 ps in the production run , while in the rna triplex the stability times of mirna - 572 and mirna - 93 increase to 126 and 473 ps , respectively .
+this observation clearly indicates that the triplex formation is favored over the duplex in this particular case and also that estimation of stability time can be used as one parameter to filter triplexes with the potential to show mirna cooperativity .
+the results are presented in short simulation videos in the supplementary videos s3 - s5 .
+in these three simulations we compared the thermodynamic profiles of three possible complexes ( i ) mir - 93 : : cdkn1a duplex ; ( ii ) mir - 572 : : cdkn1a duplex and ( iii ) mir - 93 : : cdkn1a : : mir - 572 triplex .
+in summary , mds can be used to further discriminate between thermodynamically stable and unstable rna triplexes .
+however , these simulations require a significant amount of time (~ 24 h for 100 ps mds in an implicit solvation box on a workstation with 12 cores , 2.3 ghz and 16gb ram ) and , therefore , we did not apply them for entire genome analysis .
+triplex formation is dependent on equilibrium distributions for each complex species ( i.e. monomer , duplex and triplex ) of a rna triple , equilibrium concentrations were computed using a partition function algorithm following the approach described in ( 44 ) .
+this enabled us to estimate the association rates ( affinity of the involved molecules ) for triplex formation .
+these were used later for the parameterization of a kinetic model of mirna cooperativity ( see next subsection ). by defining an initial concentration for the involved molecules ( e.g. 100 nm each ) the partition function algorithm computes equilibrium concentrations ( 0 - 100 nm ) for all possible complex species ( supplementary figure s5 ) .
+we concluded that only those rna triples with a high triplex formation probability , i.e. high triplex equilibrium concentration , are likely to exhibit cooperative mirna - target regulation .
+more specifically , only in case the majority of rna molecules (> 50 %) is hybridized in rna triplexes composed of two mirna and one mrna species cooperative target regulation can be expected .
+thus , by defining a threshold for the predicted triplex equilibrium concentration , favorable rna triplex candidates can be identified .
+when we applied a threshold of > 50 nm for the equilibrium concentration of triplexes composed of an mrna target and two mirna species , we reduced the number of putative human rna triplexes by ~ 85 % from 674 310 to 98 073 , when no other constraint was applied ( 82 481 with preserved seed binding ) , involving 11 654 ( 10 883 ) target genes .
+repression efficiency simulated by a kinetic model of mirna cooperativity for the last step in our workflow , we developed a kinetic model using ordinary differential equations ( odes ) to analyze the synergistic regulation by pairs of mirnas and the consequences for target gene dynamics .
+the model is based on our previous work ( 3 ) and accounts for all processes and the involved molecules in mirna - mediated gene repression , including the formation of duplexes by the target mrna and one mirna , the formation of a triplex by the target mrna and two mirnas and the process of disassociation of the duplexes and the triplex ( supplementary figure s6 ) .
+see supplementary materials for a detailed description of the model .
+next , we used the model to simulate target gene repression by cooperating mirna pairs .
+we computed the steady states of the target genes by applying a range of different synthesis rate constants for the regulatory mirna pair ( see materials and methods section for details ) .
+furthermore , to show the cooperative effect of the selected mirna pairs we computed the repression gain ( rg ) of the target genes for three scenarios : ( i ) and ( ii ) strong up - regulation of one of the two mirnas , and ( iii ) moderate up - regulation of both mirnas in combination ( see materials and methods section for details ) .
+the results for the same exemplary triplexes as for the mds are presented as surface plots in figure 5 .
+the simulations show different patterns of gene repression by cooperative mirna pairs for cases of high ( upper panel ; figure 5b ) and low tfe ( lower panel ; figure 5b ) .
+for triplexes with high tfe we observed only weak repression ability , which is due to their thermodynamically unstable structure .
+in contrary , targets involved in stable complexes with cooperating mirnas ( lower panel ) are efficiently repressed .
+we introduced values for the rg which represents a measure for the efficiency gained in target repression by either overexpressing a single mirna ( rg1 and rg2 ) or by synergistic mirna - target regulation ( rg3 ; see figure 5 for details ) .
+in the upper panel of figure 5b ( representing high tfes ) ; rg3 is only insignificantly higher than rg1 and rg2 .
+however , in the lower panel ( representing low tfes ) rg3 is considerably higher than rg1 and rg2 .
+we can conclude that a notable synergistic effect in target regulation by cooperating mirna pairs can be observed in triplexes with thermodynamically stable structures ( figure 5b ) .
+figure 5 .
+simulation of gene repression by cooperative mirna pairs .
+( a ) illustrative plot to explain simulation results .
+for combinations of mirna expression rates in specific intervals [ 10 - 1 102 ] we computed the steady states ( ss ) of the target protein , which are color coded in a rainbow scale from red ( full expression ) to blue ( fully silenced ) .
+besides , we computed the rg of a target gene for three scenarios : ( i ) and ( ii ) the expression of either mirna1 or mirna2 is highly up - regulated ( rg1 = ss ( 10,1 ) - ss ( 1,1 ) or rg2 = ss ( 1,10 ) - ss ( 1,1 )) , and ( iii ) both mirnas are being modestly up - regulated ( rg3 = ss ( 5,5 ) - ss ( 1,1 )) .
+the higher the rg the stronger the repression effect on the target gene .
+the title in each plot contains the official gene symbol of the target and its tfe ( deltag ) or energy gain ( deltadeltag ) .
+( b ) simulation results for triplexes with high ( upper panel ) and low ( lower panel ) tfe .
+( c ) simulation results for triplexes with low ( upper panel ) and high ( lower panel ) eg. similarly , the simulations showed different patterns of gene repression for cases of high and low free energy gain ( deltadeltag ; figure 5c ) .
+in the upper panel with triplexes having lower free energy gains compared to their inherent duplexes we found cases of independent target regulation with no synergy between the two mirnas .
+in these cases the target can be repressed by only one of the two mirnas .
+in the lower panel with rna triplexes that have higher free energy gain compared to their inherent duplex structures , simulations show an efficient target repression through the individual mirnas and a considerable synergistic effect by collective target regulation by both cooperating mirnas (\ documentclass [ 12pt ]{ minimal } \ usepackage { amsmath } \ usepackage { wasysym } \ usepackage { amsfonts } \ usepackage { amssymb } \ usepackage { amsbsy } \ usepackage { upgreek } \ usepackage { mathrsfs } \ setlength {\ oddsidemargin }{ - 69pt } \ begin { document } }{}$ rg _ 3 \ gg rg _{ 1,2 }$\ end { document }) .
+taken together , deltag and deltadeltag of the triplexes formed by the mrna and cooperative mirna pairs are two important factors influencing the cooperative effect in mirna - mediated target repression .
+a database of rna triplexes in our study , we performed a whole human genome analysis in order to identify putative rna triplexes and characterize their structural and thermodynamic properties .
+to make our results available we designed a database of rna triplexes formed by target genes and pairs of synergistically acting mirnas .
+besides , we referenced given experimental evidence supporting pairwise mirna - target interactions , which we extracted from the mirtarbase database ( 36 ). through a web interface the rnatriplex database can be queried for either mirnas or genes to receive information about their involvement in rna triplexes .
+furthermore , users can sort the results ; define a threshold for the tfe value or filter out triplexes with non - conserved seed binding .
+moreover , comprehensive information about molecule sequences , genomic coordinates , triplex - free energies , experimental evidence , secondary structures and repression efficiency simulations can be retrieved and alternatively be extracted via the restful interface to the database , which is useful for the programmatic extraction of data .
+discussion with the discovery and functional characterization of non - coding gene transcripts we now know that a plethora of different non - coding rnas can mediate the regulation of gene expression ( 50 ) .
+however , there is still a lot of work ahead to understand the transcriptomic complexity and all facets by which genes are being regulated ( 51 ) .
+in this context the class of mirnas crystallized in the last years as an omnipresent regulator of animal gene expression at the post - transcriptional level ( 52 ) .
+in the presented work , we studied the phenomenon of synergistic target regulation by pairs of cooperating mirnas .
+this phenomenon can foster , at the post - transcriptional level , an effective and fine - tuned regulation of gene expression and can buffer efficiently noise coming from external stimuli ( 3 ) .
+an integrative workflow for the identification of rna triplexes by integrating several computational approaches , ranging from rna hybridization prediction , over structure modeling and mds , to kinetic modeling , we designed a systematic and comprehensive analytical workflow for the identification of animal rna triplexes composed of two cooperating mirnas and their mutual target mrna .
+in the proposed workflow rna triplexes are derived from mirna target predictions followed by seed site distance filtering .
+local secondary structure prediction and minimum free energy calculation are used to narrow down rna triplexes that are likely to be functional .
+the analysis is further substantiated by mds that are used to determine the energy profile of rna triplexes .
+furthermore , a mathematical model of synergistic target regulation is developed to infer target repression efficiencies mediated by cooperating mirna pairs .
+we implemented the workflow to predict human rna triplexes composed of two cooperating mirnas and their mutual targets .
+results of our genome - wide analysis suggest that synergistic target regulation is a common phenomenon in human .
+we identified 15 062 human candidate genes that may be target of synergistic mirna regulation .
+some of the identified cooperating mirna pairs have more than just one mutual target gene .
+for example , the mirna couple composed of hsa - let - 7g and hsa - mir - 376c has most targets in common ( 14 mutual target genes : ammecr1l , cyp26a1 , zfyve26 , muc7 , fus , tmem38b , cwh43 , cwh43 , lin28b , znf823 , dvl3 , srgn , inpp5a , hdac8 ) .
+however , in the course of the workflow the overall set of candidate triplexes can be reduced to a subset of high - confidence triplexes , likely to be functional .
+for example , the number of cooperation partners per mirna reduced significantly when stringent filtering criteria were applied ( supplementary figure s7 ) .
+we conclude that the outlined workflow is a comprehensive way for the de novo identification and characterization of rna triplexes representing cooperative target regulation by two mirnas .
+prediction of human rna triplexes - - sensitivity versus specificity in our analysis we used mirna - target predictions from the miranda algorithm ( briefly described in the supplementary materials ) , a sensitive method that reflects a good cross - section of other existing methods , because it has the highest relative overlap with the predictions from other algorithms .
+nevertheless , it has to be noted that mirna - target interactions derived from miranda may contain a significant number of false - positive predictions ( 36,53 ) .
+we reduced these by considering only conserved mirnas and target sites with good prediction scores for further analysis ( mirsvr score : \ documentclass [ 12pt ]{ minimal } \ usepackage { amsmath } \ usepackage { wasysym } \ usepackage { amsfonts } \ usepackage { amssymb } \ usepackage { amsbsy } \ usepackage { upgreek } \ usepackage { mathrsfs } \ setlength {\ oddsidemargin }{ - 69pt } \ begin { document } }{}$ \ le - 0.1 ;$\ end { document } ( 16 )) .
+it has to be noted that mirnas with binding sites in the 5 ' utr and the coding sequence of target mrnas have been reported ( 17 - 18,54 ) .
+however , experimental validation for synergistic target regulation by pairs of mirnas has been carried out so far only for cases in which mirna binding sides reside in the 3 ' utr of a mutual target .
+although synergistic target regulation may also work in other regions than the 3 ' utr , we restricted our analysis to putative rna triplexes in this region only .
+in order to further reduce the search space for cooperating mirnas and their respective targets , one can restrict the considered mirna - target interactions to those that were computed by several algorithms using different prediction parameters and / or those being experimentally supported .
+we used the latter approach to generate a subset of rna triplexes with partial experimental support based on validated mirna - target interactions archived in the mirtarbase database ( supplementary excel file ; ( 19 )) .
+the total number of triplexes with experimental support is 952 , involving 252 human genes .
+in this subset , 346 mirna binding sites were supported by the recently developed experimental technique for the high - throughput identification of exact mirna binding sites clash ( crosslinking , ligation and sequencing of hybrids ) ( 54,55 ) .
+on the other hand , stringent filtering criteria may result in a reduced sensitivity , i.e. some rna triplexes may not be detected ( false - negative predictions ) .
+it is , however , possible to expand the range of predicted mirna target sites by considering also non - conserved mirnas , respectively , target sites or lower prediction scores as well as the union of predictions from other algorithms .
+but this will certainly also increase the number of false - positives .
+nevertheless , for our case study in the human genome we compromised between sensitivity and specificity , and chose a mirna target prediction algorithm that represents a good cross - section of predictions from most of the other existing algorithms .
+seed binding determines efficacy of cooperative regulation previous studies have shown that the distance of seed sites can be used to discriminate non - cooperative from cooperative mirnas that post - transcriptionally repress target genes in a synergistic manner ( 12,13 ) .
+we adopted the results from the analysis performed by saetrom et al. who found that maximal repression of a reporter gene construct by the mirna let - 7 was achieved when seed regions of a pair of let - 7 target sites were 13 - 35 nt apart ( 13 ) .
+however , within this range we could not identify any distance that is superior compared to the others in terms of tfe , triplex equilibrium or rg ( data not shown ) .
+moreover , our predictions indicate that in many cases the seed binding of one or both mirnas is not preserved upon complex formation , i.e. in the local secondary structure of rna triplexes .
+in these cases mds demonstrated that these triplexes are rather unstable ( data not shown ). of note , in this work we neglected the aspect of site accessibility which is considered in some target prediction algorithms , where the secondary structure of the full length 3 ' utr ( 56,57 ) or even the entire mrna ( 28 ) was predicted for the estimation of site accessibility and calculation of the energetically favorable arrangement .
+we were , however , more interested in a good structure prediction accuracy which inevitably decreases with sequence length ( 58 ) .
+rna triplex structures - - from 2d to 3d we adopted the notion that rna complexes are more stable when they have a comparably low binding free energy .
+this criterion is used in established non - coding rna and mirna - target prediction algorithms to discriminate putatively functional from non - functional structures .
+for local secondary structure prediction and minimum free energy calculation we used the tools mfe and complexes from the nupack package , a software suite developed for the analysis and design of nucleic acid complexes ( 22 ) .
+it has to be noted that , for computational feasibility , we excluded pseudo - knots from our structural predictions which is described as a np - hard problem in ( 59 ) .
+the secondary structure predictions were used as a means for the high - throughput ( whole genome ) identification of rna triples that are in general able to form stable rna triplexes .
+we want to emphasize that secondary structure prediction is an essential part in the methodology adopted by the majority of mirna - target prediction algorithms , and hence in our approach .
+in this context , the base pairing between mrna and mirnas in the secondary structure and the computed thermodynamic stability is crucial .
+furthermore , due to 2d structure predictions we get instantaneous insight into seed binding preservation after folding and the overall site accessibility .
+a better reflection of the native mirna cooperativity process is certainly achieved by constructing detailed 3d models of cooperative target regulation that include two mirna - ago hybrids attached to a target 3 ' utr .
+however , a reliable calculation would require the data derived from the crystal structures of the mirnas in complex with ago .
+so far only one such structure is known ( 24 ) .
+furthermore , such a model increases the computational complexity drastically .
+in this paper , the methodology proposed is a compromise between the level of detail and the computation effort required to generate and simulate 3d models of mirna cooperativity .
+nevertheless , we foresee that the combination of better computational capabilities , the availability of more data from crystal structures of the mirnas in complex with ago and the development of customized protocols for the ab initio construction of 3d models will make possible in the next future the construction of detailed 3d models of cooperative target regulation that include two mirna - ago hybrids .
+due to computational complexity and unavailability of mirna - ago complexes , we decided to design 3d models of rna triplexes without considering ago .
+to our knowledge , there is no tool or protocol available for the ab initio construction of 3d models of mrna - mirna triplexes .
+our 3d models are based on the 2d structures predicted by mfe .
+more specifically , 2d triplex structures give raise to possible interaction sites which are used for building the 3d model .
+frequently cited rna 3d structure modeling tools ( such as rnacomposer , mc - sym , etc. ) use single stranded rna sequences and secondary structure folding information in dot bracket notation for their predictions .
+mc - sym , for example , to model the rna duplexes , artificially introduces a gaaa tetraloop between two strands of rna and thus models the 3d structure of large single stranded rna .
+thereafter , the tetraloop is removed again to separate the two strands .
+we also modeled mrna - mirna triplexes as a single strand and then separated mrna and two mirnas strands by manually deleting the bonds .
+this approach is the same as in ( 60 ) with the exception that we did not introduce any artifact by including an extra nucleic acid sequence .
+the strategy was adopted to ensure a consensus between 3d structures generated by rnacomposer and the secondary structure pattern predicted in the previous step of our workflow .
+structure editing steps in our presented workflow are necessary to separate the three rna strands .
+likewise , the removal of gaaa tetraloops in mc - sym entails these editing steps .
+to further optimize the geometry of the rna triplexes , we used the energy optimization protocol available in accelrys ( r ) discovery studio 3.5 to remove any steric overlap that produces bad contacts .
+in summary , we generated a more realistic model of mrna - mirna interaction by only considering hydrogen bonds between the two rna species and not by introducing an artificial intermediate nucleotide sequence for structural analysis and mds studies .
+the same strategy was reported in other studies ( 61,62 ) .
+the workflow to construct the tertiary structures of mrna - mirnas triplexes is summarized in supplementary figure s8 .
+3d structures of rna triplexes form the basis for mds .
+mds are an important technique to generate a model of a structure 's motion and to perform the time - continuous analyses of various structural and energetic properties of molecule complexes due to small - and large - scale atomic movements .
+moreover , they can be used to observe the solvent effect on the structure , energetics and dynamics of biomolecules .
+however , it becomes expensive in terms of computational cost as in general 85 % of the total volume of the solvated system is occupied by the solvent molecules .
+as most of our rna complexes were linear in structure , they resulted in solvent system that is too large to perform mds .
+therefore , we used an implicit solvent model as alternative to the explicit solvent simulation .
+implicit solvent simulations are computationally less expensive , as the polar and non - polar effects of the solvent molecules are averaged without explicitly including each of them in the calculation .
+many other previous studies have successfully applied the implicit solvent model in nucleic acid simulations ( 63 - 65 ) .
+in the mds production run , those rna complexes that were stable after 100 ps were further simulated for another 400 ps. these short duration md production simulations have been used previously also to determine the stability of nucleic acids ( 65,66 ) .
+for the mds production run , we considered a complex as being stable as long as there is any hydrogen bond present between mrna and mirna strands .
+the results of the mds of selected rna triplexes suggest that the tfe as well as the free energy gain values are important parameters for segregating non - functional candidates of synergistic target regulation .
+we conclude , that in stable rna complexes the target mrna is persistently blocked from translation through the firm hybridization with the pair of cooperative mirnas .
+triplex structure and energy profile determine efficiency of cooperative gene repression to simulate the dynamics of the complex species we used an ode - based modeling approach because it is suitable for describing the mechanistic details of biochemical reaction systems in terms of temporal dynamics of the involved components .
+there exists a small number of ode - based models that describe gene regulation by individual mirnas ( 67 - 69 ) .
+in our own previous work we proposed the first mathematical model for cooperative target regulation by pairs of mirnas ( 3 ) .
+in the present study , we refined the model and used predicted equilibrium concentrations and complex - free energies for model parameterization , i.e. for defining complex association and dissociation rates , respectively .
+we computed target steady - state concentrations for different synthesis rates ( expression profiles ) of the cooperating mirnas .
+the results of our simulations support the notion that functional mirna target interactions , in this case the interaction of two cooperating mirnas and a mutual target mrna , depend on a low tfe structure .
+cooperative target regulation - - a phenomenon with relevance for cancer ?
+to identify pathways which tend to be effected by cooperative mirna regulation we conducted a pathway enrichment analysis using the database for annotation , visualization and integrated discovery ( david ; ( 70 )) .
+for triplexes with experimental support we received predominant enrichment in cancer - specific kegg pathways ( i.e. prostate cancer ; small cell lung cancer ; bladder cancer , chronic myeloid leukemia , colorectal cancer , glioma , melanoma , pancreatic cancer and endometrial cancer ) and some signalling pathways also relevant in cancer as well .
+this can be explained by the high number of mirna - target interactions that are validated in the context of cancer related studies .
+therefore , we repeated the analysis for the group of triplexes with lowest free energy values ( tfe <= - 41.24kcal / mol ) and high predicted triplex equilibrium concentrations ( contriplex > 50nm ) which we refer to as the set of high - confidence rna triplexes ( this set can be accessed from the download section in our triplexrna database ) .
+still , the results contained many cancer pathways ( i.e. prostate cancer , acute myeloid leukemia , renal cell carcinoma , colorectal cancer and melanoma ) and some related biological processes ( e.g. regulation of actin cytoskeleton , focal adhesion and mapk signalling ) , which would suggest some relevance of mirna - cooperativity in cancer .
+data generated in the pathway enrichment analysis ( including p - values and fold enrichments ) are included in the supplementary excel file .
+conclusions the main result of our work is the described workflow which can be used to identify rna triplexes and to determine whether these are functional in terms of cooperative target regulation by two mirnas .
+our analysis demonstrated that beyond the seed site distance there are more triplex features necessary for a functional rna triplex : first of all a stable local structure ( low tfe ) with preserved seed bindings ; second , a strong binding affinity ( high equilibrium probability ) ; third , a strong thermodynamic stability and forth , low triplex dissociation and degradation rates .
+our analysis provides evidence that the phenomenon of cooperative target regulation by mirna pairs is a common cellular mechanism in animals that facilitates enhanced and fine - tuned target regulation to meet the requirements of given cellular contexts .
+our results support the idea that synergistic target repression can lead to a higher specificity in target regulation and that an efficient repression of genes often requires two or more mirnas ( 2,69 ) .
+single mirnas typically induce only mild repression to their targets ( 1 ) .
+synergistic target regulation , therefore , provides a molecular means to overcome this restraint .
+there may also exist complexes involving more rna species , e.g. in the case of clustered mirna - target sites ( 71 ) .
+this and other unexplored phenomena show that we are still far from understanding the whole spectrum of mechanisms in post - transcriptional gene regulation .
+however , by expanding our knowledge about mirna cooperation and by validating rna triplexes relevant in human disease regulation , we may be able to design new therapeutic strategies of rna interference with higher specificity ( 72 ) .
+nevertheless , our proposed workflow can be applied in other species as well .
+availability database of human rna triplexes the data generated in this study were archived in a relational database ( mysql server version 5.5.22 ) and are freely accessible under the url : www.sbi.uni - rostock.de / triplexrna .
+data access is facilitated by cgi scripts ( written in python v2.7.2 ) .
+furthermore , the database is equipped with a restful interface for programmatic access , facilitated by the bottle web framework for python ( http :// bottlepy.org /) .
+mathematical model of cooperative target regulation this model was deposited in biomodels database ( 73 ) and assigned the identifier model1402210000 .
+the mds movies were submitted to the database of simulated molecular motions ( dsmm ; ( 74 )) .
+supplementary data supplementary data are available at nar online .
+supporting information j.v. , s.k.g. , u.s. and x.l. developed the idea and designed the workflow .
+u.s. carried out the data retrieval , prediction and characterization of rna triplexes , as well as the statistical analyses .
+furthermore , he has designed the triplexrna database and web interface .
+s.k.g. performed and analyzed the molecular dynamics simulations of cooperating triplexes .
+f.w. , j.v. and x.l. derived the kinetic model and performed the predictive simulations .
+j.v. and o.w. helped with the analysis and interpretation of the data .
+all authors contributed in drafting the manuscript , revising it critically and approved the final version .
+we would like to thank s. smita , k.p. singh and m. karmakar for their support in modeling the 3d structures of rna complexes .
+j.v. and s.k.g. are joint senior authors on this work .
+funding german federal ministry of education and research ( bmbf ) as part of the e : bio - mirsys [ 0316175a to x.l. , j.v. and o.w. ] ; e : bio - sysmet [ 0316171 to s.k.g. , j.v. and o.w. ] ; e : med - capsys [ 01zx1304f to j.v. ] ; university of rostock , university hospital erlangen .
+council of scientific and industrial research ( csir ) network projects genesis [ bsc0121 to s.k.g. ] ; indepth [ bsc0111to s.k.g. ] .
+source of open access funding : department budget .
+conflict of interest statement .
+none declared .
+references 1 .
+selbach m. schwanhausser b. thierfelder n. fang z. khanin r. rajewsky n. widespread changes in protein synthesis induced by micrornas nature 2008 455 58 63 18668040 2 .
+doench j.g. sharp p.a. specificity of microrna target selection in translational repression genes dev .
+2004 18 504 511 15014042 3 .
+lai x. schmitz u. gupta s.k. bhattacharya a. kunz m. wolkenhauer o. vera j. computational analysis of target hub gene repression regulated by multiple and cooperative mirnas nucleic acids res .
+2012 40 4 .
+shalgi r. lieber d. oren m. pilpel y. global and local architecture of the mammalian microrna - transcription factor regulatory network plos comput. biol .
+2007 3 e131 17630826 5 .
+friedman y. balaga o. linial m. schmitz u. wolkenhauer o. vera j. working together : combinatorial regulation by micrornas micrornacancer regulation 2013 netherlands , dordrecht springer 317 337 6 .
+vera j. lai x. schmitz u. wolkenhauer o. microrna - regulated networks : the perfect storm for classical molecular biology , the ideal scenario for systems biology adv exp med biol 2013 774 55 76 23377968 7 .
+jiang q. wang y. hao y. juan l. teng m. zhang x. li m. wang g. liu y .
+mir2disease : a manually curated database for microrna deregulation in human disease nucleic acids res .
+2009 37 d98 d104 18927107 8 .
+chen x. ba y. ma l. cai x. yin y. wang k. guo j. zhang y. chen j. guo x. characterization of micrornas in serum : a novel class of biomarkers for diagnosis of cancer and other diseases cell res .
+2008 18 997 1006 18766170 9 .
+mitchell p.s. parkin r.k. kroh e.m. fritz b.r. wyman s.k. pogosova - agadjanyan e.l. peterson a. noteboom j. o'briant k.c. allen a. circulating micrornas as stable blood - based markers for cancer detection proc. natl. acad. sci. 2008 105 10513 10518 18663219 10 .
+seto a.g. the road toward microrna therapeutics intl. j. biochem .
+cell biol .
+2010 42 1298 1305 11 .
+kasinski a.l. slack f.j. micrornas en route to the clinic : progress in validating and targeting micrornas for cancer therapy nat. rev .
+cancer 2011 11 849 864 22113163 12 .
+vella m.c. choi e - y lin s - y reinert k. slack f.j. the c. elegans microrna let - 7 binds to imperfect let - 7 complementary sites from the lin - 41 3'utr genes dev .
+2004 18 132 137 14729570 13 .
+saetrom p. heale b.s.e. snove o. aagaard l. alluin j. rossi j.j. distance constraints between microrna target sites dictate efficacy and cooperativity nucleic acids res .
+2007 35 2333 2342 17389647 14 .
+hon l.s. zhang z. the roles of binding site arrangement and combinatorial targeting in microrna repression of gene expression genome biol .
+2007 8 r166 17697356 15 .
+lai x. bhattacharya a. schmitz u. kunz m. vera j. wolkenhauer o. a systems' biology approach to study microrna - mediated gene regulatory networks biomed res int 2013 2013 703849 24350286 16 .
+betel d. koppal a. agius p. sander c. leslie c. comprehensive modeling of microrna targets predicts functional non - conserved and non - canonical sites genome biol .
+2010 11 r90 20799968 17 .
+grey f. tirabassi r. meyers h. wu g. mcweeney s. hook l. nelson j.a. a viral microrna down - regulates multiple cell cycle genes through mrna 5'utrs plos pathogens 2010 6 e1000967 20585629 18 .
+hafner m. landthaler m. burger l. khorshid m. hausser j. berninger p. rothballer a. ascano m. jungkamp a .
+- c. munschauer m. transcriptome - wide identification of rna - binding protein and microrna target sites by par - clip cel 2010 141 129 141 19 .
+hsu s .
+- d. lin f .
+- m. wu w .
+- y. liang c. huang w .
+- c. chan w .
+- l. tsai w .
+- t. chen g .
+- z. lee c .
+- j. chiu c .
+- m. mirtarbase : a database curates experimentally validated microrna - target interactions nucleic acids res .
+2011 39 d163 d169 21071411 20 .
+meyer l.r. zweig a.s. hinrichs a.s. karolchik d. kuhn r.m. wong m. sloan c.a. rosenbloom k.r. roe g. rhead b. the ucsc genome browser database : extensions and updates 2013 nucleic acids res .
+2012 41 d64 d69 23155063 21 .
+griffiths - jones s. grocock r.j. dongen s. van bateman a. enright a.j. mirbase : microrna sequences , targets and gene nomenclature nucleic acids res .
+2006 34 d140 d144 16381832 22 .
+zadeh j.n. steenberg c.d. bois j.s. wolfe b.r. pierce m.b. khan a.r. dirks r.m. pierce n.a. nupack : analysis and design of nucleic acid systems j. comput. chem .
+2011 32 170 173 20645303 23 .
+darty k. denise a. ponty y. varna : interactive drawing and editing of the rna secondary structure bioinformatics 2009 25 1974 1975 19398448 24 .
+elkayam e. kuhn c - d tocilj a. haase a.d. greene e.m. hannon g.j. joshua - tor l. the structure of human argonaute - 2 in complex with mir - 20a cell 2012 150 100 110 22682761 25 .
+schneidman - duhovny d. inbar y. nussinov r. wolfson h.j. patchdock and symmdock : servers for rigid and symmetric docking nucleic acids res .
+2005 33 w363 w367 15980490 26 .
+popenda m. szachniuk m. antczak m. purzycka k.j. lukasiak p. bartol n. blazewicz j. adamiak r.w. automated 3d structure composition for large rnas nucleic acids res .
+2012 40 e112 e112 22539264 27 .
+foloppe n. mackerell a.d. jr all - atom empirical force field for nucleic acids : i. parameter optimization based on small molecule and condensed phase macromolecular target data j. comput. chem .
+2000 21 86 104 28 .
+thadani r. tammi m. microtar : predicting microrna targets from rna duplexes bmc bioinformat .
+2006 7 s20 29 .
+mackerell a.d. banavali n.k. all - atom empirical force field for nucleic acids : ii. application to molecular dynamics simulations of dna and rna in solution j. comput. chem .
+2000 21 105 120 30 .
+hart k. nystrom b. ohman m. nilsson l. molecular dynamics simulations and free energy calculations of base flipping in dsrna rna 2005 11 609 618 15811914 31 .
+banas p. jurecka p. walter n.g. sponer j. otyepka m. theoretical studies of rna catalysis : hybrid qm / mm methods and their comparison with md and qm methods 2009 49 202 216 19398008 32 .
+paliy m. melnik r. shapiro b.a. molecular dynamics study of the rna ring nanostructure : a phenomenon of self - stabilization phys. biol .
+2009 6 046003 19741282 33 .
+im w. lee m.s. brooks c.l .
+3rd generalized born model with a simple smoothing function j. comput. chem .
+2003 24 1691 1702 12964188 34 .
+nina m. beglov d. roux b. atomic radii for continuum electrostatics calculations based on molecular dynamics free energy simulations j. phys. chem .
+b 1997 101 5239 5248 35 .
+hoops s. sahle s. gauges r. lee c. pahle j. simus n. singhal m. xu l. mendes p. kummer u. copasi - a complex pathway simulator bioinformatics 2006 22 3067 3074 17032683 36 .
+sethupathy p. megraw m. hatzigeorgiou a.g. a guide through present computational approaches for the identification of mammalian microrna targets nat. methods 2006 3 881 886 17060911 37 .
+ritchie w. rasko j.e.j. flamant s. schmitz u. wolkenhauer o. vera j. microrna target prediction and validation micrornacancer regulation 2013 netherlands,dordrecht springer 189 224 38 .
+martinez - sanchez a. murphy c. microrna target identification - - experimental approaches biology 2013 2 189 205 24832658 39 .
+wang y. juranek s. li h. sheng g. tuschl t. patel d.j. structure of an argonaute silencing complex with a seed - containing guide dna and target rna duplex nature 2008 456 921 926 19092929 40 .
+gan h.h. gunsalus k.c. tertiary structure - based analysis of microrna - target interactions rna 2013 19 539 551 23417009 41 .
+rehmsmeier m. steffen p. hochsmann m. giegerich r. fast and effective prediction of microrna / target duplexes rna 2004 10 1507 1517 15383676 42 .
+rajewsky n. microrna target predictions in animals 2006 38 s8 s13 43 .
+rother k. rother m. boniecki m. puton t. bujnicki j.m. rna and protein 3d structure modeling : similarities and differences j. mol. model .
+2011 17 2325 2336 21258831 44 .
+dirks r.m. bois j.s. schaeffer j.m. winfree e. pierce n.a. thermodynamic analysis of interacting nucleic acid strands siam rev .
+2007 49 65 88 45 .
+john b. enright a.j. aravin a. tuschl t. sander c. marks d.s. human microrna targets plos biol .
+2004 2 e363 15502875 46 .
+friedman r.c. farh k.k .
+- h. burge c.b. bartel d.p. most mammalian mrnas are conserved targets of micrornas genome res .
+2009 19 92 105 18955434 47 .
+siepel a. bejerano g. pedersen j.s. hinrichs a.s. hou m. rosenbloom k. clawson h. spieth j. hillier l.w. richards s. evolutionarily conserved elements in vertebrate , insect , worm , and yeast genomes genome res .
+2005 15 1034 1050 16024819 48 .
+muckstein u. tafer h. hackermuller j. bernhart s.h. stadler p.f. hofacker i.l. thermodynamics of rna - rna binding bioinformatics 2006 22 1177 1182 16446276 49 .
+stark a. brennecke j. russell r.b. cohen s.m. identification of drosophila microrna targets plos biol .
+2003 1 e60 14691535 50 .
+eddy s.r. non - coding rna genes and the modern rna world nat. rev. genet .
+2001 2 919 929 11733745 51 .
+prohaska s.j. stadler p.f. a story of growing confusion : genes and their regulation biophys. rev. lett .
+2008 03 285 302 52 .
+he l. hannon g.j. micrornas : small rnas with a big role in gene regulation nat. rev. genet .
+2004 5 522 531 15211354 53 .
+yan x. chao t. tu k. zhang y. xie l. gong y. yuan j. qiang b. peng x. improving the prediction of human microrna target genes by using ensemble algorithm febs lett .
+2007 581 1587 1593 17379214 54 .
+helwak a. kudla g. dudnakova t. tollervey d. mapping the human mirna interactome by clash reveals frequent noncanonical binding cell 2013 153 654 665 23622248 55 .
+kudla g. granneman s. hahn d. beggs j.d. tollervey d. cross - linking , ligation , and sequencing of hybrids reveals rna - rna interactions in yeast proc. natl. acad. sci. 2011 108 10010 10015 21610164 56 .
+robins h. li y. padgett r.w. incorporating structure to predict microrna targets proc. natl. acad. sci. u.s.a .
+2005 102 4006 4009 15738385 57 .
+hammell m. long d. zhang l. lee a. carmack c.s. han m. ding y. ambros v. mirwip : microrna target prediction based on microrna - containing ribonucleoprotein - enriched transcripts nat. methods 2008 5 813 819 19160516 58 .
+wang x. el naqa i.m. prediction of both conserved and nonconserved microrna targets in animals bioinformatics 2007 24 325 332 18048393 59 .
+lyngso r.b. pedersen c.n.s. rna pseudoknot prediction in energy - based models j. comput. biol .
+2000 7 409 427 11108471 60 .
+parisien m. major f. the mc - fold and mc - sym pipeline infers rna structure from sequence data nature 2008 452 51 55 18322526 61 .
+paciello g. acquaviva a. ficarra e. deriu m.a. macii e. a molecular dynamics study of a mirna : mrna interaction j. mol. model .
+2011 17 2895 2906 21318233 62 .
+gan h.h. gunsalus k.c. tertiary structure - based analysis of microrna - target interactions rna 2013 19 539 551 23417009 63 .
+lang p.t. brozell s.r. mukherjee s. pettersen e.f. meng e.c. thomas v. rizzo r.c. case d.a. james t.l. kuntz i.d. dock 6 : combining techniques to model rna - small molecule complexes rna 2009 15 1219 1230 19369428 64 .
+chocholousova j. feig m. implicit solvent simulations of dna and dna - protein complexes : agreement with explicit solvent vs experiment j. phys. chem .
+b 2006 110 17240 17251 16928023 65 .
+mcdowell s.e. spackova n. sponer j. walter n.g. molecular dynamics simulations of rna : anin silico single molecule approach biopolymers 2007 85 169 184 17080418 66 .
+shen l. johnson t.l. clugston s. huang h. butenhof k.j. stanton r.v. molecular dynamics simulation and binding energy calculation for estimation of oligonucleotide duplex thermostability in rna - based therapeutics j. chem. informat. model .
+2011 51 1957 1965 67 .
+levine e. jacob e.b. levine h. target - specific and global effectors in gene regulation by microrna biophys. j. 2007 93 l52 l54 17872959 68 .
+nissan t. parker r. computational analysis of mirna - mediated repression of translation : implications for models of translation initiation inhibition rna 2008 14 1480 1491 18579870 69 .
+zinovyev a. morozova n. gorban a.n. harel - belan a. schmitz u. wolkenhauer o. vera j. mathematical modeling of microrna - mediated mechanisms of translation repression microrna cancer regulation 2013 netherlands , dordrecht springer 189 224 70 .
+huang d.w. sherman b.t. lempicki r.a. systematic and integrative analysis of large gene lists using david bioinformatics resources nat. protoc .
+2009 4 44 57 19131956 71 .
+rigoutsos i. short blocks from the noncoding parts of the human genome have instances within nearly all known genes and relate to biological processes proc. natl. acad. sci. 2006 103 6605 6610 16636294 72 .
+grimm d. kay m.a. combinatorial rnai : a winning strategy for the race against evolving targets ?
+mol .
+therapy 2007 15 5 73 .
+li c. donizelli m. rodriguez n. dharuri h. endler l. chelliah v. li l. he e. henry a. stefan m.i. biomodels database : an enhanced , curated and annotated resource for published quantitative kinetic models bmc syst. biol .
+2010 4 92 20587024 74 .
+finocchiaro g. dsmm : a database of simulated molecular motions nucleic acids res .
+2003 31 456 457 12520051

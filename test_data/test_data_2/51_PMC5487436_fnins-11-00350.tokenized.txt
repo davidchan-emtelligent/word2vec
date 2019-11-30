@@ -1,0 +1,575 @@
+front neurosci front neurosci front. neurosci .
+frontiers in neuroscience 1662 - 4548 1662 - 453x frontiers media s.a .
+28701911 5487436 10.3389 / fnins.2017.00350 neuroscienceoriginal research an event - driven classifier for spiking neural networks fed with synthetic or dynamic vision sensor data stromatias evangelos + soto miguel + serrano - gotarredona teresa linares - barranco bernabe * instituto de microelectronica de sevilla ( cnm ) , consejo superior de investigaciones cientificas ( csic ) , universidad de sevillasevilla , spain edited by : emre o. neftci , university of california , irvine , united states reviewed by : hesham mostafa , university of california , san diego , united states ; thomas nowotny , university of sussex , united kingdom * correspondence : bernabe linares - barranco bernabe @ imse - cnm.csic.es this article was submitted to neuromorphic engineering , a section of the journal frontiers in neuroscience + these authors have contributed equally to this work .
+28 6 2017 2017 11 350 24 3 2017 06 6 2017 copyright ( c ) 2017 stromatias , soto , serrano - gotarredona and linares - barranco .
+2017 stromatias , soto , serrano - gotarredona and linares - barrancothis is an open - access article distributed under the terms of the creative commons attribution license ( cc by ) .
+the use , distribution or reproduction in other forums is permitted , provided the original author ( s ) or licensor are credited and that the original publication in this journal is cited , in accordance with accepted academic practice .
+no use , distribution or reproduction is permitted which does not comply with these terms .
+this paper introduces a novel methodology for training an event - driven classifier within a spiking neural network ( snn ) system capable of yielding good classification results when using both synthetic input data and real data captured from dynamic vision sensor ( dvs ) chips .
+the proposed supervised method uses the spiking activity provided by an arbitrary topology of prior snn layers to build histograms and train the classifier in the frame domain using the stochastic gradient descent algorithm .
+in addition , this approach can cope with leaky integrate - and - fire neuron models within the snn , a desirable feature for real - world snn applications , where neural activation must fade away after some time in the absence of inputs .
+consequently , this way of building histograms captures the dynamics of spikes immediately before the classifier .
+we tested our method on the mnist data set using different synthetic encodings and real dvs sensory data sets such as n - mnist , mnist - dvs , and poker - dvs using the same network topology and feature maps .
+we demonstrate the effectiveness of our approach by achieving the highest classification accuracy reported on the n - mnist ( 97.77 %) and poker - dvs ( 100 %) real dvs data sets to date with a spiking convolutional network .
+moreover , by using the proposed method we were able to retrain the output layer of a previously reported spiking neural network and increase its performance by 2 % , suggesting that the proposed classifier can be used as the output layer in works where features are extracted using unsupervised spike - based learning methods .
+in addition , we also analyze snn performance figures such as total event activity and network latencies , which are relevant for eventual hardware implementations .
+in summary , the paper aggregates unsupervised - trained snns with a supervised - trained snn classifier , combining and applying them to heterogeneous sets of benchmarks , both synthetic and from real dvs chips .
+spiking neural networks supervised learning event driven processing dvs sensors convolutional neural networks fully connected neural networks neuromorphic 1 .
+introduction deep learning and deep artificial neural networks ( lecun et al. , 2015 ; schmidhuber , 2015 ) currently hold the state - of - the - art performance in virtually any machine learning benchmark ranging from computer vision , speech recognition , natural language processing , audio recognition to name a few and in several cases they have surpassed human recognition rates ( schmidhuber , 2012 ; he et al. , 2015 ) .
+for these reasons they have been termed as one of the breakthrough technologies of our decade ( mit technology review , 2013 ) , and have attracted a lot of attention from both academia and industry .
+deep learning enables hierarchical feature extraction ; with each additional layer the network learns to extract more abstract features , while it has been proven that by increasing the number of layers the classification performance improves ( hinton and salakhutdinov , 2006 ) .
+the vast number of operations these state - of - the - art deep neural networks require prohibits their execution on platforms with limited processing and energy resources .
+currently , their execution is offloaded to remote computer clusters .
+however , this introduces additional communication overhead , which increases the overall system latency .
+for some applications , fast responses and low - energy consumption are crucial features as for example in mobile platforms , robotic , and critical systems .
+spiking neural networks ( snns ) ( gerstner and kistler , 2002 ) have recently proven to be an interesting alternative to simulate large - scale neural networks ( izhikevich and edelman , 2008 ; ananthanarayanan et al. , 2009 ; eliasmith et al. , 2012 ) .
+snns are inherently asynchronous ; similarly to biology , spiking neurons communicate through stereotypical events often referred to as spikes .
+each spiking neuron updates its internal state upon receiving an incoming spike and generates an output whenever its membrane voltage crosses a threshold value .
+recent advances in neuromorphic engineering ( mead , 1990 ) enable the emulation of snns directly on neuromorphic hardware in real - time ( millisecond updates ) or accelerated - time , with much higher efficiency in terms of power and speed compared to conventional computing platforms , despite the massive communication infrastructure overhead required .
+for example , the current state - of - the - art neuromorphic platform truenorth ( merolla et al. , 2014 ) is capable of simulating a million spiking neurons in real - time while consuming 63 mw. the equivalent network executed on a high - performance computing platform was 100 - 200x slower than real - time and consumed 100,000 to 300,000x more energy per synaptic event1 ( merolla et al. , 2014 ) .
+truenorth is capable of delivering 46 billion synaptic operations per second per watt ( sops / w ) when executing at real - time and 70 billion sops / w at 5x faster than real - time ( 200 mus updates ) .
+an additional advantage of simulating snn on neuromorphic platforms is that their event - based nature makes them more suitable to use with low - power , low - latency , high dynamic range neuromorphic vision and auditory sensors ( lichtsteiner et al. , 2008 ; liu et al. , 2010 ; lenero - bardallo et al. , 2011 ; posch et al. , 2011 , 2014 ; serrano - gotarredona and linares - barranco , 2013 ) .
+snns have been characterized as the 3rd generation of artificial neural networks ( anns ) and while they are theoretically computationally more powerful than conventional continuous or rate - based ann ( maass and markram , 2004 ) they still lack the success of their predecessors .
+a possible explanation for this is the lack of sophisticated training algorithms like those that have been developed for anns over the past decades .
+because the activation functions of spiking neurons are not differentiable ( due to the threshold condition ) , snns are not able to directly use the popular training methods used in anns , such as backpropagation , which require differentiable functions .
+to address this , research groups currently focus on two different paths : either employ biologically plausible unsupervised learning rules , like spike - timing - dependent plasticity ( stdp ) ( dan and poo , 1992 ) to extract features from inputs ( masquelier and thorpe , 2007 ; bichler et al. , 2012 ; neftci et al. , 2014 ; diehl and cook , 2015 ; kheradpisheh et al. , 2016 ) or they follow an intermediate step : a neural network is trained off - line using continuous / rate - based neuron models ( anns ) with state - of - the - art supervised training algorithms ( lecun et al. , 1998 ; hinton et al. , 2006 ) and then map the trained network to a snn ( merolla et al. , 2010 ; o'connor et al. , 2013 ; perez - carrasco et al. , 2013 ; diehl et al. , 2015 ) , ready to be executed efficiently on a neuromorphic platform ( camunas - mesa et al. , 2010 ; arthur et al. , 2012 ; furber et al. , 2014 ; merolla et al. , 2014 ; stromatias et al. , 2015a ) .
+while the current state - of - the - art results in classification tasks with snns come from the latter methodology ( diehl et al. , 2015 ; rueckauer et al. , 2016 ) there are a number of drawbacks that are usually not addressed .
+one major issue is that these neural networks are trained using synthetic data .
+this is , the input spiking activity fed to the snn is generated artificially from frame images ( like mnist ) , where the gray level of an image pixel is mathematically transformed into a stream of spikes using some algorithmic method ( like the popular poisson distribution encoding ) .
+this imposes practical issues when switching to non - synthetic real input data captured with a physical spiking silicon retina such as a neuromorphic dynamic vision sensor ( dvs ) ( lichtsteiner et al. , 2008 ; posch et al. , 2011 ; serrano - gotarredona and linares - barranco , 2013 ) .
+in this case , the time distribution of spikes / events coming from these sensors are not poissonian and this results in the snn performing very poorly in terms of classification accuracy .
+our personal experience is that when mapping the full network from anns to snns the loss in accuracy is low / reasonable if input data is generated synthetically as poisson spike distributions .
+however , accuracy drops dramatically if input data to the same network is replaced by real sensory data recorded from spiking silicon retinas ( like n - mnist , mnist - dvs , poker - dvs ) ( orchard et al. , 2015a ; serrano - gotarredona and linares - barranco , 2015 ; soto , 2017 ) .
+as a matter of fact , the reported high accuracy works on training a full network in the frame - domain and mapping it to the snn domain always report results with synthetic data ( merolla et al. , 2010 ; o'connor et al. , 2013 ; diehl et al. , 2015 ) on the other hand , work presented in recent years has shown that it is possible to learn features efficiently with snns using stdp ( masquelier and thorpe , 2007 ; bichler et al. , 2012 ; diehl and cook , 2015 ; kheradpisheh et al. , 2016 ) and other unsupervised methods such as event - based contrastive divergence ( cd ) ( neftci et al. , 2014 , 2016 ) .
+an advantage of leaning with stdp is that it inherently takes into consideration the timing distribution of events coming from a dvs sensor ( bichler et al. , 2012 ; roclin et al. , 2013 ) .
+however , after extracting the snn features many researchers use a method to convert the asynchronous events of an snn to frames for an ann in order to train a frame - based classifier such as a support vector machine ( svm ) ( kheradpisheh et al. , 2016 ) or radial basis function ( rbf ) classifier ( masquelier and thorpe , 2007 ) and evaluate how " good " the spike - domain learned features are .
+often this conversion is done by a population of leaky integrate - and - fire ( lif ) neurons with infinite threshold ( masquelier and thorpe , 2007 ) .
+the neurons integrate the inputs from the previous layers and when a control signal arrives they export their internal states and a frame is created .
+in a practical snn system , for example if fully deploying it as a compact hardware , it is highly desirable that all stages , including the classifier , can be implemented in the spiking domain .
+recent work has successfully explored direct training in the spiking domain .
+for example , lee et al .
+( 2016 ) proposed a backpropagation - like technique for directly training a multi - layer snn with fully - connected inter - layer connectivity .
+they used real dvs recorded ( n - mnist ) input sensory data ( orchard et al. , 2015a ) and report the best accuracy reported to date with a fc ( fully - connected ) topology and dvs data ( 98.66 %) .
+neftci et al .
+( 2017 ) have recently proposed a simple event - driven random backpropagation rule to rapidly learn deep representations , although they only provide results for synthetic input data .
+in this paper we present an alternative methodology for training only an event - based classifier in a supervised manner .
+this spike - based classifier can be used as the output layer in any snn that has already extracted features , for example using stdp or another unsupervised method ( bichler et al. , 2012 ; roclin et al. , 2013 ; neftci et al. , 2014 , 2016 ; diehl and cook , 2015 ; kheradpisheh et al. , 2016 ) , or to fine - tune an already trained snn ( o'connor et al. , 2013 ) .
+the method proposed here is based on the idea of training in the frame domain and then testing with events but instead of training a full ann and then mapping it to an snn , it uses the spiking output activity of the ( pre - classifier ) snn to create a new frame - based dataset , which captures the dynamics of the spikes .
+these snn - sensitive frames are then used to train a fully - connected classifier , using supervised learning algorithms such as stochastic gradient descent ( sgd ) ( bottou , 2010 ) on the new dataset .
+after training , the frame - based ann classifier is mapped directly to a population of lif neurons , which is used as the output layer of the snn .
+the advantages of this method is that it is easy to implement by taking advantage of popular supervised training algorithms , it yields good prediction accuracy for both synthetic data and real dvs data , and it can cope with neuron leakages with minimal loss in the classification performance .
+to our knowledge , this technique of training the classifier output layer of an snn has never been reported before2 .
+this paper is structured as follows : section 2 discusses the datasets used for this work , which include both data recorded from a dvs sensor and synthetically generated spike - trains from static images .
+section 2.2 introduces the snn simulator used for this work .
+section 2.3 describes the topology of the neural network used for all the experiments .
+section 2.4 presents the neuron and synapse model .
+section 2.5 describes the proposed method to train a classifier in a supervised manner using frames and how to convert it back to an snn .
+section 3 presents results and finally , section 4 presents some discussions and the conclusions .
+2. materials and methods 2.1 .
+data sets for this work we used two types of data sets with different encoding methods : mnist handwritten digit data sets and poker card deck data sets recorded with dvs cameras .
+the original mnist data set ( lecun et al. , 1998 ) consists of 70,000 28 x 28 gray scale images of handwritten digits out of which 60,000 digits are used for training and 10,000 for testing .
+in this paper we use 4 variants of the mnist data set .
+the first two convert the original mnist static images into artificial spike - trains using each a different method ( liu et al. , 2016 ) , ( a ) poisson encoding and ( b ) intensity - to - latency encoding .
+the other two utilize spikes recorded from a dvs sensor and are known as ( c ) mnist - dvs ( serrano - gotarredona and linares - barranco , 2015 ) and ( d ) n - mnist ( neuromorphic mnist ) ( orchard et al. , 2015a ) .
+the poker card data sets consist of either ( e ) browsing at very high speed a poker card deck in front of a dvs sensor ( serrano - gotarredona and linares - barranco , 2015 ) , or ( f ) showing printed symbols on paper to a dvs ( soto , 2017 ) .
+next we briefly describe the different data sets : mnist poisson encoding .
+this is the most popular method of converting static images into spike - trains and has been used in several published works ( o'connor et al. , 2013 ; diehl and cook , 2015 ; diehl et al. , 2015 ; rueckauer et al. , 2016 ; stromatias et al. , 2015b ) .
+each pixel of an mnist digit is converted to a poisson spike train with a firing rate proportional to its intensity , while all pixels' firing rates are scaled such that the total number of spikes of the input population is fixed for a given stimulus duration .
+this is illustrated in figure 1a , where maximum spikes per pixel was set to 15 , total spikes to 1,000 , and stimulus duration to 255 mus .
+mnist intensity - to - latency encoding .
+in this method only one spike per pixel is generated , based on its intensity ( masquelier and thorpe , 2007 ; kheradpisheh et al. , 2016 ) .
+pixel intensity is transformed linearly into an event delay with respect to a common reference instant ( time " 0 " in figure 1 ) .
+pixels with higher intensity will produce an earlier spike .
+the advantage of this method is that , since it produces only one spike per pixel , it will theoretically result in lower activity and faster response times than poisson encoding .
+figure 1b shows an example of intensity - to - latency encoding , where maximum intensity is encoded with 0 delay spikes and zero intensity is encoded with 255 mus delay spikes .
+mnist - dvs data set .
+the mnist - dvs data set is a version of the original mnist data set recorded with a dvs sensor ( serrano - gotarredona and linares - barranco , 2015 ) .
+this data set consists of a 128 x 128 input size set of 30,000 dvs camera recordings .
+each recording is obtained by displaying a slowly moving symbol from the standard mnist database on an lcd monitor for about 2 - 3 s. due to the size of the recorded files , only 10,000 of the original 70,000 symbols were recorded , but each symbol was displayed at three different scales .
+for this work the 10,000 samples recorded at higher scale ( called " scale 16 " in serrano - gotarredona and linares - barranco , 2015 ) were used. from these , 8,000 samples were used for training and the remaining 2,000 samples were used for testing .
+the mnist - dvs data set includes some matlab scripts for optionally pre - processing the recorded events .
+this pre - processing can eliminate the 75 hz lcd screen refresh rate harmonic and / or stabilize the moving digit .
+for this work we did not stabilize the digits , as we were interested in moving samples .
+also , we noticed that removing or not the 75 hz lcd screen refresh rate was absolutely irrelevant for recognition performance ( the results were identical , whether or not this harmonic was removed ) .
+n - mnist data set .
+the n - mnist data set imitates biological saccades for recording the complete mnist data set with a dvs sensor .
+a dvs sensor is mounted on a pan - tilt unit pointing to a monitor where digits are displayed .
+the dvs is then subject to 3 sequential 100 ms saccades at 3 different angles ( horizontal , + 60degrees , and - 60degrees ) .
+therefore , each sample corresponds to 3 saccades with a total duration of about 300 ms. fast - poker - dvs data set .
+the fast - poker - dvs data set was created by browsing poker card decks in front of a dvs camera ( serrano - gotarredona and linares - barranco , 2015 ) .
+each card crossed the field of view in about 10 - 30 ms. the poker pips were tracked and isolated to a 32 x 32 pixel window .
+the data set contains a total of 131 symbols .
+another variant of this data set with 40 cards has also been used for comparison with previous works ( perez - carrasco et al. , 2013 ) .
+slow - poker - dvs data set .
+in this data set ( soto , 2017 ) recordings were made while a human was holding a poker symbol in front of a dvs moving it at " human speed " ( soto , 2017 ) .
+the purpose of this data set was for setting up interactive demos .
+this data set consists of four different dvs sensor recordings of around 3 min duration each .
+each recording corresponds to a poker card symbol ( club , diamond , heart or spade ) .
+to create a training and testing data set , the recordings were split into 100 ms time slots .
+this resulted into a total of 6,751 samples , 5,402 ( 80 %) of which were used for training and 1,349 ( 20 %) for testing .
+figure 1 2 - d histograms and raster plots for different encoding schemes and neuromorphic data sets .
+( a ) poisson 28 x 28 input size sample .
+( b ) latency 28 x 28 input size sample .
+( c ) mnist - dvs 128 x 128 input size sample .
+( d ) n - mnist 34 x 34 input size sample .
+( e ) fast - poker dvs 32 x 32 input size sample .
+( f ) slow - poker dvs 128 x 128 input size sample .
+2.2 .
+spiking neural network simulator for this work we used the modular event - driven growing asynchronous simulator ( megasim ) 3 as our main simulation platform .
+megasim is a tool designed for simulating address - event - representation ( aer ) ( mahowald , 1994 ) multi - module hardware systems behaviorally , with strong emphasis on hardware performance parameters of the modules ( processing delays , handshaking and communication delays , parameter variations , noise , etc. ) .
+in megasim the user defines a netlist of modules interconnected through aer links ( also called " nodes ") .
+modules process events coming in on their input aer nodes and generate output events on their output aer nodes .
+the netlist also contains at least one " source node ," which provides a list of time - stamped events ( from a dvs recording , or created artificially ) .
+modules in megasim can have an arbitrary number of input / output ports and can either be populations of neurons , an algorithm described in standard c programming language or combinations of both .
+at start - up only the events in the source nodes are available , which are tagged as " unprocessed. " megasim looks at all nodes , picks the earliest un - processed event , tags it as " processed ," calls the modules that receive it , and performs the corresponding processing within each module .
+if a module generates events at one or more of its output ports , they are written on those nodes with a timestamp equal to the actual time or equal to some future time in case the module is modeled as having some processing delay , while tagging them as " unprocessed. " every time an event is added to the list of unprocessed events of a node , all the unprocessed events are re - sorted according to their timestamps .
+aer events are represented using 3 timing values and n event parameters .
+event parameters are typically 3 and are in the form of x , y , and polarity .
+however , these parameters can be any signed integer and the user decides how a module interprets and processes them .
+the 3 timing parameters include : pre - request ( pre - rqst ) which represents the time an event is created inside a module , request ( rqst ) which is the time when this event is actually put on the node , and acknowledge ( ack ) which is the time when the acknowledgment signal is communicated .
+when an event has been queued in a link or node , it is tagged as " unprocessed " by setting rqst and ack to - 1 .
+once rqst and ack have both a positive number , it means they are tagged as " processed. " the simulation finishes by either setting a maximum simulation time , or when there are no more " unprocessed " events .
+when the simulation finishes there will be a list of timestamped processed events for each node in the network .
+activity of nodes can then be visualized with a dynamic event viewer like jaer ( delbruck , 2013 ) .
+2.3 .
+network architecture 2.3.1 .
+convolutional neural network the goal of this work focuses on training and using an efficient event - driven classifier .
+a classifier requires a previous feature extraction sub - system .
+for this work we used a spiking convolutional neural network to extract features before training the classifier .
+convolutional neural networks ( convnets ) ( lecun et al. , 1998 ) are multi - layer feed - forward neural networks that are composed of alternating layers of convolution and spatial sub - sampling , with non - linearities between subsequent layers .
+each convolutional layer is structured into a number of " feature maps ," each detecting a specific feature .
+convnets introduce three basic ideas : local receptive fields , shared weights , and pooling .
+neurons in a convolutional layer are connected only to a sub - region of the layer before it ( local receptive field ) , instead of to all presynaptic neurons as in a fully - connected network .
+inside a feature map , the connectivity pattern and synaptic weights of the local receptive field is the same for all neurons .
+consequently , synaptic weights are shared by all neurons in the same feature map , and all neurons will therefore detect the same features but at different locations within the feature map .
+some of the advantages of the shared weights per feature map is that they greatly reduce the number of learning parameters , which also reduces the memory requirements , and also results in speed - ups during the training process when compared to fully - connected neural networks ( lecun et al. , 1998 ) .
+a pooling layer is added periodically in - between successive convolutional layers .
+pooling acts as a non - linear down - sampling that reduces the spatial size of the representation , the computations for the upper layers and finally provides a form of translation invariance .
+for this work we used subampling as a pooling layer .
+figure 2 shows the spiking neural network ( snn ) topology we have used for all our experiments .
+the input field size ( nxn ) varies depending on the data set from 28 x 28 to 128 x 128 .
+inputs are fed to a one - layer convnet , consisting of 18 feature maps ( c1 ) of size ( n - k + 1 ) x ( n - k + 1 ) each with a receptive field of size kxk ( also called " convolutional kernel ") , followed by a subsampling pooling layer ( s1 ) .
+figure 2 the topology of the event - driven convnet used for this work .
+where n is the size of the input layer , k is the size of the kernel .
+the output of this 1 - layer convnet consists therefore of 18x (( n - k + 1 )/ 2 ) x (( n - k + 1 )/ 2 ) neurons , which are rearranged into a one - dimensional vector by a module named " flatten. " the outputs of this flatten module provide the inputs to our fully connected spiking classifier .
+for example , for an input image of 28 x 28 and a convolutional kernel size of 7 x 7 the output of this 1 - layer convnet consists of 2,178 neurons .
+the 2,178 outputs of this module are fully connected to all the classifier output neurons ( one for each class ) .
+the 1 - layer feature extraction convnet was always programmed with 18 gabor filter kernels .
+an example of the gabor filter kernels with size 7 x 7 is shown in figure 3 .
+these kernels were generated using the following equations ( 1 ) g ( x,y,lambda,theta,psi,sigma,gamma )= exp ( - x'2 + gamma2 + y'2sigmay2 ) x cos ( 2phix'lambda + psi ) ( 2 ) x '= xcostheta + ysintheta,y '= - xsintheta + ycostheta ' where lambda is the wavelength of the sinusoidal factor , theta is the orientation of the normal to the parallel stripes of a gabor function in degrees , psi is the phase offset , sigma represents the width of the gaussian , and gamma is the spatial aspect ratio .
+for the 18 kernels we used 9 orientations and 2 phases .
+the parameters used to generate the 2d gabor kernels are shown in table 1 .
+figure 3 the pre - computed 7 x 7 gabor kernels used for the first convolutional layer .
+table 1 the parameters used to generate the 18 2d gabor kernels .
+parameters values theta [ 0 , 20 , 40 , 60 , 80 , 100 , 120 , 140 , 160 ] degrees sigma 4 lambda 8 psi [ 0.0 , 1.7 ] gamma 0.5 2.3.2 .
+fully connected network to demonstrate that the proposed methodology can be used to fine - tune ( optimize ) the performance of an already trained snn we utilized the fully connected network from o'connor et al .
+( 2013 ) .
+this particular network consists of two hidden layers , each with 500 neurons as seen in figure 4 , and was trained on the mnist dataset with the contrastive divergence ( cd ) algorithm ( hinton et al. , 2006 ) using siegert neurons ( siegert , 1951 ) , which are a rate - based approximation of integrate - and - fire neuron models .
+figure 4 the topology of the fully connected network as trained by o'connor et al .
+( 2013 ) .
+this network has been reported to achieve a classification accuracy of 95.2 % using the siegert neurons ( frame - based ann ) and 94.09 % with lif neurons ( o'connor et al. , 2013 ) .
+in addition , this snn has been thoroughly investigated for its robustness to input noise and bit resolution requirements ( stromatias et al. , 2015b ) and has been implemented on various hardware platforms ( neil and liu , 2014 ; stromatias et al. , 2015a ) with success .
+for this paper we are going to remove the fully connected output layer and replace it with the snn classifier trained using the methodology described in the following sections .
+2.4 .
+neuron model the neuron model used is purely event - driven .
+neurons' internal states , also called membrane voltages , are updated in response to an incoming event .
+the model uses linear leakage and delta - dirac ( instantaneous ) synapses .
+this neuron model is described in great detail by perez - carrasco et al .
+( 2013 ) , while hardware implementations of this model have been reported by camunas - mesa et al .
+( 2011 , 2012 ) and serrano - gotarredona et al .
+( 2015 ) .
+a typical time evolution of a neuron membrane voltage vmi ( t ) is shown in figure 5 .
+all neurons in a layer share the same parameters membreset ( neuron resting level ) , thplus ( positive threshold ) , thminus ( negative threshold ) , and leakage rates .
+leakage rates can be defined differently for vmi ( t ) > membreset and vmi ( t ) < membreset .
+when there is no input spike , membrane voltage vmi ( t ) is subject to leakage only , ( 3 ) dvmi ( t ) dt = - thplus - membresettlplus , if vmi ( t )> membresetdvmi ( t ) dt =+ membreset - thminustlminus , if vmi ( t )< membreset figure 5 the evolution and spike generation sequence for a spiking neuron with linear leakage and refractory period .
+the event - driven simulator megasim only updates the leakage when a new input event is received .
+for this , each neuron stores the time of its latest input event within its state variables .
+after updating the leakage , the neuron state vmi ( t ) is updated instantaneously by adding / subtracting the synaptic weight of the connection of the incoming spike .
+when a neuron reaches its positive threshold thplus , it generates a positive output spike and is reset to membreset .
+if it reaches its negative threshold thminus , it generates a negative output spike and is reset as well .
+this way , output spikes are " signed. " the sign of a presynaptic spike is combined with the sign of the synaptic weight to define the sign of the update at the post - synaptic neuron .
+therefore , the present neuron model is a " signed " neuron model .
+it is possible to degenerate this signed model into one that only generates positive spikes ( or only negative spikes ) .
+this can be done , for example , by setting the negative threshold thminus to a very high number ( like the limit of numerical precision in the simulator ) .
+in our experiments , the classifier ( fc ) always uses this degenerated positively - signed neuron model .
+this way it behaves like a lif neuron with limited precision and linear leakage .
+for the convolution layer ( c1 ) neurons , we will use symmetric thresholds ( thminus = - thplus ) and leakage rates ( tlplus = tlminus ) but negative spikes are disabled ( thminusinfo = 0 , see the supplementary material ) .
+upon reaching the negative threshold ( thminus ) the membrane resets to its resting state ( membreset ) , but no negative event is communicated .
+we found that this configuration produces slightly better results and keeps the neuron model identical to previously published work of software and hardware implementations ( camunas - mesa et al. , 2011 , 2012 ; perez - carrasco et al. , 2013 ; serrano - gotarredona et al. , 2015 ) .
+in the supplementary materials we show the pseudo codes of the neuron models of the convolutional layer and of the classifier fully connected layer .
+2.5 .
+methodology for training an event - driven classifier for this work both snn architectures have already extracted features .
+for the case of the convnet topology ( figure 2 ) this was done by using a " sufficiently rich " set of pre - programmed feature detection filters , as seen in figure 3 , for the c1 layer .
+for the case of the fully connected network ( figure 4 ) , the 2 hidden layers were trained using the unsupervised methodology described in o'connor et al .
+( 2013 ) .
+the only weights that are here subject to training are the weights of the fully - connected spiking classifier ( output layer ) .
+however , here training is not performed in the spiking domain .
+the method we used in this work consists of the following steps : 1 .
+- provide the stimulus spike sequence of each sample to the input of the snn ( layer 1 ) , and build an analog vector representation ( a " frame ") for each sample by building a normalized histogram of the counting events at the output of the " flatten " module for the convnet topology and output of the second layer for the fully connected topology .
+2. - use these vectors ( frames ) to train a fully connected ( non - spiking ) classifier using stochastic gradient descent ( sgd ) .
+3. - use a scaled version of the learned classifier weights for the spiking classifier .
+one parameter that in principle should affect both training and testing is the leakage rate .
+depending on the leakage rate value , the normalized histograms may change slightly and therefore the learned weights as well .
+consequently , testing should be done using the same leakage rate used for obtaining the normalized histograms .
+as a matter of fact , many works reported in the literature on spiking neural networks do not use leakage ( diehl et al. , 2015 ; rueckauer et al. , 2016 ) or use leakages in the order of seconds ( o'connor et al. , 2013 ) .
+however , if there is no leakage , after providing the spikes representing an input pattern , all neurons need to be reset to be ready for the next input .
+in this case , input samples have to be provided sample by sample ( sbs ) and the system needs to be reset between new sample presentations .
+in a real scenario setup ( for example , a moving robot ) the system does not know when a new sample comes in , and should work rather in a continuous mode .
+this is when leakage comes in , and neural activity fades away some time after input pattern activation .
+in this situation there is no need to reset neuron states and the system operates in a continuous manner .
+consequently , if there is non - zero leakage we can present the input patterns one after the other , as long as there is enough inter - sample time to allow the neuron states to fade to their resting state .
+in this case , we can pass all symbols as a unique input spiking sequence .
+we call this scenario " one pass " ( op ) .
+for the rest of the paper we will be distinguishing between sbs ( zero leakage ) and op ( non - zero leakage ) setups , for both training ( this is , obtaining the normalized histograms ) and testing .
+we noticed that , in general , sbs performs slightly better than op. next we describe in more detail each of the three steps followed for the training procedure .
+2.5.1. from events to frames using the spiking simulator megasim we collect the spike sequences at the output of module " flatten " in the convnet topology and the second layer for the fully connected topology , in order to create a normalized spike histogram for each sample .
+for each of the neurons in layer " flatten " ( see section 2.3 ) , we count the total number of spikes .
+the resulting histogram is normalized with respect to the maximum value , resulting in an analog vector with n components within the interval [ 0,1 ] , n is the number of outputs for the flatten layer .
+these resulting spike histograms vary depending on the data set , the parameters of layer c1 , and if there is leakage or not .
+2.5.2 .
+training the normalized histograms of the spike - counts of the flatten layer ( figure 2 ) for each input sample are converted to an analog vector ( frame ) .
+this is repeated for both the training and testing set in order to create a new data set that will be used to train the classifier .
+the classifier used for this work is softmax regression trained with mini - batch stochastic gradient descent ( msgd ) ( bottou , 2010 ) without biases .
+outputs of the classifier y = ( y1 , ... yk , ... ) represent the scores or probabilities for each class k. the softmax activation function results in the following class k output prediction probability for a given input vector xi ( 4 ) yk ( xi,w )= ewkxisumjewjxi where w is the weight matrix , and xi is the input vector fed to the classifier provided by layer flatten .
+vector wk is the weight matrix line representing class k. note that the probabilities of all classes add to one .
+the cost function to be minimized by the msgd algorithm is the negative log - likelihood loss ( nll ) , which is described as : ( 5 ) c = - 1dsumi | d | sumj | k | ii ( j ) log ( yj ( xi,w )) where d is the mini - batch , k is the set of classes , ii ( j ) = 1 for j = li and 0 otherwise .
+li is the target output ( label ) for sample i , and yj is the output of the softmax unit j. the purpose of the sgd is to minimize the cost function nll by updating the parameters of the model w in rhx | k | , where h is the size of the flatten layer and k is the number of classes .
+the msgd updates the weight matrix after each mini - batch by computing the gradient with respect to the weights of the objective function , ( 6 ) w = w - etanablawc where eta is the learning rate , which determines the size of the update steps taken to reach a minimum .
+for this work we used a fixed learning rate and fixed number of epochs .
+the predicted class yi of the model for a given input xi is taken as the unit that has the maximum activation and is described by ( 7 ) yi = argmaxk { yk ( xi,w )} 2.5.3. from frames back to events after the training process is over the learned weights are scaled by a constant integer k. this integer should be of the order of the threshold of the fully connected classifier spiking neurons thfc .
+as we will see in section 3 , we have set thfc = k , with k always equal to 10,000,000 .
+3. results we performed extensive training and testing on the different data sets described in section 2.1 , in order to characterize the effectiveness of the spiking classifier .
+we measure the effectiveness of the spiking classifier by what we call here " classifier loss. " we define " classifier loss " as the difference in recognition performance between the accuracy obtained with the ann frame - based classifier and that obtained after mapping the classifier to its snn version .
+if " classifier loss " is negative , there is a degradation when going from ann to snn , and if it is positive there is an improvement .
+table 2 shows the different parameters used for the different trials .
+since the focus of this work is on studying and characterizing the classifier , we tried to keep the first convolution layer as similar as possible among all data sets .
+however , depending on the nature of data set we had to adjust a few parameters and options specifically for each .
+the number of feature maps ( fm ) , or c1 convolutions , was always kept at 18 .
+the feature map size , however , was changed between 28 x 28 and 128 x 128 to adapt to the input space of each data set .
+kernel size also varies from 7 x 7 to 21 x 21 .
+some meta - parameters ( like selected time slices for building histograms ) were adjusted manually at the very beginning by quickly playing with some training set samples .
+we never used any test set result to fine tune any parameter , because this would " leak " information about the test set to the system ( nowotny , 2014 ) .
+all meta - parameters were decided from the beginning and then never touched again .
+this was because our goal was not to optimize the overall system accuracy , but the " classifier loss. " table 2 parameters used for the c1 convolution layers and the fc classifiers .
+data set input c1 convolutions fc classifier input size # of fms fm size kernel size thplus thminus tlplus ( op ) tlminus ( op ) # of neurons thplus tlplus ( op ) synthetic mnists 28 x 28 18 22 x 22 7 x 7 1.2 x 108 - 1.2 x 108 1.2 x 104 1.2 x 104 10 107 1.2 x 104 n - mnist 34 x 34 18 28 x 28 7 x 7 2 x 107 - 231 106 106 10 107 106 mnist - dvs 128 x 128 18 108 x 108 21 x 21 8 x 108 - 231 1.5 x 104 - 1.5 x 104 10 107 1.2 x 104 slow - poker - dvs 128 x 128 18 114 x 114 15 x 15 1.5 x 107 - 1.5 x 107 1.5 x 104 1.5 x 104 4 107 1.5 x 105 fast - poker - dvs 32 x 32 18 26 x 26 7 x 7 1.5 x 107 - 231 1.5 x 104 1.5 x 104 4 107 1.5 x 105 the positive and negative thresholds of the c1 layer neurons were set symmetrically and for the classifier fc we set a maximum negative threshold to make it behave like a population of lif neurons , as discussed in section 2.4 .
+we observed that for both synthetic mnist data sets ( with latency or poisson encoding ) , and for the dvs data sets , we obtained slightly better results when using this configuration for neurons in layer c1 .
+for the fc classifier we always used unsigned neurons with threshold at 10m .
+the leakage parameters tlplus and tlminus are only used when data is presented in op ( one pass ) .
+when data is presented sbs ( sample by sample ) all leakages were set to " 0. " the performance results obtained are summarized in table 3 .
+the first column is the " training slice size " ( tss ) .
+this refers to the time slices into which the data set sample sequences were cut to present them to layer c1 and build the normalized histograms at layer flatten for training in the frame domain .
+for all mnist types of data sets we always used the full sample spiking sequence .
+this duration was equal to 255 mus for both synthetic mnists ( latency and poisson ) , between 2 and 3 s for mnist - dvs and about 300 ms for n - mnist .
+for the poker - dvs data sets we did not use the full sample sequence .
+for the slow - poker - dvs , as mentioned in section 2 , all sample recordings were split into 100 ms slices , while for the fast - poker - dvs , we tried three different slice sizes ( 2 , 5 , and 10 ms ) , because the performance was very sensitive to the slice size .
+table 3 summary of performance results .
+data set tss train and test sbs train op ann ( frames ) snn classifier loss average input sample activity average total sample activity latency ( mus ) ann ( frames ) snn test op classifier loss snn test sbs classifier loss latency full 98.45 98.42 - 0.03 151.12 957.37 10.89 98.41 98.39 - 0.02 98.37 - 0.04 poisson full 98.15 98.20 - 0.05 1,000 16,070.28 11.38 98.3 98.25 - 0.05 98.32 - 0.02 n - mnist full 97.77 97.23 - 0.54 4,203.61 29,9425.57 2,901.10 97.76 97.08 - 0.68 97.09 - 0.67 mnist - dvs full 97.3 97.25 - 0.05 73,520.96 139,707.66 58,918.25 97.95 97.9 - 0.05 97.95 0.00 slow - poker - dvs 100 ms 99.77 99.70 - 0.07 1,418.94 154,483.18 774.27 98.95 98.59 - 0.36 98.88 - 0.07 2 ms 94.44 100 + 5.66 231662.29 100.67 92.78 100 - 7.22 100 + 7.22 fast - poker - dvs 5 ms 95.00 94.65 - 0.35 2539.77 224598.88 124 95 93.13 - 1.87 93.89 - 1.11 10 ms 100 83.97 - 6.03 222681.92 126.21 100 85.50 - 14.5 85.50 - 14.5 the results in table 3 are separated into two groups , the first for training and testing without any leakage with inputs in sbs format , and the second trained with leakage with inputs in op format .
+in this second case , we show tests with inputs in both op and sbs formats .
+columns " ann ( frames )" refers to the accuracy obtained in the frame domain when training the classifier with the normalized histograms as inputs .
+these numbers will be used as the baseline reference for comparing the performance of the classifier spiking version .
+columns " snn " show the accuracy obtained when mapping the learned weights to the spiking network , and columns " classifier loss " indicate our performance figure defined above .
+for the cases of training and testing without leakage ( sbs ) we also provide the average number of events per input sample ( average input sample activity ) , the average total number of per samples produced within the full network including the input ( average total sample activity ) , and the " latency " defined as the time difference between the first spike of the input layer and the first output spike from the classifier .
+the training parameters for example the number of epochs and the learning rate ( eta ) were kept fixed to 1,500 epochs and 0.1 , respectively , for every data set .
+figure 6 summarizes the classification accuracies of the test set for the different data sets and their confidence intervals .
+the confidence intervals were calculated for a confidence level of 0.99 and assuming that the test samples are statistically independent .
+these confidence intervals give an idea of the expected accuracy depending on the method ( isaksson et al. , 2008 ; nowotny , 2014 ) .
+it can be seen that the confidence intervals are closely related to the test set size and the number of successes .
+figure 6 classification accuracies of the snns for each data set together with their corresponding confidence intervals .
+in the following sub - sections we indicate more specific details for each data - set .
+figure 7 reveals for each data - set how recognition accuracy evolves during one symbol presentation ( on average ) as function of the running number of input events .
+this is , in an event - driven system , its internal states and its outputs evolve as input events are provided , event by event .
+therefore , some output can be available during symbol presentation and it may change with each new input event during presentation of the input event sequence. with few input events , output accuracy is low .
+but as more input events arrive for a given input symbol , the recognition accuracy keeps improving , until typically reaching a plateau .
+since the data - sets we are using have a quite diverse average number of events per symbol , we show in figure 7a the recognition accuracy evolution with the percentage of input events per symbol , while figure 7b shows it as a function of the absolute number of input events ( in logarithmic scale ) .
+figure 7 the classification accuracy of the snns for each data set as ( a ) a function of average percentage of input events per symbol presentation , and ( b ) average absolute number of input events per symbol presentation .
+3.1 .
+synthetic mnists for the synthetic mnist spiking data sets ( latency and poisson ) we used the full original frame - based handwritten digit data set consisting of 70,000 samples out of which 60,000 are used for training and 10,000 testing .
+the training batch size was kept fixed to 500 samples .
+in order to have a fair comparison between the poisson encoding and the latency encoding , the stimulus duration for both was set to 255 mus .
+the threshold of the c1 neurons was manually and coarsely adjusted to maximize classification accuracy .
+the same parameters were used for the fc classifier layer for both synthetic encodings as can be seen in table 2 .
+for the synthetic mnist data sets we observed typically a classifier - loss between - 0.02 and - 0.05 % , except for the poisson case if training with leakage but testing without leakage .
+in this case we observed a slight improvement of + 0.02 % .
+moreover , a comparison between the latency and poisson encoding , revealed that the latency encoding does indeed generate less events , as expected .
+however , as seen in figures 7a,b the poisson encoding requires less than 50 % of the total spikes to reach close to the maximum score , whereas latency encoding requires 100 % of the input spikes to achieve the same effect .
+this makes sense since in the latency encoding there is only one spike per pixel , while in poisson encoding a pixel fires multiple times .
+3.2 .
+n - mnist the n - mnist data set comprises 70,000 samples , 60,000 for training and 10,000 for testing .
+each sample is composed of 3 sequential saccades of about 100 ms each .
+therefore the whole symbol duration is of about 300 ms. the training batch size was set to 500 samples .
+the training and testing neural network parameters can be seen in table 2 .
+for the sbs result there is a loss in the accuracy of - 0.54 % .
+when training op we observed a slightly higher loss in the accuracy , - 0.68 % testing op and - 0.67 % testing sbs .
+therefore the best snn accuracy result obtained is 97.23 % when performing the training and testing sbs .
+3.3 .
+mnist - dvs for the mnist - dvs data set , we use the full dvs 128 x 128 pixel resolution .
+the data set comprises 10,000 mnist digit samples , out of which 8,000 are used for training and 2,000 for testing .
+the training batch size was reduced to 20 samples .
+the threshold of the c1 neurons was manually adjusted to improve classification accuracy ( see table 2 ) .
+in this case the c1 convolutional kernel size selected was 21 x 21 .
+for this data set we observed a loss in the accuracy of 0.05 % for the sbs experiments and for training and testing op. there is no accuracy loss training op and testing sbs .
+the best snn accuracy result is 97.95 % .
+there are no accuracy results reported in literature for this data set , however , it is interesting to note that using a smaller data set than the n - mnist , 10,000 samples compared to 70,000 samples of the n - mnist , we achieve a slightly better accuracy result .
+3.4 .
+slow - poker - dvs data set uses the full dvs resolution .
+there is a total of 6,751 samples , 5,402 samples are used for training and 1,349 for testing .
+the training batch size was 50 samples and the convolutional kernel size was 15 x 15 ( see table 2 ) .
+each sample duration was set to 100 ms. the best snn accuracy performance obtained was 99.70 , 0.07 % lower that the classifier result when performing the training and testing sbs .
+the loss is higher when training and testing op , - 0.36 % and the accuracy of the classifier also dropped to 98.95 % .
+3.5 .
+fast - poker - dvs the number of samples for this data set is limited to 131 samples .
+each sample duration is ~ 10 - 30 ms. the approach followed with this data set to increase the number of samples and improve the accuracy results was to divide the sample representation in different time slices for training the classifier using softmax regression .
+for example , using time slices of 2 ms , the training set for the classifier extends to 776 samples and 192 for testing .
+even though the classifier training was done using these time slices , the snn testing was always done over the whole 131 sample representation , the 10 - 30 ms. therefore a 100 % of accuracy corresponds to 131 samples correctly identified .
+the results in table 3 shows that increasing the time slice increases the classifier accuracy , but decreases the snn accuracy .
+the classifier accuracy increases because with larger time slices , the training and testing samples are more similar , this is not happening with smaller time slices .
+however , for snn testing , finding a longer time slice pattern in the whole test sample is more difficult and therefore it behaves better with smaller time slices as 2 ms. it is worth noting that by using a 2 ms time slice we achieve a 100 % snn accuracy for both training sbs and op. however , to be more correct , these results correspond to training error , because the training slices were part of the whole sample of the testing set .
+to obtain a more correct recognition accuracy , the leave - one - out cross - validation ( loocv ) method was applied to this data set obtaining the recognition accuracy shown in figure 8a .
+the recognition accuracy reaches its top when the 50 - 60 % of the events of the samples are displayed .
+for both , 2 and 5 ms slice , the best recognition accuracy is 98.47 at 60 % of the events .
+this experiment was also done with the fast - poker - dvs of 40 samples data base for the aim of comparing them with the results in orchard et al .
+( 2015b ) and lagorce et al .
+( 2016 ) .
+orchard et al .
+( 2015b ) and lagorce et al .
+( 2016 ) obtained 97.5 and 100 % recognition success , respectively .
+in this work , for the 40 cards , applying the loocv method and using 2 ms slices the classification accuracy reaches 100 % when presented 50 - 80 % of the inputs events , as seen in figure 8b .
+figure 8 classification accuracy of the snn using ( a ) the loocv method over the 131 samples fast - poker - dvs data set and ( b ) the loocv method over the 40 samples fast - poker - dvs data set .
+3.6 .
+snn fine - tuning the snn shown in figure 4 was trained assuming poisson distribution for the input stimuli and was originally presented in o'connor et al .
+( 2013 ) achieving a score of 95.2 % in the frame domain and 94.09 % with a software snn simulator .
+since then this snn has been successfully implemented in various platforms ( neil and liu , 2014 ; stromatias et al. , 2015a,b ) , with the highest score 95 % reported in stromatias et al .
+( 2015a ) .
+here , we removed the output layer and trained a new classifier by taking advantage of the feature extraction done by the previous two layers .
+table 4 summarizes the results .
+the new frame - based classifier achieves a 97.24 % , while the snn accuracy increased from 95.26 to 97.25 % .
+the difference between the frame - based classifier and the snn is in the order of 0.01 % .
+table 4 summary of fine - tuning an already trained snn .
+classifier ( frames ) (%) snn ( megasim ) (%) original netowrk 95.2 ( o'connor et al. , 2013 ) 95.26 fine - tuned ( this work ) 97.24 97.25 3.7 .
+summary of results and comparison with related work table 3 and figure 7 summarize the results of this work for all data sets .
+more specifically , figure 7a shows how the classification accuracy of an snn improves as a function of the percentage of input events .
+this seems to be consistent with all data sets , both synthetically generated ( latency and poisson encoding ) and from a dvs sensor , and is in accordance with previously published studies ( neil and liu , 2014 ; diehl et al. , 2015 ; stromatias et al. , 2015b ). with fast - poker - dvs data set , there is a decrease in the performance in the last 20 % of the input events due to the deformation of the card symbol when it disappears .
+figure 7b presents the classification accuracy as a function of the absolute number of input events , in log scale , for the different data sets .
+this information is useful because in neuromorphic systems the overall energy consumption depends on the total number of events that are going to be processed ( stromatias et al. , 2013 ; merolla et al. , 2014 ; neil and liu , 2014 ) and this might have an impact on deciding which data set to use based on the energy and latency constraints figure 9 , presents the network latency for each data set .
+we identify network latency as the time lapsed from the first input spike to the first output spike .
+figure 9 the mean and standard deviation of the classification latency of the snns for each data set .
+table 5 presents a comparison of the current work with results in the literature on the mnist data set and snns .
+the current state - of - the - art results come from a spiking cnn with 7 layers and max - pooling achieving a score of 99.44 % and from a 4 layer spiking fc network achieving a score of 98.64 % ( diehl et al. , 2015 ) .
+both approaches were trained offline using frames and backpropagation and then mapped the network parameters to an snn .
+however , even though this approach works very well with poisson spike - trains or direct use of pixels , performance drops significantly with real dvs data .
+in addition , a direct comparison is not fair because the focus of this paper was to develop a classifier that works with both synthetic and dvs data and not to train a complete neural network with multiple layers .
+table 5 comparison of classification accuracies ( ca ) of snns on the mnist data set .
+architecture neural coding learning - type learning - rule ca (%) spiking rbm ( neftci et al. , 2015 ) poisson unsupervised event - based cd 91.9 fc ( 2 layer network ) ( querlioz et al. , 2013 ) poisson unsupervised stdp 93.5 fc ( 4 layer network ) ( o'connor et al. , 2013 ) poisson unsupervised cd 94.1 fc ( 2 layer network ) ( diehl and cook , 2015 ) poisson unsupervised stdp 95.0 synaptic sampling machine ( 3 layer network ) ( neftci et al. , 2016 ) poisson unsupervised event - based cd 95.6 fc ( 4 layer network ) ( this work ( o'connor et al. , 2013 )) poisson supervised stochastic gd 97.25 fc ( 4 layer network ) ( o'connor and welling , 2016 ) - supervised fractional sgd 97.8 fc ( 4 layer network ) ( hunsberger and eliasmith , 2015 ) not reported supervised backprop soft lif neurons 98.37 fc ( 4 layer network ) ( diehl et al. , 2015 ) poisson supervised stochastic gd 98.64 cnn ( kheradpisheh et al. , 2016 ) latency unsupervised stdp 98.4 cnn ( diehl et al. , 2015 ) poisson supervised stochastic gd 99.14 sparsely connected network ( x64 ) ( esser et al. , 2015 ) poisson supervised backprop 99.42 cnn ( rueckauer et al. , 2016 ) poisson supervised stochastic gd 99.44 cnn ( this work ) latency supervised stochastic gd 98.42 cnn ( this work ) poisson supervised stochastic gd 98.20 table 6 gathers the results in literature using the n - mnist data set and snn .
+the best classification accuracy reported is 98.66 % using a fc 3 layer network ( lee et al. , 2016 ) .
+using a cnn , this work reports the best classification accuracy 97.77 % until now .
+again , the focus of this paper is not beating the classification accuracy , there is no optimization done to improve the performance , but to provide a valid snn classifier training method with an insignificant classifier loss compared to frame based classification accuracy .
+table 6 comparison of classification accuracies ( ca ) of snns on the n - mnist data set .
+architecture preprocessing learning - type learning - rule ca (%) cnn ( orchard et al. , 2015b ) none unsupervised hfirst 71.15 fc ( 2 layer network ) ( cohen et al. , 2016 ) none supervised opium ( van schaik and tapson , 2015 ) 92.87 cnn ( neil and liu , 2016 ) centering supervised - 95.72 fc ( 3 layer network ) ( lee et al. , 2016 ) none supervised backpropagation 98.66 cnn ( this work ) none supervised sgd 97.77 finally table 7 shows the literature results for the 40 card fast - poker - dvs data set. with this work , we demonstrate that 100 % of classification accuracy is obtained using loocv method .
+table 7 comparison of classification accuracies ( ca ) of snns on the 40 cards fast - poker - dvs data set .
+architecture learning - type learning - rule ca (%) cnn ( perez - carrasco et al. , 2013 ) supervised backprop 90.1 - 91.6 cnn ( orchard et al. , 2015b ) unsupervised hfirst 97.5 +/ - 3.5 cnn ( lagorce et al. , 2016 ) supervised hots 100 cnn ( this work ) supervised stochastic gd 100 4 .
+discussion in this paper we have presented a novel method for training a classifier and converting it to an snn .
+one of the main advantages of the proposed technique is that it is able to work with both synthetically generated data , used frequently in previous studies ( masquelier and thorpe , 2007 ; o'connor et al. , 2013 ; neftci et al. , 2014 ; diehl and cook , 2015 ; diehl et al. , 2015 ; kheradpisheh et al. , 2016 ) , as well as with real dvs data from a neuromorphic vision sensor ( lichtsteiner et al. , 2008 ; posch et al. , 2011 ; serrano - gotarredona and linares - barranco , 2013 ) .
+recent works reported very good results while using synthetically generated events , however , this performance does not hold true when switching to dvs data , as a large drop in the classification accuracy is observed .
+here we used a single convolutional layer with the same number of feature maps and the same 18 hand - coded gabor - like kernels , in order to prove that our methodology works with both synthetic and dvs data .
+we did not try to optimize the kernels for each data set as this would be out of the scope of this work , only the dimensions of the feature maps changed according to the size of each data set .
+the importance of the results is to show the small difference between the frame - based classifier accuracy result and the snn classifier accuracy results .
+we also considered cases where leakage in neurons is activated , as this is more suitable for real - world applications .
+we have shown that for synthetic data there is a loss of 0.03 % in the classification accuracy when compared to the frame - based classifier , while for the n - mnist data set the higher loss between the frame - based classifier and the snn is in the order of 0.68 % .
+on the n - mnist the snn achieved a score of 97.77 % , which at the time of writing is the highest score for a convolutional snn using the n - mnist raw data .
+we also tested the classifier with the fast - poker - dvs data set , 40 cards , and obtained 100 % of accuracy by separating the data set into training and testing sets .
+furthermore , we extend this data set to a slightly bigger data set , 131 cards , showing a classification accuracy of 98.47 % .
+in addition , we presented a comparison between the different encodings and data sets in terms of classification latency and total number of events .
+this comparison is important because for neuromorphic platforms the energy consumption depends on the events to be processed ( stromatias et al. , 2013 ; merolla et al. , 2014 ) , and depending on the application one encoding might be more preferable than the other .
+as an example , mobile and robotic platforms that have limited energy resources and require fast responses might benefit from using intensity - to - latency encoding , since it produces the lowest network activity and output latency compared to all the data sets presented in this work .
+the proposed methodology has also been used to fine - tune an already trained snn .
+we showed that by using the features learned in an unsupervised manner using the cd algorithm ( o'connor et al. , 2013 ) and only retraining the classifier , the classification accuracy improved by 2 % .
+this result suggests that our classifier can be used in cases where features are extracted in an unsupervised manner , either based on biologically - plausible plasticity rules such as stdp ( bichler et al. , 2012 ; roclin et al. , 2013 ; diehl and cook , 2015 ; kheradpisheh et al. , 2016 ) or event - based implementations of cd ( neftci et al. , 2014 , 2016 ) .
+author contributions es and ms conceived the idea of the proposed classifier .
+es designed , and conducted the experiments with the synthetic data and analyzed the results .
+ms designed , performed the experiments with the dvs data sets and analyzed the results .
+es , ms , and bl wrote the paper .
+bl wrote the megasim simulator code , and es contributed new codes and python layers for systematic runs of repeated simulations and data analyses .
+bl contributed to the conception and design of the experiments , data analysis , and presentation of the work .
+ts provided an improved dvs sensor with which the most recent recordings were made .
+conflict of interest statement the authors declare that the research was conducted in the absence of any commercial or financial relationships that could be construed as a potential conflict of interest .
+this work was supported in part by the eu h2020 grants 644096 " ecomode " and 687299 " neuram3 " , by samsung advanced institute of technology grant npp , by spanish grants from the ministry of economy and competitivity tec2012 - 37868 - c04 - 01 ( biosense ) and tec2015 - 63884 - c2 - 1 - p ( cognet ) ( with support from the european regional development fund ) , and by andalusian grant tic - 6091 ( nanoneuro ) .
+1a synaptic event is defined as a spike hitting a single synapse .
+2on the other hand , training the full network in the ann domain and mapping it to snn is a well known method .
+3https :// bitbucket.org / bernabelinares / megasim supplementary material the supplementary material for this article can be found online at : http :// journal.frontiersin.org / article / 10.3389 / fnins.2017.00350 / full # supplementary - material click here for additional data file .
+supplementary material is included showing the pseudo - codes of the neuron models used in the algorithms .
+references ananthanarayanan r. esser s. k. simon h. d. modha d. s. ( 2009 ) .
+the cat is out of the bag : cortical simulations with 109 neurons , 1013 synapses , in proceedings of the conference on high performance computing networking , storage and analysis ( new york , ny ) , 1 - 12 . 10.1145 / 1654059.1654124 arthur j. merolla p. akopyan f. alvarez r. cassidy a. chandra s .
+( 2012 ) .
+building block of a programmable neuromorphic substrate : a digital neurosynaptic core , in neural networks ( ijcnn ) , the 2012 international joint conference on ( brisbane , qld ) , 1 - 8 . 10.1109 / ijcnn.2012.6252637 bichler o. querlioz d. thorpe s. j. bourgoin j .
+- p. gamrat c .
+( 2012 ) .
+extraction of temporally correlated features from dynamic vision sensors with spike - timing - dependent plasticity . neural netw .
+32 , 339 - 348 . 10.1016 / j.neunet.2012.02.022 22386501 bottou l .
+( 2010 ) .
+large - scale machine learning with stochastic gradient descent .
+heidelberg : physica - verlag 10.1007 / 978 - 3 - 7908 - 2604 - 3 _ 16 camunas - mesa l. acosta - jimenez a. zamarreno - ramos c. serrano - gotarredona t. linares - barranco b .
+( 2011 ) .
+a 32 x 32 pixel convolution processor chip for address event vision sensors with 155 ns event latency and 20 meps throughput . ieee trans. circ. syst .
+i regul .
+papers 58 , 777 - 790 . 10.1109 / tcsi.2010.2078851 camunas - mesa l. perez - carrasco j. zamarreno - ramos c. serrano - gotarredona t. linares - barranco b .
+( 2010 ) .
+on scalable spiking convnet hardware for cortex - like visual sensory processing systems , in circuits and systems ( iscas ) , proceedings of 2010 ieee international symposium on ( paris ) , 249 - 252 . 10.1109 / iscas.2010.5537918 camunas - mesa l. zamarreno - ramos c. linares - barranco a. acosta - jimenez a. j. serrano - gotarredona t. linares - barranco b .
+( 2012 ) .
+an event - driven multi - kernel convolution processor module for event - driven vision sensors . ieee j. solid - state circ .
+47 , 504 - 517 . 10.1109 / jssc.2011.2167409 cohen g. k. orchard g. leng s .
+- h. tapson j. benosman r. b. van schaik a .
+( 2016 ) .
+skimming digits : neuromorphic classification of spike - encoded images . front. neurosci .
+10 : 184 . 10.3389 / fnins.2016.00184 27199646 dan y. poo m .
+( 1992 ) .
+hebbian depression of isolated neuromuscular synapses in vitro . science 256 , 1570 - 1573 . 10.1126 / science.1317971 1317971 diehl p. cook m .
+( 2015 ) .
+unsupervised learning of digit recognition using spike - timing - dependent plasticity . front. comput. neurosci .
+9 : 99 . 10.3389 / fncom.2015.00099 26941637 diehl p. u. neil d. binas j. cook m. liu s. c. pfeiffer m .
+( 2015 ) .
+fast - classifying , high - accuracy spiking deep networks through weight and threshold balancing , in 2015 international joint conference on neural networks ( ijcnn ) ( killarney ) , 1 - 8 . eliasmith c. stewart t. c. choo x. bekolay t. dewolf t. tang y .
+.
+( 2012 ) .
+a large - scale model of the functioning brain . science 338 , 1202 - 1205 . 10.1126 / science.1225266 23197532 esser s. k. appuswamy r. merolla p. a. arthur j. v. modha d. s. ( 2015 ) .
+backpropagation for energy - efficient neuromorphic computing , in proceedings of the 28th international conference on neural information processing systems , nips'15 ( cambridge , ma : mit press ) , 1117 - 1125 . furber s. b. galluppi f. temple s. plana l. a. ( 2014 ) .
+the spinnaker project . proc .
+ieee 102 , 652 - 665 . 10.1109 / jproc.2014.2304638 gerstner w. kistler w .
+( 2002 ) .
+spiking neuron models : an introduction .
+new york , ny : cambridge university press . he k. zhang x. ren s. sun j .
+( 2015 ) .
+delving deep into rectifiers : surpassing human - level performance on imagenet classification , in 2015 ieee international conference on computer vision ( iccv ) ( santiago ) , 1026 - 1034 . hinton g. osindero s. teh y. w. ( 2006 ) .
+a fast learning algorithm for deep belief nets . neural comput .
+18 , 1527 - 1554 . 10.1162 / neco.2006.18.7.1527 16764513 hinton g. salakhutdinov r .
+( 2006 ) .
+reducing the dimensionality of data with neural networks . science 313 , 504 - 507 . 10.1126 / science.1127647 16873662 mit technology review ( 2013 ) .
+10 breakthrough technologies 2013 : deep learning .
+available online at : http :// www.technologyreview.com / featuredstory / 513696 / deep - learning / hunsberger e. eliasmith c .
+( 2015 ) .
+spiking deep networks with lif neurons . corr abs / 1510.08829 .
+isaksson a. wallman m. goransson h. gustafsson m. g. ( 2008 ) .
+cross - validation and bootstrapping are unreliable in small sample classification . patt. recogn. lett .
+29 , 1960 - 1965 . 10.1016 / j.patrec.2008.06.018 izhikevich e. m. edelman g. m. ( 2008 ) .
+large - scale model of mammalian thalamocortical systems . proc. natl. acad. sci. u.s.a .
+105 , 3593 - 3598 . 10.1073 / pnas.0712231105 18292226 delbruck t .
+( 2013 ) .
+jaer open source project .
+available online at : http :// sourceforge.net / apps / trac / jaer / wiki kheradpisheh s. r. ganjtabesh m. thorpe s. j. masquelier t .
+( 2016 ) .
+stdp - based spiking deep neural networks for object recognition . corr abs / 1611.01421 .
+lagorce x. orchard g. gallupi f. shi b. e. benosman r .
+( 2016 ) .
+hots : a hierarchy of event - based time - surfaces for pattern recognition . ieee trans. patt. anal. mach. intell .
+8828 : 1 10.1109 / tpami.2016.2574707 lecun y. bengio y. hinton g .
+( 2015 ) .
+deep learning . nature 521 , 436 - 444 . 10.1038 / nature14539 26017442 lecun y. bottou l. bengio y. haffner p .
+( 1998 ) .
+gradient - based learning applied to document recognition . proc .
+ieee 86 , 2278 - 2324 . 10.1109 / 5.726791 lee j. h. delbruck t. pfeiffer m .
+( 2016 ) .
+training deep spiking neural networks using backpropagation . front. neurosci .
+10 : 508 . 10.3389 / fnins.2016.00508 27877107 lenero - bardallo j. a. serrano - gotarredona t. linares - barranco b .
+( 2011 ) .
+a 3.6 mus latency asynchronous frame - free event - driven dynamic - vision - sensor . ieee j. solid state circuits 46 , 1443 - 1455 . 10.1109 / jssc.2011.2118490 lichtsteiner p. posch c. delbruck t .
+( 2008 ) .
+a 128 times ; 128 120 db 15 mus latency asynchronous temporal contrast vision sensor . ieee j. solid state circuits 43 , 566 - 576 . 10.1109 / jssc.2007.914337 liu q. pineda - garcia g. stromatias e. serrano - gotarredona t. furber s. b. ( 2016 ) .
+benchmarking spike - based visual recognition : a dataset and evaluation . front. neurosci .
+10 : 496 . 10.3389 / fnins.2016.00496 27853419 liu s. c. van schaik a. mincti b. a. delbruck t .
+( 2010 ) .
+event - based 64 - channel binaural silicon cochlea with q enhancement mechanisms , in proceedings of 2010 ieee international symposium on circuits and systems ( paris ) , 2027 - 2030 . 10.1109 / iscas.2010.5537164 maass w. markram h .
+( 2004 ) .
+on the computational power of circuits of spiking neurons . j. comput. syst. sci. 69 , 593 - 616 . 10.1016 / j.jcss.2004.04.001 mahowald m .
+( 1994 ) .
+an analog vlsi system for stereoscopic vision .
+norwell , ma : kluwer academic publishers . masquelier t. thorpe s. j. ( 2007 ) .
+unsupervised learning of visual features through spike timing dependent plasticity . plos comput. biol .
+3 : e31 . 10.1371 / journal.pcbi.0030031 17305422 mead c .
+( 1990 ) .
+neuromorphic electronic systems . proc .
+ieee 78 , 1629 - 1636 . 10.1109 / 5.58356 merolla p. ursell t. arthur j. v. ( 2010 ) .
+the thermodynamic temperature of a rhythmic spiking network . corr abs / 1009.5473 .
+merolla p. a. arthur j. v. alvarez - icaza r. cassidy a. s. sawada j. akopyan f .
+.
+( 2014 ) .
+a million spiking - neuron integrated circuit with a scalable communication network and interface . science 345 , 668 - 673 . 10.1126 / science.1254642 25104385 neftci e. augustine c. paul s. detorakis g .
+( 2017 ) .
+neuromorphic deep learning machines . corr abs / 1612.05596 .
+neftci e. das s. pedroni b. kreutz - delgado k. cauwenberghs g .
+( 2014 ) .
+event - driven contrastive divergence for spiking neuromorphic systems . front. neurosci .
+7 : 272 . 10.3389 / fnins.2013.00272 24574952 neftci e. das s. pedroni b. kreutz - delgado k. cauwenberghs g .
+( 2015 ) .
+event - driven contrastive divergence : neural sampling foundations . front. neurosci .
+9 : 104 . 10.3389 / fnins.2015.00104 25873857 neftci e. o. pedroni b. u. joshi s. al - shedivat m. cauwenberghs g .
+( 2016 ) .
+stochastic synapses enable efficient brain - inspired learning machines . front. neurosci .
+10 : 241 . 10.3389 / fnins.2016.00241 27445650 neil d. liu s .
+- c .
+( 2014 ) .
+minitaur , an event - driven fpga - based spiking network accelerator . ieee trans .
+very large scale integration ( vlsi ) syst .
+22 , 2621 - 2628 . 10.1109 / tvlsi.2013.2294916 neil d. liu s .
+- c .
+( 2016 ) .
+effective sensor fusion with event - based sensors and deep network architectures , in 2016 ieee international symposium on circuits and systems ( iscas ) ( montreal , qc ) , 2282 - 2285 . available online atl http :// ieeexplore.ieee.org / stamp / stamp.jsp ? tp =& arnumber = 7539039 & isnumber = 7527154 nowotny t .
+( 2014 ) .
+two challenges of correct validation in pattern recognition . front. robot .
+ai 1 : 5 10.3389 / frobt.2014.00005 o'connor p. neil d. liu s .
+- c. delbruck t. pfeiffer m .
+( 2013 ) .
+real - time classification and sensor fusion with a spiking deep belief network . front. neurosci .
+7 : 178 . 10.3389 / fnins.2013.00178 24115919 o'connor p. welling m .
+( 2016 ) .
+deep spiking networks . corr abs / 1602.08323 .
+orchard g. jayawant a. cohen g. k. thakor n .
+( 2015a ) .
+converting static image datasets to spiking neuromorphic datasets using saccades . front. neurosci .
+9 : 437 . 10.3389 / fnins.2015.00437 26635513 orchard g. meyer c. etienne - cummings r. posch c. thakor n. benosman r .
+( 2015b ) .
+hfirst : a temporal approach to object recognition . ieee trans. patt. anal. mach. intell .
+37 , 2028 - 2040 . 10.1109 / tpami.2015.2392947 26353184 posch c. matolin d. wohlgenannt r .
+( 2011 ) .
+a qvga 143 db dynamic range frame - free pwm image sensor with lossless pixel - level video compression and time - domain cds . ieee j. solid - state circuits 46 , 259 - 275 . 10.1109 / jssc.2010.2085952 posch c. serrano - gotarredona t. linares - barranco b. delbruck t .
+( 2014 ) .
+retinomorphic event - based vision sensors : bioinspired cameras with spiking output . proc .
+ieee 102 , 1470 - 1484 . 10.1109 / jproc.2014.2346153 perez - carrasco j. a. zhao b. serrano c. acha b. serrano - gotarredona t. chen s .
+.
+( 2013 ) .
+mapping from frame - driven to frame - free event - driven vision systems by low - rate rate coding and coincidence processing - application to feedforward convnets . ieee trans. patt. anal. mach. intell .
+35 , 2706 - 2719 . 10.1109 / tpami.2013.71 24051730 querlioz d. bichler o. dollfus p. gamrat c .
+( 2013 ) .
+immunity to device variations in a spiking neural network with memristive nanodevices . ieee trans. nanotechnol .
+12 , 288 - 295 . 10.1109 / tnano.2013.2250995 roclin d. bichler o. gamrat c. thorpe s. j. klein j. o. ( 2013 ) .
+design study of efficient digital order - based stdp neuron implementations for extracting temporal features , in neural networks ( ijcnn ) , the 2013 international joint conference on ( dallas , tx ) , 1 - 7 . rueckauer b. lungu i .
+- a. hu y. pfeiffer m .
+( 2016 ) .
+theory and tools for the conversion of analog to spiking convolutional neural networks . corr arxiv : 1612.04052 .
+schmidhuber j .
+( 2012 ) .
+multi - column deep neural networks for image classification , in proceedings of the 2012 ieee conference on computer vision and pattern recognition ( cvpr ) , cvpr ' 12 ( washington , dc : ieee computer society ) , 3642 - 3649 . schmidhuber j .
+( 2015 ) .
+deep learning in neural networks : an overview . neural netw .
+61 , 85 - 117 . 10.1016 / j.neunet.2014.09.003 25462637 serrano - gotarredona t. linares - barranco b .
+( 2013 ) .
+a 128 x 128 1.5latency 4 mw asynchronous frame - free dynamic vision sensor using transimpedance preamplifiers . ieee j. solid - state circuits 48 , 827 - 838 . 10.1109 / jssc.2012.2230553 serrano - gotarredona t. linares - barranco b .
+( 2015 ) .
+poker - dvs and mnist - dvs .
+their history , how they were made , and other details . front. neurosci .
+9 : 481 . 10.3389 / fnins.2015.00481 26733794 serrano - gotarredona t. linares - barranco b. galluppi f. plana l. furber s .
+( 2015 ) .
+convnets experiments on spinnaker , in 2015 ieee international symposium on circuits and systems ( iscas ) ( lisbon : ieee ) , 2405 - 2408 . 10.1109 / iscas.2015.7169169 siegert a. j. f. ( 1951 ) .
+on the first passage time probability problem . phys. rev .
+81 : 617 10.1103 / physrev.81.617 soto m .
+( 2017 ) .
+slow poker dvs data set .
+available online at : http :// www2.imse - cnm.csic.es / caviar / slowpokerdvs.html stromatias e. galluppi f. patterson c. furber s .
+( 2013 ) .
+power analysis of large - scale , real - time neural networks on spinnaker , in the 2013 international joint conference on neural networks ( ijcnn ) ( dallas , tx ) , 1 - 8 . 10.1109 / ijcnn.2013.6706927 stromatias e. neil d. galluppi f. pfeiffer m. liu s. c. furber s .
+( 2015a ) .
+scalable energy - efficient , low - latency implementations of trained spiking deep belief networks on spinnaker , in 2015 international joint conference on neural networks ( ijcnn ) ( killarney ) , 1 - 8 . 10.1109 / ijcnn.2015.7280625 stromatias e. neil d. pfeiffer m. galluppi f. furber s. b. liu s .
+- c .
+( 2015b ) .
+robustness of spiking deep belief networks to noise and reduced bit precision of neuro - inspired hardware platforms . front. neurosci .
+9 : 222 . 10.3389 / fnins.2015.00222 26217169 van schaik a. tapson j .
+( 2015 ) .
+online and adaptive pseudoinverse solutions for elm weights . neurocomputation 149 , 233 - 238 . 10.1016 / j.neucom.2014.01.071

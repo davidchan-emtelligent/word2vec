@@ -1,0 +1,242 @@
+plos one plos one plos plosone plos one 1932 - 6203 public library of science san francisco , usa 25058310 4109960 pone - d - 14 - 11593 10.1371 / journal.pone.0103010 research articlebiology and life sciencesbiophysicsbiophysical simulationscomputational biologysystems biologyresearch and analysis methodsdatabase and informatics methodsbioinformatics panet : a gpu - based tool for fast parallel analysis of robustness dynamics and feed - forward / feedback loop structures in large - scale biological networks a tool for fast parallel analysis of network dynamics and structures trinh hung - cuong 1 le duc - hau 2 kwon yung - keun 1 * 1 school of electrical engineering , university of ulsan , ulsan , republic of korea 2 school of computer science and engineering , water resources university , hanoi , vietnam oliva baldo editor universitat pompeu fabra , barcelona research park of biomedicine ( prbb ) , spain * e - mail : kwonyk @ ulsan.ac.kr competing interests : the authors have declared that no competing interests exist .
+conceived and designed the experiments : ykk .
+performed the experiments : hct .
+analyzed the data : hct dhl .
+contributed reagents / materials / analysis tools : hct dhl .
+contributed to the writing of the manuscript : hct ykk .
+developed the software : hct .
+2014 24 7 2014 9 7 e103010 14 3 2014 25 6 2014 ( c ) 2014 trinh et al 2014 trinh et althis is an open - access article distributed under the terms of the creative commons attribution license , which permits unrestricted use , distribution , and reproduction in any medium , provided the original author and source are properly credited .
+it has been a challenge in systems biology to unravel relationships between structural properties and dynamic behaviors of biological networks .
+a cytoscape plugin named netds was recently proposed to analyze the robustness - related dynamics and feed - forward / feedback loop structures of biological networks .
+despite such a useful function , limitations on the network size that can be analyzed exist due to high computational costs .
+in addition , the plugin cannot verify an intrinsic property which can be induced by an observed result because it has no function to simulate the observation on a large number of random networks .
+to overcome these limitations , we have developed a novel software tool , panet .
+first , the time - consuming parts of netds were redesigned to be processed in parallel using the opencl library .
+this approach utilizes the full computing power of multi - core central processing units and graphics processing units .
+eventually , this made it possible to investigate a large - scale network such as a human signaling network with 1,609 nodes and 5,063 links .
+we also developed a new function to perform a batch - mode simulation where it generates a lot of random networks and conducts robustness calculations and feed - forward / feedback loop examinations of them .
+this helps us to determine if the findings in real biological networks are valid in arbitrary random networks or not .
+we tested our plugin in two case studies based on two large - scale signaling networks and found interesting results regarding relationships between coherently coupled feed - forward / feedback loops and robustness .
+in addition , we verified whether or not those findings are consistently conserved in random networks through batch - mode simulations .
+taken together , our plugin is expected to effectively investigate various relationships between dynamics and structural properties in large - scale networks .
+our software tool , user manual and example datasets are freely available at http :// panet - csc.sourceforge.net / .
+this research was supported by basic science research program through the national research foundation of korea ( nrf ) funded by the ministry of education , science and technology ( 2012r1a1a2040357 ) .
+this research is funded by vietnam national foundation for science and technology development ( nafosted ) under grant number 102.03 - 2012.16 .
+the funders had no role in study design , data collection and analysis , decision to publish , or preparation of the manuscript.data availabilitythe authors confirm that all data underlying the findings are fully available without restriction .
+all relevant data are within the paper and its supporting information files .
+data availability the authors confirm that all data underlying the findings are fully available without restriction .
+all relevant data are within the paper and its supporting information files .
+introduction the dynamical behavior of a biological network is highly related to its structural characteristics [ 1 ] , [ 2 ] .
+in particular , there have been many studies of the effects of feedback loops ( fbls ) and feed - forward loops ( ffls ) on network robustness [ 3 ] - [ 5 ] .
+for example , networks robustly converging to a fixed state are inclined to have a larger number of positive fbls and a smaller number of negative fbls [ 3 ] .
+coherent coupling of fbls is a design principle of a robust cell signaling network [ 6 ] .
+it was also shown that the number of fbls involving a node is positively correlated with the functional importance of the node [ 7 ] , and two diseases are more likely to be comorbid if the genes associated with each disease are connected with fbls of a relatively short length in a human signaling network [ 8 ]. with respect to a feed - forward loop structure , its dynamical role was also explained in various biological processes , for example , in guaranteeing robust carbohydrate uptake in escherichia coli [ 4 ] or adapting to variations in the critical morphogen level in a switch of the cell fate [ 9 ] .
+in addition , the degree to which an ffl consisting of three positive transcriptional regulators was sensitive to primary level perturbation was related to the robustness [ 10 ] , and the coherent ffls can be considered as a design principle of human signaling networks that improve network robustness against update - rule perturbations [ 5 ] .
+inspired by those studies , netds , a cytoscape [ 11 ] plugin , was recently developed to analyze the robustness - related dynamics and ffl / fbl structures of networks [ 12 ] .
+however , there were some significant limitations with regard to fully utilizing the plugin .
+first , analyses of large - scale networks were limited due to high computational complexity ( actually , the plugin was effective for networks having about several tens of nodes ) .
+in addition , the observed result could not be validated as a design principle because there was no function to simulate the result on a large number of arbitrary random networks .
+to resolve these limitations , we developed a new software tool by making the core algorithms run in parallel and providing a new function of a batch - mode simulation on a large number of random boolean networks ( rbns ) .
+for the parallel computation , we employ an opencl parallel computing platform , which is an open - source library designed to run on any modern central processing units ( cpus ) or graphics processing units ( gpus ) ( see text s1 in file s1 for a brief introduction to opencl ) .
+thus , our new plugin panet can be used on any computer equipped with multi - core cpus and / or gpus that can support the opencl library for analyses of network robustness and fbl / ffl structures .
+for the batch - mode simulation , panet first generates a large number of rbns from various models , and examines their robustness - related dynamics and fbls / ffls structures during batch processing .
+this new function helps us to conclude whether a finding in real biological networks can be a design principle or not by examining the consistency of the finding in random networks .
+we tested panet in two case studies based on two large real networks .
+in the first case study , we found that coherent ffls are frequently found in the real signaling networks and explained that abundant coherent ffls are needed to improve robustness against update - rule perturbations .
+in the second case study , we observed that coherent fbls are ubiquitously found in the real signaling networks but there is no significant relation between coherent couplings of fbls and robustness against initial - state perturbations unlike the previous studies having shown the positive correlation of them in very small networks .
+material and methods in this section , we explain the implementation issues of panet .
+we first provide a summary of a boolean network model which was used for robustness calculation in panet .
+next , we describe the parallelization of two core algorithms : robustness computation and fbls / ffls detection .
+finally , we explain a function for a batch - mode investigation on rbns .
+a boolean network model and robustness - related dynamics to compute the robustness of a network , we employed a boolean network model [ 7 ] , [ 13 ] , [ 14 ] .
+a boolean network is represented with a directed graph g ( v , a ) , where v = { nu 0 , nu 1 , ... , nun - 1 } is a set of boolean variables and a is a set of ordered pairs of boolean variables called directed links .
+each nuiinv has a value of 1 (" on ") or 0 (" off ") , which represents the possible states of the corresponding elements .
+in gene networks , value 1 represents the " turn - on " status in which a gene is expressed .
+the state of a boolean network is defined as a vector of the states of all nodes .
+a directed link ( nui , nuj ) has a positive (" activating ") or negative (" inhibiting ") relationship from nui to nuj .
+the value of each variable nui at time t + 1 is determined by the values of ki other variables with a link to nui at time t by the boolean function , and all variables are also synchronously updated .
+hence , the update rule can be written as the following formula : . in many previous studies , biological networks such as signaling pathways and gene - regulatory networks were successfully described with boolean network models that employ conjunction or disjunction update - rules [ 15 ] - [ 18 ] .
+a state of g is defined as a vector of values nu 0 through nun - 1 .
+a state trajectory starts from an initial state and eventually converges to either a fixed - point or limit - cycle attractor .
+these attractors can represent diverse biological network behaviors such as multi - stability , homeostasis , and oscillation [ 19 ] - [ 21 ] .
+for each attractor , the basin of an attractor can be defined as a set of initial states that will eventually converge to the attractor .
+the size of a basin indicates the ratio of the number of initial states belonging to the basin to the entire number of initial states .
+based on the definition of the attractor , we can introduce the notion of robustness in terms of converging dynamics .
+if a network sustains the converged attractor against perturbations that affect some nodes , it is robust against those perturbations .
+therefore , the change in the converging attractor can be interpreted as a loss of robustness .
+this concept has been widely used in a number of previous studies [ 22 ] - [ 26 ] .
+here , we considered two types of perturbations : an initial - state perturbation and an update - rule perturbation .
+given a sequence of update - rules f = [ f 0 , f 1 , ... , fn - 1 ] and an initial state s = [ nu 0 ( 0 ) , nu 1 ( 0 ) , ... , nun - 1 ( 0 )] , an initial - state perturbation at a node nuiinv is a situation in which s is changed to s' = [ nu 0 ( 0 ) , ... , 1 - nui ( 0 ),... , nun - 1 ( 0 )] , i.e. , the corresponding initial value is switched to ( the negation of nui ( 0 )) .
+an initial - state perturbation represents the abnormal ( or malfunctioning ) status of a protein or gene caused by a mutation .
+on the other hand , an update - rule perturbation at a node nuiinv involves a scenario where f is changed to f ' = { f 0 ,... , fi ,' , ... , fn - 1 } , where fi ' is the disjunction rule if fi is the conjunction rule and vice versa .
+the update - rule perturbation may represent a change in the relationship between nodes .
+for a set of considered initial states s , we now define the robustness of a node nui against the initial - state perturbation and the update - rule perturbation , denoted as gammas ( nui ) and gammar ( nui ) , respectively , as follows : where alpha ( s , g , f ) represents the attractor that s will converge to in a boolean network g specified by the set of update - rules f , and i ( condition ) denotes an indicator function that returns 1 if the condition is true and 0 otherwise .
+in other words , gammas ( nui ) and gammar ( nui ) represent the probability with which a network sustains the converging attractor against initial - state and update - rule perturbations , respectively .
+furthermore , the robustness of a network g against the initial - state perturbation and the update - rule perturbation , denoted as gammas ( g ) and gammar ( g ) , respectively , are defined as follows : in other words , the robustness of a network is computed by averaging the robustness of all nodes in the network .
+parallel computation of robustness - related dynamics unfortunately , it is very time - consuming to compute converging attractors over all possible initial - states or all sequences of update - rules , which is a required process when computing robustness .
+to reduce the computation time , we introduced a parallel algorithm which utilizes numerous processing units in cpus or gpus ( see text s2 in file s1 for the pseudo - code ) .
+more specifically , a parallel algorithm is needed to compute multiple attractors over a lot of different initial - states ( or update - rules , respectively ) for the robustness calculation .
+this task is parallelized in panet by assigning the attractor computation for each initial - state ( or each sequence of update - rules , respectively ) to a processing element ( pe ) of a cpu / gpu ( see the left part in figure 1 ) .
+10.1371 / journal.pone.0103010.g001 figure 1 core opencl - based implementation for robustness calculation ( left ) and fbls examination ( right ) in parallel .
+it is shown how in parallel panet computes converging attractors over all possible initial - states or all update - rules ( left ) and searches fbls ( right ) .
+definition of feedback and feed - forward loops a feedback loop , which can be described as a circular chain of relationships , is very common and plays an important role in the dynamic behaviors of cellular signaling networks [ 2 ] , [ 27 ] , [ 28 ] .
+given a network , a feedback loop is a closed simple cycle in which all nodes , with the exception of the starting and ending nodes , are not revisited .
+more specifically , nu 0 - - > nu 1 - - > nu 2 - - > ...
+- - > nul - 1 - - > nul is an fbl of length l (>= 1 ) if there are links from nui - 1 to nui ( i = 1 , 2 , ... , l ) with nu 0 = nul and nuj != nuk for j , kin { 0 , 1 , ... , l - 1 } .
+the number of fbls of node nu denotes the number of different fbls starting from nu. in addition , the sign of an fbl is easily determined by the parity of the number of negative relationships involved .
+if the parity number is even or zero , the fbl is positive ; otherwise , it is negative .
+we further consider the notion of coupled fbls because of their relationship to the dynamic properties of a network [ 29 ] , [ 30 ] .
+to define the coupling of feedback loops , let us first define a sub - sequence of a feedback loop .
+given a feedback loop p = nu 0 - - > nu 1 - - > nu 2 - - > ...
+- - > nul , we call u 0 - - > u 1 - - > ...
+- - > um a sub - sequence of p of length m if there is iin { 0 , ... , l } such that nu ( i + j )%( l + 1 ) = uj for j = 0 , ... , m. if there is a non - empty common sub - sequence between two feedback loops , there is a coupling between the feedback loops .
+when the two fbls involved in the coupling have the same sign , it is a coherent coupling ; otherwise , it is an incoherent coupling .
+in addition , we define the intersection length of a coupling as the number of common links .
+a feed - forward loop is also an important motif in network dynamics [ 31 ] - [ 33 ] .
+thus , we implemented a feed - forward loop based on the following definition .
+given a network g ( v , a ) , nu 0 - - > nu 1 - - > nu 2 - - > ...
+- - > nul - 1 - - > nul is a simple path of length l (>= 1 ) if there are links from nui - 1 to nui ( i = 1 , 2 , ... , l ) with nuj != nuk for j , kin { 0 , 1 , ... , l } .
+similar to the definition of the sign of an fbl , the sign of a simple path is determined by the parity of the number of negative links involved .
+if the parity number is even or zero , the path is positive ; otherwise , it is negative .
+when a pair consisting of a source node ( nui ) and a sink node ( nuj ) has two or more simple paths , the set of simple paths is a feed - forward loop starting from nui and ending at nuj .
+furthermore , an ffl is coherent if all simple paths involved have the same sign ; otherwise , it is incoherent .
+parallel detection of fbls and ffls in netds , a user could search fbls and ffls for a specified maximal length ( l ) .
+this function was implemented using a depth - first search , which is a kind of graph traversal method .
+it will take a long time for a large network to be traversed , though , so we introduced a parallel algorithm for fbl and ffl searches to reduce the computation time by using the opencl library ( see text s3 in file s1 for the pseudo - code ) .
+more specifically , each directed link should be examined to determine whether there exist fbls / ffls involving the link or not .
+this task is parallelized in panet by assigning the examination of each link to a pe of a cpu / gpu ( see the right part of figure 1 ) .
+in addition , we improved the search speed by avoiding redundant examination ( see text s3 in file s1 ) .
+a batch - mode simulation on random boolean networks we developed a function for a batch - mode simulation on rbns to examine if a finding in biological networks holds in rbns or not .
+as shown in figure 2 , the batch - mode simulation requires three steps for configuring parameters .
+the first step is to select an rbn generation model from among five models : barabasi - albert ( ba ) model [ 34 ] , erdos - renyi ( er ) model [ 35 ] , an erdos - renyi variant model [ 12 ] and two shuffling models .
+actually , all of them have been widely used to investigate biological networks [ 3 ] , [ 5 ] - [ 8 ] , [ 12 ] , [ 36 ] - [ 39 ] .
+the ba model uses a preferential attachment scheme , which is a type of network growth model , as follows .
+the desirable number of nodes ( n ) , the number of nodes of a seed network ( e ) , and the number of interactions that should be added at each iteration ( d ) are given as parameters .
+a small seed network g ( v , a ) is then created , where v = { nu 1 , nu 2 , ... , nue } and a = {( nui , nuj ) | i , j = 1,2 , ... , e , i != j } , i.e. , a complete network .
+at each iteration , a new node nu is added to v. then , d different interactions that individually connect nu and nu'inv \{ nu } are newly added to a , where nu ' is determined with a probability proportional to the connectivity of nu ' ( the connectivity of a node is defined as the number of interactions incident to the node ) , and both the direction and sign of the added interactions are specified uniformly at random .
+this iteration process is repeated until | v | = n. in the er model , the desirable number of nodes ( n ) and a probability ( p ) are given as parameters .
+the decision whether to create an interaction from an arbitrary node nu to another arbitrary node nu ' is then independently determined with a probability p. panet also uses a variant of the er model where the desirable numbers of nodes ( n ) and interactions ( e ) are given as parameters .
+an rbn is then generated in such a way that e different interactions are chosen uniformly at random out of nx ( n - 1 ) possible candidates .
+moreover , we implemented two shuffling techniques where a reference network should be given .
+the first shuffling technique creates random networks by shuffling the direction and the sign of every interaction from the reference network ( shuffle i ) .
+more specifically , each directed link denoted by ( nui , nuj , tau ) where nui , nuj , and tau denote a starting node , an ending node , and the sign of the link , respectively , is replaced by one of ( nui , nuj , tau ) , ( nui , nuj , - tau ) , ( nuj , nui , tau ) , and ( nuj , nui , - tau ) uniformly at random [ 5 ] .
+on the other hand , the other shuffling technique creates random networks by rewiring the edges of the reference network such that the in - degree and the out - degree of all nodes are conserved ( shuffle ii ) [ 36 ] , [ 37 ] .
+more specifically , a pair of directed links ( nua , nub , tauab ) and ( nuc , nud , taucd ) such that there is no link from nua to nud and from nuc to nub is randomly selected , and the pair is replaced by a new pair of links ( nua , nud , tauab ) and ( nuc , nub , taucd ) .
+in our tool , the number of rewirings is set to the multiplication of the value of the " shuffling intensity " parameter and the number of edges of the reference network .
+we note that the shuffling models generate rbns whose structure is more similar to the reference network than ba , er , and er - variant models because the degree distribution is conserved .
+10.1371 / journal.pone.0103010.g002 figure 2 user interface for a batch - mode simulation on rbns .
+there are three steps for configuring parameters of the batch - mode simulation : selecting an rbn generation model , setting the number of considered initial - states and the type of update - rule schemes , and specifying the maximal length of fbls / ffls to be searched .
+the second step of parameter configuration is to set the number of considered initial - states and the type of update - rule schemes ( see the subsection " a boolean network model and robustness - related dynamics ") .
+we provide three update - rule schemes ; conj - disj , conj , and disj .
+conj and disj denote that each node of an rbn would be assigned a conjunction and disjunction function , respectively .
+conj - disj denotes that each node of an rbn would be assigned a conjunction or disjunction function randomly .
+the final step is to specify the maximal length of the fbls / ffls to be searched. by clicking the ' execute ' button , the tool examines robustness and ffl / fbl structures of the generated rbns in batch mode .
+after it is completed , all the analyzed results are saved in the two resulting files : " net _ based _ result.txt " and " node _ based _ result.txt " .
+the former and the latter describe the network - based and the node - based results , respectively ( see text s4 in file s1 for the format of the output file ) .
+we note that parallel computation during robustness calculation and fbls / ffls search made it possible to massively analyze rbns of the same size with real signaling networks in a practical period of time .
+results in this section , we first present scalability of panet by running it with a large - scale human signaling network ( hsn ) with 1,609 nodes and 5,063 links [ 40 ] .
+then , we show two case studies regarding the relationships between dynamics and structural properties in two signaling networks , hsn and a canonical cell signaling network ( ccsn ) obtained from http :// stke.sciencemag.org / , including 818 nodes and 1,801 links [ 6 ] .
+in particular , we tried to verify the relationships through the batch - mode simulation on a lot of large - scale rbns in those case studies .
+we note that it could be conducted in a practical time by the parallel implementation of main functions in panet .
+scalability by parallel computation in panet to show the scalability of panet over the original plugin netds , we compared their running times for calculating robustness and for searching fbls in the hsn .
+all were tested on a system with an nvidia geforce gtx 680 gpu with 1536 processor at 1 ghz , four - core intel core2 quad q9400 cpu 2.66 ghz , and 8 gb of memory .
+table 1 shows the result .
+in the table , " panet on cpu " and " panet on gpu " represent results of panet executed on cpu and gpu only , respectively .
+longer fbls or increases in the number of considered initial - states result in greater performance improvement .
+more specifically , the maximum speedup factor of the fbls searching task was 165 with a maximal length of 7 .
+in the robustness calculation , the speedup factor was 453 when the number of considered random initial - states was 1,000 .
+therefore , the analyses of robustness and fbls / ffls could be conducted in a practical time in panet .
+in addition to the parallel implementation , the performance improvement of panet is higher than expectation considering the specification of the used cpu and gpu .
+this was achieved through utilization of an efficient memory type and a simple data type besides the parallelization .
+more specifically , the network data can be stored in the local cache memory which is the fastest memory type by the opencl library in panet whereas it was stored in the normal memory in netds .
+in addition , we modified the ' string ' class - based implementation in netds to a primitive data type ( the signed integer ) based implementation in panet for fast processing .
+10.1371 / journal.pone.0103010.t001 table 1 performance comparisons of panet with netds .
+( a ) running time ( seconds ) for fbls search maximal length ( l ) netds ( a ) panet on cpu ( b ) speedup ( a / b ) panet on gpu ( c ) speedup ( a / c ) 4 1 1 1 1 1 5 7 2 4 1 7 6 72 3 24 3 24 7 1,984 12 165 21 94 ( b ) running time ( seconds ) for robustness calculation number of considered initial - states ( s ) netds ( a ) panet on cpu ( b ) speedup ( a / b ) panet on gpu ( c ) speedup ( a / c ) 50 4,016 19 211 11 365 100 8,026 41 196 19 422 150 12,069 58 208 30 402 200 16,220 78 208 37 438 1000 80,600 387 208 178 453 another point to be noted is that the performance improvement of " panet on gpu " over that of " panet on cpu " is not so large .
+basically , gpu processes " single instruction & multiple data ( simd )" whereas cpu does " multiple instruction & multiple data ( mimd )" .
+therefore , the execution time on gpu is highly affected by how many diverging branch codes are involved in the execution path .
+the tasks such as fbls / ffls search and robustness calculation necessarily include many branching statements and this might reduce the utilization efficiency of multiprocessors in the gpu .
+case study 1 : relationship between coherent feed - forward loops and network robustness some previous studies have shown that an individual coherent structure of the ffl can play an important role in the dynamic behavior of biological networks .
+for example , a coherent ffl serves as a sign - sensitive delay element in transcription networks [ 41 ] , and prolongs flagella expression in e. coli [ 42 ] .
+in addition , there was a study showing that coherent ffls are abundant in biological networks and these coherent ffls can improve network robustness against update - rule perturbations [ 5 ] .
+in particular , they found that coherent ffls increase robustness because these structures induce downstream nodes to be robust against update - rule perturbations .
+however , the effect of coherent ffls on the robustness in a large - scale network was not proven .
+for this reason , we further conducted two batch - mode simulations on rbns to examine whether such a coherent ffl structure is a design principle or not .
+in the first simulation , we examined whether coherent ffls are ubiquitously found in hsn and ccsn .
+to this end , we generated eight sets of 1,000 random boolean networks of the same size with each of the real network by using shuffle i , shuffle ii , ba and er models , respectively , and examined the ratio of coherent ffls within them .
+as shown in table 2 , we found that the ratio of coherent ffls in the real networks is significantly greater than those of the random boolean networks ( using one - sample t - test , all p - values < 0.0001 ) except for er model cases .
+this indicates that coherent ffls are likely to be ubiquitously found in the large - scale signaling networks .
+in the second simulation , we examined whether the highly coupled structure of ffls also has an effect on the network robustness or not as in the previous study [ 5 ] .
+to this end , we generated eight sets of 1,000 random boolean networks of the same size with the hsn (| v | = 1,609 and | a | = 5,063 ) and the ccsn (| v | = 818 and | a | = 1,801 ) , respectively , by using ba , er , shuffle i and shuffle ii models and examined the relation of the ratio of coupled ffls on the robustness against the update - rule perturbation ( gammar ( g )) .
+as shown in figure 3 , we observed that there are significantly positive relationships between the ratio of coherent ffls and gammar ( g ) as for ba and er model cases ( in subfigures ( a ) , ( b ) , ( c ) and ( d ) , the slopes of the regression lines are 0.66315 , 0.36297 , 1.38296 and 1.01162 , respectively ; all p - values < 0.0001 using t - test ) .
+on the other hand , it is observed that there is little significant relationship between the ratio of coherent ffls and gammar ( g ) as for shuffle i and shuffle ii models ( see figure s1 in file s1 ) .
+this implies that the relationship between coherent coupling of ffls and network robustness can depend on the types of random network models .
+10.1371 / journal.pone.0103010.g003 figure 3 relationship between the ratio of coherent ffls and update - rule robustness in large - scale boolean networks by ba and er models .
+( a ) result of ba - based rbns of the same size with hsn .
+( b ) result of ba - based rbns of the same size with ccsn .
+( c ) result of er - based rbns of the same size with hsn .
+( d ) result of er - based rbns of the same size with ccsn .
+the maximal length of examined ffls is set to 4 or 6 for ( a ) and ( c ) , or ( b ) and ( d ) , respectively .
+for robustness against update - rule perturbation , | s | is set to 1,024 .
+the slopes of the regression lines are 0.66315 , 0.36297 , 1.38296 and 1.01162 in ( a ) , ( b ) , ( c ) and ( d ) , respectively ( all p - values < 0.0001 using t - test ) .
+10.1371 / journal.pone.0103010.t002 table 2 comparison of the ratios of coherent ffls between each of the real signaling networks ( hsn and ccsn ) and rbns .
+network maximal length number of coherent ffls ( a ) number of incoherent ffls ( b ) ratio of coherent ffls () hsn 4 125884 131121 0.48981 rbns ( shuffle i ) 4 0.20674 +/ - 0.00658 rbns ( shuffle ii ) 4 0.39719 +/ - 0.01418 rbns ( ba ) 4 0.43721 +/ - 0.12885 rbns ( er ) 4 0.59210 +/ - 0.09595 ccsn 6 41961 46676 0.47340 rbns ( shuffle i ) 6 0.14548 +/ - 0.01004 rbns ( shuffle ii ) 6 0.20058 +/ - 0.01460 rbns ( ba ) 6 0.25859 +/ - 0.11572 rbns ( er ) 6 0.53222 +/ - 0.09046 case study 2 : relationship between coherent feedback loops and network robustness fbls actually exist in the form of multiple coupled feedback loops in many biological systems such as budding yeast polarization [ 43 ] , eukaryotic chemotaxis [ 44 ] and ca2 + spikes [ 45 ] .
+for large - scale networks containing a number of coupled feedback loops , the role of feedback loops in realizing the robustness is needed to be fully understood .
+there was a previous study showing that the coherent coupling of fbls may be a design principle of a cell signaling network [ 6 ] .
+more specifically , a larger number of coherent coupled fbls than incoherent coupled fbls were found in the cell signaling network , and it was argued that such the highly coherent coupling of fbls strengthens the robustness of the network against state perturbations .
+however , the effect of coherent fbls on robustness in a large - scale network was not proven .
+hence , we examined it based on the hsn and ccsn. by using the function of fbl search , we determined that both the real networks have a larger number of coherent fbls than incoherent fbls as shown in table 3 .
+to examine whether such the finding in two real networks is a design principle or not , we further conducted two batch - mode simulations on rbns .
+10.1371 / journal.pone.0103010.t003 table 3 comparison of the ratios of coherent fbls between each of the real signaling networks ( hsn and ccsn ) and rbns .
+network maximal length number of coherent fbls ( a ) number of incoherent fbls ( b ) ratio of coherent fbls () hsn 6 7186506 4537973 0.61295 rbns ( shuffle i ) 6 0.50011 +/ - 0.00016 rbns ( shuffle ii ) 6 0.54600 +/ - 0.01173 rbns ( ba ) 6 0.50192 +/ - 0.00160 rbns ( er ) 6 0.50328 +/ - 0.03620 ccsn 8 556910 369011 0.60147 rbns ( shuffle i ) 8 0.49999 +/ - 0.00016 rbns ( shuffle ii ) 8 0.50142 +/ - 0.00156 rbns ( ba ) 8 0.50095 +/ - 0.00179 rbns ( er ) 8 0.50192 +/ - 0.03864 in the first simulation , we tried to verify whether coherent fbls are ubiquitously found structures in the hsn and ccsn or not .
+to this end , we generated eight sets of 1,000 random boolean networks of the same size with each of the real network by using shuffle i , shuffle ii , ba and er models , respectively , and examined the ratio of coherent fbls in them .
+as shown in table 3 , the ratio of coherent fbls in the real networks is significantly greater than those of the random networks of all models ( using one - sample t - test , all p - values < 0.0001 ) .
+this indicates that coherent fbls are ubiquitously found in the large - scale signaling networks .
+in the second simulation , we examined whether the highly coupled structure of fbls has an effect on the network robustness or not .
+to this end , we generated two sets of 1,000 random boolean networks of the same size with the hsn (| v | = 1,609 and | a | = 5,063 ) and the ccsn (| v | = 818 and | a | = 1,801 ) , respectively , by using the ba model and examined the relation of the ratio of coherently coupled fbls on the robustness against initial - state perturbation ( gammas ( g )) ( figure 4 ) .
+as shown in fig. 4 ( a ) and ( b ) , there was no significant relationship between the ratio of coherent fbls and gammas ( g ) ( p - value = 0.645 and p - value = 0.895 , respectively , using t - test ) .
+this implies that the previous hypothesis about the relationship between highly coherent coupling of fbls and the robustness does not hold in the large scale networks .
+to examine the dependency of the network size , we additionally generated two sets of 1,000 small - scale random boolean networks with different network densities : (| v | = 50 and | a | = 97 ) and (| v | = 50 and | a | = 117 ) , respectively , by using the ba model .
+for the first set , we also observed a non - significant relationship ( fig. 4 ( c ) ; the slope of the regression line is 0.04192 and the p - value = 0.167 using t - test ) .
+on the other hand , there was a significant negative relationship in the latter set ( fig. 4 ( d ) ; the slope of the regression line is - 0.17934 and the p - value = 0.048 using t - test ) .
+moreover , the random networks generated by er , shuffle i and shuffle ii models have also shown similar results ( see figure s2 and s3 in file s1 ) .
+taken together , we can conclude that coherent fbls are ubiquitously found in the real signaling networks but there is no significant correlation between coherent couplings of fbls and robustness against initial - state perturbations unlike the previous studies having shown the positive correlation of them .
+10.1371 / journal.pone.0103010.g004 figure 4 relationship between the ratio of coherent fbls and initial - state robustness in boolean networks by the ba model .
+( a ) result of rbns of the same size with the hsn .
+( b ) result of rbns of the same size with the ccsn .
+( c ) result of rbns with | v | = 50 and | a | = 97 .
+( d ) result of rbns with | v | = 50 and | a | = 117 .
+the maximal length of examined fbls is set to 6 , 8 , 50 and 12 , in ( a ) through ( d ) , respectively .
+for robustness against initial - state perturbation , | s | is set to 1,024 .
+in ( a ) , ( b ) and ( c ) , the correlations are not significant ( p - value = 0.645 , p - value = 0.895 and p - value = 0.167 , respectively ) .
+on the other hand , the correlation is significantly negative in ( d ) ( p - value = 0.048 ) .
+conclusions it was very time - consuming to calculate robustness and to examine fbls / ffls in large - scale biological networks .
+in this study , we developed panet which employs an opencl library to perform robustness calculations and to examine fbls / ffls in parallel on multi - core cpus or gpus .
+we also implemented a convenient function for batch - mode simulation on a large number of random boolean networks .
+we tested our plugin in two case studies based on two large - scale signaling networks and found interesting results regarding relationships between coherently coupled feed - forward / feedback loops and robustness .
+in addition , we could verify whether or not those findings are consistently conserved in random networks through batch - mode simulations .
+in particular , we found that coherently coupled ffls / fbls are ubiquitously found in the real signaling networks .
+moreover , we found that abundant coherent ffls can improve robustness against update - rule perturbations in some random network models ; however , we observed no significant relation between coherent couplings of fbls and robustness against initial - state perturbations in any random network model .
+our cytoscape plugin is expected to help us to efficiently investigate the relationships between dynamics and structural properties in a large - scale network .
+supporting information file s1 supporting information file .
+file s1 includes the following : text s1 .
+a brief introduction to opencl .
+text s2 .
+opencl - based parallel computation of robustness .
+text s3 .
+opencl - based parallel examination of feedback and feed - forward loops .
+text s4 .
+format of an output file by batch - mode simulation on rbns .
+figure s1 .
+relationship between the ratio of coherent ffls and update - rule robustness in large - scale boolean networks by shuffling models .
+figure s2 .
+relationship between the ratio of coherent fbls and initial - state robustness in boolean networks by the er model .
+figure s3 .
+relationship between the ratio of coherent fbls and initial - state robustness in boolean networks by shuffling models .
+( docx ) click here for additional data file .
+references 1 klein c , marino a , sagot m - f , vieira milreu p , brilli m ( 2012 ) structural and dynamical analysis of biological networks . briefings in functional genomics 11 : 420 - 433 . 22908211 2 prill rj , iglesias pa , levchenko a ( 2005 ) dynamic properties of network motifs contribute to biological network organization . plos biolology 3 : e343 . 3 kwon y - k , cho k - h ( 2008 ) quantitative analysis of robustness and fragility in biological networks based on feedback dynamics . bioinformatics 24 : 987 - 994 . 18285369 4 kremling a , bettenbrock k , gilles ed ( 2008 ) a feed - forward loop guarantees robust behavior in escherichia coli carbohydrate uptake . bioinformatics 24 : 704 - 710 . 18187443 5 le d - h , kwon y - k ( 2013 ) a coherent feedforward loop design principle to sustain robustness of biological networks . bioinformatics 29 : 630 - 637 . 23335016 6 kwon y - k , cho k - h ( 2008 ) coherent coupling of feedback loops : a design principle of cell signaling networks . bioinformatics 24 : 1926 - 1932 . 18596076 7 kwon y - k , choi s , cho k - h ( 2007 ) investigations into the relationship between feedback loops and functional importance of a signal transduction network based on boolean network modeling . bmc bioinformatics 8 : 384 . 17935633 8 le d - h , kwon y - k ( 2011 ) the effects of feedback loops on disease comorbidity in human signaling networks . bioinformatics 27 : 1113 - 1120 . 21325303 9 rodrigo g , elena sf ( 2011 ) structural discrimination of robustness in transcriptional feedforward loops for pattern formation . plos one 6 : e16904 . 21340024 10 hayot f , jayaprakash c ( 2005 ) a feedforward loop motif in transcriptional regulation : induction and repression . journal of theoretical biology 234 : 133 - 143 . 15721042 11 smoot me , ono k , ruscheinski j , wang p - l , ideker t ( 2011 ) cytoscape 2.8 : new features for data integration and network visualization . bioinformatics 27 : 431 - 432 . 21149340 12 le d - h , kwon y - k ( 2011 ) netds : a cytoscape plugin to analyze the robustness of dynamics and feedforward / feedback loop structures of biological networks. bioinformatics .
+13 kauffman s , peterson c , samuelsson b , troein c ( 2003 ) random boolean network models and the yeast transcriptional network . proceedings of the national academy of sciences 100 : 14796 - 14799 . 14 shmulevich i , lahdesmaki h , dougherty er , astola j , zhang w ( 2003 ) the role of certain post classes in boolean network models of genetic networks . proceedings of the national academy of sciences 100 : 10734 - 10739 . 15 faure a , naldi a , chaouiya c , thieffry d ( 2006 ) dynamical analysis of a generic boolean model for the control of the mammalian cell cycle . bioinformatics 22 : e124 - 131 . 16873462 16 kwon y - k , cho k - h ( 2007 ) boolean dynamics of biological networks with multiple coupled feedback loops . biophysical journal 92 : 2975 - 2981 . 17259267 17 albert r ( 2004 ) boolean modeling of genetic regulatory networks . lecture notes in physics 650 : 459 - 481 . 18 huang s , ingber de ( 2000 ) shape - dependent control of cell growth , differentiation , and apoptosis : switching between attractors in cell regulatory networks . experimental cell research 261 : 91 - 103 . 11082279 19 ferrell je jr , machleder em ( 1998 ) the biochemical basis of an all - or - none cell fate switch in xenopus oocytes . science 280 : 895 - 898 . 9572732 20 bhalla us , ram pt , iyengar r ( 2002 ) map kinase phosphatase as a locus of flexibility in a mitogen - activated protein kinase signaling network . science 297 : 1018 - 1023 . 12169734 21 pomerening jr , sontag ed , ferrell je ( 2003 ) building a cell cycle oscillator : hysteresis and bistability in the activation of cdc2 . nature cell biology 5 : 346 - 351 . 12629549 22 li f , long t , lu y , ouyang q , tang c ( 2004 ) the yeast cell - cycle network is robustly designed . proceedings of the national academy of sciences of the united states of america 101 : 4781 - 4786 . 15037758 23 ciliberti s , martin oc , wagner a ( 2007 ) robustness can evolve gradually in complex regulatory gene networks with varying topology . plos computational biology 3 : e15 . 17274682 24 huang s , eichler g , bar - yam y , ingber de ( 2005 ) cell fates as high - dimensional attractor states of a complex gene regulatory network . physical review letters 94 : 128701 . 15903968 25 kitano h ( 2004 ) biological robustness . nature reviews genetics 5 : 826 - 837 . 26 kitano h ( 2004 ) cancer as a robust system : implications for anticancer therapy . nature reviews cancer 4 : 227 - 235 . 14993904 27 yeger - lotem e , sattath s , kashtan n , itzkovitz s , milo r , et al ( 2004 ) network motifs in integrated cellular networks of transcription - regulation and protein - protein interaction . proceedings of the national academy of sciences of the united states of america 101 : 5934 - 5939 . 15079056 28 milo r , shen - orr s , itzkovitz s , kashtan n , chklovskii d , et al ( 2002 ) network motifs : simple building blocks of complex networks . science 298 : 824 - 827 . 12399590 29 kim j - r , yoon y , cho k - h ( 2008 ) coupled feedback loops form dynamic motifs of cellular networks . biophysical journal 94 : 359 - 365 . 17951298 30 kim d , kwon y - k , cho k - h ( 2007 ) coupled positive and negative feedback circuits form an essential building block of cellular signaling pathways . bioessays 29 : 85 - 90 . 17187378 31 yang j , park y , zhang h , xu x , laine ga , et al ( 2009 ) feed - forward signaling of tnf - { alpha } and nf - { kappa } b via ikk - { beta } pathway contributes to insulin resistance and coronary arteriolar dysfunction in type 2 diabetic mice . american journal of physiology heart and circulatory physiology 296 : h1850 - 1858 . 19363130 32 kim d , kwon y - k , cho k - h ( 2008 ) the biphasic behavior of incoherent feed - forward loops in biomolecular regulatory networks . bioessays 30 : 1204 - 1211 . 18937374 33 zecca m , struhl g ( 2010 ) a feed - forward circuit linking wingless , fat - dachsous signaling , and the warts - hippo pathway to drosophila wing growth . plos biology 8 : e1000386 . 20532238 34 barabasi a - l , albert r ( 1999 ) emergence of scaling in random networks . science 286 : 509 - 512 . 10521342 35 erdos p , renyi a ( 1959 ) on random graphs , i. publicationes mathematicae ( debrecen ) . 6 : 290 - 297 . 36 maslov s , sneppen k , alon u ( 2002 ) correlation profiles and motifs in complex networks .
+handbook of graphs and networks : wiley - vch verlag gmbh & co. kgaa. pp .
+168 - 198 .
+37 maslov s , sneppen k ( 2002 ) specificity and stability in topology of protein networks . science 296 : 910 - 913 . 11988575 38 shen - orr ss , milo r , mangan s , alon u ( 2002 ) network motifs in the transcriptional regulation network of escherichia coli . nat genet 31 : 64 - 68 . 11967538 39 sakata s , komatsu y , yamamori t ( 2005 ) local design principles of mammalian cortical networks . neuroscience research 51 : 309 - 315 . 15710495 40 cui q , purisima e , wang e ( 2009 ) protein evolution on a human signaling network . bmc systems biology 3 : 21 . 19226461 41 mangan s , zaslaver a , alon u ( 2003 ) the coherent feedforward loop serves as a sign - sensitive delay element in transcription networks . journal of molecular biology 334 : 197 - 204 . 14607112 42 kalir s , mangan s , alon u ( 2005 ) a coherent feed - forward loop with a sum input function prolongs flagella expression in escherichia coli .
+mol syst biol 1 .
+43 ozbudak em , becskei a , van oudenaarden a ( 2005 ) a system of counteracting feedback loops regulates cdc42p activity during spontaneous cell polarization . developmental cell 9 : 565 - 571 . 16198298 44 weiner od , neilsen po , prestwich gd , kirschner mw , cantley lc , et al ( 2002 ) a ptdinsp3 - and rho gtpase - mediated positive feedback loop regulates neutrophil polarity . nat cell biol 4 : 509 - 513 . 12080346 45 keizer j , li yx , stojilkovic s , rinzel j ( 1995 ) insp3 - induced ca2 + excitability of the endoplasmic reticulum . molecular biology of the cell 6 : 945 - 951 . 7579710

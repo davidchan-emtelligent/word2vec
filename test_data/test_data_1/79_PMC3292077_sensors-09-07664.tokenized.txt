@@ -1,0 +1,791 @@
+sensors ( basel ) sensors ( basel , switzerland ) 1424 - 8220 molecular diversity preservation international ( mdpi ) 22408474 3292077 10.3390 / s91007664 sensors - 09 - 07664 review connectivity , coverage and placement in wireless sensor networks li ji 1 andrew lachlan l.h .
+2 foh chuan heng 3 * zukerman moshe 4 chen hsiao - hwa 5 1 arc special research centre for ultra - broadband information networks ( cubin ) , university of melbourne , parkville 3010 , australia ; e - mail : j.li @ ee.unimelb.edu.au 2 centre for advanced internet architectures ( caia ) , swinburne university of technology , melbourne , australia ; e - mail : landrew @ swin.edu.au 3 school of computer engineering , nanyang technological university , 639798 singapore 4 department of electronic engineering , city university of hong kong , kowloon , hong kong ; e - mail : m.zu @ cityu.edu.hk 5 department of engineering science , national cheng kung university , taiwan ; e - mail : hshwchen @ ieee.org * author to whom correspondence should be addressed ; e - mail : aschfoh @ ntu.edu.sg . 2009 28 9 2009 9 10 7664 7693 25 8 2009 25 9 2009 25 9 2009 ( c ) 2009 by the authors ; licensee molecular diversity preservation international , basel , switzerland .
+2009 this article is an open access article distributed under the terms and conditions of the creative commons attribution license ( http :// creativecommons.org / licenses / by / 3.0 /) .
+wireless communication between sensors allows the formation of flexible sensor networks , which can be deployed rapidly over wide or inaccessible areas .
+however , the need to gather data from all sensors in the network imposes constraints on the distances between sensors .
+this survey describes the state of the art in techniques for determining the minimum density and optimal locations of relay nodes and ordinary sensors to ensure connectivity , subject to various degrees of uncertainty in the locations of the nodes .
+wireless sensor networks connectivity coverage relay placement percolation theory 1 .
+introduction this survey provides an overview of wireless sensor network ( wsn ) connectivity , and discusses existing work that focuses on the connectivity issues in wsns .
+in particular , we are interested in maintaining connected wsns and their connectivity related characteristics including sensor node placement , as well as the construction of a small connected relay set in wsns .
+we aim to review extensively the existing results related to these topics , and stimulate new research .
+sensor networks have a long history , which can be traced back as far as the 1950's. it is recognized that the first obvious sensor network was the sound surveillance system ( sosus ) [ 1 , 2 ] .
+the sosus was made up of an array of acoustic sensors that were interconnected by wired cables and were deployed by the us in deep ocean basins during the cold war to detect and track soviet submarines .
+in its early stages , the development of sensor networks was mainly driven by military use , in which sensor nodes were wired together to provide battlefield surveillance .
+evolution of technologies has driven sensor networks away from their original appearance. with the emergence of integrated sensors embedded with wireless capability , most of current sensor networks consist of a collection of wirelessly interconnected sensors , each of which is embedded with sensing , computing and communication components .
+these sensors can observe and respond to phenomena in the physical environment [ 3 ] .
+such sensor networks are referred to as wireless sensor networks ( wsns ) .
+these wsns provide flexibility in deployment and maintenance , exploit the ability of wireless networks to be deployed in highly dynamic environments and hence enable sensor networks to be potentially used in a wide range of civilian and military applications , including security surveillance ( e.g. , to alert of terrorist threats ) , environmental monitoring , habitat monitoring , hazard and disaster monitoring and relief operations , health field applications , and home applications ( e.g. , smart environments ) [ 3 ] .
+the wireless communication in wsns can be either ad hoc ( multi - hop ) or single - hop wireless transmission [ 4 ] .
+though the latter is popular in short - range applications , such as smart homes , the former , ad hoc technique , attracts more interests due to its high flexibility and ability to support long - range , large scale , and highly distributed applications .
+in this survey , we only focus on wireless sensor networks adopting multi - hop transmission .
+in a wsn , after collecting information from the environment , sensors need to transmit aggregated data to gateways or information collection nodes .
+it is important to ensure that every sensor can communicate with the gateways .
+due to the multi - hop communication of wsns , a sufficient condition for reliable information transmission is full connectivity of the network .
+a network is said to be fully connected if every pair of nodes can communicate with each other , either directly or via intermediate relay nodes .
+due to the large number of sensors in a wsn , the total cost could be high for the whole network , though the cost of each individual sensor is low .
+therefore , it is important to find the minimum number of nodes required for a wsn to achieve connectivity .
+another related important problem for wsns is finding a small connected relay set to assist in routing .
+multi - hop wsns need to perform efficient routing .
+since mobile ad hoc networks ( manets ) and wsns often have very limited , or even does not have , fixed infrastructure , the routing process in such networks is often complicated and inefficient ; it can generate a large amount of overhead , and there are many possible paths , due to the broadcast nature of the wireless communications .
+thus it is helpful to find a small connected set of sensor nodes to form a routing " backbone " , and restricted all other nodes to connecting to this backbone by a single hop .
+this node set can also help to resolve the broadcast storm problem [ 5 ] , which is often caused by blind flooding .
+as wsns may be deployed in inaccessible terrains , and may contain a tremendous number of sensor nodes , it is often difficult or impossible to replace or recharge their batteries .
+thus , energy conservation is critical for wsns , both for each sensor node and the entire network level operations .
+various approaches have been proposed to reduce energy consumption for sensor networks .
+for example , for the network level operations such as routing , if only a small fraction of sensors are involved in the routing process , the rest of the sensors can be turned off to save energy .
+this scheme is supported by the hardware and software advances that leverage the capability of temporarily shutting down those sensors that are not involved in any network operations .
+for instance , rockwell 's wins sensor nodes can achieve a factor of ten power reduction by shutting down the radio transceiver , compared to those idle nodes whose transceivers are on [ 6 ] .
+however , a prerequisite for this type of energy saving scheme is that the wsns still perform all the required functions even with some nodes turned off .
+this raises an important research problem : what is the maximum number of sensors that can be turned off , while maintaining functionality of the wsn ?
+this problem is equivalent to minimizing the total number of active nodes , subject to ordinary operations of the system .
+the selected sensors will function as backbone relay nodes to maintain communications within the entire sensor network .
+a further important problem , which is beyond the scope of this survey , is how to optimally shut off and turn on sensors over time to maximise network lifetime [ 7 ] .
+the remainder of this paper is organized as follows .
+section 2 gives a brief introduction to the graph models applied to wireless network investigations .
+section 3 provides an overview of the prior results for connectivity studies in wireless ad hoc networks and wsns , including percolation theory .
+section 4 describes models with more general radio coverage patterns , and some hybrid models .
+the implications of connectivity on the achievable capacity are discussed in section 5 section 6 considers the construction of a small connected relay set , such that the packet delivery can be achieved by forwarding packets using only sensors in the relay set .
+section 7 covers the optimal placement of sensor nodes , which has a fundamental impact on the connectivity and other operational requirements of wsns .
+section 8 summarizes this survey .
+2. graph models connectivity is critical for wsns , as information collected needs to be sent to data collection or processing centres .
+this is only possible if there is a path from each node to that collection centre .
+the connectivity of a wsn is usually studied by considering a graph associated with that wsn .
+a wsn or a wireless ad hoc network is often represented by a graph in which vertices correspond to the communication nodes , and a directed edge from one vertex to another indicates that the node corresponding to the former can send data directly to the node corresponding to the latter .
+it is common to assume that propagation conditions can be modelled simply by there being a " transmission range " within which transmission is possible , and outside of which it is impossible .
+if all nodes have equal transmission ranges , then the graph becomes undirected .
+a network is called connected if this associated graph is connected .
+a graph g is connected if and only if there exists a path between any pair of its vertices [ 8 ] .
+if a network is connected then any pair of nodes can communicate with each other , possibly taking multiple hops through relay nodes .
+it is sometimes useful to consider stronger forms of connectivity , such as k - connectivity , in which the network remains connected even if k - 1 nodes are removed .
+if a network is k - connected ( k >= 2 ) , it has better fault - tolerance than if it is merely 1 - connected .
+ensuring k - connectivity extends the network lifetime if nodes fail at random times .
+weaker notions of connectivity are also possible , such as the requirement that each node need only be connected to one of a set of base stations [ 9 ] .
+this paper will focus on the intermediate case in which the entire network is required to be 1 - connected .
+it is clear that the connectivity of a wsn is related to the positions of nodes , and those positions are heavily affected by the method of sensor deployment .
+in general , there are two types of approaches to deploy sensors in a wsn : deterministic deployment , where sensors are placed exactly at pre - engineered positions , and the random deployment , where nodes are deployed at random positions .
+for the deterministic deployment , networks are carefully planned , and nodes are placed at desired positions .
+if specifications of nodes are known , it is not difficult to determine whether the network is connected , and if not , to add relay nodes where needed .
+although deterministic deployment has many advantages , in order to reduce installation costs , it has often been proposed that large wsns which contains very large numbers of nodes be deployed randomly .
+nodes may be dispersed by a moving vehicle or artillery shell [ 3 ] .
+therefore , sensors often have nondeterministic positions , and the analysis of connectivity of such a type of networks involves the modelling of random networks .
+random graphs are often applied to model communication networks to highlight their randomness .
+mathematically , a random graph is a graph that is generated by a stochastic process [ 10 ] .
+the theory of random graphs began with erdos and renyi 's pioneer work in the late 1950s and early 1960s , which considered a class of random graphs now called erdos - renyi graphs [ 11 , 12 ] .
+an erdos - renyi graph g ( n , p ) is a graph with n vertices , in which each of the cn2 possible edges exists with probability p , independent of all other edges .
+this class was originally used as a tool in the field of combinatorial mathematics .
+however , it is now widely accepted as a model for many fields , such as communications [ 13 - 15 ] , social studies [ 16 , 17 ] and biology [ 18 ] .
+independent of erdos and renyi , gilbert [ 19 ] , austin et al .
+[ 20 ] , and ford and uhlenbeck [ 21 ] also studied the statistical aspects of graphs .
+however , unlike erdos and renyi , they used enumeration methods , which are essentially deterministic , to estimate exact values of graph properties , while erdos and renyi studied the distributions of graph properties .
+thereby , erdos and renyi are often credited with the foundation of the theory of random graphs .
+as the probability of an edge existing between each pair of nodes is equal in an erdos - renyi graph , this model is not well suited to wsns , which are embedded in two ( or three ) dimensional space , and in which the probability of a link existing is very much higher between nodes which are geometrically close .
+moreover , as discussed by chlamtac and farao [ 22 ] , erdos - renyi graphs do not consider correlations between different links .
+therefore , we need new methods to model networks with randomness .
+a natural candidate for random network modelling is the class of random geometric graphs [ 23 ]. with node set v , a geometric graph g = ( v , r ) is equivalent to a graph g1 = ( v , e ) , in which the vertex set v is embedded in a metric space , and e = {( u,v )| for - allu,v in v ,|| u - v || <= r } .
+if the nodes in v are independent and identically distributed ( i.i.d. ) and uniformly distributed in the metric space , g is called a random geometric graph .
+in this case , the locations of nodes form a poisson process if the number of nodes is poisson distributed , or infinite in the case of an unbounded metric space .
+an important special case of geometric graphs is the class of unit disk graphs .
+a unit disk graph is a graph embedded in euclidean space that has an edge between any two vertices whose euclidean distance is less than 1 .
+if the positions of vertices of the unit disk graph are random , this unit disk graph is a random graph , and it is a random geometric graph if the locations of the vertices are i.i.d. and uniformly distributed .
+figure 1 shows an example of the construction of a unit disk graph .
+as can be seen , any pair of nodes that have a distance less than or equal to r = 1 are connected by an edge .
+gilbert [ 24 ] studied unit disk graphs on an infinite plane , under the name random plane networks .
+he appears to be the first to suggest their applicability to connectivity studies of packet radio networks .
+3. connectivity in wireless ad hoc and sensor networks one of the most interesting questions regarding the connectivity of random wsns concerns finding limiting regimes for which the connectivity becomes almost sure to occur .
+typically these regimes involve the number of nodes becoming large .
+among the most celebrated results is that of gupta and kumar [ 25 ] .
+this showed that for n nodes uniformly i.i.d. in a disk of area a , with the particular radio transmission range ( 1 ) r ( n )=( a ( logn + gamman ))/( pin ) , the network is asymptotically almost surely connected if and only if gamman - - > + infinity , by using percolation theory .
+the importance of this result was shown in [ 26 ] , where they used it to show that the capacity per user of a static ad hoc network decreases as 1 / n as the number of nodes increases , under several models of single - user communication .
+note however that sophisticated methods such as proposed by ozgur , leveque , and tse [ 27 ] can circumvent this limit .
+before returning to this type of result , let us review some results for infinite networks 3.1 .
+percolation in infinite graphs many of the results concerning connectivity of large ad hoc networks are derived from results in percolation theory this section gives an introduction to percolation theory , and reviews some existing work related to the network connectivity studies .
+an introduction to theoretical aspects of percolation can be found in [ 28 ] and [ 29 ] .
+the notion of percolation was developed by broadbent [ 30 ] , broadbent and hammersley [ 31 ] , and hammersley [ 32 ] to mathematically model the phenomenon of fluid flowing through random porous materials , e.g. , water soaking a sponge .
+the condition of holes in the material being sufficiently connected that the entire sponge becomes wet is analogous to long - range communication being possible in a multi - hop network .
+an important characteristic of percolation models is the existence of phase transitions .
+the degree of connectedness is typically controlled by some parameter , such as the radio transmission range , and there is a critical value below which an infinite network is very fragmented , and above which it is " partially connected " , in a sense which will be described below .
+mathematically , percolation theory studies infinite random graphs , which contain an infinite set of vertices v spreading over an infinite plane .
+correspondingly , percolation theory in wireless ad hoc networking areas focuses on the connectivity of infinite networks , which contain an infinite number of nodes that are distributed on an infinite plane .
+in an infinite plane , the probability that at least one node is isolated typically tends to 1 , and thus full connectivity defined previously almost never occurs .
+therefore , the literature often consider the formation of a connected component with an infinite number of nodes .
+this is called partial connectivity , as distinct from full connectivity , because it cannot guarantee that all nodes are connected .
+an infinite connected component is a collection of vertices , which is an infinite subset v1 of v , such that there is at least one path between any arbitrary pair of nodes in v1 .
+an infinite connected component corresponds to a communication network of infinitely many nodes spread over a large geographic plane .
+therefore , the existence of an infinite connected component implies the capability of long distance communication via multi - hop links .
+early studies of percolation constrained vertices to lie on a regular lattice .
+this requirement was relaxed by gilbert [ 24 ] , who introduced continuum percolation in which vertices can lie anywhere in a continuum such as a plane .
+this seminal work indicated its applicability to multi - hop communications .
+it investigated p ( n ) , the probability that there exists a connected component containing n nodes ; in particular , this was studied as n goes to infinity , giving the probability of forming an infinite connected component .
+it was expressed as a function of average nodal degree e = lambdapir2 , where lambda is the density of nodes .
+it was shown that there is a critical value ec of e , such that an infinite connected component is only possible when e > ec. although the exact value of ec was not known , [ 24 ] showed that 1.75 <= ec <= 17.4 .
+philips et al .
+[ 33 ] improved the results by providing a tighter bound of ec as 2.195 < ec < 10.526 .
+besides the analytical approaches to evaluating ec , numerical methods [ 34 ] have also been used to obtain bounds for ec. these results provide some necessary conditions to construct a connected network in a large plane .
+as percolation theory focuses on the infinite networks and studies the existence probability of an infinite connected component , the connectivity it emphasized is indeed partial connectivity rather than full connectivity .
+however , as the density increases , the network becomes fully connected in the sense that the probability of a random node not being in the infinite connected component tends to 0 .
+designing a large network to achieve full connectivity is much more demanding than designing to ensure that a large percentage of nodes are connected , with an associated increase in energy requirements .
+this is quantified by simulation in [ 35 ] and [ 36 ] and analytically in [ 37 ] .
+the largest connected component of a network is called the giant component .
+in the context of wireless ad hoc networks , the size of the giant component has been evaluated under a wide range of assumptions [ 36 ] .
+specifically , analytical bounds are known [ 37 ] for the minimum transmission range to achieve a giant component that contains more than a given number of nodes .
+percolation theory can also be applied to 1 - dimensional ( 1 - d ) networks , such as sensor networks following rivers .
+percolation is much more limited in 1 - d , since there is much less variety of possible paths than in higher dimensions .
+however , some fundamental results are known .
+for example , the asymptotic connectivity probability of a 1 - d network exhibits a strong zero - one law even if the locations of all the nodes independently follow an arbitrary identical distribution , as long as this distribution admits a non - vanishing density function [ 38 ] .
+the zero - one law indicates that the maximal spacing between adjacent nodes converges in probability to a scaling which is dependent on the total number of nodes n , and the density function f , which all the nodes follow .
+note that this result is important as it provides a deterministic estimate of the critical transmission range .
+the application of percolation to the connectivity of 1 - d networks has been surveyed by han and makowski [ 39 ] .
+3.2 .
+connectivity on finite graphs the effect of a phase transition to partial connectivity in infinite networks is mirrored by a similar effect for complete connectivity in large but finite networks .
+philips et al .
+[ 33 ] considered a geometric random graph model of a wireless packet radio network with a poisson process of nodes within a finite but large area a. they extended gilbert 's results by studying the relationship between a and the average nodal degree e to ensure that all nodes in the network are connected .
+it was proved that for any epsilon > 0 , with transmission range r given by r =( 1 - epsilon ) loga / pilambda , the probability of being connected tends to 0 as a becomes large .
+it was also conjectured that given r =( 1 + epsilon ) loga / pilambda , epsilon > 0 , the network is almost surely connected .
+this conjecture would imply that to obtain asymptotic almost surely connectivity , the expected number of nodes within transmission range of an arbitrary node should grow logarithmically with network area .
+this result is formulated with the density fixed and the area growing ; for comparison with ( 1 ) , the radius required for a fixed area with increasing n = lambdaa would be ( 2 ) r ( n )=( a ( logn + epsilonlogn ))/( pin ) .
+it can be seen that this conjecture , in two dimensions , is established and tightened by ( 1 ) , which replaces epsilon log n by an arbitrary function of n that tends to infinity .
+piret [ 40 ] studied philips et al. ' s problem for 1 - d networks , and showed that the conjecture in [ 33 ] does not hold in that case .
+there are many cases in which 1 - d networks are an exception , with more stringent connectivity requirements .
+so far , we have considered the problem of determining the radius required to ensure a high probability of connectivity in large networks .
+the converse problem of estimating the probability of connectivity for a given radius is if considerable engineering interest .
+consider nodes placed uniformly in a square region , with a pair of nodes connected if their distance is below a threshold , r0 .
+as the number of nodes becomes large , the probability that the network is connected ( or k - connected ) is asymptotically the same as the probability that no node is isolated ( or has degree less than k ) .
+this follows from the fundamental result in random graph theory that , for random geometric graphs of a hypercube of two or more dimensions : the minimum connectivity radius for achieving k - connectivity is exactly equal to the minimum radius for achieving a minimum nodal degree k , with probability tending to 1 as the number of vertices goes to infinity [ 41 ] .
+this probability can be calculated by treating the node locations as a 2 - d poisson process [ 42 ] .
+this result holds for more general regions than squares , although not to all 2 - d regions .
+note that the proof in [ 41 ] ( and hence the corollary in [ 42 ]) only applies to the square case .
+the result also does not establish almost sure connectivity for finite graphs , as suggested in [ 42 ] .
+the analogous problem of finding the probability of a finite 1 - d network being connected can be addressed directly .
+considering a 1 - d interval with n nodes uniformly distributed within it , desai and manjunath [ 43 ] and gore [ 44 , 45 ] studied the probability that the network is connected for a given radio range .
+foh and lee [ 46 ] enhanced the results by providing a closed form expression for the connectivity probability of a 1 - d wsn consisting of two additional border nodes in the 1 - d interval .
+in a practical sensor deployment , it may not be realistic to assume that the nodes are identically distributed .
+an alternative model , studied in [ 47 ] , is for the nodes to have target locations spaced uniformly , but for the true locations to have identically distributed offsets from those targets .
+this study quantifies how the uncertainty in the offsets increases the number of nodes which need to be deployed .
+this approach requires substantially fewer nodes than simple identical distribution of sensors , with concomitant cost savings .
+3.3 .
+techniques to improve connectivity as connectivity is so important to function a sensor network , some techniques have been proposed to improve the connectivity by extending the transmission range of sensors .
+these techniques include cooperative transmission [ 9 , 48 ] , and the application of directional antennas [ 49 ] .
+cooperative transmission is an exploitation of distributed beam - forming. with cooperative transmission , it is possible to accumulate the transmission power from different nodes to achieve a higher power to transmit identical information , and hence the transmission range can be greatly enlarged , and the connectivity of the whole network can be improved .
+to implement cooperative transmission , all nodes that are transmitting the same message should synchronize their transmission and superimpose the emitted waveforms on the physical medium , so that the power can be summed up to help the detection at the receiver side .
+this type of techniques are especially helpful to eliminate the nodes isolation and network separation for large and sparse networks .
+krohn et al .
+[ 9 ] built a prototype platform to demonstrate that using cooperative transmission can actually increase the network connectivity .
+another technique with renewed interests in the network connectivity area is the use of directional antennas [ 49 ] .
+it was proposed to equip wireless devices with directional antennas , which can focus transmission energy in one or two directions , as a large portion of transmission energy from an omnidirectional antenna is wasted in the directions without receivers .
+directional antenna can greatly reduce the transmission power while maintaining the same level of connectivity accordingly , the sensors with directional antennas can transmit to a receiver with longer distance if the transmission power remains the same .
+kranakis et al .
+[ 49 ] showed that when highly - directional antennas are applied to sensors , significant savings on the energy can be achieved , compared to that with omnidirectional antennas .
+this result indicated that under the same energy consumption constraints , sensors with directional antenna nodes can reach longer , and achieve better connectivity .
+in [ 49 ] , the authors also derived the theoretical bounds on the maximum beam width to achieve the energy saving .
+examples of applications of directional antennas include [ 50 ] , and references therein .
+given the complexity of these two techniques on one hand , and the requirements of simple design of sensors on the other , clearly the challenge of improving connectivity in sensor networks still exists .
+4. less regular connectivity models geometric random graphs , such as the unit disk model , are tractable because of the high degree of symmetry they assume .
+in real networks , the coverage regions of different nodes have different areas , and are highly non - circular .
+many more realistic models have been studied in the context of both percolation and connectivity of finite graphs .
+4.1 .
+non - uniform disk radii if each node can adjust its transmission power independently , they have inhomogeneous transmission ranges .
+this model has also received considerable attention .
+xue and kumar [ 51 ] showed that if inhomogeneous ranges are allowed , asymptotic connectivity is maintained if each node in a random network with n uniformly distributed nodes connects to theta ( log n ) nearest neighbors .
+they further showed that the constant in the asymptotic relationship is greater than 0.074 and less than 5.1774 , i.e. , the network is almost surely disconnected if the asymptotic nodal degree k < 0.074 log ( n ) , and the network is almost surely connected if k > 5.1774log ( n ) .
+the range of the constant k is further reduced to the interval [ 0.3043,0.5139 ] [ 52 ] .
+the exact value of the critical constant remains an open problem .
+having inhomogeneous transmission ranges causes the corresponding graph to be directed .
+this is not desirable from an engineering point of view , both because it complicates routing , and also because it bars the use of link - layer acknowledgements and retransmission .
+the solution taken by blough et al .
+[ 53 ] is to consider connectivity induced by only the symmetric edges ; that is , two nodes are connected only if their separation is less than the minimum of their transmission ranges. by applying xue and kumar 's results , blough et al. developed a topology control mechanism that generates a network topology by connecting each node to its k - nearest neighbors .
+the value of k that can provide high probability of connectivity was numerically estimated to be around 9 for networks of 50 - 500 nodes .
+other work that obtains the radio transmission ranges can be found in [ 54 - 57 ] .
+4.2 .
+sinr model the concept of " transmission range " used in most connectivity studies is a marked over - simplification .
+in real networks , the presence of a link depends on both the signal strength and the background interference .
+one of the main drawbacks of disk - based models is that they do not consider interference , though dense networks produce strong interference .
+to take interference into account , dousse et al .
+[ 58 ] used another model , the signal - to - interference - plus - noise - ratio ( sinr ) model , in which two nodes are connected if sinr between the transmitter and receiver exceeds a certain threshold .
+as signal strength is considered in this model , the connectivity of the network depends on the selection of the attenuation function .
+it was proved that percolation occurs for the sinr model in a similar way as in the disk models .
+it was also shown that the commonly used power law attenuation function results in symmetry properties , and attenuation functions with finite support ( i.e. , a finite transmission range ) can also achieve percolation .
+the authors showed that an efficient cdma system with small orthogonality factors can improve the connectivity .
+however , due to the difficulty of designing efficient cdma codes to achieve a small orthogonality factor , a simple tdma scheme was proposed , which also percolates .
+4.3 .
+shadowing in real networks , obstacles block the path of the signal , and cause random anisotropic signal strengths .
+this effect , called shadowing , means that some links may exist to quite distant nodes , while there may be no links to quite close nodes .
+the most widely accepted model of shadowing is log - normal shadowing [ 59 ] .
+this adds a random , normally distributed component to the path loss expressed in decibels , or equivalently multiplies the path loss by a log - normal random variable .
+in [ 60 ] , it was shown that the optimal transmission power in a spread spectrum system should be selected such that the average number of nodes closer to the transmitter than the receiver is phi ( g / b ) 2 / zeta , where phi is a constant depending on the physical systems , g represents the spread spectrum processing gain , b is the threshold for the outage signal to noise ratio and zeta is the power loss factor .
+bettstetter and hartmann [ 61 ] studied the probability that a single node is isolated in a log - normal shadowing environment with poisson distributed nodes .
+a tight bound for the poisson density to achieve a highly connected subnetwork is derived .
+it was shown that the fading would influence the connectivity significantly other models of shadowing are also possible .
+an interesting result arises if we consider the coverage area of each node to be a deterministic but irregular region , rather than a disk .
+booth et al .
+[ 62 ] show that this irregularity enables the network to percolate in a lower density if the footprint of each node is convex , which indicates that sufficient conditions for connectivity obtained by disk - based models hold in general for unreliable and non - rotational symmetric wireless channels .
+however , for networks that each node produces arbitrary footprint , the connectivity is still an open problem .
+4.4 .
+hybrid models including wired infrastructure driven in part by results showing that the capacity per node decreases in large networks [ 26 ] , many researchers have considered hybrid networks which contain not only peer nodes ( sensors ) , but also some wired base stations , which can communicate to sensors via single or multi hops .
+percolation in a hybrid network has also been studied .
+booth et al .
+[ 63 ] and dousse et al .
+[ 64 ] studied algorithms for base station placement to cover poisson distributed nodes and the impact of base stations on the connectivity in two - dimensional sparse networks respectively .
+the results suggest that base stations help increasing the network connectivity significantly , when the node density in one dimension is much higher than the density in the other dimension .
+5. relationship between connectivity and capacity network capacity or throughput is an important constraint when considering the connectivity of ad hoc networks .
+in a wireless ad hoc network , the increase of the transmission power could increase the transmission distance of each node , which leads to the increased probability of network connectivity .
+however , the large power results in severe interference within the network , which reduces the network capacity and degrades the performance of decoding at receivers .
+on the other hand , reducing the transmission range by reducing the transmission power can limit the interferences , but reduces the probability of connectivity and increases the number of hops required to reach the destination .
+therefore , the tradeoff between connectivity and network capacity has been widely studied .
+5.1 .
+capacity constraints imposed by connectivity as mentioned previously , the work of gupta and kuma [ 26 ] pointed out that the minimum density required for connectivity limits the possible throughput per node .
+they considered both a sinr model and model based directly on distances , for both optimal and random placement of nodes .
+for systems with n nodes , they established an upper bound on the capacity under the sinr model of omega ( 1 / n ) in each case , and lower bounds of omega ( 1 / n ) for optimal placement and omega ( 1 / nlogn ) for random placement .
+franceschetti et al .
+[ 65 ] showed that the lower bound for random placement is also omega ( 1 / n ) , giving matching asymptotic upper and lower bounds .
+the fact that the capacity scales less than linearly with the number of nodes has prompted the study of hybrid networks containing some wired base stations .
+however , it has been shown that a linear scaling of capacity with the number of nodes is possible if the modeling assumptions are relaxed .
+as already mentioned , ozgur , leveque , and tse [ 27 ] showed that hierarchical cooperative beam - forming can , in principle , achieve capacity proportional to the number of nodes , albeit at the expense of requiring an unrealistic degree of cooperation .
+dousse et al .
+[ 66 ] demonstrated that the linear scaling is possible if a fixed ( but arbitrarily small ) fraction of the nodes are allowed not to be connected .
+naturally , the achievable rate per node is a function of the fraction of nodes which are allowed to remain disconnected from the main connected component .
+in particular , if we want to impose a minimum data rate of transmission between nodes , then as the number of nodes goes to infinity , a fraction of nodes , which is a function of the required data rate , are automatically disconnected .
+this result was proved both for a boolean ( disk ) model , and for a novel capacity - based model .
+in the latter model , the network is considered connected if and only any pair of nodes can communicate with a predefined minimum data rate , using other nodes as relays .
+note that the connectivity requirement is only an issue if the designer has control over the transmission range , but cannot add wireless relay nodes .
+an often overlooked consideration in these studies is that the total network capacity increases as the number of nodes increases .
+the fact that the capacity per node decreases as more nodes are added arises because it is assumed that additional nodes also have data to carry .
+if additional relay nodes are introduced purely to provide connectivity , then these nodes have no data of their own to send , and so do not reduce the capacity available for the original users .
+to see this , consider a network of a finite density of user nodes .
+superimpose on this ( a ) a very much higher density of ad hoc relay nodes and ( b ) a planar wired network .
+in the ad hoc network , users can communicate by relaying data over the relay nodes lying on the paths of the wired network .
+as the density of the ad hoc network increases , the required transmission ranges vanish and so the interference between " virtual wires " also vanishes .
+this allows the users to communicate with arbitrarily high capacities .
+to investigate the relationship between connectivity and capacity , dousse and thiran [ 67 ] proved that the attenuation function is one of the major factors affecting the properties of dense ad hoc networks .
+under the assumption of power law attenuation , the network connectivity probability becomes higher as the density of nodes increases , even though the interference also increases .
+the increase of network total capacity is bounded by n. however , the total network capacity remains constant with attenuation functions that are bounded above , and the network maintains connectivity at the expense of capacity .
+5.2 .
+improving capacity by denser connectivity another approach has been taken to studying the capacity of sensor networks , in the classic work [ 68 ] presented in 1978 by kleinrock and silvester , which sought to maximise throughput in networks using the aloha medium access control scheme .
+they considered a packet radio network with poisson distributed terminals and homogeneous transmission ranges .
+in their model , the one - hop progress of a packet in the direction from a source to a destination is maximised by setting the transmission range to give an average of six neighbors for each node .
+takagi and kleinrock revised this result , and gave a new optimal nodal degree eight [ 69 ] .
+other nodal degrees were also obtained under different transmission protocols and inhomogeneous transmission ranges [ 69 - 71 ] .
+this work either implicitly or explicitly assumed that the network is connected .
+for example , [ 68 ] considers only networks up to size 150 , and concludes that an average degree of 4 is sufficient for connectivity .
+among others , philips et al .
+[ 33 ] have proved that with a constant average nodal degree , a sufficiently large network is almost surely disconnected , dispelling the notion of a " magic number " [ 68 ] .
+however , the work on maximising throughput remains interesting in that it demonstrates that , at least for small networks , it may be optimal to use a larger number of neighbours than the minimum required for connectivity .
+6. clustering , virtual backbone and minimum connected dominating set simply maintaining the connectivity of a wsn is not sufficient for data dissemination .
+routing must also be considered .
+this section will consider connectivity issues arising in one popular approach : cluster - based routing .
+routing is a major challenge for wsns .
+the large number of sensors involved means that efficient routing is required .
+however , their typical data rates are much lower than other large networks such as the internet .
+hence the relative cost of the signalling overhead of standard routing algorithms such as distance vector routing [ 72 ] or link state routing [ 73 ] can be excessive .
+this is exacerbated by the fact that nodes have very little computational power , but each node typically has a very large number of neighbours because wireless is a broadcast medium .
+moreover , the set of neighbours is rather nebulous because wireless links vary in their reliability .
+using reliably , short hops causes an excessive number of transmissions and hence excessive interference ; conversely , using longer hops risks the need for retransmissions .
+( this can be addressed by opportunistic scheduling [ 74 , 75 ] , which is out of scope of this paper. ) finally , unstructured routing protocols require all potential relays to have their radio circuitry powered all of the time , in case they are called upon to relay data .
+this is a significant overhead in the ultra - low - power designs envisioned for wsns .
+one common solution to these problems is to perform routing through a specific subset of nodes , called a virtual backbone , to which all other nodes connect in a single hop .
+a good virtual backbone can simplify the routing process and can reduce the overall network energy consumption in two ways .
+first , as only nodes in the virtual backbone forward packets , non - backbone nodes can spend more time in a low - power idle mode .
+second , all sensor nodes need to perform in - network processing and data aggregation .
+doing this within virtual backbone nodes can eliminate redundant data and relax the packet transmission burden , which leads to energy saving .
+for a given wsn , we typically wish to find a virtual backbone with the minimum number of nodes , to maximise the potential energy saving .
+however , successful packet delivery requires that the nodes in the virtual backbone remain connected , and that every other node is within range of a backbone node .
+in this section we first introduce cluster - based routing , which groups nodes according to their geometric positions , and selects a head node for each group ( i.e. , cluster ) .
+all the cluster heads form a virtual backbone .
+we also discuss a graph theoretic concept , minimum connected dominating sets ( mcds ) , which model a small connected relay set .
+we also cover the state - of - the - arts algorithms for mcds construction .
+6.1 .
+cluster routing protocols clustering is an effective way to achieve efficient routing in wsns [ 4 , 76 ] .
+it can reduce the communication overhead , and simplify routing and management operations in densely deployed wsns .
+under clustering routing , the whole wsn is partitioned into several clusters , each of which contains nodes in close proximity .
+in each cluster , there is a cluster head .
+inter - cluster communications can only occur between cluster heads , hence nodes in different clusters must connect to their cluster heads first if they need to communicate with each other .
+examples of cluster - based routing schemes include leach [ 77 ] , hcr [ 78 ] , cbrp [ 79 ] , and cedar [ 80 ] .
+cedar and cbrp are general cluster - based routing algorithms for wireless ad hoc networks , while leach and its extension hcr are specialized for wsns .
+other cluster - based routing algorithms for wsns include teen [ 81 ] and apteen [ 82 ] .
+the usage of cluster - based routing in wsns is also motivated by the requirements of in - network processing and data aggregation to reduce energy consumption , as such operations can be spontaneously performed at cluster head nodes .
+it should be noted that once the clusters are formed in a wsn , traditional proactive routing schemes such as distance vector routing and link state routing , as well as reactive routing approaches such as dsr [ 83 ] and aodv [ 84 ] can be used among those cluster head nodes , either for routing information updates or for data delivery .
+cluster - based routing is a special example of backbone - based routing [ 85 ] , if nodes in a backbone are considered as cluster heads .
+to emphasise that a backbone comprises selected wireless nodes rather than being a wired backbone of base stations , the former is often called a " virtual " backbone .
+a virtual backbone in a wsn is a set of nodes that are connected together , and routing operations are restricted to those nodes in the backbone .
+therefore , to ensure its communications to other nodes , each sensor should connect to at least one node in the virtual backbone in a single hop , while virtual backbone nodes can communicate with each other via multi - hop paths .
+it is clear that the nodes in the virtual backbone need to maintain the connectivity among each others .
+a virtual backbone also has other functions , such as route maintenance , transmission scheduling , and broadcasting [ 86 ] .
+a virtual backbone of a wsn can be modelled by a connected dominating set ( cds ) in the connectivity graph representing the wsn .
+for a graph g = ( v , e ) , in which v is the set of vertices with cardinality n , and e is the set of edges , a dominating set ( ds ) is defined as a subset of v , such that any vertex in v is either an element of the ds or has at least one neighbour in the ds. if such a dominating set is connected , i.e. , any arbitrary pair of vertices in the ds are connected by a path containing only elements of ds , then it is called a connected dominating set ( cds ) .
+a graph can have multiple ds and cds .
+the cds that has the smallest cardinality is named a minimum connected dominating set ( mcds ) .
+just like a cds , an mcds need not be unique .
+figure 2 illustrates the concept of mcds by a simple example .
+a network is modelled as a connected graph g = ( v , e ) , in which v = { a , b , c , d , e , f } is the set of vertices , representing all the nodes in the network , while an edge between two vertices in the graph stands for the existence of a direct connection between the corresponding sensor nodes , and the edges set e = {( a,f ) , ( b , f ) , ( b , c ) , ( c , d ) , ( c , e ) , ( d , e ) , ( b , e )( e , f )} is the collection of all the connections .
+according to the previous definition , the mcds of g in figure 2 is the subset u = { e , f } subset / equal v. since we model wsns by graph models , a connected dominating set in the corresponding graph can form the virtual backbone for a wsn .
+also , if we can find the mcds in the graphs , we can construct a virtual backbone with the least number of nodes .
+unfortunately , finding an mcds in a given connected graph is not as easy in practical situations as in the previous example .
+this problem is known to be np - hard [ 87 ] .
+some papers study properties of the mcds directly , such as li et al .
+[ 88 ] , which evaluated the cardinality of the mcds probabilistically for random networks .
+however , research activity on mcds problem mainly focuses on providing heuristics or approximation algorithms , which achieve near mcds construction .
+note the difference between heuristics and approximation algorithms .
+an algorithm a is called a alpha - approximation if it can be proved that a will not be more than a factor alpha times the optimum solution sopt , i.e. , a <= alphasopt .
+the alpha is called the approximation ratio of a. in contrast , a heuristic is any algorithm which appears to work well in most cases .
+existing algorithms for constructing an approximate mcds can be classified into three categories : constructive , pruning - based and multipoint - relay - based algorithms .
+constructive algorithms approximate the mcds in a graph by gradually adding nodes to a candidate set .
+in contrast , pruning - based algorithms begin with taking a large candidate set , then detect and remove redundant nodes to eventually obtain a small cds .
+the last type , multipoint - relay - based algorithms , allows each node to determine its smallest one - hop message relay set , and all nodes selected as relay nodes for a particular message relaying form a cds .
+for all three types of algorithms , the connectivity among the relay nodes must be considered .
+a common approach used by constructive algorithms is first to select a subset of a cds , called a maximal independent set ( mis ) , and then using some additional nodes to provide connectivity among nodes in the mis .
+algorithms in this class are generally differentiated according to the approaches used to produce the mis and to find the additional nodes .
+an independent set ( is ) of a graph g = ( v , e ) is defined as a subset v subset / equal v , such that there is no edge between any two vertices in v , i.e. , for - allu,vinv , ( u , v ) not - in e. an independent set that is not a proper subset of any other independent set is called a maximal independent set .
+note the difference between a maximal independent set and a maximum independent set .
+the latter is defined as an independent set with the largest cardinality , but there can be multiple maximal independent sets with varying cardinality .
+while construction of a maximal independent set can be solved in polynomial time by greedy algorithms , finding the maximum independent sets is np - complete [ 87 ] .
+in contrast to constructive algorithms , pruning - based algorithms generate a large cds first , and then remove redundant nodes while keeping the connectivity among the remaining nodes in the cds .
+in terms of the multipoint - relay - based algorithms , the connectivity of the constructed dominating set is guaranteed in the selection of multipoint relay nodes .
+these three types of algorithms are described in more detail in the following subsections .
+typical examples of each type are also discussed .
+6.2 .
+constructive algorithms guha and khuller 's seminal paper [ 89 ] shows that a beta approximation for the problem of finding the mcds corresponds to a 2beta approximation for another np - hard problem , the travelling tourist problem .
+it uses this result as the basis for two polynomial time approximation algorithms for the mcds problem .
+these two algorithms have approximation factors of 2 ( h ( delta ) + 1 ) and h ( delta ) + 2 , respectively , in which delta is the maximum nodal degree and h is the harmonic function [ 90 ] .
+the first algorithm approximates the mcds by greedily creating a tree t. all the non - leaf nodes of t form the approximate mcds , which is indeed a cds .
+nodes have three different states , which are black , grey and white .
+black nodes are nodes in the final cds , so called dominators .
+grey nodes are candidates of dominators , and white nodes are those nodes not yet in t. initially , all the nodes are white nodes , and the algorithm finds out the node with maximum degree of white neighbors , marks it black , and marks all its white neighbors grey .
+the algorithm then iteratively marks the grey node or the pair of connected grey nodes that have maximum white neighbors to black , and update those white neighbors to grey state .
+the set of black nodes in the final result is the cds .
+note the correspondence of grey and black nodes to candidate and confirmed nodes in dijkstra 's algorithm [ 91 ] ; however a notable difference between the algorithms is that the order of processing the grey nodes is based on their connectivity rather than the cost of the path .
+to develop the second algorithm , guha and khuller introduced a new concept called piece , defined as either a connected black component , or a white node .
+the second algorithm selects nodes with maximum degree of pieces as dominators until there are no white nodes .
+it then connects all the dominators by constructing a steiner tree .
+a distributed algorithm is called localized if each node decides on its own behavior based on only the information from nodes within a limited hop distance , e.g. , one or two hops. with localized algorithms , topology changes in part of the network can be isolated , and may not affect the rest of the network .
+in contrast , a distributed non - localized algorithm requires nodes to acquire global knowledge of the network to perform correct operations [ 92 ] .
+neither of the above algorithms is localized , as they need global information to select the nodes with maximum degree of white neighbors or pieces .
+das and bharghavan [ 93 ] proposed to construct a virtual backbone in a wireless ad hoc network by using its mcds , and developed a distributed implementation of guha and khuller 's algorithm .
+das and bharghavan 's distributed algorithm is also non - localized , as the centralized algorithm it is based on finds a non - localized solution .
+another distributed heuristic to compute the mcds for a wireless ad hoc network was proposed by alzoubi and wan [ 94 ] .
+the algorithm is non - localized as it involves the construction of a spanning tree .
+indeed , this algorithm follows the same idea as the second algorithm of guha and khuller .
+it selects a dominating set first , and then connects nodes in the dominating set by choosing some additional nodes as connectors .
+the selection of the dominating set is based on the construction of a maximal independent set ( mis ) , and the connection step is completed by selecting some additional nodes to form a spanning tree .
+the authors provided performance bounds by applying the property that a node in a unit disk graph cannot have more than five independent neighbors [ 95 ] .
+if n is the number of vertices for the whole network , the algorithm has time complexity of o ( n ) , and message complexity of o ( n log ( n )) , while providing a constant approximation factor .
+this algorithm is non - localized as it needs a leader node to generate a rooted tree .
+to overcome this drawback , alzoubi et al .
+[ 96 ] proposed another algorithm , which generates an mis based on multiple leaders , and hence is localized .
+the algorithm obtains a cds with cardinality at most 192 | opt | + 48 , in which | opt | is for the cardinality of the mcds .
+the main drawback of this algorithm is the low efficiency of the connector selection procedure .
+other work based on computing and connecting a mis include [ 97 - 99 ] , and references therein .
+6.3 .
+pruning - based algorithms besides constructive algorithms , there also exist other algorithms which are based on pruning procedures to approximate mcds .
+as indicated by its name , a pruning - based algorithm gradually reduces a candidate cds according to some greedy criteria , and the left - over set after the reduction is the approximate mcds .
+wu and li [ 100 ] proposed a two step localized algorithm to construct a cds in a network .
+in the first step , each node in the network gets information of its two - hop neighbors via the exchange of beacons .
+every node that has two neighbors that are not within the radio range r of each other marks itself as a dominator .
+the second step is a pruning process , which takes out some redundant nodes from the dominator set generated in the first step .
+there exist two rules to reduce the size of the cds generated in the first step .
+a node u can be removed from the cds if its closed neighborhood is a subset of that of another node v in the cds , or the open neighborhood of u is a subset of the union of the open neighborhood of another two nodes v and w , which are in the cds .
+the open neighborhood of a node u is defined as the set of all the nodes that direct link to u. the closed neighborhood of u is the union of its open neighborhood and u. wu et al .
+[ 101 ] extended this algorithm to make it energy aware .
+for an arbitrary node u , the remaining energy level of u is considered when the pruning process is performed .
+nodes with lower energy level are preferentially removed .
+butenko et al .
+[ 102 ] propose another algorithm that uses pruning .
+this algorithm takes the entire set of nodes v as the initial candidate cds , and then greedily removes nodes .
+in order to determine whether a node can be removed from the current cds , the connectivity of the remaining nodes is tested .
+the node can be removed only if the remaining candidate cds is still connected .
+this algorithm has high message complexity due to the operations of connectivity tests , especially for large dense networks .
+however , simulation results show that the cardinality of the cds it finds is comparable to existing algorithms .
+sanchis [ 103 ] also discusses a similar approach in the construction of dominating sets .
+6.4 .
+multipoint relaying ( mpr ) in cds construction multipoint relaying is a technique that is widely used for flooding in wireless ad hoc networks .
+in multipoint relaying , each node u in the network selects a subset of its first - hop neighbors , named the multipoint relay set ( mrs ) , which are responsible for forwarding packets from node u to u 's two hop neighbors .
+only nodes in the mrs of u can forward packets sent by u. finding a minimum size mrs in a network is shown to be np - complete [ 104 ] .
+the mrs of a node u forms a local dominating set , which dominates nodes within two hops distance from u. although the mrss do not directly generate a global cds , they can be extended to do so. note that in [ 104 ] , node u and its mrs only form a local cds .
+some algorithms approximate mcds for the whole network based on mrss .
+one such example is mpr - cds where a source - independent mpr algorithm is proposed to construct a global cds based on the mpr approach [ 105 ] .
+the algorithm assumes that each node in a connected network has a unique id. the global cds is constructed based on the id of nodes , according to the following criteria .
+a node u is added into the cds if it has the smallest id among all its first - hop neighbors , or it is a member of the mrs of its neighbor with the smallest id. the time complexity is shown to be o ( delta2 ) , where delta is again the maximum node degree , while the message complexity is o ( n ) .
+however , as pointed out by wu [ 106 ] , the cds generated by mpr - cds can be inefficient as the nodes selected by the first criterion may not be necessary .
+this is because the first criterion only select cds nodes based on their ids .
+hence for certain network topologies , nodes chosen by the first criterion are redundant .
+therefore an enhanced mpr ( empr ) was proposed by modifying the mpr - cds in both the selection of the smallest id nodes and the original mpr selection .
+due to these two modifications , the empr has high computation complexity .
+other mpr - based cds construction heuristics include chen et al .
+[ 107 ] , wu et al .
+[ 108 , 109 ] , and others .
+for a comprehensive survey about multipoint - relay - based broadcast schemes , see ou et al .
+[ 110 ] , which includes multipoint - relay - based cds construction .
+note that all the discussions of mcds are based on the fact that the network is connected .
+when dealing with a disconnected network , we can only find cdss of each connected part of the network .
+as the mcds problem is np - complete , future research will likely to focus on providing heuristic algorithms and approximations that are efficient and scalable .
+another possible new research direction is to focus on networks with specific structures , as done by li et al .
+[ 88 ] .
+7. placement of nodes the placement of nodes largely influences the operations and performance of wsns , as sensor nodes must be able to observe events of interest , and transmit the information to data collection centres .
+moreover , sensor placement also affects the resource management in wsns [ 111 ] .
+sensor networks often monitor specific points , e.g. , monitoring intersections or animal nesting sites , which constrain the node placement .
+in such cases , the placement issue is highly application - specific .
+our survey is only of cases where the aim is to monitor an entire area , either continuous or on a discrete grid .
+according to the roles that the deployed nodes play , node placement can be classified into placement of ordinary nodes , and placement of relay nodes , respectively .
+the former focus on the deployment of normal sensors , while the latter places a special type of nodes , which are responsible for forwarding packets .
+7.1 .
+placement of ordinary nodes the foremost step required for a wsn to perform its designed functions is deploying all the sensor nodes to form a wsn .
+as mentioned previously , sensors can be placed exactly on carefully engineered positions , or thrown in bulk on random positions [ 3 ] .
+each of these will be considered in turn .
+most work on deterministic placement seeks to determine the " optimal " placement pattern .
+different optimality criteria are used , according to the applications and goals of the wsns .
+a common objective is to minimise the number of required sensors needed , subject to the constraint that the whole sensing field is monitored by the deployed sensors .
+this is equivalent to finding the minimum number of nodes such that every position in the sensing field is within the sensing field of at least one node .
+minimising the number of sensors can take the form of an " art gallery " problem [ 112 ] , which aims to find the minimum set of locations for security guards inside a polygonal art gallery , such that the boundary of the entire gallery is visible by at least one of the security guards .
+gonzolez - banos [ 113 ] proposed a randomized algorithm to solve the art gallery problem to find locations for sensor nodes .
+however , in the art gallery problem , all security guards are assumed to have infinite vision if there is no obstacles .
+this assumption does not hold for wsns in which sensor nodes have limited sensing ranges .
+it was shown that arranging sensors at the centres of regular hexagons is optimal for a wsn with a large sensing field , given that all the sensor nodes have identical limited sensing ranges [ 114 ] .
+this result has long been known in mathematics community ; see kershner [ 115 ] .
+there is also some recent work published discussing the node deployment scheme through the maximization of coverage , through techniques such as virtual force algorithm and tabu search , see [ 116 - 118 ] .
+the above work on the node placement only considered the coverage constraint that the wsn needs to be able to observe any positions within the sensing field .
+they did not include the discussion about the connectivity , or they implicitly assumed that the wsn formed by the obtained pattern was connected , regardless the transmission ranges of sensor nodes .
+nevertheless , this assumption may not be true .
+to find the optimal node placement pattern subject to both the coverage and connectivity constraints , biagioni and sasaki [ 119 ] modelled the problem as an optimization problem that minimizes the number of required sensor nodes , under the constraints that any position of the sensor field is under surveillance of at least one node and all nodes are connected .
+however , the paper did not find a general solution .
+instead , it discussed a wide range of regular sensor network deployment patterns .
+these patterns include circular , star , and grid patterns , such as triangular , square and hexagonal grids .
+iyengar et al .
+[ 120 ] proved that a strip - based pattern is nearly optimal for this problem for large networks in two - dimensional space .
+the strip - based pattern , nodes are arranged along many parallel horizontal strips , and nodes in different horizontal strips can communicate via some nodes located as a vertical ribs .
+bai et al .
+[ 121 ] extended the work in [ 120 ] by proving that this strip - based pattern is the asymptotic optimal pattern for an infinite network .
+a slight modification of the asymptotic optimal strip - based pattern , which is optimal to achieve coverage and 2 - connectivity was also proposed in [ 121 ] .
+this modified pattern has two vertical ribs of nodes on either end of the sensing fields instead of a single vertical rib .
+very recently , bai et al .
+[ 122 ] published new results , which proposed optimal sensor placement patterns to achieve coverage and k - connectivity ( k <= 6 ) .
+note that k - connectivity can provide fault tolerance .
+above work assumed that the wsn was deployed in an open area , without obstacles such as buildings or stationary .
+in contrast , wang et al .
+[ 123 ] developed a general sensor deployment scheme , which can efficiently determine sensor positions for an arbitrary sensing field , probably with obstacles .
+studies on objectives other than minimising the total number of sensors are also available .
+khan [ 124 ] studied the placement of a given number n of nodes in a grid sensor field .
+the aim was to minimise the distance between sensors for fault tolerance reasons , subject to the constraints that all the n sensors are placed on grid points , and all the grid points are sensed by some sensors .
+other work adopting grid - based deployment include chakrabarty et al .
+[ 125 ] , and lin et al .
+[ 126 ] .
+chakrabarty et al .
+[ 125 ] tried to find the node placement scheme that minimizes the cost of sensors to meet the complete coverage constraints .
+in particular , lin et al .
+[ 126 ] developed an algorithm to solve the sensor placement problem on a grid field .
+each grid point was coded according to the coverage relationship to sensors .
+the algorithm aimed to find the set of grid points that can minimise the maximum coding distance between any pair of grid points , subject to the cost limitation .
+the above mentioned work [ 114 , 115 , 119 - 126 ] was based on deterministic sensor placement .
+however , for large scale wsns , random placement has also received much attention .
+ishizuka and aida [ 127 ] proposed three types of random placement models .
+the authors studied the fault - tolerance and sensing coverage through simulations , and suggested that the placement model which assumes that sensors are uniformly distributed in terms of the network radius and angular direction from the sensor field centre is the best candidate for random node placement .
+others ( see [ 128 ] for an example ) assume that all nodes follow identical gaussian distribution .
+models of random placement usually assume that nodes are independently and uniformly distributed in space .
+it is not clear that this is a suitable model , although its tractability is appealing .
+moreover , it has been shown that several models of random motion of nodes eventually yield a uniform distribution of nodes .
+blough et al .
+[ 129 ] showed by simulation that a uniform distribution results if the initial distribution of nodes is uniform distribution , all the nodes move according to the random waypoint model and all the nodes move for a large number of steps of brownian - like motion , which represents unintentional movement .
+miller [ 128 ] showed that a uniform distribution results even if the initial distribution was gaussian instead of uniform .
+note however that these mobility models are no less arbitrary than the initial assumption of uniform placement .
+there is a dearth of literature on the actual distributions yielded by the proposed methods of random deployment .
+7.2 .
+placement of relay nodes in a wsn , if a small set of special nodes , whose main function is packet forwarding , are deployed , the management and network operations in the wsn can be potentially simplified drastically .
+these nodes are called relay nodes , and have attracted flourishing interests [ 130 - 134 ] .
+a fundamental problem which arises when establishing such a network is where to deploy those relay nodes to achieve the required grade of service , while meeting the system constraints. that is the topic of this subsection .
+the problem of relay node placement can be categorized into either single - tiered or two - tiered , according to the data forwarding scheme adopted by the wsn .
+if both of relay nodes and ordinary sensor nodes can forward packets , this is single - tiered relay node placement .
+in contrast , in a wsn with two - tiered relay node placement , only relay nodes can forward packets .
+in a two - tiered system , the relays form a virtual backbone , and must be a connected dominating set ( cds ) of the wsn .
+we survey the prior work related to these two types of relay placement .
+in the following discussion , the transmission ranges for relays and ordinary sensors are denoted r and r , respectively .
+cheng et al .
+[ 130 ] developed algorithms to place the minimum number of relay nodes and maintain the connectivity of a single - tiered wsn , under the assumption that r = r , i.e. , all relays and ordinary sensors have identical transmission ranges .
+the problem was modelled by the steiner minimum tree with minimum number of steiner points and bounded edge length ( smt - msp ) problem , which arose in the study of amplifier deployment in optical networks , and was proved to be np - hard [ 135 ] .
+based on a minimum spanning tree , lin and xue [ 135 ] developed an algorithm to solve the smt - mst problem .
+they proved it to have an approximation ratio of 5 , which chen et al .
+[ 136 ] tightened to 4 .
+in the same paper , a 3 - approximation algorithm was also proposed .
+based on lin and xue 's algorithm , cheng et al .
+[ 130 ] proposed a different 3 - approximation algorithm and a randomized 2.5 - approximation algorithm .
+in order to provide fault - tolerance , kashyap et al .
+[ 137 ] studied how to place minimum number of relays such that the resulted wsn is 2 - connected , when relay nodes and ordinary sensor nodes have identical transmission range , i.e. , r = r. a constant approximation algorithms with time complexity o (( kn ) 2 ) was developed .
+recently , zhang et al .
+[ 134 ] improved the results of kashyap et al. by developing algorithms to compute the optimal node placement for networks to achieve 2 - connectivity , under the more general condition that r >= r. these algorithms aimed to minimise the number of relay nodes while providing fault - tolerance .
+the setting that only relay nodes can perform the packet forwarding is known as the two - tiered infrastructure .
+pan et al .
+[ 132 ] first investigated the two - tiered infrastructure for optimal node placement .
+further studies considering an i.i.d. uniformly distributed sensor location with r >= 4r were given in [ 131 , 133 ] .
+based on [ 130 ] and [ 131 ] , lloyd and xue [ 138 ] developed algorithms to find optimal placement of relay nodes for the more general relationship r >= r , under single - tiered and two - tiered infrastructures .
+apart from the above unconstrained relay node placement , in which relay nodes can be placed on anywhere , recent work has started to investigate constrained relay node placement problem which captures the practical consideration such as interferences or forbidden regions prevent relay nodes from being placed on certain positions .
+some recent work investigating constrained relay node placement problem is given in [ 139 , 140 ] .
+8. concluding remarks wireless sensor networks have the potential to revolutionize our everyday life , as they provide a flexible approach for us to observe the surrounding environment , and respond to events .
+the availability of tiny battery - powered sensor nodes , embedded with sensing , processing , and communication capabilities , which are wirelessly networked together via multi - hop communication , increase the opportunities for wsns to find applications in a wide range of areas .
+along with the opportunities , there are also challenges and requirements for the successful deployment and operations of wsns .
+this survey has focused on the implications of the need for connectivity .
+ensuring connectivity of a wsn is challenging when sensors have random locations , either because of mobility or initial random deployment .
+a substantial body of literature has been written on this problem , including deep theoretical results applied to simple models of i.i.d. uniformly distributed nodes with circular radio footprints .
+this model is widely accepted as it is analytically tractable .
+an important open research problem is to generalise these results to more realistic propagation models , including effects such as shadowing and non - uniform distribution of nodes , and to determine what engineering insights can be drawn from the theoretical asymptotic results .
+connected subsets of nodes also play an important role in wsns .
+as we have seen , cluster routing uses a connected " backbone " of nodes to simplify routing , and minimise the work required from the majority of sensor nodes .
+finding the smallest such backbone is equivalent to finding a minimum con - nected dominating set in the corresponding graph , which is known to be np - complete .
+further research is needed both into finding more efficient , more accurate or simpler suboptimal solutions to the mcds problem , and also into the benefits which can be obtained by using non - minimum backbones .
+such benefits include reduced path lengths , and increased resilience .
+such research will play an important part in bringing about the benefits that sensor networks have to offer .
+references and notes 1 .
+whitman e.c. sosus : the " secret weapon " of undersea surveillance undersea warfare 2005 7 available online : http :// www.navy.mil / navydata / cno / n87 / usw / issue _ 25 / sosus.htm ( accessed september 17 , 2009 ) 2 .
+chong c.y. kumar s.p. sensor networks : evolution , opportunities , and challenges proc .
+ieee 2003 91 1247 1256 3 .
+akyildiz i.f. su w. sankarasubramaniam y. cayirci e. wireless sensor networks : a survey comput. netw .
+2002 38 393 422 4 .
+sohraby k. minoli d. znati t. wireless sensor networks : technology , protocols and applications john wiley & sons , inc .
+hoboken , nj , usa 2007 5 .
+ni s .
+- y. tseng y .
+- c. chen y .
+- s. sheu j .
+- p. the broadcast storm problem in a mobile ad hoc network proceedings of the 5th annual acm / ieee international conference on mobile computing and networkingseattle , washington , dc , new york , ny , usa 1999 151 162 6 .
+raghunathan v. schurgers c. park s. srivastava m.b. energy efficient design of wireless sensor nodes wireless sensor networks raghavendra c.s. sivalingam k.m. znati t. springer berlin / heidelberg , germany 2004 51 69 7 .
+zhao q. gurusamy m. lifetime maximization for connected target coverage in wireless sensor networks ieee / acm trans. netw .
+2008 16 1378 1391 8 .
+diestel r. graph theoryelectronic edition springer - verlag heidelberg , germany 2005 9 .
+krohn a. beigl m. decker c. riedel t. zimmer t. varona d.g. increasing connectivity in wireless sensor network using cooperative transmission proceedings 3rd international conference on networked sensing systems ( inss ) chicago , il , usa 2006 10 .
+bollobas b. random graphs2nd ed. cambridge university press cambridge , uk 2001 11 .
+erdos p. renyi a. on random graphs publ. math .
+1959 6 290 297 12 .
+erdos p. renyi a. on the evolution of random graphs publ. math. inst .
+hungarian acad. sci. 1960 5 17 61 13 .
+atay f. stojmenovic i. yanikomeroglu h. generating random graphs for the simulation of wireless ad hoc , actuator , sensor , and internet networks proc .
+8th ieee symposium on a world of wireless , mobile and multimedia networks wowmomhelsinki , finlandjune 2007 14 .
+dowell l.j. bruno m.l. connectivity of random graphs and mobile networks : validation of monte carlo simulation results proc .
+the 2001 acm symposium on applied computing ( sac ' 01 ) acm , new york , ny , usamarch 2001 15 .
+gkantsidis c. mihail m. zegura e. the markov chain simulation method for generating connected power law random graphs proc .
+5th siam workshop on algorithm engineering and experiments ( alenex ) baltimore , ma , usajanuary 2003 16 .
+ioannides y.m. random graphs and social networks : an economics perspective available online : http :// ase.tufts.edu / econ / papers / 200518.pdf ( accessed on april 1 , 2008 ) 17 .
+newman m.e.j. watts d.j. strogatz s.h. random graph models of social networks proc nat acad sci , usa 2002 99 suppl .
+1 2566 2572 11875211 18 .
+saul z.m. filkov v. exploring biological network structure using exponential random graph models bioinformatics 2007 23 2604 2611 17644557 19 .
+gilbert e.n. random graphs ann. math. statist .
+1959 30 1141 1144 20 .
+austin t.l. fagen r.e. penney w.f. riordan j. the number of components in random linear graphs ann. math. statist .
+1959 30 747 754 21 .
+ford g.w. uhlenbeck g.e. combinatorial problems in the theory of graphs proc. nat. acad. sci. usa 1957 43 163 167 16589991 22 .
+chlamtac i. farago a. a new approach to the design and analysis of peer - to - peer mobile networks acm wirel. netw .
+1999 5 149 156 23 .
+penrose m.d. random geometric graphs oxford university press oxford , uk 2003 24 .
+gilbert e.n. random plane networks siam j .
+1961 9 533 543 25 .
+gupta p. kumar p.r. critical power for asymptotic connectivity in wireless networks stochastic analysis , control , optimization and applications : a volume in honor of w.h. fleming mceneaney w.m. yin g.g. zhang q. birkhauser boston cambridge , ma , usa 1998 1106 1110 26 .
+gupta p. kumar p.r. the capacity of wireless networks ieee trans. inform .
+theory 2000 46 388 404 27 .
+ozgur a. leveque o. tse d. hierarchical cooperation achieves linear capacity scaling in ad hoc networks proc .
+26th ieee international conference on computer communications ( infocom'07anchorage , alaska , usamay 2007 382 390 28 .
+hall p. on continuum percolation ann. probab .
+1985 13 1250 1266 29 .
+menshikov m.v. coincidence of critical points in percolation problems soviet math. dokl .
+1986 24 856 859 30 .
+broadbent s.r. discussion on symposium on monte carlo methods j. roy. statist .
+soc. , ser .
+b 1954 16 61 75 31 .
+broadbent s.r. hammersley j.m. percolation processes , i. crystals and mazes proceedings of the cambridge philosophical societycambridge , uk 1957 53 629 641 32 .
+hammersley j.m. percolation processes , ii. the connective constant proceedings of the cambridge philosophical societycambridge , uk 1957 53 642 645 33 .
+philips t.k. panwar s.s. tantawi a.n. connectivity properties of a packet radio network model ieee trans. inform .
+theory 1989 35 1044 1047 34 .
+quintanilla s. torquato s. ziff r.m. efficient measurement of the percolation threshold for fully penetrable discs j. phys .
+a : math. gen .
+2000 33 l399 l407 35 .
+santi p. blough d.m. the critical transmitting range for connectivity in sparse wireless ad hoc networks ieee trans .
+mobile comput .
+2003 2 1 15 36 .
+hekmat r. mieghem p.v. connectivity in wireless ad - hoc networks with a log - normal radio model mobile netw. appl .
+2006 11 351 360 37 .
+ta x. mao g. anderson b.d.o. on the properties of giant component in wireless multi - hop networks proceedings 28th ieee infocom'09 mini - conferencerio de janeiro , brazilapril 2009 38 .
+han g. makowski a.m. one - dimensional geometric random graphs with non - vanishing densities i : a strong zero - one law for connectivity ieee trans. inform .
+theory 2009 in press 39 .
+han g. makowski a.m. sensitivity of critical transmission ranges to node placement distributions ieee j. sel. area. comm .
+2009 in press 40 .
+piret p. on the connectivity of radio networks ieee trans. inform .
+theory 1991 37 1490 1492 41 .
+penrose m.d. on k - connectivity for a geometric random graph random struct. algor .
+1999 15 145 164 42 .
+bettstetter c. on the minimum node degree and connectivity of a wireless multihop network proc .
+3rd acm international symposium on mobile ad hoc networking and computing ( mobihoc 02 ) acm , new york , ny , usa 2002 80 91 43 .
+desai m. manjunath d. on the connectivity in finite ad hoc networks ieee comm. lett .
+2002 6 437 439 44 .
+gore a.d. comments on " on the connectivity in finite ad hoc networks " ieee comm. lett .
+2006 10 88 90 45 .
+gore a.d. correction to " comments on ' on the connectivity in finite ad hoc networks '" ieee comm. lett .
+2006 10 359 46 .
+foh c.h. lee b.s. a closed form network connectivity formula for one - dimensional manets proc .
+ieee int. conf. comm .
+( icc ) 2004 6 3739 3742 47 .
+li j. andrew l.h.l. foh c.h. zukerman m. neuts m.f. meeting connectivity requirements in a wireless multihop network ieee comm. lett .
+2006 10 19 21 48 .
+scaglione a. hong y .
+- w. opportunistic large arrays : cooperative transmission in wireless multihop ad hoc networks to reach far distances ieee trans .
+signal process .
+2003 51 2082 2092 49 .
+kranakis e. krizanc d. williams e. directional versus omnidirectional antennas for energy consumption and k - connectivity of networks of sensors lect. note. comput. sci. 2005 3544 357 368 50 .
+bhattacharya b. hu y. shi q. kranakis e. krizanc d. sensor network connectivity with multiple directional antennae of a given angular sum proceedings 23rd ieee international parallel and distributed processing symposium ( ipdps 2009 ) rome , italymay 2009 51 .
+xue f. kumar p.r. the number of neighbors needed for connectivity of wireless networks wirel. netw .
+2004 10 169 181 52 .
+ganesh a. xue f. on the connectivity and diameter of small - world networks adv. appl. probab .
+2007 39 853 863 53 .
+blough d.m. leoncini m. resta g. santi p. the k - neigh protocol for symmetric topology control in ad hoc networks proceedings of the 4th acm international symposium on mobile ad hoc networking and computingannapolis , maryland , usa 2003 141 452 54 .
+bettstetter c. on the connectivity of wireless multihop networks with homogeneous and inho - mogeneous range assignment proceedings of ieee 56th vehicular technology conference ( vtc - 2002 , fall ) vancouver , british columbia , canada 2002 3 1706 1710 55 .
+sanchez m. manzoni p. haas z.j. determination of critical transmitting ranges in ad hoc networks proc .
+multiaccess , mobility and teletraffic for wireless communications conferencenew orleans , la , usa 1999 56 .
+santi p. the critical transmitting range for connectivity in mobile ad hoc networks ieee trans .
+mobile comput .
+2005 4 310 317 57 .
+wan p.j. yi c.w. asymptotic critical transmission radius and critical neighbor number for k - connectivity in wireless ad hoc networks proceedings of the 5th acm international symposium on mobile ad hoc networking and computingroppongi hills , tokyo , japan 2004 1 8 58 .
+dousse o. baccelli f. thiran p. impact of interferences on connectivity in ad hoc networks ieee / acm trans. netw .
+( ton ) 2005 13 425 436 59 .
+rappaport t.s. wireless communications principles and practice2nd ed. pearson education upper saddle river , nj , usa 2004 60 .
+zorzi m. pupolin s. optimum transmission ranges in multihop packet radio networks in the presence of fading ieee trans. comm .
+1995 43 2201 2205 61 .
+bettstetter c. hartmann c. connectivity of wireless multihop networks in a shadow fading environment proc .
+6th acm international workshop on modeling , analysis and simulation of wireless and mobile systemssan diego , ca , usaseptember 19 , 2003 28 32 62 .
+booth l. bruck j. cook m. franceschetti m. ad hoc wireless networks with noisy links proc .
+ieee international symposium on information theory , 2003yokohama , japanjune 29 - july 4 , 2003 63 .
+booth l. bruck j. cook m. franceschetti m. covering algorithms , continuum percolation and the geometry of wireless networks ann. appl. probab .
+2003 13 722 731 64 .
+dousse o. thiran p. hasler m. connectivity in ad - hoc and hybrid networks proc .
+ieee infocom 2002new york , ny , usajune 23 - 27 , 2002 2 1079 1088 65 .
+franceschetti m. dousse o. tse d. thiran p. closing the gap in the capacity of wireless networks via percolation theory ieee trans. inf .
+theory 2007 53 1009 1018 66 .
+dousse o. franceschetti m. thiran p. information theoretic bounds on the throughput scaling of wireless relay networks proc .
+ieee infocom 2005 .
+24th annual joint conference of the ieee computer and communications societiesmiami , fl , usa 2005 4 2670 2678 67 .
+dousse o. thiran p. connectivity vs capacity in dense ad hoc networks proc .
+infocom 2004 .
+23rd annual joint conference of the ieee computer and communications societieshong kong , chinamarch 2004 68 .
+kleinrock l. silvester j. optimum transmission radii for packet radio networks or why six is a magic number proc .
+national telecommunications conferencebirmingham , al , usadecember 1978 69 .
+takagi h. kleinrock l. optimal transmission ranges for randomly distributed packet radio terminals ieee trans. comm .
+1984 32 246 257 70 .
+hajek b. adaptive transmission strategies and routing in mobile radio networks proc .
+conference on information sciences and systemsprinceton , nj , usamarch 1983 372 378 71 .
+hou t. li v. transmission range control in multihop packet radio networks ieee trans. comm .
+1986 34 38 44 72 .
+hedrick c .
+rfc1058 - routing information protocolinternet request for comments : 1058 6 1998 available online : http :// www.faqs.org / rfcs / rfc1058.html ( accessed september 18 , 2009 ) 73 .
+moy j. ospf version 2 ; internet request for comments : rfc 1247 7 1991 available online : http :// www.ietf.org / rfc / rfc1247.txt ( accessed september 18 , 2009 ) 74 .
+biswas s. morris r. exor : opportunistic routing in multihop wireless networks proc. of acm sigcommphiladelphia , pa , usaaugust 2005 133 144 75 .
+cui t. chen l. ho t. low s.h. andrew l.l.h. opportunistic source coding for data gathering in wireless sensor networks proc .
+ieee mobile ad - hoc and sensor systems ( mass ) pisa , italyoctober 8 - 11 , 2007 1 11 76 .
+tubaishat m. madria s. sensor networks : an overview ieee potent .
+2003 22 20 23 77 .
+heinzelman w. chandrakasan a. balakrishnan h. energy - efficient communication protocol for wireless microsensor networks proc .
+hawaii international conf .
+on systems sciencemaui , hawaii , usajanuary 2000 78 .
+hussain s. matin a.w. hierarchical cluster - based routing in wireless sensor networks proc .
+international conference on information processing in sensor networks ( ipsn 2006 ) nashville , tn , usa 2006 79 .
+jiang m. li j. tay y. cluster based routing protocol ( cbrp ) functional specification ietf internet draft manet working group 8 1999 80 .
+sivakumar r. sinha p. bharghavan v. cedar : a core - extraction distributed ad hoc routing protocol ieee j. sele. area. comm .
+1999 17 1454 1465 81 .
+manjeshwar a. agrawal d. teen : a protocol for enhanced efficiency in wsns proc .
+the first international workshop on parallel and distributed computing issues in wireless networks and mobile computingsan francisco , ca , usaapril 2001 82 .
+manjeshwar a. agrawal d. apteen : a hybrid protocol for efficient routing and comprehensive information retrieval in wsns proc .
+2nd international parallel and distributed computing issues in wireless networks and mobile computingft .
+lauderdale , fl , usaapril 2002 195 202 83 .
+johnson d. b. maltz d.a. dynamic source routing in ad hoc wireless networks mobile comput .
+1996 353 153 181 84 .
+perkins c. e. royer e. m. ad hoc on - demand distance vector routing proceedings of ieee workshop on mobile computing systems and applicationsnew orleans , la , usafebruary 1999 90 100 85 .
+das b. sivakumar e. bhargavan v. routing in ad hoc networks using a virtual backbone proceedings fo the 6th international conference on computer communications and networks ( ic3n'97 ) las vegas , nv , usaseptember 22 - 25 , 1997 86 .
+wang y. wang w. li x.y. distributed low - cost backbone formation for wireless ad hoc networks proc .
+6th acm international symposium on mobile ad hoc networking and computing ( mobihoc05 ) urbana - champaign , il , usa 2005 2 13 87 .
+garey m.r. johnson d.s. computers and intractability : a guide to the theory of np - completeness freeman w.h. san francisco , ca , usa 1979 88 .
+li j. andrew l.h.l. foh c.h. zukerman m. sizes of minimum connected dominating sets of a class of wireless sensor networks proceedings of ieee international conference on communicationsbeijing , chinamay 2008 89 .
+guha s. khuller s. approximation algorithms for connected dominating sets algorithmica 1998 20 374 387 90 .
+graham r.l. knuth d.e. patashnik o. concrete mathematics : a foundation for computer science2nd ed. pearson education upper saddle river , nj , usa 2002 91 .
+dijkstra e. a note on two problems in connection with graphs numb. math .
+1959 1 269 271 92 .
+cartigny j. simplot d. stojmenovic i. localized minimum - energy broadcasting in ad - hoc networks proc .
+twenty - second annual joint conference of the ieee computer and communications societies , ieee infocom 2003san francisco , ca , usa 2003 3 2210 2217 93 .
+das b. bharghavan v. routing in ad - hoc networks using minimum connected dominating sets proc .
+ieee int. conf. comm .
+( icc ) 1997 376 380 94 .
+alzoubi k.m. wan p.j. frieder o. distributed heuristics for connected dominating sets in wireless ad hoc networks j. comm. netw .
+2002 4 15 19 95 .
+marathe m.v. breu h. hunt h.b. iii ravi s.s. rosenkrantz d.j. simple heuristics for unit disk graphs networks 1995 25 59 68 96 .
+alzoubi k.m. wan p.j. frieder o. message optimal connected dominating sets in mobile ad hoc networks proc .
+3rd acm international symposium of mobile ad hoc networks and computing ( mobihoc 02 ) lausanne , switzerlandjune 2002 157 164 97 .
+butenko s. cheng x. du d.z. pardalos p.m. on the construction of virtual backbone for ad hoc wireless networks cooperative control : models , applications and algorithms butenko s. murphey r. pardalos p.m. kluwer academic publishers norwell , ma , usa 2003 43 54 98 .
+cadei m. cheng x. du d.z. connected domination in ad hoc wireless networks proc .
+6th international conference on computer science and informaticsdurham , nc , usa 2002 99 .
+ou l. sekercioglu y.a. mani n. a low - cost flooding algorithm for wireless sensor networks proc .
+wireless communications and networking conference , 2007 ( wcnc 2007 ) hong kong , chinamarch 2007 100 .
+wu j. li h. on calculating connected dominating set for efficient routing in ad hoc wireless networks proc .
+3rd international workshop on discrete algorithms and methods for mible computing and communicationsnew york , ny , usaaugust 1999 7 14 101 .
+wu j. gao m. stojmenovic i. on calculating power - aware connected dominating sets for efficient routing in ad hoc wireless networks proc .
+2001 international conference of parallel processinglas vegas , nv , usa 2001 346 356 102 .
+butenko s. cheng x. oliveira c. pardalos p.m. a new heuristic for the minimum connected dominating set problem on ad hoc wireless networks recent developments in cooperative contral and optimization butenko s. murphey r. pardalos p. kluwer academic publishers norwell , ma , usa 2004 chapter 4 61 73 103 .
+sanchis l.a. experimental analysis of heuristic algorithms for the dominating set problem algorithmica 2002 33 3 18 104 .
+qayyum a. viennot l. laouiti a. multipoint relaying for flooding broadcast messages in mobile wireless networks proc .
+35th hawaii international conference on system scienceshawaii , nj , usajanuary 2002 3866 3875 105 .
+adjih c. jacquet p. viennot l. computing connected dominated sets with multipoint relays ad hoc sensor netw .
+2005 1 27 39 106 .
+wu j. an enhanced approach to determine a small forward node set based on multipoint relays proc .
+2003 ieee 58th vehicular technology conference , vtc 2003 - fallorlando , florida , usaoctober 2003 4 2774 2777 107 .
+chen x. shen j. reducing connected dominating set size with multipoint relays in ad hoc wireless networks proc .
+7th international symposium on parallel architectures , algorithms and networks ( ispan'04 ) hong kong , chinamay 2004 539 543 108 .
+wu j. extended dominating - set - based routing in ad hoc wireless networks with unidirectional links ieee t. parall. distr .
+2002 9 866 881 109 .
+wu j. lou w. dai f. extended multipoint relays to determine connected dominating sets in manets ieee trans. comput .
+2006 55 334 347 110 .
+ou l. sekercioglu y.a. mani n. a survey of multipoint relay based broadcast schemes in wireless ad hoc networks ieee communications surveys and tutorials 2006 8 30 46 111 .
+dhillon s.s. chakrabarty k. sensor placement for effective coverage and surveillance in distributed sensor networks proc .
+ieeewireless communications and networking , 2003 ( wcnc 2003 ) new orleans , la , usamarch 2003 3 1609 1614 112 .
+o'rourke j. art gallery theorems and algorithms oxford university press , inc .
+new york , ny , usa 1987 113 .
+gonzolez - banos h. randomized art - gallery algorithm for sensor placement proceedings of the 7th annual symposium on computational geometrymedford , massachusetts , usa 2001 232 240 114 .
+zhang h. hou j.c. maintaining sensing coverage and connectivity in large sensor networks ad hoc sensor wirel. netw .
+2005 1 89 124 115 .
+kershner r. the number of circles covering a set am. j. math .
+1939 61 665 671 116 .
+chen j. li s. sun y. novel deployment schemes for mobile sensor networks sensors 2007 7 2907 2919 117 .
+coskun v. relocating sensor nodes to maximize cumulative connected coverage in wireless sensor networks sensors 2008 8 2792 2817 118 .
+aitsaadi n. achir n. boussetta k. pujolle g. a tabu search wsn deployment method for monitoring geographically irregular distributed events sensors 2009 9 1625 1643 119 .
+biagioni e.s. sasaki g. wireless sensor placement for reliable and efficient data collection proc .
+36th annual hawaii international conference on system sciencesbig island , hi , usajanuary 2003 120 .
+iyengar r. kar k. banerjee s. low - coordination topologies for redundancy in sensor networks proc .
+mobihoc'05urbana - champaign , il , usamay 2005 121 .
+bai x. santosh k. dong x. yun z. ten h.l. deploying wireless sensors to achieve both coverage and connectivity proc. of the 7th acm international symposium on mobile ad hoc networking and computing mobihoc'06florence , italy , maymay 22 - 25 , 2006 122 .
+bai x. xuan d. yun z. lai t.h. jia w. complete optimal deployment patterns for full - coverage and k - connectivity ( k <= 6 ) wireless sensor networks proceedings of the 9th acm international symposium on mobile ad hoc networking and computinghong kong , chinamay 2008 401 410 123 .
+wang y.c. hu c.c. tseng y.c. efficient deployment algorithms for ensuring coverage and connectivity of wireless sensor networks proc .
+first international conference on wireless internetvisegrad - budapest , hungaryjuly 2005 114 121 124 .
+khan s.u. approximate optimal sensor placements in grid sensor fields proc .
+ieee 65th vehicular technology conference , 2007 .
+vtc2007 - springerdublin , irelandapril 2007 248 251 125 .
+chakrabarty k. iyengar s.s. qi h. cho e. grid coverage for surveillance and target location in distributed sensor networks ieee trans. comp .
+2002 51 1448 1453 126 .
+lin f.y.s. chiu p.l. a near - optimal sensor placement algorithm to achieve complete coverage / discrimination in sensor networks ieee comm. lett .
+2005 9 43 45 127 .
+ishizuka m. aida m. performance study of node placement in sensor networks proceedings .
+24th international conference on distributed computing systems workshops , 2004hachioji , tokyo , japanmarch 2004 598 603 128 .
+miller l.e. distribution of link distances in a wireless network j. res. natl. instit. stan .
+2001 106 401 412 129 .
+blough d.m. resta g. santi p. a statistical analysis of the long - run node spatial distribution in mobile ad hoc networks wirel. netw .
+2004 10 543 554 130 .
+cheng x. du d.z. wang l. xu b. relay sensor placement in wireless sensor networks wirel. netw .
+2008 14 347 355 131 .
+hao b. tang j. xue g. fault - tolerant relay node placement in wireless sensor networks : formulation and approximation proc .
+ieee workshop high performance switching and routing ( hpsr'04 2004 246 250 132 .
+pan j. hou y.t. cai l. shi y. shen s.x. topology control for wireless sensor networks proc .
+acm mobicom'03san diego , ca , usa 2003 286 299 133 .
+tang j. hao b. sen a. relay node placement in large scale wireless sensor networks comput .
+comm.s 2006 29 490 501 134 .
+zhang w. xue g. misra s. fault - tolerant relay node placement in wireless sensor networks : problems and algorithms proc .
+26th ieee international conference on computer communications ( infocom 2007 ) anchorage , ak , usamay 2007 1649 1657 135 .
+lin g. xue g. steiner tree problem with minimum number of steiner points and bounded edge - length inf. proc. lett .
+1999 69 53 57 136 .
+chen d. du d.z. hu x.d. lin g. wang l. xue g. approximations for steiner trees with minimum number of steiner points j. glob. opt .
+2000 18 17 33 137 .
+kashyap a. khuller s. shayman m. relay placement for higher order connectivity in wireless sensor networks proceedings 25th ieee international conference on computer communications ( infocom2006 ) barcelona , spain 2006 1 12 138 .
+lloyd e.l. xue g. relay node placement in wireless sensor networks ieee trans. comoput .
+2007 56 134 138 139 .
+misra s. hong s.d. xue g. tang j. constrained relay node placement in wireless sensor networks to meet connectivity and survivability requirements proc .
+ieee 27th conference on computer communications ( infocom 2008 ) phoenix , az , usaapril 2008 281 285 140 .
+srinivas a. modiano e. joint node placement and assignment for throughput optimization in mobile backbone networks proc .
+ieee 27th conference on computer communications ( infocom 2008 ) phoenix , az , usaapril 2008 1130 1138 figure 1 .
+an example of unit disk graphs .
+figure 2 .
+an example of minimum connected dominating set .

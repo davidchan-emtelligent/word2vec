@@ -1,0 +1,319 @@
+sensors ( basel ) sensors ( basel ) sensors ( basel , switzerland ) 1424 - 8220 mdpi 25746095 4435162 10.3390 / s150305293 sensors - 15 - 05293 article magnetometer - augmented imu simulator : in - depth elaboration brunner thomas 12 * lauffenburger jean - philippe 2 changey sebastien 1 basset michel 2 trommer gert f. academic editor 1 french - german research institute of saint - louis ( isl , guidance , navigation and control ( gnc ) department ) , 5 rue du general cassagnou , saint - louis 68300 , france ; e - mail : sebastien.changey @ isl.eu 2 laboratoire mips - ea2332 , universite de haute - alsace , 12 rue des freres lumiere , mulhouse cedex 68093 , france ; e - mails : jean - philippe.lauffenburger @ uha.fr ( j. - p.l. ) ; michel.basset @ uha.fr ( m.b . )
+* author to whom correspondence should be addressed ; e - mail : thomas.brunner @ uha.fr ; tel. : + 33 - 3 - 8969 - 5846 ; fax : + 33 - 3 - 8969 - 5048 .
+3 2015 04 3 2015 15 3 5293 5310 08 12 2014 25 2 2015 ( c ) 2015 by the authors ; licensee mdpi , basel , switzerland .
+2015 this article is an open access article distributed under the terms and conditions of the creative commons attribution license ( http :// creativecommons.org / licenses / by / 4.0 /) .
+the location of objects is a growing research topic due , for instance , to the expansion of civil drones or intelligent vehicles .
+this expansion was made possible through the development of microelectromechanical systems ( mems ) , inexpensive and miniaturized inertial sensors .
+in this context , this article describes the development of a new simulator which generates sensor measurements , giving a specific input trajectory .
+this will allow the comparison of pose estimation algorithms .
+to develop this simulator , the measurement equations of every type of sensor have to be analytically determined .
+to achieve this objective , classical kinematic equations are used for the more common sensors , i.e. , accelerometers and rate gyroscopes .
+as nowadays , the mems inertial measurement units ( imus ) are generally magnetometer - augmented , an absolute world magnetic model is implemented .
+after the determination of the perfect measurement ( through the error - free sensor models ) , realistic error models are developed to simulate real imu behavior .
+finally , the developed simulator is subjected to different validation tests .
+simulator magnetometer absolute magnetic reference imu modeling 1 .
+introduction the dynamic location of objects is a predominant research topic in many fields ( robotics [ 1 ] , intelligent vehicles [ 2 ] , uavs [ 3 ] , bio - logging [ 4 ] , etc. ) .
+one of the main techniques for precise object location is inertial navigation .
+inertial sensors exploit proprioceptive measurements , which result from the evolution of the object 's position .
+the combination of different proprioceptive sensors ( accelerometers and rate gyroscopes ) is known as an inertial measurement unit ( imu ) [ 5 ]. with the rapid development of mems ( microelectromechanical systems ) technology , low - cost sensors are now common , offering more diversity in the application fields of inertial navigation .
+as this domain is expanding , some applications require the sensors to withstand high dynamic loads ; others are just embedded in our pockets ; smartphones , for example , use mems technology for some navigation purposes .
+in the latter case , magnetometers are also added to measure the magnetic field and to determine the heading of the phone .
+another well - known method to perform navigation is the use of satellite positioning systems ( i.e. , global navigation satellite systems ( gnss )) , which directly provide the position of a mobile device using satellite - transmitted signals .
+since the signals are not always available ( such as indoor or underwater navigation , for example ) , gnss is not considered here .
+in general , estimation algorithms based on classical imus ( based on accelerometers and gyroscopes ) are developed for a given application , incorporating the dynamic model of the system to increase the algorithm knowledge and to improve precision and accuracy .
+unfortunately , this generally implies poor results when the estimation algorithm is used on an application with different dynamics .
+the idea is to develop estimation algorithms that can be more generic ( application and system independent ) , robust and with a high level of integrity .
+in this case , the dynamic model has to be removed , causing a lack of information .
+redundant information is then required to perform data fusion in order to correct the skewed sensor data .
+as in the previous example of the smartphone , in the context of this work , classical imus are augmented with magnetic sensors .
+to test these algorithms in different situations , a simulator is built .
+this allows the evaluation of algorithms for a known and fully controlled input trajectory describing the movement of any kind of object , ranging from low dynamic systems , like animals , to high dynamic ones , like flying objects .
+the aim is then to simulate every kind of trajectory : long - range , as well as short - range displacements .
+a number of usual hypothesis , like flat earth or non - rotating reference frames , cannot be maintained in this context .
+this paper presents the modeling of a magnetometer - augmented imu .
+a matlab simulator based on the kinematic models of the sensors ( accelerometers , rate gyroscopes and magnetometers ) is proposed .
+to achieve this modeling , different characteristics are taken into account : the multiple reference frames required to deal with short - and long - distance trajectories ( inertial frame , body frame , etc. ) ; the location of the imu , which can be different from the center of the object ; the modeling of the accelerometers , rate gyroscopes and magnetometers , which also takes into account several sensor imperfections ( bias , noise , etc. ) .
+finally , this tool is designed to provide sensor measurements , from an input trajectory defined by the object orientation quaternion and its spatial position ( see figure 1 ) .
+moreover , additional parameters , like the position of the imu with respect to the object , allow simulating measurements of the sensors for the same trajectory in different configurations .
+the investigation of multiple imu systems and complex architectures [ 6 - 8 ] can thus be studied .
+other simulators already exist in the literature : in [ 9 ] , the focus is on the error models for the skewed sensors .
+indeed , the measurements are not determined from an input trajectory ; the error - free accelerations and rotational speeds are the input of the cited simulator .
+the outputs then consist of the skewed measurements .
+in [ 10 ] , a simulator is built for different applications : to perform and test calibration processes and to validate new mathematical models involving imus .
+unfortunately , magnetometers are not considered .
+the validation processes are also generally simple : for the error - free signals , only a static validation is performed .
+meanwhile , the paper shows interesting results for sensor error modeling , comparing allan variance results .
+this paper shows a more accurate and complete validation of a magnetometer - augmented imu simulator than the previously cited papers .
+it consists of placing an imu in a three - axis table , which has been developed at isl ( french - german research institute of saint - louis )[ 11 ] .
+the absolute encoders of the electric engines are used to measure the 3d motion of the table .
+to validate the simulator that is even more dynamic in the trajectory , another testing method is proposed , using a validated high dynamic trajectory simulator .
+the outline of the paper is as follows : section 2 describes the principle and the tools needed to build the simulator , and section 3 develops the error - free equations of the measurements .
+in section 4 , the sensor error modeling is described .
+section 5 shows the simulator validation process , and section 6 concludes the paper .
+2. modeling of the imu measurements 2.1 .
+principle in this work , a three - axis imu will be considered , composed of three accelerometers , three rate gyroscopes and , finally , three magnetometers .
+as mentioned earlier , the aim of the simulator is to compute all of the sensor measurements from the imu according to a measured or an a priori known object trajectory .
+the principle of the simulator is shown in figure 1. from a trajectory describing the evolution of the spatial position [ sbl ] l ( the notation rules are described in section 2.2 for clarity 's sake ) and the angular position with respect to a frame l ( using the quaternion { qbl } l ) , the simulator determines the accelerations , the rotational speeds and the magnetic measurements of the imu sensors in the imu frame w. thus , the simulator performs an inverse modeling of the object dynamics taking account the sensor imperfections , such as drifts , biases , etc .
+( see section 4 ) .
+its main purpose is the validation of motion estimation algorithms by comparing the input trajectory to the estimated one .
+this trajectory may correspond to a real or simulated motion allowing the estimation algorithms to be tested under the desired conditions. by adding some information about the plant , it is also possible to test different positions and orientations of the imu with respect to the object .
+this can be used for redundant imu systems , as well [ 12 ] .
+2.2 .
+notations this section specifies the notation rules used to develop the kinematic model of each sensor .
+the notation is mainly inspired by [ 13 ] and is detailed in table 1 .
+for the kinematic equations , the subscripts refer to a point , and the exponents specify the reference frame .
+2.3 .
+frames and coordinate systems numerous reference frames are employed in navigation [ 13,14 ] .
+in this work , the following frames will be considered ( see figure 2 ) : the inertial frame ( i ) is centered on the earth .
+its third axis is directed to the north pole .
+the other axes are in the equatorial plane .
+this frame does not rotate with the earth ; therefore , it is considered to be the inertial reference .
+to simplify , the inertial frame has the same axes as the earth 's frame ( e ) at time t = 0 .
+the earth 's frame ( e ) is centered on the earth and follows the earth 's rotation ( constant speed omegaei ) , unlike ( i ) . its first axis is directed to the prime meridian in the equatorial plane ; the third axis is directed to the north pole ; and the second completes the orthogonal basis .
+the local coordinate system ( l ) is located at the center of gravity of the object .
+its orientation is tangent to the surface of the earth and can be obtained by means of its position with respect to ( e ) described by two angles : the latitude ( lambda ) and the longitude ( l ) .
+the earth , inertial and local frames are illustrated in figure 2a .
+the body frame ( b ) is related to the object orientation ( see figure 2b ) .
+its orientation with respect to ( l ) is given by the classical euler angles .
+the imu frame ( w ) can be misaligned with the body frame .
+however , ( w ) is fixed with respect to ( b ) and is dependent on its location on the object .
+any axis of a frame is named with the lower - case of the frame name and a subscript giving its number , such that the three vectors of frame ( e ) are then e1 , e2 and e3 ( see figure 2 ) .
+the use of the inertial and earth 's frames is justified by our choice to simulate long - range or long - term trajectories .
+the classical approximation of the flat earth has then to be removed , and the earth is no longer an inertial frame , as it rotates .
+2.4 .
+quaternions 2.4.1 .
+definition the object orientation can be expressed in multiple ways : euler angles , quaternion , vector and angle , etc .
+the solution selected in sensor modeling work is the quaternion [ 5 ] .
+quaternions avoid the main problem of euler angles : the gimbals lock , which gives some numerical issues for a number of known orientations .
+this decision results from the need to have a generic simulation tool performing all kinds of displacements .
+in this case , having forbidden orientations is a problem and unacceptable .
+the notions necessary for the understanding of this paper are briefly given in this section .
+readers who would like to go into more details can refer to [ 15 ] .
+introduced by hamilton , quaternions are hypercomplex numbers with four components : a scalar q0 and three imaginary numbers , q1 , q2 and q3 .
+one quaternion q can be expressed as : ( 1 ) q = q0 + q1i + q2j + q3kwith vectors i , j and k describing an orthonormal basis .
+a pure quaternion is a quaternion with a scalar part q0 equal to zero .
+another way of representing quaternions is to regroup the complex numbers in a vector qv = [ q1 q2 q3 ] .
+to avoid confusion between vectors and quaternions , brackets {} are used instead of [] .
+( 2 ) q ={ q0qv } using this notation , the multiplication between two quaternions , written r = p (*) q , gives : ( 3 ) r ={ p0q0 - pv.qvp0qv + q0pv + pv ^ qv } 2.4.2 .
+quaternions and rotations the complex part of the quaternion ( qv ) is equivalent to a 3d vector .
+it can be very helpful to represent rotations : a rotation around an axis d by an angle alpha can be represented [ 2 ] by a unit quaternion ( its norm is equal to one ) ( 4 ) q = cosalpha2 } q0 + sinalpha2d } qv as any combination of rotations can be , in the end , expressed by one unique rotation , quaternions can then express any complex rotation from one frame to another .
+the image x ' of a vector x by a rotation represented by q can be obtained by the following quaternion product : ( 5 ) x '= q (*) x (*) q ~ where q , the conjugate of q , is defined as q = q0 - qv. in equation ( 5 ) , the vectors x and x ' are considered to be pure quaternions , with their components x0 and x0 '= 0 .
+another important characteristic of unit - norm quaternions is the product of a quaternion and its conjugate : ( 6 ) q (*) q ~={ 10 } a quaternion expressing the orientation of a frame a with respect to frame b and with the complex part expressed in the c coordinate system is written { qab } c .
+3. error - free inertial sensor modeling in this section , the way of deriving the sensor measurements from the trajectory information is described considering perfect sensors , i.e. , without any errors .
+the imperfections are described and added in the next section .
+the final objective of this research is to obtain pose observers , taking into account the absolute magnetic reference data. that is why particular interest will be given on the magnetic field modeling and magnetometer measurement estimation .
+the objective is also to simulate any kind of trajectory : short vs. long , high vs. low dynamics , etc .
+this section competes a description provided in a previous paper by the present authors [ 11 ] .
+3.1 .
+rate gyroscopes a rate gyroscope measures the rotational speed of the sensor around its sensitive axis with respect to ( i ) .
+the measurement is then expressed in the sensor coordinate system ( w ) .
+it can be determined from the quaternion and its derivative [ 15 ] : ( 7 ) { q.wi } i = 12 { qwi } i (*){ omegawi } w qwi quaternion expressing the orientation of frame w with respect to i qwi time derivative of qwi omegawi pure quaternion formed from the rotational speed vector of ( w ) with respect to ( i ) as described by equation ( 6 ) , q (*) q = 1 , thus multiplying ( 7 ) on the left by { qwi } i gives : ( 8 ) { omegawi } w = 2 { q ~ wi } i (*){ q.wi } i the last step is to determine { qwi } i , such that : ( 9 ) { qwi } i ={ qwb } i (*){ qbl } i (*){ qle } i (*){ qei } i then , { qwi } i is numerically calculated to finally obtain { omegawi } w. its vector part omegavwi is expressed in ( w ) and is composed of the three rotational speeds , measured by each sensor .
+3.2 .
+accelerometers an accelerometer measures the specific force applied along its main axis ( in frame w ) [ 13 ] .
+the specific force is defined by the sum of all non - gravitational forces applied on the object divided by the object mass .
+it is thus the absolute acceleration of the object ( awi ) minus the gravitational field , such that : ( 10 ) [ f ] w =[ awi ] w - [ gf ] w f specific force measured by the accelerometers awi acceleration of point w with respect to frame i gf gravity field applied to the three - axis accelerometer as a reminder , the gravitational field is expressed as [ 13 ] : ( 11 ) gf = g + ae = - gmswe || swe || 3 - omegaei ^( omegaei ^ swe ) g gravity force ae acceleration due to the rotation of the earth g gravitational constant m mass of the earth swe position of the sensors with respect to ( e ) omegaei rotational speed of the earth around its axis the objective is then to determine the expression of [ f ] w from the evolution of the object position [ sbl ] l , which is an input of the simulator .
+however , the sensors are not positioned at the center of gravity of the object .
+consequently , deriving the position of the object will not lead to the acceleration of the imu , but to that of the object .
+after transferring the input position [ sbl ] l in frame ( e ) , the equation of the total acceleration applied to the imu is obtained by the following derivation process ( for the sake of clarity , it is assumed that all variables are expressed in the same coordinate system ; the brackets [ ] x are then left out ) [ 13 ] : ( 12 ) upsilonwi = dswidt | i = dswidt | e + omegaei ^ swi = dswbdt | e + dsbedt | e + omegaei ^ swi = upsilonbe + dswbdt | b + omegabe ^ swb + omegaei ^ swi ( 13 ) upsilonwi = upsilonbe + omegabe ^ swb + omegaei ^ swiand : ( 14 ) awi = dupsilonwidt | i ( 15 ) awi = abe { i + domegabedt | b ^ swb + omegabe ^( omegabe ^ swb ){ ii + omegaei ^( 2 ( upsilonbe + omegabe ^ swb )+ omegaei ^ swi )} iii upsilonwi speed of point w with respect to frame i abe acceleration of point b with respect to frame e in equation ( 15 ) , the acceleration can be divided into three parts : part i is the acceleration of the object with respect to the earth , i.e. , the acceleration obtained from the input position of the simulator .
+part ii is the acceleration due to the position difference between the imu and the object center of gravity. by changing the value of swb in the input , it is possible to simulate different imu positions with respect to the object for the same trajectory .
+part iii is the acceleration caused by the earth 's rotation around its axis .
+these three parts are essential to the simulator : the first part is obviously needed ; the second part is very important as it expresses the different positions of the imu with respect to the object ( multi - imu applications rely on this part ) ; and the last part is needed for long - time trajectories .
+finally , the specific force can be obtained by subtracting equation ( 11 ) from equation ( 15 ) .
+3.3 .
+magnetometers a three - axis magnetometer measures the direction and the intensity of the magnetic field around the sensor .
+if this magnetic field is not perturbed , it corresponds to the earth 's magnetic field .
+the magnetometer measurements are the projection of this magnetic field h in the frame ( w ) : ( 16 ) [ h ] w =[ t ] wl [ h ] l the earth 's magnetic field is ( in the northern hemisphere ) directed toward the north magnetic pole and the inside of the earth .
+the difference in position between the north magnetic pole and geographic north poles leads to a non - zero component on the l2 axis .
+the knowledge of the reference value of the magnetic field is then primordial for the heading correction of the different pose estimators. with the aim of simulating all kinds of trajectories , an earth 's magnetic field model , called the world magnetic model [ 16 ] , has been implemented in the simulator to provide the reference unperturbed magnetic value for any object position .
+this model allows also simulating any movement between the two polar circles .
+the value of [ h ] l is given by this model .
+this model was obtained by the interpolation of multiple measurement centers all on the globe and is an empirical model .
+this is why it is only valid for five years and is constantly evolving .
+the implementation of this model also provides the value of the reference everywhere on the surface of the earth .
+this allows simulations of trajectories everywhere , but also simulations of a long duration .
+4. inertial sensor error modeling now that the hypothetical sensor measurements are determined , the imperfections have to be added to produce realistic sensor outputs .
+the outputs of the simulator are considered to be calibrated measurements , i.e. , the misalignment and scale factors are assumed to be corrected .
+the considered sensor errors are biases , sensor dynamics and multiple types of noises .
+thus , the output of a sensor cm is modified compared to the errorless value c introduced in section 3 .
+cm can be expressed by adding the error sources : ( 17 ) cm = k * c + b + wwith k the indicating transfer function describing the sensor dynamics , b the bias and w the sensor noise .
+the noise w is a white noise .
+the biases have a constant part , but can evolve during a trajectory .
+this evolution is mainly due to random walk and correlated noises [ 17 ] .
+4.1 .
+sensor dynamics and bandwidth the first modeled imperfection is the dynamics of the sensor .
+in this work , a first - order transfer function is used to reproduce the main characteristic , which is the bandwidth .
+the transfer function considered is : ( 18 ) k ( s )= omegacs + omegacwith omegac denoting the cut - off pulsation at - 3 db , which can be read on the sensor datasheet .
+it is a user - defined parameter in the simulator configuration .
+4.2 .
+bias modeling the second type of imperfection is the bias .
+it can be split into two parts : a constant one ( bcst ) and a time - evolving one ( bev ) .
+the constant part can be corrected during a calibration process , but some residuals can remain .
+to model the bias evolution , two processes are used , as suggested in [ 17 ] ; a first - order gauss - markov process ( bgm ) and a random walk ( brw ) .
+the first is used to represent a wide number of physical processes .
+it is an autoregressive process with a correlation time tc. the parameters needed are the correlation time and the standard deviation sigmagm of the noise .
+the random walk , on the other hand , is the result of the integration of a white noise .
+the standard deviation sigmarw of the integrated noise has to be specified in the parameters of the simulator .
+finally , the evolving part of the bias is given by : ( 19 ) [ bgmbrw ] k =[( 1 - deltattc ) 001 ][ bgmbrw ] k - 1 +[ sigmagm ( 1 - exp ( - 2deltattc )) sigmarwdeltat ] uk ( 20 ) bev =[ 11 ][ bgmbrw ] kwith uk a unitary white noise .
+the last implemented process error is w , the error due to the white noise .
+this noise is considered to be zero - mean and gaussian .
+the last parameter to be specified is then its standard deviation .
+4.3 .
+noise parameter identification to simulate a commercially available low - cost imu , multiple experiments were conducted on one imu .
+the allan variance was employed as suggested by [ 18,19 ] to identify the noise parameters .
+it is a widely - used time - domain technique in the modeling of inertial sensor errors , which is able to determine long - term noises .
+to perform this approach , the imu has to remain completely still during several hours .
+figure 3 shows a typical allan variance plot and its interpretation .
+the values are extracted from the measurements as explained in [ 19 ] .
+figure 3a is an hypothetical allan variance sketch , where the typical noise components are described .
+the angular random walk slope illustrates the effect of a white noise .
+the rate random walk slope is the result of a random walk noise ( cf. the previous section ) .
+the correlation noise slope comes from the correlated part of the measurements , and finally , the bias instability is due to multiple physical noises .
+as the variance is a function of the time cluster size , it is possible to interpret the influence of each type of noise : the angular random walk noise is a problem in short time , but can be reduced by averaging the measurements , while the rate random walk noise affects more the long - term measurements more .
+figure 3b is the result of this calculation on one of the accelerometer of the imu .
+this figure has been made with a 12 - hour measurement during which the imu stayed motionless. by comparing the two figures , it is clear that not every component of figure 3a is present in figure 3b .
+this is the main reason why the bias evolution was simulated by superposing of a correlated noise and a random walk process .
+as an example , table 2 shows the results of this procedure for an imu from sbg systems [ 20 ] .
+it gathers all the necessary data for the simulation of the imu imperfections in the simulator .
+5. simulator validation after implementing the equations ( 8 ) and ( 15 ) - ( 17 ) in matlab , a validation process is carried out .
+the first part is dedicated to the validation of the kinematic equations .
+for this purpose , a simulation is performed with a known trajectory and without imperfections .
+in the second part , the error model is validated by comparing allan variances from simulated and real measurements .
+5.1 .
+kinematic validation the validation principle is illustrated in figure 4 .
+an imu is subject to a trajectory which is perfectly known or measured .
+the trajectory information ( position and rotation quaternion ) is used as the input of the simulator , and a comparison is performed between the output of the simulator and the recorded measurements .
+in the following , two types of validation are performed : hardware and software .
+the hardware validation uses a real imu to test the simulator output against real measurements .
+the drawback here is the limited dynamics in the trajectory due to the employed test bed .
+thus , a software validation with a validated projectile simulator is performed in a second step .
+5.1.1 .
+test bed validation for the hardware validation , the 3d test bench from isl is used ( see figure 5 ) .
+this first validation process allows us to test our simulations against real data .
+using this three - degrees - of - freedom table , measurements of the angles are very accurate (< 0.1degrees ) and are obtained by the motor coders .
+the imu position with respect to the table impacts the acceleration measurements .
+if this position is different from the center of rotation , accelerations due to the rotation can be measured instead of only the gravitational force projection alone .
+for this validation , the rotational table is considered as the body frame ; the position and the orientation of w with respect to b has to be placed as a parameter in the simulator .
+the performed motion is characterized by the euler angles illustrated in figure 6a .
+this motion is divided into two parts .
+the first part , up to t = 100 s , is composed of three pure rotations around each axis separately ; the second part of the movement is an arbitrary rotation around the three axes simultaneously .
+the measurement comparisons of each type of sensor are shown in figure 6b - d. it can be seen that the simulated measurements are very close to the real ones .
+the overall performance of the simulator is shown in the first line of table 3 .
+the normalized root mean square error ( nrmse ) of the accelerometer measurements are 2.5 % at maximum .
+the rate gyroscopes display an error below 1.5 % , which represents around 6degrees / s. the magnetometers also show errors of less than 3.7 % .
+even if these quantities seem to be high , its a comparison to real data from a low - cost imu , which means that the measurements include a lot of noise and imperfections .
+while treating another data series , a quick and short motion has been recorded .
+this movement is illustrated in figure 7a .
+the bench was able to measure the motion correctly , and results are well observed and reproduced by the simulator .
+this quick motion shows that if the input is precise enough , the dynamics can be well reproduced .
+5.1.2 .
+cross - simulation validation the purpose of the second validation is here to endorse the simulator .
+it follows the same procedure as the previous validation .
+the difference lies in the use of another simulator instead of the 3d table .
+this second simulator deals with a high - dynamics application : gun - launched projectile .
+this simulator was validated by many real projectile shots [ 21 ] .
+for the validation process , the performed motion is illustrated in figure 8a,b. it is the simulation of a 155 - mm caliber shell .
+the sensors are placed at two calibers from the center of mass of the shell .
+as shown , the motion is around 30 km long , and the linear and rotational speeds can exceed 900 m / s and 300 hz (~ 1800 rad / s ) , respectively , on the main axes .
+the results are illustrated in figure 8c,d. unfortunately , the magnetometer data are not integrated in the projectile simulator .
+as it is an uncontrolled trajectory , oscillations keep occurring all along the way .
+thus , vibrations can be seen on radial accelerations and rate gyroscopes .
+table 3 ( second raw ) shows the similarities between the curves .
+the values of the errors and standard - deviations are even lower than for the test bed validations .
+this is due to the projectile simulator , which also considers perfect sensors and provides error - free measurements .
+the equations are then validated even for high - dynamics .
+5.2 .
+error model validation this section is dedicated to the error model validation and , precisely , the implemented stochastic model .
+for this , the allan variance is used as follows : multiple simulations of a static imu are executed , and the allan variance is inferred on each measurement .
+then , the results are compared to an allan variance applied to real measurements .
+the simulated motion is a steady position during more than 13 h. it is then simulated 25 times to compare multiple realizations of the stochastic process .
+the results are illustrated for one magnetometer , one accelerometer and one rate gyroscope in figure 9 .
+as can be observed , the rate gyroscopes seem to display high bias instability ( the flat part in figure 9b ) , but no correlated noise .
+the simulations surround the measurement curves well , especially for the accelerometers and magnetometers .
+the latter do not show correlated noise and are mainly composed of white noise ( angular random walk slope ) and random walk processes ( rate random walk slope ) .
+as the simulations are close to the real measurements , the error model and the values of the parameters are validated .
+6. conclusions and outlook in this paper , a magnetometer - augmented imu simulator has been developed .
+its inputs are the position and orientation of the object with respect to the local frame , while its outputs are the sensor measurements .
+other parameters can be precisely determined , like the position of the imu with respect to the object and sensor imperfections .
+the used sensors are 3d rate gyroscopes , accelerometers and magnetometers .
+the modeling is based on the quaternion representation of the orientations , avoiding singularities from the euler angles .
+furthermore , the kinematics was used for the determination of the accelerometer measurements .
+the simulator shows good results during the validation process .
+it is now operational for estimation algorithm evaluations .
+the results obtained with the simulator are compared to the calibrated measurements of a real imu .
+the validation is performed by means of an accurate 3d rotational table .
+the different results prove the accuracy of the simulator , thus validating the equations .
+as this first validation had low dynamics , another validation process was performed with a gun - launched gyro - stabilized projectile .
+the results show a good precision and validate the equations .
+after the determination and the validation of the error - free measurements , the imperfections were implemented .
+the typical imperfections modeled here are : sensor dynamics , bias ( with a constant part and an evolutive part ) and white noise .
+the parameter identification of the error model was conducted using the allan variance technique .
+the simulator can now be used to simulate different trajectories to test several estimation algorithms .
+thanks to all of the details that are included in this simulator , the algorithms can be evaluated by following multiple criteria : the precision of the estimation , the stability regarding long - term navigation , the robustness of the orientation estimator against the accelerations , etc .
+it is also possible to simulate a given trajectory with multiple imus performing , then a multi - imu data fusion , in order to improve the object localization .
+acknowledgements the authors would like to thank the alsace region and the french - german research institute of saint - louis for funding this work .
+author contributions t.b. and s.c. conceived and designed the experiments ; t.b. and j .
+- p.l. performed the experiments ; t.b. , m.b. , s.c. and j .
+- p.l. analyzed the data ; t.b. and j .
+- p.l. wrote the paper .
+conflicts of interest the authors declare no conflict of interest .
+references 1 .
+kucuk s. bingul z. kucuk s. bingul z. robot kinematics : forward and inverse kinematics available online : http :// cdn.intechweb.org / pdfs / 379.pdf ( accessed on 4 march 2015 ) 2 .
+yang y. spacecraft attitude determination and control : quaternion based method ann. rev .
+control 2012 36 198 219 3 .
+euston m. coote p. mahony r. kim j. hamel t. a complementary filter for attitude estimation of a fixed - wing uav proceedings of the ieee / rsj international conference on intelligent robots and systemsnice , france22 - 26 september 2008 340 345 4 .
+fourati h. manamanni n. afilal l. handrich y. a nonlinear filtering approach for the attitude and dynamic body acceleration estimation based on inertial and magnetic sensors : bio - logging application ieee sens. j. 2011 11 233 244 5 .
+radix j. systemes inertiels a composants lies " strap - down " cepadues - edition toulouse , france 1991 ( in french ) 6 .
+shim d.s. yang c.k. optimal configuration of redundant inertial sensors for navigation and fdi performance sensors 2010 10 6497 6512 22163563 7 .
+bancroft j.b. lachapelle g. data fusion algorithms for multiple inertial measurement units sensors 2011 11 6771 6798 22163985 8 .
+cheng j. dong j. landry r.j. chen d. a optimal configuration form redundant mems inertial sensors based on the orthogonal rotation method sensors 2014 14 13661 13678 25076218 9 .
+carvalho g.b. theil s. kuga h.k. imu : generic model development approach .
+simposio brasileiro de engenharia inercial available online : http :// www2.dem.inpe.br / hkk / 2007 / vsbein019 - gustavo.pdf ( accessed on 27 february 2015 ) 10 .
+pares m.e. rosales j.j. colomina i. yet another imu simulator : validation and applications available online : www.isprs.org / proceedings / 2008 / eurocow08 / eurocow08 _ files / papers / 20.pdf ( accessed on 27 february 2015 ) 11 .
+brunner t. changey s. pecheur e. lauffenburger j.p. basset m. evaluation of attitude estimation algorithms using absolute magnetic reference data : methodology and results proceedings of position , location and navigation symposium ( plans ) ( 2014 ieee / ion ) monterey , ca , usa5 - 8 may 2014 212 218 12 .
+dorveaux e. navigation magneto - inertielle : principes et application a un systeme podometrique indoor phd thesis ecole nationale superieure des mines de paris 10 11 2011 13 .
+zipfel ph. modeling and simulation of aerospace vehicle dynamics2nd ed. american institute of aeronautics and astronautics reston , va , usa 2000 14 .
+sircoulomb v. etude des concepts de filtrage robuste aux meconnaissances de modele et aux pertes de mesures phd thesis nancy - universite nancy , france 2 12 2008 ( in french ) 15 .
+goldman r. understanding quaternions graph .
+models 2011 73 21 49 16 .
+maus s. macmillan s. mclean s. hamilton b. thomson a. nair m. rollins c. the us / uk world magnetic model for 2010 - 2015 noaa national geophysical data center boulder , co , usa 2010 17 .
+quinchia a.g. falco g. falletti e. dovis f. ferrer c. a comparison between different error modeling of mems applied to gps / ins integrated systems sensors 2013 13 9549 9588 23887084 18 .
+zhao y. horemuz m. sjoberg l.e. stochastic modeling and analysis of imu sensor errors photogram. cartogr .
+remote sens .
+2011 22 437 449 19 .
+el - sheimy n. hou h. niu w. analysis and modeling of inertial sensors using allan variance ieee trans. instrum. meas .
+2008 57 140 149 20 .
+systems s. ig - 500n gps aided ahrs leaflet , 2008 available online : http :// www.sbg - systems.com / docs / ig - 500n - leaflet.pdf ( accessed on 2 march 2015 ) 21 .
+wey p. the six and seven degrees of freedom guided projectile trajectory model nato stanrec 4618 2014 figure 1 .
+simulator principle .
+figure 2 .
+illustration of the different frames : inertial frame ( i ) , earth frame ( e ) , local frame ( l ) , body frame ( b ) and work frame ( w ).( a ) inertial , earth and local frames ; ( b ) body and work frames .
+figure 3 .
+allan variance sketch and its application to the considered imu .
+( a ) sketch of the allan variance process .
+visible imperfections are described ; ( b ) application of the allan variance on one accelerometer .
+figure 4 .
+simulator validation sketch .
+figure 5 .
+test bed : three - axis table .
+figure 6 .
+plot of the trajectory and the different comparisons of the measurements .
+( a ) euler angles describing the movement of the 3d - table ; ( b ) comparison of the measured and simulated rotational speeds ; ( c ) comparison of the measured and simulated specific forces ; ( d ) comparison of the measured and simulated magnetometer measurements .
+figure 7 .
+simulation of a fast motion .
+( a ) euler angles ; ( b ) angle rates ; ( c ) specific force ; ( d ) magnetic field .
+figure 8 .
+validation plots thanks to the projectile simulator .
+( a ) 3d trajectory of the gun - launched projectile ; ( b ) euler angles describing the orientation of the gyro - stabilized projectile .
+the stabilizing spin is around the first axis ; ( c ) comparison of the specific forces ; ( d ) comparison of the rotational speeds .
+figure 9 .
+comparison of allan variance plots for different simulations and one real measurement .
+( a ) accelerometer ; ( b ) rate gyroscope ; ( c ) magnetometer .
+table 1 .
+the notations used in this paper .
+notation rules x scalar x vector x matrix x ( or x ) transpose of x ( or x ) x ( or x ) conjugate of x ( or x ) kinematic variables sab position vector of point a with respect to point b upsilonai velocity vector of point a with respect to frame i aai acceleration vector of point a with respect to frame i omegaei rotational speed vector of frame e with respect to frame i qei quaternion expressing the rotation of frame e with respect to frame i coordinate systems [ sab ] e position vector sab expressed in the coordinate system e { qei } e quaternion with its vector part expressed in the coordinate system e [ t ] ei transition matrix from coordinate system i to coordinate system e table 2 .
+numerical results for the standard deviation from the allan variance applied to the simulation of a low - cost imu [ 20 ] .
+here , unit represents the unit of the sensor output .
+accelerometers rate gyroscopes magnetometers f1 f2 f3 omega1 omega2 omega3 h1 h2 h3 sigmawn ( unit / hz ) 3.0e - 3 3.0e - 3 3.0e - 3 2.0e - 4 2.6e - 4 2.2e - 4 3.8e - 4 3.6e - 4 3.7e - 4 sigmarw ( unit.hz ) 5.0e - 5 2.7e - 5 4.9e - 5 1.0e - 5 1.6e - 5 1.4e - 5 5.9e - 6 5.1e - 6 8.2e - 6 sigmagm ( unit ) 3.5e - 3 0.9e - 3 1.0e - 3 3.0e - 4 5.0e - 4 2.7e - 4 5.9e - 5 2.0e - 4 6.8e - 5 taugm ( s ) 300 100 50 50 30 30 50 100 30 table 3 .
+normalized root mean square error ( nrmse ) of the error from all of the different validations .
+all data are given as the percentage of the full scale .
+accelerometers rate gyroscopes magnetometers f1 f2 f3 omega1 omega2 omega3 h1 h2 h3 test bed validation 1.34 1.66 2.58 0.83 1.51 1.06 3.69 2.03 2.40 cross simulation validation 0.11 1.08 1.08 4.3e - 3 1.12e - 5 1.28e - 5 na na na

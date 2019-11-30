@@ -1,0 +1,448 @@
+mol cell proteomics mol .
+cell proteomics mcprot mcprot mcp molecular & cellular proteomics : mcp 1535 - 9476 1535 - 9484 the american society for biochemistry and molecular biology 27609420 5098046 o116.060913 10.1074 / mcp.o116.060913 technological innovation and resources multi - species identification of polymorphic peptide variants via propagation in spectral networks * cross - species spectral networks http :// orcid.org / 0000 - 0002 - 5159 - 2048 na seungjin ++ s http :// orcid.org / 0000 - 0002 - 8351 - 1994 payne samuel h .
+$ bandeira nuno ++ s ||** from the ++ dept. of computer science and engineering , university of california , san diego , la jolla , california , 92093 ; scenter for computational mass spectrometry , university of california , san diego , la jolla , california , 92093 ; $ pacific northwest national laboratory , richland , washington 99354 , || skaggs school of pharmacy and pharmaceutical sciences , university of california , san diego , la jolla , california , 92093 ** to whom correspondence should be addressed : center for computational mass spectrometry , department of computer science and engineering , university of california , san diego , 9500 gilman drive , mail code 0404 , la jolla , ca 92093 - 0404 .
+tel. : 1 - 858 - 534 - 8666 ; e - mail : bandeira @ ucsd.edu . 11 2016 8 9 2016 8 9 2016 15 11 3501 3512 10 5 2016 29 8 2016 ( c ) 2016 by the american society for biochemistry and molecular biology , inc .
+2016 the american society for biochemistry and molecular biology , inc.author's choice - - final version free via creative commons cc - by license .
+peptide and protein identification remains challenging in organisms with poorly annotated or rapidly evolving genomes , as are commonly encountered in environmental or biofuels research .
+such limitations render tandem mass spectrometry ( ms / ms ) database search algorithms ineffective as they lack corresponding sequences required for peptide - spectrum matching .
+we address this challenge with the spectral networks approach to ( 1 ) match spectra of orthologous peptides across multiple related species and then ( 2 ) propagate peptide annotations from identified to unidentified spectra .
+we here present algorithms to assess the statistical significance of spectral alignments ( align - gf ) , reduce the impurity in spectral networks , and accurately estimate the error rate in propagated identifications .
+analyzing three related cyanothece species , a model organism for biohydrogen production , spectral networks identified peptides from highly divergent sequences from networks with dozens of variant peptides , including thousands of peptides in species lacking a sequenced genome .
+our analysis further detected the presence of many novel putative peptides even in genomically characterized species , thus suggesting the possibility of gaps in our understanding of their proteomic and genomic expression .
+a web - based pipeline for spectral networks analysis is available at http :// proteomics.ucsd.edu / software .
+national institutes of health http :// dx.doi.org / 10.13039 / 100000002gm103493grant 2 p41 gm103484 - 06a1u.s. department of energy http :// dx.doi.org / 10.13039 / 100000015early career programalfred p. sloan foundation http :// dx.doi.org / 10.13039 / 100000879sloan research fellowship microorganisms have evolved their cellular metabolism to generate energy for life in unusual environments ( 1 ) , and their capabilities are of great interest in the production of renewable bioenergy and could contribute toward managing the world 's current energy and climate crisis ( 2 ) .
+genomics studies have increased the number of sequenced bioenergy - related microbial genomes and revealed the possible biological reactions involved in bioenergy production ( 3 ) .
+studies of photosynthetic microorganisms , for example , have yielded insights into how they harvest solar energy and use it to produce bioenergy products ( 4 ) .
+despite this importance of microorganisms , the characterization of diverse microbial phenotypes by proteomics tandem mass spectrometry ( ms / ms ) has been limited .
+the dominant approaches for ms / ms analysis heavily rely on the availability of completely annotated genomes ( i.e. accurate protein databases ) ( 5 - 7 ) , yet most microorganisms populating the planet have unsequenced or poorly annotated genomes .
+thus it remains challenging to identify proteins from environmental and unculturable organisms .
+one solution to protein identification in a species with no sequenced genome is to use the genomes of closely related species ( 8 ) .
+this requires matching ms / ms data to slightly different peptides in amino acid sequences ( polymorphic , orthologous peptides ) ; but matching shifted masses of peptides and their fragment ions is computationally expensive and challenging .
+moreover , different species - specific post - translational modifications ( ptms ) 1 can make the cross - species identification more complex .
+the common computational approach is tolerantly matching de novo sequences derived from ms / ms data to the database while allowing for amino acid mutations and modifications ( 9 - 11 ) .
+however , this approach critically depends on good de novo interpretations , which are nearly always partially incorrect and yield high - quality subsequences only for a small fraction of all spectra .
+the blind database search approach , developed to identify peptides with unexpected modifications , can also be used to directly match ms / ms data from unknown species to a database of closely related species , but its utilization is limited because of its exceptionally large search space ( 12 - 18 ) .
+these spectrum - database matching approaches to cross - species identification pose significant challenges in its speed and sensitivity with a huge database , which leads to a much longer search time and more false positive identifications ( 19 , 20 ) .
+as a complementary approach to spectrum - database matching , spectral library searching is an emerging and promising approach ( 21 ) .
+a spectral library is a large collection of identified ms / ms spectra , and an unknown query spectrum can then be identified by direct spectral matching to the library .
+the great advantage of this approach is the reduction of search space and the use of fragmentation patterns of peptides .
+the spectral networks approach expands this concept to the identification of modified peptides in ms / ms data sets ( 22 , 23 ) .
+spectral networks do not directly search a database , but groups ms / ms spectra by computing the pairwise similarity between ms / ms spectra of peptide variants and then constructs networks where each spectrum defines a node and each significant spectral pair , highly correlated in the fragmentation pattern , defines an edge ( fig. 1 ) .
+in spectral networks , identification of spectra belonging to the same subnetwork should be related and thus the peptide sequence for an identified spectrum can be propagated to neighboring unidentified spectra .
+we recently reported that a vast number of polymorphic , orthologous peptides across species are present in ms / ms data sets ( 24 ) .
+we propose a new approach in cross - species proteomics research that aggregates ms / ms of multiple related species followed by spectral networks analysis of the pooled data to capitalize on pairs of spectra from orthologous peptides , as shown in fig. 1. this approach does not require advance knowledge of the genomes for all species , and enables the identification of novel , polymorphic peptides across species via interspecies propagation .
+compared with previous approaches , cross - species spectral network analysis has two major advantages .
+first , by matching spectra to spectra instead of spectra to database sequences , spectral networks only consider the sequence variability of peptides present in the samples instead of considering all possible variability across the whole database of related species ; thus the performance of spectral networks is independent of database size .
+second , the analysis of the set of highly related spectra increases the reliability in identifying polymorphic peptides in that multiple different spectra can support the same novel identification .
+the utility of spectral networks can be also expanded to the proteomic analysis of microbial communities that often contain hundreds of distinct organisms ( 25 , 26 ) .
+but despite the success of spectral networks in low complexity data sets ( 22 , 23 ) , the analysis of large multi - species proteomics data requires significantly higher reliability in spectral similarity scores because the number of pairwise spectral comparisons grows quadratically with the number of spectra .
+in this work , we present algorithmic and statistical advances to spectral networks to improve its utility with large and diverse spectral data sets .
+to statistically assess the significance of spectral alignments in pairing millions of spectra , we propose align - gf ( generating function for spectral alignment ) to compute rigorous p values of a spectral pair based on the complete score histogram of all possible alignments between two spectra .
+we show that align - gf successfully addressed the reliability challenge in a large data set analysis and demonstrated its utility by leading to a 4 - fold increase in the sensitivity of spectral pairs .
+even with this dramatically improved accuracy , a very small number of incorrect pairs in a network can still complicate propagation of annotations .
+to further progress toward the ideal scenario where each subnetwork consists of only spectra from a single peptide family , we introduce new procedures to split mixed networks from different peptide families and show that these effectively eliminate many false spectral pairs .
+finally , we propose the first approach to calculation of false discovery rate ( fdr ) for spectral networks propagation of identifications from unmodified to progressively more modified peptides .
+the proposed fdr estimation was conservative and was more rigorous for highly modified peptides , and thus now makes propagation results comparable to other peptide identification approaches .
+the cross - species spectral networks techniques proposed here enabled the proteomic analysis of three different cyanothece species , including a strain where the genome sequence is not known .
+cyanobacteria are one of the most diverse and widely distributed microorganisms and have received significant consideration as satisfying various demands required in bioenergy generation ( 27 ) .
+we show that spectral networks can improve peptide identification by up to 38 % compared with mainstream approaches , including many polymorphic and modified peptides .
+spectral networks could identify peptides with highly divergent sequences ( with 7 amino acid mutations ) by leveraging networks of variant peptides , and one example subnetwork of species - specific variants of phycobilisome proteins reflects the diversity of photosynthetic light - harvesting strategies ( 28 ) .
+our approach thus demonstrates the potential gains in multi - species proteomics and sets the stage for related developments in higher - complexity metaproteomics samples .
+finally , spectral networks revealed many unidentified subnetworks containing only unidentified spectra , thus strongly suggesting the presence of novel peptides that are missing from current protein databases .
+although we illustrate the potential of our approach on a specific set of bioenergy - related species , we note that the proposed approach is generic and should be applicable to any other set of related species .
+the diversity of biologically important protein families could be studied by comparing closely and more remotely related species .
+experimental procedures ms / ms data set ms / ms data from cyanothece sp. atcc 51142 was previously described ( 29 , 30 ) , and ms / ms data for cyanothece sp. pcc 8801 and cyanothece sp. atcc 51472 were prepared in a similar manner .
+briefly , proteins from cyanothece sp .
+51142 , cyanothece sp .
+8801 , and 51472 were treated identically , using 8 m urea and 5 mm tributylphosphine ( sigma - aldrich , saint louis , mo ) at 37 degreesc for 60 min , except for the addition of 1 % chaps for 45 min prior to digestion in the insoluble protein fraction of 51142 .
+samples were not alkylated prior to lc - ms / ms analysis .
+the trypsin - digested samples were separated using strong cation exchange chromatography ( scx ) with a polysulfoethyl a , 200 mm x 2.1 mm , 5 mum , 300 - a column and a 10 mm x 2.1 mm guard column ( polylc , inc. , columbia , md ) at a flow rate of 0.2 ml / min .
+the fractions were subjected to the lc - ms / ms analysis that coupled a constant pressure ( 5000 psi ) reversed phase capillary liquid chromatography system ( 150 mum i.d. x 360 mum o.d. x 65 cm capillary ; polymicro technologies inc. , phoenix , az ) with a ltq orbitrap mass spectrometer ( thermo , san jose , ca ) .
+ms1 scans were acquired at 100,000 resolution in the orbitrap .
+ms / ms analysis of the ten most abundant precursors was performed at low resolution in the cid ion trap .
+all raw files were converted to mzxml using proteowizard ( ver .
+3.0.5655 ; http :// proteowizard.sourceforge.net ) which is a set of open - source , cross - platform tools and software libraries that convert various vendor formats to readable standard formats and facilitate proteomics data analysis .
+all data files and results including annotated mass spectra were deposited on massive ( http :// massive.ucsd.edu ) , with the accession msv000079552 .
+ms - clustering typically , ms / ms data sets contain substantial amounts of redundancy , with multiple spectra coming from the same peptide .
+we used ms - cluster ( ver. 2.0 ) ( 31 ) to group spectra of the same peptides and compute cluster consensus spectra prior to spectral networks analysis .
+in brief , ms - cluster retains peaks in a cluster consensus spectrum based on peak occurrences in the clustered spectra .
+ms - cluster reduced the ms / ms data set to a smaller set of spectra , consequently improving the speed of spectral networks by reducing the number of spectra that undergo pairwise comparisons .
+originally , the data consisted of 275,756 ms / ms spectra for cyanothece sp .
+8801 , 481,411 spectra for cyanothece sp .
+51142 and 257,442 spectra for cyanothece sp .
+51472. ms - cluster was applied to each species with the precursor window size of 0.1 da and the fragment ion mass tolerance of 0.4 da ( ms - cluster does not support ppm tolerance ) .
+ms - cluster yielded 141,140 cluster - consensus spectra for cyanothece sp .
+8801 , 171,430 cluster - consensus spectra for cyanothece sp .
+51142 and 126,148 cluster - consensus spectra for cyanothece sp .
+51472. the clustered spectra were used for all subsequent data analysis .
+seed identification and gold - standard spectral pairs the clustered spectra were searched using ms - gf + ( ver .
+9881 ) ( 32 ) to identify seed peptides for propagation in our constructed spectral networks .
+spectra were searched with the following parameters : enzyme = trypsin , the number of enzymatic termini = 1 / 2 , the number of missed cleavages = any , precursor mass tolerance = +/ - 20 ppm , variable modifications = oxidation ( met ) and pyro - glu ( n - terminal gln ) , the number of modifications / peptide = up to 1 .
+the database consisted of 4,335 and 5,239 protein sequences of cyanothece sp .
+8801 and 51142 , respectively , downloaded from ncbi ( august 2014 ) and was appended with their reversed sequences for target - decoy fdr estimation ( 33 ) .
+finally , the identifications were filtered using a spectrum probability of 1 e - 10 ( which corresponded to 0.03 % spectrum level fdr ) , resulting in 61,799 peptide - spectrum matches ( psms ) .
+these identifications were also used as the gold standard to evaluate the correctness of spectral pairs : a spectral pair is i ) true if two peptides are identical , one peptide is a prefix / suffix of the other , or one peptide is a singly modified form of the other , ii ) ambiguous if two peptides share 12 or more consecutive amino acids or the overlap of theoretical fragment ions of the two peptides is more than 60 % iii ) false for other cases .
+ambiguous pairs were not counted when evaluating spectral pairs ( i.e. these were neither true nor false ) .
+spectral networks analyses spectral networks analyses were performed against the clustered spectra from each data set with +/ - 0.4 da mass tolerance for fragment ions ; mass tolerance for precursor masses was not required as the mass difference between the precursor masses of aligned spectra was assigned to the mass of modification .
+the maximum possible mass of considered modifications was +/ - 375 da. typically samples digested with trypsin include many partially tryptic peptides ( where only one end corresponds to a tryptic cleavage ) and peptides containing tryptic cleavages ( i.e. missed cleavages ) .
+besides amino acid mutations and modifications , spectral networks can detect those truncated / extended peptides from exact tryptic peptides .
+the mass range of 375 da would allow the amino acid deletion / extension up to two trp residues .
+initial spectral pairs were accepted if align - gf p value was less than 5 e - 9 ( see generation of align - gf score histogram section ) , and then were filtered out to restrict the number of precursor masses ( 100 in our work ) contained in a subnetwork ( see splitting mixed subnetworks section below ) .
+when seed identifications were loaded into spectral networks for propagation , the edge fdr and align - gf p value threshold could be calculated based on the annotated spectral pairs .
+finally , spectral pairs were filtered out to bring the edge fdr to the specified value .
+generation of align - gf score histogram align - gf computes the score histogram of all possible alignments against a spectrum using the generating function approach , and computes rigorous p values of spectral pairs matched to the spectrum based on the score histogram .
+each ms / ms spectrum was converted into a prefix - residue mass ( prm ) spectrum ( scored version of spectrum ) using pepnovo ( 34 ) , where ms / ms peak intensities were converted into log - likelihood scores by considering complementary ions ( b / y ) , multiply charged ions , neutral losses ( - h2o and - nh3 ) , and 13c isotopes for each peak .
+in prm spectra , peaks at masses corresponding to fragmentation of peptide bonds tend to have high scores whereas peaks at other masses tend to have very low scores ( or are removed if the resulting likelihood scores are negative ) , thus improving the signal - to - noise ratio .
+align - gf score histograms were computed on converted prm spectra .
+a possible alignment against a spectrum s is defined as a subset of peaks in s , and all possible alignments against s can be represented as all possible subsets of peaks in s ( i.e. 2n possible alignments , where n is the number of peaks in s ) .
+the score of an alignment is calculated as the sum of peak scores in the corresponding subset of s , and its probability is calculated as thetam ( 1 - theta ) n - m , where m is the number of peaks in the subset , and theta is the probability of randomly matching a peak in a spectrum , modeled as an independent bernoulli event ( we use theta = 0.05 as estimated by matching randomly generated theoretical peak lists to identified spectra in our data set using fragment mass tolerance of 0.4 da ) .
+calculated scores and probabilities for all possible subsets of s define the align - gf score histogram as the probability density function for all possible alignments against s. supplemental fig. s1 shows an example of generating the align - gf score histogram and illustrates the difference between the score histogram generated by align - gf and the previously used gaussian empirical approximation ( 22 , 23 ) .
+the calculation of align - gf histograms can be done rapidly by dynamic programming .
+let a variable d [ i , t ] be the overall probability of alignments that have score t up to the i - th peak in s. the variable d [ i , t ] can be calculated using the following recursion : where theta is the probability of randomly matching a peak and score ( i ) is the score of i - th peak .
+the first term in the sum updates the distribution when i - th peak is matched , and the second term updates the distribution when i - th peak is not matched .
+d [ 0,0 ] is initialized to 1 and elsewhere to zero .
+then , if an alignment in s has score t , the probability that the alignment randomly obtained a score of at least t is calculated as follows , where e is the last peak index : splitting mixed subnetworks in spectral networks , the ideal scenario is that each subnetwork consists of only spectra from a single " peptide family " ( where the subnetwork remains connected if using only correct edges ) , whereas a mixed subnetwork contains spectra from different peptide families .
+mixed subnetworks can be caused by incorrect spectral pairs because just one incorrect spectral pair with spectra from distinct peptide families is sufficient to combine the two peptide families into a single subnetwork .
+mixed subnetworks can also be caused by co - fragmented , multiplexed ms / ms spectra .
+for example , if there is a multiplexed spectrum s ( a , b ) including fragment ions from both peptides a and b , the multiplexed spectrum could possibly be paired with s ( a ) and s ( b ) , and as a result , a subnetwork of peptide a would be connected with that of peptide b by s ( a , b ) .
+co - fragmentation is commonly observed with 5 ~ 10 % of ms / ms spectra often coming from cofragmented precursors ( 35 ) .
+although most multiplexed spectra s ( a , b ) have suboptimal align - gf p values against s ( a ) or s ( a ) , frequent cofragmentation could still lead to mixed subnetworks consisting of up to tens of thousands of spectra , which can substantially complicate propagation of annotations .
+an intuitive way of splitting mixed subnetworks into single peptide family subnetworks is to remove all incorrect pairs or pairs including multiplexed spectra .
+but because this information is not available , we limited the potential impact of this issue by restricting the number of unique precursor masses in a single subnetwork to less than a certain predefined value .
+this was implemented as follows : starting with the best - scoring spectral pair , spectral pairs were introduced into spectral networks by the order of increasing align - gf p values .
+when two subnetworks would be connected by a newly considered spectral pair , the spectral pair was skipped if the resulting number of unique precursor ion masses in the mixed subnetwork exceeded the predefined value .
+this process stops when all edges are considered .
+the rationale is that combining two different subnetworks into a subnetwork larger than a certain size should require highly significant spectral pairs .
+the p values of incorrect pairs are relatively high , and the p values of multiplexed spectra would be also high because when the multiplexed spectrum is aligned to spectra of its isolated component peptides , fragment ions from the other peptide would remain unmatched .
+this approach significantly improved the quality of the spectral network and supplemental fig. s2 shows the gains in performance .
+fdr from propagation the errors in both seed identification and spectral pairs are involved in the overall error of propagation of identifications in spectral networks .
+a propagated identification would be correct only if i ) the seed identification is correct and ii ) all propagation steps are correct .
+thus , propagation fdr can be estimated as the probability that , given a seed and all propagation steps , at least one of these is incorrect .
+supplemental fig. s3 illustrates the propagation fdr calculation .
+fdr is calculated for every propagation step and fdrn after the n - th propagation to the current node is calculated as follows : where a is the fdr in seed identification , and r is the fdr in spectral pairs .
+note that a is known because seeds are given ( we used a = 0.0003 ) , and r can be estimated using spectral pairs annotated by the seeds ( we used r = 0.005 ) .
+this formula implements the intuition that identifications via more steps of propagations would include a greater error because of accumulated edge errors .
+the aggregate fdr for overall identification up to current step was calculated as follows where idk is the number of identifications added at k - th propagation the propagation procedure is stopped when the aggregate fdr reaches a prespecified fdr threshold .
+modification localization once a peptide sequence from an identified spectrum is propagated to an unidentified spectrum , new identification to the unidentified spectrum can be determined .
+a putative modification mass is calculated as a precursor mass difference between the two spectra , and then the position of the modification in the propagated peptide is assigned as follows .
+every amino acid in the peptide is assumed as a possible modification site .
+a modification to each amino acid would generate a theoretical spectrum , where the masses of fragment ions are shifted according to the modification mass and location .
+all theoretical spectra are scored against the unidentified spectrum , and then the modification site with the highest score is determined .
+this new identification would be also propagated to other unidentified spectra .
+supplemental fig. s4 illustrates the procedure .
+ms - gf + and moda searches for the performance comparison with established tools , two searches were conducted .
+one was a standard database search , ms - gf + ( ver. 9881 ) ( 32 ) , and the other was an unrestrictive blind modification search , moda ( ver. 1.23 ) ( 18 ) .
+ms - gf + search parameters were as follows : enzyme = trypsin , the number of enzymatic termini = 1 / 2 , the number of missed cleavages = any , precursor mass tolerance = +/ - 20 ppm , c13 errors in precursor mass = up to 2 , variable modifications = oxidation ( met ) and pyro - glu ( n - terminal gln ) , the number of modifications / peptide = up to 2 .
+moda search parameters were as follows : enzyme = trypsin , the number of enzymatic termini = 1 / 2 , the number of missed cleavages = any , precursor mass tolerance = auto correction , fragment mass tolerance = +/ - 0.4 da , modification mass size = +/ - 200 , the number of modifications / peptide = any .
+the database consisted of 4,335 and 5,239 protein sequences of cyanothece sp .
+8801 and 51142 downloaded from ncbi ( august 2014 ) and was appended with their reversed sequences .
+finally , peptide identifications were obtained at fdr 1 % using target - decoy fdr estimation ( 33 ) .
+software implementation algorithms and software for spectral networks analysis were integrated to a pipeline ( supplemental fig. s5 ) , which is available at http :// proteomics.ucsd.edu / software .
+the spectral networks pipeline supports various ms / ms spectral types : ( 1 ) mzml , mzxml , mgf , and pkl as file formats ; ( 2 ) cid , hcd , and etd as fragmentation methods ; ( 3 ) high - resolution ms / ms instruments such as q - tof and q - exactive .
+the results page provides a tabular list view for peptide / protein report , which can be filtered and arranged by various criteria , and a graphical view for the annotation of ms / ms spectra .
+results biohydrogen is an emerging renewable and green energy source , and several microalgae and bacterial species are studied as model organisms for photobiological hydrogen production .
+cyanothece sp .
+51142 , a unicellular , diazotrophic cyanobacterium , is capable of performing oxygenic photosynthesis during the day and nitrogen fixation at night , resulting in remarkably high rates of hydrogen production under aerobic condition ( 36 ) .
+studying related cyanothece species is of great interest to identify variants with potentially improved biofuel production mechanisms .
+however , as is generally the case with organisms with poorly annotated genomes , proteomics analysis for various environmental isolates is challenging because of the lack of accurate and complete proteomes .
+here we show how this proteomics challenge can be addressed for cyanothece 51472 ( which lacks a sequenced genome ) by using spectral networks of ms / ms data of related species ( cyanothece 8801 and cyanothece 51142 ) ( see fig. 1 ). fig. 1. overview of multi - species spectral networks .
+nodes represent individual spectra and edges between nodes represent significant pairwise alignment between spectra ; edges are labeled with amino acid mutations ( dotted edges ) or parent mass differences ( solid edges ) .
+in spectral networks , a peptide and its related variants are ideally grouped into a single subnetwork .
+if at least one spectrum in a subnetwork is annotated ( filled node ) , all the neighboring spectra ( unfilled nodes ) can potentially become identified by propagating the annotation over network edges .
+for example , all spectra in the subnetwork of " peptide a " ( top left , blue network ) can be annotated via up to three iterative propagations , first from a to { a1 , a2 , a3 } , second from { a2 , a3 } to { a4 , a5 } , and third from { a4 , a5 } to a6 .
+this paradigm can be equally applied to cross - species data analysis , as " peptide l " identified in species 1 ( top middle , olive - colored network ) is propagated to a node unidentified in species 2 , identifying its orthologous " peptide l " , with a serine to alanine polymorphism .
+thus , spectral networks enable the detection of orthologous peptide pairs between different species .
+analogous to the pairwise alignment of sequence reads in genome assembly , the fundamental operation in spectral networks is pairwise alignment of spectra to spectra .
+starting with over 1 million spectra from all three cyanothece species , the search space contains ~ 500 billion spectrum / spectrum pairs where > 99.9 % are expected to be incorrect .
+to address this challenge we first used ms - cluster ( 31 ) to condense redundant spectra into 438,718 representative consensus spectra and then scored pairwise alignments between consensus spectra using our new align - gf approach to compute rigorous p values of spectral alignments ( see fig. 2a and supplemental fig. s1 ; details under experimental procedures ) .
+align - gf successfully detected a very high fraction of all true spectral pairs from many billions of false positive pairs , resulting in a 393 % increase in sensitivity at 99 % precision in comparison with the previous method ( see fig. 2b and supplemental fig. s1d ) .
+in particular it should be noted that align - gf detected pairs of variant peptides ( e.g. mutated , modified or truncated ) equally well as pairs of identical peptides ( dotted curve in fig. 2b ) .
+generally , pairing the spectra of slightly different peptides is more valuable because they capture post - translational modifications and sequence divergence between species , but it is more difficult than pairing spectra of identical peptides. fig. 2. align - gf algorithm overview .
+a , matching a spectral pair .
+two ms / ms spectra are aligned allowing up to one modification , matching red peaks in s1 with blue peaks in s2 .
+the total score t1 of red peaks indicates how well s1 is explained by this alignment , and the same for blue peaks in s2 and t2 .
+align - gf assesses each score , ti , based on the histogram of all possible alignments against the corresponding spectrum , si , and computes its p value - the probability of randomly matching a spectrum with a score at least as high as t ( e.g. the probability that t1 is the result of a random match to s1 ) .
+more details are provided under experimental procedures .
+if both p values of t1 and t2 are less than the predefined cutoff , the two spectra are accepted as a spectral pair .
+edges in spectral networks are thus defined by spectral alignments between spectra si and sj. b , align - gf performance .
+the correctness of spectral pairs was evaluated using ms - gf + annotations .
+the blue curve represents the performance of align - gf , whereas the red curve represents the previous method .
+the previous method assumed that alignment scores between unrelated spectra conform to a gaussian distribution ( 22 , 23 ) .
+the dotted curve shows the performance in detecting variant pairs , in which one peptide is a prefix / suffix or a singly modified / mutated form of the other .
+as pairs are aggregated into networks , ideal subnetworks should consist of only spectra from related variants of one peptide , a kind of " peptide family. " however , incorrect spectral pairs connect otherwise correctly disjoint subnetworks .
+even at align - gf 's 99.99 % specificity and 99 % precision , the remaining high - scoring incorrect spectral pairs can create large mixed networks .
+two issues generally lead to mixed subnetworks : false positive spectral pairs and co - fragmented peptides in ms / ms spectra ( 37 ) .
+we addressed this issue using a network - splitting procedure to separate mixed networks by limiting the number of distinct precursor masses per subnetwork ( experimental procedures and supplemental fig. s2 ) .
+network splitting removed 37 % of incorrect spectral pairs from the spectral network and resulted in ~ 5000 more properly disjoint subnetworks while removing only 0.2 % of correct pairs .
+in contrast , a corresponding adjustment of the align - gf threshold eliminates only ~ 2 % of incorrect pairs (~ 18x less ) with the same sensitivity loss .
+the final spectral network covered 242,341 spectra from the three cyanothece species ( 55 % of the input consensus spectra ) combined into 33,188 subnetworks with 99.5 % precision of spectral pairs .
+spectral networks yield additional peptide identifications via propagation across spectral pairs and retain final identifications at fdr 1 % ( see experimental procedures for details ) .
+prior to propagation 16,932 annotated subnetworks ( covering 180,236 spectra ) contained at least one identified spectrum ( out of 61,799 psms used as seed annotations ) .
+the remaining 16,256 unidentified subnetworks ( 62,105 spectra ) did not contain any identified spectra .
+spectral networks across species to evaluate the effectiveness of spectral networks across species , we separated the 16,932 annotated subnetworks into 7 groups ( see fig. 3 ) .
+this readily revealed that species 8801 and 51472 were closely related in that subnetworks across the two species were most frequently found ( covering > 95 % of all networked spectra from species 8801 and 51472 ) , whereas species 51142 was comparatively distant from the other species in that intraspecies subnetworks were more frequently observed ( 33 % of all networked spectra from species 51142 ). fig. 3. annotated spectral networks .
+this venn diagram classifies 16,932 annotated subnetworks into seven groups by combinations of species based upon the origin of the spectra in each subnetwork ; blue represents cyanothece sp .
+8801 , red cyanothece sp .
+51142 , and green cyanothece sp .
+51472. there are 2,378 subnetworks that include spectra from all species ; 97 % of all networked spectra from cyanothece 51472 ( with unknown genome ) were contained in multi - species subnetworks .
+for each group , two properties are shown : 1 ) # spectra from species is the number of spectra in the group from species 8801 at the first column , 51142 at the second , and 51472 at the third , respectively ; 2 ) # networks with variants is the number of subnetworks that include variant pairs - spectral pairs in which the parent mass difference between the two spectra is larger than 5 da. in the right bottom , the delta mass histogram is shown for variant pairs in the group that includes spectra from species 51142 and 51472 ( dotted rectangle ) , where the gray distribution was calculated from interspecies pairs .
+we next focused on subnetworks containing variant pairs - spectral pairs where the parent mass difference between the spectra in the pair is larger than 5 da ( to avoid ambiguities because of precursor mass errors ) .
+it should be noted that subnetworks consisting of spectra from multi - species are more likely to contain peptide variants because orthologous peptides are commonly observed in proteomics data from different species .
+for example , ~ 90 % of the 2,378 subnetworks consisting of spectra from all three species contained variant pairs , compared with 36 % for those including only spectra from species 51142 .
+in fig. 3 , the presence of orthologous peptides is also supported by a strong peak at 14 da ( corresponding to 8 different amino acid mutations : asp / glu , gly / ala , ser / thr , asn / gln , asn / lys , thr / asp , val / leu , and val / ile ) in the delta mass histogram from interspecies pairs .
+moreover , subnetworks across all three species contain a majority of spectra and the spectral count from each species is evenly abundant , indicating that abundantly observed peptides in one species have their orthologous ones that are also abundantly observed in different species .
+one example of a multi - species spectral network with species - specific mutations is shown in fig. 4. twenty - three polymorphic peptides from allophycocyanin proteins , two from species 8801 ( blue series ) and two from species 51142 ( red series ) , constructed a single subnetwork .
+paired peptides differed by one and two amino acid mutations , oxidation or truncation events .
+these chromophore containing phycobilisome proteins are key components of light harvesting complexes , found within specialized thylakoid membranes , and which facilitate the capture and transfer of light energy into the cellular reaction centers .
+polymorphisms in these proteins have significant implications on energy harvesting and transfer , photosynthetic efficiency , and hence production of downstream bioenergy related molecules .
+as such , they are of high interest for optimizing synthetic bioenergy production .
+this subnetwork is highlighted to show that two peptides with seven amino acid mutations were connected via intermediate mutated and truncated peptides , showing how spectral networks can detect distantly related peptide variants. fig. 4. multi - species spectral network with species - specific mutations .
+twenty - three different peptides from four versions of " allophycocyanin subunit beta " protein constructed a single subnetwork .
+pairwise spectral alignments that pass the align - gf cutoff are shown as edges connecting the peptide sequences .
+the blue series of peptides were from species 8801 ( uniprot : b7k5q5 _ cyap8 in dark blue and b7jyl9 _ cyap8 in light blue ) , and red series from 51142 ( uniprot : b1wv60 _ cyaa5 in dark red and , b1x0k5 _ cyaa5 in light red ). through this dense network , we are able to connect highly divergent peptides , e.g. peptides 1 and 4 differ by seven amino acids .
+peptide identification via propagation propagating annotations is a unique feature in spectral networks , and can lead to significant increases in the number of identified spectra , including multiply modified peptides .
+the accuracy of propagation relies on both the accuracy of seed identifications and the reliability of spectral pairs .
+for example , if seed identifications were obtained at fdr 1 % , all identifications propagated from the 1 % false - positives must be also incorrect .
+additionally , because spectral networks contain a small fraction of incorrect edges , errors also accumulate with more steps of propagation .
+after a systematic analysis of the errors in propagation , we propose a new approach to estimate the fdr of peptide identifications in spectral networks so that we can control the propagation procedure and make the identification results comparable to other search tools ( experimental procedures and supplemental fig. s3 ) .
+in the spectral networks of three cyanothece , we started propagation with 61,799 seed identifications from ms - gf + ( 32 ) .
+nonannotated nodes received their annotation from the incoming edge with the lowest align - gf p value ( supplemental fig. s6 ) .
+spectral networks identified 121,204 additional spectra at fdr 1 % , leading to the identification of 95 % of spectra in annotated subnetworks. fig. 5a shows the numbers and directions of propagations across species .
+the intraspecies propagations ( shown as the circled arrows ) mainly identify modified peptides , whereas interspecies propagations identify orthologous peptides .
+we note that propagation through spectral networks increases the confidence and sensitivity in the assignment of modified / mutated peptides , as spectral pairs provide additional evidence that the corresponding spectra contained highly correlated peptide fragmentation patterns .
+this strength is maximized in multi - species analysis , where grouping multiple variants of a peptide across species increases the chance of reliably identifying novel peptides through alignment with multiple related peptides .
+as illustrated in fig. 5b , the novel peptide identification in sp .
+51472 is supported by high correlation with both seed identifications from sp .
+8801 and 51142. fig. 5. propagation over multi - species spectral networks .
+a , the numbers of intraspecies ( circled arrows ) and interspecies ( arrows between colored triangles ) propagations are shown .
+b , propagation into unknown species 51472 identified novel , orthologous peptides .
+the fragment ion alignment is shown between a spectrum of a novel peptide ( middle ) identified by propagation from two seed peptides from different species in the same subnetwork .
+the two seeds were identified from dihydrolipoyl dehydrogenase in each species .
+multistep propagation allows spectral networks to be extremely flexible in the identification of highly modified peptides and supplemental fig. s7 shows an example of identifying a triply modified peptide .
+propagation via the network avoids the large search space of blind searches ( which allows one modification of any mass anywhere in the database ) by allowing for any number of modifications but only as derived from seed sequences .
+this is a great advantage in that the performance of blind database searches tends to degrade rapidly with increasing numbers of modifications and sites per peptide , in both the accuracy of peptide identifications and the speed of the searches ( 19 , 20 ) .
+competence in identifications to contrast the identification performance of spectral networks with mainstream approaches , the results were compared with the standard database search tool ms - gf + ( 32 ) , and the blind search tool moda ( 18 ) ( see experimental procedures ) .
+spectral networks initially used the subset of ms - gf + psms as seeds for propagation ( at fdr 0.03 %) and increased the number of identifications in networked spectra by ~ 180 % at fdr 1 % .
+consequently , spectral networks resulted in a total of 38 % more psms than ms - gf + ( fig. 6a ) .
+further examination of the 31,321 psms identified only by ms - gf + revealed that most psms had low spectral probabilities ( in fig. 6a ) , and are thus most likely derived from less informative spectra. fig. 6. identification performance .
+all of the identifications were obtained at fdr 1 % .
+a , comparison with ms - gf + .
+ms - gf + score distributions show the difference between psms that spectral networks also identified ( black ) and psms that spectral networks lost ( gray ) .
+b , identification on networked spectra .
+nonnetworked spectra in seeds of spectral networks were excluded from the comparison .
+spectral networks take advantage of spectral pairs and emphasize the improvement of identification performance on networked spectra .
+in fig. 6b , spectral networks show the significant improvement on networked spectra , resulting in 80 and 45 % more psms than ms - gf + and moda , respectively .
+the loss of sensitivity in spectral networks mainly occurred at nonnetworked spectra , which have poor psm scores ( fig. 6a ) .
+this identification inconsistency for poor quality spectra between search tools is common in ms / ms data analyses ( 38 ) .
+discussion microorganisms are very diverse and their proteomics analyses have been limited because of the lack of sequenced genomes .
+multi - species spectral networks provide a new way to identify microbial peptides and proteins .
+the spectral networks analysis of three related cyanothece confirmed that orthologous peptides were commonly observed in multi - species ms / ms data sets , and identified many polymorphic peptides across species , leading to more identifications than other approaches , even for organisms without a sequenced genome .
+the algorithmic and statistical advances in spectral networks successfully addressed reliability challenges in large - scale analysis of multiple species data sets .
+align - gf rigorously assessed the statistical significance of each spectral alignment using the score distribution of all possible alignments , and thus provided excellent separation between correct and incorrect spectral pairs .
+align - gf detected spectral pairs of variant peptides equally well as those of identical peptides , resulting in a 4 - fold increase in sensitivity .
+this core improvement significantly expands the utility of spectral networks .
+we also , for the first time , proposed the fdr estimation of propagating annotations through a spectral network .
+although some approaches have proposed the identification of modified peptides by propagating annotations ( 39 - 41 ) , none has fully addressed fdr estimation .
+our approach ensures a conservative estimate of the fdr and is increasingly rigorous for higher - modified peptides .
+most importantly , the fdr estimation also makes spectral networks results comparable with other methods and reveals that the resulting spectrum identification rates can be nearly complete ( currently at 95 %) as soon as there is at least one seed in a subnetwork .
+spectral networks emphasize the importance of analyzing spectra as a group , which significantly increases both the number of identified spectra and their confidence .
+nevertheless , we acknowledge that spectra that do not group into spectral networks or subnetworks which lack a seed annotation are currently not suitable for spectral networks analysis .
+missing seeds may be because of database or search tool limitations , and using several tools ( including spectral networks de novo sequencing approaches ( 42 )) or expanded databases may help address the problem .
+however , in our multi - species analysis , we note that a significant portion of unidentified subnetworks consisted of spectra from multi - species and contained variant pairs ( supplemental fig. s8 ) , strongly suggesting that these unidentified subnetworks contain novel peptides that are still missing from the database .
+the properties of unidentified subnetworks are similar to those of annotated subnetworks .
+recent developments in high mass accuracy tandem mass spectrometry ( e.g. hcd ) have significantly improved spectrum identification performance by reducing the chance of randomly matching fragment ion peaks ( 43 ) .
+our approach also supports the analysis of various types of high mass accuracy ms / ms data ( see software implementation under experimental procedures ) , and users can specify low tolerances for fragment ion masses according to the instrument accuracy .
+although the data analyzed here was not obtained using high mass accuracy ms / ms , previous spectral networks approaches have been applied to such types of data and similar gains ( 44 ) are expected when applying the current approach to high mass accuracy ms / ms. although current approach was based on the similarity in fragmentation pattern between ms / ms spectra within the specified mass difference , the utilization of additional information could further improve the performance of spectral alignment .
+for example , although we allowed any mass of modifications to search for all known and even possibly unknown types of modifications at once , more targeted analysis could be performed by allowing only user - defined modifications or all modification types known in unimod database ( http :// www.unimod.org ) .
+this could filter out many incorrect spectral alignments whereas possibly increasing the confidence of modified peptide identifications .
+retention time differences ( 39 , 45 ) could also be used to potentially reduce incorrect spectral alignments .
+finally , the impact of multiplexed spectra causing incorrect grouping of spectra into mixed networks could also be potentially improved by investing and thresholding precursor ion fraction ( 37 ) , defined as the fraction of the targeted precursor ion in the ms / ms isolation window .
+competing financial interests n.b. has an equity interest in digital proteomics , llc , a company that may potentially benefit from the research results ; digital proteomics llc was not involved in any aspects of this research .
+the terms of this arrangement have been reviewed and approved by the university of california , san diego in accordance with its conflict of interest policies .
+supplementary material supplemental data author contributions : s.n. , s.h.p. , and n.b. designed research ; s.n. performed research ; s.n. analyzed data ; s.n. , s.h.p. , and n.b. wrote the paper .
+* s.n. and s.h.p. were partially supported by a us department of energy , office of science , office of biological and environmental research , early career research program .
+portions of this research were supported by the nih national institute of general medical sciences ( gm103493 ) and by the department of energy office of biological and environmental research genome sciences program under the pan - omics project .
+mass spectrometry data sets were collected in the environmental molecular science laboratory , a us department of energy ( doe ) national scientific user facility at pacific northwest national laboratory ( pnnl ) in richland , wa. battelle operates pnnl for the doe under contract de - ac05 - 76rlo01830 .
+s.n. and n.b. were partially supported by the us national institutes of health grant 2 p41 gm103484 - 06a1 from the national institute of general medical sciences .
+n.b. is an alfred p. sloan research fellow .
+the content is solely the responsibility of the authors and does not necessarily represent the official views of the national institutes of health .
+this article contains supplemental material .
+email : seungjin na s2na @ eng.ucsd.edu , samuel h. payne samuel.payne @ pnnl.gov , nuno bandeira bandeira @ ucsd.edu 1 the abbreviations used are : ptm post - translational modification psm peptide - spectrum match fdr false discovery rate prm prefix - residue mass cid collision induced dissociation hcd higher - energy c - trap dissociation etd electron transfer dissociation .
+references 1 .
+falkowski p. g. , fenchel t .
+, and delong e. f. ( 2008 ) the microbial engines that drive earth 's biogeochemical cycles . science 320 , 1034 - 1039 18497287 2 .
+rittmann b. e. ( 2008 ) opportunities for renewable bioenergy using microorganisms . biotechnol. bioeng .
+100 , 203 - 212 18431744 3 .
+rittmann b. e. , krajmalnik - brown r .
+, and halden r. u. ( 2008 ) pre - genomic , genomic and post - genomic study of microbial communities involved in bioenergy . nat. rev. microbiol .
+6 , 604 - 612 18604223 4 .
+ferreira k. n. , iverson t. m. , maghlaoui k .
+, barber j .
+, and iwata s .
+( 2004 ) architecture of the photosynthetic oxygen - evolving center . science 303 , 1831 - 1838 14764885 5 .
+eng j. k. , mccormack a. l. , and yates j. r. ( 1994 ) an approach to correlate tandem mass spectral data of peptides with amino acid sequences in a protein database . j. am. soc .
+mass spectrom .
+5 , 976 - 989 24226387 6 .
+perkins d. n. , pappin d. j. , creasy d. m. , and cottrell j. s. ( 1999 ) probability - based protein identification by searching sequence databases using mass spectrometry data . electrophoresis 20 , 3551 - 3567 10612281 7 .
+craig r .
+, and beavis r. c. ( 2003 ) a method for reducing the time required to match protein sequences with tandem mass spectra . rapid commun .
+mass spectrom .
+17 , 2310 - 2316 14558131 8 .
+wright j. c. , beynon r. j. , and hubbard s. j. ( 2010 ) cross species proteomics . methods mol. biol .
+604 , 123 - 135 20013368 9 .
+habermann b .
+, oegema j .
+, sunyaev s .
+, and shevchenko a .
+( 2004 ) the power and the limitations of cross - species protein identification by mass spectrometry - driven sequence similarity searches . mol. cell .
+proteomics 3 , 238 - 249 14695901 10 .
+han y .
+, ma b .
+, and zhang k .
+( 2005 ) spider : software for protein identification from sequence tags with de novo sequencing error . j. bioinform. comput. biol .
+3 , 697 - 716 16108090 11 .
+searle b. c. , dasari s .
+, wilmarth p. a. , turner m .
+, reddy a. p. , david l. l. , and nagalla s. r. ( 2005 ) identification of protein modifications using ms / ms de novo sequencing and the opensea alignment algorithm . j. proteome res .
+4 , 546 - 554 15822933 12 .
+tsur d .
+, tanner s .
+, zandi e .
+, bafna v .
+, and pevzner p. a. ( 2005 ) identification of post - translational modifications by blind search of mass spectra . nat. biotechnol .
+23 , 1562 - 1567 16311586 13 .
+chalkley r. j. , baker p. r. , medzihradszky k. f. , lynn a. j. , and burlingame a. l. ( 2008 ) in - depth analysis of tandem mass spectrometry data from disparate instrument types . mol. cell .
+proteomics 7 , 2386 - 2398 18653769 14 .
+chen y .
+, chen w .
+, cobb m. h. , and zhao y .
+( 2009 ) ptmap - a sequence alignment software for unrestricted , accurate , and full - spectrum identification of post - translational modification sites . proc. natl. acad. sci. u.s.a .
+106 , 761 - 766 19136633 15 .
+baliban r. c. , dimaggio p. a. , plazas - mayorca m. d. , young n. l. , garcia b. a. , and floudas c. a. ( 2010 ) a novel approach for untargeted post - translational modification identification using integer linear optimization and tandem mass spectrometry . mol. cell .
+proteomics 9 , 764 - 779 20103568 16 .
+dasari s .
+, chambers m. c. , slebos r. j. , zimmerman l. j. , ham a. j. , and tabb d. l. ( 2010 ) tagrecon : high - throughput mutation identification through sequence tagging . j. proteome res .
+9 , 1716 - 1726 20131910 17 .
+han x .
+, he l .
+, xin l .
+, shan b .
+, and ma b .
+( 2011 ) peaksptm : mass spectrometry - based identification of peptides with unspecified modifications . j. proteome res .
+10 , 2930 - 2936 21609001 18 .
+na s .
+, bandeira n .
+, and paek e .
+( 2012 ) fast multi - blind modification search through tandem mass spectrometry . mol. cell .
+proteomics 11 , m111.010199 19 .
+ahrne e .
+, muller m .
+, and lisacek f .
+( 2010 ) unrestricted identification of modified proteins using ms / ms . proteomics 10 , 671 - 686 20029840 20 .
+na s .
+, and paek e .
+( 2015 ) software eyes for protein post - translational modifications . mass spectrom. rev .
+34 , 133 - 147 24889695 21 .
+lam h .
+( 2011 ) building and searching tandem mass spectral libraries for peptide identification . mol. cell .
+proteomics 10 , r111.008565 22 .
+bandeira n .
+, tsur d .
+, frank a .
+, and pevzner p. a. ( 2007 ) protein identification by spectral networks analysis . proc. natl. acad. sci. u.s.a .
+104 , 6140 - 6145 17404225 23 .
+guthals a .
+, watrous j. d. , dorrestein p. c. , and bandeira n .
+( 2012 ) the spectral networks paradigm in high throughput mass spectrometry . mol. biosyst .
+8 , 2535 - 2544 22610447 24 .
+payne s. h. , monroe m. e. , overall c. c. , kiebel g. r. , degan m .
+, gibbons b. c. , fujimoto g. m. , purvine s. o. , adkins j. n. , lipton m. s. , and smith r. d. ( 2015 ) the pacific northwest national laboratory library of bacterial and archaeal proteomic biodiversity . sci. data 2 , 150041 26306205 25 .
+ram r. j. , verberkmoes n. c. , thelen m. p. , tyson g. w. , baker b. j. , blake r. c. 2nd , shah m .
+, hettich r. l. , and banfield j. f. ( 2005 ) community proteomics of a natural microbial biofilm . science 308 , 1915 - 1920 15879173 26 .
+verberkmoes n. c. , denef v. j. , hettich r. l. , and banfield j. f. ( 2009 ) systems biology : functional analysis of natural microbial consortia using community proteomics . nat. rev. microbiol .
+7 , 196 - 205 19219053 27 .
+quintana n .
+, van der kooy f .
+, van de rhee m. d. , voshol g. p. , and verpoorte r .
+( 2011 ) renewable energy from cyanobacteria : energy production optimization by metabolic pathway engineering . appl. microbiol. biotechnol .
+91 , 471 - 490 21691792 28 .
+shih p. m. , wu d .
+, latifi a .
+, axen s. d. , fewer d. p. , talla e .
+, calteau a .
+, cai f .
+, tandeau de marsac n .
+, rippka r .
+, herdman m .
+, sivonen k .
+, coursin t .
+, laurent t .
+, goodwin l .
+, nolan m .
+, davenport k. w. , han c. s. , rubin e. m. , eisen j. a. , woyke t .
+, gugger m .
+, and kerfeld c. a. ( 2013 ) improving the coverage of the cyanobacterial phylum using diversity - driven genome sequencing . proc. natl. acad. sci. u.s.a .
+110 , 1053 - 1058 23277585 29 .
+aryal u. k. , stockel j .
+, krovvidi r. k. , gritsenko m. a. , monroe m. e. , moore r. j. , koppenaal d. w. , smith r. d. , pakrasi h. b. , and jacobs j. m. ( 2011 ) dynamic proteomic profiling of a unicellular cyanobacterium cyanothece atcc51142 across light - dark diurnal cycles . bmc syst. biol .
+5 , 194 22133144 30 .
+stockel j .
+, jacobs j. m. , elvitigala t. r. , liberton m .
+, welsh e. a. , polpitiya a. d. , gritsenko m. a. , nicora c. d. , koppenaal d. w. , smith r. d. , and pakrasi h. b. ( 2011 ) diurnal rhythms result in significant changes in the cellular protein complement in the cyanobacterium cyanothece 51142 . plos one 6 , e16680 21364985 31 .
+frank a. m. , bandeira n .
+, shen z .
+, tanner s .
+, briggs s. p. , smith r. d. , and pevzner p. a. ( 2008 ) clustering millions of tandem mass spectra . j. proteome res .
+7 , 113 - 122 18067247 32 .
+kim s .
+, and pevzner p. a. ( 2014 ) ms - gf + makes progress towards a universal database search tool for proteomics . nat. commun .
+5 , 5277 25358478 33 .
+elias j. e. , and gygi s. p. ( 2007 ) target - decoy search strategy for increased confidence in large - scale protein identifications by mass spectrometry . nat. methods 4 , 207 - 214 17327847 34 .
+frank a .
+, and pevzner p .
+( 2005 ) pepnovo : de novo peptide sequencing via probabilistic network modeling . anal. chem .
+77 , 964 - 973 15858974 35 .
+wang j .
+, bourne p. e. , and bandeira n .
+( 2014 ) mixgf : spectral probabilities for mixture spectra from more than one peptide . mol. cell .
+proteomics 13 , 3688 - 3697 25225354 36 .
+bandyopadhyay a .
+, stockel j .
+, min h .
+, sherman l. a. , and pakrasi h. b. ( 2010 ) high rates of photobiological h2 production by a cyanobacterium under aerobic conditions . nat. commun .
+1 , 139 21266989 37 .
+michalski a .
+, cox j .
+, and mann m .
+( 2011 ) more than 100,000 detectable peptide species elute in single shotgun proteomics runs but the majority is inaccessible to data - dependent lc - ms / ms . j. proteome res .
+10 , 1785 - 1793 21309581 38 .
+kwon t .
+, choi h .
+, vogel c .
+, nesvizhskii a. i. , and marcotte e. m. ( 2011 ) msblender : a probabilistic approach for integrating peptide identifications from multiple database search engines . j. proteome res .
+10 , 2949 - 2958 21488652 39 .
+savitski m. m. , nielsen m. l. , and zubarev r. a. ( 2006 ) modificomb , a new proteomic tool for mapping substoichiometric post - translational modifications , finding novel types of modifications , and fingerprinting complex protein mixtures . mol. cell .
+proteomics 5 , 935 - 948 16439352 40 .
+falkner j. a. , falkner j. w. , yocum a. k. , and andrews p. c. ( 2008 ) a spectral clustering approach to ms / ms identification of post - translational modifications . j. proteome res .
+7 , 4614 - 4622 18800783 41 .
+wilhelm t .
+, and jones a. m. ( 2014 ) identification of related peptides through the analysis of fragment ion mass shifts . j. proteome res .
+13 , 4002 - 4011 25058668 42 .
+guthals a .
+, clauser k. r. , and bandeira n .
+( 2012 ) shotgun protein sequencing with meta - contig assembly . mol. cell .
+proteomics 11 , 1084 - 1096 22798278 43 .
+savitski m. m. , mathieson t .
+, becher i .
+, and bantscheff m .
+( 2010 ) h - score , a mass accuracy driven rescoring approach for improved peptide identification in modification rich samples . j. proteome res .
+9 , 5511 - 5516 20836569 44 .
+guthals a .
+, clauser k. r. , frank a. m. , and bandeira n .
+( 2013 ) sequencing - grade de novo analysis of ms / ms triplets ( cid / hcd / etd ) from overlapping peptides . j. proteome res .
+12 , 2846 - 2857 23679345 45 .
+fu y .
+, xiu l. y. , jia w .
+, ye d .
+, sun r. x. , qian x. h. , and he s. m. ( 2011 ) deltamt : a statistical algorithm for fast detection of protein modifications from lc - ms / ms data . mol. cell .
+proteomics 10 , m110.000455

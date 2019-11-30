@@ -1,0 +1,416 @@
+sensors ( basel ) sensors ( basel ) sensors sensors ( basel , switzerland ) 1424 - 8220 mdpi 26999139 4813956 10.3390 / s16030381 sensors - 16 - 00381 article scalable indoor localization via mobile crowdsourcing and gaussian process chang qiang li qun * shi zesen chen wei wang weiping mihaylova lyudmila academic editor kim byung - gyu academic editor college of information systems and management , national university of defense technology , changsha 410073 , china ; changqiang @ nudt.edu.cn ( q.c. ) ; nudtshizesen @ 126.com ( z.s. ) ; weichen @ nudt.edu.cn ( w.c. ) ; wang.wp2010 @ gmail.com ( w.w . )
+* correspondence : liqun @ nudt.edu.cn ; tel. : + 86 - 137 - 8708 - 2801 16 3 2016 3 2016 16 3 381 21 1 2016 14 3 2016 ( c ) 2016 by the authors ; licensee mdpi , basel , switzerland .
+2016 this article is an open access article distributed under the terms and conditions of the creative commons by attribution ( cc - by ) license ( http :// creativecommons.org / licenses / by / 4.0 /) .
+indoor localization using received signal strength indication ( rssi ) fingerprinting has been extensively studied for decades .
+the positioning accuracy is highly dependent on the density of the signal database .
+in areas without calibration data , however , this algorithm breaks down .
+building and updating a dense signal database is labor intensive , expensive , and even impossible in some areas .
+researchers are continually searching for better algorithms to create and update dense databases more efficiently .
+in this paper , we propose a scalable indoor positioning algorithm that works both in surveyed and unsurveyed areas .
+we first propose minimum inverse distance ( mid ) algorithm to build a virtual database with uniformly distributed virtual reference points ( rp ) .
+the area covered by the virtual rps can be larger than the surveyed area .
+a local gaussian process ( lgp ) is then applied to estimate the virtual rps' rssi values based on the crowdsourced training data .
+finally , we improve the bayesian algorithm to estimate the user 's location using the virtual database .
+all the parameters are optimized by simulations , and the new algorithm is tested on real - case scenarios .
+the results show that the new algorithm improves the accuracy by 25.5 % in the surveyed area , with an average positioning error below 2.2 m for 80 % of the cases .
+moreover , the proposed algorithm can localize the users in the neighboring unsurveyed area .
+wlan indoor localization radio map mobile crowdsourcing gaussian process bayesian algorithm 1 .
+introduction the difficulty of determining the location of mobile users within buildings has been extensively studied for decades , due to potential applications in the mobile networking environment [ 1 ]. with the wide availability of 802.11 wlan networks , wireless localization using received signal strength indication ( rssi ) fingerprinting [ 2 ] has attracted a lot of attention .
+fingerprint indoor positioning consists of two phases : training and localization [ 3 ] .
+during the training phase , a database of location - fingerprint mapping is constructed .
+in the localization phase , the users send location queries with the current rss fingerprints to the location server ; the server then retrieves the signal database and returns the matched locations .
+the accuracy of fingerprinting techniques is highly dependent on the density of the signal database .
+building and maintaining a high - density database are not easy , however , for two reasons .
+firstly , building a high - density fingerprint database is labor intensive , expensive , and even impossible in some cases .
+taking a 50 m x 50 m floor as an example , if we want to build a fingerprint database with a 1 m sample distance , we would have to collect 2500 samples .
+for each sample , we need to measure several times to get reliable results .
+sometime it is impossible to collect signal fingerprints from certain locations , because of the complex local environment .
+secondly , maintaining a large signal database is expensive .
+as the environment changes over time due to furniture or signal sources being moved , the fingerprints diverge from those in the database .
+this means that the entire area needs to be re - surveyed in order to update the database .
+as indoor environments often change , the database would require frequent updates , which would be time - consuming and expensive .
+even though fingerprint indoor localization has many advantages , and some commercial products have been developed on this technology , such as google maps [ 4 ] , wifislam [ 5 ] , and so on , challenges still exist in its application .
+in area without calibration data , however , this algorithm breaks down .
+real - world deployment of such positioning systems often suffers the problem of sparsely available signal data .
+for example , google has collected floor plans for over 10,000 locations .
+however , only a few of these radio maps are available for positioning .
+for these problems in fingerprinting , researchers are continually searching for better algorithms to create and update dense databases more efficiently .
+the popularization of smartphones makes mobile crowdsourcing fingerprint localization more practical .
+however , designing a sustainable incentive mechanism of crowdsourcing remains a challenge .
+in this paper , we propose a scalable indoor positioning algorithm via mobile crowdsourcing and gaussian process .
+the basic idea behind our proposed algorithm is simple : we first propose a minimum inverse distance ( mid ) algorithm to build a virtual database with uniformly distributed virtual reference points ( rp ) .
+the area covered by the virtual rps can be larger than the surveyed area .
+a local gaussian process ( lgp ) is then applied to estimate the virtual rp 's rssi values based on the crowdsourced training data .
+finally , we improve the bayesian algorithm to estimate the user 's location using the virtual database .
+all the parameters are optimized by simulations , and the new algorithm is tested on real - case scenarios .
+in summary , we make the following major contributions : ( 1 ) we propose a mid algorithm to build a virtual database with uniformly distributed virtual rps .
+the area covered by the virtual rps can be larger than the surveyed area .
+( 2 ) the local gaussian process ( lgp ) is applied to estimate the virtual rps' rssi values based on the crowdsourced training data .
+( 3 ) bayesian algorithm is improved to estimate the user 's location using the virtual database .
+( 4 ) we optimize all the parameters in the proposed algorithm by simulations .
+( 5 ) an android app is developed to test the proposed algorithm on real - case scenarios .
+the rest of the paper is organized as follows : section 2 discusses related work on building and maintaining a dense fingerprint database .
+section 3 describes the details of the proposed algorithm .
+section 4 optimizes the parameters and evaluates the positioning algorithm , and section 5 concludes the paper .
+2. related works for the challenges of fingerprint positioning , much time and effort has been put into building and maintaining a dense fingerprint database with less effort [ 6 ] .
+except for point by point measurement , there are mainly five ways to construct and maintain a fingerprint database .
+the first is crowdsourcing [ 7,8,9,10,11 ] .
+the users are also database constructors .
+the database is updated with the most recently measured rss uploaded by the users [ 12,13 ] .
+however , designing a sustainable incentive mechanism of crowdsourcing remains a challenge [ 14 ] .
+the second method is building the database with mathematical models .
+the most widely used model is the log - distance path loss ( ldpl ) [ 15,16,17,18 ] model .
+however , the indoor environments are so complex that no simple mathematical model exists to accurately predict the rss values .
+practically , ldpl only gives good results close to the ap. ray - tracing [ 19,20,21 ] is the third method .
+however , for accurate ray tracing , you need a very detailed description of the environment such that all the reflections that eventually characterize the received signal can be simulated .
+furthermore , this approach is very computationally demanding .
+because of these reasons , it is only viable for small setups .
+the fourth method is simultaneous localization and mapping ( slam ) [ 22,23 ] .
+in slam , the database is populated on the fly , provided that the users are equipped with a receiver and an imu .
+in general , the accuracy of positioning with this technique is lower because the database is less accurate .
+the fifth way is the combination of the previous methods .
+a few rps cover a large range of area and are collected or generated by the previous method .
+the remaining rp rss values are estimated mathematically .
+linear and exponential taper functions are used by [ 24 ] ; the motley - keenan model [ 25 ] and a semi - supervised manifold learning technique [ 26 ] are also used by researchers [ 27 ] .
+liqun li propose modellet [ 28 ] to approximate the actual radio map by unifying model - based and fingerprint - based approaches .
+however , their algorithm only works for nodes near the access points ( aps ) .
+gaussian process ( gp ) [ 29 ] is a non - parametric model that estimates gaussian distribution over functions based on the training data [ 30 ] .
+gp is suitable for estimating rss values [ 31 ] .
+however , gp is computational consuming , meaning it is not a satisfactory method of generating a large scale area 's signal strength .
+there are also some other researchers that improved fingerprinting performance by introducing new sensors .
+for example , imu [ 32,33 ] , barometer [ 34 ] , and so on. however , extra running sensors not only consume more battery , but also bring in new errors .
+some such algorithms required the sensors to keep running even if the user does not need the positioning service , which is not suitable for our daily use .
+our study is motivated by these pioneer works , but we approached the problem from a different angle and mainly focus on a scalable indoor positioning algorithm that works both in surveyed and unsurveyed areas .
+we propose a novel algorithm to create wlan radio map by mobile crowdsourcing and gaussian process .
+we first propose a minimum inverse distance ( mid ) algorithm to build a virtual database with uniformly distributed virtual reference points ( rps ) .
+a local gaussian process ( lgp ) is then applied to estimate the virtual rps' rssi values based on the crowdsourced training data .
+finally , we improve the bayesian algorithm to estimate the user 's location using the virtual database .
+we did n't use the crowdsourced data for positioning directly , and we did n't introduce other sensors to improve the performance either .
+3. materials and methods 3.1 .
+problem setting and algorithm overview we only concentrate on the 2d positioning problem in this paper .
+assuming the target area is denoted as p , the area of p is s ( m2 ) .
+there are a wi - fi aps in the target area .
+in crowdsourced fingerprint positioning , the radio map is created by users .
+the rss values in different rps from different signal sources are measured and uploaded to the database together with the coordinates .
+the coordinates come from another positioning system , such as gnss , or specified by the users .
+assuming we have built a signal database dbcrowd by crowdsourcing , and there are n rps in dbcrowd .
+the rps are denoted as rpi ={ pi,fi,sigmai } , i = 1,2 ,... , n , where pi =( xi,yi ) and fi ={( macj,rssi,j ) , j = 1,2 ,... , a } .
+sigmai is the measurement variance .
+the density of dbcrowd is denoted as rhocrowd = n / s. the problem in fingerprint localization is estimating the user 's current coordinate pt at time t based on the measurement ft and the database dbcrowd .
+the density of dbcrowd will be different from region to region .
+as a result , the positioning accuracy will be different for the area .
+if we want a continuous positioning performance , we need a database with uniformly distributed reference points .
+there also might be certain areas without rps , e.g. , because of the complex local environment or not covered due to some other reasons .
+this method breaks down .
+in this paper , we propose a novel algorithm to create a virtual wlan radio map by mobile crowdsourcing and gaussian process for scalable indoor positioning .
+this virtual radio map is denoted as db ( v ) .
+db ( v ) contains m rps , so that the density of the virtual database is rho ( v )= m / s. the ith rp in db ( v ) is rpi ( v ) .
+rpi ( v )={ pi ( v ) , fi ( v ) , sigmai ( v )} , where pi ( v )=( xi ( v ) , yi ( v )) and fi ( v )={( macj,rssi,j ( v )) , j = 1,2 ,... , a } .
+rssi,j ( v ) is ap j 's rssi measured at rp i , and sigmai ( v ) is the variance of the measurement .
+rssi,j ( v ) is estimated using our proposed local gaussian process ( lgp ) based on dbcrowd .
+the user makes use of db ( v ) for positioning .
+figure 1 shows the framework of the proposed algorithm .
+after collecting rss values from surrounding aps , if the user gets the current coordinate by other methods , he can upload the fingerprint containing the coordinate and the rss values to the server .
+the server will add the fingerprint to dbcrowd , and update db ( v ) using lgp .
+if the user wants to estimate current location , he can send the positioning requirement , including the rss measurement , to the server .
+the server will estimate the coordinate using the proposed bayesian algorithm based on db ( v ) and then send the result to the user .
+in the next section , we first built a dense virtual database by introducing uniformly distributed virtual rps in the area , and then we propose the local gaussian process ( lgp ) to estimate the virtual rps' rssi values and the variance .
+we improved the bayesian algorithm to estimate the user 's location using the virtual database .
+3.2 .
+building the dense virtual database as stated earlier , the fingerprints in the virtual database should be selected as uniformly as possible over the target area .
+m is the number of rps in db ( v ) .
+however , for general values of m , it is not straightforward to uniformly distribute the rps over the area .
+therefore , we propose a low - complexity algorithm to select the positions of the rps : the minimum inverse distance ( mid ) algorithm .
+in this algorithm , the selection of the positions of the rps is based on a virtual sample database dbsample , which is constructed by placing a square grid in the target area with grid size lambda , where the positions of the virtual rps are selected as the corners of the squares in the grid .
+assuming the target area has size xmaxxymax , the number of virtual positions equals [ xmax / lambdaxymax / lambda ] .
+the m positions of the rps for virtual database db ( v ) are selected out of the sample database dbsample .
+we initialize the algorithm by randomly choosing one virtual position rpe from dbsample : db ( v )={ rpe } .
+the other m - 1 positions are picked from the virtual database dbsample based on the measure in equation ( 1 ) : ( 1 ) disi = sumj1 ( xi - xj ) 2 +( yi - yj ) 2 where ( xi,yi ) is the coordinate of the candidate position indbsample and ( xj,yj ) are the coordinates of the rp positions already present in the database db ( v ) .
+the virtual position that minimizes disi is selected and added to the database db ( v ) .
+because the measure function disi is inversely proportional to the euclidean distances between the candidate rp and the rps in the database db ( v ) , candidate positions that are far from the already selected rp positions are favored , while candidate positions near already selected rp positions are filtered out .
+as a result , the distances between the rps will be maximized and the rps in db ( v ) will be distributed uniformly and expand to the very edges of the target area .
+we call this algorithm as minimum inverse distance ( mid ) algorithm .
+details of mid are shown in algorithm 1 .
+algorithm 1 require the target area p , the distance lambda between neighbor virtual rps in dbsample the number m of rps we want to select .
+ensure select rps every lambda meters in p to build dbsample ensure randomly select rpe from dbsample , db ( v )={ rpe } while (| db ( v )|!= m ) for all ( rpisubsetdbsample ) calculate disi using equation ( 1 ) end all rp = argminrpiindbsampledisi db ( v )< - - rp endwhile to illustrate mid , we consider an area p of 19.5 m x 48.5 m and lambda = 0.5 m. figure 2 shows the positions of the rps in db ( v ) when m = 100 and 200 rps are selected out of the virtual sample database dbsample .
+further , figure 2 shows the positions of the rps when the rps are selected randomly from dbsample .
+as can be observed , the proposed algorithm is able to select any number of rps spatially uniform over the target area .
+after the positions of the rps in database db ( v ) are selected with mid , the rss values and the variance for these rps need to be determined .
+to this end , we compare the positions of the rps in db ( v ) with those in dbcrowd .
+whenever one or more rps in dbcrowd are within a distance epsilon of a rp rpi in dbcrowd , we will replace the position of the rp in db ( v ) with the position of the nearest rp in dbcrowd , together with its rss values and the variance on the measurement .
+if no rps in dbcrowd are within a distance epsilon of a rp rpi in dbcrowd , the local gaussian process ( lgp ) algorithm will be used to estimate the rss values and their variance in rpi .
+the resulting virtual database db ( v ) is determined by three parameters : the number m of rps in db ( v ) , the distance lambda between rps in the virtual sample database , and the radius epsilon within which nearby training rps are looked for .
+the number m of rps is defined by the positioning accuracy .
+the distance lambda determines not only the spatial uniformity of the resulting rps , but also the complexity of the algorithm : by reducing lambda , the rps will be placed more uniformly over the area p , but the complexity of mid increases as the number of virtual rps to be searched increases in an inverse proportion to the quad - rate of lambda .
+finally , the radius epsilon will also have an influence on the positioning accuracy .
+when the radius is small , the resulting database db ( v ) will have a more uniform placement of rps , but the probability of finding a nearby training rp decreases , such that the rss of more rps needs to be determined using the lgp algorithm .
+on the other hand , when the selected radius is large , the resulting database db ( v ) will be less spatially uniform , but more training rps will be present in db ( v ) .
+in section 4 , we will optimize them before positioning .
+3.3 .
+local gaussian process the local gaussian process ( lgp ) algorithm is used to reduce the computational complexity of the gaussian process ( gp ) algorithm , which is used to predict unknown rss values at positions that are not in the training database [ 29 ] .
+in this section , we first review the gp algorithm .
+this algorithm starts from the property that rss values at surrounding positions are correlated .
+because of this correlation , it is possible to describe the rss at positions where the rss is not known as function of the rss at positions where the rss value is measured .
+the gp algorithm uses the gaussian kernel to describe this correlation .
+as a result , the correlation matrix between the noisy rss values rssi at positions ci ={ xi,yi } , i = 1 ,... , n , measured during the training phase , can be written as : ( 2 ) covrho = q + s where rho ( i )= rssi , qi,j = k ( ci,cj ) , and s = diag { sigmai2 } is the diagonal matrix of the variances of the measured rss values rssi .
+further , k ( ci,cj ) is the gaussian kernel function : ( 3 ) k ( ci,cj )= sigmaf2exp ( - 12l2 || ci - cj || 2 ) where sigmaf2 and l are the signal variance and length scale , respectively , determining the correlation with the rss values at surrounding positions .
+the parameters sigmaf2 , and l can be estimated using hyper - parameter estimation [ 5 ] .
+this covariance matrix can be used to predict the rss value rss * at an arbitrary position c *={ x * , y *} .
+the posterior distribution of the rss value at any position is modeled as a gaussian random variable , i.e. , ( rss *| c *)= n ( rss * ; mu * , sigma * 2 ) , where mu * and sigma * 2 are given by : ( 4 ) mu *= k * t ( q + s ) - 1rho ( 5 ) sigma * 2 = k ( c * , c *) - k * t ( q + s ) - 1k *+ sigman2 with sigman2 is the measurement variance , k *( i )= k ( c * , ci ) , i = 1 ,... , n. the estimate of the rss value at position c *={ x * , y *} equals rss *= mu * and the uncertainty on the estimated rss is sigma * 2 .
+for a large area containing several hundred rps , computing the rss values with equations ( 4 ) and equation ( 5 ) is computationally demanding because of the inversion of the large covariance matrix equation ( 2 ) .
+however , in an indoor environment , we may assume that rps at a large distance from the position where we want to estimate the rss value are blocked by several walls and other objects .
+hence , the covariance k (.,.) between the rss values of those far away rps and the rss values at the considered position will be approximately zero .
+as a result , it is a reasonable assumption that only training rps close to the considered position will contribute to the rss value at the considered position .
+the lgp algorithm restricts the training rps that contribute to the rss value at position c * to a training set ts * , setting k ( x * , xi )= 0 if xinot - ints * .
+assuming the number of rps in ts * equals l , the lgp algorithm simplifies equations ( 4 ) and ( 5 ) by only considering the l nearest to rps. that is , k * and rho reduce to a lx1 vector , and covrho equation ( 2 ) to a lxl matrix .
+compared to the complexity o ( n3 ) when all n rps in the training database are used , the lgp algorithm has complexity o ( nl ) to select the l nearest rps and o ( l3 ) to invert the reduced - size covariance matrix equation ( 2 ) .
+to illustrate the lgp algorithm , we consider the rss radio map of a wifi access point in an indoor environment .
+the true radio map is created using the winprop tool from awe communications [ 35 ] , denoted as db. the area is a 19.5 m x 48.5 m rectangle , containing 18 rooms in the same floor .
+the true radio map contains 3318 uniformly distributed rps .
+we select 100 rps from db , which covers part of the target area .
+figure 3 shows the true radio maps and the distribution of the selected rps .
+we apply the proposed lgp to create the radio map for the target area .
+part of the un - surveyed areas are included .
+there are some algorithms can be applied to build the radio map rapidly presented in section 2 , such as crowdsourcing , ray - tracing , slam , and mathematical models .
+we did not supply enough comparison with all of these techniques because different algorithms rely on different equipment and input .
+it is not straightforward to make comparisons between different algorithms in different conditions .
+our study mainly focuses on the mathematical model .
+as a result , we only make comparisons between the widely used mathematical models , including gaussian process ( gp ) and log - distance path model ( ldpl ) .
+figure 4 is the simulation result .
+during the simulation , we set lambda = 0.5 , l = 4 , m = 800 , and epsilon = 0.5 .
+in the log - distance path model ( ldpl ) [ 36 ] , where the parameters of the ldpl model are estimated based on the training data , the uncertainty of rp i is defined as follows : ( 6 ) diffi = fi - f ^ i where rss ^ i,j and rssi,j are estimated and true rss values at rp j , respectively .
+as can be observed , the radio maps for gp and lgp are similar to the true radio map .
+the ldpl model , which is known to fail at positions far from the signal source , resembles the true radio map less , comparatively .
+we also compute the variance over all rps .
+the variance is defined in equation ( 7 ) .
+( 7 ) sigma = sumi = 0mdiffi2 / m we evaluate the average uncertainty for different areas , which are surveyed area ( sa ) , unsurveyed area ( ua ) and the target area ( ta , ta = saunionua ) .
+table 1 illustrates the simulation results. from table 1 , we can see that gp has the lowest variance in the target area , which is about 5.77 dbm , followed by lgp with an average of 5.88 dbm .
+the highest variance comes from ldpl , which is 7.43 dbm .
+in the surveyed area , all the three algorithms perform better than in the unsurveyed area .
+in all cases , gp performs the best over the three algorithms .
+l is the number of training rps used for estimating the rss values for a given virtual node .
+a large l introduces more training data , and a more accurate result is obtained .
+however , the time for estimating the rss values will be increased .
+in this section , we explore the question of how to find a good balance between the variance and the time for building the virtual database .
+during the simulation , we set lambda = 0.5 , epsilon = 0.5 , and m = 800 .
+figure 5 shows the result .
+in this simulation , l increases from 2 to 20 .
+in figure 5a , we can see that the variance decreases as l increases .
+figure 5b shows the time complexity increase with l. if we want to keep a good balance between time complexity and variance , we can set l = 7 .
+for a more accurate result , we evaluate the three algorithms with different densities of dbcrowd .
+in the following simulation , we set rhocrowd varying from 0.02 to 1 , and the training rps were selected randomly from db. for each value of rhocrowd , we simulated 2000 times with lambda = 0.5 , epsilon = 0.5 , m = 800 , and l = 7 .
+figure 6 shows the results .
+time refers to the time for building the virtual database .
+in figure 6a , gp performs the best , followed by lgp , and ldpl performs the worst .
+however , the differences between gp and lgp are small .
+in figure 6b , ldpl has the lowest time complexity , followed by lgp and gp. in summary , lgp keeps a good balance between variance and time complexity .
+3.4 .
+improved bayesian algorithm given measurement ft at time t and db ( v ) , the objective in fingerprint localization is to estimate the user 's real - time coordinate pt at time t. the bayesian localization algorithm is suitable for a user contribution - based localization system for mobile devices [ 8 ] .
+the standard bayesian localization algorithm will calculate all the rps' posterior probability , and maximum them to estimate the coordinates .
+if the fingerprint database contains a great number of rps , computing all the rps' posterior probability would be time consuming .
+in this paper , we first select k nearest rps from the virtual database based on the metric defined in equation ( 8 ) .
+( 8 ) dt,i = sums = 1a (| rsst,s - rssi,s | q ) 1 / q these k rps have the smallest dt,s among the others in db ( v ) .
+a standard bayesian localization algorithm was used to estimate the user 's real - time coordinates based on the selected rps .
+the posterior probability of being in one of the selected rps' locations is given by equation ( 9 ) : ( 9 ) p ( pi | ft )= p ( pi )* p ( ft | pi ) sumj = 1mp ( pj )* p ( ft | pj ) where p () represents the probability density function , p ( pi ) is the prior probability of the user 's location , and p ( ft | pi ) is the likelihood of observing a set of signal strength measurements ft at location pi. pi is assumed to be uniformly distributed .
+for simplicity , we assume that each signal strength rssi,j1 is conditionally independent of every other rssi,j2 for j1 != j2 .
+so , we have : ( 10 ) p ( ft | pi )= productj = 1ap ( rsst,j | pi ) , i = 1,2 ,... , k for modeling the conditional probability p ( rsst,j | pi ) , we first show the measurement results from a specified ap at a stationary location in figure 7 .
+figure 7 implies that we can model the conditional probability p ( rsst,j | pi ) as a gaussian distribution : ( 11 ) p ( rsst,j | pi )= 12pisigmae - ( rsst,j - rssi,j ) 22sigma2 the users have to estimate the rss variance sigman2 before uploading the measurement .
+for the virtual rps , the variance is given by equation ( 5 ) .
+finally , we estimate the user 's coordinates using equation ( 12 ) : ( 12 ) pt = sumi = 1kpip ^( ft | pi ) where p ^( ft | pi ) is the normalized conditional probability given by equation ( 13 ) : ( 13 ) p ^( ft | pi )= p ( ft | pi ) sumj = 1kp ( ft | pj ) 4 .
+results and discussion there are some parameters in the proposed algorithm , including lambda in mid , epsilon in lgp , m the number of rps in virtual database , and k in the improved bayesian .
+all of these parameters determine the complexity and positioning accuracy of the proposed algorithm .
+we first optimize these parameters by simulations , and then we evaluate the proposed algorithm by a real - case scenario experiment .
+in the following section , root mean square error ( rmse ) is defined in equation ( 14 ) : ( 14 ) rmse = sumi = 1w [( xi - x ^ i )+( xi - x ^ i )] w where ( xi,yi ) and ( x ^ i,y ^ i ) are the true and estimated coordinates of the user and w is the number of positioning cases .
+4.1 .
+optimize the parameters in the algorithm 4.1.1 .
+lambda the distance lambda determines not only the spatial uniformity of the resulting rps , but also the complexity of the algorithm : by reducing lambda , the rps will be placed more uniformly over the area , but the complexity of mid increases as the number of virtual rps to be searched increases in inverse proportion to the quad - rate of lambda .
+in this simulation , we build different db ( v ) based on different dbsample for positioning .
+the training database are randomly selected from db , containing 80 rps .
+we apply the lgp for estimating the virtual rps' rss values .
+the improved bayesian algorithm is applied for positioning .
+the other parameters are set as follows : epsilon = 0.5 , l = 7 , m = 80 , and k = 3 ; lambda is set to increase from 0.1 to 3.3 .
+results from 3000 positioning cases are shown in figure 8 .
+figure 8a shows that rmse does n't change significantly with lambda .
+figure 8b shows that the time decreases when lambda increases .
+the results from figure 8 tell us that we can use as large a lambda as possible to reduce the time for building the virtual database .
+4.1.2 .
+epsilon the radius epsilon has an influence on the positioning accuracy .
+when the radius is small , the resulting database db ( v ) will have a more uniform placement of the rps , but the probability of finding a nearby training rp decreases , such that the rss of more rps need to be determined using the lgp algorithm .
+on the other hand , when the selected radius is large , the resulting database db ( v ) will be less spatially uniform , but more training rps will be present in db ( v ) .
+similar with the previous setting , we apply the lgp for estimating the virtual rps' rss values , and the improved bayesian algorithm for positioning .
+the other parameters are set as follows : lambda = 3.3 , l = 7 , m = 80 , and k = 3 .
+we build db ( v ) based on the crowdsourcing database , which contains 80 rps and is randomly selected from db. epsilon is set to increase from 0 to 2 .
+results from 3000 positioning cases are shown in figure 9 .
+figure 9a shows that the training rps' percentage increase as epsilon increases .
+figure 9b shows that more training data does n't improve the performance , because db ( v ) is less spatially uniform .
+4.1.3 .
+k k is the number of nodes used for positioning .
+in this simulation , we want to find the best k for estimation .
+we apply the improved bayesian algorithm for positioning .
+we build db ( v ) based on the crowdsourcing database , which contains 80 rps and is randomly selected from db. we set k to increase from 1 to 10 .
+the other parameters are set as follows : lambda = 3.3 , l = 7 , m = 80 , and epsilon = 0.5 .
+results from 3000 positioning cases are shown in figure 10 .
+the result from figure 10a shows that using 4 or 5 rps for positioning performs the best. and figure 10b shows that the time for positioning is not sensitive to k .
+4.1.4 .
+m m is the number of rps in the virtual database db. more rps might result in a more accurate positioning result , but also needs more time for querying in the database .
+in this section , we want to find the best size of the virtual database .
+in this simulation , we set m to increase from 40 to 800 , and the training database contains 80 randomly distributed rps selected from db. the other parameters are set as follows : lambda = 1 , l = 7 , k = 5 , and epsilon = 0.5 ; for each value of m , the results come from 3000 positioning cases .
+figure 11 shows the result .
+figure 11a shows that when m is about the same as the number of training rps , the two methods perform the same .
+however , as m increases , the proposed algorithm performs better .
+when m = 800 , the rmse is 1.63 m compared with 2.12 m using the training database .
+the proposed algorithm improves the accuracy by about 23.2 % .
+figure 11b shows that when m = 117 , it performs the same as using training database , and the proposed algorithm needs more time for positioning .
+4.2 .
+real - case scenario experiment for testing the new algorithm in real world , we developed an android app .
+the indoor radio map is build in a crowdsourcing way .
+the user can locate themselves , and they can also upload the fingerprint data to the location server .
+figure 12 is the user interface of the app .
+in figure 12 , the map is the floor layout of our lab , covering an area of about 1928 m2 .
+clicking the central button will send positioning requirement .
+long pressing the interface will change the map of the indoor environment .
+double clicking the interface will specify a user 's current location .
+the user can click the right button to send the current rss measurement and the specified coordinate to the training database .
+we first built a training database covering part of the target area .
+the database contains 71 rps .
+we will test the new algorithm in the surveyed area and in different unsurveyed areas .
+figure 13 is the distribution of the initial data .
+we first estimate the user 's coordinate using virtual database and training database in the surveyed areas .
+the parameters are set as follows : lambda = 1 , l = 7 , k = 5 , epsilon = 0.5 .
+the density of the virtual database is 1 .
+figure 14 shows the results from 3000 positioning cases .
+figure 14 shows that the proposed algorithm performs better .
+the average localization error is 2.47 m using the initial database , while it is 1.84 m using the virtual database .
+the new algorithm improves the accuracy by 25.5 % , with an average positioning error below 2.2 m for 80 % of the cases , while the virtual database is 3.1 m. we make comparison to the standard bayesian algorithm .
+both the new algorithm and the standard algorithm apply the virtual database for positioning .
+the parameters are set as follows : lambda = 1 , l = 7 , k = 5 , epsilon = 0.5 .
+the density of the virtual database is 1 .
+figure 15 shows the results from 3000 positioning cases .
+figure 15 shows that the new algorithm performs better .
+the average localization error is 1.84 m using the new algorithm , while the standard is 1.93 m. the new algorithm improves the accuracy by 4.66 % , with an average positioning error below 2.2 m for 80 % of the cases , while the standard algorithm is 2.3 m. we evaluate the algorithm in the unsurveyed area .
+the unsurveyed area is separated into several sub - areas according to the distance to the surveyed area .
+we compare the positioning accuracy in these sub - areas .
+figure 16 shows the experimental results .
+figure 16 illustrates that the rmse increases as the distance to the surveyed area grows .
+if the users are less than 10 m away from the surveyed area , the average positioning error is 5.75 m. this positioning result is not accurate enough , but sometimes it is useful , especially for areas without site survey .
+the proposed algorithm is scalable , which allows the users to continually upload their coordinates to the server to improve the performance of estimation .
+figure 17 shows the experimental result .
+in this experiment , we use the same brand of smartphone for positioning because different devices report network measurement very differently [ 37 ] .
+in figure 17 , we can see that the proposed algorithm performs better .
+as the users continually upload their coordinates and rss measurement , the new algorithm 's performance can be improved .
+5. conclusions the wireless fingerprint technique has the advantages of low deployment cost , supplying reasonable accuracy , and ease of application to mobile devices .
+as a result , fingerprinting has attracted a lot of attention .
+in areas without calibration data , however , this algorithm breaks down .
+constructing a fingerprint database with high density fingerprint samples is labor - intensive or impossible in some cases .
+researchers are continually searching for better algorithms to create and update dense databases more efficiently .
+the popularization of smartphones makes mobile crowdsourcing fingerprint localization more practical .
+however , designing a sustainable incentive mechanism of crowdsourcing remains a challenge .
+in this paper , we propose a scalable algorithm to create a wlan radio map by mobile crowdsourcing and gaussian process for fingerprint indoor localization .
+we first propose a minimum inverse distance ( mid ) algorithm to build a virtual database with uniformly distributed virtual reference points ( rp ) .
+the area covered by the virtual rps can be larger than the area covered by the training data .
+a local gaussian process ( lgp ) is then applied to estimate the virtual rps' rssi values based on the crowdsourced training data .
+finally , we improve the bayesian algorithm to estimate the user 's location using the virtual database .
+the parameters in the proposed algorithm are optimized by simulations and the new algorithm is tested on real - case scenarios .
+the average localization error is 2.47 m using the initial database , while the error in the virtual database is 1.84 m. the new algorithm improves the accuracy by 25.5 % , with an average positioning error below 2.2 m for 80 % of the cases , while the virtual database is 3.1 m. the proposed algorithm also allows the users to continually upload their coordinates to the server to improve the performance of estimation .
+moreover , the proposed algorithm can localize the users in the neighboring unsurveyed area .
+if the users are less than 10 m away from the surveyed area , the average positioning error is 5.75 m. the proposed algorithm has to rely on a location server .
+if there is no connection between the server and clients , the user ca n't upload the positioning requirement .
+as a result , the client wo n't receive his coordinate , and this is the problem for all the crowdsourcing fingerprint indoor localization algorithms .
+client - based architecture solutions would be more practical .
+however , with the wide availability of 802.11 wlan networks , connecting to the internet would be easier .
+we believe this problem will be solved with the wide deployment of wifi access points in the future .
+our study requires a strong user collaboration .
+if the user wants to contribute to the fingerprint database , he should estimate his location with another positioning system and upload the fingerprint , containing the coordinate and the rss values , to the server .
+this would lead to the problem that the users are not willing to submit their measurement .
+for this drawback , we can make the client upload the rss and location to the server automatically , but the scale of the fingerprint database will increase rapidly. and we are not sure about the reliability of the uploaded data .
+in that case , we have to filter out the unreliable data .
+moreover , we have n't focused on the device diversity problem .
+it is practically impossible for all the users to have the same brand of smartphone .
+our future work will concentrate on these two issues .
+acknowledgments this study is supported by the nsfc ( natural science foundation of china ) program under grand no.71031007 , no.61273198 .
+author contributions qun li and weiping wang conceived and designed the experiments ; wei chen performed the experiments ; zesen shi analyzed the data ; qiang chang wrote the paper .
+conflicts of interest the authors declare no conflict of interest .
+references 1 .
+gerstweiler g. vonach e. kaufmann h. hymotrack : a mobile ar navigation system for complex indoor environments sensors 2016 16 10.3390 / s16010017 26712755 2 .
+bahl p. padmanabhan v.n. radar : an in - building rf - based user location and tracking system proceedings of the nineteenth annual joint conference of the ieee computer and communications societies ( infocom 2000 ) tel aviv , israel 26 - 30 march 2000 750 784 3 .
+guzman - quiros r. martinez - sala a. gomez - tornero j.l. garcia - haro j. integration of directional antennas in an rss fingerprinting - based indoor localization system sensors 2016 16 10.3390 / s16010004 26703620 4 .
+google maps , google maps indoor 2015 available online : http :// www.google.cn / maps / about / partners / indoormaps / ( accessed on 23 may 2015 ) 5 .
+ferris b. fox d. lawrence n. wifi - slam using gaussian process latent variable models ijcai 2007 7 2480 2485 6 .
+du y. yang d. xiu c. a novel method for constructing a wifi positioning system with efficient manpower sensors 2015 15 8358 8381 10.3390 / s150408358 25868078 7 .
+bolliger p. redpin - adaptive , zero - configuration indoor localization through user collaboration proceedings of the first acm international workshop on mobile entity localization and tracking in gps - less environments new york , ny , usa 19 september 2008 55 60 8 .
+park j .
+- g. charrow b. curtis d. battat j. minkov e. hicks j. teller s. ledlie j. growing an organic indoor location system proceedings of the 8th international conference on mobile systems , applications , and services san francisco , ca , usa 15 - 18 june 2010 271 284 9 .
+rai a. chintalapudi k.k. padmanabhan v.n. sen r. zee : zeroeffort crowdsourcing for indoor localization proceedings of the 18th annual international conference on mobile computing and networking istanbul , turkey 22 - 26 august 2012 293 304 10 .
+yang s. dessai p. verma m. gerla m. freeloc : calibrationfree crowdsourced indoor localization proceedings of ieee infocom turin , italy 14 - 19 april 2013 2481 2489 11 .
+wan j. liu j. shao z. vasilakos a.v. imran m. zhou k. mobile crowd sensing for traffic prediction in internet of vehicles sensors 2016 16 10.3390 / s16010088 26761013 12 .
+chang k. han d. crowdsourcing - based radio map update automation for wi - fi positioning systems proceedings of the 3rd acm sigspatial international workshop on crowdsourced and volunteered geographic information dallas , tx , usa 4 - 7 november 2014 24 31 13 .
+lee m. yang h. han d. yu c. crowdsourced radiomap for room - level place recognition in urban environment proceedings of the 2010 8th ieee international conference on pervasive computing and communications workshops ( percom workshops ) mannheim , germany 29 march - 2 april 2010 648 653 14 .
+wu c. yang z. liu y. smartphones based crowdsourcing for indoor localization ieee trans. mob. comput .
+2015 14 444 457 10.1109 / tmc.2014.2320254 15 .
+rappaport t.s. wireless communications : principles and practice prentice hall ptr lebanon , in , usa 2007 16 .
+kuo s .
+- p. tseng y .
+- c. a scrambling method for fingerprint positioning based on temporal diversity and spatial dependency ieee trans. knowl .
+data eng .
+2008 20 678 684 17 .
+barsocchi p. lenzi s. chessa s. furfari f. automatic virtual calibration of range - based indoor localization systems wirel. commun. mob. comput .
+2012 12 1546 1557 10.1002 / wcm.1085 18 .
+lamarca a. hightower j. smith i. consolvo s. self - mapping in 802.11 location systems ubicomp 2005 3660 87 104 19 .
+maher p.s. malaney r.a. a novel fingerprint location method using ray - tracing proceedings of the ieee global telecommunications conference ( globecom 2009 ) honolulu , hi , usa 30 november 2009 - 4 december 2009 1 5 20 .
+raspopoulos m. laoudias c. kanaris l. kokkinis a. panayiotou c.g. stavrou s .
+3d ray tracing for device - independent fingerprint - based positioning in wlans proceedings of the 2012 9th workshop on positioning navigation and communication ( wpnc ) dresden , germany 15 - 16 march 2012 109 113 21 .
+gomez j. tayebi a. de adana f.m.s. gutierrez o. localization approach based on ray - tracing including the effect of human shadowing prog. electromagn. res. lett .
+2010 15 1 11 10.2528 / pierl10030908 22 .
+dissanayake m. newman p. clark s. durrant - whyte h.f. csorba m. a solution to the simultaneous localization and map building ( slam ) problem ieee trans. robot. autom .
+2001 17 229 241 10.1109 / 70.938381 23 .
+choset h. nagatani k. topological simultaneous localization and mapping ( slam ) : toward exact localization without explicit localization ieee trans. robot. autom .
+2001 17 125 137 10.1109 / 70.928558 24 .
+koyuncu h. yang s.h. indoor positioning with virtual fingerprint mapping by using linear and exponential taper functions proceedings of the ieee international conference on systems , man , and cybernetics ( smc ) manchester , uk 13 - 16 october 2013 1052 1057 25 .
+keenan j. motley a. radio coverage in buildings br. telecom technol. j. 1990 8 19 24 26 .
+pulkkinen t. roos t. myllymaki p. semi - supervised learning for wlan positioning proceedings of the artificial neural networks and machine learning - icann espoo , finland 14 - 17 june 2011 355 362 27 .
+varga g. schulcz r. indoor radio location algorithm using empirical propagation models and probability distribution heuristics electr. eng .
+2013 55 87 96 10.3311 / pp.ee.2011 - 1 - 2.10 28 .
+li l. shen g. zhao c. moscibroda t. lin j .
+- h. zhao f. experiencing and handling the diversity in data density and environmental locality in an indoor positioning service proceedings of the 20th annual international conference on mobile computing and networking maui , hi , usa 7 - 11 september 2014 459 470 29 .
+rasmussen c.e. gaussian processes for machine learning mit press cambridge , ma , usa 2006 30 .
+ferris b. haehnel d. fox d. gaussian processes for signal strength - based location estimation proceedings of the robotics science and systems philadelphia , pa , usa 16 - 19 august 2006 31 .
+schwaighofer a. grigoras m. tresp v. hoffmann c. gpps : a gaussian process positioning system for cellular networks proceedings of the neural information processing systems lake tahoe , nv , usa 5 - 10 december 2013 32 .
+chiang k .
+- w. liao j .
+- k. tsai g .
+- j. chang h .
+- w. the performance analysis of the map - aided fuzzy decision tree based on the pedestrian dead reckoning algorithm in an indoor environment sensors 2016 16 10.3390 / s16010034 26729114 33 .
+liu y. dashti m. zhang j. indoor localization on mobile phone platforms using embedded inertial sensors proceedings of the 10th workshop on positioning navigation and communication ( wpnc ) dresden , germany 20 - 21 march 2013 1 5 34 .
+chai w. chen c. edwan e. zhang j. loffeld o .
+2d / 3d indoor navigation based on multi - sensor assisted pedestrian navigation in wi - fi environments proceedings of the ubiquitous positioning , indoor navigation , and location based service ( upinlbs ) helsinki , finland 3 - 4 october 2012 1 7 35 .
+awe available online : http :// www.awe - communications.com / ( accessed on 16 march 2015 ) 36 .
+chintalapudi k. iyer a.p. padmanabhan v.n. indoor localization without the pain proceedings of the sixteenth annual international conference on mobile computing and networking chicago , il , usa 20 - 24 september 2010 173 184 37 .
+laoudias c. zeinalipour - yazti d. panayiotou c.g. crowdsourced indoor localization for diverse devices through radiomap fusion proceedings of the 2013 international conference on indoor positioning and indoor navigation ( ipin ) montbeliard - belfort , france 28 - 31 october 2013 1 7 figure 1 framework of the proposed algorithm .
+rss : received signal strength ; lgp : local gaussian process .
+figure 2 positions of the reference points ( rps ) ( a ) minimum inverse distance ( mid ) , m = 100 ; ( b ) randomly , m = 100 ; ( c ) mid , m = 200 ; ( d ) randomly , m = 200 .
+figure 3 true radio map and the distribution of rps .
+( a ) true radio map of the whole target area ; ( b ) distribution of reference points .
+figure 4 the estimated rss values and the uncertainty .
+lgpl : log - distance path model .
+figure 5 variance and time complexity vary with different l .
+( a ) variance of the estimation ; ( b ) time for building the virtual database .
+figure 6 variance and time complexity vary with different rhocrowd .
+( a ) variance of the estimation ; ( b ) time for building the virtual database .
+figure 7 rssi data and gaussian fit .
+( a ) rssi values measured at a stationary location ; ( b ) pdf and gaussian fit .
+figure 8 root mean square error ( rmse ) and time for building the virtual database vary with different lambda .
+( a ) rmse. ; ( b ) time for building the virtual database .
+figure 9 percentage of training data and rmse vary with different epsilon .
+( a ) percentage of training data ; ( b ) rmse .
+figure 10 time for positioning and rmse vary with k .
+( a ) rmse ; ( b ) time for positioning .
+figure 11 time for positioning and rmse with varying m .
+( a ) rmse ; ( b ) time for positioning .
+figure 12 user interface of the app .
+figure 13 distribution of initial data .
+figure 14 positioning result using initial database and virtual database in the surveyed area .
+figure 15 positioning result using different algorithm .
+figure 16 positioning in different unsurveyed areas using the virtual database .
+figure 17 improving the performance of estimation by crowdsourcing .
+sensors - 16 - 00381 - t001 _ table 1 table 1 variance for different algorithms in different areas ( dbm ) sa : surveyed area ; ua : unsurveyed area ; ta : target area .
+algorithm sa ua ta gp 1.86 8.09 5.77 lgp 1.88 8.25 5.88 ldpl 6.81 14.53 7.43

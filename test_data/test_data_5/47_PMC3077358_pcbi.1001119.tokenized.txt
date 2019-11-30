@@ -1,0 +1,498 @@
+plos comput biol plos comput .
+biol plos ploscomp plos computational biology 1553 - 734x 1553 - 7358 public library of science san francisco , usa 21533211 3077358 10 - plcb - ra - 2783r3 10.1371 / journal.pcbi.1001119 research articlecomputational biology / systems biologycomputer sciencemolecular biology / bioinformatics network archaeology : uncovering ancient networks from present - day interactions network archaeology navlakha saket kingsford carl * department of computer science and center for bioinformatics and computational biology , university of maryland , college park , maryland , united states of america bader joel s. editor johns hopkins university , united states of america * e - mail : carlk @ cs.umd.edu conceived and designed the experiments : sn ck. performed the experiments : sn. analyzed the data : sn ck. wrote the paper : sn ck .
+4 2011 14 4 2011 7 4 e1001119 1 9 2010 10 3 2011 navlakha , kingsford .
+2011 this is an open - access article distributed under the terms of the creative commons attribution license , which permits unrestricted use , distribution , and reproduction in any medium , provided the original author and source are properly credited .
+what proteins interacted in a long - extinct ancestor of yeast ?
+how have different members of a protein complex assembled together over time ?
+our ability to answer such questions has been limited by the unavailability of ancestral protein - protein interaction ( ppi ) networks .
+to overcome this limitation , we propose several novel algorithms to reconstruct the growth history of a present - day network .
+our likelihood - based method finds a probable previous state of the graph by applying an assumed growth model backwards in time .
+this approach retains node identities so that the history of individual nodes can be tracked .
+using this methodology , we estimate protein ages in the yeast ppi network that are in good agreement with sequence - based estimates of age and with structural features of protein complexes .
+further , by comparing the quality of the inferred histories for several different growth models ( duplication - mutation with complementarity , forest fire , and preferential attachment ) , we provide additional evidence that a duplication - based model captures many features of ppi network growth better than models designed to mimic social network growth. from the reconstructed history , we model the arrival time of extant and ancestral interactions and predict that complexes have significantly re - wired over time and that new edges tend to form within existing complexes .
+we also hypothesize a distribution of per - protein duplication rates , track the change of the network 's clustering coefficient , and predict paralogous relationships between extant proteins that are likely to be complementary to the relationships inferred using sequence alone .
+finally , we infer plausible parameters for the model , thereby predicting the relative probability of various evolutionary events .
+the success of these algorithms indicates that parts of the history of the yeast ppi are encoded in its present - day form .
+author summary many questions about present - day interaction networks could be answered by tracking how the network changed over time .
+we present a suite of algorithms to uncover an approximate node - by - node and edge - by - edge history of changes of a network when given only a present - day network and a plausible growth model by which it evolved .
+our approach tracks the extant network backwards in time by finding high - likelihood previous configurations .
+using topology alone , we show we can estimate protein ages and can identify anchor nodes from which proteins have duplicated .
+our reconstructed histories also allow us to study how topological properties of the network have changed over time and how interactions and modules may have evolved .
+further , we provide another line of evidence indicating that major features of the evolution of the yeast ppi are best captured by a duplication - based model .
+the study of inferred ancient networks is a novel application of dynamic network analysis that can unveil the evolutionary principles that drive cellular mechanisms .
+the algorithms presented here will likely also be useful for investigating other ancient , unavailable networks .
+introduction many biological , social , and technological networks are the product of an evolutionary process that has guided their growth .
+tracking how networks have changed over time can help us answer questions about why currently observed network structures exist and how they may change in the future [ 1 ] .
+analyses of network growth dynamics have studied how properties such as node centrality and community structure change over time [ 1 ] - [ 4 ] , how structural patterns have been gained and lost [ 5 ] , and how information propagates in a network [ 6 ] .
+however , in many cases only a static snapshot of a network is available without a node - by - node or edge - by - edge history of changes .
+biology is an archetypical domain where older networks have been lost , as ancestral species have gone extinct or evolved into present - day organisms .
+for example , while we do have a few protein - protein interaction ( ppi ) networks from extant organisms , these networks do not form a linear progression and are instead derived from species at the leaves of a phylogenetic tree .
+such networks are separated by millions of years of evolution and are insufficient to track changes at a fine level of detail .
+for social networks , typically only a single current snapshot is available due to privacy concerns or simply because the network was not closely tracked since its inception .
+this lack of data makes understanding how the network arose difficult .
+often , although we do not know a network 's past , we do know a general principle that governs the network 's forward growth .
+several network growth models have been widely used to explain the emergent features of observed real - world networks [ 5 ] , [ 7 ] - [ 12 ] .
+these models provide an iterative procedure for growing random graphs that exhibit similar topological features ( such as the degree distribution and diameter ) as a class of real networks .
+for example , preferential attachment has explained many properties of the growing world wide web [ 7 ] .
+the duplication - mutation with complementarity model was found by middendorf et al .
+[ 13 ] to be the generative model that best fit the d. melanogaster ( fruit fly ) protein interaction network .
+the forest fire model was shown [ 10 ] to produce networks with properties , such as power - law degree distribution , densification , and shrinking diameter , that are similar to the properties of real - world online social networks .
+although these random graph models by themselves have been useful for understanding global changes in the network , a randomly grown network will generally not isomorphically match a target network .
+this means that the history of a random graph will not correspond to the history of a real network .
+hence , forward growth of random networks can only explore properties generic to the model and cannot track an individual , observed node 's journey through time .
+this problem can be avoided , however , if instead of growing a random graph forward according to an evolutionary model , we decompose the actual observed network backwards in time , as dictated by the model .
+the resulting sequence of networks constitute a model - inferred history of the present - day network .
+reconstructing ancestral networks has many applications .
+the inferred histories can be used to estimate the age of nodes , to model the evolution of interactions ( both extant and ancestral ) , and to track the emergence of prevalent network clusters and motifs [ 14 ] .
+in addition , proposed growth models can be validated by selecting the corresponding history that best matches the known history or other external information .
+leskovec et al .
+[ 12 ] explore this idea by computing the likelihood of a model based on how well the model explains each observed edge in a given complete history of the network .
+this augments judging a model on its ability to reproduce certain global network properties , which by itself can be misleading .
+as an example , middendorf et al .
+[ 13 ] found that networks grown forward according to the small - world model [ 15 ] reproduced the small - world property characteristic of the d. melanogaster ppi network , but did not match the empirical ppi network in other aspects .
+leskovec et al .
+[ 10 ] made a similar observation for social network models .
+ancestor reconstruction also can be used to down - sample a network to create a realistic but smaller network that preserves key topological properties and node labels .
+this can be used for faster execution of expensive graph algorithms or for visualization purposes .
+in the biological network setting , network histories can provide a view of evolution that is complementary to that derived from sequence data alone .
+in the social network setting , if a network 's owner decides to disclose only a single network , successful network reconstruction would allow us to estimate when a particular node entered the network and reproduce its activity since being a member .
+this could have privacy implications that might warrant the need for additional anonymization or randomization of the network .
+some attempts have been made to find small " seed graphs " from which particular models may have started .
+leskovec et al .
+[ 11 ] , under the kronecker model [ 16 ] , and hormozdiari et al .
+[ 17 ] , under a duplication - based model , found seed graphs that are likely to produce graphs with specified properties .
+these seed graphs can be thought of as the ancestral graphs at very large timescales , but the techniques to infer them do not generalize to shorter timescales nor do they incorporate node labels .
+previous studies of time - varying networks solve related network inference problems , but assume different available data .
+for example , the use of exponential random graph models [ 18 ] , [ 19 ] and other approaches [ 20 ] for inferring dynamic networks requires observed node attributes ( e.g. gene expression ) at each time point .
+they are also limited because they use models without a plausible biological mechanism and require the set of nodes to be known at each time point .
+wiuf et al .
+[ 21 ] use importance sampling to compute the most likely parameters that gave rise to a ppi network for c. elegans according to a duplication - attachment model , but they do not explicitly reconstruct ancient networks .
+mithani et al .
+[ 22 ] only model the loss and gain of edges amongst a fixed set of nodes in metabolic networks .
+there has also been some work on inferring ancestral biological networks using gene trees [ 23 ] - [ 26 ] .
+these approaches " play the tape " of duplication instructions encoded in the gene tree backwards .
+the gene tree provides a sequence - level view of evolutionary history , which should correlate with the network history , but their relationship can also be complementary [ 27 ] .
+further , gene tree approaches can only capture node arrival and loss ( taken directly from the gene tree ) , do not account for models of edge evolution , and are constrained to only consider trees built per gene family .
+network alignment between two extant species has also been used to find conserved network structures , which putatively correspond to ancestral subnetworks [ 28 ] - [ 30 ] .
+however , these methods do not model the evolution of interactions , or do so using heuristic measures .
+finally , the study of ancestral biological sequences has a long history , supported by extensive work in phylogenetics [ 31 ] .
+sequence reconstructions have been used to associate genes with their function , understand how the environment has affected genomes , and to determine the amino acid composition of ancestral life .
+answering similar questions in the network setting , however , requires significantly different methodologies .
+here , we propose a likelihood - based framework for reconstructing predecessor graphs at many timescales for the preferential attachment ( pa ) , duplication - mutation with complementarity ( dmc ) , and forest fire ( ff ) network growth models .
+our efficient greedy heuristic finds high likelihood ancestral graphs using only topological information and preserves the identity of each node , allowing the history of each node and edge to be tracked .
+to gain confidence in the procedure , we show using simulated data that network histories can be inferred for these models even in the presence of some network noise .
+when applied to a protein - protein interaction ( ppi ) network for saccharomyces cerevisiae , the inferred , dmc - based history agrees with many previously predicted features of ppi network evolution .
+it accurately estimates the sequence - derived age of a protein when using the dmc model , and it identifies known functionally related proteins to be the product of duplication events .
+in addition , it predicts older proteins to be more likely to be at the core of protein complexes , confirming a result obtained via other means [ 32 ]. by comparing the predicted protein ages using different models , we further confirm dmc as a better mechanism to model the growth of ppi networks [ 13 ] compared to the pa model [ 7 ] or the ff model [ 10 ] , which are designed for web and social networks .
+conversely , when applied to a social network ( derived from the music service last.fm ) , the dmc model does not produce as accurate an ancestral network reconstruction as that of pa. the ff model also outperforms dmc in the social network context at the task of identifying users who putatively mediated the network 's growth by attracting new members to join the service .
+thus , models of social network evolution do not transfer well to biological networks , and vice versa - - a well - studied and expected notion that we confirm through alternative means .
+we also used our reconstructed history of the ppi network to make several novel predictions .
+for example , we estimate the arrival time of extant and ancestral interactions and predict that newly added extant edges often connect proteins within the same complex and that modules have recently gained many peripheral units .
+the history can also be used to track the change of network topological properties over time , such as the clustering coefficient , which we find has been decreasing in recent evolution .
+analysis of the duplication rates over the inferred history suggests that proteins with fewer extant interactions have been involved in the largest number of duplication events , which is in broad agreement with existing belief that proteins with many interactions evolve more slowly [ 33 ] , [ 34 ] .
+in addition , the reconstruction predicts paralogous relationships between proteins that are strongly implied by network topology and which partially agree with sequence - based estimates .
+thus , the reconstructed history makes a number of detailed predictions about the relative order of events in the evolution of the yeast ppi , many of which correlate with known biology and many of which are novel .
+the ability of these algorithms to reconstruct significant features of a network 's history from topology alone further confirms the utility of models of network evolution , suggests an alternative approach to validate growth models , and ultimately reveals that some of the history of a network is encoded in a single snapshot .
+results network reconstruction algorithms suppose an observable , present - day network is the product of a growth process that involved a series of operations specified by a model ( such as preferential attachment ) .
+the model gives us a way to grow the network forward .
+we see now how this process can be reversed to find a precursor network .
+we start with a snapshot of the network at time , and would like to infer what the network looked like at time . one approach to find the precursor network is to find the maximum a posteriori choice : ( 1 ) in other words , we seek the most probable ancestral graph , given that the observed graph has been generated from it in time under the assumed model . our goal is to find an entire most probable sequence of graphs that led to the given network under model . because the space of possible ancestral graphs grows exponentially with for all reasonable models , equation ( 1 ) poses a challenging computational problem .
+a heuristic simplification that makes inference somewhat more feasible is to set and greedily reverse only a single step of the evolutionary model .
+while this will no longer find the maximum a posteriori estimate for larger , it is much more tractable .
+repeated application of the single - step reversal process can derive older networks .
+we make the first - order markov model assumption ( also made by the growth models ) that only depends on . in this case , applying bayes' theorem , we can rewrite equation ( 1 ) as : ( 2 ) ( 3 ) where the last equality follows because the denominator is constant over the range of the . this formulation has the advantage that the model is being run forward as intended .
+the formulation also has the advantage that the prior in equation ( 3 ) can be used to guide the choice of . computing exactly for various models is an interesting computational problem in its own right [ 35 ] with a number of applications beyond ancestral network reconstruction .
+for computational simplicity , here we assume a uniform prior and therefore consider the term a constant .
+the ancestral reconstruction algorithm chooses the predecessor graph with the largest conditional probability by searching over all possible predecessors graphs , . in all models we consider , a single new node enters the network in each time step and connects to some existing nodes in the network .
+in the dmc and ff models , the new node performs a link - copying procedure from a randomly chosen anchor node .
+finding the most probable predecessor graph therefore corresponds to finding and removing the most recently added node , identifying the node it duplicated from ( if applicable to the model ) , and adding or removing edges that were modified when the most recently added node entered the network .
+in the next sections , we explain how to do these steps efficiently for the dmc , ff , and pa growth models .
+the duplication - mutation with complementarity ( dmc ) model the dmc model is based on the duplication - divergence principle in which gene duplication produces a functionally equivalent protein , which is followed by divergence when the pair specialize into subtasks .
+middendorf et al .
+[ 13 ] and vazquez et al .
+[ 8 ] have provided support and an evolutionary basis for the general duplication model , which has been widely studied as a route by which organism complexity has increased [ 9 ] , [ 36 ] - [ 38 ] .
+though some questions remain about its exact role in evolution [ 32 ] , the dmc model appears to have a computational and biological basis for reproducing many features of real protein interaction networks .
+the forward dmc model begins with a simple , connected two - node graph .
+in each step , growth proceeds as follows : node enters the network by duplicating from a random anchor node . initially , is connected to all of ' s neighbors ( and to no other nodes ) .
+for each neighbor of , decide to modify the edge or its compliment with probability . if the edge is to be modified , delete either edge or by the flip of a fair coin .
+add edge with probability . a schematic of the growth process is shown in figure 1 .
+10.1371 / journal.pcbi.1001119.g001 figure 1 duplication - mutation with complementarity ( dmc ) .
+( a ) the probabilities governing the dmc model .
+( b ) an example iteration of the dmc model .
+to reverse dmc , given the two model parameters and , we attempt to find the node that most recently entered the current network , along with the node in from which it duplicated ( its anchor ) .
+merging this pair produces the most likely predecessor graph of equation ( 3 ) .
+formally , is formed by merging : ( 4 ) where is the number of nodes in , equals if and are connected by an edge and if not , denotes neighbors of node , and the pairs range over all pairs of nodes in . the expression inside the of equation ( 4 ) corresponds to , which is what we are trying to maximize in equation ( 3 ) by selecting . the factor gives the probability that node was chosen as the node to be duplicated .
+the first product considers the common neighbors between the two nodes .
+in the dmc model , a node and its duplicate ultimately share a neighbor if was not modified in step 2 of the model .
+the probability of such an event is . the second product involves the nodes that are neighbors of or but not both ( symmetric difference of and ) .
+each such neighbor exists with probability . if is a pair that maximizes equation ( 4 ) , the predecessor graph is formed by removing either or . let correspond to the graph where is removed .
+due to symmetry , both and yield the same likelihood in equation ( 4 ) , and thus we are forced to arbitrarily decide which node to remove .
+assume we randomly choose to remove ; then gains edges to all nodes in that it does not already have an edge to. this is because , according to the forward growth model , originally had these edges prior to the duplication event of and subsequent divergence .
+any pair of nodes in could correspond to the most recently duplicated pair , including pairs with no common neighbors ( which would happen if after duplication all edges were modified in step 2 of the model ) .
+thus , all pairs of nodes must be considered in equation ( 4 ) .
+the forest fire ( ff ) model the forest fire ( ff ) model was suggested by leskovec et al .
+[ 10 ] to grow networks that mimic certain properties of social networks .
+these properties include power - law degree , eigenvalue , and eigenvector distributions , community structure , a shrinking diameter , and network densification .
+the forward ff model begins with a simple , connected two - node graph .
+in the undirected case , in each step , growth proceeds according to the following procedure with parameter : node enters the network , selects a random anchor node , and links to it. node randomly chooses neighbors of and links to them , where is an integer chosen from a geometric distribution with mean . these vertices are flagged as active vertices .
+set to each active vertex and recursively apply step 2 .
+node becomes non - active .
+stop when no active vertices remain .
+to prevent cycling , a node cannot be visited more than once .
+the process can be thought of as a fire that starts at node and probabilistically moves forward to some nodes in , then some nodes in , etc .
+until the spreading ceases .
+this version of the model only contains one parameter : , the burning probability .
+as in the dmc model , the reversal process for the ff model attempts to find the node in the current network that most recently entered the network , along with its anchor .
+unfortunately , it appears to be difficult to write down an analytic expression computing the likelihood of . the main challenge is that for every we need to find the likely paths through which the fire spread from to . however , these paths are not independent , and therefore cannot be considered separately .
+analytic evaluation of the global network properties produced by the model also appears to be difficult [ 10 ] .
+instead , we compute the likelihood of via simulation as follows : forest fire simulation procedure .
+we assume does not exist in the network and simulate the ff model starting from a candidate anchor . each simulation produces a set of visited nodes corresponding to candidate neighbors of . we use the fraction of simulations in which exactly equals as a proxy for the likelihood of . in the ff model , the likelihood of does not necessarily equal that of because a forest fire starting at could visit different nodes than a forest fire starting at . the advantage of non - symmetry here is that there is no uncertainty regarding which node to remove .
+also , unlike the dmc model , all candidate node / anchor pairs must have an edge between them ( because of step 1 of the model ) .
+after identifying the node / anchor pair that yields the most likely , we remove and all its edges from the graph .
+no edges need to be added to as per the model .
+leskovec et al .
+[ 10 ] also propose a directed version of the ff model where the fire can also spread to incoming edges with a lower probability .
+interestingly , reversing the directed ff model is much easier than the undirected case because the node that most recently entered the network must have exactly 0 incoming edges .
+choosing which of the nodes with a 0 in - degree to remove first can be difficult because several nodes could have been added to distant , independent locations in the graph in separate steps .
+a node 's anchor , however , can still be determined using our approach .
+the preferential attachment ( pa ) model the preferential attachment ( pa ) model was originally investigated by simon [ 39 ] and de solla price [ 40 ] and was later proposed by barabasi et al .
+[ 7 ] as a mechanism to emulate the growth of the web .
+it follows the premise that new pages make popular pages more popular over time by linking to them preferentially .
+we consider the linear version of the pa model , which has been shown to correspond closely with the growth of citation networks and online social networks [ 12 ] , [ 41 ] .
+the pa model begins with a clique of nodes .
+in each step , forward growth proceeds with parameter as follows : create a probability distribution histogram , where each node is assigned probability , where is the degree of and is the total number of edges in . choose nodes according to the distribution .
+node enters the network and links to the nodes from step 2 .
+unlike the dmc and ff models , there is no notion of a node anchor in pa. a new node simply enters the network in each step and preferentially attaches to nodes with high degree .
+the most recently added node must be of minimum degree in because all nodes start with degree and can only gain edges over time .
+let be the set of nodes with minimum degree .
+to produce , we choose a node to remove from among the nodes in by computing : ( 5 ) the two cases in the product correspond to whether edge exists .
+the degree of in can vary depending on which candidate node is being considered for removal from . taking logs and simplifying turns ( 5 ) into : ( 6 ) ( 7 ) the terms in equation ( 6 ) can be ignored because they sum to which is a constant over all candidate nodes .
+equation ( 7 ) seeks to remove the node with minimal degree that links to the nodes of highest degree .
+if all nodes with minimal degree have an undefined likelihood , we remove a random node from the entire graph .
+the likelihood is independent of . the reconstruction algorithms the expression inside of the of equation ( 4 ) for dmc defines a score for pairs of nodes .
+the corresponding score for pa is given in equation ( 7 ) and for ff in the simulation procedure .
+these scores corresponds to the conditional probability for each model .
+let , , and denote these computed scores .
+to reverse each model , we iteratively search for the nodes that maximize these scores .
+if there are ties , we randomly choose among them .
+we continue this process until only a single node remains in the graph .
+for example , algorithm 1 ( figure 2 ) gives the pseudocode for reversing a network using the dmc model .
+the algorithm takes a static , present - day graph and values for parameters and . 10.1371 / journal.pcbi.1001119.g002 figure 2 pseudocode for reversing a network using the dmc model .
+the likelihood for each pair of nodes can be stored in a matrix , leading to an overall space complexity of . in the case of a clique graph , the likelihood of every pair of nodes must be recomputed in each step , leading to a worst case time complexity of . in general , only the likelihoods of pairs containing the merged node and its neighbors need to be recomputed after each step , which , for real - world ( sparse ) graphs , leads to a much more efficient algorithm ( e.g. for the ppi network , only 0.0003 % of the worst - case number of updates were required ) .
+algorithm 1 ( figure 2 ) must be changed slightly for the ff and pa models .
+for the ff model , the differences are : ( 1 ) is used instead of ; and ( 2 ) the for - loop is over all pairs of nodes connected by an edge .
+for the pa model : ( 1 ) is used ; and ( 2 ) the for loop is over all nodes instead of all pairs of nodes ; and ( 3 ) no anchor is stored .
+for both ff and pa no new edges are added to after node is deleted .
+model reversibility using the greedy likelihood algorithm we first tested the algorithms in situations where the evolutionary history is completely known .
+this allows us to assess the performance of the greedy likelihood algorithm and to compare the reversibility of various network models .
+for each model ( and choice of parameters ) , we grew 100 - node networks forward according to the model , and then supplied only the final network to our algorithm to reconstruct its history .
+we repeated this process 1000 times and averaged the results for each combination .
+for the dmc model under realistic choices of and , almost 60 % ( std = 7 %) of the node / anchor relationships inferred are correct if the optimal choice of and parameters are used in the reconstruction process .
+figure 3a plots the performance of three validation measures for 25 combinations of model parameters ( see methods ) .
+dmc - grown graphs are generally difficult to reverse because edges can be modified over time ; thus , if an incorrect node / anchor pair is merged , new edges will be added to the graph that were never originally present , which can have downstream effects on inference .
+still , both the spearman 's footrule and kendall 's measures of arrival - time correlation indicate that we can order nodes correctly significantly better than random starting from the final graph alone .
+10.1371 / journal.pcbi.1001119.g003 figure 3 accuracy of node arrival times and node anchors using the dmc model .
+the - and - axes show the dmc parameters () used to grow the synthetic network forward .
+each parameter varies from 0.1 - 0.9 in steps of 0.2 .
+the intensity of each cell in the heatmap represents the quality of the reconstruction validation measure ( anchor , kendall , footrule ) under optimal reverse parameters .
+( a ) and ( b ) show results under varying levels of noise .
+error bars ( not shown ) indicate a standard deviation of roughly 7 - 8 % for kendall and 4 - 5 % for footrule ( over 1000 trials ) .
+for many dmc - grown synthetic networks , accurate reconstruction is possible .
+reversibility varies drastically depending on the dmc model parameters used to grow the network forward .
+naturally , increasing induces more random changes in the network , which makes it more difficult to reverse the evolution .
+conversely , as increases , the history generally becomes easier to reverse because more nodes are directly connected to the node from which they duplicated .
+performance also depends on the match between the values of and used to grow the network forward and those used to reverse the history ( figure 4 ) .
+however , even if the forward parameters are not known exactly , it is feasible to reconstruct a meaningful history if the reversal parameters are chosen to be approximately equal to the forward parameters .
+there is often a hard transition at or when the bias towards having an edge and not having an edge tips to one side or the other .
+though optimal performance can correspond to reversing a network with the same parameters used to grow the network , this need not be the case .
+for example , suppose 30 % of all nodes have edges to their anchors .
+this does not imply that setting will work best because the true pair sought will likely not be connected and hence even lower values of may lead to a more accurate reconstruction .
+10.1371 / journal.pcbi.1001119.g004 figure 4 accuracy of node arrival times and node anchors when reverse parameters are not known .
+synthetic dmc - grown networks were constructed using and reversed using all 25 combinations of reversal parameters .
+the - and - axes show the difference between the reversal parameters ( and , respectively ) and the forward parameters ( 0.1 and 0.9 , respectively ) .
+the intensity of each cell in the heatmap represents the quality of the reconstruction validation measure with standard deviation lying between 1 - 7 % for anchor , 7 - 8 % for kendall , and 4 - 5 % for footrule .
+accurate histories can be inferred as long as reverse parameters ( in particular , ) are in the rough range of the forward parameters .
+we performed the same synthetic - data experiments using the forest fire model for varying values of the parameter , which controls the spread of the fire , ranging from 0.1 to 0.5 .
+figure 5a shows that between 25 % and 64 % of anchor relationships can be correctly identified , and that the estimated node arrival ordering resembles the true arrival order .
+as increases , performance of all measures tends to decrease .
+this is because as increases , the degree of each node increases , thus making it more difficult to pick out the correct anchor from among the set of neighbors .
+in general , it is difficult to predict all arrival times correctly because unrelated duplications could occur in successive steps in completely different parts of the graph .
+10.1371 / journal.pcbi.1001119.g005 figure 5 accuracy of arrival times and node anchors using the forest fire model .
+( a - d ) the - axis shows the ff parameter () used to grow the synthetic network forward .
+( values of parameter resulted in mostly clique - like networks. ) the - axis shows the quality of the 3 reconstruction validation measures under optimal reverse parameters ( bars show standard deviation over 1000 trials ) .
+all ff - based reconstructions are significantly better than random reconstructions , even when 30 % of true edges are replaced by random edges .
+finally , we grew 100 - node networks using the linear preferential attachment model for various choices of parameter , the number of neighbors to which a new node initially connects ( figure 6 ). of the three models we consider , pa is the most easily reversible .
+as increases , it becomes easier to distinguish amongst low degree nodes connected to hubs because there is less statistical variation in the forward process .
+this allows more opportunity for older and newer nodes to differentiate themselves from one another , and hence the network becomes easier to reverse .
+figure 6a shows that for the pa model we can achieve kendall values of over higher than random when . in the pa model , a new node does not choose an anchor node to copy links from so only the arrival - time validation measures are applicable .
+10.1371 / journal.pcbi.1001119.g006 figure 6 agreement with arrival times using the preferential attachment model .
+( a - d ) the - axis shows the pa parameter () used to grow the synthetic network forward .
+the - axis shows the quality of the 3 reconstruction validation measures ( bars show standard deviation over 1000 trials ) .
+compared to the dmc and ff models , the pa model is easiest to reverse , even in the presence of substantial noise .
+effect of deviation from the assumed model to gauge robustness to deviations from the growth model , we repeated the experiments on synthetic data after randomly replacing some percentage of edges in the final graph with new edges .
+under all models , reconstruction quality generally suffers from a noisy view of the present - day graph but meaningful histories can still be recovered .
+dmc is the most sensitive to the addition of noise ( figure 3b ) , while pa is by far the most resilient to noise .
+even when 80 % of the true edges are replaced with random edges , nearly turning the graph into a random graph , reversibility of pa can still be better than random ( figure 6d ) .
+dmc can tolerate noise up to 30 % before returning essentially random reconstructions .
+the robustness of the forest fire model lies in between dmc and pa ( figure 5b - d ) .
+node deletion is a prevalent phenomena in many real - world networks , such as biological networks ( which experience gene loss ) and online social networks ( in which users can delete their accounts ) .
+however , deletion is typically not modeled by standard growth mechanisms .
+to study the effect of deletion on reconstruction , we modified the dmc process so that ( in addition to a new node being added ) in every step , with probability , a random existing node is chosen and removed from the graph .
+thus the number of nodes in the graph after one iteration can remain constant .
+this presents an additional challenge to reconstruction because deleted nodes might have been anchors of extant nodes .
+upon deletion , this relationship is lost .
+we experimented with this modified dmc model using our dmc reconstruction algorithm and found that accuracy degrades smoothly as increases ( table 1 ) .
+at low values of , only a few nodes are deleted which implies that the dynamics of the past are still closely reflected in the extant network .
+for example , at , 37.9 % of true anchor subtrees are recovered exactly and this only drops to 28.1 % at . however , at , only 13.0 % of anchor subtrees are recovered , and the kendall ordering has declined from 11.0 % ( at no deletion ) to 2.6 % .
+the existence of node deletion implies that our reconstructed networks will likely only represent a subsample of true ancestral networks .
+however , if the relative percentage of deletion is low , significant features of ancient networks can still be recovered .
+10.1371 / journal.pcbi.1001119.t001 table 1 the effect of node deletion on reconstruction quality .
+kendall footrule anchor 0.0 11.0 40.1 37.9 0.1 9.3 39.2 28.1 0.2 6.7 37.4 22.0 0.3 6.0 37.0 18.4 0.4 2.6 35.1 13.0 0.5 1.4 34.0 10.2 column headings show the value used in the modified dmc model and the three reconstruction quality measures .
+kendall and footrule are only computed among extant nodes .
+the other dmc parameters are fixed to and . as increases , more nodes are lost in the forward growth procedure .
+this degrades the accuracy of reconstruction because the algorithm is forced to explain interaction partners from anchors that do not exist in . this results in incorrect merges and incorrect ancestral edges .
+nonetheless , the algorithm can tolerate deletion at low values of . in particular , when ( i.e. in each step , with probability 0.3 , a random node is deleted ) , the kendall and anchor quality measures decreases by only half of their original values .
+mis - identifying the model that was used to grow the network can also significantly reduce the quality of the inferred history ( table 2 ) .
+this degradation in performance can be exploited in conjunction with known node arrival times to select the most plausible model from among a set of network growth models .
+to verify this , we grew networks forward using each model and reversed it with the other models .
+in most cases , we found that reversing the network with the model used to grow it forward resulted in optimal performance .
+for example , for dmc - grown networks , a reversal using dmc results in a 55.6 % anchor score vs. 1.8 % for ff. the low value implies that a node has many reasonable anchors , between which ff cannot easily distinguish .
+ff and pa also have footrule scores that are at least 10 % less than dmc .
+pa performed poorly because nodes with late arrival times under dmc can duplicate from hubs and immediately have a high degree .
+this indicates that reversing dmc - grown networks involves more than removing low - degree nodes .
+as increases , the difference is less pronounced , but the trend still holds .
+10.1371 / journal.pcbi.1001119.t002 table 2 validating network growth models via the confusion matrix .
+dmc ( 0.1,0.9 ) dmc ( 0.5,0.5 ) ff ( 0.2 ) pa ( 5 ) pa ( 15 ) reverse dmc 55.6 / 45.5 24.4 / 38.3 49.5 / 41.7 - / 58.8 - / 64.0 reverse ff 1.8 / 33.1 10.7 / 37.2 54.5 / 54.5 - / 28.4 - / 24.4 reverse pa - / 35.0 - / 35.0 - / 50.6 - / 72.6 - / 88.9 node degree - / 39.3 - / 38.1 - / 59.2 - / 75.2 / - 85.5 centrality - / 39.2 - / 37.9 - / 57.5 - / 74.9 - / 85.3 column headings show the model and parameters used to grow the random graph forward .
+row labels show the model used in the reversal ( assuming optimal parameters ) .
+for the node degree reconstruction ( row ) , we removed nodes in increasing order of their degree in the extant network ( nodes with the same degree were ordered randomly ) .
+for the centrality reconstruction ( row ) , we removed nodes in decreasing order of their closeness centrality in the extant network .
+each cell contains anchor / footrule scores ( pa , node degree , and centrality do not generate anchor scores ) .
+performance was averaged over 1000 runs .
+bolded cells indicate best performance .
+for example , for dmc random graphs with , reversing with ff produces a 33.1 % footrule score compared to a 45.5 % score when the graph is reversed with dmc itself .
+the non - model - based heuristics produce good age - estimates when applied to models where degree is known to be correlated with age ( ff and pa ) as is expected ; however , the downside to these approaches is that they do not produce a likelihood estimate for ancestral graphs , nor do they predict node anchors .
+for identifying anchors and for dmc age estimates , reversing with the model used to grow the graph forward resulted in the best performance .
+similarly , random graphs grown forward using ff ( pa ) are best reversed using ff ( pa ) as opposed to the other models .
+for pa , this is because dmc and ff seek , for each node , a single anchor from which the observed links can be explained. with pa , however , a node can have neighbors that are far apart in the network .
+non - model - based heuristic reconstructions based solely on degree or centrality ( table 2 ) can perform well when degree strongly implies age ( as is the case for ff and pa random graphs ) .
+this suggests that additional heuristics might improve our greedy reconstruction algorithms .
+however , heuristics alone are limiting because they are not driven by a formal mechanism of evolution , they do not predict node anchors , and they do not produce a likelihood estimate for ancestral graphs .
+further , even when age is strongly correlated with degree , the likelihood - based procedure can be more accurate .
+for example , for pa with , reversing with the pa likelihood algorithm yields a kendall value of 88.9 % compared to 85.5 % using node degree .
+recovery of ancient protein interaction networks we obtained a high - confidence protein - protein interaction ( ppi ) network for the yeast s. cerevisiae from the intact database [ 42 ] .
+the network contains 2,599 proteins ( nodes ) and 8,275 physical interactions between them .
+we applied the reversal algorithm for 2,599 steps to estimate a complete history of the growth of the network .
+figure 7a shows the original network () and an inferred ancestral network with 1,300 nodes () .
+10.1371 / journal.pcbi.1001119.g007 figure 7 comparing extant and ancient networks .
+( a ) visualization [ 59 ] of the extant ppi network () and an ancestral version () .
+the density , clustering coefficient ( cc ) , average shortest path length ( spl ) , and average - core number are shown for each network .
+the ancient network is considerably denser than the extant network .
+( b ) the change in clustering coefficient over time in the yeast network history .
+recent evolution ( after time step 2000 ) reveals a trend of decreasing modularity , perhaps due to the addition of peripheral units to existing complexes or pathways .
+older evolution ( prior to time step 2000 , excluding the initial effect of small networks ) shows an increasing modularity , suggesting that new clusters were emerging .
+other methods have found evidence for both increasing [ 26 ] and decreasing [ 8 ] clustering coefficient over time .
+because ppi networks from the past are unavailable , we do not directly have true node arrival times to which we can compare .
+instead , we estimate protein arrival times using sequence - based homology under the assumption that proteins that have emerged after yeast diverged from other species will have fewer orthologs in these distantly related organisms [ 43 ] .
+in particular , we obtained data for the occurrence of orthologs of yeast proteins in 6 eukaryotes ( a. thaliana , c. elegans , d. melanogaster , h. sapiens , s. pombe , and e. cuniculi ) from the clusters of orthologous genes database [ 44 ] .
+the number of species for which an ortholog was present was used as a proxy for the arrival time .
+we grouped proteins into 6 classes and computed a class - based kendall value amongst proteins in different classes .
+a pair was considered correctly ordered if was predicted to arrive before and if has more orthologs than ; otherwise the pair was considered incorrectly ordered .
+although the precise definition of an ortholog is debatable , the cog classes provide a rough benchmark to gauge our temporal orderings .
+reversing the network using the dmc model produced an estimated node arrival order in greater concordance with the orthology - based estimates of protein age than either the ff or pa models .
+figure 8 shows the class - based kendall value for proteins in the 6 age classes for all three models .
+the results shown are the best for each model over the tested parameter space and thus represent the limit of performance using the proposed algorithm .
+the dmc model more accurately determines the relative ordering of proteins in the age classes than the ff or pa histories ( p compared to a random reconstruction and after bonferroni correcting for optimal parameter usage ) .
+this provides additional evidence [ 13 ] that a duplication - based model is a better fit for ppi networks than models such as ff and pa inspired by social networks .
+10.1371 / journal.pcbi.1001119.g008 figure 8 predicting protein age groups by reversing the dmc and ff models on a real ppi network for s. cerevisiae .
+the - axis shows the class - based kendall value of the predicted ordering .
+the dmc model more accurately orders the proteins in the classes compared to ff and pa. estimation of parameters governing ppi network growth the parameters that produced the history that best matched the sequence - based estimates of protein ages provide hints about the relative importance of various processes in network growth .
+for dmc applied to the ppi , the best performance was typically achieved with low - to - medium values of and medium - to - high values of . we can use these as estimates of the probability that an interaction is modified following a gene duplication ( ) and the probability that two duplicated genes interact ( high , as also found elsewhere [ 45 ] - [ 47 ] , though lower values have also been suggested [ 8 ]) .
+interestingly , the optimal ff and dmc parameters create models that have many similarities .
+optimal performance was obtained for the ff model with parameter , which implies that both the anchor and the arriving node will have similar neighborhoods because the simulated fire likely does not spread far beyond the immediate neighbors of the anchor .
+the property of similar neighborhoods is also implied by duplication step of dmc coupled with the moderate value of . further , in the ff model the arriving node is always linked to its anchor , and the high value of causes this to frequently happen in the dmc model as well .
+thus , based on their agreement with sequence - based estimates of protein arrival times , two independent and very different base models both suggest that proteins should very frequently interact with the protein from which they duplicated , and that the new node should primarily interact with neighbors of their anchors .
+the actual likelihood values obtained from equation ( 4 ) for dmc also hint at the plausibility of a reconstruction .
+for the ppi network , the ratio of log - likelihoods between our inferred history and a random reconstruction is , which means that the former is much more likely than the latter .
+likelihoods can also be used to select parameter values .
+for example , the likelihood of the reconstruction with was 2.6 times higher than the ( much poorer ) reconstruction obtained using . parameters near the optimal settings also have very similar likelihoods , as expected ( e.g. changing from to with the same results in a likelihood ratio of 1.01 between the two parameter choices ) .
+using the optimal and values , we found that in 67 % of the inference steps , there is a tie among at least two pairs of nodes with equal likelihood .
+however , choosing randomly amongst these pairs alters the class - based kendall statistic by on average only 0.4 % ( max = 0.9 %) .
+the same is true for the actual likelihood values .
+this implies that it is relatively easy to distinguish between proteins in different age classes ( in particular , very old and very new proteins ) , but ordering proteins within an age class can be somewhat arbitrary .
+protein complexes and evolution by duplication we can test correctness of node anchors identified by dmc and ff using protein annotations .
+a protein and its duplicate are often involved in similar protein complexes in the cell [ 37 ] , [ 46 ] .
+we expect then that the node / anchor pairs identified ought to correspond to proteins that are co - complexed .
+because it is difficult to model the gain and loss of functional properties of ancient proteins , we only tested this hypothesis among pairs of extant proteins .
+using the mips complex catalog [ 48 ] , which contained annotations for 994 of the proteins in the network , 84 % of the testable node / anchor pairs predicted using the dmc model shared an annotation .
+this is much higher than the baseline frequency : only 55 % of edges in the extant network connect nodes that share an annotation .
+under the ff model , 68 % of node / anchor pairs share a mips annotation .
+so , while the ff model under this validation measure again is performing much better than expected by random chance , it does not perform as well as dmc .
+the high quality of the dmc - based node / anchor pairs also supports the idea that a good definition of a functional module in a ppi network is one which groups proteins with similar neighbors together ( rather than one based strictly on density ) [ 47 ] .
+we can also gauge correctness of our node anchors by testing their paralogy .
+we found that 10 % of the extant node anchor pairs predicted by dmc () had a pairwise blast e - value . compared to choosing random pairs of yeast genes ( 0.002 %) and to choosing random pairs connected by an interaction edge ( 3 %) , our approach can significantly home - in on likely duplicates .
+however , many of our predicted duplicates do not correlate with what was predicted by sequence , despite strong evidence from the interaction network .
+this suggests that the history offered by the network presents a new view on evolution and duplication that can be complementary to the view presented by sequence - based analysis .
+the phylogeny of node / anchor relationships ( figure 9 ) can also help characterize how duplication has guided the evolution of the yeast proteome .
+we estimate the number of times each extant protein was involved in a duplication ( that became fixed in the population ) by computing the depth of the protein in the inferred node / anchor tree .
+figure 10a shows that most proteins are involved in a similar number of duplications ( mean = 17 , median = 15 ) , with fewer proteins involved in many more or many less .
+further , proteins involved in more duplications typically have fewer interaction partners ( figure 10b ) .
+using network histories alone , this correlates with previous sequence - based findings that the evolutionary rate of proteins is inversely proportional to its number of binding partners [ 33 ] , [ 34 ] ( though some doubt remains about this fact [ 49 ]) .
+10.1371 / journal.pcbi.1001119.g009 figure 9 visualization of the node / anchor phylogeny inferred by reversing the dmc model on the yeast ppi network .
+10.1371 / journal.pcbi.1001119.g010 figure 10 the evolution of protein duplication .
+( a ) the distribution of duplication rates for extant proteins in the ppi network .
+the - axis of the histogram is the number of duplications , measured as the distance from the root of the phylogeny to the extant protein .
+the - axis is the percentage of proteins lying in the tree depth bin .
+( b ) the relationship between duplication and number of interaction partners .
+the - axis shows the average tree depth for proteins with the given number of interaction partners ( - axis ) in . highly connected proteins tend to duplicate less than proteins with fewer interaction partners .
+the arrival times of proteins can also tell us how different components of protein complexes might have evolved .
+for every protein belonging to exactly one mips complex , we computed its coreness , defined as the percentage of its annotated neighbors that belong to the same complex .
+a large coreness value indicates that the protein plays a central role in the complex ; a small value suggests a peripheral role [ 50 ] .
+amongst the 763 protein tested , there was a significant correlation between older proteins and larger coreness values ( , p ) , a trend that kim and marcotte [ 32 ] also independently reported by studying the evolution of protein structure using a different measure of coreness .
+the change in clustering coefficient of ancestral networks also hints at how modularity may have evolved .
+figure 7b shows that the extant network has a lower clustering coefficient than relatively recent ancestral networks .
+this could be attributed to the addition of new peripheral components to existing complexes or pathways that evolved to perform functional subtasks [ 51 ] .
+much older ancestral networks , however , have a smaller clustering coefficient than the extant network , which suggests that some tightly clustered groups were still developing at this time by forming interaction triangles in the network .
+estimating the arrival of extant and ancestral interactions ancestral network reconstruction can also be used to study how interaction edges might have evolved over time .
+we found that extant edges with recent arrival times ( new edges ) tended to connect proteins within the same complex versus older edges that tended to connect proteins in different complexes .
+in particular , 80 % of the 100 most recently added extant edges were within - complex edges .
+this is in stark contrast to the 100 oldest extant edges , of which only 20 % were within - complex edges .
+it is possible that the model confuses purifying selection with recent emergence ( i.e. old , conserved events look new ) ; it is also possible that many recent duplications were followed by little divergence , which resulted in the expansion or growth of complexes .
+the chance that a random extant edge is a within - complex edge is only 53 % ( std = 2 %) , which suggests that in either case , there is a significant difference in the topological placement of older and newer extant edges .
+unlike ff and pa , dmc also models edges that were once present in an ancestral version of the network , but that are no longer present in the extant network .
+these edges are interesting because they hint at structural patterns that were lost over time .
+we found that many more within - complex edges were modified than we would expect by chance .
+in particular , 8 % of the non - extant , reconstructed edges connected two proteins in the same complex , which is significantly more than the 1.2 % found when choosing random non - extant pairs ( p ) .
+this suggests that modules have re - wired over time .
+studying the relationship between ancient edges and present - day complexes , however , requires some discretion .
+it is likely that the annotations used today are not reflective of the functional organization of some ancestral networks ; new complexes might have emerged , old complexes might have been lost , and interactions that were once within - complex could now be between - complex .
+nonetheless , our network reconstruction framework provides a ground from which these questions can be further explored .
+recovery of past social networks to contrast the evolution of biological networks with social networks , we applied our algorithms to part of the last.fm music social network .
+edges in this network link users ( nodes ) that are friends .
+we snowball - sampled [ 52 ] a region of the network by performing a breadth - first crawl starting from a random user ' rj ' .
+we recorded the date and time of registration for each node visited , which corresponds to its arrival time into the network .
+the resulting network consisted of the subgraph induced by the first 2957 nodes visited ( 9659 edges ) .
+because only a subgraph of the complete network was visited , some nodes have neighbors that are outside the induced subgraph .
+this missing data makes the reconstruction problem even more difficult .
+figure 11 shows the performance of the models ( using the best parameters ) for the node - arrival measures .
+the best performing model ( preferential attachment ) for the last.fm network was the worse performing model for the ppi network , which confirms the notion that social and biological networks likely grew by different mechanisms [ 13 ] , [ 53 ] .
+further , the optimal dmc parameters ( 0.7,0.3 ) indicate that new users in social networks form links to a varied set of existing users that might be far apart in the network [ 10 ] .
+10.1371 / journal.pcbi.1001119.g011 figure 11 predicting node arrival times for users in the last.fm social network .
+the pa model appears most applicable to reversing the network .
+an advantage of ff and dmc over pa is that the former return node anchors .
+to validate these predicted relationships , we make the observation that node / anchor pairs are likely to share similar taste in music .
+as a null baseline , we computed the percentage of edges in the given network that connect users who share a top - 5 favorite artist .
+the pairs returned by ff are more likely ( 13.8 %) to share a top - 5 favorite artist over dmc ( 10.3 %) and the baseline ( 10.8 %) .
+most users act as anchors to new member , however , there were 9 users who ( putatively ) each brought new members into the network .
+such popular anchors can be thought of as members who are responsible for the network 's organic growth .
+discussion we presented a novel framework for uncovering precursor versions of a network given only a growth model by which the network putatively evolved .
+our approach works backwards from a given network and is therefore network specific ( not model generic ) and can retain individual node labels .
+unlike heuristic approaches ( such as ordering node arrival times based on their static degree in the extant network ) , our approach reconstructs edges in a principled way , provides a likelihood estimate for ancestral graphs , identifies node anchors , and is driven by a formal mechanism describing network evolution .
+further , for most dmc - grown synthetic networks , removal by static degree performs as poorly as pa , as is expected since pa is derived from the assumption that degree is correlated with age [ 7 ] .
+using the proposed algorithms , we estimated protein ages from the topology of a ppi network alone that matched sequence - based evidence well .
+further , we correlated node / anchor pairs with co - complexed proteins and characterized the distribution of duplications on a per - protein basis .
+we also found that older proteins tend to play a more central role in protein complexes than newer ( peripheral ) proteins , that recently - arrived edges often formed within existing complexes , and that modules have significantly re - wired over time perhaps by adding peripheral components to their cores .
+while the true history of the yeast interactome will likely never be exactly recovered , many of these predictions are in agreement with known features of ppi network evolution , which is surprising given the noisy and incomplete status of the available ppi data [ 54 ] , [ 55 ] and the simple network growth models we used .
+as more complete and accurate networks become available , we can assess how the predictions change by reapplying the proposed algorithms .
+we also used the accuracy of history reconstruction as an optimization criterion for choosing model parameters .
+we determined , via both the dmc and ff models , that duplicated proteins are likely to interact and share many interaction partners .
+the ability to match the inferred history under a given model to properties of the true history provides an alternative way to validate models that goes beyond comparing only statistics of the final extant network .
+a natural extension to this work is to evaluate how the greedy likelihood approach performs on other models [ 56 ] , such as those that explicitly incorporate an estimate of a node 's age [ 13 ] , [ 32 ] , those in which nodes can add edges at variable times [ 12 ] , those that encompass a mixture of several models , or other variations on the pa and dmc processes [ 13 ] , [ 39 ] , [ 40 ] .
+naturally , proteins that emerge via duplication but are eventually lost are also important to model [ 57 ] .
+we found that our algorithms can tolerate some deletion , but additional reversal procedures that explicitly account for deletion are necessary .
+automated selection of reverse model parameters and computation of model - based priors to use in the likelihood procedure may also make the reconstructions more accurate and more practical .
+however , even with the standard models investigated here , our results show that present - day networks are strongly linked to their past , and that this past can be effectively excavated .
+methods validating node arrival times our reconstruction framework gives an ordered list of node arrival times , with the first removed node corresponding to the node that most recently entered .
+let be the true arrival order of the nodes and let be the computationally predicted sequence .
+to understand how well our reconstructed arrival times match the true node arrival times , we compute the difference between and using the popular kendall 's and spearman 's footrule measures [ 58 ] : kendall 's tau , where is the number of concordant pairs in , i.e. the number of pairs in that are in the correct relative order with respect to ; and is the number of discordant pairs .
+if the two lists are identical , and - 1 if they are exactly opposite .
+spearman 's footrule . is the node arrival time for node . this measure takes into account how far apart the arrival times are for each node in the two lists. has a maximum value of . we use a normalized value of , so that if the two lists are identical , and if they are opposite of each other .
+in both cases , the higher the value the better .
+the expected and similarity between and a random ordering of the nodes is 0.00 and 0.33 , respectively .
+validating node anchors when a node enters the network under the dmc and ff models , it chooses an existing node from which it copies links .
+we call this node its anchor .
+to assess our ability to identify node / anchor relationships , we encode the true node / anchor relationships in a binary tree .
+we can think of a node 's arrival as causing its chosen anchor node to divide in two , producing a new node and a new copy of the old node .
+figure 12a shows a binary tree describing such a bifurcation process , with node anchors indicated by dotted arrows .
+in this example , node 1 initially exists alone in the network , and therefore has no anchor .
+reading from top down , node 2 enters and chooses node 1 as its anchor .
+this spawns a new node 1 , which is conceptually different from its parent because the new node could have gained or lost edges due to the arrival of node 2 .
+node 3 enters and chooses the new node 1 as its anchor .
+finally , nodes 4 and 5 anchor from nodes 3 and 2 , respectively .
+10.1371 / journal.pcbi.1001119.g012 figure 12 computing the similarity of node / anchor pairs in the true versus the reconstructed histories .
+figure 12b shows an example sequence of merges predicted by our reconstruction algorithms .
+internal nodes in the tree are labeled with the concatenation of the labels of its two children indicating an inferred node / anchor relationship between the children .
+let be the anchor tree derived from the true growth process ( figure 12a ) and let be the reconstructed anchor tree ( figure 12b ) .
+to assess the quality of the reconstruction , we compute the percentage of subtrees in found in . this measure ( called anchor ) is closely related to the robinson - foulds distance metric used to compare phylogenetic trees [ 31 ] .
+in the example of figure 12 , the similarity between the trees is . this validation measure is advantageous because it evaluates if the relationship between larger groups of nodes was correctly determined .
+in addition , it does not unduly penalize the mis - ordering of arrival times for nodes that are far apart in the network .
+it also does not depend on which node of the merged pair was deleted from the graph in the dmc model , because both choices lead to the same subtree in . on the other hand , the measure is in some ways stricter than counting correct node / anchor pairs .
+for example , in figure 12 it would be incorrect to merge 1 and 2 in the first backward step because the extant nodes 1 and 2 are not the same as the past nodes 1 and 2 .
+availability our code and data are available online at http :// www.cbcb.umd.edu / netarch .
+the authors thank geet duggal , justin malin , guillaume marcais , and galileo namata for helpful conversations about the manuscript .
+the authors have declared that no competing interests exist .
+ck thanks the national science foundation ( www.nsf.gov ) for grants 0849899 and 0812111 , and the national institutes of health ( www.nih.gov ) for grant 1r21ai085376 .
+the funders had no role in study design , data collection and analysis , decision to publish , or preparation of the manuscript .
+references 1 hopcroft j khan o kulis b selman b 2004 tracking evolving communities in large linked networks .
+proc natl acad sci usa 101 5249 5253 14757820 2 golbeck j 2007 the dynamics of web - based social networks : membership , relationships , and change .
+first monday 12 3 palla g barab'asi al vicsek t 2007 quantifying social group evolution .
+nature 446 664 667 17410175 4 tantipathananandh c berger - wolf t 2009 constant - factor approximation algorithms for identifying dynamic communities .
+proceedings of the 15th acm sigkdd international conference on knowledge discovery and data mining new york acm 827 836 5 kumar r novak j tomkins a 2006 structure and evolution of online social networks .
+proceedings of 12th international conference on knowledge discovery in data mining new york acm 611 617 6 leskovec j mcglohon m faloutsos c glance n hurst m 2007 cascading behavior in large blog graphs : patterns and a model. proc .
+7th siam intl. conf .
+on data mining 7 barabasi al albert r 1999 emergence of scaling in random networks .
+science 286 509 512 10521342 8 vazquez a flammini a maritan a vespignani a 2003 modeling of protein interaction networks .
+complexus 1 38 44 9 ispolatov i krapivsky pl yuryev a 2005 duplication - divergence model of protein interaction network .
+phys rev e 71 061911 10 leskovec j kleinberg j faloutsos c 2005 graphs over time : densification laws , shrinking diameters and possible explanations .
+proceedings of 11th international conference on knowledge discovery in data mining new york acm 177 187 11 leskovec j faloutsos c 2007 scalable modeling of real graphs using kronecker multiplication. proc .
+24th intl. conf .
+on machine learning 497 504 doi : http :// doi.acm.org / 10.1145 / 1273496.1273559 12 leskovec j backstrom l kumar r tomkins a 2008 microscopic evolution of social networks. proc .
+14th intl. conf .
+on knowledge discovery and data mining 462 470 doi : http :// doi.acm.org / 10.1145 / 1401890.1401948 13 middendorf m ziv e wiggins ch 2005 inferring network mechanisms : the drosophila melanogaster protein interaction network .
+proc natl acad sci usa 102 3192 3197 15728374 14 milo r shen - orr s itzkovitz s kashtan n chklovskii d 2002 network motifs : simple building blocks of complex networks .
+science 298 824 827 12399590 15 watts dj strogatz sh 1998 collective dynamics of ' small - world ' networks .
+nature 393 440 442 9623998 16 leskovec j chakrabarti d kleinberg j faloutsos c ghahramani z 2010 kronecker graphs : an approach to modeling networks .
+j mach learn res 11 985 1042 17 hormozdiari f berenbrink p przulj n sahinalp sc 2007 not all scale - free networks are born equal : the role of the seed graph in ppi network evolution .
+plos comput biol 3 e118 17616981 18 guo f hanneke s fu w xing e 2007 recovering temporally rewiring networks : a model - based approach .
+proceedings of the 24th international conference on machine learning 20 - 24 june 2007 ; corvallis , oregon , united states .
+available : http :// www.machinelearning.org / proceedings / icml2007 / papers / 564.pdf 19 hanneke s xing ep 2006 discrete temporal models of social networks .
+proceedings of the 23rd international conference on maching learning , workshop on statistical network analysis icml - sna 2006 115 125 20 ahmed a xing ep 2009 recovering time - varying networks of dependencies in social and biological studies .
+proc natl acad sci usa 106 11878 11883 19570995 21 wiuf c brameier m hagberg o stumpf mp 2006 a likelihood approach to analysis of network data .
+proc natl acad sci usa 103 7566 7570 16682633 22 mithani a preston g hein j 2009 a stochastic model for the evolution of metabolic networks with neighbor dependence .
+bioinformatics 25 1528 1535 19376826 23 thornton jw need e crews d 2003 resurrecting the ancestral steroid receptor : ancient origin of estrogen signaling .
+science 301 1714 1717 14500980 24 dutkowski j tiuryn j 2007 identification of functional modules from conserved ancestral protein - protein interactions .
+bioinformatics 23 i149 i158 17646291 25 pinney jw amoutzias gd rattray m robertson dl 2007 reconstruction of ancestral protein interaction networks for the bzip transcription factors .
+proc natl acad sci u s a 104 20449 20453 18077348 26 gibson ta goldberg ds 2009 reverse engineering the evolution of protein interaction networks .
+pac symp biocomput 2009 190 202 27 hakes l lovell sc oliver sg robertson dl 2007 specificity in protein interactions and its relationship with sequence diversity and coevolution .
+proc natl acad sci usa 104 7999 8004 17468399 28 kelley bp sharan r karp rm sittler t root de 2003 conserved pathways within bacteria and yeast as revealed by global protein network alignment .
+proc natl acad sci usa 100 11394 11399 14504397 29 flannick j novak a srinivasan bs mcadams hh batzoglou s 2006 graemlin : general and robust alignment of multiple large interaction networks .
+genome res 16 1169 1181 16899655 30 singh r xu j berger b 2007 pairwise global alignment of protein interaction networks by matching neighborhood topology .
+speed tp huang h proceedings of the 11th international conference on research in computational molecular biology ( recomb ) new york springer 16 31 21 - 25 april 2007 oakland , california , united states 31 felsenstein j 2003 inferring phylogenies.2nd edition .
+sunderland sinauer associates 32 kim wk marcotte em 2008 age - dependent evolution of the yeast protein interaction network suggests a limited role of gene duplication and divergence .
+plos comput biol 4 e1000232 19043579 33 fraser hb hirsh ae steinmetz lm scharfe c feldman mw 2002 evolutionary rate in the protein interaction network .
+science 296 750 752 11976460 34 makino t suzuki y gojobori t 2006 differential evolutionary rates of duplicated genes in protein interaction network .
+gene 385 57 63 16979849 35 bezakova i kalai a santhanam r 2006 graph model selection using maximum likelihood .
+icml ' 06 proceedings of the 23rd international conference on machine learning new york acm 105 112 36 wagner a 2003 how the global structure of protein interaction networks evolves .
+proc biol sci 270 457 466 12641899 37 pereira - leal jb levy ed teichmann sa 2006 the origins and evolution of functional modules : lessons from protein complexes .
+philos trans r soc lond b biol sci 361 507 517 16524839 38 levy ed pereira - leal jb 2008 evolution and dynamics of protein interactions and networks .
+curr opin struct biol 18 349 357 18448325 39 simon ha 1957 models of man : social and rational : mathematical essays on rational human behavior in a social setting .
+new york wiley 40 de solla price dj 1976 a general theory of bibliometric and other cumulative advantage processes .
+j am soc inf sci 27 292 306 41 redner s 2005 citation statistics from 110 years of physical review .
+phys today 58 49 54 42 kerrien s alam - faruque y aranda b bancarz i bridge a 2007 intact - open source resource for molecular interaction data .
+nucleic acids res 35 suppl 1 d561 d565 17145710 43 li s armstrong cm bertin n ge h milstein s 2004 a map of the interactome network of the metazoan c. elegans .
+science 303 540 543 14704431 44 tatusov rl fedorova nd jackson jd jacobs ar kiryutin b 2003 the cog database : an updated version includes eukaryotes .
+bmc bioinformatics 4 41 12969510 45 ispolatov i yuryev a mazo i maslov s 2005 binding properties and evolution of homodimers in protein - protein interaction networks .
+nucleic acids res 33 3629 3635 15983135 46 pereira - leal jb levy ed kamp c teichmann sa 2007 evolution of protein complexes by duplication of homomeric interactions .
+genome biol 8 r51 17411433 47 navlakha s schatz mc kingsford c 2009 revealing biological modules via graph summarization .
+j comp biol 16 253 264 48 guldener u munsterkotter m kastenmuller g strack n van helden j 2005 cygd : the comprehensive yeast genome database .
+nucleic acids res 33 d364 8 15608217 49 manna b bhattacharya t kahali b ghosh tc 2009 evolutionary constraints on hub and non - hub proteins in human protein interaction network : insight from protein connectivity and intrinsic disorder .
+gene 434 50 55 19185053 50 gavin ac aloy p grandi p krause r boesche m 2006 proteome survey reveals modularity of the yeast cell machinery .
+nature 440 631 636 16429126 51 kreimer a borenstein e gophna u ruppin e 2008 the evolution of modularity in bacterial metabolic networks .
+proc natl acad sci u s a 105 6976 6981 18460604 52 goodman la 1961 snowball sampling .
+the annals of mathematical statistics 32 148 170 53 vazquez a 2003 growing network with local rules : preferential attachment , clustering hierarchy , and degree correlations .
+phys rev e 67 056104 54 sprinzak e sattath s margalit h 2003 how reliable are experimental protein - protein interaction data ?
+j mol biol 327 919 923 12662919 55 huang h bader js 2009 precision and recall estimates for two - hybrid screens .
+bioinformatics 25 372 378 19091773 56 callaway ds hopcroft je kleinberg jm newman me strogatz sh 2001 are randomly grown graphs really random ?
+phys rev e stat nonlin soft matter phys 64 041902 11690047 57 ebel h davidsen j bornholdt s 2002 dynamics of social networks .
+complexity 8 24 27 58 bar - ilan j mat - hassan m levene m 2006 methods for comparing rankings of search engine results .
+comput netw 50 1448 1463 59 shannon p markiel a ozier o baliga ns wang jt 2003 cytoscape : a software environment for integrated models of biomolecular interaction networks .
+genome res 13 2498 2504 14597658

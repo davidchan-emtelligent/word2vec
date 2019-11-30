@@ -1,0 +1,221 @@
+genome biol genome biology 1465 - 6906 1465 - 6914 biomed central london 17501994 1929149 gb - 2007 - 8 - 5 - r81 10.1186 / gb - 2007 - 8 - 5 - r81 software tilescope : online analysis pipeline for high - density tiling microarray data zhang zhengdong d 1 zhengdong.zhang @ yale.edu rozowsky joel 1 joel.rozowsky @ yale.edu lam hugo yk 2 hugo.yk.lam @ yale.edu du jiang 3 jiang.du @ yale.edu snyder michael 4 michael.snyder @ yale.edu gerstein mark 123 zdzmg @ bioinfo.mbb.yale.edu 1 department of molecular biophysics and biochemistry , yale university , new haven , ct 06520 , usa 2 interdepartmental program in computational biology and bioinformatics , yale university , new haven , ct 06520 , usa 3 department of computer science , yale university , new haven , ct 06520 , usa 4 department of molecular , cellular and developmental biology , yale university , new haven , ct 06520 , usa 2007 14 5 2007 8 5 r81 r81 7 8 2006 27 10 2006 14 5 2007 copyright ( c ) 2007 zhang et al ; licensee biomed central ltd .
+2007 zhang et al ; licensee biomed central ltd .
+this is an open access article distributed under the terms of the creative commons attribution license () , which permits unrestricted use , distribution , and reproduction in any medium , provided the original work is properly cited .
+tilescope is a fully integrated and automated new data - processing pipeline for analyzing high - density tiling - array data .
+we developed tilescope , a fully integrated data processing pipeline for analyzing high - density tiling - array data . in a completely automated fashion , tilescope will normalize signals between channels and across arrays , combine replicate experiments , score each array element , and identify genomic features .
+the program is designed with a modular , three - tiered architecture , facilitating parallelism , and a graphic user - friendly interface , presenting results in an organized web page , downloadable for further analysis .
+rationale microarray technology is now more accessible than ever before .
+thanks to its unrivaled capability to carry out a very large number of parallel quantitative measurements , this technology has been widely applied since its emergence in the early 1990s [ 1,2 ] to systematic studies of various biological phenomena , ranging from differential gene expression , to dna copy number polymorphism , and to transcription factor binding .
+traditional microarrays , constructed by mechanically depositing or printing pcr products , typically of approximately 1 kb in length , in a dense matrix on a glass slide , have been successfully used in numerous studies and have become prevalent in the research field .
+many computer programs and software tools , including free software packages , such as expressyourself [ 3 ] or midas [ 4 ] , are available to process and analyze the data sets generated in such studies .
+however , limited by its manufacturing methodology , traditional microarrays are not amenable for systematic coverage of large genomes or even some large genomic regions .
+to fully realize the parallel - measurement potential of microarray technology , the current trend is to present large genomic regions ( for example , encode regions or a complete human chromosome ) or even an entire genome on one or several microarrays in an unbiased fashion by using oligonucleotides ( that is , tiles ) uniformly sampled from presented genomic sequences .
+recent technology breakthroughs [ 5,6 ] made it possible for such oligonucleotides , typically of 25 - 60 base - pairs ( bp ) in length , to be chemically synthesized directly on the microarray slides in a very high density ( up to 6.6 million elements in less than 2 cm2 ) .
+such oligonucleotide tiling microarrays , which give unprecedented genomic coverage and resolution , can be used for genomic studies of gene expression [ 7 - 10 ] , chromatin immuno - precipitation ( chip - chip ) [ 11 ] , copy number variation [ 12 ] , histone modification [ 13 ] , and chromatin dnasei sensitivity [ 14 ] .
+like for any other nascent technologies , ready - to - use data analysis software packages for tiling array experiments are hard to find .
+existing data processing software for traditional microarrays cannot be used since the considerably larger size and different nature of tiling array data require a new analysis approach [ 15 ] .
+recently , a model - based method for tiling array chip - chip data analysis has been proposed [ 16 ] .
+two other methods , based on curve fitting [ 17 ] and multi - channel combination [ 18 ] , respectively , have also been developed for tiling array transcription data analysis .
+the excellent open - source bioconductor software project [ 19 ] provides many sophisticated statistical methods written in r for microarray data analysis .
+however , as a software toolbox and a programming environment , it is rather difficult for non - programmers to use .
+here we present tilescope , an automated data processing pipeline for analyzing data sets generated in experiments using high - density tiling microarrays .
+suitable microarray data processing methods , either previously published elsewhere or newly developed , were implemented and made available conveniently in a single online software pipeline .
+it has a user - friendly interface and is freely accessible over the worldwide web .
+the software performs data normalization , combination of replicate experiments , tile scoring , and feature identification .
+we demonstrate the modular nature of the pipeline design by showing how different methods can be plugged in - at major data processing steps , such as normalization and feature identification , several methods are available to be chosen from depending on the nature of the data and the user 's data - analysis goal .
+the program can process gene expression and chip - chip tiling microarray data .
+the results , presented in a clear , well organized manner , can be downloaded for further analysis .
+system implementation and user interface tilescope was entirely developed in java .
+java was chosen as the programming language because of its built - in threading capability and its excellent library support for graphic user interface and networking development .
+more importantly , it was chosen because of its object - oriented nature : the program code is organized into different coherent classes and , thus , it naturally modularizes the system , which greatly facilitates parallel system development and subsequent system updating , a desideratum for any software engineering project of non - trivial complexity .
+as a web - accessible program system , tilescope is composed of three connected components : an applet , a servlet , and a pipeline program .
+the applet is the graphical interface through which the user interacts with tilescope .
+it is automatically downloaded and launched inside a java - enabled web browser whenever the pipeline web page is browsed. through the tilescope applet , a user can upload array data files to the pipeline server , select appropriate pipeline parameters and methods , run the data processing program , and view or download analysis results .
+the applet , however , cannot run the pipeline program directly .
+instead , it makes data processing requests to the servlet , a server program that acts as the proxy of the pipeline program on the web and communicates with the applet upon requests .
+the servlet , the central layer of tilescope , runs two ' daemon ' threads in the background to handle - that is , accept and schedule or reject based on the current system load - file upload or data processing requests , prepare the pipeline running environment , and initiate with user - specified parameters the back - end pipeline program , which carries out the heavy lifting - the actual data processing procedure .
+this modular design - the separation between the request handling and the data processing itself - enables the usage of a computer farm for parallel computing and multiple concurrent processing .
+on the web form of the tilescope applet ( figure 1a ) , a user can either upload a parameter file , if available from a previous use of tilescope , to have all parameters set accordingly in one easy step , or set parameters one by one manually , which is more likely to happen if an array data set is to be analyzed for the first time .
+the main body of the form was organized into two panels , one for setting the tile scoring parameters and the other for selecting the feature identification method , reflecting two main stages of data processing in the pipeline .
+after the pipeline program is started on the server , the users can monitor its progress through pipeline messages , which are constantly updated by the server throughout each pipeline run .
+figure 1 screenshots of tilescope .
+( a ) the applet of tilescope , the graphic user interface of the pipeline .
+( b ) an example of the data analysis result web page .
+when data processing is done , a web page with analysis results will be presented to the user in a new browser window ( figure 1b ) .
+on the result web page , the parameters and methods that were used to analyze the data are summarized at the top , followed by log - intensity scatter plots for each array and log - intensity histograms for all arrays in the data set before and after normalization .
+these enlargeable plots enable the user to quickly identify any problematic arrays visually and subsequently exclude them from further consideration .
+both tile maps with log - ratio and p value annotations and the feature list in various text formats can be downloaded for further processing and analysis .
+the feature list in regular tab - delimited text format gives the user the chromosome ( or other genomic sequence id ) , the genomic start and end coordinates , the log - ratio , the p value , and , if the tiled genome is specified , the upstream and downstream genes of each feature .
+if it is the human genome that is under investigation , tilescope will also provide links to display identified features on custom tracks in the ucsc genome browser .
+moreover , if the tiling array was designed from a previous human genome build ( for example hg16 , ncbi 34 ) , tilescope will also provide an additional feature list with the coordinates lifted over to the current human genome build ( for example hg17 , ncbi 35 ) .
+data processing in tilescope tilescope processes the data in a sequential fashion using the major steps shown in figure 2a .
+these steps can be approximately grouped into three stages : data input , tile scoring , and feature identification .
+here , we use the data set from a chip - chip experiment of the transcription factor stat1 to demonstrate how high - density tiling microarray data are processed by tilescope .
+we compared features of tilescope and several other programs that are explicitly applicable to high - density tiling microarray data , and the result is tallied in table 1 .
+table 1 feature comparison between tiling microarray data analysis software * tilescope bioconductor + tas ++ mats tilemap implementation web r packages standalone standalone standalone graphic user interface sqrt x sqrt x x intended usage transcription data sqrt sqrt sqrt x sqrt chip - chip data sqrt sqrt x sqrt sqrt applicable array platform affymetrix sqrt sqrt sqrt sqrt sqrt nimblegen sqrt x x x x data normalization mean / median sqrt ~ sqrt / x loess sqrt ~ x / x quantile sqrt ~ x / sqrt feature identification max gap and min run sqrt ~ sqrt / sqrt iterative peak identification sqrt ( new ) x x / x hidden markov model sqrt ~ x / sqrt * only programs explicitly applicable to high - density tiling microarray data were considered .
+the websites of the compared programs are listed as follows : tilescope at [ 35 ] ; bioconductor at [ 37 ] ; tas at [ 38 ] ; mat at [ 39 ] ; tilemap at [ 40 ] .
++ strictly speaking , bioconductor is not a ready - to - run program .
+it is a collection of software packages / libraries written in r. as a tool box , the analysis methods that it provides need to be written in an r program to run .
+++ tas is previously known as gtrans .
+smat standardizes the probe value through the probe model , which obviates the need for sample normalization .
+comparison symbols used in the table : sqrt , available ; x , not available ; ~ , available but need to be programmed ; / , not applicable .
+figure 2 tiling array data processing by tilescope .
+( a ) flow chart of major data processing steps .
+yellow icons represent data in user - accessible files , and blue ones data in the pipeline program memory .
+see main text for details .
+( b ) log - intensity scatter plots of a tiling array from the stat1 experiment set before and after normalization by four different methods .
+the first panel is the log2t verses log2r plot before normalization , where t and r are test intensity and reference intensity , respectively .
+the gray line represents where these two log - intensities are equal .
+the second panel is log2 ( t / r ) verses log2 ( txr ) plot ( the ma plot ) before normalization .
+the dependency of the log - ratio on the intensity , evinced by a fitted loess curve , is prominent in the data .
+the other panels are the ma plots of array data after mean , median , loess , or quantile normalization .
+they clearly show that the distribution of log - ratios is centered at zero by all normalization methods , but the intensity - specific artifacts in the log - ratio measurements are removed by only loess or quantile normalization and not by the mean - or median - based method .
+( c ) signal and p value maps of all tiles in the encode enm002 region .
+in this region , the tiles near the transcription start site of irf1 , a transcription factor known to be regulated by stat1 , give the strongest signals .
+( d ) tilescope - identified stat1 binding sites at the 5 ' - end of irf1 are shown on the custom track in the ucsc genome browser .
+data input the data input to tilescope reside in tab - delimited text files generated by image analysis software .
+currently , tilescope recognizes data files in affymetrix , pair [ 20 ] and gff [ 20,21 ] formats .
+whenever available , gff format is always recommended since it is a more standardized format and thus less problematic for processing .
+although the aforementioned formats are not fully inter - compatible , they all provide the essential data , namely the chromosomes ( or other genomic identifiers , such as contig ids and encode region ids ) , the genomic coordinate , and the fluorescence intensity ( tilescope automatically detects the base - two logarithm of intensity ) for each array element .
+we implemented tilescope to support various formats of the input data file - the gff format , the pair format , the nimblegen format ( pos + gff / pair ) , and the affymetrix format ( bpmap + cel ) , and also developed a new algorithm ( see additional data file 1 for details ) that can reduce the physical data file size , handle the data set in an organized manner , and enhance the performance of tilescope .
+data normalization unlike printed pcr arrays , the array elements ( oligonucleotides ) of a tiling microarray are directly synthesized on the array slide .
+direct in situ synthesis creates morphologically uniform array elements , which , to a large degree , obviates the need for spot filtering , an imperative procedure for pcr microarray data analysis .
+moreover , direct oligonucleotide synthesis makes it possible to have a very large number of spots in a small area ( thus high - density ) .
+miniature slide design of the tiling microarrays allows more uniform hybridization and , thus , greatly reduces the spatial heterogeneity in the probing conditions across the slide , a potentially severe problem suffered by pcr microarrays .
+for each array in an experimental set , the relative contributions of the test and reference signals are compared .
+ideally , if nucleic acid probes have equal concentration in the test and reference samples , the signals of the two dyes should be approximately equal ( that is , the ratio of the two signals should be close to one for probes hybridizing to an equal degree in both fluorescence channels ) .
+in practice , the signals can be rather different due to different chemical properties of dyes and nonspecific or incomplete hybridization to the array .
+normalization is used to compensate for these effects by - depending on what method is being used - either applying a scale factor to equalize signals from probes with unchanged concentration or imposing the same empirical distribution of signal intensities .
+we put together and implemented standard statistical methods that were described in various literature sources and made them conveniently available for tiling array data analysis .
+at present , tilescope can normalize tiling array data by mean / median , loess , or quantile normalization ( figure 2b ) .
+these methods have also been implemented elsewhere , most notably in bioconductor r packages .
+the mean / median and the loess normalization methods are both available in the ' marray ' package .
+the ' affy ' package contains another implementation of the loess and the quantile normalization methods .
+in addition , other publicly available software , such as tm4 [ 4 ] and tas / gtrans , provides some similar functionalities for array data normalization .
+these methods are summarized below with appropriate references .
+mean / median normalization normalization by mean or median [ 3 ] , the so - called ' constant majority ' methods , is based on the assumption that the majority of genes do not change their expression level in response to the experimental perturbation [ 22 ] or , more precisely , that the average or median gene expression level does not change under experimental perturbation .
+it is carried out by subtracting the mean or median of the base - two logarithm of the ratio of test to reference signal intensities from the log - ratio value of each tile on a single array .
+this procedure transforms the log - ratio distribution by centering it at zero .
+the mean of a probability distribution is its center of gravity , while the median divides it into two equal parts .
+in theory , they are different measures of the location of a distribution .
+in practice , however , because the mean and the median of the log - intensities from the probes on each array are often very close to each other , these two methods usually give very similar results .
+the advantages of these two methods include the easiness of their implementation and their robustness to the violation of the assumption - they remain applicable even in cases where up to 50 % of probes have altered concentrations .
+loess normalization loess normalization [ 3,23,24 ] normalizes array data between channels and removes the intensity - specific artifacts in the log - ratio measurements simultaneously .
+like normalization by mean or median , loess normalization is also performed on an array - by - array basis .
+for each array , tilescope first uniformly samples 50,000 log - ratio values from the original data , and then performs the locally weighted regression on the sampled data .
+the dependency of the log - ratio on the intensity is removed by subtracting predicted log - ratio based on the loess regression from the actual log - ratio , and the new test and reference log - intensities after normalization are recovered from the residuals .
+the main disadvantage of loess normalization is that the locally weighted regression is computationally intensive , and thus the necessity of using sampled data instead of the original , much larger data set .
+since loess normalization is carried out for each array one by one , even after data sampling it remains expensive to use .
+quantile normalization unlike the normalization methods discussed above , quantile normalization [ 24 ] not only normalizes data between channels and across arrays simultaneously but also removes the dependency of the log - ratio on the intensity in one step .
+it imposes the same empirical distribution of intensities to each channel of every array .
+to achieve this , tilescope first creates an nx2p ( log ) intensity matrix m , where n is the number of tiles on an array and p is the number of arrays in an experimental data set , and then sorts each column of m separately to give ms. afterwards , it takes the mean across rows of ms and creates ms ' , a matrix of the same dimension as m , but where all values in each row are equal to the row means of ms. finally , tilescope produces the quantile - normalized ( log ) intensity matrix mn by rearranging each column of ms' to have the same ordering as the corresponding column of m. quantile normalization is fast and has been demonstrated to outperform other normalization methods [ 24 ] .
+thus , it is the default normalization method used by tilescope .
+tile scoring some arrays are designed to tile genomic sequences of both strands and most array experiments are conducted in replicate .
+to facilitate subsequent data processing , tilescope pools the normalized log - ratios of all tiles on every array into a matrix and sorts them based on the tiles' genomic locations regardless of which strand they come from .
+( thus , to use tilescope to process strand - specific data , the user needs to parse data from plus - stranded tiles and minus - stranded tiles into two separate files and process them separately .
+this limitation will be addressed in the next version of tilescope. ) at the tile scoring step , the program identifies tiles that exhibit differential hybridization .
+depending on the nature of the experiment , these tiles ultimately correspond to genes whose expression levels have changed or the locations of transcription factor binding sites ( tfbss ) .
+compared with traditional pcr arrays , tiling arrays accommodate a much larger number of array elements , which are in situ synthesized oligonucleotides , typically dozens of nucleotides long .
+however , there is a trade - off for better coverage of the genome : as the average length of the array elements gets smaller , the variance of data increases due to the rise of the relative magnitude of random noise and the possibility of cross - hybridization and sequence artifacts .
+to deal with this problem , affymetrix used a different method to score ( one - channel ) tiling arrays [ 10,25 ] than the one used for pcr arrays ; instead of considering each tile across array replicates separately , they used a sliding window around each tile to incorporate the hybridization intensity of its neighboring tiles .
+in our implementation of this method in tilescope , we modified it by adding a nonparametric statistical test to assess the significance of the intensity difference between the test and the control samples at each tile .
+this extension enables us to score each tile using two different criteria .
+moreover , we also adapted the original method to nimblegen two - channel tiling arrays data , which in effect significantly increased the usability of this method .
+for each tile , given its neighboring tiles across replicates , tilescope calculates the pseudo - median log - ratio value as its signal .
+the pseudo - median ( that is , the hodges - lehmann estimator ) of the log - ratio is a nonparametric estimator of the difference between the logged intensities of the test sample and those of the reference sample .
+it is calculated for each tile using a sliding window .
+the tiles from all arrays in a sliding window are first collected into a tile set , and the pseudo - median is calculated for this window as : s = median [ ( log - ratioi + log - ratioj )/ 2 ] from all ( i , j ) pairs of tiles in the tile set .
+as a nonparametric estimator , pseudo - median is less susceptible to distributional abnormalities ( such as skewness , unusual kurtosis , and outliers ) .
+due to the small sample size in each sliding window , whether the intensity distribution is normal or not in a given window cannot be reliably assessed .
+without making the normality assumption about the intensity distribution , tilescope uses the nonparametric wilcoxon signed - rank test [ 26 ] to compare the test with the reference signal intensities and quantifies the degree of significance by which the former consistently deviates from the latter across each of the sliding windows .
+it tests the null hypothesis that the median of the probability distribution of the differences between the logarithm of the intensities from the test sample and those from the reference sample is zero .
+as a non - parametric test , wilcoxon signed - rank test has low power when the sample size is small .
+to increase the test power , the user needs to use larger window sizes .
+at the scoring step , tilescope generates two tile maps , the signal map and the p value map ( figure 2c ) .
+two values are calculated for each tile position : the pseudo - median of log - ratios , as a measure of the fold enrichment of the hybridization signal in the test sample over the reference at this genomic location and the probability , the p value , that the null hypothesis - the local intensities of the test and the reference samples are the same - is true .
+in a recent study of transcript mapping with high - density tiling arrays , huber et al .
+[ 17 ] used a different approach to score tiles .
+their method does not assess intensity difference at individual tiles .
+instead , it tries to find a step function that best fits the log - ratio intensities along genomic coordinates .
+feature identification given the tile map annotated with pseudo - medians and p values , tilescope filters away tiles that are below user - specified thresholds .
+retained tiles are used to identify either deferentially expressed genes or tfbss .
+currently , tilescope users can choose one of three methods to identify such features ( figure 2d ) .
+the first method , ' max - gap and min - run ' , is a well - used method , initially used by cawley et al .
+[ 25 ] to analyze their chip - chip tiling array data .
+the second method , ' iterative peak identification ' , is a new method that we developed to find genomic features iteratively .
+the third method , whose theoretical development is described in full elsewhere [ 27 ] , effectuates file segmentation by using a ' hidden markov model ' ( hmm ) explicitly built on validated prior knowledge .
+max - gap and min - run based on the observation that a tile is usually too short to constitute a feature alone , the first method , modified from the scoring scheme used in cawley et al .
+[ 25 ] and emanuelsson et al .
+[ 28 ] , groups together qualified tiles that are close to each other along the genomic sequence into ' proto - features' and then discards any proto - features that are too short .
+to use this method , a user needs to specify the maximum genomic distance (' max - gap ') below which two adjacent qualified tiles can be joined and the minimum length (' min - run ') of a proto - feature for it to be qualified as a feature .
+iterative peak identification the second method , which we have recently developed and implemented as part of the pipeline , does not group tiles above thresholds into features .
+instead , it identifies local signal ' peaks' in an iterative fashion .
+this method was developed to generate lists of non - overlapping features of a uniform genomic size .
+taking the signal map that has been generated in the tile scoring step using window - smoothing to integrate the data from multiple replicate arrays , this method first identifies the tile (' point source ') that corresponds to the peak in the signal map with the global maximum signal that also meets a predefined p value threshold .
+a feature is then created centered at the genomic position of the peak with a predefined genomic size .
+we choose a feature size that is comparable with the average size of the fragmented chip dna ( typically about 1 kb ) .
+the feature is assigned a signal measurement from the associated peak .
+all tiles within a predefined distance from the located ' peak ' are then removed from the signal map data .
+typically , the distance is the same size as the selected features , though it can be larger .
+this is to ensure that apparent ' secondary peaks' in the signal maps that are really part of the same feature are not separately identified .
+the procedure is then iterated to find the next maximum ' peak ' in the remaining signal map data .
+the iteration generates a list of features ranked by ' peak ' signals and terminates when the identified ' peak ' signal is below a specified signal enrichment threshold .
+hidden markov model the third method uses a supervised scoring framework based on hmms to predict and score features in the genome tiled on the microarray [ 27 ] .
+our method , based on a similar motivation as in [ 29 ] , differs from previous hmm - based studies [ 30,31 ] by specifically considering validated biological knowledge ( for example , experimental validation , gene annotation , and so on ) and systematically incorporating it to score different types of array assays within the same framework .
+for identification of transcriptionally active regions ( tars )/ transcribed fragments ( transfrags ) in transcriptional tiling array data , a four - state ( tar , non - tar , and two other intermediate transition states ) hmm is constructed using the knowledge of gene annotation ( information of the probes that fall into annotated gene regions ) .
+for chip - chip data , a two - state ( tfbs and non - tfbs ) hmm is constructed by using the knowledge of inner regions in genes to estimate the signal emission distribution g ( t ) of the non - tfbs state , and by using the subtraction of g ( t ) from the overall emission distribution h ( t ) to estimate the emission distribution f ( t ) of the tfbs state .
+in a more general ideal scenario , our framework first selects a medium - sized set of sub - regions by using some appropriate analysis methods ( for example , the maxentropy sampling scheme discussed in [ 27 ]) , and then utilizes the knowledge in these sub - regions as the training set to build the model for accurate analysis .
+further scoring on the initial analysis results can also be done by computing the posterior probabilities of each probe being active .
+the scores indicate the confidence in every single probe - level prediction and can be used to refine the previous analysis results by hmm .
+for instance , the identified active probes can be ranked according to the overall confidence levels in their regions and a threshold confidence level may either be set manually or be learned automatically to refine the original results .
+method comparison we compared the performance of these three feature identification methods using a well - studied stat1 chip - chip data set .
+composed of three technical replicates , this data set was used to identify a list of stat1 binding sites in the encode regions [ 27 ] .
+these sites were later experimentally tested .
+we analyzed this data set using tilescope and generated three stat1 binding site lists , each by a different feature identification method .
+since identical tile scoring and thresholding parameters were used , the difference among these three lists reflects the underlying difference among the three feature identification methods. by using the list of the experimentally tested stat1 binding sites , we were able to assess the sensitivity and specificity of each method .
+the receiver operating characteristic ( roc ) curves in figure 3 show that while , in general , the three feature identification methods implemented in tilescope have similar performance ( which can be measured by the area under the curve or other measurements such as the matthews' correlation coefficient [ 32,33 ] and the minimum error rate [ 34 ]) , the ' iterative peak identification ' method is appreciably more sensitive at high (> 95 %) specificity .
+figure 3 the roc curves of the three feature identification methods implemented in tilescope .
+the comparison of the performance of these methods was based on a well - studied stat1 chip - chip data set and a list of experimentally tested stat1 binding sites .
+conclusion summary tilescope is an online software pipeline for processing high - density tiling microarray data .
+in a completely automated fashion , it will normalize signals between channels and across arrays , combine replicate experiments , score each array element , and identify genomic features .
+the program can process data from most gene expression , chip - chip , and arry - cgh ( comparative genomic hybridization ) experiments .
+tilescope is designed with a graphical user - friendly interface to facilitate a user 's data analysis task , and the results , presented in a clear , well organized manner on a web page , can be downloaded for further analysis .
+future improvements tilescope is under active development : it is continually updated as better data processing methods become available .
+availability tilescope is freely accessible for use at [ 35 ] .
+the source code of the pipeline is available at [ 36 ] .
+additional data files the following additional data are available with the online version of this paper .
+additional data file 1 includes the following supplementary material : a ' data format optimization and standardization ' section ; a ' technical details of the optimization algorithm ' section ; supplementary table 1 , ' the meaning of columns of various tab - delimited input data file formats ' ; supplementary table 2 , ' attributes of the element tag defined in the configuration file ' ; and supplementary table 3 , ' file size reduction by zip and our optimization algorithm ' .
+supplementary material additional data file 1 supplementary material : a ' data format optimization and standardization ' section ; a ' technical details of the optimization algorithm ' section ; supplementary table 1 , ' the meaning of columns of various tab - delimited input data file formats ' ; supplementary table 2 , ' attributes of the element tag defined in the configuration file ' ; and supplementary table 3 , ' file size reduction by zip and our optimization algorithm ' .
+click here for file acknowledgements zdz was funded by an nih grant ( t15 lm07056 ) from the national library of medicine .
+this work was also supported by other nih grants : 1u01hg003156 - 01 to ms and 1 s10 rr19895 - 01 and 5p30dk072442 - 02 to mg. schena m shalon d davis rw brown po quantitative monitoring of gene expression patterns with a complementary dna microarray .
+science 1995 270 467 470 7569999 10.1126 / science.270.5235.467 fodor sp read jl pirrung mc stryer l lu at solas d light - directed , spatially addressable parallel chemical synthesis .
+science 1991 251 767 773 1990438 10.1126 / science.1990438 luscombe nm royce te bertone p echols n horak ce chang jt snyder m gerstein m expressyourself : a modular platform for processing and visualizing microarray data .
+nucleic acids res 2003 31 3477 3482 12824348 10.1093 / nar / gkg628 saeed ai sharov v white j li j liang w bhagabati n braisted j klapa m currier t thiagarajan m tm4 : a free , open - source system for microarray data management and analysis .
+biotechniques 2003 34 374 378 12613259 lipshutz rj fodor sp gingeras tr lockhart dj high density synthetic oligonucleotide arrays .
+nat genet 1999 21 suppl 1 20 24 9915496 10.1038 / 4447 nuwaysir ef huang w albert tj singh j nuwaysir k pitas a richmond t gorski t berg jp ballin j gene expression analysis using oligonucleotide arrays produced by maskless photolithography .
+genome res 2002 12 1749 1755 12421762 10.1101 / gr.362402 bertone p stolc v royce te rozowsky js urban ae zhu x rinn jl tongprasit w samanta m weissman s global identification of human transcribed sequences with genome tiling arrays .
+science 2004 306 2242 2246 15539566 10.1126 / science.1103388 stolc v gauhar z mason c halasz g van batenburg mf rifkin sa hua s herreman t tongprasit w barbano pe a gene expression map for the euchromatic genome of drosophila melanogaster .
+science 2004 306 655 660 15499012 10.1126 / science.1101312 stolc v samanta mp tongprasit w sethi h liang s nelson dc hegeman a nelson c rancour d bednarek s identification of transcribed sequences in arabidopsis thaliana by using high - resolution genome tiling arrays .
+proc natl acad sci usa 2005 102 4453 4458 15755812 10.1073 / pnas.0408203102 kampa d cheng j kapranov p yamanaka m brubaker s cawley s drenkow j piccolboni a bekiranov s helt g novel rnas identified from an in - depth analysis of the transcriptome of human chromosomes 21 and 22 .
+genome res 2004 14 331 342 14993201 10.1101 / gr.2094104 horak ce snyder m chip - chip : a genomic approach for identifying transcription factor binding sites .
+methods enzymol 2002 350 469 483 12073330 urban ae korbel jo selzer r richmond t hacker a popescu gv cubells jf green r emanuel bs gerstein mb high - resolution mapping of dna copy alterations in human chromosome 22 using high - density tiling oligonucleotide arrays .
+proc natl acad sci usa 2006 103 4534 4539 16537408 10.1073 / pnas.0511340103 pokholok dk harbison ct levine s cole m hannett nm lee ti bell gw walker k rolfe pa herbolsheimer e genome - wide map of nucleosome acetylation and methylation in yeast .
+cell 2005 122 517 527 16122420 10.1016 / j.cell.2005.06.026 yuan gc liu yj dion mf slack md wu lf altschuler sj rando oj genome - scale identification of nucleosome positions in s cerevisiae .
+science 2005 309 626 630 15961632 10.1126 / science.1112178 royce te rozowsky js bertone p samanta m stolc v weissman s snyder m gerstein m issues in the analysis of oligonucleotide tiling microarrays for transcript mapping .
+trends genet 2005 21 466 475 15979196 10.1016 / j.tig.2005.06.007 johnson we li w meyer ca gottardo r carroll js brown m liu xs model - based analysis of tiling - arrays for chip - chip .
+proc natl acad sci usa 2006 103 12457 12462 16895995 10.1073 / pnas.0601180103 huber w toedling j steinmetz lm transcript mapping with high - density oligonucleotide tiling arrays .
+bioinformatics 2006 22 1963 1970 16787969 10.1093 / bioinformatics / btl289 halasz g van batenburg mf perusse j hua s lu xj white kp bussemaker hj detecting transcriptionally active regions using genomic tiling arrays .
+genome biol 2006 7 r59 16859498 10.1186 / gb - 2006 - 7 - 7 - r59 bioconductor : open software development for computational biology and bioinformatics nimblegene data formats gff : an exchange format for feature description goryachev ab macgregor pf edwards am unfolding of microarray data .
+j comput biol 2001 8 443 461 11571077 10.1089 / 106652701752236232 dudoit s yang yh callow mj speed tp statistical methods for identifying genes with differential expression in replicated cdna microarray experiments .
+stat sin 2002 12 111 139 bolstad bm irizarry ra astrand m speed tp a comparison of normalization methods for high density oligonucleotide array data based on variance and bias .
+bioinformatics 2003 19 185 193 12538238 10.1093 / bioinformatics / 19.2.185 cawley s bekiranov s ng hh kapranov p sekinger ea kampa d piccolboni a sementchenko v cheng j williams aj unbiased mapping of transcription factor binding sites along human chromosomes 21 and 22 points to widespread regulation of noncoding rnas .
+cell 2004 116 499 509 14980218 10.1016 / s0092 - 8674 ( 04 ) 00127 - 8 troyanskaya og garber me brown po botstein d altman rb nonparametric methods for identifying differentially expressed genes in microarray data .
+bioinformatics 2002 18 1454 1461 12424116 10.1093 / bioinformatics / 18.11.1454 du j rozowsky js korbel jo zhang zd royce te schultz mh snyder m gerstein m a supervised hidden markov model framework for efficiently segmenting tiling array data in transcriptional and chip - chip experiments : systematically incorporating validated biological knowledge .
+bioinformatics 2006 22 3016 3024 17038339 10.1093 / bioinformatics / btl515 emanuelsson o nagalakshmi u zheng d rozowsky js urban ae du j lian z stolc v weissman s snyder m assessing the performance of different high - density tiling microarray strategies for mapping transcribed regions of the human genome .
+genome res 2007 munch k gardner pp arctander p krogh a a hidden markov model approach for determining expression from genomic tiling micro arrays .
+bmc bioinformatics 2006 7 239 16672042 10.1186 / 1471 - 2105 - 7 - 239 li w meyer ca liu xs a hidden markov model for analyzing chip - chip experiments on genome tiling arrays and its application to p53 binding sequences .
+bioinformatics 2005 21 suppl 1 i274 i282 15961467 10.1093 / bioinformatics / bti1046 ji h wong wh tilemap : create chromosomal map of tiling array hybridizations .
+bioinformatics 2005 21 3629 3636 16046496 10.1093 / bioinformatics / bti593 baldi p brunak s chauvin y andersen ca nielsen h assessing the accuracy of prediction algorithms for classification : an overview .
+bioinformatics 2000 16 412 424 10871264 10.1093 / bioinformatics / 16.5.412 matthews bw comparison of the predicted and observed secondary structure of t4 phage lysozyme .
+biochim biophys acta 1975 405 442 451 1180967 wistrand m sonnhammer el improving profile hmm discrimination by adapting transition probabilities .
+j mol biol 2004 338 847 854 15099750 10.1016 / j.jmb.2004.03.023 tilescope tilescope download bioconductor tas mat tilemap

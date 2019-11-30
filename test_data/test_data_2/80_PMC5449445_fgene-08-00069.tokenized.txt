@@ -1,0 +1,293 @@
+front genet front genet front. genet .
+frontiers in genetics 1664 - 8021 frontiers media s.a .
+28620411 5449445 10.3389 / fgene.2017.00069 geneticsmethods vicar : an adaptive and landmark - free registration of time lapse image data from microfluidics experiments hattab georges 12 * schluter jan - philip 3 becker anke 3 nattkemper tim w .
+2 1international research training group 1906 , computational methods for the analysis of the diversity and dynamics of genomes , faculty of technology , bielefeld universitybielefeld , germany 2biodata mining group , faculty of technology , center for biotechnology , bielefeld universitybielefeld , germany 3synmikro , loewe - center for synthetic microbiology , philipps university of marburgmarburg , germany edited by : madhuchhanda bhattacharjee , university of hyderabad , india reviewed by : yaron e. antebi , california institute of technology , united states ; zeeshan ahmed , university of connecticut health center , united states * correspondence : georges hattab ghattab @ cebitec.uni - bielefeld.de this article was submitted to bioinformatics and computational biology , a section of the journal frontiers in genetics 31 5 2017 2017 8 69 16 3 2017 12 5 2017 copyright ( c ) 2017 hattab , schluter , becker and nattkemper .
+2017 hattab , schluter , becker and nattkemperthis is an open - access article distributed under the terms of the creative commons attribution license ( cc by ) .
+the use , distribution or reproduction in other forums is permitted , provided the original author ( s ) or licensor are credited and that the original publication in this journal is cited , in accordance with accepted academic practice .
+no use , distribution or reproduction is permitted which does not comply with these terms .
+in order to understand gene function in bacterial life cycles , time lapse bioimaging is applied in combination with different marker protocols in so called microfluidics chambers ( i.e. , a multi - well plate ) .
+in one experiment , a series of t images is recorded for one visual field , with a pixel resolution of 60 nm / px. any ( semi - ) automatic analysis of the data is hampered by a strong image noise , low contrast and , last but not least , considerable irregular shifts during the acquisition .
+image registration corrects such shifts enabling next steps of the analysis ( e.g. , feature extraction or tracking ) .
+image alignment faces two obstacles in this microscopic context : ( a ) highly dynamic structural changes in the sample ( i.e. , colony growth ) and ( b ) an individual data set - specific sample environment which makes the application of landmarks - based alignments almost impossible .
+we present a computational image registration solution , we refer to as vicar : ( vi ) sual ( c ) ues based ( a ) daptive ( r ) egistration , for such microfluidics experiments , consisting of ( 1 ) the detection of particular polygons ( outlined and segmented ones , referred to as visual cues ) , ( 2 ) the adaptive retrieval of three coordinates throughout different sets of frames , and finally ( 3 ) an image registration based on the relation of these points correcting both rotation and translation .
+we tested vicar with different data sets and have found that it provides an effective spatial alignment thereby paving the way to extract temporal features pertinent to each resulting bacterial colony. by using vicar , we achieved an image registration with 99.9 % of image closeness , based on the average rmsd of 4.10 - 2 pixels , and superior results compared to a state of the art algorithm .
+bio - imaging time - lapse imagery microfluidics adaptive landmark - free image registration deutsche forschungsgemeinschaft10.13039 / 501100001659grk 1906 / 1spp 1617 1 .
+introduction with the advent of technologies that permit advances in microscopy , either for high - resolution data acquisition or automation of processes , the volume , and complexity of bioimage data has increased to the point that it is no longer feasible to retain relevant information without the use of a computer ( peng et al. , 2012 ) .
+in the context of microfluidics experimentation , in particular the cell growth of microcolonies , and gene expression is investigated for several cell generations .
+this investigation requires the extraction , and the visualization of quantitative cell - specific data at different time points ( wang et al. , 2010 ; klein et al. , 2012 ; tarnawski et al. , 2013 ; mekterovic et al. , 2014 ) .
+recent studies focus on understanding phenotypic heterogeneity of isogenic bacteria ( ackermann , 2015 ) .
+particularly , this entails investigating the history of a bacterial microcolony , i.e. , sinorhizobium meliloti , a soil bacterium , which is few micrometers long .
+to study cellular responses of s. meliloti to dynamic environments ( i.e. , stress ) , microfluidic devices ( e.g. , hosting growing bacteria ) have become paramount experimental platforms to survey single cell changes ( yin and marshall , 2012 ) .
+the acquisition , analysis , and interpretation of high - resolution time - lapse microscopy images , acquired in such experiments , triggers specific questions to algorithm development ranging from registration ( also referred to as image alignment in bioimage informatics ) to visualization .
+to not fall outside of the scope of this paper , we briefly review methods of similar spatial resolution .
+we found the following registration methods pertaining to : ( 1 ) live fluorescence microscopy of a single cell ( yang et al. , 2008 ; tektonidis et al. , 2015 ) , ( 2 ) histochemical staining based on cellular structures ( cooper et al. , 2007 ) , yet not about cell lineage on the population scale .
+moreover , promising methods relevant to other spatial resolutions have also been found , yet requiring either an a posteriori insight of the data or an evaluation of the algorithms' adaptability for higher - resolution images .
+moreover , other automatic methods , such as turboreg ( thevenaz et al. , 1998 ) are designed to minimize the mean - square difference ( between the target and the source image ) , are esteemed fast , and robust .
+yet such automatic solutions would be unable to handle the highly dynamic image content of bacterial growth ( see figure 1 ) without preprocessing steps , and by solely relying on one metric between the consecutive images .
+figure 1 a set of original image frames in rgb color space for both openly accessible data sets , d1 ( a - c ) , and d2 ( d - f ) , respectively .
+a manual annotation is tedious , and proves to be impossible before even reaching the middle time point of the time series .
+this is due to both a compromised sentience of individual bacteria , and sample spatial shift .
+other scientific works exist for cell lineage analysis yet do not address the registration problem explicitly ( wang et al. , 2010 ; klein et al. , 2012 ; hakkinen et al. , 2013 ; mekterovic et al. , 2014 ) or deal with sparser data ( hand et al. , 2009 ) .
+image alignment ( i.e. , registration ) is of course a full blown field .
+in our survey of microscopy cell - lineage related work , we found one candidate method .
+it is an automatic approach to track , and align arabidopsis thaliana 's growing sepals ( fick et al. , 2013 ) .
+the employed data set used to demonstrate its effectiveness contains comparably sparse cells where " in time cells stop dividing. " in our case , due to the biological question ( i.e. , population heterogeneity ) that underlies the biomovies , the fluorescence of each bacteria varies ( see figure 1 ) .
+moreover , each data set comprises a bacterial colony that goes through a particular type of exponential growth called doubling .
+hence , each generation of bacterial cells is twice as numerous as the previous generation .
+we are in the special case of a highly dense population , even if deaths still occur .
+this in fact influences the performance of state of the art methods for image registration .
+in one s. meliloti experiment , a series of images is recorded at t equidistant time points t1 ... tt ( see figure 1 for three examples ) .
+these images are acquired for one selected visual field in the microfluidics device and the image data represents to some extent a new kind of bioimage analysis problem .
+its novelty lies not only in tackling high resolution image data , where each pixel represents 60 nm , but also in handling different limiting factors at the same time .
+these range from a low signal to noise ratio , or snr , in the image data , its variability ( e.g. , different background among experiments and the image contents change ) , to the focus shift due to vibrations and / or variations in temperature over time in the acquisition .
+the variability in the image content is due to both the background change of the used microfluidics chambers and the rapid changes in the sample ( i.e. , exponential bacterial growth ) .
+to track and analyse the development of single cells , the correction of the spatial shift is a prerequisite for manual annotation or automatic segmentation of dividing cells or visualization .
+this paper presents the first robust and data - driven method to registering time lapse images in phase contrast microscopy by finding major cues in the image space .
+in turn , it enables us to conduct the next step in data analysis , i.e. , to extract biological information at the microscopic scale .
+2. materials the data at hand is acquired at the loewe center for synthetic microbiology by phase contrast microscopy using a 100 x objective ( schluter et al. , 2015a ) .
+one frame is generated every 30 min .
+each image is taken using a tirf laser to reduce the noise , increasing therefore the snr .
+each time series comprises one colony of finally 200 - 300 individuals .
+four data sets are considered in this paper .
+the first couple d1 and d2 , comprises 115 images each in the context of the heterogeneity experiment ( schluter et al. , 2015b ) .
+the second one ds1 and ds2 are unpublished data sets from another experiment .
+they are used to illustrate the aforementioned background and content variability .
+the output images { it } ( t as time index ) are written as rgb images in tif format , uncompressed (~ 6 mb of size each ) and bearing dimensions of ir x c with r ( rows ) = 1004 px and c ( columns ) = 1002 px. we implemented the vicar algorithm in python .
+specific packages were employed , such as opencv for computer vision ( bradski and kaehler , 2008 ) .
+required packages are listed at https :// github.com / ghattab / vicar .
+3. methods 3.1 .
+preprocessing as a first step in the vicar registration process , a customized pipeline of standard filter operations is applied to each image it so as to reduce noise , and increase the contrast between the background and the structural elements of the image .
+the preprocessing steps involve many constants , which are in this example set to moderate values .
+we chose these constants , after conducting a sensitivity analysis , that is to vary the constants and verify their incidence on the resulting images .
+the whole process is illustrated in figure 2 , so as to probe for particular polygons and expand their respective shapes in the input image .
+rgb to greyscale transformation ( figure 2b ) denoise bilateral filtering ( tomasi and manduchi , 1998 ) ( figure 2c ) spatial closeness sigmaspatial = 75 radiometric similarity sigmarange = 75 diameter delta = 10 px of each pixel neighborhood that is used during filtering .
+contrast limited adaptive histogram equalization ( clahe ) ( pizer et al. , 1987 ) ( figure 2d ) tile size tau = 102 pixels contrast limit of 2 , to clip and uniformly distribute any histogram bin above that limit .
+next , for each image it a binary image it is computed to serve as a basis for finding polygons .
+( d ) adaptive mean thresholding ( figure 2e ) block size tau = 112 pixels a constant c = 2 is subtracted from the weighted mean in order to prevent noise to pop up at background regions .
+( e ) dilation ( serra , 1982 ) ( figure 2f ) : morphological operation in each image it with a 3 x 3 window .
+( f ) border clearing ( figure 2g ) : it replaces all elements alongside , or stemming from the borders of the binary image with background pixels .
+( g ) masking ( figure 2g ) : a binary mask of image dimensions ( rxc ) is initialised .
+it contains a circle of origin o =( r2,c2 ) and diameter d = 35.r to removing any connected components external to its perimeter using a bitwise comparison .
+figure 2 example result of the preprocessing steps dataset 1 ( d1 ) .
+( a ) quadrants of image i23 are delimited , by opaque white lines .
+the bottom right quadrant is rendered as a false - color image , so as to highlight edges in the image space .
+( b ) the quadrant of interest is gray - scaled .
+we observe the particular polygons , as square - like polygons .
+they are an intrinsic part of the microfluidics chamber .
+( b - g ) show the output of each preprocessing step on this particular quadrant .
+( c ) the bilateral filter preserves edges , and reduces noise by employing a smoothing filter .
+( d ) the contrast limited adaptive histogram equalization , or clahe , is used to improve the contrast of the image .
+this favors the contrast between the background , and the square - like polygons .
+( e ) the adaptive mean threshold , computes thresholds for regions of the image with varying illumination .
+it results in a binary image , and a clear outline of the particular polygons .
+( f ) dilation , as a morphological operation , probes , and expands the square - like shapes contained in the input image .
+( g ) border clearing , and masking depict no effects .
+such a coupling serves as a validation step so to palliate for any great image variability ( e.g. , rotation of objects entering / exiting the field of view ) .
+3.2 .
+polygon finding we employ the output binary images i1 , ... , it , ... , it to find the polygons ptj .
+each polygon has an index j and a time index t. in each image , the border following algorithm by ( suzuki and abe , 1985 ) is used to obtain closed boundaries , that is , the polygons which are depicted in figure 2 as connected components .
+for the sake of clarity , the polygon index t is omitted for polygons in the next sections .
+once all polygons are found throughout the time - series , they are filtered based on their individual perimeter - to - area ratio .
+we define the perimeter , area , and the ratio in the following sections .
+3.2.1 .
+polygon perimeter the perimeter of a polygon s is : ( 1 ) s = sumn = 1n | cn | with the number of sides n , or smooth curves , equal to the number of vertexes n , and the length of a smooth curve | cn | .
+3.2.2 .
+polygon area for any simple polygon , the area a can be calculated : ( 2 ) a = sumk = 0n ( xk + 1 + xk )( yk + 1 - yk ) 2 with the number of vertexes n and the k - th vertex ( xk , yk ) .
+since the first vertex of the boundary c happens to also be the last vertex , this results in a summation of n + 1 terms where : ( xn + 1 , yn + 1 ) = ( x0 , y0 ) given green 's theorem , we compute for a piecewise smooth curve c forming the boundary of a region d the area a : ( 3 ) a = contour - integralcx dy 3.2.3 .
+perimeter - to - area ratio to find a particular kind of outlined polygons , which we refer to as visual cues .
+for each polygon pj in p1 , ... , pj with the number of polygons j , we introduce the perimeter - to - area ratio : ( 4 ) rj = sjaj with sj , and aj , the perimeter , and area of a polygon pj , respectively .
+the perimeter - to - area ratio rj is a descriptor of shape irregularity and is polygon size dependent .
+if holding shape constant , an increase in size results in a decrease in ratio .
+we only retain polygons satisfying the following empirically derived threshold : ( 5 ) rj < 5x10 - 2 this threshold permits to consistently find particular polygons with a lowest complexity .
+as a consequence , the polygons found in the microfluidics data considered here , are the spacers , i.e. , squares , and square - like ( see figure 2 ) .
+in contrast , if complex polygons are found ( e.g. , self - intersecting polygons ) they are retained only if no other polygons satisfy the aforementioned threshold .
+all retained polygons are referred to as visual cues .
+3.3 .
+registration registration happens in a pairwise manner it , it + 1 , and adaptively based on the number of visual cues j across all image points t. all indexed intervals are registered to the reference image , i.e. , i1 .
+registration results are depicted in figure 3 .
+figure 3 the effectiveness of vicar is demonstrated for data sets d1 ( a ) , d2 ( b ) , and two other data sets ds1 , and ds2 ( c,d ) from another experiment .
+the upper half in ( 1 ) each image ( a - d ) shows one aligned image frame selected from four different data sets , recorded in four different experiments .
+for the sake of interpretability , we show results after applying the adaptive threshold .
+in the lower half ( 2 ) , we also show an overlay of the non - aligned image with an opacity of 50 % so the shift can be seen .
+the examples show the robustness of our adaptive visual cues based approach .
+this indeed justifies using a flexible algorithm so as to handle the varying number , and positions of distractors .
+3.3.1 .
+interval adaptability to correct for spatial shift the algorithm is defined to handle two different cases : case a : all images contain the same number of j visual cues , then the computation iterates using a reference polygon as explicated in section 3.3.2 , else case b : intervals of consecutive images contain different numbers j and j ' of visual cues : in each interval , the aforementioned method in case a is handled independently and iteratively while using the reference polygon for registering all intervals to the first image .
+one requirement to this adaptability is the minimum of two consecutive images with j visual cues .
+3.3.2 .
+reference polygon image registration requires reference coordinates for correspondence among the consecutive image points of the time - series. by coupling both border clearing and circle masking , we obtain polygons that are mostly in the image center ( see preprocessing section 3.1 ) .
+the first reference coordinate is found by ordering all coordinate pairs ( along both x , and y axes ) .
+the first reference coordinate xj = 0 at t = 1 is used as the first visual cue , which is the reference for the registration .
+to obtain further visual cues , first , a decision is made based on the number of visual cues j , three scenarios are possible : scenario a : one visual cue is found , we use an oriented bounding box ( obb ) to retain three coordinate pairs .
+scenario b : two visual cues are found , we use an obb for both , and retain the first coordinate pair from each polygon along one axis , and scenario c : in the case of three , or more visual cues , we extract their respective centers .
+3.3.3 .
+affine transform from each image it , visual cues xt , yt , zt are extracted to apply the affine transform to it + 1 , mapping the points xt + 1 , yt + 1 , zt + 1 to xt , yt , zt. this way , we first transform the phase contrast images and then their corresponding rgb channels .
+which is similar to strategies applied in multi - tag fluorescence microscopy , like e.g. , raza et al .
+( 2012 ) .
+once the alignment is done , we evaluate the robustness of our approach .
+it is conducted on preprocessed and transformed images , where only visual cues are observable , as seen in figure 4 .
+figure 4 temporal change of the found polygons before , and after vicar 's registration for data set d1 .
+such square - like polygons represent the structure of the microfluidics chamber .
+the polygons are either shown in gray , in teal blue , or are outlined in black .
+gray polygons represent the square - like polygons of the microfluidics chamber without applying a registration .
+teal blue polygons depict the overlay of the polygons found in the reference image i1 .
+teal blue polygons are positioned in the foreground of black polygons , resulting into the impression of an outline .
+( a ) in the first time point , we observe only one set of visual cues .
+this is explained by the fact that the first image serves as reference for the registration .
+( b - d ) throughout the temporal progression of the time - series , we observe a distancing of both gray , and black outlined polygons , making explicit the spatial shift. by employing the first image as reference , we observe a correct overlay of the first image polygons , shown in teal blue .
+3.4 .
+evaluation to assess the performance of the vicar approach , we evaluated the results by addressing both : ( a ) .
+the spatial shift , by computing the pairwise root mean square difference for all t images compared to i0 , the reference image , and ( b ) the average elapsed time vicar took to preprocess , and align one image .
+results obtained with vicar are compared to those obtained with a probabilistic hough transform ( pht ) based method in table 1 .
+image closeness : phi , in pixels , can be formulated as follows : phi = 100 - ( rmsd x 100 / r ) .
+using the average root mean square difference , noted rmsd , as a measure to assess how accurate is the spatial presence of the visual cues in it compared to i1 .
+performance : elapsed computation time ( deltatc ) , in seconds , is computed using real system time by subtracting initial from final .
+the evaluation was carried out on all the aforementioned data sets .
+it ran on a macbook air ( mid 2013 ) with a 1.7 ghz intel core i7 and 8 gb 1600 mhz ddr3 memory .
+comparison to state of the art method : in particular , the probabilistic hough transform ( pht ) .
+since , it has been extensively proven to be successful ( yam and davis , 1981 ; sun et al. , 2014 ) , with complexity and memory requirements lower in higher dimensions .
+the pht based method comprises of the following steps : ( a ) reduce each image to a set of edges using an edge detector ( i.e. , canny ) , ( b ) apply the hough process ( particularly , the pht ) , ( c ) retain a best fitted subset of points ( i.e. , four points ) , and ( d ) a geometric transformation ( e.g. , using the least - squares method ) .
+visual verification : the dataset is visualized in a space - time cube , as proposed in ( pretorius et al. , 2016 ) , before and after vicar has been applied .
+using a sift operator ( lowe , 2004 ) and a customized preprocessing pipeline , approximations for cell positions are computed in each image it. these positions were subject to the visualization shown in figure 5 .
+the x - and y - axis represent the original image plane .
+the z - axis represents the time t. the lowest point in each ( a ) or ( b ) represents the single cell in the first image i0 .
+the original data suggests a shift of the entire colony inside the chamber .
+after vicar has been applied , the correct colony location and spatial distribution can be visually analyzed .
+table 1 benchmark results for bacterial time series ( datasets : d1 , d2 , ds1 , and ds2 ) using both approaches : probabilistic hough transform ( pht ) and visual cues adaptive registration ( vicar ) .
+pht based vicar deltatc ( s )* rmsd ( px ) phi (%) deltatc rmsd phi d1 1.3 13.9 98.6 0.64 4.10 - 2 99.9 d2 - - ** - - - - 0.65 6.10 - 2 99.9 ds1 0.7 19.2 98.1 0.36 4.10 - 2 99.9 ds2 - - ** - - - - 0.44 5.10 - 2 99.9 the pht based approach fails due to disappearing elements of the image space crucial to the pht based registration .
+* average elapsed time per image , in seconds .
+** method failed .
+figure 5 cell positions as a 3d scatter - plot for data set 1 ( d1 ) before our vicar 's method ( a ) , and after ( b ) .
+the x - and y - axis represent the original image plane , and the pixel coordinates while the z - axis represents time .
+each dot represents the position of an image feature computed with the sift operator ( lowe , 2004 ) .
+thereby the dots in one z - plane ( i.e. at one time point tz ) approximate the spatial distribution , and density of the bacterial colony at this time point .
+on the left side ( a ) the bacterial colony seem to move or shift inside the chamber .
+a visual inspection of the original data shows that this is not the case but an artifact of the misalignment .
+on the right ( b ) , the vicar - aligned is displayed , showing the actual spatial colony development over time .
+4. results the examples in figure 1 back the necessity of preprocessing steps .
+we report an example result of the preprocessing steps in figure 2 .
+in figure 3 we show how all visual cues are correctly aligned , for two different time points among the four aforementioned data sets ( d1 - d2 , ds1 - ds2 ) .
+this figure is a noteworthy evidence to the adaptability and robustness of this registration approach .
+as reported in table 1 , the state of the art based approach , namely employing the pht , resulted in correct performances on d1 , and ds1 .
+whereas , on d2 , and ds2 , the state of the art method has proven to fail .
+this is mainly due to data set variability where either the data contains no lines , or a detected line disappears after an elapsed time .
+it is inappropriate to use the pht based approach since it requires a prerequisite of the image data .
+to conclude , vicar achieved a satisfying performance , close to 100 % , and proved its adaptability on different data sets .
+5. discussion compared to other registration methods in biomedical imaging , our method requires neither a parametric model of the data ( e.g. , brain atlas , alignment of brain mri scans ) ( ashburner et al. , 1997 ; abdelmoula et al. , 2014 ) , nor explicit landmarks ( e.g. , anatomical landmarks in medical imaging zhang et al. , 2015 , or developmental biology mkrtchyan et al. , 2013 ) .
+vicar works , and has demonstrated promising results for upcoming high - throughput image data analysis .
+the employed image data are highly dynamic with a considerable amount of noise , and sometimes a lack of focus regardless of the high - end microscope that is being used .
+for these reasons , other methods have failed to register such time - lapse image data .
+an improvement of image quality might be possible using differential interference contrast microscopy , yet it is not possible to get the same quality at the same magnification .
+vicar relies on consistently finding polygons that are part of the background .
+condition to a reevaluation of the preprocessing pipeline , vicar will adapt to different experimental setups as well .
+the polygon finding step is capable of handling any size , shape , and number of polygons .
+to find the special polygons we refer to as visual cues , the perimeter - to - area ratio retains the polygons with least complexity .
+a limiting factor lies at the transformation step , where two consecutive images bearing the same number of visual cues are required ( c.f. section 3.3 ) .
+in special yet few cases , where image content and background vary greatly , it is necessary to reduce the circle mask parameter [ see 3.1 ( g )] so to limit the cues to the central image area .
+the amount of visual cues j assumes they are the same ones .
+if the shift is larger than half the width of the first image , there is no guarantee that the algorithm will work since the first visual cues that have been found may , or may no longer be in the visual field .
+this aspect is to be considered for these exclusive cases , we reckon it is rather a special case than being a negative aspect of this paper .
+due to these reasons , vicar has the strength of coupling state of the art image processing steps to a particularly flexible algorithm .
+using a perimeter - to - area ratio based filtering proved robust in the filtering step .
+this step warrants a better adaptability of vicar .
+if deemed decisive , the use of further shape descriptors would permit for an extended structural analysis .
+to conclude , the reported performance denotes a particularly fast and robust approach that is morphology - free , and generalisable .
+6. availability and implementation the data ( schluter et al. , 2015b ) is accessible at http :// doi.org / 10.4119 / unibi / 2777409 under the open data commons attribution license ( odc - by ) v1.0 .
+the data - driven software approach is freely available for download at http :// github.com / ghattab / vicar under the mit license .
+it is implemented in python , and supported on unix - based operating systems .
+author contributions gh and tn contributed to the conception of the work , analysis of data for the work .
+js and ab acquired the data .
+gh drafted the work , tn revised it critically .
+all authors have read the final version of the manuscript .
+conflict of interest statement the authors declare that the research was conducted in the absence of any commercial or financial relationships that could be construed as a potential conflict of interest .
+the authors wish to thank js from the lowe center for synthetic microbiology ( synmikro ) in marburg , for kindly providing the data for which this project would have been impossible without .
+the authors would like to thank torben moller for his feedback on the manuscript. funding .
+this work is funded by the international dfg research training group grk 1906 / 1 and the dfg priority program spp 1617 " phenotypic heterogeneity and sociobiology of bacterial populations. " references abdelmoula w. m. carreira r. j. shyti r. balluff b. van zeijl r. j. tolner e. a. .
+( 2014 ) .
+automatic registration of mass spectrometry imaging data sets to the allen brain atlas . anal. chem .
+86 , 3947 - 3954 . 10.1021 / ac500148a 24661141 ackermann m .
+( 2015 ) .
+a functional perspective on phenotypic heterogeneity in microorganisms . nat. rev. microbiol .
+13 , 497 - 508 . 10.1038 / nrmicro3491 26145732 ashburner j. neelin p. collins d. evans a. friston k .
+( 1997 ) .
+incorporating prior knowledge into image registration . neuroimage 6 , 344 - 352 . 10.1006 / nimg.1997.0299 9417976 bradski g. kaehler a .
+( 2008 ) .
+learning opencv : computer vision with the opencv library .
+o'reilly media , inc . cooper l. a. d. naidu s. leone g. saltz j. huang k .
+( 2007 ) .
+registering high resolution microscopic images with different histochemical stainings - a tool for mapping gene expression with cellular structures , in proceedings of workshop on microscopic image analysis with applications in biology ( piscataway , nj ) .
+fick r. fedorov d. roeder a. manjunath b .
+( 2013 ) .
+simultaneous cell tracking and image alignment in 3d clsm imagery of growing arabidopsis thaliana sepals , in 2013 ieee 10th international symposium on biomedical imaging ( isbi ) ( san francisco , ca ) , 914 - 917 . hakkinen a. muthukrishnan a. b. mora a. fonseca j. m. ribeiro a. s. ( 2013 ) .
+cellaging : a tool to study segregation and partitioning in division in cell lineages of escherichia coli . bioinformatics 29 , 1708 - 1709 . 10.1093 / bioinformatics / btt194 23613488 hand a. j. sun t. barber d. c. hose d. r. macneil s .
+( 2009 ) .
+automated tracking of migrating cells in phase - contrast video microscopy sequences using image registration . j. microsc .
+234 , 62 - 79 . 10.1111 / j.1365 - 2818.2009.03144.x 19335457 klein j. leupold s. biegler i. biedendieck r. munch r. jahn d .
+( 2012 ) .
+tlm - tracker : software for cell segmentation , tracking and lineage analysis in time - lapse microscopy movies . bioinformatics 28 , 2276 - 2277 . 10.1093 / bioinformatics / bts424 22772947 lowe d. g. ( 2004 ) .
+distinctive image features from scale - invariant keypoints . int. j. comput. vis .
+60 , 91 - 110 . 10.1023 / b : visi.0000029664.99615.94 mekterovic i. mekterovic d. maglica z .
+( 2014 ) .
+bactimas : a platform for processing and analysis of bacterial time - lapse microscopy movies . bmc bioinformatics 15 : 251 . 10.1186 / 1471 - 2105 - 15 - 251 25059528 mkrtchyan k. chakraborty a. roy - chowdhury a .
+( 2013 ) .
+automated registration of live imaging stacks of arabidopsis , in 2013 ieee 10th international symposium on biomedical imaging ( isbi ) ( san francisco , ca ) .
+peng h. bateman a. valencia a. wren j .
+( 2012 ) .
+bioimage informatics : a new category in bioinformatics . bioinformatics 28 : 1057 . 10.1093 / bioinformatics / bts111 22399678 pizer m. amburn p. austin d. cromartie r. geselowitz a. greer t .
+( 1987 ) .
+adaptive histogram equalization and its variations . comput. vis. graph .
+39 , 355 - 368 . 10.1016 / s0734 - 189x ( 87 ) 80186 - x pretorius a. j. khan i. a. errington r. j. ( 2016 ) .
+a survey of visualization for live cell imaging . comput. graph .
+forum 36 , 46 - 63 . 10.1111 / cgf.12784 raza s. e. humayun a. abouna s. nattkemper t. w. epstein d. b. khan m .
+.
+( 2012 ) .
+ramtab : robust alignment of multi - tag bioimages . plos one 7 : e30894 . 10.1371 / journal.pone.0030894 22363510 schluter j .
+- p. czuppon p. schauer o. pfaffelhuber p. mcintosh m. becker a .
+( 2015a ) .
+classification of phenotypic subpopulations in isogenic bacterial cultures by triple promoter probing at single cell level . j. biotechnol .
+198 , 3 - 14 . 10.1016 / j.jbiotec.2015.01.021 25661839 schluter j .
+- p. mcintosh m. hattab g. nattkemper t. becker a .
+( 2015b ) .
+phase contrast and fluorescence bacterial time - lapse microscopy image data .
+bielefeld university .
+serra j .
+( 1982 ) .
+image analysis and mathematical morphology .
+new york , ny : academic press . sun b. kong w. xiao j. zhang j .
+( 2014 ) .
+a hough transform based scan registration strategy for mobile robotic mapping , in 2014 ieee international conference on robotics and automation ( icra ) ( hong kong ) .
+suzuki s. abe k .
+( 1985 ) .
+topological structural analysis of digitized binary images by border following . comput. vis. graph .
+image proc .
+30 , 32 - 46 . 10.1016 / 0734 - 189x ( 85 ) 90016 - 7 tarnawski w. kurtcuoglu w. lorek p. bodych m. rotter j. musckieta m .
+.
+( 2013 ) .
+a robust algorithm for segmenting and tracking clustered cells in time - lapse fluorescent microscopy . ieee j. biomed .
+health inform .
+17 , 862 - 869 . 10.1109 / jbhi.2013.2262233 25055315 tektonidis m. kim i. chen y. eils r. spector d. rohr k .
+( 2015 ) .
+non - rigid multi - frame registration of cell nuclei in live cell fluorescence microscopy image data . med. image anal .
+19 , 1 - 14 . 10.1016 / j.media.2014.07.006 25181702 thevenaz p. ruttimann u. unser m .
+( 1998 ) .
+a pyramid approach to subpixel registration based on intensity . ieee trans .
+image proc .
+7 , 27 - 41 . 10.1109 / 83.650848 18267377 tomasi c. manduchi r .
+( 1998 ) .
+bilateral filtering for gray and color images , in proceedings of ieee computer vision , 6th international conference ( bombay ) .
+wang q. niemi j. tan c. m. you l. west m .
+( 2010 ) .
+image segmentation and dynamic lineage analysis in single - cell fluorescence microscopy . cytometry a 77 , 101 - 110 . 10.1002 / cyto.a.20812 19845017 yam s. davis l .
+( 1981 ) .
+image registration using generalized hough transform , in proceedings of ieee conference pattern recognition and image processing ( huntsville , al ) .
+yang s. kohler d. teller k. cremer t. le baccon p. heard e .
+.
+( 2008 ) .
+nonrigid registration of 3 - d multichannel microscopy images of cell nuclei . ieee trans .
+image proc .
+17 , 493 - 499 . 10.1109 / tip.2008.918017 18390358 yin h. marshall d .
+( 2012 ) .
+microfluidics for single cell analysis . curr. opin. biotechnol .
+23 , 110 - 119 . 10.1016 / j.copbio.2011.11.002 22133547 zhang y. l. chang s. j. zhai x. y. thomsen j. s. christensen e. i. andreasen a .
+( 2015 ) .
+non - rigid landmark - based large - scale image registration in 3 - d reconstruction of mouse and rat kidney nephrons . micron 68 , 122 - 129 . 10.1016 / j.micron.2014.10.002 25464150

@@ -1,0 +1,402 @@
+philos trans a math phys eng sci philos trans a math phys eng sci roypta rsta philosophical transactions .
+series a , mathematical , physical , and engineering sciences 1364 - 503x 1471 - 2962 the royal society london 19451100 3391065 rsta20090053 10.1098 / rsta.2009.0053 articles1003168 sector and sphere : the design and implementation of a high - performance data cloud gu yunhong 1 grossman robert l .
+12 * 1 university of illinois at chicagochicago , il 60607 , usa 2 open data groupsuite 90 , 400 lathrop avenue , river forest , il 60305 , usa * author and address for correspondence : national center for data mining mc 249 , 851 south morgan street , university of illinois at chicago , chicago , il 60607 , usa ( grossman @ uic.edu ) 28 6 2009 28 6 2010 367 1897 theme issue ' crossing boundaries : computational science , e - science and global e - infrastructure i. selected papers from the uk e - science all hands meeting 2008 ' compiled by p. v. coveney and m. p. atkinson 2429 2445 copyright ( c ) 2009 the royal society 2009 this is an open - access article distributed under the terms of the creative commons attribution license , which permits unrestricted use , distribution , and reproduction in any medium , provided the original work is properly cited .
+cloud computing has demonstrated that processing very large datasets over commodity clusters can be done simply , given the right programming model and infrastructure .
+in this paper , we describe the design and implementation of the sector storage cloud and the sphere compute cloud. by contrast with the existing storage and compute clouds , sector can manage data not only within a data centre , but also across geographically distributed data centres .
+similarly , the sphere compute cloud supports user - defined functions ( udfs ) over data both within and across data centres .
+as a special case , mapreduce - style programming can be implemented in sphere by using a map udf followed by a reduce udf .
+we describe some experimental studies comparing sector / sphere and hadoop using the terasort benchmark .
+in these studies , sector is approximately twice as fast as hadoop .
+sector / sphere is open source .
+cloud computing data - intensive computing distributed computing 1 .
+introduction by a cloud , we mean an infrastructure that provides on - demand resources or services over the internet , usually at the scale and reliability of a data centre .
+a storage cloud provides storage services ( block or file - based services ) ; a data cloud provides data management services ( record - based , column - based or object - based services ) ; and a compute cloud provides computational services .
+often these are stacked together to serve as a computing platform for developing cloud - based applications .
+examples include google 's google file system ( gfs ) , bigtable and mapreduce infrastructure ( ghemawat et al. 2003 ; dean & ghemawat 2004 ; chang et al .
+2006 ) ; amazon 's s3 storage cloud , simpledb data cloud and ec2 compute cloud ( amazon web services , http :// aws.amazon.com /) ; and the open source hadoop system ( hadoop , http :// hadoop.apache.org / core ) , consisting of the hadoop distributed file system ( hdfs ) , hadoop 's implementation of mapreduce , and hbase , an implementation of bigtable .
+the implicit assumption with most high - performance computing systems is that the processors are the scarce resource , and hence shared .
+when processors become available , the data are moved to the processors .
+to simplify , this is the supercomputing model .
+an alternative approach is to store the data and to co - locate the computation with the data when possible .
+to simplify , this is the data centre model .
+cloud computing platforms ( gfs / mapreduce / bigtable and hadoop ) that have been developed thus far have been designed with two important restrictions .
+first , clouds have assumed that all the nodes in the cloud are co - located , i.e. within one data centre , or that there is relatively small bandwidth available between the geographically distributed clusters containing the data .
+second , these clouds have assumed that individual inputs and outputs to the cloud are relatively small , although the aggregate data managed and processed are very large .
+this makes sense since most clouds to date have targeted web applications in which large numbers of relatively small web pages are collected and processed as inputs , and outputs consist of search queries that return relatively small lists of relevant pages .
+although some e - science applications have these characteristics , others must ingest relatively large datasets and process them .
+in addition , queries for certain e - science applications also result in relatively large datasets being returned. by contrast , our assumption is that there are high - speed networks ( 10 gb s - 1 or higher ) connecting various geographically distributed clusters and that the cloud must support both the ingestion and the return of relatively large datasets .
+in this paper , we describe a storage cloud that we have developed called sector and a compute cloud that we have developed called sphere .
+both of them are available as open source software programs from http :// sector.sourceforge.net .
+sector is a distributed storage system that can be deployed over a wide area and allows users to ingest and download large datasets from any location with a high - speed network connection to the system .
+in addition , sector automatically replicates files for better reliability , availability and access throughout .
+sector has been used to support the distributing sloan digital sky survey ( sdss ) data releases to astronomers around the world ( gu et al. 2006 ) .
+sphere is a compute service built on top of sector and provides a set of simple programming interfaces for users to write distributed data - intensive applications .
+sphere implements the stream - processing paradigm , which is usually used in programming graphics processing unit ( gpu ; owens et al. 2005 ) and multi - core processors .
+the stream - processing paradigm can be used to implement any mapreduce - supported applications .
+the rest of this paper will describe the details of sector and sphere in ss2 and 3 , respectively .
+section 4 describes some experimental studies .
+section 5 describes related work and s6 is the summary and conclusion .
+this is an expanded version of a conference paper ( grossman & gu 2008 ) .
+this paper : ( i ) describes a later version of sector that includes security , ( ii ) includes additional information about how sector works , including how security and scheduling are designed , and ( iii ) describes new experimental studies .
+2. sector ( a ) overview sector is a storage cloud as defined above .
+specifically , sector provides storage services over the internet with the scalability and reliability of a data centre .
+sector makes three assumptions .
+sector assumes that it has access to a large number of commodity computers ( which we sometimes call nodes ) .
+the nodes may be located either within or across data centres .
+sector assumes that high - speed networks connect the various nodes in the system .
+for example , in the experimental studies described below , the nodes within a rack are connected by 1 gb s - 1 networks , two racks within a data centre are connected by 10 gb s - 1 networks and two different data centres are connected by 10 gb s - 1 networks .
+sector assumes that the datasets it stores are divided into one or more separate files , which are called sector slices .
+the different files comprising a dataset are replicated and distributed over the various nodes managed by sector .
+for example , one of the datasets managed by sector in the experimental studies described below is a 1.3 tb dataset consisting of 64 files , each approximately 20.3 gb in size .
+figure 1 shows the overall architecture of the sector system .
+the security server maintains user accounts , user passwords and file access information .
+it also maintains lists of internetwork protocol ( ip ) addresses of the authorized slave nodes , so that illicit computers cannot join the system or send messages to interrupt the system .
+figure 1 the sector system architecture .
+the master server maintains the metadata of the files stored in the system , controls the running of all slave nodes and responds to users' requests .
+the master server communicates with the security server to verify the slaves , the clients and the users .
+the slaves are the nodes that store the files managed by the system and process the data upon the request of a sector client .
+the slaves are usually running on racks of computers that are located in one or more data centres .
+( b ) file system management sector is not a native file system ; instead , it relies on the native file system on each slave node to store sector slices .
+a critical element in the design of sector is that each sector slice is stored as one single file in the native file system. that is , sector does not split sector slices into smaller chunks .
+this design decision greatly simplifies the sector system and provides several advantages .
+first , with this approach , sector can recover all the metadata it requires by simply scanning the data directories on each slave .
+second , a sector user can connect to a single slave node to upload or download a file. by contrast , if a storage cloud manages data at the block level , then a user will generally need to connect to many slaves to access all the blocks in a file .
+the hadoop system is an example of a storage cloud that manages files at the block level ( hadoop , http :// hadoop.apache.org / core ) .
+third , sector can interoperate with native file systems if necessary .
+a disadvantage of this approach is that it does require the user to break up large datasets into multiple files or to use a utility to accomplish this .
+sector assumes that any user sophisticated enough to develop code for working with large datasets is sophisticated enough to split a large dataset into multiple files if required .
+the master maintains the metadata index required by sector and supports file system queries , such as file lookup and directory services .
+the master also maintains the information about all slaves ( e.g. available disk space ) and the system topology , in order to choose slaves for better performance and resource usage .
+the current implementation assumes that sector will be installed on a hierarchical topology , e.g. computer nodes on racks within multiple data centres .
+the topology is manually specified by a configuration file on the master server .
+the master checks the number of copies of each file periodically .
+if the number is below a threshold ( the current default is 3 ) , the master chooses a slave to make a new copy of the file .
+the new location of the file copy is based on the topology of the slaves' network .
+when a client requests a file , the master can choose a slave ( that contains a copy of the file ) that is close to the client and is not busy with other services .
+the sector client supports standard file access application programming interfaces ( apis ) , such as open ( ) , read ( ) and write ( ) .
+these apis can be wrapped to support other standards , such as simple api for grid applications .
+( c ) security sector runs an independent security server .
+this design allows different security service providers to be deployed ( e.g. lightweight directory access protocol and kerberos ) .
+in addition , multiple sector masters ( for better reliability and availability ) can use the same security service .
+a client logs onto the master server via a secure sockets layer ( ssl ) connection .
+the user name and the password are sent to the master .
+the master then sets up an ssl connection to the security server and asks to verify the credibility of the client .
+the security server checks its user database and sends the result back to the master , along with a unique session id and the client 's file access privileges ( for example its i / o permissions for different directories ) .
+in addition to the password , the client ip address is checked against an access control list defined for the user .
+both ssl connections require the use of public certificates for verification .
+if the client requests access to a file , the master will check whether the user has access privileges for that file .
+if granted , the master chooses a slave node to serve the client .
+the slave and the client then set up an exclusive data connection that is coordinated by the master .
+currently , the data connection is not encrypted , but we expect to add encryption in a future release .
+sector slave nodes only accept commands from the sector master .
+neither sector clients nor other slave nodes can send commands directly to a slave .
+all client - slave and slave - slave data transfer must be coordinated by the master node .
+finally , the security server controls whether a slave can be added to the system .
+the security server maintains an ip list and / or an ip range so that only computers on this list can join as slaves .
+( d ) message and data transfer sector uses user datagram protocol ( udp ) for message passing and user defined type ( udt ; gu & grossman 2007 ) for data transfer .
+udp is faster than transmission control protocol ( tcp ) for message passing because it does not require connection set - up. we developed a reliable message passing library called group messaging protocol to use in sector .
+for data transfer , a sector slave will set up a udt connection directly with the client .
+this udt connection is set up using a rendezvous connection mode and is coordinated by the master .
+udt is a high - performance data transfer protocol and significantly outperforms tcp over long - distance high - bandwidth links ( gu & grossman 2007 ) .
+a single udp port is used for messaging and another single udp port is used for all the data connections .
+a limited number of threads process the udp packets , independently of the number of connections , which make the communication mechanism scale nicely as the number of nodes in the system increases .
+3. sphere ( a ) overview recall that sphere is a compute cloud that is layered over sector .
+to introduce sphere , consider the following example application .
+assume we have 1 billion astronomical images of the universe from the sdss and the goal is to find brown dwarfs ( stellar objects ) in these images .
+suppose the average size of an image is 1 mb so that the total data size is 1 tb. the sdss dataset is stored in 64 files , named sdss1.dat , ... , sdss64.dat , each containing one or more images .
+in order to access an image randomly in the dataset ( consisting of 64 files ) , we built an index file for each file .
+the index file indicates the start and end positions ( i.e. offset and size ) of each record ( in this case , an image ) in the data file .
+the index files are named by adding an '. idx ' postfix to the data file name : sdss1.dat.idx , ... , sdss60.dat.idx .
+to use sphere , the user writes a function ' findbrowndwarf ' to find brown dwarfs from each image .
+in this function , the input is an image , while the output indicates the brown dwarfs .
+findbrowndwarf ( input , output ) ; a standard serial program might look similar to this : for each file f in ( sdss slices ) for each image i in f findbrowndwarf ( i , ...) ; using the sphere client api , the corresponding pseudo code looks similar to this : spherestream sdss ; sdss.init (/* list of sdss slices */) ; sphereprocess myproc ; myproc.run ( sdss , ' findbrowndwarf ') ; myproc.read ( result ) ; in the pseudocode fragment above , ' sdss' is a sector stream data structure that stores the metadata of the sector slice files .
+the application can initialize the stream by giving it a list of file names .
+sphere automatically retrieves the metadata from the sector network .
+the last three lines will simply start the job and wait for the result using a small number of sphere apis .
+the users neither need to explicitly locate and move data , nor do they need to take care of message passing , scheduling and fault tolerance .
+( b ) the computing paradigm as illustrated in the example above , sphere uses a stream - processing computing paradigm .
+stream processing is one of the most common ways in which gpu and multi - core processors are programmed .
+in sphere , each slave processor is regarded as an arithmetic logic unit ( alu ) in a gpu , or a processing core in a cpu .
+in the stream - processing paradigm , each element in the input data array is processed independently by the same processing function using multiple computing units .
+this paradigm is also called single program , multiple data , a term derived from flynn 's taxonomy of single instruction , multiple data ( simd ) for cpu design .
+we begin by explaining the key abstractions used in sphere .
+recall that a sector dataset consists of one or more physical files .
+a stream is an abstraction in sphere and it represents either a dataset or a part of a dataset .
+sphere takes streams as inputs and produces streams as outputs .
+a sphere stream consists of multiple data segments and the segments are processed by sphere processing engines ( spes ) using slaves .
+an spe can process a single data record from a segment , a group of data records or the complete segment .
+figure 2 illustrates how sphere processes the segments in a stream .
+usually there are many more segments other than spes , which provides a simple mechanism for load balancing , since a slow spe simply processes fewer segments .
+each spe takes a segment from a stream as an input and produces a segment of a stream as output .
+figure 2 the computing paradigm of sphere .
+these output segments can in turn be the input segments to another sphere process .
+for example , a sample function can be applied to the input stream and the resulting sample can be processed by another sphere process .
+figure 2 illustrates the basic model that sphere supports .
+sphere also supports some extensions of this model , which occur quite frequently .
+( i ) processing multiple input streams first , multiple input streams can be processed at the same time ( for example , the operation a [ ]+ b [ ] is supported ) .
+note that this is not a straightforward extension , because it can be complex to split input streams and to assign segments to spes .
+( ii ) shuffling input streams second , the output can be sent to multiple locations , rather than being just written to local disk .
+sometimes this is called shuffling .
+for example , a user - defined function ( udf ) can specify a bucket id ( that refers to a destination file on either a local or a remote node ) for each record in the output , and sphere will send this record to the specified destination .
+at the destination , sphere receives results from many spes and writes them into a file , in the same order that they arrive .
+it is in this way that sphere supports mapreduce - style computations ( dean & ghemawat 2004 ) .
+figure 3 shows an example that uses two sphere processes ( each process is called a stage ) to implement distributed sorting .
+the first stage hashes the input data into multiple buckets .
+the hashing function scans the complete stream and places each element in a proper bucket .
+for example , if the data to be sorted are a collection of integers , the hashing function can place all data less than t0 in bucket b0 , data between t0 and t1 in bucket b1 , and so on. figure 3 sorting large distributed datasets with sphere .
+in stage 2 , each bucket ( which is a data segment ) is sorted by an spe .
+note that after stage 2 , the entire dataset ( stream ) is now sorted .
+this is because all elements in a bucket are smaller than all the elements in any buckets further along in the stream .
+note that in stage 2 , the spe sorts the whole data segment and does not just process each record individually .
+( iii ) spe can process records or collections of records this is the third expansion to the basic model .
+in sphere , an spe can process a single record , multiple records , the whole segment or a complete file at one time .
+( c ) sphere processing engine once the master accepts the client 's request for sphere data processing , it sends a list of available slave nodes to the client .
+the client then chooses some or all the slaves and requests that an spe starts on these nodes .
+the client then sets up a udt connection ( for both control and data ) with the spe .
+the stream - processing functions , in the form of dynamic libraries , are sent to each spe and stored locally on the slave node .
+the spe then opens the dynamic libraries and obtains the various processing functions .
+then it runs in a loop that consists of the following four steps .
+first , the spe accepts a new data segment from the client containing the file name , offset , number of rows to be processed and various additional parameters .
+next , the spe reads the data segment ( and the corresponding portion of the idx index file if it is available ) from either the local disk or from another slave node .
+as required , the stream - processing function processes either a single data record , a group of data records or the entire segment , and writes the result to the proper destinations .
+in addition , the spe periodically sends acknowledgments to the client about the progress of the current processing .
+when the data segment is completely processed , the spe sends an acknowledgement to the client to conclude the processing of the current data segment .
+if there are no more data segments to be processed , the client closes the connection to the spe , and the spe is released .
+the spe may also timeout if the client is interrupted .
+( d ) sphere client the sphere client provides a set of apis that developers can use to write distributed applications .
+developers can use these apis to initialize input streams , upload processing function libraries , start sphere processes and read the processing results .
+the client splits the input stream into multiple data segments , so that each can be processed independently by an spe .
+the spe can either write the result to the local disk and return the status of the processing , or it can return the result of the processing itself .
+the client tracks the status of each segment ( for example , whether the segment has been processed ) and holds the results .
+the client is responsible for orchestrating the complete running of each sphere process .
+one of the design principles of the sector / sphere system is to leave most of the decision making to the client , so that the sector master can be quite simple .
+in sphere , the client is responsible for the control and scheduling of the program execution .
+( e ) scheduler ( i ) data segmentation and spe initialization the client first locates the data files in the input stream from sector .
+if the input stream is the output stream of a previous stage , then this information is already within the sector stream structure and no further segmentation is needed .
+both the total data size and the total number of records are calculated in order to split the data into segments .
+this is based on the metadata of the data files retrieved from sector .
+the client tries to uniformly distribute the input stream to the available spes by calculating the average data size per spe .
+however , in consideration of the physical memory available per spe and the data communication overhead per transaction , sphere limits the data segment size between size boundaries smin and smax ( the default values are 8 mb and 128 mb , respectively , but user - defined values are supported ) .
+in addition , the scheduler rounds the segment size to a whole number of records since a record cannot be split .
+the scheduler also requires that a data segment only contains records from a single data file .
+as a special case , the application may request that each data file be processed as a single segment .
+this would be the case , for example , if an existing application were designed to only process files .
+this is also the way the scheduler works when there is no record index associated with the data files .
+( ii ) spe scheduling once the input stream is segmented , the client assigns each segment to an spe .
+the following rules are applied : each data segment is assigned to an spe on the same node if there is one available , segments from the same file are processed at the same time unless following this rule leaves spes idle , and if there are still idle spes available after rule ( i ) and rule ( ii ) are applied , assign them parts of data segments to process in the same order as they occur in the input stream .
+the first rule tries to run an spe on the same node on which the data reside ( in other words , to exploit data locality ) .
+this reduces the network traffic and yields better throughput .
+the second rule improves data access concurrency , because spes can read data from multiple files independently at the same time .
+as mentioned in s3c , spes periodically provide feedback about the progress of the processing .
+if an spe does not provide any feedback about the progress of the processing before a timeout occurs , then the client discards the spe .
+the segment being processed by the discarded spe is assigned to another spe , if one is available , or placed back into the pool of unassigned segments .
+this is the mechanism that sphere uses to provide fault tolerance .
+sphere does not use any check pointing in an spe ; when the processing of a data segment fails , it is completely reprocessed by another spe .
+fault tolerance is more complicated when spes write results to multiple destinations ( as happens when using buckets for example ) .
+each spe dumps the result to a local disk before attempting to send the results to buckets on other nodes .
+in this way , if one node is down , the result can be sent to the same buckets on other nodes .
+each bucket handler also records the status of incoming results from each data segment ; thus , if one spe is down , the bucket handler can continue to accept data in the correct order from another spe that processes the same data segment again .
+if errors occur during the processing of a data segment due to problems with the input data or bugs in udfs , the data segment will not be processed by any other spe .
+instead , an error report is sent back to the client , so that the application can take the appropriate action .
+in most cases , the number of data segments is significantly greater than the number of spes .
+for example , hundreds of machines might be used to process terabytes of data .
+as a consequence , the system is naturally load balanced , because all spes are kept busy during the majority of the runtime .
+imbalances occur only towards the end of the computation when there are fewer and fewer data segments to process , causing some spes to be idle .
+different spes can require different times to process data segments .
+there are several reasons for this , including : the slave nodes may not be dedicated ; the slaves may have different hardware configurations ( sector systems can be heterogeneous ) ; and different data segments may require different processing times .
+near the end of the computation , when there are idle spes but incomplete data segments , each idle spe is assigned one of the incomplete segments. that is , the remaining segments are run on more than one spe and the client collects results from whichever spe finishes first .
+in this way , sphere avoids waiting for the slow spes while the faster ones are idle .
+after processing is complete , the sphere client can reorder the segments to correspond to the original order in the input stream .
+( f ) comparison with mapreduce both the stream - processing framework used by sphere and the mapreduce framework can be viewed as ways to simplify parallel programming .
+the approach of applying udfs to segments managed by a storage cloud is more general than the mapreduce approach , in the sense that with sphere it is easy to specify a map udf and to follow it with a reduce udf .
+we now describe how to do this in more detail .
+a mapreduce map process can be expressed directly by a sphere process that writes the output stream to local storage .
+a mapreduce reduce process can be simulated by the hashing / bucket process of sphere .
+in mapreduce , there is no data exchange between slave nodes in the map phase , while each reducer in the reduce phase reads data from all the slaves .
+in sphere 's version , the first stage hashes ( key , value ) pairs to buckets on other slave nodes , while in the second stage all data are processed locally at the slave by the reduce function .
+we illustrate this by showing how mapreduce and sphere compute an inverted index for a collection of web pages .
+recall that the input is a collection of web pages containing terms ( words ) and the output is a sorted list of pairs ( w , < pages >) , where w is a word that occurs in the collection and < pages > is a list of web pages that contain the word w. the list is sorted on the first component .
+computing an inverted index using sphere requires two stages .
+in the first stage , each web page is read , the terms are extracted and each term is hashed into a different bucket .
+sphere automatically assigns each bucket to a separate slave for processing .
+think of this as the hashing or shuffling stage .
+to be more concrete , all words starting with the letter ' a ' can be assigned to the bucket 0 , those beginning with the letter ' b ' to the bucket 1 , and so on. a more advanced hashing technique that would distribute the words more evenly could also be used .
+in the second stage , each bucket is processed independently by the slave node , which generates a portion of the inverted index .
+the inverted index consists of multiple files managed by sector .
+for example , assume that there are two web pages ( each is a separate file ) : w1.html and w2.html .
+assume that w1 contains the words bee and cow and that w2 contains the words bee and camel .
+in the first stage of sphere , bucket 1 will contain ( bee , w1 ) and ( bee , w2 ) , and bucket 2 will contain ( cow , w1 ) and ( camel , w2 ) .
+in the second stage , each bucket is processed separately .
+bucket 1 becomes ( bee , ( w1 , w2 )) and bucket 2 remains unchanged .
+in this way , the inverted index is computed and the result is stored in multiple files ( bucket files ) .
+in hadoop 's mapreduce ( hadoop , http :// hadoop.apache.org / core ) , the map phase would generate four intermediate files containing ( bee , w1 ) , ( cow , w1 ) , ( bee , w2 ) and ( camel , w2 ) .
+in the reduce phase , the reducer will merge the same keys and generate three items ( bee , ( w1 , w2 )) , ( cow , w1 ) and ( camel , w2 ) .
+4. experimental studies we have released sector / sphere as open source software and used it in a variety of applications .
+we have also analysed its performance using the terasort benchmark ( govindaraju et al. 2006 ; borthaku 2007 ) .
+in this section , we describe two sector / sphere applications and discuss their performance .
+( a ) sdss data distribution sector is currently used to distribute the data products from the sdss over the teraflow testbed ( gu et al .
+2006 ; teraflow testbed , http :// www.teraflowtestbed.net ) .
+we set up multiple sector servers on the teraflow testbed that we use to store the sdss data .
+we stored the 13 tb sdss data release 5 ( dr5 ) , which contains 60 catalogue files , 64 catalogue files in efg format and 257 raw image data collection files .
+we also stored the 14 tb sdss data release 6 ( dr6 ) , which contains 60 catalogue files , 60 segue files and 268 raw image collection files .
+the size of each of these files varies between 5 and 100 gb. we uploaded the sdss files to several specific locations in order to better cover north america , asia pacific and europe .
+we then set up a website ( sdss.ncdm.uic.edu ) , so that the users could easily obtain a sector client application and the list of sdss files to download .
+the md5 checksum for each file is also posted on the website , so that users can check the integrity of the files .
+the system has been online since july 2006 .
+during the last 2 years , we have had approximately 6000 system accesses and a total of 250 tb of data that were transferred to the end users .
+approximately 80 per cent of the users are just interested in the catalogue files , which contain files that range in size between 20 and 25 gb each .
+figure 4 shows the file downloading performance in an experiment of our own , where the clients are also connected to the teraflow testbed by 10 gb s - 1 links .
+in this experiment , the bottleneck is the disk io speed .
+figure 4 file downloading performance on the teraflow testbed .
+figure 5 shows a distribution of the data transfer throughput of actual transfers to the end users during the last 18 months .
+in most of the sdss downloads , the bottleneck is the network connecting the teraflow testbed to the end user and simply using multiple parallel downloads will not help .
+the sdss downloads are currently distributed as follows : 31 per cent are from the usa ; 37.5 per cent are from europe ; 18.8 per cent are from asia ; and 12.5 per cent are from australia .
+the transfer throughput to users varies from 8 mb s - 1 ( to india ) to 900 mb s - 1 ( to pasadena , ca ) , all via public networks .
+more records can be found on sdss.ncdm.uic.edu / records.html .
+figure 5 performance of sdss distribution to end users .
+( b ) terasort we implemented the terasort benchmark to evaluate the performance of sphere ( govindaraju et al .
+2006 ; sort benchmark , http :// www.hpl.hp.com / hosted / sortbenchmark /) .
+suppose there are n nodes in the system , the benchmark generates a 10 gb file on each node and sorts the total nx10 gb data .
+each record contains a 10 - byte key and a 90 - byte value .
+the sphere implementation follows the bucket sorting algorithm depicted in figure 3 .
+the experimental studies summarized in table 1 were done using the open cloud testbed ( http :// www.opencloudconsortium.org ) .
+currently , the testbed consists of four racks .
+each rack has 32 nodes , including 1 nfs server , 1 head node and 30 compute / slave nodes .
+the head node is a dell 1950 , dual dual - core xeon 3.0 ghz and 16 gb ram .
+the compute nodes are dell 1435s , single dual - core amd opteron 2.0 ghz , 4 gb ram and 1 tb single disk .
+the four racks are located in jhu ( baltimore ) , starlight ( chicago ) , uic ( chicago ) and calit2 ( san diego ) .
+table 1 the terasort benchmark for sector / sphere and hadoop .
+( all times are in seconds. ) sector / sphere hadoop three replicas hadoop one replica uic ( one location , 30 nodes ) 1265 2889 2252 uic + starlight ( two locations , 60 nodes ) 1361 2896 2617 uic + starlight + calit2 ( three locations , 90 nodes ) 1430 4341 3069 uic + starlight + calit2 + jhu ( four locations , 120 nodes ) 1526 6675 3702 the nodes on each rack are connected by two cisco 3750e switches , but only a 1 gb s - 1 connection is enabled at this time ( a maximum of 2 gb s - 1 can be enabled in / out each node ) .
+the bandwidth between racks is 10 gb s - 1 .
+the wide area links are provided by cisco 's c - wave , which uses resources from the national lambda rail .
+links from regional 10 ge research networks are used to connect the c - wave to the racks in the testbed .
+both sector ( http :// sector.sourceforge.net ) and hadoop ( http :// hadoop.apache.org / core ) are deployed over the 120 - node ( 240 - core ) wide area system .
+the master server for sector and the name node / job tracker of hadoop are installed on one or more of the four head nodes .
+both the sphere client and the hadoop client submit the job from a node in the system .
+this does not affect the performance since the traffic to / from the clients is negligible .
+table 1 lists the performance for the terasort benchmark for both sphere and hadoop .
+the time is in seconds and time to generate the data is not included .
+note that it is normal to see longer processing time for more nodes , because the total amount of data also increases proportionally .
+in this experiment , we sort 300 , 600 , 900 gb and 1.2 tb data over 30 , 60 , 90 and 120 nodes , respectively .
+for example , in the last case , the 1.2 tb data are distributed on four racks located in four data centres across the usa .
+all 120 nodes participated in the sorting process and essentially all of the 1.2 tb data are moved across the testbed during the sort .
+both sector and hadoop replicate data for safety .
+the default replication strategy for both is to generate three replicas .
+their replication strategies are different though .
+hadoop replicates data during the initial writing , while sector checks periodically , and , if there are not a sufficient number of replicas , it creates them .
+for this reason , table 1 reports results for hadoop with the replication sent to a replication factor of 1 ( no replication ) as well as the default replication factor of 3 .
+the results show that sphere is about twice as fast as hadoop ( when hadoop 's replication factor is set to 1 ) .
+moreover , sphere scales better as the number of racks increases ( 1526 / 1265 = 1.2 for sphere versus 3702 / 2252 = 1.6 for hadoop ) .
+5. related work in this section , we describe some work related to sector and sphere .
+sector provides some of the functionality of distributed file systems ( dfss ) , such as general parallel file system , lustre and parallel virtual file system ( kramer et al. 2004 ) .
+dfss provide the functionality of a file system on clusters of computers , sometimes , although rarely , over geographically distributed locations .
+while dfs may be suitable for a single organization with dedicated hardware and management , it is challenging to deploy and operate a regular dfs on a loosely coupled infrastructure consisting of commodity computers , such as those used for the experimental studies described here .
+on the other hand , the gfs ( ghemawat et al. 2003 ) , the hdfs ( borthaku 2007 ) and sector are special purpose file systems .
+they are particularly optimized for large files , for large scanning reads and for short random reads. by contrast with sector , neither gfs nor hdfs was designed for nodes distributed over a wide area network .
+the sector servers that are deployed over the teraflow testbed and used for distributing the sdss data provide the functionality of a content distribution network , such as akamai ( dilley et al. 2002 ) .
+akamai is designed to distribute large numbers of relatively small files and keeps a cache at most edge nodes of its network .
+in contrast to akamai , sector is designed to distribute relatively small numbers of large files and maintains copies at several , but not all , edge nodes .
+the stream - processing paradigm in sphere is currently quite popular in the general - purpose gpu programming ( gpgpu ) community ( owens et al. 2005 ) .
+the approach with gpgpu programming is to define a special ' kernel function ' that is applied to each element in the input data by the gpu 's vector computing units .
+this can be viewed as an example of an simd style of programming .
+many gpu programming libraries and programming languages ( e.g. cg , sh and brook ) have been developed .
+similar ideas have also been applied to multi - core processors , including the cell processor .
+for example , specialized parallel sorting algorithms have been developed for both gpu processors ( govindaraju et al. 2006 ) and the cell processor ( gedik et al. 2007 ) .
+sphere uses the same basic idea , but extends this paradigm to wide - area distributed computing .
+many of the gpgpu algorithms and applications can be adapted and run in a distributed fashion using sphere .
+in fact , it is this analogue to gpgpu which inspired our work on sphere .
+there are some important differences though : sphere uses heterogeneous distributed computers connected by high - speed , wide - area networks instead of the identical alus integrated in a gpu ; sphere supports more flexible movement of data , but also requires load balancing and fault tolerance ; finally , the bandwidth between sphere 's spes , although it may be up to 10 gb s - 1 , is not even close to the bandwidth within a gpu .
+owing to these differences , sphere runs a complete processing function or program on each spe , rather than one instruction .
+one way of viewing gpgpu style programming is as a parallel programming style that gains simplicity by restricting the type of application that it is targeting. by contrast , message passing systems such as message - passing interface ( gropp et al .
+1999 ) are designed for very general classes of applications but are usually harder to program .
+google 's mapreduce ( dean & ghemawat 2004 ) is one of the most well - known examples of a system that targets a limited class of applications , but is relatively simple to program .
+as shown above , the sphere system is similar to but more general than mapreduce .
+sphere is a generalization of mapreduce , in the sense that it provides a simple mechanism to execute udfs over data managed by sector .
+sphere can implement a mapreduce by using a udf map followed by a udf reduce .
+see table 2 for a summary of some of the differences between sector / sphere and other systems for cloud computing .
+table 2 a summary of some of the differences between sector / sphere and gfs / bigtable and hadoop .
+design decision gfs , bigtable hadoop sector / sphere datasets divided into files or into blocks blocks blocks files protocol for message passing within the system tcp tcp group messaging protocol protocol for transferring data tcp tcp udp - based data transport programming model mapreduce mapreduce user - defined functions applied to segments replication strategy replicas created at the time of writing replicas created at the time of writing replicas created periodically by system support high - volume inflows and outflows no no yes , using udt security model not mentioned none user - level and file - level access controls language c ++ java c ++ sector / sphere is similar to grid computing in that it aggregates distributed computing resources , but its approach is quite different .
+traditional grid systems such as the globus toolkit ( foster 2005 ) and condor ( thain et al .
+2005 ) allow users to submit multiple tasks and to run these tasks in parallel .
+grid job schedulers such as swift ( zhao et al. 2007 ) and the condor directed acyclic graph manager ( http :// www.cs.wisc.edu / condor / dagman ) provide workflow services to support the scheduling of user tasks .
+grid systems manage relationships among many tasks. by contrast , the sphere client scheduler exploits data parallelism within one task .
+in this sense , grid computing is task oriented ( multiple tasks processing one or more datasets ) , while sphere is data oriented ( single program processing a single dataset ) .
+in addition , a grid application submits a user 's tasks to computing resources and moves data to these resources for computation , whereas sector provides long - term persistent storage for data and sphere is designed to start operations as close to the data as possible .
+in the sphere - targeted scenarios , datasets are usually very large and moving them is considerably expensive .
+to summarize , grid systems are designed to manage scarce specialized computing resources , while storage clouds , such as sector , are designed to manage large datasets and compute clouds , such as sphere , are designed to support computation over this data .
+finally , note that sphere is very different from systems that process streaming data such as gates ( chen et al. 2004 ) and datacutter ( beynon et al .
+2000 ) or event stream - processing systems such as stream , borealis , and telegraphcq ( babcock et al. 2002 ) .
+while sphere is designed to support large datasets , the data being processed are still treated as finite and static and are processed in a data - parallel model. by contrast , event stream - processing systems regard the input as infinite and process the data with a windowed model , sometimes with filters incorporating timing restraints in order to guarantee real - time processing .
+6. conclusions for several years now , commodity clusters have been quite common .
+over the next several years , wide - area , high - performance networks ( 10 gb s - 1 and higher ) will begin to connect these clusters .
+at the risk of oversimplifying , it is useful to think of high - performance computing today as an era in which cycles are the scarce resource , and ( relatively small ) datasets are scattered to large pools of nodes when their wait in the queue is over. by contrast , we are moving to an era in which there are large distributed datasets that must be persisted on disk for long periods of time , and high - performance computing must be accomplished in a manner that moves the data as little as possible , due to the costs incurred when transporting large datasets .
+sector and sphere are designed for these types of applications involving large , geographically distributed datasets in which the data can be naturally processed in parallel .
+sector manages the large distributed datasets with high reliability , high - performance io and a uniform access .
+sphere makes use of the sector - distributed storage system to simplify data access , increase data io bandwidth and to exploit wide - area , high - performance networks .
+sphere presents a very simple programming interface by hiding data movement , load balancing and fault tolerance .
+acknowledgments the sector / sphere software system is funded in part by the national science foundation through grants oci - 0430781 , cns - 0420847 and aci - 0325013 .
+one contribution of 16 to a theme issue ' crossing boundaries : computational science , e - science and global e - infrastructure i. selected papers from the uk e - science all hands meeting 2008 ' .
+references babcock , b. , babu , s. , datar , m. , motwani , r .
+& widom , j .
+2002 models and issues in data stream systems .
+in proc .
+21st acm sigmod - sigact - sigart symp .
+on principles of database systems , pods 2002 , new york , pp .
+1 - 16.beynon , m. d. , ferreira , r. , kurc , t. , sussman , a .
+& saltz , j .
+2000 datacutter : middleware for filtering very large scientific datasets on archival storage systems .
+in mass storage systems conf. , college park , md , march 2000borthaku , d .
+2007 the hadoop distributed file system : architecture and design .
+see lucene.apache.org / hadoopchang , f. , dean , j. , ghemawat , s. , hsieh , w. c. , wallach , d. a. , burrows , m. , chandra , t. , fikes , a .
+& gruber , r. e. 2006 bigtable : a distributed storage system for structured data .
+in osdi'06 , seattle , wa , november 2006chen , l. , reddy , k .
+& agrawal , g .
+2004 gates : a grid - based middleware for processing distributed data streams .
+in 13th ieee int. symp .
+on high performance distributed computing ( hpdc ) 2004 , honolulu , hidean , j .
+& ghemawat , s .
+2004 mapreduce : simplified data processing on large clusters .
+in osdi'04 : 6th symp .
+on operating system design and implementation , san francisco , ca , december 2004 dilley j. maggs b. parikh j. prokop h. sitaraman r. weihl b .
+2002 globally distributed content delivery . ieee internet comput .
+6 , 50 - 58 doi : 10.1109 / mic.2002.1036038 foster , i .
+2005 globus toolkit version 4 : software for service - oriented systems .
+in ifip int. conf .
+on network and parallel computing lecture notes in computer science , no .
+3779 , pp .
+2 - 13 .
+berlin , germany : springer.gedik , b. , bordawekar , r .
+& yu , p. s. 2007 cellsort : high performance sorting on the cell processor .
+in vldb , pp .
+1286 - 1297.ghemawat , s. , gobioff , h .
+& leung , s .
+- t .
+2003 the google file system .
+in 19th acm symp .
+on operating systems principles , new york , nygovindaraju , n. k. , gray , j. , kumar , r .
+& manocha , d .
+2006 gputerasort : high performance graphics coprocessor sorting for large database management .
+in acm sigmod , chicago , il gropp w. lusk e. skjellum a. using mpi : portable parallel programming with the message passing interface . in mit press 2nd edn .
+1999 cambridge , ma : mit press grossman , r. l. & gu , y .
+2008 data mining using high performance clouds : experimental studies using sector and sphere .
+in proc .
+14th acm sigkdd int. conf .
+on knowledge discovery and data mining ( kdd 2008 ) , las vegas , nv gu y. grossman r.l .
+2007 udt : udp - based data transfer for high - speed wide area networks . comput. netw .
+( elsevier ) .
+51 , 1777 - 1799 doi : 10.1016 / j.comnet.2006.11.009 gu , y. , grossman , r. l. , szalay , a .
+& thakar , a .
+2006 distributing the sloan digital sky survey using udt and sector .
+in proc .
+e - science , nottingham , uk kramer w.t.c. shoshani a. agarwal d.a. draney b.r. jin g. butler g.f. hules j.a .
+2004 deep scientific computing requires deep data . ibm j. res. dev .
+48 , 209 - 232 doi : 10.1147 / rd.482.0209 owens , j. d. , luebke , d. , govindaraju , n. , harris , m. , kruger , j. , lefohn , a. e. & purcell , t. j. 2005 a survey of general - purpose computation on graphics hardware .
+in proc. of eurographics 2005 , dublin , ireland , pp .
+21 - 51 .
+thain d. tannenbaum t. livny m .
+2005 distributed computing in practice : the condor experience . concurrency comput. pract. exp .
+17 , 323 - 356 doi : 10.1002 / cpe.938 zhao , y. , hategan , m. , clifford , b. , foster , i. , von laszewski , g. , raicu , i. , stef - praun , t .
+& wilde , m .
+2007 swift : fast , reliable , loosely coupled parallel computation .
+in ieee int .
+workshop on scientific workflows , salt lake city , ut

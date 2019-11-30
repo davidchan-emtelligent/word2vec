@@ -1,0 +1,296 @@
+jmir med inform jmir med inform jmi jmir medical informatics 2291 - 9694 jmir publications toronto , canada 29506966 5859787 v6i1e14 10.2196 / medinform.8286 original paperoriginal paper secure and efficient regression analysis using a hybrid cryptographic framework : development and evaluation eysenbach gunther shimizu kana bian jiang zhou leming sadat md nazmus bcompsc1department of computer scienceuniversity of manitobae2 eitcwinnipeg , mb , r3t2n2canada1 858 375 6047 sadat @ cs.umanitoba.ca http :// orcid.org / 0000 - 0002 - 1674 - 8764 jiang xiaoqian phd2http :// orcid.org / 0000 - 0001 - 9933 - 2205 aziz md momin al msc1http :// orcid.org / 0000 - 0001 - 6161 - 8275 wang shuang phd2http :// orcid.org / 0000 - 0001 - 6420 - 983x mohammed noman phd1http :// orcid.org / 0000 - 0001 - 8547 - 9951 1 department of computer science university of manitoba winnipeg , mb canada 2 department of biomedical informatics university of california san diego la jolla , ca united states corresponding author : md nazmus sadat sadat @ cs.umanitoba.ca jan - mar 2018 05 3 2018 6 1 e14 23 6 2017 31 8 2017 25 10 2017 3 1 2018 ( c ) md nazmus sadat , xiaoqian jiang , md momin al aziz , shuang wang , noman mohammed .
+originally published in jmir medical informatics ( http :// medinform.jmir.org ) , 05.03.2018 .
+2018 this is an open - access article distributed under the terms of the creative commons attribution license ( https :// creativecommons.org / licenses / by / 4.0 /) , which permits unrestricted use , distribution , and reproduction in any medium , provided the original work , first published in jmir medical informatics , is properly cited .
+the complete bibliographic information , a link to the original publication on http :// medinform.jmir.org / , as well as this copyright and license information must be included .
+background machine learning is an effective data - driven tool that is being widely used to extract valuable patterns and insights from data .
+specifically , predictive machine learning models are very important in health care for clinical data analysis .
+the machine learning algorithms that generate predictive models often require pooling data from different sources to discover statistical patterns or correlations among different attributes of the input data .
+the primary challenge is to fulfill one major objective : preserving the privacy of individuals while discovering knowledge from data .
+objective our objective was to develop a hybrid cryptographic framework for performing regression analysis over distributed data in a secure and efficient way .
+methods existing secure computation schemes are not suitable for processing the large - scale data that are used in cutting - edge machine learning applications .
+we designed , developed , and evaluated a hybrid cryptographic framework , which can securely perform regression analysis , a fundamental machine learning algorithm using somewhat homomorphic encryption and a newly introduced secure hardware component of intel software guard extensions ( intel sgx ) to ensure both privacy and efficiency at the same time .
+results experimental results demonstrate that our proposed method provides a better trade - off in terms of security and efficiency than solely secure hardware - based methods .
+besides , there is no approximation error .
+computed model parameters are exactly similar to plaintext results .
+conclusions to the best of our knowledge , this kind of secure computation model using a hybrid cryptographic framework , which leverages both somewhat homomorphic encryption and intel sgx , is not proposed or evaluated to this date .
+our proposed framework ensures data security and computational efficiency at the same time .
+privacy - preserving regression analysis intel sgx somewhat homomorphic encryption introduction machine learning algorithms are now being widely used in many applications to uncover deep and predictive insights from datasets that are large scale and diverse .
+for instance , building predictive models from biomedical data is very important in biomedical science .
+such predictive models can identify genetic risk factors for a specific disease under study and can guide medical treatment .
+for instance , tabaei and hermana formulated a predictive equation to screen for diabetes [ 1 ] .
+machine learning thrives on growing datasets .
+in most of the cases , the more data fed into a machine learning system , the more it can learn and offer the potential to make more accurate prediction .
+it is often known as " data never hurt in machine learning ," as insufficient information cannot lead to powerful learning systems .
+in the context of health care , building an accurate predictive model depends on the quality and quantity of aggregate clinical data , which come from different hospitals or health care institutions .
+consequently , in a real - world scenario , machine learning applications use data from several sources , including genetic and genomic , clinical , and sensor data .
+day by day , many new sources of data are becoming available - - for instance , data from cell phones [ 2 ] , wearable sensors [ 3 ] , and participatory sensing applications [ 4 ] .
+for instance , there are wearable sensing frameworks that collect sensing information regarding heart rate , body temperature , caloric expenditure , etc , to train machine learning models .
+these models are then used for predictive analysis [ 4 ] .
+data collection , storage , and processing power of a single institution is not always adequate to handle the large - scale data used in cutting - edge machine learning applications .
+for rare diseases , individual institutions oftentimes do not have sufficient data to calculate a model to achieve sufficient statistical power .
+therefore , data sharing among multiple institutions is required .
+however , sharing sensitive biomedical data ( clinical or genomic ) exposes many security and privacy threats [ 5 ] .
+in case of data breach , there is a risk of sensitive personal information leakage .
+therefore , in addition to addressing the fundamental goal of information retrieval , privacy - preserving learning also requires the learning algorithm to protect the confidentiality of the sensitive records of individuals .
+along with obtaining the approval from an institutional review board , collaborative research on shared biomedical data often needs to satisfy 2 criteria at the same time : ( 1 ) permitting access to biomedical data for collaborative research , and ( 2 ) maintaining participants' privacy and protecting the confidentiality of their genomic and clinical profile [ 6 ] .
+for this reason , strict policies regarding biomedical data sharing have been enforced and , generally , these policies are different in different regions of the world .
+for instance , there are several key differences between the us health insurance portability and accountability act ( hipaa ) and the canadian personal information protection and electronic documents act ( pipeda ) .
+this difference in the policies and regulations of cross - border biomedical data sharing impedes international research projects greatly [ 7 ] .
+it is imperative to address this problem with practical solutions to promote health science discoveries .
+in this paper , we concentrate on secure and efficient computation for a fundamental technique used in numerous learning algorithms called regression ( see methods ) .
+regression analysis identifies the correlation among different attributes based on input data .
+given a number of high - dimensional data points , regression analysis generates a best - fit line or curve through these points .
+to evaluate the fit , the value of a target attribute is predicted , which is associated with the given values of input .
+for instance , the input variables can be an individual 's age , weight , sex , body mass index , and glucose level , while the output can be the likelihood to develop diabetes .
+although regression analysis is widely used in practice , little work has been done in privacy - preserving regression analysis over a distributed dataset .
+our objective was to perform the required computation for regression analysis without exposing any other information of user data .
+prior works to ensure the security and privacy of the sensitive data used in learning algorithm , different techniques ( eg , garbled circuit [ 8 ] , homomorphic encryption [ 9 ] , differential privacy [ 10 ] , and secure hardware [ 11 ]) have been adopted ( multimedia appendix 1 discusses prior works targeting regression ) .
+but each of these techniques has certain shortcomings ( eg , computational overhead , communication overhead , storage overhead , reduced data utility , and approximation error ) , which make these techniques difficult to use in real - world applications .
+wu et al developed a framework , grid binary logistic regression ( glore ) [ 12 ] , for developing a binary logistic regression model where data are distributed across different data owners .
+in their proposed approach , instead of sharing patient records , data owners send intermediary results to a central entity .
+these intermediary results are then used to build a prediction model without sharing patient - level data .
+however , in their approach , the intermediary results are exchanged in plaintext .
+if the data size of a data owner is small , then sharing the intermediary results might compromise privacy .
+later , shi et al incorporated secure multiparty computation in glore .
+their proposed framework , secure multiparty computation framework for grid logistic regression ( smac - glore ) [ 13 ] , protects the confidentiality of intermediary results beside the patient data .
+however , smac - glore cannot handle numbers outside of a predefined range , and it does not scale well ( eg , it cannot efficiently handle data with more than 10 covariates ) .
+in addition , it uses a taylor series approximation approach to evaluate the logit function .
+this approximation causes precision loss in the final output .
+why hybrid ?
+there are two obvious but suboptimal solutions in terms of security and efficiency .
+existing fully homomorphic encryption ( fhe ) techniques [ 14 ] provide rigorous security , but these solutions are not efficient .
+in existing homomorphic encryption schemes , with subsequent homomorphic operations , the noise ( and size ) of the ciphertext grows substantially , which increases computational and storage overheads to a great extent ( see methods , homomorphic encryption for details ) .
+there are some operations to reduce the size and noise of the ciphertext : bootstrapping [ 9 ] and relinearization [ 15 ] .
+however , these operations are very expensive from the computational point of view .
+our proposed framework does not use these expensive operations at all , which enhances the efficiency of the framework greatly .
+on the contrary , software guard extensions ( sgx ; intel ) - based solutions are very efficient but have some security concerns resulting from the recent discovery of side - channel attacks against sgx [ 16 ] .
+we developed our method so that only intermediary results , not individual records , are decrypted inside the secure hardware .
+hence , a successful adversary would be unable to compromise the privacy of an individual .
+our proposed hybrid framework uses both techniques and provides a good trade - off in terms of security and efficiency .
+contributions in this paper , we propose a hybrid cryptographic framework for secure and efficient regression analysis ( both linear and logistic ) .
+our proposed framework leverages the best features of two secure computation schemes : somewhat homomorphic encryption ( swhe ) and secure hardware ( intel sgx ) .
+in this framework , data reside at the data owner 's end .
+we assumed that data are horizontally partitioned , where all the records share same attributes .
+inspired by glore [ 12 ] , we formulated the regression problem as decomposable parts .
+data owners compute these decomposable intermediary results locally .
+then , after encrypting these local results using homomorphic encryption , they send the encrypted intermediary results to an sgx - enabled central server .
+the central server now combines the intermediary results using a homomorphic addition operation .
+then , these aggregate encrypted intermediary results are passed to the secure hardware hosted at the central server .
+here , the aggregate intermediary results are decrypted and further computation is performed on plaintext .
+these computations involve matrix inversion and division , which are hard to handle in existing homomorphic encryption schemes .
+finally , model coefficients are computed inside the secure hardware .
+we summarize our contributions as follows : ( 1 ) we address the limitations of existing secure computation schemes and propose a hybrid secure computation model for performing regression analysis over distributed data , which is more efficient and robust .
+( 2 ) we designed the framework in such a way that no homomorphic multiplication is necessary , which is an expensive operation .
+in addition , we do not need any bootstrapping or relinearization operation .
+( 3 ) in our proposed approach , a significant portion of computation is performed at the data owner 's end on plaintext .
+in computation at a central server , after homomorphic addition operations , further computation is performed inside secure hardware on plaintext .
+since most of the operations are performed on plaintext , our proposed approach is very efficient .
+in addition , due to avoiding any kind of approximation technique , our proposed method does not introduce any precision loss in the final output .
+in multimedia appendix 1 we introduce major existing secure computation techniques , application of these techniques in regression analysis , and their shortcomings .
+methods security background homomorphic encryption the idea of an encryption scheme that is capable of performing arbitrary computation on encrypted data was first proposed by rivest et al [ 17 ] in 1978 .
+since then , several cryptosystems were invented that are homomorphic with respect to either addition or multiplication .
+finally , boneh et al [ 18 ] proposed a partially homomorphic cryptosystem that is able to perform 1 multiplication and any number of additions .
+table 1 shows a partial list of homomorphic encryption schemes [ 18 - 22 ] .
+developing an encryption scheme that supports an arbitrary number of additions and multiplications was an open problem until 2009 .
+since addition and multiplication operations over integer ring z2 form a complete set of operations , this type of encryption scheme supports any polynomial time computation on ciphertext .
+in 2009 , gentry showed the first construction of an fhe scheme [ 9 ] that can do any number of addition and multiplication operations on encrypted data .
+to explain fhe , say ciphertext ci is the encrypted form of plaintext mi , where mi and ci are elements of a ring ( the operations of the ring are addition and multiplication ) .
+in fhe , if a function f consists of addition and multiplication in the ring , then decryption ( f ( c1,c2 ,... , cn )) = f ( m1,m2 ,... , mn ) .
+generally , f is expressed by an arithmetic circuit over gallois field ( 2 ) .
+this is equivalent to a boolean circuit with exclusive or and and gates .
+in the existing fhe schemes , a certain amount of noise needs to be introduced in the ciphertexts to ensure data confidentiality .
+this noise grows while performing homomorphic operations on ciphertexts .
+in particular , a homomorphic multiplication operation increases the size of the ciphertext abruptly .
+for instance , if 2 input ciphertexts have size m and n , then the output ciphertext will be of size m + n - 1 .
+if the amount of noise becomes too high , then the ciphertext cannot be decrypted correctly .
+to perform any number of homomorphic operations , the noise of the ciphertexts needs to be reduced .
+as mentioned before , this can be done using a method known as bootstrapping [ 9 ] , which is computationally expensive .
+in use cases where only a predetermined number of computational operations needs to be done , the costly bootstrapping process can be avoided by using an swhe scheme [ 23 ] .
+this scheme is often more efficient than using an fhe scheme with bootstrapping .
+swhe schemes use a method called relinearization [ 15,24 ] to reduce the size of the ciphertext .
+table 1 partial list of homomorphic encryption schemes .
+cryptosystem homomorphism goldwasser and micali [ 19 ] , paillier [ 20 ] additive rivest et al [ 21 ] , elgamal [ 22 ] multiplicative boneh et al [ 18 ] both intel software guard extensions intel sgx is a collection of extensions to the intel architecture that mostly concentrates on the issue of running applications on a remote machine managed by an untrusted party .
+sgx enables parts of an application to run within secure portions of the central processing unit called enclaves .
+untrusted entities , including system software , cannot access the enclave .
+sgx guarantees that the code and information inside an enclave cannot be manipulated from outside the enclave .
+two sgx features facilitate provisioning of sensitive data to an enclave : attestation and sealing .
+sgx enclaves are generated without privacy - sensitive information .
+privacy - sensitive information is provisioned after the enclave has been appropriately instantiated .
+this process of demonstrating that an application has been correctly instantiated within an enclave is called attestation [ 25 ] .
+at the point when an enclave is instantiated , sgx protects its data until they are kept within the enclave .
+in any case , when the enclave procedure terminates , the enclave will be destroyed and all related data will be lost .
+so , for later use , data should be stored outside the enclave .
+sealing is the procedure that is used to store encrypted data to ensure that only the same enclave would be capable of unsealing them back to their previous form .
+system architecture our proposed framework has three main entities ( figure 1 ) .
+data owners these parties are geographically distributed and possess databases .
+data can come from a variety of sources , including cell phones , wearable sensors , and relational databases .
+data owners send encrypted intermediary results to the central server so that it can analyze the combined dataset .
+key manager this generates and distributes the cryptographic keys that will be used for data encryption and decryption in different stages of our proposed framework .
+each data owner gets a public key from the key manager and uses it for encrypting data .
+central server the central server maintains communication with all the other entities of the framework .
+it receives data from the data owners and computes the final result using swhe and secure hardware .
+threat model in proposing this framework , our goal was to guarantee the confidentiality of data provided by different data owners .
+we assume that the central server is a semihonest party ( also referred to as honest - but - curious ) , where it obeys the system protocol but may try to infer sensitive information by analyzing the system logs or received information [ 26 ] .
+we assume that the computation runs in an sgx - enabled central server .
+sgx architecture enables the central server to perform any computation securely on data provided by different data owners .
+we assume that the processor of the central server works properly and is not compromised .
+we trust the design and implementation of sgx and all cryptographic operations performed by it. in general , side - channel attacks against sgx can be classified into two categories : physical attacks ( where the attacker has physical access to the machine ) and software attacks ( these are launched by any malicious software running in the same machine ) [ 27 ] .
+there has been no known successful physical attack against sgx .
+however , it is possible to exploit a type of software attack known as a synchronization bug [ 28 ] .
+synchronization bugs are possible to exploit because an untrusted operating system can manipulate the thread scheduling of enclaves .
+however , it is only applicable for multithreaded applications , whereas our application is single threaded .
+figure 1 block diagram of the system architecture .
+sgx : software guard extensions .
+there is another type of well - known software attack , which is called a page - fault attack [ 16 ] .
+as the page tables are maintained in the operating system kernel and operated by the untrusted system software , page table entries can be manipulated to attack enclaves .
+but , since enclave pages are permission protected , malicious system software cannot compromise their integrity by manipulating them .
+however , xu et al [ 16 ] showed that , by clearing the present flag in the corresponding page table entries , the malicious software can generate traces of page access from the enclave .
+although an adversary can observe access to different enclave pages , enclave memory can be treated as private at page - level granularity ( 4 kb ) [ 29 ] .
+in other words , a different access to an enclave page is indistinguishable to an adversary .
+further research is required to better understand the gap between the potential vulnerabilities of sgx and proposed defense mechanisms .
+most of the existing defense mechanism have been developed to address the page - fault side - channel attacks [ 29 - 31 ] .
+however , these mechanisms may not be effective for future attacks .
+keeping these attacks in mind , we developed our framework to protect institutional privacy by combining the local inputs of participating institutions without decrypting them , therefore providing a higher layer of protection without introducing too much computational overhead .
+we did not consider the aspects of adversarial machine learning through obtained outputs .
+adversarial parties may try to infer sensitive attributes of data by model inversion attacks [ 32,33 ] .
+linear regression suppose we are given a set of paired observations ( xi , yi ) for i = 1,2 ,... , n , and we want to generate the best - fit straight line for these points .
+this straight line is given by y = beta1 + beta2x , for some beta1,beta2 .
+the purpose is to explain the correlation between variable y and x. to evaluate the fit , the value of y is predicted that is associated with a given value of x. in the literature , y is called the variable to be explained ( or the dependent variable ) and x is called the explanatory variable ( the regressor , the covariate , or the independent variable ) [ 34 ] ( pg 79 ) .
+consider the following simple linear regression model : y = beta1 + beta2x + epsilon .
+here , epsilon is the error we make in predicting y. for i = 1 ,... , n , we obtain n equations : y1 = beta1 + beta2x1 + epsilon1 , y2 = beta1 + beta2x2 + epsilon2 , and yn = beta1 + beta2xn + epsilonn .
+we can formulate this regression model using the matrix in figure 2 ( a ) .
+figure 2 equations used in developing the framework .
+in this way , the simple linear regression function can be represented by a short and simple equation : the linear regression model with several explanatory variables is known as multiple linear regression .
+this is given by here , x1i = 1 , for i = 1 ,... , n. the function of equation 2 can also be expressed in matrix form , which is more convenient , as in figure 2 ( b ) .
+it is noteworthy that equation 1 is also applicable for multiple linear regression .
+using the ordinary least squares estimate technique we can show that beta =( xtx ) - 1xty ( for details , see heij et al [ 34 ] , pg 79 ) .
+for secure linear regression over distributed data , each data owner di computes xtixi and xtiyi locally on plaintext .
+di then encrypts xtixi and xtiyi using homomorphic encryption .
+after receiving these intermediary results from all of the data owners , the central server then adds these using homomorphic addition operations to construct xty and xtx ( equation from figure 2 [ c ]) .
+further computation is performed inside the enclave after decryption .
+textbox 1 shows our secure linear regression algorithm .
+figure 3 illustrates the sequence diagram of our proposed method .
+at first , the key manager establishes the public key and the private key .
+the private key is sent to the central server securely using remote attestation .
+the data owners then encrypt their data with the public key and send the encrypted data to the central server .
+finally , the central server computes the model parameters .
+algorithm 1 : secure linear regression .
+input : each data owner di provides encrypted xtixi and xtiyi .
+output : model parameters ( beta ) perform homomorphic addition over xtixi for each data owner i. perform homomorphic addition over xtiyi for each data owner i. send xty and xtx to enclave .
+inside enclave , decrypt encrypted xty and xtx .
+inside enclave , compute ( xtx ) - 1 .
+finally , compute beta inside enclave .
+figure 3 sequence diagram of our proposed framework .
+ack : acknowledge ; sgx : software guard extensions .
+logistic regression logistic regression extends the principles of multiple linear regression to the case where the dependent variable y is binary ( either 0 or 1 ) .
+like in multiple linear regression , the independent variables can be categorical or continuous .
+instead of modeling the dependent variable directly , logistic regression models the probability of the dependent variable .
+logistic regression uses the equation of linear regression equation ( 2 ) .
+but , in that equation , the value of the dependent variable can fall outside [ 0 , 1 ] .
+therefore , a nonlinear transformation is used , which is called logit transformation .
+the logit function takes any value x and maps it onto a value between 0 and 1 .
+logit function is given by logit ( x )= log [ p /( 1 - p )] as in figure 2 ( d ) .
+therefore , probability =( y = 1 | x1 , x2 ,... , xk ) = [ exp ( beta1 + beta2x2 +...+ betakxk )]/[ 1 + exp ( beta1 + beta2x2 +...+ betakxk )] where beta1 , beta2 ,... , bk are unknown constants analogous to the multiple linear regression model .
+probability =( y = 1 | x1 , x2 ,... , xk ) denotes the probability that input ( x1 , x2 ,... , xk ) belongs to default class ( y = 1 ) .
+logistic regression models are generally fit by maximum likelihood by using the conditional probability of y given x. here , the newton - raphson method is used to solve the coefficients .
+let x represent the matrix of xi values , y represent the vector of yi values , p be the vector of fitted probabilities with the ith element p ( xi ; betaold ) , and w be an n x n diagonal matrix of weights with ith diagonal element p ( xi ; betaold )( 1 - p [ xi ; betaold ]) .
+then a newton step is as follows : in the second and third steps , the newton step is expressed as a weighted least squares step , with the response z = x betaold + w - 1 ( y - p ) .
+this method is also known as iteratively reweighted least squares , since each iteration solves the weighted least squares problem ( see friedman et al [ 35 ] for details ) , as in figure 2 ( e ) .
+in practice , the w matrix is not computed explicitly because its size could be huge .
+if we have 1000 rows of training data , matrix w would have 1,000,000 cells .
+for this reason , direct matrix operations with w may be very inefficient .
+notice the beta update equation ( equation 3 ) has a term , wx , which means the matrix product of w and x. because most of the values in w are zero , most of the matrix multiplication terms are also zero .
+this allows w times x to be computed directly from p and x , without explicitly constructing w. several of the mathematical references that describe iteratively reweighted least squares with the newton - raphson algorithm for logistic regression use the symbol [ x tilde ] for the product of w and x. it is generally written as in figure 2 ( f ) .
+for secure logistic regression over distributed data , each data owner di computes xti [ x tilde ] i and xti ( yi - pi ) locally on plaintext .
+di then encrypts xti [ x tilde ] i and xti ( yi - pi ) using homomorphic encryption .
+after receiving these intermediary results from all the data owners , the central server then adds these using homomorphic addition operations to construct xt [ x tilde ] and xt ( y - p ) ( equation from figure 2 [ g ]) .
+further computation is performed inside the enclave after decryption .
+after computing beta , the central server sends beta to all of the data owners .
+for the next iteration , data owner i computes xti [ x tilde ] i and xti ( yi - pi ) using new beta ( received from the central server ) and sends these intermediary results to the central server .
+the central server then updates beta using newly received xti [ x tilde ] i and xti ( yi - pi ) .
+in this way , iterations continue until parameters converge .
+textbox 2 shows our secure logistic regression algorithm .
+implementation we developed our proposed framework using c ++ .
+for swhe , we used the simple encrypted arithmetic library ( seal ) [ 24 ] .
+seal is an easy - to - use homomorphic encryption library , with no external dependencies .
+there is another homomorphic encryption framework called helib [ 36 ] , but we chose to use seal for its simplicity .
+algorithm 2 : secure logistic regression .
+input : each data owner di provides encrypted xti [ x tilde ] i and xti ( yi - pi ) , and beta is initialized to an all - zero vector .
+output : model parameters receive encrypted xti [ x tilde ] i and xti ( yi - pi ) from each data owner di. perform homomorphic addition over xti [ x tilde ] i for each data owner di. perform homomorphic addition over xti ( yi - pi ) for each data owner di. send encrypted xt [ x tilde ] and xt ( y - p ) to enclave .
+inside enclave , decrypt xt [ x tilde ] and xt ( y - p ) .
+update betanew = betaold +( xt [ x tilde ]) - 1xt ( y - p ) .
+if the stopping criteria are satisfied , then stop ; otherwise , send beta to each data owner and go to step 1 .
+table 2 parameters used for the simple encrypted arithmetic library .
+parameters value polynomial modulus x1024 + 1 plaintext modulus 1 << 8 decomposition bit count 32 no. of coefficients reserved for fractional part 64 table 3 size of datasets used for experiments .
+records dataset haberman low birth weight study no. of instances 270 488 no. of features 3 8 experimental settings and dataset we performed experiments in a machine with an intel core i7 - 6700 ( 3.40 ghz ) processor and 8 gb memory ( intel corporation , santa clara , ca , usa ) .
+we used intel sgx software development kit version 1.7 .
+we simulated 2 data owners and the central server in this machine .
+table 2 shows the seal parameters .
+we performed experiments using haberman 's survival dataset from the university of california , irvine , machine learning repository [ 37 ] and the longitudinal low birth weight study dataset from hosmer and lemeshow [ 38 ] .
+the records of the datasets were evenly distributed between the 2 data owners .
+table 3 lists the datasets we used with their sizes .
+results table 4 shows the experimental results .
+for swhe , most of the computation time was due to homomorphic operations .
+our proposed framework avoided expensive homomorphic multiplication by transferring the later phase of computation to the secure hardware .
+in addition , we needed to decrypt only the intermediary results , not every individual attribute value .
+consequently , our proposed framework was more efficient than the solely secure hardware ( swhe ) - based technique ( where every individual attribute needs to be decrypted ) and the swhe - based technique ( which involves many expensive homomorphic multiplication and relinearization operations ) .
+table 4 does not report the results for the swhe - based technique .
+however , according to our empirical results , it took more than 2 hours for the haberman dataset and more than 17 hours for the low birth weight study dataset for both kinds of regression analyses .
+table 4 experimental results for computation time .
+regression analyses dataset haberman low birth weight study linear regression plaintext ( ms ) 6 25 proposed method ( s ) 8.991 39.382 secure hardware ( swhea ) ( s ) 259.908 880.228 secure hardware ( aesb ) ( s ) 4.30 8.54 logistic regression plaintext ( ms ) 171 886 proposed method ( s ) 27.037 162.544 secure hardware ( swhe ) ( s ) 264.669 904.718 secure hardware ( aes ) ( s ) 4.65 8.64 aswhe : somewhat homomorphic encryption .
+baes : advanced encryption standard .
+table 5 storage overhead for the secure hardware approach .
+overhead before and after encryption dataset haberman low birth weight study before encryption ( kb ) 3.8 28 after encryption ( swhea ) ( mb ) 30.3 123 after encryption ( aesb ) ( kb ) 36 143 aswhe : somewhat homomorphic encryption .
+baes : advanced encryption standard .
+we want to emphasize that , although the secure hardware ( advanced encryption standard [ aes ]) method is faster , state - of - the - art attack models targeting sgx show that solely secure hardware - based approaches might expose data from participating institutions to potential attackers ( as explained above ) .
+our method , although a little bit slower , preserves such institutional privacy by combining the local inputs without decrypting them ; therefore , it offers a stronger security guarantee without imposing too much computation or storage cost .
+in this way , our proposed hybrid model provides a good trade - off in terms of security and efficiency .
+table 5 shows the storage overhead of the solely secure hardware - based approach .
+for swhe , times required to encrypt the datasets were 4.37 minutes for the haberman dataset and 18.46 minutes for the low birth weight study dataset .
+for aes , times required to encrypt the datasets were 14 milliseconds for the haberman dataset and 38 milliseconds for the low birth weight study dataset .
+discussion comparison with prior work there is a homomorphic encryption - based implementation of linear regression [ 14 ] , which required 2 days to compute on a dataset containing 51,000 input vectors of 22 features with a key size of 1024 bits. that matrix inversion procedure took 1 day to complete because matrix inversion is a very expensive computational task in homomorphic encryption .
+in our proposed method , we performed matrix inversion on plaintext in secure hardware , which is much more efficient .
+hall et al [ 14 ] proposed an iterative matrix inversion algorithm , which introduces approximation errors when a fixed number of iterations is used .
+their method offers a low accuracy of 10 - 3 .
+precision can be slightly improved by choosing greater values for the 2 constants used by their method .
+however , this would require a larger public key , which would introduce significant computation overhead .
+in contrast , in our proposed method , there is no approximation error : the regression coefficients are completely identical to the plaintext results .
+security discussions in the methods ( threat model subsection ) , we discussed the security of sgx , specifically different side - channel attacks on sgx , and how we treat those attacks in our proposed framework .
+addressing these attacks , we developed our framework in such a way that it can protect institutional privacy by combining the local inputs of participating institutions without decrypting them .
+this approach provides a higher layer of security without imposing too much computational cost .
+in our proposed method , only intermediate values ( eg , xty , xtx ) are decrypted inside secure hardware .
+even if the hardware is compromised ( or , in case of a side - channel attack ) , it is not possible to retrieve any sensitive attribute from those intermediary results .
+hence , our proposed hybrid model not only achieves good performance but also guarantees stronger security than the solely sgx - based techniques .
+dowlin et al [ 24 ] and pass et al [ 25 ] discussed the security of seal and intel sgx further .
+a symmetric cryptosystem like aes requires n remote attestations to distribute the key to n data owners , which results in much more network communication , which might be prone to attack .
+in contrast , our proposed framework relies on public - key cryptography , where the data owners use a public key to encrypt their data published by the key manager .
+in this way , our proposed method reduces the attack surface of the system model , makes key distribution much simpler , and avoids additional communication overhead .
+limitations there are some limitations of our proposed framework .
+first , we did not consider the issue of model privacy .
+several works based on differential privacy have addressed inference attacks ( eg , model privacy [ 39 ]) .
+these solutions are complementary to our proposed method and can be readily incorporated into a single framework .
+second , the central server of our proposed method must be sgx enabled ; that is , it must use an intel processor of sixth generation or later .
+third , since computing coefficients for logistic regression require multiple iterations , all parties must be synchronized until coefficients converge .
+however , linear regression does not require multiple iterations .
+so , in this case , parties can be offline just after sending their intermediary results .
+generalizability others have addressed training machine learning models ( eg , support vector machines [ 40 ]) over distributed data [ 41,42 ] .
+our proposed method can be easily applied to this kind of technique .
+cost of deployment the intel sgx feature is available in all intel skylake and kaby lake processors .
+the price of an intel skylake or kaby lake processor is identical to that of processors from other vendors ( having similar configuration ) .
+price ranges from us $ 42 to us $ 1207 depending on configuration [ 43 ] .
+recently , microsoft started using sgx - capable servers in their azure confidential computing service [ 44 ] .
+azure confidential computing is offering the developers the ability to develop applications on top of intel sgx software development kit .
+apparently , there will be no significant additional charge for using this service .
+conclusion in this age of big data , data need to be analyzed to uncover valuable insights and patterns .
+but this kind of analysis poses a threat to individual privacy , since data often contain sensitive information .
+in this paper , we address this data security and privacy issue and propose a hybrid cryptographic framework to overcome the limitations of the existing cryptographic techniques .
+we think that secure hardware - assisted predictive analysis of biomedical data is very promising for health care and medical research .
+in future work , we will investigate the applicability of our proposed method to other learning algorithms such as neural networks , support vector machines , and decision trees .
+this work was funded in part by the national human genome research institute ( r00hg008175 ) and the national institute of biomedical imaging and bioengineering ( u01eb023685 ) , the natural sciences and engineering research council of canada discovery grants ( rgpin - 2015 - 04147 ) , the national institute of general medical sciences ( r01gm118574 and r01gm114612 ) , and the university research grants program from the university of manitoba , winnipeg , manitoba , canada .
+conflicts of interest : none declared .
+multimedia appendix 1 related works .
+abbreviations aes advanced encryption standard fhe fully homomorphic encryption glore grid binary logistic regression hipaa health insurance portability and accountability act pipeda personal information protection and electronic documents act seal simple encrypted arithmetic library sgx software guard extensions swhe somewhat homomorphic encryption 1 tabaei bp herman wh a multivariate logistic regression equation to screen for diabetes : development and validation diabetes care 2002 11 25 11 1999 2003 12401746 12401746 2 abdullah s murnane e matthews m kay m kientz j gay g cognitive rhythms : unobtrusive and continuous sensing of alertness using a mobile phone 2016 acm international joint conference on pervasive and ubiquitous computingsep 12 - 16 , 2016heidelberg , germany 178 189 3 rahman t czerwinski m gilad - bachrach r johns p predicting about - to - eat moments for just - in - time eating intervention 2016 6th international conference on digital healthapr 11 - 13 , 2016montreal , qc , canada 141 150 4 ahmadi h pham n ganti r abdelzaher t nath s han j privacy - aware regression modeling of participatory sensing data 2010 8th acm conference on embedded networked sensor systemsnov 3 - 5 , 2010zurich , switzerland 99 112 5 el emam k hu j mercer j peyton l kantarcioglu m malin b buckeridge d samet s earle c a secure protocol for protecting the identity of providers when disclosing data for disease surveillance j am med inform assoc 2011 5 01 18 3 212 7 10.1136 / amiajnl - 2011 - 000100 21486880 21486880 6 council of canadian academiesaccessing health and health - related data in canada : the expert panel on timely access to health and social data for health research and health system innovation 2015 2018 - 02 - 20ottawa , on council of canadian academies http :// www.scienceadvice.ca / uploads / eng / assessments % 20and % 20publications % 20and % 20news % 20releases / health - data / healthdatafullreporten.pdf 7 hayden ec geneticists push for global data - sharing nature 2013 6 06 498 7452 16 7 10.1038 / 498017a 23739403 23739403 8 yao a protocols for secure computations 1982 23rd annual symposium on foundations of computer sciencenov 3 - 5 , 1982chicago , il , usa 160 164 10.1109 / sfcs.1982.88 9 gentry c a fully homomorphic encryption scheme [ doctoral thesis ] 2009 stanford , ca stanford university 10 dwork c differential privacy 2006 33rd international colloquium on automata , languages and programming , part ii ( icalp 2006 ) july 10 - 14 , 2006venice , italy 1 12 11 hoekstra m lal r pappachan p phegade v del cuvillo j using innovative instructions to create trustworthy software solutions 2013 hasp @ isca 2013june 23 - 24 , 2013tel - aviv , israel 11 12 wu y jiang x kim j ohno - machado l grid binary logistic regression ( glore ) : building shared models without sharing data j am med inform assoc 2012 19 5 758 64 10.1136 / amiajnl - 2012 - 000862 22511014 22511014 13 shi h jiang c dai w jiang x tang y ohno - machado l wang s secure multi - party computation grid logistic regression ( smac - glore ) bmc med inform decis mak 2016 7 25 16 suppl 3 89 10.1186 / s12911 - 016 - 0316 - 1 27454168 27454168 14 hall r fienberg se nardi y secure multiple linear regression based on homomorphic encryption j off stat 2011 27 4 669 15 laine k player r simple encrypted arithmetic library - seal ( v2. 0 ) .
+technical report 2016 9 2018 - 02 - 20redmond , wa microsoft research https :// www.microsoft.com / en - us / research / wp - content / uploads / 2016 / 09 / sealmanual.pdf 16 xu y cui w peinado m controlled - channel attacks : deterministic side channels for untrusted operating systems 2015 ieee symposium on securityprivacymay 18 - 20 , 2015san jose , ca , usa 640 656 17 rivest r adleman l dertouzos m on data banks and privacy homomorphisms found secur comput 1978 4 11 169 180 18 boneh d goh e nissim k kilian j evaluating 2 - dnf formulas on ciphertexts theory of cryptography 2005 cham , switzerland springer international publishing ag 325 341 19 goldwasser s micali s probabilistic encryption : how to play mental poker keeping secrl partial information 1982 fourteenth annual acm symposium on theory of computingmay 5 - 7 , 1982san francisco , ca , usa 365 377 20 paillier p stern j public - key cryptosystems based on composite degree residuosity classes advances in cryptology - eurocrypt ' 99 1999 cham , switzerland springer international publishing ag 223 238 21 rivest r shamir a adleman l a method for obtaining digital signatures and public - key cryptosystems commun acm feb 1978 21 2 120 126 22 elgamal t a public key cryptosystem and a signature scheme based on discrete logarithms ieee trans inf theory jul 1985 31 4 469 472 23 brakerski z gentry c vaikuntanathan v ( leveled ) fully homomorphic encryption without bootstrapping acm trans comput theory 2014 6 3 13 24 dowlin n gilad - bachrach r laine k lauter k naehrig m wernsing j manual for using homomorphic encryption for bioinformatics proc ieee 2017 3 105 3 552 567 25 pass r shi e tramer f coron js nielsen jb formal abstractions for attested execution secure processors advances in cryptology - eurocrypt 2017 2017 cham , switzerland springer international publishing ag 26 goldreich o foundations of cryptography .
+volume 2 : basic applications 2009 cambridge , uk cambridge university press 27 fisch b vinayagamurthy d boneh d gorbunov s iacr cryptology eprint archive 2016 2018 - 02 - 20iron : functional encryption using intel sgx https :// eprint.iacr.org / 2016 / 1071.pdf 28 weichbrodt n kurmus a pietzuch p kapitza r asyncshock : exploiting synchronisation bugs in intel sgx enclaves 2016 21st european symposium on research in computer securitysep 26 - 30 , 2016heraklion , crete , greece 440 457 29 shinde s chua z narayanan v saxena p preventing page faults from telling your secrets 2016 11th acm on asia conference on computer and communications securitymay 30 - jun 3 , 2016sian , china 317 328 30 wang w chen g pan x zhang y wang x bindschaedler v tang h gunter c leaky cauldron on the dark land : understanding memory side - channel hazards in sgx .
+arxiv : 1705.07289 2017 8 30 2018 - 02 - 14https :// arxiv.org / abs / 1705.07289 31 costan v lebedev i devadas s sanctum : minimal hardware extensions for strong software isolation 2016 25th usenix security symposiumaug 10 - 12 , 2016austin , tx , usa 857 874 32 fredrikson m jha s ristenpart t model inversion attacks that exploit confidence informationbasic countermeasures 2015 22nd acm sigsac conference on computer and communications securityoct 12 - 16 , 2015denver , co , usa 1322 1333 33 fredrikson m lantz e jha s lin s page d ristenpart t privacy in pharmacogenetics : an end - to - end case study of personalized warfarin dosing 2014 23rd usenix security symposiumaug 20 - 22 , 2014san diego , ca , usa 17 32 34 heij c de boer p franses p kloek t van dijk hk econometric methods with applications in business and economics 2004 oxford , uk oxford university press 35 friedman j hastie t tibshirani r the elements of statistical learning .
+springer series in statistics 2001 berlin , germany springer 36 halevi s shoup v garay ja gennaro r algorithms in helib advances in cryptology - crypto 2014 2014 cham , switzerland springer international publishing ag 554 571 37 lichman m uci machine learning repository 2013 2018 - 02 - 14irvine , ca university of california , irvine , school of information and computer sciences http :// archive.ics.uci.edu / ml / 38 hosmer dj lemeshow s sturdivant r applied logistic regression 2013 new york , ny john wiley & sons 39 abadi m chu a goodfellow i mcmahan h mironov i talwar k deep learning with differential privacy 2016 acm sigsac conference on computer and communications securityoct 24 - 28 , 2016vienna , austria 308 318 40 vapnik v the nature of statistical learning theory 2013 cham , switzerland springer international publishing ag 41 yu h jiang x vaidya j privacy - preserving svm using nonlinear kernels on horizontally partitioned data 2006 acm symposium on applied computingapr 23 - 27 , 2006dijon , france 603 610 42 yu h vaidya j jiang x ng wk kitsuregawa m li j chang k privacy - preserving svm classification on vertically partitioned data advances in knowledge discovery and data mining 2006 cham , switzerland springer international publishing ag 647 656 43 products formerly skylake2017 - 10 - 11santa clara , ca intel corporation http :// ark.intel.com / products / codename / 37572 / skylake 44 russinovich m introducing azure confidential computing 2017 9 14 2017 - 10 - 11seattle , wa microsoft https :// azure.microsoft.com / en - us / blog / introducing - azure - confidential - computing /

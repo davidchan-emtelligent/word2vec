@@ -1,0 +1,170 @@
+int j biomed imaging int j biomed imaging ijbi international journal of biomedical imaging 1687 - 4188 1687 - 4196 hindawi publishing corporation 20689705 2905722 10.1155 / 2010 / 650298 research article qualitative simulation of photon transport in free space based on monte carlo method and its parallel implementation chen xueli 1 , 2 gao xinbo 1 * qu xiaochao 2 chen duofang 2 ma bin 2 wang lin 2 peng kuan 1 , 2 liang jimin 2 tian jie 2 , 3 * 1video and image processing system lab , school of electronic engineering , xidian university , xi'an , shaanxi 710071 , china 2life sciences research center , school of life sciences and technology , xidian university , xi'an , shaanxi 710071 , china 3institute of automation , chinese academy of sciences , beijing 100190 , china * xinbo gao : xbgao @ mail.xidian.edu.cn and * jie tian : tian @ ieee.org academic editor : yu zou 2010 27 6 2010 2010 650298 28 12 2009 9 4 2010 7 6 2010 copyright ( c ) 2010 xueli chen et al .
+2010 this is an open access article distributed under the creative commons attribution license , which permits unrestricted use , distribution , and reproduction in any medium , provided the original work is properly cited .
+during the past decade , monte carlo method has obtained wide applications in optical imaging to simulate photon transport process inside tissues .
+however , this method has not been effectively extended to the simulation of free - space photon transport at present .
+in this paper , a uniform framework for noncontact optical imaging is proposed based on monte carlo method , which consists of the simulation of photon transport both in tissues and in free space .
+specifically , the simplification theory of lens system is utilized to model the camera lens equipped in the optical imaging system , and monte carlo method is employed to describe the energy transformation from the tissue surface to the ccd camera .
+also , the focusing effect of camera lens is considered to establish the relationship of corresponding points between tissue surface and ccd camera .
+furthermore , a parallel version of the framework is realized , making the simulation much more convenient and effective .
+the feasibility of the uniform framework and the effectiveness of the parallel version are demonstrated with a cylindrical phantom based on real experimental results .
+1. introduction as a gold standard of probabilistic statistics , monte carlo ( mc ) method has been widely applied in the simulation of various physical processes and used to achieve its statistical characteristic by sampling enormous random samples [ 1 ] .
+among these applications , a stochastic model is firstly constructed , in which the expected value of a certain random variable or a random variable combination is equal to the physical quantity in the physical process ; and then the expected value is determined by averaging the multi - sample of the random variable .
+since mc simulation was first introduced to the field of laser - tissue interactions by wilson and adam [ 2 ] , it has been applied widely in simulating photon transport in tissues and been improved a lot [ 3 - 7 ] .
+furthermore , a software platform , a monte carlo model of steady - state light transport in multilayered tissues ( mcml ) , was firstly developed by wang 's group to model the photon transport in multi - layered tissues [ 8 ] .
+although the platform is portable to multiple computer platforms and several simulation results can be obtained , it is limited in normally incident light beam , simple geometries , and external source .
+to handle the aforementioned problems , tian 's group developed a new simulation platform , molecular optical simulation environment ( mose ) , to simulate photon transport process in complicated and irregular geometries with internal light sources [ 9 , 10 ] .
+however , mc method has not been effectively extended to simulate the photon transport process in free space .
+theoretically , the simulation of photon transport in free space is an awkward problem , which is different from the simulation of photon transport in tissues .
+in free space , the complexity of the optical imaging system induces difficulties to the photon transport simulation .
+the presence of camera lens further complicates the photon transport process in free - space .
+therefore , accurate and effective free - space photon transport model and the development of a uniform framework for the simulation of noncontact optical imaging are demanded urgently .
+in this paper , a mc - based free - space photon transport ( mc - fpt ) model is developed , where the focusing effect of camera lens is taken into account and the simplification theory is used to model the camera lens as a thin lens .
+the mapping relationship of corresponding points between tissue surface and ccd camera is established using the focusing effect of the simplified thin lens .
+furthermore , a uniform framework is constructed by incorporating the mc - fpt model into the mose platform , including the photon transport process from photon generation by light source to signal detection with a ccd camera .
+a parallel version of the uniform framework is realized based on mpich which is a robust and flexible implementation and application of the message passing interface .
+experiment using cylindrical phantom demonstrates the performance of the proposed model and further shows the potential of the parallel uniform framework for practical noncontact optical imaging applications .
+2. methods 2.1 .
+monte carlo method mc method is a probability and statistical theory - based computation method , which achieves the statistical characteristic of physical process by sampling enormous random samples .
+it relies on random sampling of variables from well - defined probability distributions to compute the value of physical quantities .
+using the mc method , a random statistical model should be constructed first , in which several random variables are defined and each corresponds to a physical quantity with predefined probability distribution , and then enough samples of the random variables are carried to achieve the simulation of the physical process reliably .
+given a random variable u with probability density function p ( u ) defined in the interval ( a , b ) , arbitrary sample x of the random variable will produce a random number xi and satisfies ( 1 ) integralaxp ( u ) du = xi , where x is located in the interval ( a , b ) and xi is in ( 0,1 ) .
+making use of ( 1 ) , we can first generate the random number xi by a pseudorandom number generator , and then sample the random u by solving ( 1 ) for x .
+2.2 .
+photon transport in tissues photon transport in tissues is a complicated process and involves several activities including photon absorption , scattering , internal reflection , and transmission .
+to simulate photon transport process in tissues using mc method , the problems such as photon generation , photon movement , boundary effect , photon absorption , photon scattering , and photon termination should be concerned [ 9 ] .
+in practical applications , photon is commonly replaced by photon package .
+the power of each photon package is determined through dividing the total power of light source by the number of the photon package .
+once a photon package is generated from the light source , it first moves a distance determined by the step size along its initial emitting direction , then it loses part of its power due to the absorption and change its movement direction , because of the scattering , before it moves to the next position .
+this process is repeated until the photon package is totally absorbed ( marked as photon _ dead = 1 ) or transmited through the outer boundary ( marked as photon _ dead = 0 ) .
+in addition , the internal and the outer boundary effects should be concerned in the simulation .
+during the photon transport process , the crucial step is to determine the next interaction site or the step size of the photon package , which can be calculated using the following equation : ( 2 ) d = - ln zetamua + mus , where d is the step size of the photon package ; zeta is a uniform random number in the interval ( 0,1 ) ; mu a and mu s are the absorption and scattering coefficients , respectively .
+for the statistical characteristics of mc method , more than 106 photon packages are required to guarantee the accuracy and randomness of the simulation results .
+the more photon packages running in the simulation , the better the simulation results would be. therefore , 108 photon packages are used for all the simulations in this paper .
+2.3 .
+photon transport in free space 2.3.1 .
+simplification of optical imaging system optical imaging system usually includes two inevitable parts , camera lens and ccd camera .
+the camera lens is utilized to transform and restrict the light beam , and the ccd camera is used to register the light beam that is selected by the camera lens .
+therefore , the simplification of optical imaging system is composed of the simplification of the camera lens and the modeling of the ccd camera .
+the following section will present the simplification of the optical imaging system employed in the proposed mc - fpt model .
+a camera lens in an ideal optical system is typically not a single - lens , but a combination of a lens system with finite thickness and several other physical counterparts , such as camera lens diaphragms .
+thus , photon transport in such combination is extremely complicated and difficult to analyze .
+gauss had postulated that this combination can be simply modeled as a gaussian thick lens by replacing it with two equivalent refracting surfaces [ 11 , 12 ] .
+furthermore , gaussian thick lens can be equivalently reduced to a thin lens model based on geometric and photometric mapping [ 12 ] .
+because the thin lens model exhibits several excellent features such as simplified structure and rectilinear propagation of light beam in the thin lens , the camera lens in the optical imaging system is approximate to the simplified thin - lens model , shown in figure 1 .
+thus , the thin - lens - based lens law given by 1 / u + 1 / v = 1 / f can be employed to establish the corresponding relationship between the object and image point as follows : ( 3 ) rd = r + u + vcos alphas , where r is the coordinates of the object point at the tissue surface ; r d is the coordinates of the corresponding image point ; u is the distance between the object point and the thin lens ; v is the corresponding image distance determined by the lens law of the thin lens ; f is the focal length of the thin lens ; s represents the direction of the light beam that emits from tissue surface and passes though the axis center of the thin lens ; cos alpha is the cosine value of the angle between the direction s and optical axis .
+for the irregularity of tissue surface , not all the object points at the tissue surface are exactly imaged at the ccd camera , as shown in figure 1 ( a ) .
+considering the focusing effect of the thin lens , this contribution assumes that all the surface points are in the range of depth - of - field .
+each point at the tissue surface corresponds to one point at the ccd camera .
+as a result , image points , not at the ccd camera should be projected onto the camera .
+two projection methods , including orthographic and perspective projection method , can be used to perform the projection process , as described in the inset of figure 1 ( a ) .
+the trail a'c shows the orthographic projection process , and the trail a 'd presents the perspective projection .
+because schulz had demonstrated that the perspective projection method could better improve image aberrations compared with the orthographic projection method [ 13 ] , the perspective projection method is employed in the proposed mc - fpt model .
+on the basis of the aforementioned analysis , the ccd camera in the optical imaging system is modeled as a sigmoid panel detector to enhance the focusing effect - based , one - for - one mapping , as shown in figure 1 ( b ) .
+thus , an image point r d on the sigmoid panel detector which might be the image point or the image facula center of the surface point r can be calculated by rewriting ( 3 ) as follows : ( 4 ) rd = r + u + v'cos alphas , where v ' is the distance from the image point r d to the thin lens .
+2.3.2 .
+monte carlo - based free - space photon transport model once the photon package reaches the outer boundary and no total reflection occurs , it would continue propagating in free space and the free - space photon transport model can be constructed using mc method .
+for this purpose , an assumption should be made first , that is , the free space is defined as a specific tissue which is assigned specific optical properties : the absorption coefficient mu a = 0 , the scattering coefficient mu s = 0 , and the anisotropy factor g = 1 .
+according to ( 2 ) , we obtain the step size of the photon package by the following formula : ( 5 ) d = - ln zetamua + mus = infinity .
+equation ( 5 ) implies that the step size of the photon package approaches infinity when the photon package propagates in free space .
+because the free space is assumed as a totally forward scatter , we can conclude that the photon package would continue propagating in its emitting direction until it hits an obstruction or is collected by the ccd camera .
+in the subsequent section , two mapping relationships between the tissue surface and the ccd camera , including spatial position and photon flux , are constructed to describe the implementation of the proposed mc - fpt model .
+( a ) mapping relationship of spatial position between tissue surface and ccd camera based on the aforementioned analysis , optical imaging system used in the imaging experiment can be equivalently modeled as a simple system , a combination of a simplified thin lens and a sigmoid panel detector .
+the experimental setup for this simplified non - contact measurement in real experiments is shown in figure 2 .
+here , a visibility factor is introduced to be used as a criterion for determining whether the mapping relationship of spatial position between the surface point and the corresponding image point is established .
+in mathematics , the visibility factor is defined as ( 6 ) epsilon ( r,rd )= alpha ( r,rd ) beta ( r,omegaf ) , where epsilon ( r , r d ) is the visibility factor that consists of two parts , field visibility factor and system visibility factor ; alpha ( r , r d ) is the field visibility factor that discards the outgoing photon packages not imaged at the detection point r d and can be determined by ( 7 ) alpha ( r,rd )={ 1,if rd = r + u + v'cos alpha s,0,otherwise .
+the system visibility factor is used to discard the outgoing photon packages that cannot reach the thin lens and defined as ( 8 ) beta ( r,omegaf )={ 1,if srintersectionomegaf != empty,0,if srintersectionomegaf = empty , where beta ( r , omega f ) is the system visibility factor ; omega f is a thin - lens space with the same diameter as the lens system and can be obtained in the imaging experiment .
+the expression s r intersection omega f != empty can be interpreted that the outgoing photon packages can pass through the thin lens , as line 1 shown in figure 2 ; similarly , s rintersectionomega f = empty shows that the intersection point between the line and thin lens space is out of the range of the thin lens space , as line 2 and line 3 shown in figure 2 .
+based on the aforementioned analysis , the mapping relationship of spatial position between the surface points and the corresponding image points can be established using ( 4 ) and ( 6 ) .
+( b ) mapping relationship of photon flux between tissue surface and ccd camera because the optical imaging system is reduced to a simple combination of a simplified thin lens and a sigmoid panel detector , the focusing effect is utilized to establish the relationship between the corresponding points at the tissue surface and the sigmoid panel detector .
+incorporating the aforementioned analysis of mc method , we can obtain the following formula : ( 9 ) p ( rd )= integralstau ( r,rd ; f ) epsilon ( r,rd ) p ( r ) ds , where r is the position of outgoing photon at the tissue surface ; r d is the corresponding image point or image facula center of the outgoing photon package at the sigmoid panel detector , which can be determined by ( 4 ) ; p ( r ) is the power of the outgoing photon package emitted from the outer boundary ; p ( r d ) is the power detected at point r d ; tau ( r , r d ; f ) is the energy - loss coefficient of the optical imaging system , which is dependent upon multifactors and can be measured in the experiment , including the transmittance of the optical system and the position of and the distance between the point r and r d , ; epsilon ( r , r d ) is the visibility factor and can be determined by ( 6 ) .
+to sum up , the flux distribution at the ccd camera can be calculated directly by solving the formula shown in ( 9 ) .
+the uniform implementation framework for the proposed mc - fpt model is presented in algorithm 1 .
+2.4 .
+parallel implementation in order to improve the simulation efficiency of the proposed uniform framework , a parallel version is developed based on a small - scale parallel system , which is realized on windows operating system .
+the parallel system is constructed by several personal computers , and all the computers are connected to a 16 - port ethernet switch with the data transfer rate of 100 megabits per second .
+in the simulation , one of the cpus is selected as master processor and the others are served as slaver processors .
+the master processor is responsible for controlling the parallel program and simultaneously participating in computation , and the slavers are utilized for computation .
+in addition , message passing mechanism is employed for the communications among the processors in the parallel framework , which is concretely implemented on mpich , a robust and flexible implementation and application of the message passing interface ( mpi ) .
+pseudorandom generator is an important part of mc simulation , and the parallelization of the mc - based framework is to actually parallelize the pseudo - random generator .
+because the master - slave mode communication is utilized in the proposed parallel framework , pseudo - random generator parallelization is realized by dividing cycle method [ 10 ] .
+dividing cycle method is a common parallelization method to parallelize the pseudo - random generator and its implementation in the proposed parallel framework is described as follows .
+firstly , a random number sequence is generated by the master processor and divided into several subdomains .
+secondly , the first random number of each sub - domain is sent to the corresponding slaver processor as a seed .
+finally , with the random number seeds , the slaver processors generate their own random number sequence .
+the whole flowchart of the proposed parallel framework is shown in figure 3 , where the task assignment includes three steps : first , a random number sequence is generated by the master cpu ; second , the random number sequence is divided into n c sub - domains , and n c is the number of cpus ; third , the first random number of each sub - domain is sent to the corresponding slaver cpu .
+in addition , it should be noted that a multiplicative congruent generator is employed in the proposed mc - based framework , and the parallel program is coded with the standard c ++ language .
+3. experiments and results a nylon cylindrical phantom of 30 mm diameter and 30 mm height was designed to verify the performance of the proposed mc - based free - space photon transport model and its parallel uniform framework .
+a small hole of 2 mm diameter and 16 mm depth from the top surface of the phantom was drilled with a distance of 8 mm from the center to emplace light source , as presented in literature [ 12 ] .
+the light source was made of luminescent solution that was extracted from a red luminescent light stick ( glow products , canada ) .
+because the central wavelength of luminescence light generated by the luminescent solution is about 650 nm , the optical properties of the phantom were measured at the wavelength about 660 nm by a time - correlated single photon counting ( tcspc ) system [ 14 ] .
+the measured optical properties of the phantom are listed as follows : the absorption coefficient mu a = 0.0138 mm - 1 and the reduced scattering coefficient mu s' = 0.91 mm - 1 .
+a cooled back - illuminated ccd camera ( princeton instrument / acton 2048b ) coupled with a nikkor mrico 55 mm f / 2.8 camera lens was utilized to collect the emitted photons .
+in the experiment , the aperture value of the camera lens was set at f / 8 to ensure that the front surface of the phantom was in the range of depth - of - field .
+the experimental setup is shown in figure 4 .
+figure 4 ( a ) shows the physical phantom used in the optical imaging experiment , figure 4 ( b ) describes four perspectives for the optical imaging system to register the outgoing luminescence light , and figure 4 ( c ) presents the numerical phantom utilized in the simulation framework .
+3.1 .
+experiment verifications in this subsection , an optical imaging experiment is performed to validate the performance of the proposed mc framework using the aforementioned optical imaging system and experimental setup .
+four perspective images ; front , left , back , and right perspectives , are presented in figure 5 .
+figures 5 ( a ) - 5 ( d ) present the measured flux captured by the ccd camera in the imaging experiment , and figures 5 ( e ) - 5 ( h ) show the simulated flux of the proposed mc framework .
+although similar tendency on flux distribution is achieved , there are still some flaws .
+firstly , the simulated flux distribution is a little larger than the measured one , which is mainly caused by the simplification of optical imaging system and could be improved by more accurately modeling the optical imaging system .
+secondly , the simulated flux is sparser than the measured one , which is intrinsically caused by the stochastic characteristic of mc method .
+much smoother simulated flux can be obtained by increasing the number of photon package in the simulation .
+results of detector z positions : z d = 0.0 , 2.0 , and 4.0 mm are examined and shown in figure 6 .
+figures 6 ( a ) - 6 ( d ) describe the comparison results between the proposed mc framework and real experiment .
+the solid lines show the results from real experiment , and the asterisks represent the simulated results of the proposed mc framework .
+although the simulated flux seems a bit sparse , the mean error ( me ) and root - mean - square error ( rmse ) defined in literature [ 12 ] show the conformability from the aspect of quantitative error analysis , as listed in table 1 .
+good agreement is observed in the cases examined , with the average me and rmse being about 0.0300 and 0.0015 .
+because the accuracy of the transmitted photon flux on the phantom surface simulated by mose has been sufficiently demonstrated [ 9 , 10 ] , the proposed mc framework works well in simulating photon transport in free space and provides great potential for non - contact optical imaging .
+3.2 .
+parallel performance demonstration ideally , parallel execution on an increased number of cpus should provide improved simulation performance .
+in order to evaluate the parallel uniform framework , performance demonstration experiment is performed using different number of cpus .
+the experiment is performed on a workstation with two eight - core xeon cpus and 8 gb ram .
+figure 7 shows the variation of the simulation time with the cpu number .
+the total simulation time decreases with the increase of cpu number .
+moreover , the downtrend of the simulation time tends to be steady when the number of cpus increased to a certain value , 8 in this experiment .
+to further observe the improved performance on the simulation time , the factor of speedup ratio with respect to serial framework is calculated , as listed in table 2 .
+it also shows that the simulation time decreases to a relative stable value with the increase of cpu number .
+since the simulation is performed on a group of cpus , the communication time among the cpus becomes significant with the increase of cpu number .
+as a result , the simulation time would less decrease when the number of cpus reaches a certain value , as shown in figure 7 and table 2 .
+higher speed communication method can significantly reduce the simulation time cost. with the available hardware and software conditions , the number of cpus must be predetermined to achieve a compromise between the simulation speed and the resources .
+4. discussions and conclusion in this paper , a statistical free space photon transport model is developed based on monte carlo method .
+it employs the simplification theory of the camera lens to simplify the optical imaging system and utilizes monte carlo method to describe the photon transport process in free space .
+moreover , the focusing effect of the thin lens is introduced to depict the mapping relationship between the corresponding points at the tissue surface and ccd camera .
+incorporating with photon transport simulation in tissues , we constructed a monte - carlo - based uniform framework for the forward problem of the non - contact optical imaging .
+specially , a parallel version of the uniform framework was realized to improve the performance on speed .
+comparisons with real experiment have demonstrated the feasibility and potential of the proposed uniform framework .
+the proposed model can still be improved in the following aspects .
+firstly , more accurate simplification model of optical imaging system can be constructed to improve the distribution of simulated photon flux , such as the consideration of the physical counterparts in the camera lens .
+secondly , this paper just presents the qualitative study of photon transport in free space based on monte carlo method .
+quantitative study can be realized by anther post processing method , such as the calibration of the ccd camera .
+lastly , the proposed model is time consuming due to the statistical characteristic of monte carlo method .
+although a parallel framework is realized to speedup the simulation , the parallel strategy is not perfect .
+higher speed communication method or graphics processing unit ( gpu ) technique based on parallel strategy can be employed to better improve the simulation efficiency of the proposed model .
+our future work will concentrate on the more accurate simplification model of the camera lens , the quantitative study of the proposed model , and the gpu technique based on acceleration .
+the corresponding results will be reported later .
+acknowledgments this paper is supported by the program of the national basic research and development program of china ( 973 ) under grant no .
+2006cb705700 , the cheung kong scholars and innovative research team in university ( pcsirt ) under grant no .
+irt0645 , the chair professors of cheung kong scholars program of ministry of education of china , cas hundred talents program , the national natural science foundation of china under grant nos .
+30873462 , 30900334 , and 60771068 , the shaanxi provincial natural science foundation research project under grant no .
+2009jq8018 , the fundamental research funds for the central universities .
+1 metropolis n ulam s the monte carlo method journal of the american statistical association 1949 44 335 341 18139350 2 wilson bc adam g a monte carlo model for the absorption and flux distributions of light in tissue medical physics 1983 10 6 824 830 6656695 3 prahl sa keijzer m jacques sl welch aj a monte carlo model of light propagation in tissue in : dosimetry of laser radiation in medicine and biology , vol. is 51989 102 111 proceedings of spie .
+4 flock st wilson bc patterson ms monte carlo modeling of light propagation in highly scattering tissues - - ii : comparison with measurements in phantoms ieee transactions on biomedical engineering 1989 36 12 1169 1173 2606491 5 gardner cm welch aj monte carlo simulation of light transport in tissue : unscattered absorption events applied optics 1994 33 13 2743 2745 20885632 6 testorf m osterberg u pogue b paulsen k sampling of time - and frequency - domain signals in monte carlo simulations of photon migration applied optics 1999 38 1 236 245 18305609 7 boas da culver jp stott jj dunn ak three dimensional monte carlo code for photon migration through complex heterogeneous media including the adult human head optics express 2002 10 3 159 170 19424345 8 wang l jacques sl zheng l mcml - - monte carlo modeling of light transport in multi - layered tissues computer methods and programs in biomedicine 1995 47 2 131 146 7587160 9 li h tian j zhu f a mouse optical simulation environment ( mose ) to investigate bioluminescent phenomena in the living mouse with the monte carlo method academic radiology 2004 11 9 1029 1038 15350584 10 peng k gao x liang j study on photon transport problem based on the platform of molecular optical simulation environment international journal of biomedical imaging 2010 2010 9 pages article id 913434 .
+11 aggarwal m ahuja n a pupil - centric model of image formation international journal of computer vision 2002 48 3 195 214 12 chen x gao x qu x a study of photon propagation in free - space based on hybrid radiosity - radiance theorem optics express 2009 17 18 16266 16280 19724626 13 schulz rb peter j semmler w d'andrea c valentini g cubeddu r quantifiability and image quality in noncontact fluorescence tomography in : photon migration and diffuse - light imaging ii , vol. 5859june 2005munich , germany 1 8 proceedings of spie .
+14 qin d zhao h tanikawa y gao f experimental determination of optical properties in turbid medium by tcspc technique in : optical tomography and spectroscopy of tissue vii , vol. 6434january 2007san jose , calif , usaproceedings of spie .
+figure 1 schematic diagram for the simplification of optical imaging system .
+figure 2 schematic diagram for non - contact experimental setup .
+figure 3 flowchart of the proposed parallel uniform framework .
+figure 4 experimental setup .
+( a ) physical phantom , ( b ) four perspectives for ccd camera to register outgoing photons , ( c ) numerical phantom .
+figure 5 flux distribution at the ccd camera .
+( a ) - ( d ) experimental data , ( e ) - ( h ) simulation results , ( a ) and ( e ) front , ( b ) and ( f ) left , ( c ) and ( g ) back , ( d ) and ( h ) right perspective .
+figure 6 comparison of mc simulation and real experiment at the detector position : z d = 0.0 , 2.0 , 4.0 mm .
+( a ) - ( d ) front - , left - , back - and right - perspective .
+figure 7 performance comparison depending on cpu number .
+algorithm 1 uniform framework for mc - based photon transport model .
+table 1 error comparisons between mc and real experiment .
+front left back right average me 0.0253 0.0283 0.0417 0.0250 0.0300 rmse 0.0013 0.0014 0.0021 0.0013 0.0015 table 2 performance comparison between parallel framework with different number of cpus and serial framework .
+speed - up ratio is defined as the ratio between the time cost of multi - cpus simulation and that of single cpu simulation .
+relative error is defined as | experiment value - theoretical value |/ theoretical value .
+cpu number time cost ( s ) speed - up ratio relative error experiment value theoretical value 1 71173.4 1.00000 1.00000 0.00000 2 37898.9 1.87798 2.00000 0.06101 4 20200.9 3.52328 4.00000 0.11918 6 13526.8 5.26166 6.00000 0.12306 8 9802.32 7.26087 8.00000 0.09239 10 8271.94 8.60420 10.00000 0.13958 12 6926.80 10.2751 12.00000 0.14374 14 5758.62 12.3595 14.00000 0.11718 16 5199.02 13.6898 16.00000 0.14439

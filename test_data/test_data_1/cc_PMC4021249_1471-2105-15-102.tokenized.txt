@@ -1,0 +1,372 @@
+bmc bioinformatics bmc bioinformatics bmc bioinformatics 1471 - 2105 biomed central 24717145 4021249 1471 - 2105 - 15 - 102 10.1186 / 1471 - 2105 - 15 - 102 research article cloud computing for detecting high - order genome - wide epistatic interaction via dynamic clustering guo xuan 1 xguo9 @ student.gsu.edu meng yu 1 ymeng4 @ student.gsu.edu yu ning 1 nyu4 @ student.gsu.edu pan yi 1 yipan @ gsu.edu 1 department of computer science , georgia state university , 34 peachtree street , atlanta , usa 2014 10 4 2014 15 102 102 28 10 2013 17 3 2014 copyright ( c ) 2014 guo et al. ; licensee biomed central ltd .
+2014 guo et al. ; licensee biomed central ltd.this is an open access article distributed under the terms of the creative commons attribution license ( http :// creativecommons.org / licenses / by / 2.0 ) , which permits unrestricted use , distribution , and reproduction in any medium , provided the original work is properly credited .
+the creative commons public domain dedicationwaiver ( http :// creativecommons.org / publicdomain / zero / 1.0 /) applies to the data made available in this article , unless otherwisestated .
+backgroud taking the advan tage of high - throughput single nucleotide polymorphism ( snp ) genotyping technology , large genome - wide association studies ( gwass ) have been considered to hold promise for unravelling complex relationships between genotype and phenotype .
+at present , traditional single - locus - based methods are insufficient to detect interactions consisting of multiple - locus , which are broadly existing in complex traits .
+in addition , statistic tests for high order epistatic interactions with more than 2 snps propose computational and analytical challenges because the computation increases exponentially as the cardinality of snps combinations gets larger .
+results in this paper , we provide a simple , fast and powerful method using dynamic clustering and cloud computing to detect genome - wide multi - locus epistatic interactions .
+we have constructed systematic experiments to compare powers performance against some recently proposed algorithms , including team , snpruler , edcf and boost .
+furthermore , we have applied our method on two real gwas datasets , age - related macular degeneration ( amd ) and rheumatoid arthritis ( ra ) datasets , where we find some novel potential disease - related genetic factors which are not shown up in detections of 2 - loci epistatic interactions .
+conclusions experimental results on simulated data demonstrate that our method is more powerful than some recently proposed methods on both two - and three - locus disease models .
+our method has discovered many novel high - order associations that are significantly enriched in cases from two real gwas datasets .
+moreover , the running time of the cloud implementation for our method on amd dataset and ra dataset are roughly 2 hours and 50 hours on a cluster with forty small virtual machines for detecting two - locus interactions , respectively .
+therefore , we believe that our method is suitable and effective for the full - scale analysis of multiple - locus epistatic interactions in gwas .
+cloud computing genome - wide association studies dynamic clustering background genome - wide association study ( gwas ) has been proved to be a powerful genomic and statistical inference tool , and its goal is to identify genetic susceptibility through statistical tests on associations between a trait of interests and the genetic information of unrelated individuals [ 1 ] .
+in genetics , genotype - phenotype association studies have established that single nucleotide polymorphisms ( snps ) [ 2 ] , one type of genetic variants , are associated with a variety of diseases [ 3 ] .
+however , the primary analysis paradigm for gwas is dominated by the analysis on susceptibility of individual snps , which accordingly can only explain a small part of genetic causal effects for complex diseases [ 4 ] .
+for better understanding underlying causes of complex disease traits , identifying joint genetic effects ( epistasis ) across the whole genome has attracted more attentions [ 5 ] .
+as a matter of fact , single locus - based approaches are insufficient to detect all interacting genes , especially for those with small marginal effects .
+the term epistasis was first used in 1909 and it was referred as an extension of the concept of dominance for alleles within the same allelomorphic pair [ 6 ] .
+in recent literatures , epistasis has been defined generally as the interaction among different genes [ 7 ] .
+many studies [ 8 - 11 ] have demonstrated that the epistasis is an important contributor to genetic variation in complex diseases such as asthma , breast cancer [ 12 ] , diabetes , coronary heart disease [ 13 ] , and obesity [ 14 ] .
+in this article , we consider epistatic interactions as the statistically significant associations of t - snp modules ( t >= 2 ) with phenotypes [ 15 ] , i.e. the full association in terms of logistic regression .
+recently , the problem of detecting high - order genome - wide epistatic interaction in gwas has attracted extensive research interests .
+there are two challenges in finding high - order genome - wide epistatic interaction on large gwas dataset [ 16 ] : the first arises from heavy computational burden , i.e. the number of association patterns increases exponentially as the order of interaction goes up. for example , 1.25x1011 statistical tests are required to detect pairwise interactions for a dataset with 500,000 snps .
+the second challenge is that existing approaches lack statistical powers for searching high - order multi - locus models of disease .
+many computational algorithms have been proposed to overcome two preceding difficulties .
+they can be broadly categorized to three groups : exhaustive search , stepwise search and heuristics approaches .
+the naive solution to tack the problem is exhaustive search using chi2 test , exact likelihood ratio test or entropy - based test for all modules of multiple - locus .
+marchini et al .
+[ 5 ] showed that it was computationally possible to test two - locus associations allowing for interactions in gwas based on current computation resources .
+examples in exhaustive search , like mdr and its extensions , utilize repeated cross - validations and permutation tests to evaluate accuracy and significance of classification [ 7,17 ] .
+in addition , wan et al .
+[ 18 ] proposed a boolean operation - based representation to speed up the collection of contingency tables [ 19,20 ] .
+one major barrier for exhaustive search is the intensive computation , and thus parallel computing was adopted to further speed up the analysis of gene - gene interactions .
+for example , gboost [ 21 ] is a gpu framework based implementation of boost , and piam [ 22 ] is developed by liu et al , which used the multi - thread to perform genome - wide interaction - based association ( gwiba ) analysis for exhaustive two - locus searches .
+however , finding higher order ( more than 2 loci ) disease - related associations are too computationally expensive to be feasible , especially for large gwas datasets with millions snps .
+in order to deal with the huge computation request , stepwise search strategies select a subset of snps or combinations of snps based on some low - order statistic tests ( or measures ) , then extend them to higher order multi - locus interactions if it is statistically possible [ 5,20,23 ] .
+stepwise approaches are much faster than exhaustive algorithms and make high - order genome - wide epistasis finding feasible , but they lose powers when complex diseases show no or little marginal effects .
+unlike the previous two strategies , heuristic methods adopt machine learning or stochastic procedures to search the space of interactions rather than explicitly enumerating all combinations of snps .
+snpruler [ 24 ] , beam [ 25 ] , epimode [ 26 ] and epiforest [ 27 ] fall into this category .
+snpruler and a few other pattern - based methods use some data mining approaches as filters to reduce the number of snp combinations without assumptions of models .
+based on the markov chain monte carlo ( mcmc ) theory , beam iteratively calculates the posterior probability that a locus is associated with the disease and / or involved with other loci in epistasis interactions .
+epimode first uses the gibbs sampling strategy with a reversible jump markov chain monte carlo procedure to simulate the posterior distribution that genetic variants belong to the epistatic modules and screens out statistically significant modules based on hypothesis testing .
+epiforest treats snp markers as categorical features , adopts the random forest to discriminate cases against controls , and selects a small set of candidate snps that could minimize the classification error .
+an drawback of heuristics approaches is that they will leave out a great deal of significant interactions which can be reported by first two searching strategies .
+in this paper , we provide a cloud based computational method , named " dynamic clustering for high - order genome - wide epistatic interactions detecting " ( dche ) , to address above challenges .
+taking advantages of recent high - performance computing ( hpc ) technologies - cloud computing to accelerate computations , dche adopts an elaborated dynamic clustering procedure to maximize statistic significance for snp combinations and ranks top ones as results .
+one benefit of cloud computing technologies is that the executional environment and experimental conditions can be easily and completely customized by newbies in distributed computing , even for large distributed infrastructures [ 28 ] .
+furthermore , since the infrastructure is rented on a pay - per - use rule , immediate access to required resources for scientific experiments become possible without planning beforehand. with cloud computing , dche conducts statistic tests on merged groups of genotype categories determined by the dynamic clustering .
+each grouped genotype category tends to share a similar effect associating with corresponding phenotypes .
+truly disease - related joint genetic effects will gain higher ranking values , if genotype combinations can be correctly clustered together .
+systematic experiments on simulated two - and three - locus disease models datasets show that dche is more powerful in finding epistatic interactions than some recently proposed methods including team [ 29 ] , snpruler , boost and edcf [ 20 ] .
+our experiments on two real genome - wide case / control datasets , age - related macular degeneration ( amd ) and rheumatoid arthritis ( ra ) demonstrate that dche is feasible for the full - scale analyses of multi - locus associations on large gwas datasets and it enriches a great deal of novel , significant high - order epistatic interactions which have not been reported in literatures .
+results and discussion we first give definitions of 6 simulated disease models and the power metric used to evaluate the effectiveness of dche in comparison with other 4 popular epistatic interactions detecting methods , i.e. team [ 29 ] , snpruler [ 24 ] , edcf [ 20 ] , boost [ 18 ] .
+three reasons for choosing above 4 approaches are as follows : ( 1 ) team , edcf and boost all use the exhaustive search strategy for detecting two - locus interactions , so the comparison of their performance is fair ; ( 2 ) a recent review tested five available methods and recommended boost and team as a powerful tool for searching epistatic interactions on a genome - wide scale [ 15 ] ; ( 3 ) our goal is to discover high - order epistatic interactions from gwas data , and among 4 detectors excluding dche , only snpruler and edcf are equipped the ability to search interactions with more than 2 snps .
+before experiments on simulated datasets , a discussion on how to control the false positive rate is illustrated because the bonferroni correction , most common method for controlling error rate , can be too conservative to filter significant interactions .
+we also present results of dche on two real gwas dataset , age - related macular degeneration ( amd ) and rheumatoid arthritis ( ra ) .
+interactions detected by dche from different orders demonstrate a great number of novel , potentially disease - related genetic factors .
+at the end , a systematic performance evaluation of dche 's cloud implementation is conducted on a standard windows azure cloud cluster with up to 40 small size virtual machine ( vm ) instances .
+the speed - up achieved by dche shows an approximately theoretical acceleration when the cardinality of epistatic interaction increases .
+experimental design data simulation to evaluate the effectiveness of dche , we perform extensive simulation experiments using six disease models with two - and three - locus associations .
+the unassociated snp genotypes is generated by the same procedure used in previous studies [ 18 ] .
+minor allele frequencies ( mafs ) are uniformly sampled from the set [ 0.05,0.5 ]. by assuming hardy - weinberg equilibrium , we can sample the genotype gij for individual j. for embedded disease models , 4 two - locus epistasis models and 2 three - locus epistasis models are chosen by given odds tables or penetrance table which can be found in additional file 1 : tables s1 - s3 , and named these six models from model 1 to 6 .
+in addition , we conduct tests on 50 two - locus epistasis models without marginal effects as boost and edcf did in [ 18,20 ] .
+for models 1 to 4 and 50 models without marginal effect , each simulated dataset contained m = 1000 snps and n = 800 or 1600 with balanced samples in case and control under each parameter setting .
+for model 5 , one dataset has 1000 snps and 2000 or 4000 samples with nu = nd. for model 6 , m = 2000 and n is reduced to 400 and 800 with balanced cases and controls .
+a disease model can be defined either by specifying the penetrance table or the odds table .
+relations among penetrance p ( d ) , odds oddgi and the probability p ( d | gi ) that an individual will be affected with a given genotype combination gi can be calculated as equation 1 , 2 .
+( 1 ) oddgi = pd | gipd | gi = pd | gi1 - pd | gi ( 2 ) pd | gi = oddgi1 + oddgi following [ 18 ] , the disease prevalence p ( d ) and genetic heritability h2 are given by equation 3 , 4 .
+( 3 ) pd = sumipd | gipgi ( 4 ) h2 = sumipd | gi - pd2pgipd1 - pd for simplicity , we adopt same parameters as used in [ 18 ] for model 1 to 4 , i.e. p ( d )= 0.1 , h2 = 0.03 for model 1 and h2 = 0.02 for models 2 , 3 and 4 , maf in { 0.1,0.2,0.4 } .
+for model 5 , we adopt similar setting in [ 20 ] , i.e. p ( d )= 0.1 , effect size lambda = 0.2 , betain { 4,1.5,1,0.7,0.5 } and maf in { 0.1,0.2,0.3,0.4,0.5 } .
+for model 6 , mafs of disease associated loci are fixed to 0.5 .
+effect parameters alpha and theta in odds tables for all six models are determined numerically using same procedures in [ 25 ] .
+settings for 50 models without marginal effect are similar to [ 30 ] , i.e. h2 ranges from 0.05 to 0.4 with five intervals and maf equals to 0.2 or 0.4 .
+statistical power in the comparison of performances on simulated data , 100 datasets are generated for each setting .
+in one dataset , we embed one ground - truth epistatic interaction .
+the measure of discrimination power used in [ 18 ] is adopted , which is defined as the fraction of 100 datasets on which only top interaction given by the method matches the ground - truth .
+for all programs , the ground - truth interaction are detected if it is set to the most significant one and its adjusted p - value is larger than the critical value which is setted to 0.1 in following experiments .
+experimental setting programs , team , snpruler , boost ( 64 bit ) and edcf are downloaded from websites provided by their authors .
+for experiments on simulations , dche ( in java ) , snpruler ( in java ) and boost are conducted on a 64 - bit windows 8 platform with 1.8 ghz intel cpu and 4 gb ram ; since team and edcf only provided executable program on linux platform , experiments for team and edcf are conducted on a 64 - bit linux platform with 2.3 ghz amd cpu and 16 gb ram .
+experiments on two real datasets are performed on windows azure platform with up to 40 small size vms .
+false positive rate since dche uses stepwise strategy similar to edcf , we also adopt two levels of multiple comparisons : ( 1 ) test mt combinations for t loci for a dataset with m snps ; ( 2 ) test dynamic clustering results , which could end with up to 3t possible genotype combinations with d groups , din { 3,4,5,6 } .
+if we use the bonferroni correction for above two level multiple tests , the upper bound of possible ways to do combination is mt63t .
+hence , it is too conservative to obtain significant interaction modules .
+in order to reasonably loose the strictness , inspired by edcf we combine the bonferroni correction and permutation tests for these two levels , that is bonferroni corrections for t loci combinations and permutation tests for the dynamic clustering procedure .
+more specifically , the significant level for an epistatic interaction is calculated as equation 5 .
+( 5 ) alpha = alpha0 / mt in equation 5 , alpha0 is estimated from permutation tests for different ts on null simulations and mt represents the bonferroni correction .
+to properly control the false positive rate , we simulated datasets with five different settings for each t , i.e. we either fix m = 1000 and set n to 400 , 800 and 1600 or fix n = 800 and set m to 1000 , 2000 and 4000 .
+note that one thousand datasets are generated under one setting .
+the false positive rate is defined as nfalse / 1000 , where nfalse is the number of datasets where dche has found one or more interaction modules .
+test results shown in figure 1 illustrate : for a general setting of critical level 0.1 , a recommended alpha0 is 1.5x10 - 3 for two - locus disease model detection , 1.2x10 - 8 for three - locus disease model detection and 1.0x10 - 21 for four - locus disease model detection .
+in addition , the false positive rates tend to decrease or remain nearly unchanged as the number of samples and snps go up ( figure 1b and 1c ) .
+therefore , in tests of simulated datasets and two real gwas datasets , we set alpha0 = 1.5x10 - 3,1.2x10 - 8,1.0x10 - 21 for t = 2,3,4 , respectively , to control the overall false positive rate for dche , unless otherwise stated .
+figure 1 false positive rates under null models .
+the plot in a shows the false positive rates of dche using different alpha0s for different ts , and the plots in b and c show the false positive rates of dche for different ts when sample size and the number of snps vary .
+two - locus disease models for a fair comparison , interactions reported by all programs are filtered using the critical value 0.1 as the significant threshold .
+test results are illustrated in figure 2 for model 1 to 4 .
+an common trend for all programs is that power is increasing as sample size increases from 800 to 1600 .
+most methods show more power when ground - truth model interactions' mafs are larger , except that boost shows less power on model 1 and 2 when mafs goes up. we can see that dche achieves highest or comparable powers on almost all datasets .
+more specifically , with 24 parameter settings for four disease models , dche outperforms other four methods at 9 settings and obtains full powers at 10 settings and gains comparable results at 5 settings .
+taking results from datasets with n = 1600 for example , it is obvious that dche defeats other approaches with nearly 100 % powers .
+for a more straight comparison , we introduce a new concept , the overall quality q = ncorrect / ntotal , where ncorrect is the number of datasets where programs successfully detect the ground - truth interactions and ntotal is the total number of datasets .
+when n = 800,m = 1000 , the overall quality for dche , team , snpruler , edcf and boost are 0.541 , 0.455 , 0.087 , 0.508 and 0.31 , respectively .
+when n = 1600,m = 1000 , all five programs achieve higher accuracies than former settings and q are 0.981 , 0.912 , 0.162 , 0.944 and 0.681 , respectively .
+note that dche , team and edcf have abilities to achieve more than 90 % powers , and powers for dche reach to at least 98 % on datasets with 1600 samples .
+note that boost is designed to identify significant statistical interaction without considering the main effects , so it is reasonable that our method dche and other two methods , i.e. edcf and team , outperform boost for detecting the model 1 through 4 .
+the reason why we still put the boost into the experiments is that the biologists might be more interested in epistatic interaction as long as it shows significant association genotypes with phenotypes .
+in addition , similar designs of experiments can be found in other literatures [ 15,18,20 ] .
+figure 2 performance comparison of dche , team , snpruler , edcf and boost on disease models 1 - 4 .
+performance comparison of dche , team , snpruler , edcf and boost on four disease models for different allele frequencies and sample sizes .
+the red , green , blue , cyan and magenta bars show powers of dche , team , snpruler , edcf and boost , respectively .
+models are ordered from top to bottom and from left to right and they are model 1 , model 2 , model 3 and model 4 .
+moreover , we conduct tests on 50 disease models with little marginal effects .
+for convenience , penetrance tables for 50 models are not listed , and they are available in literature [ 30 ] .
+since most methods gain near full powers , we use box plots to demonstrate overall performances in figure 3 .
+we can see that dche , edcf and boost achieve comparable results in two subfigures .
+specifically , they can accurately detect embedded associated snps interactions under most settings .
+on the contrary , team and snpruler lose significant powers on both datasets with mafs = 0.2 or 0.4 .
+a common trend to previous experimental results is that five methods tend to possess more powers as mafs increase .
+after carefully examining results from five techniques , we can find that dche apparently outperforms other three methods except boost , although the difference is not too much .
+a possible explanation is that these embedded models with little main effects are more suitable for model - based detection strategy , and dche is a model - free based method .
+if we adopt the same overall quality defined in previous paragraph to evaluate performances , q are 0.972 , 0.656 , 0.891 , 0.951 and 0.984 for dche , team , snpruler , edcf and boost , respectively .
+figure 3 performance comparison on 50 models without main effects .
+for each model , we simulate data using sample size 800 and mafin { 0.2,0.4 } .
+the red , green , blue , cyan and magenta boxes show powers of dche , team , snpruler , edcf and boost , respectively .
+two - locus additive models since we intend to find statistically significant associations of t - snp interaction ( t >= 2 ) with phenotypes , an additive model is used to evaluate method for detecting additive effects .
+the additive model with 3 different settings can be found in additional file 1 : table s4 .
+the cell in the table is the odd - ratio of given genotype , and the odd - ratio can be accumulated as the presence of minor allele ( s ) .
+both the additive effects of two disease related alleles are equal , which equal to beta .
+for the simulation process , we adopt the one which is used in [ 18 ] , and the value of alpha and beta are determined by the prevalence p ( d ) and the genetic heritability h2 .
+we fix p ( d )= 0.1 and h2 = 0.03 , set mfa = 0.1,0.2 and 0.4 by giving n = 800 and 1600 .
+we simulate 100 datasets under each setting ( 3 pairs of alpha and beta ) with 1000 snps under 800 and 1600 samples in balance .
+test results are illustrated in figure s2 in additional file 1 for the additive models .
+as we expect , dche , team and edcf show limited powers when the sample size is small , and the power goes up as the size of sample increases .
+snpruler and boost can not detect any pairs , since boost is designed to detect the statistic interaction which is absent in the additive model .
+following our preceding measurement , the overall qualities are 0.850 , 0.858 and 0.771 for our method , team and edcf , respectively .
+it is worthy to note that team is time consuming compared to dche .
+under the same computing environment , team takes about 2 hours to finish analysis of 100 simulated datasets with 1600 samples , while it can be done in 15 minutes by using dche .
+three - locus disease models for comparisons on three - locus disease models , two methods are dropped , i.e. team and boost , because both of them are designed only for detecting two - locus interactions .
+based on settings of model 5 given in previous sections , we get 10 groups of datasets with 100 replicates , which can be further categorized to two families with n = 2000 or 4000 .
+note that when maf = 0.5 , there is no marginal effect , otherwise disease models have lambda = 0.2 .
+experimental results are illustrated in figure 4 .
+similar to models 1 to 4 , three programs generally tend to get more powers as maf or sample size increases .
+considering parameter beta in ( beta,maf ) , we can see that powers go up when beta goes down for all methods .
+a significant difference can be found is that snpruler can only obtain acceptable results when ( beta = 0.5,maf = 0.5 ) ; otherwise snpruler hardly gets powers .
+although the distinction between dche and edcf is not too much , we can still observe that dche hits more ground - truth snps interactions than edcf does at datasets with n = 4000 .
+additionally , overall qualities for dche and edcf are 0.514 and 0.52 with n = 2000 , and the overall quality for dche rises up to 0.914 comparing with 0.866 for edcf .
+figure 4 performance comparison on the three - locus epistasis models .
+performance comparison of dche , snpruler and edcf on two three - locus epistasis models , model 5 and model 6 , for different allele frequencies and sample sizes .
+the red , blue and cyan bars show powers of dche , snpruler and edcf , respectively .
+for model 6 , we set maf = 0.5 and population prevalence p = 0.01 as edcf does in [ 20 ] .
+note that model 6 with penetrance table in additional file 1 : table s6 gets the maximum h2 when pin ( 0,116 ] .
+three methods' results are shown in figure 4 , from which we can see that all methods can get nearly full powers for model 6. with considering the overall quality , dche and edcf both reach 100 % and snpruler hits to 0.965 .
+experiments on amd data age - related macular degeneration ( amd ) is an acquired degeneration of the retina which usually affects older adults and results in a loss of vision in the centre of the visual field .
+like many other chronic diseases , amd is caused by a combination of genetic and environmental risk factors , including and not limited to macular degeneration gene , too much exposure to sunlight and smoking .
+the reported amd dataset contains genotypes of 103,611 snps from 96 affected individuals and 50 controls [ 31 ] .
+before applying dche on amd dataset , the same quality control used in [ 18 ] is applied : snps with more than 10 % missing data or maf < 0.05 or p - values from hardy - weinberg equilibrium ( hwe ) tests less than 0.001 are removed .
+subsequently , 90,449 snps from 50 controls and 96 cases are left in the dataset .
+the setting of parameters for dche is as follows : l ={ 10000,4000,2000 } , t = 2,3,4 and alpha0 = 1.5x10 - 3,1.2x10 - 08,1.0x10 - 21 for two - , three - and four - locus interactions detections , respectively .
+when we set alpha0 = 1.5x10 - 3 to filter out insignificant interactions for two - locus epistatic interactions detecting , dche can hardly report any qualified modules , so we select top - k modules to conduct analysis .
+for t = 3 and 4 , dche generates more than 1000 pairs epistatic interactions .
+in order to give a straight view of results , we introduce two concepts , " centre snps " and " centre genes " , similar to those in [ 32 ] : we arrange those snps and genes in descending manner according to their frequencies showing in top - k interactions , and select top - s snps or genes as " centre " .
+based on the previous procedure , table 1 and table 2 give a general view of dche 's results on amd dataset with k = 1000 for t = 2 , 3 , k = 500 for t = 4 , and s = 6 .
+names of snps or genes showed in boldface indicate their first time to appear in the table .
+as we can see , top - k - s snps or genes tend to share some common elements among different settings of order of interactions , t. for amd dataset , two snps ( rs380390 and rs1329428 ) already have been reported as disease associated snps with amd based on results from single allelic association tests with df = 1 [ 31 ] .
+in our results , dche also ranks rs380390 and rs1329428 as top 2 centre snps both in two - and three - locus epistatic interactions detecting .
+both rs380390 and rs1329428 locate inside the gene cfh whose location is 1p32 , and their protein products have an essential role in the regulation of complement activation and restricting the innate defence mechanism to microbial infections .
+in addition to rs380390 and rs1329428 , we also find another interesting snp , rs3781868 , in the category t = 4 .
+rs3781868 locates in the gene npat with location 11q22 - q23 which is known to be essential for histone mrna 3 ' end processing and recruiting cdk9 to replication - dependent histone genes .
+table 1 centre snps identified in top - 1000 / 500 snps interactions on amd dataset # snps per centre snps from analyses of amd dataset interaction centre snps ( genomic position ) # interacting snps rs380390 ( ch1 : 196701051 ) 524 rs1329428 ( ch1 : 196702810 ) 253 2 rs1394608 ( ch5 : 155783294 ) 23 rs1740752 ( ch10 : 38538771 ) 20 rs1363688 ( ch5 : 174609731 ) 11 rs10512174 ( ch9 : 88886574 ) 11 rs380390 ( ch1 : 196701051 ) 709 rs1329428 ( ch1 : 196702810 ) 106 3 rs1363688 ( ch5 : 174609731 ) 63 rs618499 ( ch11 : 108148839 ) 47 rs1926489 ( ch13 : 92667989 ) 35 rs3781868 ( ch11 : 108059569 ) 34 rs380390 ( ch1 : 196701051 ) 459 rs618499 ( ch11 : 108148839 ) 188 4 rs3781868 ( ch11 : 108059569 ) 115 rs294278 ( ch3 : 31127911 ) 36 rs300780 ( ch2 : 110819 ) 35 rs315511 ( ch1 : 84849116 ) 28 note : snp in boldface indicates the first time to appear in the table .
+table 2 centre genes identified in top - 1000 / 500 snps interactions on amd dataset # genes per centre genes from gene - only snp analyses interaction centre genes # interacting genes cfh : complement factor h 777 znf25 : zinc finger protein 25 23 2 sgcd : sarcoglycan , delta ( 35kda dystrophin - associated glycoprotein ) 23 lrig3 : leucine - rich repeats and immunoglobulin - like domains 3 14 drd1 : dopamine receptor d1 11 isca1 : iron - sulfur cluster assembly 1 11 cfh : complement factor h 815 drd1 : dopamine receptor d1 63 3 atm : ataxia telangiectasia mutated 47 gpc5 : glypican 5 43 npat : nuclear protein , ataxia - telangiectasia locus 34 kdm4c : lysine ( k ) - specific demethylase 4c 25 cfh : complement factor h 459 atm : ataxia telangiectasia mutated 191 4 npat : nuclear protein , ataxia - telangiectasia locus 115 lrig3 : leucine - rich repeats and immunoglobulin - like domains 3 73 tgfbr2 : transforming growth factor , beta receptor ii ( 70 / 80kda ) 38 acp1 : acid phosphatase 1 , soluble 35 note : gene in boldface indicates the first time to appear in the table .
+we also analyse results using gene - only from top - 1000 / 500 snps subset .
+top - 1000 / 500 snps are mapped to disease - related genes , which have been annotated on the huge navigator database , and we get 720 , 851 and 424 genes for t = 2,3,4 showed in table 3 .
+it is obvious that the majority of centre genes have not yet been reported by huge as associated with the amd disease .
+applying similar analysis used in [ 32 ] , we submit centre genes reported in table 3 to the toppgene , a candidate gene prioritization tool [ 33 ] , to evaluate biological significances of these novel genes. from dche 's results , toppgene enriches an cell - cell communication pathway with the name ' reactome _ adherens _ junctions _ interactions ' .
+reported in reactome , this pathway contains 14 centre genes , and only one gene in this pathway presents in huge navigator database .
+as gene names given in hgnc , these genes are pvrl3 , cdh18 , cdh10 , cdh11 , cdh12 , cdh13 , cdh2 , cdh4 , cdh7 , cdh6 , cdh9 , cdh8 , cadm1 , cadm3 .
+table 3 the disease association of dche selected genes from gene - only snp analyses reported in huge # snps per # dche genes in top navigator database interaction 1000 ( 500 ) snp pairs # analyzed # dche genes genes 2 720 151 20 3 851 28 4 424 13 for the detection of two - locus epistatic interaction on amd dataset , dche successfully indentifies rs380390 and rs1329428 reported by the original paper .
+comparing with results obtained by other existing methods , we find that there are some overlaps between them .
+for example , dche lists two pairs of snps with ranking 246 and 247 ( rs1394608 and rs3743175 , rs1394608 and rs2828155 ) , which have been identified by epimode applied on amd dataset [ 26 ] .
+in addition , dche reports another interaction module ( rs1394608 and rs6847164 ) , whose p - value is more significant than the above two ( p - valueunadjusted = 6.78x10 - 10 ) .
+rs1394608 resides within the intron of sgcd , a gene located on chromosome 5q33 - 34 , which has been implicated in amd [ 26 ] .
+rs6847164 resides within pde5a , a gene located on chromosome 4q27 .
+according to the databases of ncbi and entrez , pde5a is involved in the regulation of intracellular concentrations of cyclic nucleotides and is important for smooth muscle relaxation .
+dche has also detected other significant three - locus and four - locus interaction modules : ( rs10487833 , rs10495593 , rs1740752 ) and ( rs9302001 , rs10497231 , rs380390 , rs1940041 ) whose unadjusted p - values are 3.24x10 - 18 and 8.28x10 - 28 , respectively .
+rs10487833 locates about 0.3mb upstream of gene nampt on chromosome 10 .
+nampt encodes a protein which is thought to be involved in many important biological processes , including metabolism , stress response and aging .
+rs10497231 resides at about 0.3mb downstream of gene kcnh7 on chromosome 2 .
+kcnh7 encodes a member of the potassium channel , voltage - gated , subfamily h related to the functions including regulating neurotransmitter release , heart rate , insulin secretion , neuronal excitability , epithelial electrolyte transport , smooth muscle contraction , and cell volume .
+rs9302001 locates about 0.4mb upstream of gene abcc4 on chromosome 13 .
+the protein encoded by abcc4 is a member of the superfamily of atp - binding cassette ( abc ) transporters , which is thought to play a role in cellular detoxification as a pump for its substrate , organic anions .
+the clustering details of genotype combinations of the above three interaction modules can be found in additional file 1 .
+experiments on ra data rheumatoid arthritis ( ra ) is a chronic and systemic autoimmune disorder , which causes that afflicted joints become warm , swollen , tender , stiff , and in the final stage , deformed .
+ra is believed to be a heterogeneous disease in which genetic factors account for 60 % of disease susceptibility by rough estimation .
+the genome - wide ra data comes with 545,080 snps , 868 cases and 1194 controls and it is collected by the narac and provided by the genetic analysis workshop 16 .
+the same quality control for amd dataset has also been applied to ra dataset .
+subsequently , 487,678 snps from 1,194 controls and 868 cases remained .
+the parameters for dche are set as follows : l ={ 10000,4000,2000 } for t = 2,3,4 and alpha0 = 1.5x10 - 3,1.2x10 - 8,1.0x10 - 21 for two - , three - and four - locus interaction detection , respectively .
+based on definitions of centre snps , table s9 in additional file 1 gives a general view of dche results on ra dataset with k = 1000 for t = 2,3,4 and s = 10. from the overview of centre snps , we can see that most top - ranked snps are coming from chromosome 6 at which the well known mhc region locates .
+recent studies conducted by the wtccc via single - locus association mapping have shown that ra are strongly associated with the mhc region [ 18 ] .
+in addition to snps in chromosome 6 , some other interesting snps located at other chromosomes are detected in 4 - order snps interactions , including rs888206 and rs1359679 .
+rs888206 locates in the gene mmd , monocyte to macrophage differentiation - associated , whose protein product is expressed in vitro differentiated macrophages but not freshly isolated monocytes .
+another suggested alternative function of mmd is related to an ion channel protein in maturing macrophages .
+rs1359679 locates near the gene brinp1 on chromosome 9 with location 9q32 - q33 .
+according to ncbi , brinp1 is within a chromosomal region which shows loss of heterozygosity in some bladder cancers and it may undergo hypermethylation - based silencing in some bladder cancers .
+table s10 in additional file 1 lists a summary of top - ranked reported genes from huge navigator database and dche .
+similar to results in amd dataset , the majority of potentially disease - related interacting genes detected by dche are novel for ra dataset. through analyses of top - 10 frequent centre genes in table s11 of additional file 1 , we can see that some genes already have been established associations with ra , including hla , btnl2 , c6orf10 , and we also find some other potential genetic causal factors , like ccar2 , kdm4c .
+computation time from a practical point of view , a key issue of detecting high - order epistatic interactions in gwas is the computational efficiency .
+in this section , we evaluate the performance of the proposed parallel strategy on windows azure cloud platform with respect to its speed - up. to measure the speed - up , we keep the size of datasets constants and increase the number of nodes ( computing cores ) in the cloud system .
+speed - up given by the larger system is defined by the following formula [ 34 ] : ( 6 ) speedupp = t1tp where p is the number of nodes ( computers ) , t1 is the execution time on one node and tp is the execution time on p nodes .
+the ideal parallel method is expected to demonstrate linear speed - up : a system with p computing nodes generates a speed - up of p. however , linear speed - up is only a theoretical predication because the speed - up is curved by both the inevitable node failures and the communication cost which increase as the number of computing nodes in cluster becomes large .
+we perform the speed - up evaluation on datasets with quite different sizes ranging from 10,000 to 100,000 .
+the number of nodes ( virtual machines provided by windows azure platform ) varies from 1 to 40 with 5 as minor units .
+figure 5 shows speed - up for these datasets with three settings .
+as results showed , the proposed cloud implementation of dche has a very good performance with respect to the speed - up. when there are a limited number of snps in the dataset , e.g. m = 10,000 , it has a lower speed - up curve , because dataset with such size along snp dimension can be easily processed by a stand - alone version program alone in a couple of minutes .
+as the size of datasets increases , speed - up performs better ( green and blue curves ) .
+therefore , we believe our proposed parallel strategy for dche on windows azure cloud computing platform can be used to treat massive data analyses efficiently .
+figure 5 speed - up. computing nodes are sampled from 1 to 40 with 5 as interval .
+the red , blue , cyan and grey curve show functions of speed - up of m = 10,000 , m = 50,000 and m = 100,000 with sample size fixed to 800 .
+discussion relationship between dche and boost two key differences lie between dche and boost : * boost is designed to detect statistic interactions via log - linear models , using the chi2 test with df = 4 .
+dche aims to identify significant associations via model - free method , using the chi2 test with df ranges from 2 to 6 .
+* boost can be only applied to find gene - gene interaction within two - locus .
+dche is flexible to search t - snp interaction patterns with t >= 2 and has been implemented in cloud platform on windows azure .
+in order to prove that our method possesses the power to detect epistatic interaction which demonstrates significant interaction effect , the overlap of results from boost and dche on two - locus simulated models are showed in additional file 1 : figure s3 .
+the bar with full height means that all modules produced by boost are all marked as the most significant interaction by dche .
+for models embedded ground - truth modules with both main and interaction effects , nearly all modules reported by boost are also found by dche .
+only 3 out of 24 do not reach 100 % , but they are all above 90 % .
+for datasets without main effect or with weak main effect , although 7 out of 50 do not get 100 % overlap , it is still convincing to conclude that significant interactions identified by boost can be mostly covered by dche .
+the advantages and limitations of dche the development of dche is triggered by the limitations of existing works on finding high - order epistatic interaction from genome - wide data .
+dche displays several advantages over existing methods : 1 .
+dche detects high - order epistatic interactions from genome - wide data without exhaustive enumeration ; 2 .
+dche is a model - free method and does not assume any prior distribution ; 3 .
+dche does not assume any particular epistasis model .
+this is very important for real studies because the patterns of snp interactions are generally unknown and could be very complex ; 4 .
+dche provides a list of ranked interaction based on their significance .
+the current version of dche cannot distinguish which type of epistatic interaction contributing most to the significant snp module , i.e. the statistical interaction or the full association with only main effects .
+it is a general problem for other existing model - free methods , like mdr , beam , team , snpruler and edcf .
+future work can be extended to addressing the above issue .
+in addition , how to reduce false positive errors is a challenging problem in gwass for our method , although we combine permutation test and bonferroni correction to control type i error .
+incorporating the haplotype information and pathway information to further help reduce false positive errors can be another direction of our future work .
+conclusions in this manuscript , a cloud based algorithm dche , for detecting high - order genome - wide epistatic interactions is proposed .
+the key step of dche is the dynamic clustering procedure , which is used to guide on how to merge genotype categories to a limited and variable number of groups. by dynamic clustering , dche tries to approximately categorize genotypes with similar genetic effects on phenotypes .
+the cloud implementation of dche takes advantages of cloud computing technology , especially the windows azure cloud platform with high level and efficient i / o operation , queue and blob storage , to guarantee the correctness and enable parallel statistic testing .
+comprehensive and systematic comparisons on simulated datasets shows that dche can obtain more or comparable powers for both two - and three - locus interaction modules detecting comparing to other four recently developed algorithms , i.e. team , snpruler , edcf and boost .
+furthermore , experiments on two real datasets of amd and ra demonstrate that dche discovers many novel high - order associations which are significantly enriched in cases and a great deal of centre snps and genes which only appear in detections of high order epistatic interactions .
+the computation time analysis confirms that our method provides a promising way to accurately accelerate large genome wide association studies .
+methods notation suppose a gwas dataset has m diallelic snps and n samples .
+in general , bi - allelic genetic markers use uppercase letters ( e.g. a , b ,...) to denote major alleles and lowercase letters ( e.g. a , b ) to denote minor alleles .
+for encoding three genotypes , one popular way is to use { 0,1,2 } to represent { aa,aa,aa } , respectively .
+in a gwas case - control dataset , nu denotes the number of cases ( i.e. disease individuals ) and nd denotes the number of controls ( i.e. normal individuals ) .
+x is utilized to indicate the ordered set of the m snps , and xi represents the i - th snp in x. maf ( xi ) denotes the minor allele frequency of xi and gij denotes the genotype of j - th individual at xi. for t - locus interaction , xi1 ,... , xit , one genotype combination denotes as gi1 ,... , git .
+dynamic clustering an intuitive strategy to detect genome - wide epistatic interactions is to test differences of genotypes' frequencies for single snp or snps' combinations in cases and controls .
+the contingency table in table 4 gives an example for two - locus disease model , where there are 9 genotype combinations and nu = nd = 800 .
+numbers within the parentheses are counted from controls .
+cells with higher frequencies in cases are coloured by grey background .
+some methods , like multifactor dimensionality reduction ( mdr ) [ 12 ] and its extensions [ 35 ] , take the case / control ratio of each genotype combination to test associations between snp combinations and disease status .
+however , the frequency cannot be a fair indicator to uncover disease related associations , because it can be biased by many factors , including effect size , allele frequency , linkage disequilibrium between markers and disease loci as well as sampling errors .
+other recent developed strategies use pearson 's chi2 test , exact likelihood ratio test and entropy - based test to examine the independence of observations .
+for the example in table 4a , the unadjusted p - value from pearson 's chi2 test with 8 degrees of freedom is 1.724x10 - 18 .
+if we use bonferroni correction to adjust p - value , this pair can still be significant with threshold 0.05 for a large gwas dataset .
+however , it will not always be the case , and some limitations , including uneven or insufficient samples , tiny penetrance on single genotype , would dramatically affect the adjusted p - value .
+another toy example sampled from a two - locus multiplicative effects model ( see table 5 ) is shown in table 4b , where nu = nd = 400 .
+normally , the approximation to the chi2 distribution breaks down if more than 20 % expected frequencies below 5 .
+the unadjusted p - value of table 4b is 1.09x10 - 6 and the adjusted p - value is 0.547 if m = 1,000 , which is obviously larger than 0.05 .
+another popular method , boost [ 18 ] which utilizes the likelihood ratio to test statistic , cannot get a significant result for table 4b by setting the significant level to 0.1 .
+we can observe the same result by applying edcf which utilizes the concept of frequent item to group genotype combinations and adopts the chi2 test with df = 2 .
+table 4 examples for the contingency tables ( a ) ( b ) bb bb bb bb bb bb aa 71 ( 108 ) 97 ( 151 ) 44 ( 47 ) 40 ( 55 ) 49 ( 76 ) 13 ( 21 ) aa 89 ( 138 ) 184 ( 184 ) 93 ( 55 ) 43 ( 62 ) 110 ( 103 ) 49 ( 22 ) aa 29 ( 43 ) 113 ( 57 ) 80 ( 17 ) 16 ( 24 ) 50 ( 27 ) 30 ( 10 ) note : the entries in boldface are the ones with ratios greater than ndnu .
+table 5 two - locus interaction multiplicative effects bb bb bb aa alpha alpha alpha aa alpha alpha ( 1 + theta ) alpha ( 1 + theta ) 2 aa alpha alpha ( 1 + theta ) 2 alpha ( 1 + theta ) 4 to address the preceding issues , we propose a dynamic clustering procedure .
+basically , we first merge all 3nt genotype cells to nd groups based on certain combination criteria , where nd ranges from 3 to 6 .
+the criterion to combine two genotype categories is rooted from their similar effects which associate with phenotypes .
+secondly , we collect statistic test values on merged groups .
+for better illustration , we take table 5 for example .
+although there are 9 genotype categories , some have same penetrances , so we can partition them into 4 groups , where penetrances are alpha,alpha ( 1 + theta ) , alpha ( 1 + theta ) 2 and alpha ( 1 + theta ) 4 .
+in reality , it is different to predict the order of complex disease model and its penetrance table .
+therefore , we try to find a statistically significant evaluation of interactions in a stepwise manner by merging genotype categories into a range of number of groups and test levels of significance .
+we select the most significant one as the evaluation for t snps interaction .
+the full algorithm of dynamic clustering is as follows .
+* step 1 .
+for a set of snps , cross - tabulate genotype combinations of snps with the categories of the dependent variable ( phenotype ) .
+* step 2 .
+find a pair of genotype combinations whose 2x2 sub - table is least significantly different .
+if this significance does not reach a critical value , merge the two combinations and consider this merger as a single compound combination , and repeat this step .
+* step 3 .
+calculate the significant evaluation for each merged group pattern when categories' number is larger than three and less than six .
+select the most significant one as the unadjusted p - value as the evaluation for the current interaction .
+in step 2 , there are several ways to measure the difference of a 2 - by - 2 contingency table , like pearson 's chi2 test with df = 1 and phi coefficient .
+in our algorithm , we adopt pearson 's chi2 test with df = 1 to measure the difference .
+following the dynamic clustering procedure , we can get the most significant group pattern as 161 , 129 , 110 in cases and 238 , 59 , 103 in controls for table 4 .
+note that the df varies when the number of clusters changes .
+according to our setting that nd ranges from 3 to 6 , the df changes from 2 to 5 , respectively .
+along the clustering , we calculate the p - valueunadjusted for each clustering with corresponding df. the trace of merging for table 4b is ( 0 , 1 , 2 , 3 , 6 ) , ( 5 , 7 , 8 ) and ( 4 ) , if cells are labelled from left to right , from top to bottom and start from 0 .
+it is easy to output this ground - truth interaction by the combination of bonferroni correction and permutation tests for controlling type - i error .
+( p - valueunadjusted = 1.15x10 - 9 and the significant level is alpha = 3.0x10 - 9 with false positive rate nearly equals to 0.1 ) .
+evaluation of interactions the goal of dche is to identify t - snp ( t >= 2 ) epistatic interactions significantly associated with phenotype .
+as stated in [ 7,18 ] , epistasis can be interpreted as the statistical interaction or the full association .
+the evaluation of interactions used by dche is similar to detect full associations in model - based methods .
+in terms of logistic regression , the epistatic interaction we are looking for may contain main effects or interaction effects or both .
+in order to detect the significant association between genotype and phenotype , we use model - free method and p - value from pearson 's chi2 test to indicate the significance .
+since dche aims to find high - order genome - wide epistatic interaction , the high - order interaction module may consist of one or some redundant snps , which do not contribute to increase the significance .
+to avoid such cases , we give a definition of the least possible significant epistatic interaction .
+definition1 a snps module ( xi1,xi2 ,... , xit ) is considered as the least possible significant epistatic interaction by giving the significant level alpha , if it meets the following two conditions : ( 1 ) the p - value of clusters of ( xi1,xi2 ,... , xit )<= alpha ; ( 2 ) the p - value of clusters of any subset of ( xi1,xi2 ,... , xit )< the p - value of clusters of ( xi1,xi2 ,... , xit ) .
+algorithm since testing all high - order snp combinations is impossible for large gwas datasets of millions of snps , we utilize a stepwise strategy to emulate and run dynamic clustering on all two - locus snps combinations .
+as shown in a recent theoretical study [ 36 ] , the possibility that a high - order ( size - t ) combination with strong differentiation shows zero differentiation in all of its subsets decreases dramatically when t increases ( generally it becomes impossible for t <= 5 ) .
+therefore , we use top - lt low - order snps combinations which demonstrate some significance as candidates .
+for higher order , we add one snp x each time to interactions and re - invoke the dynamic clustering procedure , until t reaches the defined value .
+we adopt same bitwise operations and boolean representation as introduced in boost [ 18 ] to collect and compress contingency tables .
+the details of the sequential algorithm is shown in algorithm 1 .
+the cloud implementation of dche will be elaborated in next section .
+each column in matrix m is converted to 3 rows in matrix w based on boolean representation ( line 1 - 2 ) .
+an ascending list where redundancy is not allowable is initialized with size max ( l ) .
+the structure of an element in l consists a pair of key and value that the key is snps combinations and value is the unadjusted p - value ( line 3 ) .
+dche uses bitwise operations to collect contingency tables for all two - locus interaction and calculates evaluations of significance via dynamicclustering procedure .
+the p - value will be inserted into l ( line 4 - 9 ) .
+dche only selects top - lt ' interactions to extend in dynamicclustering procedure and inserts estimated significance into another candidate list l ' .
+at the end of each iteration for specific t , list l gets cleaned and dche transfers top - lt ' elements from l ' to l and new list lt ' ( line 10 - 23 ) .
+when t reaches the defined value , top - lt interaction modules with p - value > alpha will be written into the result file ( line 24 - 33 ) .
+the time complexity of dynamic clustering is o ( 3t ) .
+according to the theory in [ 36 ] , we only need to apply dynamic clustering procedure for up to 4 order of snps combinations .
+so when t = 2 , the time complexity to test all 2 - locus interactions is o ( nm2 ) .
+inserting an element into ascending list takes time o ( log ( max ( l ))) .
+the total time complexity for 2 - locus interaction detection is o ( nm2 )+ o ( log ( max ( l ))) .
+when t = 3 , the time complexity to extend all candidate 2 - locus interactions to 3 - locus modules is o ( l3m ) .
+hence , the entire time complexity reaches to o ( l3m )+ o ( nm2 )+ o ( log ( max ( l ))) , if the user plans to search 3 - locus interaction .
+similar time complexity analysis can be applied to higher order interaction detection by using our dche .
+cloud implementation we implemented dche on the windows azure platform [ 37 ] .
+due to several practical considerations of association detection for gwas , like typical gwas datasets reaching up to size of gigabytes , statistic tests for all snps combinations .
+a windows azure application running in the cloud or in data centre can be divided into logical parts which are called roles in windows azure as shown in figure 6 .
+a role contains a specific set of codes and will be running on relatively independent environment .
+in addition , windows azure applications can be easily deployed to a customized cloud infrastructure , even for users who are not hpc experts .
+figure 6 illustration of the suggested windows azure application model .
+since statistic tests of all interaction are independent , it is suitable and easy to parallel dynamic clustering procedure .
+the details of cloud framework for dche is described as follows ( see figure s1 in additional file 1 ) .
+windows azure storage service come with highly efficient distributed file systems and two basic storage features using in dche are as follows .
+( 1 ) blob : like traditional file system , where files can be retrieved by its name , and the limit size of single blob file can be up to 50gb [ 37 ] .
+( 2 ) queue : an asynchronous massage passing mechanism for communication among computing nodes ; an important feature of queue is that messages will automatically show up again until explicitly deleted [ 38 ] .
+two issues for cloud computing are that it may consumes huge time in communication and it is difficult to balance workload between nodes .
+therefore , we design a way to split the whole dataset into several parts and pack up a bunch of dynamic clustering calculations .
+detailed steps for cloud dche are elaborated in next paragraph .
+* step 1 .
+the whole matrix of gwas dataset is partitioned into d parts on snps dimension .
+for the i - th portion , it contains pj,gij,gi + dj ,... , where j ={ 1,2 ,... , m } and p denotes the phenotype .
+the reason why we split dataset in such way is that it can optimally balance both workloads within and among partitions .
+* step 2 .
+each worker role instance reads one copy of all partitions which are compressed using boolean representation [ 18 ] .
+* step 3 .
+customized parameters used in dche will be set through web role instance , including size of the matrix , numbers of partitions of data , critical value , maximum loci interaction pattern and length of the ascending list .
+note that the number of worker role instances do not need to be specified because all tasks are executed asynchronously and controlled by a unique file name as a key recognized by worker and master .
+* step 4 .
+a particular work role , named master role , is used to pack tasks commands into a queue and detect running status via emulating files in the blob .
+there is only one instance of master role , which is programmed to pack a pair of key ( unique file name ) and value ( task orders ) .
+* step 5 .
+worker role instances simply fetch commands from queues .
+the key factor to implement fault tolerant is that same undone task packs will show up again in queues after a user defined period if there are any failure .
+* step 6 .
+all results will be stored in ascending lists and written into blob , when worker role instances finish tasks , i.e. dynamic clustering procedures .
+* step 7 .
+master role will detect which stage the algorithm is running on and communicate with web role relying on file information in blob .
+* step 8 .
+web role instance is the interface to interact between user and dche by retrieving running status .
+availability of supporting data dche and its cloud implementation code is available at http :// www.cs.gsu.edu /\~{ x } guo9 / dche.html password for the source code of cloud implementation is dche ; the simulated data is available on the original paper authors' websitel ( http :// bioinformatics.ust.hk / boost.html and http :// discovery.dartmouth.edu / epistatic \_ data /) ; the genome - wide rheumatoid arthritis data is provided by the genetic analysis workshops 16 ( http :// www.gaworkshop.org /) .
+availability and requirements project name : cloud computing for detecting high - order genome - wide epistatic interaction via dynamic clustering ; project home page : http :// www.cs.gsu.edu /\~{ x } guo9 / dche.html , and https :// sourceforge.net / projects / dche / operating system ( s ) : windows 8 , windows azure programming language : java 1.7 or higher ; c # , coded in visual studio 2012 .
+competing interests the authors declare that they have no competing interests .
+authors' contributions xg conceived the study , and wrote the manuscript with contributions from other authors .
+xg designed and implemented the algorithm , dche and its cloud version program .
+ym and ny performed the gene annotation , analyzed the data and critically read the manuscript .
+yp coordinated the work , conceived and designed the method , and made the major edits .
+all authors read and approved the final manuscript .
+supplementary material additional file 1 supplementary materials .
+click here for file acknowledgements the national institutes of health ( no1 - ar - 2 - 2263 and ro1 - ar - 44422 ) , and the national arthritis foundation provided the ra dataset .
+this study is supported by the molecular basis of disease ( mbd ) program at georgia state university .
+sabaa h cai z wang y goebel r moore s lin g whole genome identity - by - descent determination j bioinform comput biol 2013 11 02 1350002 23600820 he y zhang z peng x wu f wang j de novo assembly methods for next generation sequencing data tsinghua sci technol 2013 18 5 500 514 peter k hunter dj genetic risk prediction : are we there yet ?
+n engl j med 2009 360 17 1701 1703 10.1056 / nejmp0810107 19369656 he q lin dy a variable selection method for genome - wide association studies bioinformatics 2011 27 1 8 10.1093 / bioinformatics / btq600 21036813 marchini j donnelly p cardon lr genome - wide strategies for detecting multiple loci that influence complex diseases nat genet 2005 37 413 417 10.1038 / ng1537 15793588 bateson w mendel 's principles of heredity 1909 cambridge : cambridge university press cordell hj epistasis : what it means , what it does n't mean , and statistical methods to detect it in humans hum mol genet 2002 11 20 2463 2468 10.1093 / hmg / 11.20.2463 12351582 cai z sabaa h wang y goebel r wang z xu j stothard p lin g most parsimonious haplotype allele sharing determination bmc bioinformatics 2009 10 115 10.1186 / 1471 - 2105 - 10 - 115 19379528 wang y cai z stothard p moore s goebel r wang l lin g fast accurate missing snp genotype local imputation bmc res notes 2012 5 404 10.1186 / 1756 - 0500 - 5 - 404 22863359 cheng y sabaa h cai z goebel r lin g efficient haplotype inference algorithms in one whole genome scan for pedigree data with non - genotyped founders acta math appl sinica , english series 2009 25 3 477 488 liu w chen l community detection in disease - gene network based on principal component analysis tsinghua sci technol 2013 18 5 454 461 ritchie md hahn lw roodi n bailey lr dupont wd parl ff moore jh multifactor - dimensionality reduction reveals high - order interactions among estrogen - metabolism genes in sporadic breast cancer am j hum genet 2001 69 138 147 10.1086 / 321276 11404819 nelson m kardia s ferrell r sing c a combinatorial partitioning method to identify multilocus genotypic partitions that predict quantitative trait variation genome res 2001 11 3 458 470 10.1101 / gr.172901 11230170 cordell hj detecting gene - gene interactions that underlie human diseases nat rev genet 2009 10 392 404 10.1038 / nrg2579 19434077 wang y liu g feng m wong l an empirical comparison of several recent epistatic interaction detection methods bioinformatics 2011 27 21 2936 2943 10.1093 / bioinformatics / btr512 21903628 fang g haznadar m wang w yu h steinbach m church tr oetting ws van ness b kumar v high - order snp combinations associated with complex diseases : efficient discovery , statistical power and functional interactions plos one 2012 7 4 e33531 10.1371 / journal.pone.0033531 22536319 cattaert t calle ml dudek sm mahachie john jm van lishout f urrea v ritchie md van steen k model - based multifactor dimensionality reduction for detecting epistasis in case - control data in the presence of noise ann hum genet 2011 75 78 89 10.1111 / j.1469 - 1809.2010.00604.x 21158747 wan x yang c yang q xue h fan x tang nl yu w boost : a fast approach to detecting gene - gene interactions in genome - wide case - control studies am j hum genet 2010 87 3 325 340 10.1016 / j.ajhg.2010.07.021 20817139 wan x yang c yang q xue h tang nls yu w detecting two - locus associations allowing for interactions in genome - wide association studies bioinformatics 2010 26 20 2517 2525 10.1093 / bioinformatics / btq486 20736343 xie m li j jiang t detecting genome - wide epistases based on the clustering of relatively frequent items bioinformatics 2012 28 5 12 10.1093 / bioinformatics / btr603 22053078 yung ls yang c wan x yu w gboost : a gpu - based tool for detecting gene - gene interactions in genome - wide case control studies bioinformatics 2011 27 9 1309 1310 10.1093 / bioinformatics / btr114 21372087 liu y xu h chen s chen x zhang z zhu z qin x hu l zhu j zhao gp kong x genome - wide interaction - based association analysis identified multiple new susceptibility loci for common diseases plos genet 2011 7 3 e1001338 10.1371 / journal.pgen.1001338 21437271 li j a novel strategy for detecting multiple loci in genome - wide association studies of complex diseases int j bioinform res appl 2008 4 2 150 163 10.1504 / ijbra.2008.018342 18490260 wan x yang c yang q xue h tang nl yu w predictive rule inference for epistatic interaction detection in genome - wide association studies bioinformatics 2010 26 30 37 10.1093 / bioinformatics / btp622 19880365 zhang y liu js bayesian inference of epistatic interactions in case - control studies nat genet 2007 39 1167 1173 10.1038 / ng2110 17721534 tang w wu x jiang r li y epistatic module detection for case - control studies : a bayesian model with a gibbs sampling strategy plos genet 2009 5 5 e1000464 10.1371 / journal.pgen.1000464 19412524 jiang r tang w wu x fu w a random forest approach to the detection of epistatic interactions in case - control studies bmc bioinformatics 2009 10 suppl 1 s65 10.1186 / 1471 - 2105 - 10 - s1 - s65 19208169 guo x ding x meng y pan y cai z , eulenstein o , janies d , schwartz d cloud computing for de novo metagenomic sequence assembly bioinformatics research and applications volume , 7875 of lecture notes in computer science 2013 new york : springer berlin heidelberg 185 198 zhang x huang s zou f wang w team : efficient two - locus epistasis tests in human genome - wide association study bioinformatics 2010 26 12 i217 - - i227 20529910 velez dr white bc motsinger aa bush ws ritchie md williams sm moore jh a balanced accuracy function for epistasis modeling in imbalanced datasets using multifactor dimensionality reduction genet epidemiol 2007 31 4 306 315 10.1002 / gepi.20211 17323372 klein rj zeiss c chew ey tsai jy sackler rs haynes c henning ak sangiovanni jp mane sm mayne st bracken mb ferris fl ott j barnstable c hoh j complement factor h polymorphism in age - related macular degeneration science 2005 308 5720 385 389 10.1126 / science.1109557 15761122 piriyapongsa j ngamphiw c intarapanich a kulawonganunchai s assawamakin a bootchai c shaw p tongsima s iloci : a snp interaction prioritization technique for detecting epistasis in genome - wide association studies bmc genomics 2012 13 suppl 7 s2 10.1186 / 1471 - 2164 - 13 - s7 - s2 23281813 chen j bardes ee aronow bj jegga ag toppgene suite for gene list enrichment analysis and candidate gene prioritization nucleic acids res 2009 37 suppl 2 w305 - - w311 19465376 xu x jager j kriegel hp guo y , grossman r a fast parallel clustering algorithm for large spatial databases high performance data mining 2002 new york : springer us 263 290 oh s lee j kwon ms weir b ha k park t a novel method to identify high order gene - gene interactions in genome - wide association studies : gene - based mdr bmc bioinformatics 2012 13 suppl 9 s5 10.1186 / 1471 - 2105 - 13 - s9 - s5 22901090 steinbach m yu h fang g kumar v huang j , cao l , srivastava j using constraints to generate and explore higher order discriminative patterns advances in knowledge discovery and data mining , volume 6634 2011 new york : springer berlin heidelberg 338 350 windows azure blobs : programming blob storage [ http :// go.microsoft.com / fwlink /? linkid = 153400 ] windows azure queue - programming queue storage [ http :// go.microsoft.com / fwlink /? linkid = 153402 ]

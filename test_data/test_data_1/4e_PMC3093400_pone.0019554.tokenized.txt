@@ -1,0 +1,407 @@
+plos one plos one plos plosone plos one 1932 - 6203 public library of science san francisco , usa 21589874 3093400 pone - d - 11 - 02450 10.1371 / journal.pone.0019554 research articlebiologybiophysicsmacromolecular assembliescomputational biologymacromolecular structure analysismacromolecular complex analysisbiochemical simulationsevolutionary modelingtheoretical biologycomputer sciencealgorithmscomputer applicationscomputer modelinginformation technologydatabases structural similarity and classification of protein interaction interfaces structural similarity of protein interfaces zhao nan 1 pang bin 1 shyu chi - ren 1 korkin dmitry 1 2 * 1 informatics institute and department of computer science , university of missouri , columbia , missouri , united states of america 2 bond life science center , university of missouri , columbia , missouri , united states of america uversky vladimir n. editor university of south florida college of medicine , united states of america * e - mail : korkin @ korkinlab.org conceived and designed the experiments : dk nz bp crs .
+performed the experiments : nz bp. analyzed the data : dk nz bp crs .
+wrote the paper : dk nz .
+2011 12 5 2011 6 5 e19554 2 2 2011 5 4 2011 zhao et al .
+2011 this is an open - access article distributed under the terms of the creative commons attribution license , which permits unrestricted use , distribution , and reproduction in any medium , provided the original author and source are properly credited .
+interactions between proteins play a key role in many cellular processes .
+studying protein - protein interactions that share similar interaction interfaces may shed light on their evolution and could be helpful in elucidating the mechanisms behind stability and dynamics of the protein complexes .
+when two complexes share structurally similar subunits , the similarity of the interaction interfaces can be found through a structural superposition of the subunits .
+however , an accurate detection of similarity between the protein complexes containing subunits of unrelated structure remains an open problem .
+here , we present an alignment - free machine learning approach to measure interface similarity .
+the approach relies on the feature - based representation of protein interfaces and does not depend on the superposition of the interacting subunit pairs .
+specifically , we develop an svm classifier of similar and dissimilar interfaces and derive a feature - based interface similarity measure .
+next , the similarity measure is applied to a set of 2,806x2,806 binary complex pairs to build a hierarchical classification of protein - protein interactions .
+finally , we explore case studies of similar interfaces from each level of the hierarchy , considering cases when the subunits forming interactions are either homologous or structurally unrelated .
+the analysis has suggested that the positions of charged residues in the homologous interfaces are not necessarily conserved and may exhibit more complex conservation patterns .
+introduction interactions between proteins form protein complexes and underlie many cellular processes [ 1 ] .
+when studying evolution of protein interactions or predicting and structurally characterizing new interaction interfaces , the concept of interaction similarity often plays a principal role [ 2 ] , [ 3 ] , [ 4 ] .
+the properties of similar interfaces have been analyzed on a large scale by a number of research groups .
+for instance , it has been shown that the geometry of interactions is often conserved between similar pairs of proteins [ 2 ] .
+another study has revealed that homologous proteins often have their binding sites in similar locations on protein surfaces to interact with other , sometimes unrelated , proteins [ 4 ] .
+while similarity of the interfaces in homologous protein complexes is not surprising , it is not clear to what extent two structurally unrelated complexes can have similar , " analogous " , interfaces .
+recently , a new phenomenon of molecular mimicry in host - pathogen interactions has been reported , where a pathogenic protein acquires a binding surface similar to that of a host protein , presumably through convergent evolution [ 5 ] , [ 6 ] , [ 7 ] , [ 8 ] .
+as a result , the pathogenic protein competitively binds to another host protein , forming an analogous interface , similar to the interface between the two host proteins , and thus hijacking an important cellular function .
+the available experimental data suggest that pathogenic agents extensively use the molecular mimicry to their advantage [ 6 ] .
+molecular mimicry can also occur in the intra - species interactions [ 9 ] .
+studying analogous interfaces is challenging since it requires an accurate method to detect similarity between the interfaces of structurally unrelated protein - protein interactions .
+several approaches to quantify the interface similarity have been proposed to date .
+some approaches rely on a superposition of the entire structures of the interacting proteins [ 10 ] , [ 11 ] .
+for instance , this can be done by calculating the ligand root mean square deviation ( l _ rmsd ) measure , which is defined as a rmsd value between the back - bones of the smaller subunits ( ligands ) , once the corresponding larger subunits ( receptors ) are superimposed [ 12 ] .
+while such an approach can provide the most accurate estimation of the interaction similarity between the closely related complexes , it may not be applicable to the cases of distant homology between the protein complexes , or even convergent evolution , where an accurate superposition of subunits is not feasible .
+another way to define the interaction similarity is through the similarity of the corresponding interaction interfaces .
+this can be done by using an rmsd measure calculated only for the superposed interface structures , while not taking into account the overall structures of the interacting subunits [ 3 ] , [ 13 ] , [ 14 ] , [ 15 ] .
+the latter approach , while faster than the one using the whole - subunit superposition , could further benefit from additional information about the interacting residues .
+interaction similarity is also used to cluster protein - protein interactions [ 3 ] , [ 14 ] , [ 16 ] , [ 17 ] .
+for instance , an interface prediction and classification system , prism , defines structural similarity by aligning the binding sites that form each interface using multiprot software [ 18 ] .
+in total , there are 21,684 interfaces collected in prism , which are clustered into 3,799 clusters based on their structural similarity .
+another classification system , scoppi , uses a two - stage classification system to cluster binding sites within each scop family [ 16 ] .
+in the first stage , the binding sites are clustered based on a sequence pattern of their contact residues .
+in the second stage , the initial groups of binding sites are merged into the larger clusters , based on the similarity of geometrical features of the binding sites .
+the interfaces can then be clustered , based on the clustering of their binding sites .
+while classification of protein interactions of homologous subunits has been addressed by several approaches , an accurate classification of analogous interfaces remains a challenge .
+the goal of this work is finding an accurate alignment - free interface similarity measure and demonstrating its advantages and applicability .
+first , we introduce an accurate structure - based interface similarity measure that is used to generate a training set of similar and dissimilar interfaces .
+we then describe a feature - based interface similarity measure by employing a supervised learning approach , which is trained on the known structures of protein - protein interfaces .
+furthermore , we apply the feature - based similarity measure to develop ( i ) a proof - of - concept hierarchical classification of protein interactions , and ( ii ) a data structure for efficient search and retrieval of similar interfaces .
+the classification can be useful in the evolutionary studies of protein interactions , as illustrated by our case study analysis .
+methods our methods are organized as follows .
+first , we define and compare two structure - based interface similarity measures , iirmsd and sirmsd .
+second , we apply the more accurate of the two measures to a non - redundant set of protein interfaces to determine reliable positive and negative training sets for our feature - based measure .
+third , we use the training set to obtain two support vector machine ( svm ) models , resulting in two feature - based interface similarity measures .
+finally , we employ one of the new feature - based similarity measures to ( i ) define a structure - based hierarchical classification of protein interaction interfaces on a large scale , and ( ii ) design a data structure for the interface search and retrieval problem .
+basic concepts : homology and analogy in protein - protein interactions we first formally define the concepts of a protein - protein interaction , protein binding site , and protein interaction interface since these concepts will be used throughout the paper .
+a protein - protein interaction is defined as a triple ( s1 , s2 , o ) , where s 1 and s 2 are the two interacting subunits ( either proteins or protein domains ) , and o is their relative orientation .
+a residue r1 of one subunit is in contact with residue r 2 of another subunit if r 1 has at least one atom within 6 a of an atom of r 2 .
+the set of all residues from one subunit that are in contact with any residues of another subunit constitutes a protein binding site .
+for a protein - protein interaction , its interaction interface is defined by a triple ( b 1 , b 2 , c ) , where b 1 and b 2 are the binding sites of the interacting subunits , and c is a set of all pairs of residues that are in contact .
+we next introduce three types of similar interaction interfaces based on the protein - protein interactions they mediate .
+two protein - protein interactions that share similar interfaces are called homologous if a subunit in the first interaction shares homology with a subunit in the second interaction , and the remaining two subunits also share homology between each other .
+two protein - protein interactions that share similar interfaces are called common - partner analogous if a subunit in the first interaction shares homology with a subunit in the second interaction , while the remaining two subunits are structurally unrelated .
+finally , two protein - protein interactions that share similar interfaces are called analogous if both subunits in the first interaction are structurally unrelated to subunits in the second interaction .
+the protein interfaces formed by interactions of the three types are called homologous , common - partner analogous , and analogous , correspondingly .
+comparing two structure - based similarity measures to train a feature - based similarity measure , one needs to generate two reliable training sets of similar ( positive training set ) and dissimilar ( negative training set ) interfaces .
+this is done by employing a structure - based similarity measure , a commonly used approach to compare homologous interfaces or interfaces formed by the same subunits [ 12 ] .
+the set - generating protocol consists of three stages ( fig. 1 ) .
+first , we define two structure - based interface similarity measures : one that relies on structural superposition of the entire protein complexes and another one that relies on superposition of the protein interfaces .
+second , we prepare a candidate dataset of pairs of non - redundant protein - protein interactions , where each participating subunit is classified based on its evolutionary relationships to other subunits .
+third , we compare the structure - based similarity measures and apply the most accurate measure to the candidate dataset to determine a positive training set that includes homologous and common - partner analogous pairs of interfaces and a negative training set of structurally unrelated interfaces .
+10.1371 / journal.pone.0019554.g001 figure 1 a protocol for obtaining a reliable set of similar and dissimilar interface pairs .
+first , two structure - based similarity measures , iirmsd and sirmsd , are evaluated on a dataset collected from 3d complex database .
+second , a non - redundant domain - domain interaction data set is obtained from pdb , scop and cath .
+third , iirmsd is used to classify positive ( similar ) and negative ( dissimilar ) training sets of pairs of interaction interface structures .
+the first structure - based similarity measure , the interaction interface rmsd ( iirmsd ) , is defined by superposing overall structures of the interacting subunits , similar to l _ rmsd measure , used in capri docking assessment [ 12 ] .
+given two protein - protein interactions , one between subunits a 1 and a 2 and another one between subunits b 1 and b 2 , we calculate iirmsd through the following steps : 1 .
+structurally align subunit a i with another subunit b j ( i,j = 1,2 ) using multiprot software [ 18 ] ; calculate calpha - only rmsd between the corresponding residues of the binding sites of ai and bj 2 .
+for each alignment ai - bj : 2.1 superpose the remaining two subunits according to the alignment ; and calculate calpha - only rmsd between the corresponding residues of the binding sites of remaining subunits 2.2 calculate an average of the two calpha - only rmsd values 3 .
+select the smallest of the calculated averages over four possible superposition scenarios for ai and bj. the second similarity measure , the superposed interface rmsd ( sirmsd ) , is defined as the calpha - based rmsd between the corresponding residues of the structurally superposed interaction interfaces .
+the structural superposition of interfaces is done using the same multiprot software [ 18 ] .
+thus , in contrast to iirmsd , sirmsd is guided exclusively by the local structure of the interaction interfaces , which can potentially lead to the incorrect detection of similar interfaces , specifically when the interface structures are small .
+next , we compare accuracies of both measures by applying them to a dataset of homologous and dissimilar protein interfaces extracted from 3d complex , a non - redundant database of protein complexes that are classified based on their similarity in sequence , structure , or topology [ 19 ] .
+the hierarchical classification system in 3d complex consists of 12 levels : protein complexes of different topologies are separated at the first level , while complexes of the same topology and geometry but with varied sequence identities are separated at one of the last 8 levels ( levels 4 - 12 ) .
+in this work , the pairs of complexes were selected from the third , quaternary structures ( qs ) , level .
+at this level , protein complexes grouped in the same cluster have the same topology , domain architecture , and stoichiometry , as well as share the evolutionarily related proteins .
+our simple assumption behind extracting similar interaction interfaces from 3d complex is that two structurally similar protein complexes are likely to have structurally similar interaction interfaces .
+first , 5,924 pairs of structurally similar complexes are selected from 4,005 clusters of protein complexes at the qs level of 3dcomplex .
+we randomly select two complexes from each cluster if it has more than one protein complex .
+it is not difficult to see that all collected pairs of similar interfaces satisfy our definition of homologous interfaces .
+second , we generate a set of 4,491 pairs of structurally unrelated protein complexes .
+to do so , pairs of complexes are randomly selected from different clusters , such that the pairs of binary interactions extracted from these complexes are formed by four different subunits ( i.e. , different homologous chain ids for all four subunits ) .
+to exclude a rare possibility of different binding modes that can occur for a pair of homologous or even identical proteins , all pairs of obtained proteins are manually checked using subunit sequence similarity and symmetry information from 3d complex .
+finally , iirmsd and sirmsd measures are calculated and compared for all similar and dissimilar interface pairs in the dataset .
+specifically , we use bhattacharyya coefficient based metric [ 20 ] to compare the distributions of similarity values between the sets of similar and dissimilar interfaces generated by each measure .
+based on evaluation of the histograms obtained from iirmsd and sirmsd similarity distribution , using n = 50 bins ( see section comparison of structure - based interface similarity measures in results ) , iirmsd is selected to obtain the set of similar and dissimilar protein interfaces .
+obtaining training sets of similar and dissimilar protein - protein interfaces to obtain reliable training sets of interaction interfaces , we calculate the iirmsd values between the pairs of interfaces extracted from a diverse non - redundant set of protein - protein interactions .
+first , the protein - protein interactions are collected from pibase , a database of protein interaction structures [ 21 ] .
+second , we remove the interaction structures with resolution worse than 2.5 a ( the resolution is obtained from the protein data bank , pdb [ 22 ]) and interactions formed by redundant subunits .
+we define redundant subunits as the structures that share at least 95 % sequence identity , using astral scop 1.75 [ 23 ] .
+in total 1,383 non - redundant binary protein interactions are extracted from the high - resolution structures .
+third , each of the two subunits in a protein - protein interaction is assigned a scop superfamily id [ 24 ] .
+proteins from the same scop superfamily are evolutionary related , based on structural , functional , and sequence evidence .
+fourth , all interactions are grouped based on their scop superfamily ids such that interactions within the same group share the same pairs of assigned scop superfamily ids .
+finally , we consider only those groups that have two or more interactions , resulting in 585 groups of 2,296 interfaces in total .
+as mentioned before , our positive training set of similar interfaces includes homologous and common - partner analogous interfaces .
+ideally , one would like to have a positive set that includes all three types of similar interfaces : homologous , common - partner analogous , and analogous .
+however , it is not feasible to generate a reliable set of analogous interfaces using iirmsd or any other similarity measure that relies on subunit superposition since it may not be possible to structurally align the pairs of interacting subunits .
+while it may be feasible to implement the definition of the analogous interface using a similarity measure that relies solely on the interface superposition such as sirmsd , selecting a reliable set of analogous interfaces for the positive set using such method remains a problem .
+to obtain the set of homologous interfaces , we consider all possible non - redundant interface pairs within the same scop superfamily group of interfaces .
+in total , we have considered 7,206 interface pairs .
+then , we select a pair of interfaces as similar interfaces if the iirmsd measure between them is smaller than 8 a. this threshold was selected to minimize the number of false - positives , based on our analysis of iirmsd values for similar and dissimilar interfaces ( see section comparison of structure - based interface similarity measures in results ) .
+as the result , we obtained 372 pairs of homologous interaction interfaces ( table 1 ) .
+we will refer to these data as positiveh .
+to obtain the set of common - partner analogous interfaces , we first determine all pairs of interfaces that share a common scop superfamily for exactly one subunit in each interface .
+in total , 14,509 pairs of interface scop superfamily groups containing 29,180 interface pairs were selected .
+for each interface pair we calculate the iirmsd measure , which requires superposition of only one pair of subunits and therefore can be applied to a pair of interfaces with other two subunits being structurally unrelated .
+we then use the same upper bound of 8 a to define similar interfaces , resulting in 480 pairs of common - partner analogous interfaces .
+we will refer to these data as positivec .
+10.1371 / journal.pone.0019554.t001 table 1 positive and negative datasets .
+dataset subsets nip total threshold positive set positiveh 372 852 iirmsd < 8 a positivec 480 negative set negativenn 723 1322 15 a < iirmsd and iirmsd < 25 a negativend 599 nip is the number of interface pairs from each subset of the positive and negative datasets after the rmsd thresholds are applied .
+total is the number of pairs in each dataset .
+iirmsd is used to define an upper threshold for the positive set ( 8 a ) as well as the lower and upper thresholds for the negative set ( 15 a and 25 a ) .
+the thresholds are imposed to minimize the number of false positives and negatives .
+to obtain a negative set of dissimilar interface pairs , two strategies are considered .
+in the first strategy , we compare a ' native ' interface from the dataset of non - redundant interactions , described earlier , with a ' decoy ' interface formed using the same subunits .
+the subunits are first detached and then re - docked by a protein docking method .
+in the second strategy , we compare a pair of native interfaces .
+specifically , in the first strategy we randomly select 4,309 native interfaces ; for each pair of subunits forming an interface , a set of 4,309 decoy interfaces is then obtained by detaching the subunits followed by their re - docking using patchdock software [ 25 ] .
+the iirmsd measure is then calculated between the native interface and each of the decoy interfaces ; the lower and upper threshold of 15 a and 25 a , respectively , are used to select the final set of dissimilar interface pairs .
+the lower threshold is selected based on the evaluation of iirmsd measure .
+the upper threshold is used to exclude extreme dissimilarities that are due to any significant errors in alignments and can reduce the sensitivity of our svm classifiers .
+in total , 599 dissimilar native - decoy interface pairs have been determined ( table 1 ) .
+we will refer to these data as negativend .
+in the second strategy , we determine the set of structurally unrelated interface pairs extracted exclusively from native structures by ( 1 ) randomly selecting a pair of interactions from the non - redundant set , such that all four subunits forming the interactions belong to four different scop superfamilies , ( 2 ) determining the iirmsd values between the interfaces , and ( 3 ) applying the same lower and upper thresholds ( 15 a and 25 a ) as in the first strategy .
+as a result , 723 dissimilar native - native interface pairs were selected ( table 1 ) .
+we will refer to these data as negativenn .
+a machine learning approach to train a feature - based similarity measure to determine whether two interaction interfaces are similar without the use of structural alignment , we train a feature - based similarity measure using a support vector machines ( svm ) approach [ 26 ] .
+svms have been successfully used in a number of bioinformatics applications [ 27 ] , [ 28 ] .
+given a positive training set of n 1 pairs of similar and n 2 pairs of dissimilar interfaces , where each pair is represented as a vector of n numerical features , xi = ( x 1,x 2 ,... , xn ) , the basic goal is to train a classifier that would classify a pair of the interfaces as either similar or dissimilar .
+in its simplest form , the problem can be viewed as finding a hyperplane that separates two classes of points maximizing a margin defined by the closest to the hyperplane positive and negative examples .
+the formalism can be expanded by introducing non - linear classifiers defined through the kernel functions , for our approach we employ two widely used non - linear kernel functions : the polynomial kernel , , where d is degree of the polynomial , and the radial basis function ( rbf ) , . for both , svm training and testing , we used svmlight software [ 29 ] .
+our approach consists of three main stages ( fig. 2 ) .
+first , two datasets of interface pairs are extracted from our training sets .
+the first dataset includes a positive set of 852 interface pairs ( 372 from positiveh and 480 from positivec sets ) , and a negative set of 599 pairs from negativend set .
+the second dataset includes the same positive set , but the negative set combines 723 interface pairs from negativenn and 599 from negativend sets .
+second , for each interface structure , we calculate a 53 - dimensional vector , which consists of features describing geometrical and physico - chemical characteristics of the interfaces .
+for the training procedure , all interface feature vectors are paired up , resulting in 106 - dimensional feature vectors .
+third , two svm classifiers are trained : classifier modelnd is based on the first dataset and classifier modelndnn is based on the second dataset .
+fourth , for each model , a protein interface similarity measure delta ( i1 , i2 ) is defined for two interfaces , i1 and i2 as the distance between the 106 - dimensional feature vector and the separating hyperplane .
+we then convert the measure to a distance by subtracting each value from the observed maximum .
+interestingly , when analyzing the converted similarity measure values calculated for the entire set of 2,806x2,806 interface pairs ( which is later used for hierarchical classification ; see next section structure classification of interaction interfaces under methods ) , we found that the measure obeys the triangle inequality rule .
+finally , during the testing stage , we evaluate the accuracy of the feature - based similarity measures based on the two svm models .
+10.1371 / journal.pone.0019554.g002 figure 2 an overview of machine learning approach to determine interface similarity measure .
+first , interface structures are extracted from the training sets of similar and dissimilar interaction interfaces .
+second , for each pair of interfaces a 106 - dimensional feature vector is calculated .
+third , a support vector machines classifier is trained and evaluated using the above datasets .
+last , a protein interface similarity measure delta ( i1 , i2 ) is defined for two interfaces , i1 and i2 , as the distance between the corresponding106 - dimensional feature vector and the separating hyperplane .
+there are 5 different types of features that constitute each 53 - dimensional feature vector .
+the first feature type is a one - dimensional feature defined as the difference between the numbers of contact residues in each interface .
+the second type represents statistics on the residue contact pairs between 7 basic residue groups based on the physico - chemical characteristics of the residues .
+the residue groups include aromatic , aliphatic , hydrophobic , small , negatively charged , positively charged , and polar residues , where each amino acid residue may belong to more than one group ( table 2 ) [ 30 ] .
+the occurrence frequency of a pair of contact residues in each pair of residue groups is calculated adding ( 7x8 )/ 2 = 28 dimensions .
+the third feature type consists of 4 surface patch parameters [ 31 ] .
+these are interface solvent accessible surface area ( asa ) , protrusion , planarity , and hydrophobicity .
+the interface asa is defined as the sum of two protein binding site asas , where each binding site asa is calculated as an average of each contact residue asa , calculated by naccess [ 32 ] .
+a protrusion index gives an absolute value for the extent to which a residue protrudes from the surface of a protein , and is defined as an average of the protrusion indices of each residue , computed using protruder software [ 33 ] .
+the planarity of each interface is calculated by surfnet , a software that evaluates the root mean square deviation ( rmsd ) of all interface atoms from the fitted least squares plane [ 34 ] .
+the hydrophobicity of each interface is defined as an average of the hydrophobicity values of each interface residue assigned using the hydrophobicity scale [ 35 ] .
+the last feature type is concerned with the hot spot residues in each interface .
+a hot spot residue in a protein interface is defined as a residue that makes significant contribution to the binding free energy .
+we use a computational alanine scanning approach to get all hot spot residues for an interface [ 36 ] .
+this feature type is calculated as a 20 - dimensional vector , where the i - th coordinate of the vector corresponds to the occurrence frequency of the i - th residue type as a hot spot residue .
+10.1371 / journal.pone.0019554.t002 table 2 amino acid residue classes according to their physicochemical properties .
+aliphatic aromatic positive negative small hydrophobic polar ala 0 0 0 0 1 1 0 arg 0 0 1 0 0 0 1 asn 0 0 0 0 1 0 1 asp 0 0 0 1 1 0 1 gys 0 0 0 0 1 1 0 glu 0 0 0 1 0 0 1 gln 0 0 0 0 0 0 1 gly 0 0 0 0 1 1 0 his 0 1 1 0 0 1 1 ile 1 0 0 0 0 1 0 leu 1 0 0 0 0 1 0 lys 0 0 1 0 0 1 1 met 0 0 0 0 0 1 0 phe 0 1 0 0 0 1 0 pro 0 0 0 0 1 0 0 ser 0 0 0 0 1 0 1 thr 0 0 0 0 1 1 1 trp 0 1 0 0 0 1 1 tyr 0 1 0 0 0 1 1 val 1 0 0 0 1 1 0 six classes of residues were defined , where a residue may belong to more than one class .
+the contribution of the individual features is analyzed using an svm attribute evaluating protocol implemented in weka [ 37 ] .
+this protocol is based on the svm recursive feature elimination method using weight magnitude as the ranking criterion [ 38 ] .
+to evaluate the obtained classification results for the two svm models , we use a standard leave - one - out cross validation protocol for each svm classifier [ 29 ] .
+the accuracy , fac , is calculated as , where ntp and ntn are the numbers of true positives and negatives , and n is the number of classified interfaces .
+the precision , fpr , is calculated as and the recall , fre , is calculated as . structure classification of interaction interfaces using the new feature - based interface similarity , we develop a hierarchical classification of protein interfaces and applied it to a set of 2,806x2,806 interface pairs .
+the 2,806 interfaces are randomly sampled from our non - redundant set described in the previous section ; they constitute ~ 1 % of all structurally determined interfaces [ 39 ] .
+the sampling procedure has been shown to reflect the distribution of similar interfaces among different scop superfamilies .
+we use modelndnn , as it has the higher accuracy in classifying dissimilar native interfaces ( see section assessment of the new feature - based interface similarity measure under results ) .
+the hierarchy consists of three levels ( fig. 3 ) , and is inspired by the classifications of protein structures , such as scop and cath [ 16 ] , [ 40 ] .
+at the first level , a - level , any two interactions from the same class can be analogous , common - partner analogous , or homologous .
+at the second level , c - level , two interactions from the same class can be either common - partner analogous or homologous .
+at the last level , h - level , only homologous interactions are allowed to be in the same class .
+10.1371 / journal.pone.0019554.g003 figure 3 hierarchical classification of interaction interfaces .
+similar shapes correspond to homologous proteins .
+three levels of structurally similar interaction interfaces are defined .
+a single cluster at h - level , c - level , and a - level can include homologous , common partner analogous , and analogous interfaces , correspondingly .
+the hierarchy is obtained by first applying a similarity - based clustering procedure using the similarity measure derived from modelndnn and then by imposing on each cluster the definitions of the three levels , starting from a - level and ending with h - level .
+to cluster interfaces , we used the k - medoid clustering method [ 41 ] on the whole data set of 7,873,636 interface pairs .
+k - medoid clustering is a generalization of k - means clustering not requiring for the similarity measure to satisfy the triangle inequality .
+to find an optimal threshold on the number of clusters , we use the silhouette method , which compares the tightness and separation of clusters [ 42 ] .
+each obtained cluster corresponds to an a - level class , as all interface pairs are similar to each other , while the interacting subunits may or may not be homologous ( fig. 3 ) .
+each a - level class is further split into one or more c - level classes by comparing the scop superfamily ids of all interacting proteins within the a - level class .
+specifically , all interfaces whose subunits share at least one scop superfamily id in common are grouped into the same c - level class .
+each c - level class is further split into one or more h - level classes ; interfaces with both subunits sharing the same two scop superfamily ids are grouped in the same h - level class .
+similarity - based retrieval of interaction interfaces the above 3 - level hierarchical clustering can be useful for studying the evolutionary and functional relationships between the protein - protein interactions with similar interfaces .
+however , it is likely to be inefficient for the interface retrieval problem , which asks : given a query protein interface , how can one accurately and efficiently find a similar protein interface in a large interface dataset ?
+solving this problem requires development of a system for large - scale data organization , search and retrieval .
+in this section , we present an approach to index a protein interface database and make it searchable using an m - tree [ 43 ] .
+the designed m - tree is a data structure that relies on the feature - based representation of the interfaces .
+specifically , we construct m - tree in a top - down manner starting with an empty tree and iteratively adding each interface into the tree by recursively descending the tree to locate the most suitable leaf node .
+as a result , complete m - tree contains each interface as a leaf node .
+the internal nodes of m - tree contain the routing objects that describe branch objects covering radius , and distances to each child node where the distance is defined by our feature - based similarity measure .
+to search for a similar interface , one recursively traverses all the paths that satisfy the distance restriction starting from the root .
+the methodology is applied to the same set of 2,806 interfaces ( see previous subsection ) .
+we assess the accuracy of each interface query by finding if the retrieved similar interface has the lowest value of iirmsd among all interfaces in the data set .
+specifically we introduce a retrieval error , er : where iq is a query interface , and ir is a retrieval interface .
+the efficiency of each method will be estimated by the average retrieval time .
+results in this section , we first present the results of comparing two structure - based similarity measures .
+second , we describe evaluation results for a new feature - based similarity measure .
+third , we compare our similarity - based classification with the currently existing methods .
+then , we introduce the proof - of - concept of a hierarchical classification system for similar protein - protein interactions .
+we conclude with the description of several case studies of similar interfaces .
+comparison of structure - based interface similarity measures to compare accuracies of the two structure - based similarity measures , iirmsd and sirmsd , we applied them to a set of 5,924 similar and 4,005 dissimilar pairs of protein interfaces ( see section evaluating structure - based similarity measures under methods ) .
+the interfaces were obtained from 2,816 protein complexes sampled from the 3dcomplex dataset [ 19 ] .
+in total , 8,614 binary interaction interfaces formed by 9,144 subunits were extracted from these complexes , averaging ~ 3 binary interfaces per complex .
+among 8,614 binary complexes , 81.8 % were homodimers , and 18.2 % were heterodimers .
+the analysis of the iirmsd and sirmsd value distributions for the similar and dissimilar interfaces ( fig. 4 ) revealed that on average , the dissimilar interface pairs had larger iirmsd and sirmsd values ( mean values are 20.6 and 15.8 , correspondingly ) than similar pairs ( mean values are 14.8 and 14.7 ) .
+in addition , the mean value difference between the similar and dissimilar interfaces was larger when using the iirmsd measure ( deltamu is 4.7 for iirmsd and 1.1 for sirmsd ) .
+a more detailed analysis using bhattacharyya coefficient based metric [ 20 ] also showed the larger distance between the distributions of iirmsd values for the similar and dissimilar interface pairs ( dbc = 0.36 ) , compared to the distributions of sirmsd values ( dbc = 0.23 ) .
+this suggests that iirmsd may differentiate better between the similar and dissimilar interfaces than sirmsd .
+therefore , for our svm - based approach , we used iirmsd to select similar and dissimilar interfaces for the training sets .
+10.1371 / journal.pone.0019554.g004 figure 4 histograms of the distributions of ( a ) iirmsd and ( b ) sirmsd values on the datasets of similar and dissimilar interfaces .
+both datasets are obtained from 3d complex database .
+on average , the dissimilar interface pairs had larger iirmsd and sirmsd values ( mean values are 20.6 and 15.8 , correspondingly ) than similar pairs ( mean values are 14.8 and 14.7 ) .
+in addition , the mean value difference between the similar and dissimilar interfaces was larger when using the iirmsd measure ( deltamu is 4.7 for iirmsd and 1.1 for sirmsd ) .
+assessment of the new feature - based interface similarity measure we first obtained a set of positive examples consisting of 852 similar interface pairs and a set of negative examples consisting of 1,322 dissimilar interface pairs ( table 1 ) .
+both positive and negative datasets were scattered across all major scop classes ( scop class ids are from a to g ) .
+the majority of interactions , however , were mediated by the subunits from four scop classes , a , b , c , and d ( fig. 5 ) , which was consistent with the unevenness of the protein structure distribution across the scop classes ( scop release version 1.75 , june 2009 [ 24 ]) .
+10.1371 / journal.pone.0019554.g005 figure 5 distribution of scop class id pairs from the training dataset of protein - protein interactions .
+the dataset covers all scop class ids , while the uneven distribution of the pairs is consistent with the unevenness in the overall distribution of protein structures across the scop classes .
+the leave - one - out cross - validation was done for each svm model using the same positive set and two different negative sets ( negativend for modelnd , and negativend and negativenn for modelndnn ) .
+for each model , we tested both kernels , polynomial and rbf ( table 3 ) .
+we found that the overall performance of modelnd ( in terms of accuracy , precision , and recall ) is significantly better for both kernels than that one of modelndnn .
+a more detailed analysis revealed that the difference was mainly due to a higher rate of the true positives ( 93.7 % for modelnd vs. 64.2 % for modelndnn ) ; the rate of the true negatives was also higher for modelnd ( 91.0 % for modelnd vs. 85.9 % for modelndnn ) .
+modelnd was also evaluated on a negative set of native - native dissimilar interfaces ( negativenn ) and compared with the leave - one - out evaluation of modelndnn on the same set .
+we found that being trained on the negative set of native - decoy interface pairs ( negativend ) , modelnd cannot generalize well to classify dissimilar native - native interface pairs .
+it was able to correctly classify only 18.5 % of the native - native interface pairs ; modelndnn identified 76.6 % , which was similar to its performance on the native - decoy set .
+comparing polynomial and rbf kernels revealed similar performances , although the overall performance of the rbf kernel was slightly better for both svm models .
+finally , we found that the performance of both similarity measures was several percent better when considering a positive set consisting exclusively of the interfaces at h - level , compared with the positive set consisting of the interfaces at c - level .
+for instance , the cross - validation accuracy when using rbf kernel and testing both models on similar interfaces at h - level was 92.8 % for modelnd and 84.5 % for modelndnn .
+similarly , the cross - validation accuracy , using the same kernel , while testing both models using similar interfaces at c - level was 90.5 % for modelnd and 77.0 % for modelndnn .
+10.1371 / journal.pone.0019554.t003 table 3 leave - one - out cross validation of two svm models .
+modelnd modelndnn kernel acc pre rec acc pre rec rbf 92.6 % 93.7 % 93.7 % 77.4 % 74.6 % 64.1 % polynomial 92.0 % 92.8 % 93.7 % 76.5 % 70.1 % 69.6 % modelnd is trained on positiveh , positivec , and negativend .
+modelndnn is trained using the same positive set , and a negative set that includes negativend together with negativenn .
+accuracy ( acc ) , precision ( pre ) , and recall ( rec ) were calculated for both kernerls , rbf and polynomial .
+the 106 features may not have equal contributions to the feature - based similarity measure ( table 4 ) .
+the evaluation of features using weka identified the most important features for both models ( table 4 and table 5 ) .
+while the sets of top 20 ranked features for both models had only 5 features in common , the highest ranked feature , defined as the difference of number of contacts between two interfaces , was the same .
+other important common features included planarity and asa of the first interface , as well as the number of contact pairs in the second interface formed either between the aromatic and hydrophobic or between the negative and hydrophobic residues .
+10.1371 / journal.pone.0019554.t004 table 4 top 20 ranked features for both svm models .
+model no .
+1 model no .
+2 feature id description of features feature id description of features 105 difference of number of contacts between two interfaces 105 difference of number of contacts between two interfaces 29 asa of first interface 30 planarity of first interface 81 asa of second interface 64 number of aromatic - hydrophobic contacts in the second interface 30 planarity of first interface 76 number of small - hydrophobic contacts in the second interface 64 number of aromatic - hydrophobic contacts in the second interface 29 asa of first interface 53 number of aliphatic - aliphatic contacts in the second interface 83 protrusion of the second interface 71 number of negative - negative contacts in the second interface 21 number of negative - hydrophobic contacts in the first interface 82 planarity of second interface 44 ratio of asn hotspots in the first interface 28 number of polar - polar contacts in the first interface 16 number of positive - small contacts in the first interface 69 number of positive - hydrophobic contacts in the second interface 34 ratio of cys hotspots in the first interface 86 ratio of cys hostspots in the second interface 50 ratio of ile hotspots in the first interface 92 ratio of phe hotspots in the second interface 73 number of negative - hydrophobic contacts in the second interface 90 ratio of tyr hotspots in the second interface 106 difference of asa between two interfaces 73 number of negative - hydrophobic contacts in the second interface 19 number of negative - negative contacts in the second interface 74 number of negative - polar contacts in the second interface 11 number of aromatic - small contacts in the second interface 62 number of aromatic - negative contacts in the second interface 100 ratio of thr hotspots in the second interface 67 number of positive - negative contacts in the second interface 68 number of positive - small contacts in the second interface 58 number of aliphatic - hydrophobic contacts in the second interface 98 ratio of glu hotspots in the second interface 97 ratio of lys hotspots in the second interface 39 ratio of gln hotspots in the first interface 56 number of aliphatic - negative contacts in the second interface 33 ratio of trp hotspots in the first interface the ranking was obtained using the svm attribute evaluating protocol implemented in weka software package .
+10.1371 / journal.pone.0019554.t005 table 5 minimum , maximum , and median of feature values for top 20 ranked features for both svm models .
+model no .
+1 model no .
+2 positive set negative set positive set negative set id min max med min max med id min max med min max med 105 0.00 328.00 35.00 2.00 732.00 130.00 105 0.00 328.00 35.00 0.00 732.00 103.00 29 35.40 146.80 51.20 31.90 168.40 69.90 30 1.48 8.16 4.59 0.48 12.90 4.15 81 0.00 0.23 0.11 0.05 0.19 0.11 64 0.00 0.14 0.03 0.00 0.37 0.02 30 0.00 0.36 0.09 0.00 1.00 0.13 76 0.00 0.50 0.08 0.00 0.20 0.08 64 0.00 0.14 0.03 0.00 0.09 0.02 29 35.30 146.80 51.10 31.90 168.40 61.30 53 0.00 0.09 0.01 0.00 0.12 0.01 83 0.00 55.40 4.49 0.00 55.40 4.49 71 0.00 0.09 0.01 0.00 0.04 0.01 21 0.00 0.09 0.01 0.00 0.33 0.02 82 1.08 9.03 4.52 3.60 8.45 5.13 44 0.00 0.33 0.04 0.00 1.00 0.03 28 0.00 0.36 0.09 0.00 1.00 0.13 16 0.00 0.15 0.02 0.00 0.30 0.02 69 0.00 0.08 0.01 0.00 0.05 0.01 34 0.00 0.27 0.00 0.00 0.33 0.00 86 0.00 0.27 0.00 0.00 0.19 0.00 50 0.00 0.33 0.06 0.00 1.00 0.04 beta92 0.00 0.37 0.05 0.00 0.18 0.04 73 0.00 0.17 0.01 0.00 0.28 0.02 90 0.00 1.00 0.07 0.00 0.31 0.07 106 0.01 84.40 6.37 0.01 122.10 17.90 73 0.00 0.17 0.01 0.00 0.09 0.02 19 0.00 0.05 0.00 0.00 0.12 0.00 74 0.00 0.16 0.02 0.00 0.09 0.02 11 0.00 0.17 0.02 0.00 0.20 0.01 62 0.00 0.07 0.00 0.00 0.04 0.01 100 0.00 0.33 0.06 0.00 0.50 0.06 67 0.00 0.08 0.01 0.00 0.05 0.01 68 0.00 0.19 0.02 0.00 0.22 0.02 58 0.00 0.27 0.04 0.00 0.14 0.03 98 0.00 0.55 0.06 0.00 0.50 0.0beta7 97 0.00 0.33 0.05 0.00 0.30 0.08 39 0.00 0.28 0.04 0.00 1.00 0.03 56 0.00 0.07 0.00 0.00 0.05 0.01 33 0.00 0.25 0.00 0.00 0.50 0.00 for each of the top 20 ranked features ( id stands for the feature id ) , the minimum ( min ) , maximum ( max ) , and median ( med ) values were individually calculated for the positive and negative sets .
+comparison to existing interface classification methods to further evaluate the obtained svm interface similarity classifiers , each classifier was compared to the state - of - art methods to classify protein - protein interfaces , scoppi [ 16 ] and prism [ 17 ] .
+for both methods , the similarity of the interfaces was defined through their classification .
+two interfaces were defined similar / dissimilar if they belonged to the same / different scoppi or prism class , respectively .
+the classification data included 8,205 clusters of similar interfaces for prism and 10,269 clusters for scoppi ; they were provided by the research groups who developed the methods .
+we first tested both methods on the positive subset of the training set ( table 6 ) .
+since in the provided scoppi and prism datasets , the classification was done exclusively to the sets of similar interactions , we only considered a subset of the positive set that included interaction pairs at h - level .
+we found that scoppi correctly classified 48.0 % and prism only 15.9 % of homologous interfaces from our training set .
+such performance could be attributed either to a limited coverage of the classification systems or to a low accuracy of the similarity measures .
+in comparison , modelnd correctly predicts the homologous interfaces in 98.1 % , while modelndnn does so in 75.0 % ( based on the leave - one - out cross - validation results for homologous interfaces ) .
+10.1371 / journal.pone.0019554.t006 table 6 comparison of scoppi , prism with modelnd and modelndnn .
+dataset classified scoppi prism modelnd modelndnn h - level similar 48.0 % 15.9 % 98.1 % 75.0 % dissimilar 51.0 % 3.2 % 1.88 % 25.0 % unknown 1.0 % 80.9 % 0.0 % 0.0 % dissimilar native - native similar 0.0 % 0.0 % - 33.6 % dissimilar 98.1 % 6.6 % - 66.4 % unknown 1.9 % 93.4 % - 0.0 % the accuracies for each classifier were calculated using homologous interfaces from the positive set and dissimilar native - native interfaces from the negative sets .
+the results for modelnd and modelndnn were based on the leave - one - out cross - validation .
+unknown classification results refer to the percentage of those interface pairs that were not classified by either scoppi or prism .
+we next tested the two methods on a negative subset of the training set ( table 6 ) .
+as both classification systems are for comparing two biological interactions , we excluded the decoy - native interface pairs from the negative set .
+we found that scoppi was able to correctly detect 98.1 % of dissimilar pairs and prism did so for only 6.6 % , with the remaining 93.4 % of pairs being unclassified .
+we compared the results only with modelndnn , which correctly classified 66.4 % of dissimilar interfaces .
+modelnd was trained to distinguish only between the decoy and native interfaces , and thus performed poorly on the dissimilar native - native interface pairs .
+hierarchical classification of similar interactions our next goal was to construct a proof - of - concept of a biologically meaningful classification of the interaction interfaces , using the feature - based similarity measure .
+for this purpose , we used the second svm model , due to its consistency on both positive and negative datasets of the native - native interfaces .
+the similarity measure was used to obtain the all - against - all svm distance matrix for the set of 2,806x2,806 interfaces .
+the cluster analysis using silhouette method resulted in the number of clusters k = 140 , which were the clusters at a - level ( fig. 6 ) .
+following the protocol to cluster the interfaces at the other two levels ( see section a machine learning approach in methods ) , we obtained 1,892 clusters at c - level , and 2,085 clusters at h - level ( table 7 ) .
+out of 2,806 randomly sampled interactions , 1,610 and 1,363 interactions formed 1 - member clusters at the h - level and c - level , respectively .
+the overall clustering procedure took 71 hours and 18 minutes on a single core of the intel xeon quad processor ( 2.4 ghz ) .
+the current bottleneck is the feature calculation , which took 70 hours and 9 minutes .
+calculating the svm - based similarity took 30 minutes and hierarchical clustering took another 30 minutes .
+the theoretical time complexities for each of the three steps are o ( n ) , o ( n 2 ) , and o ( n 2 ) , where n is the number of interfaces .
+10.1371 / journal.pone.0019554.g006 figure 6 average silhouette value against different number of clusters ( k ) .
+an obvious knee point ( k = 140 ) is selected as the number of clusters .
+10.1371 / journal.pone.0019554.t007 table 7 a three - level hierarchy obtained using the new feature - based interface similarity measure .
+level clusters avg min max 1 - member h 2,085 1.4 1 9 1,610 c 1,892 1.5 1 13 1,363 a 140 20.0 3 83 0 for each level , the number of clusters ( clusters ) , the average , minimum , and maximum numbers of members per cluster ( avg , min , and max ) , and the number of clusters with one member ( 1 - member ) were calculated .
+evaluation of the interaction interface retrieval we next assess the performance of the feature - based similarity measure in the search and retrieval of an interface from a large interface dataset .
+we first randomly selected 100 interfaces from the whole dataset and used each interface as a query .
+the remaining 2,706 protein interfaces were used to build an m - tree ( see subsection similarity - based retrieval of interaction interfaces under methods ) .
+we calculated the average retrieval error erave and results showed that for 20 % of queries , erave < 0.28 a , for 50 % of queries erave < 1.25 a , and for 80 % of queries erave < 3.8 a. the average retrieval time was 0.8 s. the experiments were conducted on a linux server with amd opteron dual - core 1000 series processors and 2gb ram .
+homology and analogy in protein - protein interactions : case studies using results of the hierarchical clustering , a detailed case study analysis was performed .
+for this analysis , we considered pairs of protein complexes with detected interface similarity at each of the three levels of hierarchy .
+this example allowed us to formulate a hypothesis about a new conservation mechanism in charged residues located at the interfaces .
+indeed , one would expect from two homologous and highly similar interactions to have conserved charged residues , since the latter usually play an important role in forming the protein interactions .
+however , when comparing the positions of charged between the interfaces , contrary to these expectations , we found the charged residues in different locations. from the point of view of sequence or structure alignment , this would mean that the charged residues are not conserved , yet they are still presented in both interfaces .
+in the first case study ( fig. 7a ) , the interfaces clustered at h - level are both formed by homodimers whose subunits belong to the same scop superfamily ( scop id : 54427 ) .
+the first interface is formed by two nuclear transport factor - 2 subunits ( pdb id : 1gyb , chains c , d ) , and the second interface by the association domains of ca ( 2 +)/ calmodulin - dependent protein kinase ii ( pdb id 1hkx , chains i , j ) .
+while subunits from each interaction belong to a different scop family ( scop ids are 54431 and 89851 for subunits forming the first and second interactions , correspondingly ) , structural superposition of the interfaces revealed their significant structural similarity ( here and further , the interface superposition was done by mappis software [ 44 ]) .
+we next analyzed the conservation of charged residues between the interfaces .
+the first interface had two pairs of charged interacting residues .
+since charged residues often play an important role in the protein interactions , we expected that the charged residues in the two homologous and highly similar interactions were structurally and sequentially conserved .
+on the contrary , we detected seven charged residue pairs in the second interface .
+when the corresponding binding sites were superposed , we found that that these charged residue pairs are not structurally conserved between the two interfaces .
+10.1371 / journal.pone.0019554.g007 figure 7 case studies of similar interactions .
+( a ) h - level interactions ( iirmsd = 2.93 a ) , ( b ) c - level interactions ( iirmsd = 6.12 a ) , and ( c ) a - level interactions ( iirmsd = 6.19 a ) .
+subunits from the first interaction together with the corresponding interface and binding sites are colored gold and light yellow .
+subunits from the second interaction ( and their interfaces and binding sites ) are colored dark and light grey .
+positively and negatively charged residues in the first interaction are colored blue and red , while in the second interaction they are colored cyan and magenta , correspondingly .
+superposition refers to the superposed interactions , interfaces , and binding sites .
+for our next case study ( fig. 7b ) , we selected two interfaces clustered into the same c - level cluster .
+one interface is formed by an intra - chain interaction between the n - and c - terminal domains of o - methyltransferase ( pdb id : 1kyw , chain a ) , while another is formed by an inter - chain interaction between two c - terminal domains of another o - methyltransferase homodimer ( pdb id : 1tw2 , chains a and b ) .
+since n - and c - terminal domains of the two o - methyltransferases are not structurally related , the two interactions are not homologous .
+the complexes were then superposed by aligning the only two structurally similar subunits .
+surprisingly , we found that ( i ) binding sites forming the two interfaces have geometrically similar surfaces , and ( ii ) locations of the binding sites on the surfaces of structurally similar subunits are in close proximity and are partially overlapped .
+moreover , when analyzing the conservation of the charged residues in these interfaces , we observed an intriguing phenomenon .
+we detected a pair of charged residues whose location was conserved between the two interfaces but whose charges were swapped when comparing one interface with another ( lys 117.a in contact with asp 120.a in the first interface , and glu 89.a in contact with arg 17.b in the second one ) .
+finally , in the third case study ( fig. 7c ) , we considered two structurally unrelated binary complexes that were clustered into the same a - level cluster .
+the first complex is an intra - chain interaction of the c - and nm - domains of acyl - coa dehydrogenase ( pdb id : 1ege , chain c ) and the second one is a glycerol - conducting channel homodimer ( pdb id : 1fx8 , chain a ) .
+the subunits for the two complexes were from structurally unrelated scop superfamilies ( scop ids are 47203 and 56645 for the first complex , and 81338 for both subunits of the second complex ) .
+the analysis of the interfaces showed their significant similarity in shape and secondary structure .
+however , the interface in the first complex had multiple charged residues agglomerated at one part of the interface , while the interface of second complex had a single pair of the charged residues .
+in addition , the analysis of the charged residues revealed that they were located on the opposite sides of the two interfaces .
+discussion in this paper , we present an accurate alignment - free interface similarity measure and demonstrate its advantages and applicability .
+we have shown that the measure has a significantly greater coverage than the alignment based methods while preserving high accuracy .
+in addition , we have demonstrated that the high coverage allows generating a comprehensive scop - like hierarchical classification of similar interaction interfaces as well as efficiently solving the interface search and retrieval problem .
+finally , we have presented an example of how the measure could be used to suggest a new biological phenomenon .
+throughout this work , we have constructed three datasets of interaction interfaces .
+the first dataset consists of ( i ) homologous interface pairs that are obtained exclusively from structurally similar binary complexes extracted from 3d complex database , and ( ii ) dissimilar interface pairs obtained from the same database .
+the purpose of this dataset is determining which of the structure - based similarity measures is more accurate : the one that relies on superposition of the entire subunits , or the one that relies on the interaction interfaces only .
+in the second dataset , we collected as diverse datasets of similar and dissimilar interfaces as we could reliably get using a structure - based similarity measure .
+our protocol removes potential bias in the interaction data , by ensuring that each family of structurally similar subunits contributes equally to the dataset .
+while this is an important step for an accurate svm training , the protocol would not reflect the actual distribution of the interactions across the pairs of homologous families .
+to account for that , we built the third dataset , which not only serves as a test bed for constructing a classification system of the entire structural interactome , but also allows us to study biological phenomena occurring in similar interfaces .
+all datasets can be downloaded at : http :// korkinlab.org / datasets / i _ similarity / i _ sim _ data.html based on the assessment results of the two svm classifiers and their comparison with the state - of - art interface classification systems , we have made several conclusions .
+first , we suggest that the modelnd can be efficiently used when modeling protein - protein interactions by a comparative approach , e.g. , comparative docking , where the modeled interfaces are matched against a database of biological interfaces .
+second , we conclude that the main advantages of our approach , compared to the current methods , include better coverage and higher accuracy on detecting similar interfaces .
+on the other hand , our approach could further benefit from improving the detection of dissimilar interfaces .
+hierarchical classification of the interaction interfaces resulted in a significant number of 1 - member clusters at c - and h - levels .
+this is not surprising , as the interfaces clustered into the same c - or h - level cluster have an additional constraint : one or both interacting subunits must belong to the same scop superfamily .
+the probability of two interactions to have one of the two subunits in the same scop superfamily is small , since the average number of members per each scop superfamily in the considered set of non - redundant interactions (~ 2.3 ) is significantly smaller than the total number of scop superfamilies for the same set ( 1,225 ) .
+as a result , the total number of expected clusters with multiple interactions is expected to be low at c - and h - levels .
+the performance analysis of the hierarchical classification protocol suggests that expanding the hierarchical classification to the entire set of protein - protein interactions is feasible .
+indeed , the feature calculation , while taking the most time per each interface among the three steps ( see section hierarchical classification of similar interactions under results ) , has the complexity that is linear of the number of available binary interactions .
+thus , since the current dataset constitutes ~ 1 % of the structural interactome [ 39 ] this step can be completed in the same time (~ 70 hrs ) but on a 100 - node cluster .
+due to their quadratic complexities , stages two and three are expected to take ~ 50 hrs each on the same cluster .
+we have also demonstrated the applicability of the feature - based similarity to the problem of interface search and retrieval .
+specifically , for a query interface one can accurately and efficiently find a similar interface from a large interface dataset .
+this proof - of - concept may have important implications for other bioinformatics approaches , e.g. for comparative docking , where the candidate interface models are searched against the database of native interfaces or for functional annotation of novel protein interactions .
+finally , for each case study , we have detected and analyzed the charged residues located at the interfaces .
+the analysis has revealed an interesting phenomenon , where the relative positions of charged residues in similar interfaces are either swapped between the interacting binding sites or appear in different regions of the interfaces .
+the principal role of the charged residues in forming interaction interfaces has been well studied [ 45 ] , [ 46 ] , [ 47 ] .
+however , a recent analysis of the residue conservation in the protein interfaces showed that the charged residues are less conserved than hydrophobic or aromatic residues [ 48 ] .
+the properties of the charged residues found in our case studies are consistent with that conclusion .
+our findings may also suggest that for some protein - protein interactions , a mere presence of the charged residues in the interface , not requiring the conservation of charged residue locations at the interface , is sufficient to the complex formation .
+we would like to thank christof winter , attila gursoy , emmanuel levy , max shatsky , and tanja kortemme for providing datasets and software packages .
+competing interests : the authors have declared that no competing interests exist .
+funding : the authors acknowledge funding from the national science foundation ( dbi - 0845196 to dk ) .
+the funders had no role in study design , data collection and analysis , decision to publish , or preparation of the manuscript .
+references 1 alberts b 1998 essential cell biology : an introduction to the molecular biology of the cell new york garland pub 1 v .
+( various pagings ) 2 aloy p ceulemans h stark a russell rb 2003 the relationship between sequence and interaction divergence in proteins .
+j mol biol 332 989 998 14499603 3 keskin o nussinov r gursoy a 2008 prism : protein - protein interaction prediction by structural matching .
+methods mol biol 484 505 521 18592198 4 belyaeva ov korkina ov stetsenko av kim t nelson ps 2005 biochemical properties of purified human retinol dehydrogenase 12 ( rdh12 ) : catalytic efficiency toward retinoids and c9 aldehydes and effects of cellular retinol - binding protein type i ( crbpi ) and cellular retinaldehyde - binding protein ( cralbp ) on the oxidation and reduction of retinoids .
+biochemistry 44 7035 7047 15865448 5 abbasi i githure j ochola jj agure r koech dk 1999 diagnosis of wuchereria bancrofti infection by the polymerase chain reaction employing patients' sputum .
+parasitol res 85 844 849 10494812 6 stebbins ce galan je 2001 structural mimicry in bacterial virulence .
+nature 412 701 705 11507631 7 prehna g ivanov mi bliska jb stebbins ce 2006 yersinia virulence depends on mimicry of host rho - family nucleotide dissociation inhibitors .
+cell 126 869 880 16959567 8 elde nc malik hs 2009 the evolutionary conundrum of pathogen mimicry .
+nature reviews microbiology 7 787 797 19806153 9 beckett d 2004 functional switches in transcription regulation ; molecular mimicry and plasticity in protein - protein interactions .
+biochemistry 43 7983 7991 15209493 10 lensink mf mendez r wodak sj 2007 docking and scoring protein complexes : capri 3rd edition .
+proteins 69 704 718 17918726 11 aytuna as gursoy a keskin o 2005 prediction of protein - protein interactions by combining structure and sequence conservation in protein interfaces .
+bioinformatics 21 2850 2855 15855251 12 janin j henrick k moult j eyck lt sternberg mj 2003 capri : a critical assessment of predicted interactions .
+proteins 52 2 9 12784359 13 aloy p russell rb 2003 interprets : protein interaction prediction through tertiary structure .
+bioinformatics 19 161 162 12499311 14 teyra j paszkowski - rogacz m anders g pisabarro mt 2008 scowlp classification : structural comparison and analysis of protein binding regions .
+bmc bioinformatics 9 9 18182098 15 tsai cj lin sl wolfson hj nussinov r 1996 a dataset of protein - protein interfaces generated with a sequence - order - independent comparison technique .
+j mol biol 260 604 620 8759323 16 winter c henschel a kim wk schroeder m 2006 scoppi : a structural classification of protein - protein interfaces .
+nucleic acids res 34 d310 314 16381874 17 ogmen u keskin o aytuna as nussinov r gursoy a 2005 prism : protein interactions by structural matching .
+nucleic acids res 33 w331 336 15991339 18 shatsky m nussinov r wolfson hj 2004 a method for simultaneous alignment of multiple protein structures .
+proteins 56 143 156 15162494 19 levy ed pereira - leal jb chothia c teichmann sa 2006 3d complex : a structural classification of protein complexes .
+plos comput biol 2 e155 17112313 20 comaniciu d ramesh v meer p 2000 real - time tracking of non - rigid objects using mean shift ieee comput .
+soc 142 149 21 davis fp sali a 2005 pibase : a comprehensive database of structurally defined protein interfaces .
+bioinformatics 21 1901 1907 15657096 22 berman hm 2008 the protein data bank : a historical perspective .
+acta crystallogr a 64 88 95 18156675 23 chandonia jm hon g walker ns lo conte l koehl p 2004 the astral compendium in 2004 .
+nucleic acids res 32 d189 192 14681391 24 andreeva a howorth d chandonia jm brenner se hubbard tj 2008 data growth and its impact on the scop database : new developments .
+nucleic acids res 36 d419 425 18000004 25 schneidman - duhovny d inbar y nussinov r wolfson hj 2005 patchdock and symmdock : servers for rigid and symmetric docking .
+nucleic acids res 33 w363 367 15980490 26 boser be guyon im vapnik vn 1992 a training algorithm for optimal margin classifiers .
+proceedings of the fifth annual workshop on computational learning theory pittsburgh , pennsylvania , united states acm 144 152 27 furey ts cristianini n duffy n bednarski dw schummer m 2000 support vector machine classification and validation of cancer tissue samples using microarray expression data .
+bioinformatics 16 906 914 11120680 28 shamim mt anwaruddin m nagarajaram ha 2007 support vector machine - based classification of protein folds using the structural properties of amino acid residues and amino acid residue pairs .
+bioinformatics 23 3320 3327 17989092 29 joachims t 1999 making large - scale support vector machine learning practical .
+advances in kernel methods : support vector learning mit press 169 184 30 livingstone cd barton gj 1993 protein sequence alignments : a strategy for the hierarchical analysis of residue conservation .
+comput appl biosci 9 745 756 8143162 31 jones s thornton jm 1997 analysis of protein - protein interaction sites using surface patches .
+j mol biol 272 121 132 9299342 32 hubbard s thornton j 1992 naccess : a computer program written in " c " london university college london 33 hubbard s 1994 protruder : a fortran program calculate and equimomental ellipsoid and make protrusion index calculations london university college london 34 laskowski ra 1995 surfnet : a program for visualizing molecular surfaces , cavities , and intermolecular interactions .
+j mol graph 13 323 330 , 307 - 328 8603061 35 fauchere j pliska v 1983 hydrophobic parameters pi of amino acid side - chains form the partitioning of n - acetyl - amino - acid amides .
+eur j med chem 18 369 375 36 huo s massova i kollman pa 2002 computational alanine scanning of the 1:1 human growth hormone - receptor complex .
+j comput chem 23 15 27 11913381 37 hall m frank e holmes g pfahringer b reutemann p 2009 the weka data mining software : an update .
+sigkdd explor newsl 11 10 18 38 guyon i weston j barnhill s vapnik v 2002 gene selection for cancer classification using support vector machines .
+mach learn 46 389 422 39 prieto c rivas jdl 2010 structural domain - domain interactions : assessment and comparison with protein - protein interaction data to improve the interactome .
+proteins : structure , function , and bioinformatics 78 109 117 40 orengo ca michie ad jones s jones dt swindells mb 1997 cath - a hierarchic classification of protein domain structures .
+structure 5 1093 1108 9309224 41 theodoridis s koutroumbas k 2006 pattern recognition , third edition academic press , inc 42 rousseeuw p 1987 silhouettes : a graphical aid to the interpretation and validation of cluster analysis .
+j comput appl math 20 53 65 43 ciaccia p patella m zezula p 1997 m - tree : an efficient access method for similarity search in metric spaces citeseer 44 shulman - peleg a shatsky m nussinov r wolfson hj 2007 spatial chemical conservation of hot spot interactions in protein - protein complexes .
+bmc biol 5 43 17925020 45 hamburger za brown ms isberg rr bjorkman pj 1999 crystal structure of invasin : a bacterial integrin - binding protein .
+science 286 291 295 10514372 46 keskin o ma b nussinov r 2005 hot regions in protein - protein interactions : the organization and contribution of structurally conserved hot spot residues .
+j mol biol 345 1281 1294 15644221 47 sheinerman fb norel r honig b 2000 electrostatic aspects of protein - protein interactions .
+curr opin struct biol 10 153 159 10753808 48 guharoy m chakrabarti p 2010 conserved residue clusters at protein - protein interfaces and their use in binding site identification .
+bmc bioinformatics 11 286 20507585

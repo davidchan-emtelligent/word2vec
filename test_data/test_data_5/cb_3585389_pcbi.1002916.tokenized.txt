@@ -1,0 +1,213 @@
+plos comput biol plos comput .
+biol plos ploscomp plos computational biology 1553 - 734x 1553 - 7358 public library of science san francisco , usa 23468606 3585389 pcompbiol - d - 12 - 01015 10.1371 / journal.pcbi.1002916 research articlebiologycomputational biologysystems biologyimmunologycomputer sciencecomputerized simulationsmathematicsstatisticsbiostatistics spartan : a comprehensive tool for understanding uncertainty in simulations of biological systems spartan : simulation results analysis toolkit alden kieran 1 * read mark 2 timmis jon 2 3 andrews paul s .
+3 veiga - fernandes henrique 4 coles mark 5 1 centre for systems biology , school of biosciences , university of birmingham , birmingham , united kingdom 2 department of electronics , university of york , york , united kingdom 3 department of computer science , university of york , york , united kingdom 4 instituto de medicina molecular , faculdade de medicina de lisboa , lisboa , portugal 5 centre for immunology and infection , university of york and hull york medical school , york , united kingdom loewe laurence editor university of wisconsin - madison , united states of america * e - mail : k.j.alden @ bham.ac.uk the authors have declared that no competing interests exist .
+conceived and designed the experiments : ka mr jt psa mc. performed the experiments : ka. analyzed the data : ka mr. contributed reagents / materials / analysis tools : mr hvf mc. wrote the paper : ka mr jt psa hvf mc. provided biological expertise in the development of the simulator and understanding of the results it generated : hvf mc .
+2 2013 28 2 2013 9 2 e1002916 20 6 2012 3 12 2012 ( c ) 2013 alden et al 2013 alden et althis is an open - access article distributed under the terms of the creative commons attribution license , which permits unrestricted use , distribution , and reproduction in any medium , provided the original author and source are properly credited .
+integrating computer simulation with conventional wet - lab research has proven to have much potential in furthering the understanding of biological systems .
+success requires the relationship between simulation and the real - world system to be established : substantial aspects of the biological system are typically unknown , and the abstract nature of simulation can complicate interpretation of in silico results in terms of the biology .
+here we present spartan ( simulation parameter analysis r toolkit application ) , a package of statistical techniques specifically designed to help researchers understand this relationship and provide novel biological insight .
+the tools comprising spartan help identify which simulation results can be attributed to the dynamics of the modelled biological system , rather than artefacts of biological uncertainty or parametrisation , or simulation stochasticity .
+statistical analyses reveal the influence that pathways and components have on simulation behaviour , offering valuable biological insight into aspects of the system under study .
+we demonstrate the power of spartan in providing critical insight into aspects of lymphoid tissue development in the small intestine through simulation .
+spartan is released under a gplv2 license , implemented within the open source r statistical environment , and freely available from both the comprehensive r archive network ( cran ) and http :// www.cs.york.ac.uk / spartan .
+the techniques within the package can be applied to traditional ordinary or partial differential equation simulations as well as agent - based implementations .
+manuals , comprehensive tutorials , and example simulation data upon which spartan can be applied are available from the website .
+mark read is funded by fp7 : ict grant ga 270382 " collective cognitive robotics ," paul andrews by epsrc grant ep / i005943 / 1 " resilient futures. " jon timmis is part funded by the royal society .
+henrique veiga - fernandes is funded by fundacao para a ciencia e tecnologia ( ptdc / sau - mii / 100016 / 2008 ) , portugal , european molecular biology organisation ( project 1648 ) and european research council ( project 207057 ) .
+funding for mark coles comes from grants from the human frontiers science program ( rgp0006 / 2009 ) and the medical research council ( g0601156 ) .
+kieran alden is funded by the bbsrc and epsrc .
+the funders had no role in study design , data collection and analysis , decision to publish , or preparation of the manuscript .
+this is a plos computational biology software article introduction the integration of computer simulation with current experimental techniques has become a popular approach to aid the understanding of biological systems [ 1 ] .
+computational techniques permit exploration of the underlying biological data on which a simulation is based , and complement wet - lab research by facilitating in silico experimentation impractical or impossible to perform using current methods [ 2 ] - [ 4 ] .
+simulations are however abstractions of the biological systems they capture , and this separation must be appreciated in the interpretation of in silico results .
+such simulation results may be affected by uncertainty arising from aspects of the biological system that are currently unknown and need to be assumed , and by uncertainty introduced in the implementation of the simulator [ 5 ] .
+we recently noted that for a majority of simulation results in the biological literature , little attempt is made to elucidate how representative a simulation result is in terms of the biological system captured [ 6 ] .
+uncertainty and sensitivity analyses have , however , found recent application in exploring the behaviour of biological simulations to appreciate the effect of uncertainty on simulation results [ 6 ] - [ 10 ] .
+whereas a number of packages have been developed that aid simulation development [ 11 ] , [ 12 ] to the best of our knowledge there is no comprehensive package available for determining how representative a simulation is of its biological system and understanding how in silico results can be interpreted in the context of the biological domain .
+as such , we have developed spartan ( simulation parameter analysis r toolkit application ) , a toolkit of statistical techniques that aid understanding and analysis of results generated through simulation .
+spartan is freely available , open - source , and implemented within the r statistical environment .
+the package provides implementations of previously described statistical analysis techniques [ 6 ] , [ 7 ] , [ 13 ] that when brought together provide a comprehensive toolkit to explore the effect uncertainty has on simulation results .
+such uncertainty may be present in two forms : aleatory uncertainty that arises through stochasticity inherent in both the biological and simulated systems , and epistemic uncertainty reflecting simulation parameters for which a value has yet to be or cannot be determined as the biological understanding is incomplete [ 5 ] .
+appreciating this effect is critical for interpreting simulation results with respect to the biological system under study [ 6 ] .
+the use of statistical tools provides evidence of which simulation results can be ascribed to the dynamics of the model of the biological system implemented , an important consideration for retaining confidence in the results of in silico experimentation .
+in previous work we have utilised computer simulation to model the process of lymphoid tissue development [ 9 ] , [ 10 ] .
+here we demonstrate the use of spartan in an exploration of results generated from this simulator : to determine the number of simulation samples required to mitigate stochastic effects and attain a desired level of experimental accuracy , build confidence that our results are representative of biology as opposed to parameterisation artefacts resulting from epistemic uncertainty , and gain valuable biological insight through rigorous statistical analysis of simulation results .
+whereas our previous work highlights the need to adhere to a robust method of simulation design and development informed by wet - lab research , our case study shows how spartan can provide a mechanism to integrate simulation results back into wet - lab research .
+design and implementation spartan was created to provide a comprehensive toolkit of previously described statistical techniques .
+four techniques are included , each providing a different means of analysing simulation data to understand the effect of uncertainty on results and to provide biological insight .
+the first two techniques have been previously described [ 6 ] , but this package includes the first available implementation of these techniques .
+spartan assumes that calibration has been performed to establish the parameter values that produce a baseline simulation behaviour [ 6 ] .
+such behaviour is measured through a set of simulation outputs ( responses ) that are of biological interest and can be qualitatively compared with the biological system .
+uncertainty and sensitivity analyses can then determine the effects of parameter perturbations on simulation responses .
+as each technique utilises different parameter sampling methods , it is not possible to use the results generated for one technique for any other technique currently in the package .
+although technique 1 is specifically designed for use with stochastic simulations ( such as agent - based implementations ) , techniques 2 - 4 can be applied for both mathematical ( ode / pde ) and agent - based implementations .
+for techniques 2 - 4 , spartan provides methods to generate parameter values and analyse the output generated from them .
+for technique 4 ( efast ) , spartan includes a bespoke implementation of the efast algorithm rather than makes use of available methods in other packages for reasons of consistency and ability to analyse a range of output from different simulation implementations .
+as it is not assumed that simulation data is normally distributed , all statistical comparisons that establish significance between sets of simulation responses are performed using non - parametric tests .
+1. consistency ( or aleatory ) analysis : understanding effect of aleatory uncertainty prior to any simulator being used as a tool to complement wet - lab investigations , it is critical that the effect of inherent simulation stochasticity on results be understood [ 5 ] .
+to illustrate , in agent - based simulations the use of pseudo - random number generators in dictating agent behaviour can produce different simulation results despite use of identical parameter values .
+to mitigate the effects of this uncertainty and achieve representative in silico results , replicate simulation runs are necessary .
+a technique developed by read et al .
+[ 6 ] is provided that establishes the number of replicate runs required to achieve a desired level of experimental accuracy .
+in contrast to the other techniques in spartan , this need only be applied to stochastic simulation systems .
+consistency analysis operates by contrasting distributions of simulation responses , all generated using the same fixed set of parameter values and containing identical numbers of simulation samples. by varying the number of samples comprising the distributions , the analysis determines the number required to obtain statistically consistent distributions .
+larger sample sizes produce increasingly identical distributions , thereby mitigating the effect of simulation stochasticity on results .
+in the description by read et al [ 6 ] , 20 distributions are generated and contrasted for each sample size , but this can be varied within spartan to suit particular applications .
+as an example , one could consider analysing sample sizes of 5 , 50 , 100 , and 300 to determine the number of simulation runs required to mitigate aleatory uncertainty .
+a set of parameter values is fixed and used for all runs .
+the researcher performing the analysis must then gather 20 sets of simulation results for each sample size being analysed , each containing that number of results .
+in this example , where a sample size of 5 is being examined , 20 sets of simulation results should be generated , with each containing 5 sets of simulation results .
+where a sample size of 300 is being analysed , each of the 20 sets should contain the results of 300 runs .
+when this is complete , each sample size is analysed in turn .
+a distribution of median responses for each simulation run is generated for each of the 20 subsets .
+distributions 2 - 20 are contrasted with the distribution from the 1st set using the vargha - delaney a - test [ 14 ] , a non - parametric effect magnitude test that establishes scientific significance by contrasting two populations of samples and returning the probability that a randomly selected sample from one population will be larger than a randomly selected sample from the other .
+statistical significance is determined by comparing this result with measures set by the authors of the test : results above 0.71 or below 0.29 indicate a scientifically significant difference between the populations , and 0.5 indicates no difference [ 14 ] .
+however spartan provides the option to change these magnitude effects if required .
+a suitable sample size is found where there is no statistical difference between the 1st set of results and the remaining 19 sets .
+this statistical difference can be seen in plots spartan produces for each sample size .
+a further plot is produced detailing the maximum a - test score observed for each sample size , easing identification of the number of runs required to minimise difference between simulation results and thus mitigate aleatory uncertainty .
+2. robustness analysis : determining a simulation 's robustness to parameter perturbation any biological simulation will feature biologically - derived parameters for which values are fully or partially unknown : some biological values cannot be determined experimentally , whereas others cannot be represented easily within a simulation .
+for example , diffusion of a chemoattractant could be implemented using a particular mathematical function for which values cannot be verified , as biological quantities cannot currently be measured .
+robustness analysis examines the implications of biological uncertainty or parameter estimation on simulation results .
+where a simulation is found to be highly sensitive to such parameters caution must be exercised when interpreting results ; they may be artefacts of parametrisation rather than representations of the biology [ 5 ] .
+robustness to parameter perturbation is explored using a ' one at a time ' approach [ 6 ] : each parameter is adjusted independently of others , which retain their calibrated values .
+the vargha - delaney a - test described previously [ 14 ] is employed to determine if changing a parameter value leads to scientifically significant behavioural alteration in contrast to the baseline simulation .
+this indicates how robust the simulator is to alteration of each parameter , and the points at which parameter perturbations result in significant changes in simulation behaviour .
+confidence in the validity of simulation results can be gauged by contrasting this information with biologically accepted ranges of values .
+the a - test results for each parameter are presented on a plot , providing easy identification of parameter values that cause a scientifically significant change in simulation response .
+3. global sensitivity analysis : identification of compound effects through simultaneously perturbing all parameters though robustness analysis elucidates affects of perturbing single parameters , it cannot reveal compound effects that occur when two or more are adjusted simultaneously .
+the effect one parameter has may rely on the value of another .
+global sensitivity analyses reveal such effects , showing how different parameters could be coupled , and can indicate the parameters that have the greatest influence on simulation responses .
+spartan includes a sampling - based technique that perturbs the values of all parameters of interest simultaneously [ 6 ] , [ 7 ] , [ 13 ] based on a provided range of values for each parameter. through simultaneous perturbation of parameters , the results of this analysis are highly representative of simulation dynamics .
+highly influential parameters indicate the pathways and components that have a substantial effect on simulation behaviour , and in identifying such relationships , this analysis has the potential to offer unique biological insight into the system the model describes .
+this has the potential to inform future wet - lab investigations by suggesting specific biological components to focus upon .
+a latin - hypercube sampling approach is used to select parameter sets from within these ranges , whilst minimising correlations in parameter values across the sets and ensuring an efficient coverage of parameter space [ 13 ] .
+the methodology used in sampling is described in detail by read et al [ 6 ] .
+simulations are executed for each parameter set generated , and simulation response values determined .
+where necessary these responses will represent an averaged response over a number of runs for a particular set of parameter values .
+a plot is produced for each parameter - response pairing , revealing correlations between parameter and response values , which are quantified through calculation of partial rank correlation coefficients ( prcc ) and are reported on the plot header .
+prccs account for non - linear relationships between parameter and response , and correct for the effects of other parameters on the response , giving a robust indication of the effect this parameter has on simulation response although others are also being perturbed .
+4. efast : partitioning output variance between input parameters the extended fourier amplitude sampling test ( efast ) developed by saltelli et al [ 15 ] , [ 16 ] also a global analysis technique , is a variance decomposition method that partitions the simulation output variance caused by an alteration in parameter values between the input parameters .
+this provides a statistical measure revealing the proportion of variance that can be explained by perturbing the value of each factor , and thus determines how sensitive the simulation and biological system is to that parameter. through applying this technique , highly influential pathways can be identified as potential targets for future laboratory investigation .
+for each simulation parameter included in this analysis , a range over which values are to be explored is provided .
+taking each in turn , values are chosen for all parameters through the use of sinusoidal functions of a particular frequency through the parameter space , with the frequency of the parameter of interest being varied greatly to that used for its complementary set .
+a number of parameter values are selected from points along each of these curves , creating a set of simulation parameters for each parameter of interest .
+an illustration of this sampling approach can be seen in marino et al [ 7 ] .
+the authors note that due to the symmetrical properties of sinusoidal functions , it is possible that the same parameter value sets could be selected .
+to address this , a re - sampling scheme is encouraged where a phase shift is introduced into each frequency , and sampling repeated using a slightly different curve [ 7 ] .
+selection of the number of re - sample curves and parameter values chosen from the curves is an important aspect of running this algorithm , and it is suggested that the user makes themselves familiar with equations provided in marino et al [ 7 ] that aid this decision .
+consequently , a number of parameter value sets are created for each parameter of interest , for a particular curve .
+this process is repeated for an extra parameter , the ' dummy ' , which has an arbitrary value range but no impact on simulation behaviour .
+this enables a comparison between the impact of each parameter and one known to have no effect on simulation response .
+as an example , for 7 parameters , plus a dummy , three re - sample curves , and 65 parameter values from points along the curves , 1,560 sets of parameters would be produced .
+spartan produces a csv file for each parameter of interest and each curve , containing the parameter value sets on which simulations should be executed .
+thus in this example , twenty - four files would be produced , each containing sixty five sets of parameters .
+for analyses where a large number of parameters are explored , this technique could be computationally expensive [ 17 ] , [ 18 ] .
+simulation results are analysed taking into account the frequencies that were used to generate the parameter set used. through fourier analysis using these frequencies , variation in output can be partitioned between the parameters , giving an indication of the impact each has on simulation response .
+using the equations given in marino et al [ 7 ] , two sensitivity indexes are calculated for each parameter - response pairing : a first - order ( si ) and total order sensitivity ( sti ) index .
+the first indicates the fraction of output variance in that response that can be explained by the value assigned to the parameter .
+the latter indicates the variance in that response caused by higher - order non - linear effects between the parameter and the others under investigation .
+although the dummy parameter has no influence on simulation dynamics , the algorithm may assign this parameter non - zero sensitivity indexes due to aliasing or interference effects , or simplifying assumptions the technique makes in calculating each sti index [ 7 ] .
+reasoning for this is given in supplemental material that accompanies the description of the technique in marino et al [ 7 ] .
+a determination of whether a parameter has a significant impact on simulation response is made by examining the sensitivity indexes , contrasting these with the indexes calculate for the ' dummy ' parameter .
+as this is contrasting sensitivity indexes rather than simulation responses , a statistical measure is generated using a two - sample t - test .
+spartan produces both a csv file with these statistics and a plot for each simulation response , detailing the si and sti indexes for each parameter .
+results the case study the example simulation data , from which the results presented here were generated , is taken from our recently published lymphoid tissue development simulator ( http :// www.cs.york.ac.uk / immunesims / frontiers ) [ 9 ] , [ 10 ] .
+an agent - based simulation was developed that captures an abstraction of the early stages of the biological process ( 12 hours into a 72 hour period ) .
+the simulation responses are cell velocity and displacement measures taken at various time - points .
+all output data and tutorials that reproduce each result described are available at www.cs.york.ac.uk / spartan .
+in our published analyses [ 9 ] , [ 10 ] and examples presented here , we focus on six parameters for which a value remains unknown , each constrained to the following respective range : chemothreshold ( 0 - 1 ) , chemolowerlinearadjust ( 0.015 - 0.08 ) , chemoupperlinearadjust ( 0.1 - 0.5 ) , thresholdbindprobability ( 0 - 1 ) , vcamslope ( 0.25 - 2 ) , and maxvcameffectprobabilitycutoff ( 0 - 1 ) .
+1. consistency ( or aleatory ) analysis : understanding effect of aleatory uncertainty to determine the number of simulation runs required to obtain a representative result , we analysed sample sizes of 1 , 5 , 50 , 100 , 300 , and 500 runs .
+parameter values were kept constant at their calibrated values .
+each sample size is analysed in turn using the procedure described , with the generation of 20 subsets of each sample size .
+this analysis thus required 19,120 individual runs .
+the online tutorial examines the first five sample sizes .
+spartan produces the plots in figure 1 , where figures 1 ( a,b,c ) show the a - test scores for all simulation output responses in each of the 20 result sets , for 5 , 50 , and 100 samples respectively .
+figure 1 ( d ) shows the maximum a test score for each simulation response over the 20 result sets , for all sample sizes analysed .
+the latter indicates that reducing the effect magnitude of aleatory uncertainty on simulation results to less than ' small ' ( the desired level ) requires more than 300 samples when compiling results , thus a sample size of 500 was chosen .
+it is important to note however that this is specific to our simulation , and unlikely to apply in all cases where spartan is applied .
+a full analysis for this simulation is found in patel et al [ 9 ] ; the online tutorial and results in figure 1 stop at 300 runs to ensure the tutorial data is of manageable size for download .
+10.1371 / journal.pcbi.1002916.g001 figure 1 use of spartan to mitigate aleatory uncertainty in stochastic simulations .
+spartan 's consistency analysis technique that can determine the number of runs required to generate a representative result from a stochastic simulation .
+a , b , c : a - test scores for sample sizes of 5 , 50 , and 300 runs respectively. d. maximum a test score for each simulation response over 20 result sets for all sample sizes analysed .
+scores below 0.5 are assigned corresponding values above 0.5 as direction of effect is not important .
+the effect magnitude thresholds are indicated .
+2. robustness analysis : determining a simulation 's robustness to parameter perturbation in our case study [ 9 ] , we analysed the six simulation parameters for which biological values are currently unknown using the robustness analysis .
+the online tutorial demonstrates how both the parameter samples and results described in this section have been generated for two of these parameters .
+parameter sampling parameter value sets for the six parameters were created using the methods in the spartan package .
+these are output as comma separated value files , one for each parameter , then post - processed into a format that can be read by the simulator .
+the sampling method begins at the parameters lower value and increases the value by a set increment until the upper limit is reached .
+for the six parameters under examination here , the increments used were : chemothreshold ( 0.1 ) , chemolowerlinearadjust ( 0.005 ) , chemoupperlinearadjust ( 0.05 ) , thresholdbindprobability ( 0.1 ) , vcamslope ( 0.25 ) , and maxvcameffectprobabilitycutoff ( 0.1 ) .
+analysis each parameter is addressed in turn , and simulation results for each value assigned to that parameter analysed .
+500 simulation executions are performed for each parameter value in accordance with consistency analysis results .
+in our case , this resulted in 32,500 individual simulation runs .
+the distribution of response values obtained for each parameter value is contrasted with a distribution obtained using baseline parameter values using the vargha - delaney a - test [ 14 ] .
+spartan produced the plots in figure 2 , where figures 2 ( a,b ) show the a - test scores for an alteration in the values of two simulation parameters that model expression of chemoattractant molecules .
+the x - axis details the range of values explored and the y - axis shows the a test scores obtained by contrasting response values for perturbed parameter values with calibrated values .
+figure 2 ( c ) shows the effect that adjusting the value of the parameter in 2 ( a ) has on cell displacement as a box - plot of response distributions .
+results suggest that a change in the initial expression of chemoattractant molecules has a statistically significant effect on simulation response , and is more critical than the upper limit of expression , which has no statistically significant impact .
+this suggests that the initial expression level of chemoattractant molecules is an important factor influencing cell behaviour at this time - point in development .
+laboratory investigations could then examine this experimentally through blocking chemokine expression at certain time - points in development , to determine if this prediction holds .
+10.1371 / journal.pcbi.1002916.g002 figure 2 use of spartan to determine the simulators robustness to parameter perturbation .
+a : a - test scores for simulations perturbing the initial expression level of a chemoattractant .
+this parameter has a large effect on both simulation responses .
+b : a - test scores for simulations perturbing the upper limit of chemoattractant expression , which when perturbed has no significant effect on simulation response .
+c : distribution of cell displacement responses for the parameter perturbed in a .
+3. global sensitivity analysis : identification of compound effects through simultaneously perturbing all parameters in this analysis we sought to identify any compound effects that become apparent when the values of the six parameters examined in technique 2 above are perturbed simultaneously .
+this has revealed the parameters that are highly influential on simulation behaviour , and provided unique biological insight into the factors that are important at this stage of tissue development .
+the online tutorial demonstrates how both the parameter samples and results described in this section have been generated .
+parameter sampling using the latin - hypercube sampling approach , 500 sets of simulation parameter values were generated .
+analysis five hundred parameter value sets were generated from the parameter space using the latin - hypercube sampling approach. with results from technique 1 suggesting 500 simulation executions are required to gain a representative result from our simulation , a total of 250,000 simulation executions were performed to generate the data required for this analysis .
+median output responses for each of the parameter value sets were then calculated from the 500 sets of results .
+taking each parameter in turn , median response values are plotted against the parameter value that generated them , and partial rank correlation coefficients are calculated .
+for online tutorial 3 , spartan produces the plots in figure 3 .
+these detail cell velocity responses for two parameters .
+in figure 3 ( b ) , detailing the effect of cellular adhesion , a clear trend emerges .
+the correlation coefficient reveals this parameter 's significant influence on the simulation response .
+the same conclusions cannot be drawn for the parameter in figure 3 ( a ) , where no trend emerges .
+whereas the previous technique identified initial chemokine expression as an influential factor when the parameters where perturbed individually , this result suggests adhesion factor expression is the highly influential pathway at this time - point .
+such a prediction could be verified experimentally through examining cell behaviour when expression of adhesion factors are blocked .
+10.1371 / journal.pcbi.1002916.g003 figure 3 use of spartan to identify compound effects between parameters .
+a : parameter that captures the chemoattractant expression level required to influence cell motility .
+no trend or effects are apparent .
+b : parameter which captures the level of adhesion required to restrict cell motility .
+a clear trend is apparent suggesting this has a large influence on simulated cell behaviour .
+4. efast : partitioning output variance between input parameters in this analysis we examined the same six parameters as above , and determined the proportion of variation in simulation response that can be explained by perturbing the value of each parameter. through use of the efast approach [ 7 ] , [ 16 ] we have determined how sensitive the simulation is to each parameter , and thus suggested the impact of each biological factor on tissue development .
+the online tutorial demonstrates how both the parameter samples and results described in this section have been generated .
+sampling parameter value sets have been generated using the sinusoidal curve sampling approach .
+we have seven parameters ( six plus the ' dummy ' used for statistical comparison ) , taken 65 parameter values from each curve , and employed three re - sampling curves , producing 1,365 parameter value sets , 195 per parameter .
+analysis simulation responses are analysed using the fourier frequency approach [ 7 ] , [ 15 ] .
+500 runs were performed for each set of parameter values , as suggested by results generated using technique 1 , and median responses calculated. with 1,365 individual parameter sets , this analysis therefore required 682,500 runs in our case .
+plots are created for each simulation output response ( velocity and displacement ) , detailing the first - order ( si ) and total - order ( sti ) sensitivity indexes calculated for each parameter of interest .
+indications of significance of each parameters sensitivity index , contrasted to those calculated for the ' dummy ' parameter using a two - sample t - test , are output to a csv file in the directory specified by the user prior to running the analysis .
+for online tutorial 4 , spartan produces the plots in figure 4 .
+in our published study [ 9 ] , we utilised our simulator and statistical methods described in techniques one to three , and determined no significant role for chemoattractant factors at an early stage of tissue development .
+results shown in figure 4 examine the same time - point with this additional analysis method , and support these conclusions .
+we suggest that the factor that influences cell velocity at this early stage in development is the level of expression of cellular adhesion factors ( maxvcameffectprobabilitycutoff parameter ) .
+this supports predictions made by use of technique 3 , but counters the accepted view in the literature , where chemokines are known to have an influential role in tissue development [ 19 ] , [ 20 ] .
+however results in the literature draw these conclusions from an examination of the whole tissue development time - period ( 72 hours ) , rather than just the early stage ( 12 hours ) focused on here and in our previous study [ 9 ] .
+thus potentially our analysis , using spartan , suggests that different factors could be important at different stages of development .
+examining a later time - point in development , both in the lab and through use of spartan , may suggest that this is indeed the case , and the tissue development period is more complex than previously thought .
+10.1371 / journal.pcbi.1002916.g004 figure 4 use of efast method within spartan to partition variance in simulation results between parameters .
+si ( black ) : the fraction of output variance that can be explained by the value assigned to that parameter ; sti ( grey ) : the variance caused by higher - order non - linear effects between that parameter and the others explored .
+error bars are standard error over three resample curves .
+a : velocity response .
+b : displacement response .
+availability and future directions spartan has been developed and runs within the platform - independent r statistical environment ( version 2.13.1 or greater ) , and can be freely downloaded from http :// www.cs.york.ac.uk / spartan or from the comprehensive r archive network ( cran ) .
+the package is open source and available under the gnu general public license ( gplv2 ) .
+the release of spartan as an r package rather than as standalone software allows simulation developers to build spartan into their analysis routine and extend the analysis with methods provided in additional packages where necessary .
+manuals , comprehensive tutorials , and simulation data used are available from the website .
+spartan remains in on - going development in parallel to further simulation case studies being developed in our group , and thus further suitable sensitivity analysis techniques will be added when appropriate .
+in similarity to recent advances in simulation development toolkits [ 11 ] , [ 12 ] , a graphical user interface will also shortly be released for spartan and made available on the website , aiding use of the tool for use unfamiliar with r. supporting information software s1 spartan r package for linux and mac os. includes tutorials for each technique .
+( zip ) click here for additional data file .
+software s2 spartan r package for windows os. includes tutorials for each technique .
+( zip ) click here for additional data file .
+the authors would like to thank members of the timmis lab who tested spartan .
+we utilise the lhs and gplots r packages available in the r repository , and partial rank correlation coefficients calculation code from http :// www.yilab.gatech.edu .
+we thank marino et al [ 7 ] for making their efast matlab scripts accessible , aiding implementation in r. references 1 germain rn , meier - schellersheim m , nita - lazar a , fraser idc ( 2011 ) systems biology in immunology : a computational modeling perspective . annual review of immunology 29 : 527 - 585 . 2 efroni s , harel d , cohen ir ( 2003 ) toward rigorous comprehension of biological complexity : toward rigorous comprehension of biological complexity : modeling , execution , and visualization of thymic t - cell maturation . genome research 13 : 2485 - 2497 . 14597657 3 kirschner de , linderman jj ( 2009 ) mathematical and computational approaches can complement experimental studies of host - pathogen interactions . cellular microbiology 11 : 531 - 539 . 19134115 4 andrews ps , polack fac , sampson at , stepney s , timmis j ( 2010 ) the cosmos process , version 0.1 : a process for the modelling and simulation of complex systems .
+technical report ycs - 2010 - 453 . department of computer science , university of york 1 - 40 . 5 helton jc ( 2008 ) uncertainty and sensitivity analysis for models of complex systems .
+in : barth tj , griebel m , keyes de , nieminen rm , roose d , et al. . , editors .
+computational methods in transport : verification and validation. springer. pp .
+207 - 228 .
+6 read m , andrews ps , timmis j , kumar v ( 2012 ) techniques for grounding agent - based simulations in the real domain : a case study in experimental autoimmune encephalomyelitis . mathematical and computer modelling of dynamical systems 18 : 67 - 86 . 7 marino s , hogue ib , ray cj , kirschner de ( 2008 ) a methodology for performing global uncertainty and sensitivity analysis in systems biology . journal of theoretical biology 254 : 178 - 196 . 18572196 8 ray jcj , flynn jl , kirschner de ( 2009 ) synergy between individual tnf - dependent functions determines granuloma performance for controlling mycobacterium tuberculosis infection . journal of theoretical biology 182 : 3706 - 3717 . 9 patel a , harker n , moreira - santos l , ferreira m , alden k , et al ( 2012 ) differential ret responses orchestrate lymphoid and nervous enteric system development . science signalling 5 : ra55 . 10 alden k , timmis j , andrews ps , veiga - fernandes h , coles mc ( 2012 ) pairing experimentation and computational modelling to understand the role of tissue inducer cells in the development of lymphoid organs . frontiers in immunology 3 : 172 . 22826707 11 puzone r , kohler b , seiden p , celada f ( 2002 ) immsim , a flexible model for in machina experiments on immune system responses . future generation computer systems 18 : 961 - 972 . 12 meier - schellersheim m , xu x , angermann b , kunkel ej , jin t , et al ( 2006 ) key role of local regulation in chemosensing revealed by a new molecular interaction - based modeling method . plos computational biology 2 : 710 - 724 . 13 saltelli a , chan k , scott em ( 2000 ) sensitivity analysis .
+wiley series in probability and statistics . wiley 14 vargha a , delaney hd ( 2000 ) a critique and improvement of the cl common language effect size statistics of mcgraw and wong . journal of educational and behavioural statistics 25 : 101 - 132 . 15 saltelli a , bollardo r ( 1998 ) an alternative way to compute fourier amplitude sensitivity test ( fast ) . comput stat data anal 26 : 445 - 460 . 16 saltelli a ( 2004 ) sensitivity analysis in practice : a guide to assessing scientific models . wiley 17 tarantola s , gatelli d , mara ta ( 2006 ) random balance designs for the estimation of first order global sensitivity indices . reliability engineering & system safety 91 : 717 - 727 . 18 ratto m , pagano a , young p ( 2007 ) state dependent parameter metamodelling and sensitivity analysis . computer physics communications 177 : 863 - 876 . 19 randall td , carragher dm , rangel - moreno j ( 2008 ) development of secondary lymphoid organs . annual review immunology 26 : 627 - 650 . 20 luther sa , ansel km , cyster jg ( 2003 ) overlapping roles of cxcl13 , interleukin 7 receptor alpha , and ccr7 ligands in lymph node development . the journal of experimental medicine 197 : 1191 - 1198 . 12732660

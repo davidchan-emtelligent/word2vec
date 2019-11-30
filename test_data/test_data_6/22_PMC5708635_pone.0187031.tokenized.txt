@@ -1,0 +1,372 @@
+plos one plos one plos plosone plos one 1932 - 6203 public library of science san francisco , ca usa 29190724 5708635 pone - d - 17 - 20722 10.1371 / journal.pone.0187031 research articleresearch and analysis methodsmathematical and statistical techniquesstatistical methodsforecastingphysical sciencesmathematicsstatistics ( mathematics ) statistical methodsforecastingbiology and life sciencesbehaviorpeople and placesgeographical locationseuropeeuropean unionspaincomputer and information sciencesartificial intelligencemachine learningresearch and analysis methodsmathematical and statistical techniquesstatistical methodsmultivariate analysisprincipal component analysisphysical sciencesmathematicsstatistics ( mathematics ) statistical methodsmultivariate analysisprincipal component analysissocial scienceseconomicsfinancesocial scienceseconomicssocial scienceseconomicsmacroeconomics socioeconomic characterization of regions through the lens of individual financial transactions socioeconomic characterization of regions http :// orcid.org / 0000 - 0003 - 1902 - 2018 hashemian behrooz conceptualizationdata curationformal analysismethodologyproject administrationsoftwarevalidationvisualizationwriting - original draftwriting - review & editing1 * massaro emanuele conceptualizationdata curationformal analysismethodologysoftwarevalidationvisualizationwriting - original draftwriting - review & editing12 bojic iva conceptualizationwriting - original draftwriting - review & editing13 murillo arias juan conceptualizationdata curationwriting - review & editing4 sobolevsky stanislav conceptualizationdata curationmethodologyproject administrationwriting - original draftwriting - review & editing156 ratti carlo conceptualizationfunding acquisitionwriting - review & editing1 1 senseable city lab , massachusetts institute of technology , cambridge , ma , united states of america 2 herus lab , institute of environmental engineering ( enac ) , ecole polytechinque federale de lausanne ( epfl ) , ch - 1015 lausanne , switzerland 3 singapore - mit alliance for research and technology , singapore , singapore 4 data & analytics , bbva , madrid , spain 5 center for urban science and progress , new york university , brooklyn , ny , united states of america 6 institute of design and urban studies of the saint - petersburg national research university of information technologies , mechanics and optics , saint - petersburg , russia lambiotte renaud editor university of oxford , united kingdom competing interests : the authors of this manuscript have read the journal 's policy and have the following competing interests : juan murillo arias is employed by bbva data & analytics ; however , this industrial affiliation does not alter the authors' adherence to plos one policies on sharing data and materials .
+* e - mail : behrooz @ mit.edu 2017 30 11 2017 12 11 e0187031 30 5 2017 12 10 2017 ( c ) 2017 hashemian et al 2017 hashemian et althis is an open access article distributed under the terms of the creative commons attribution license , which permits unrestricted use , distribution , and reproduction in any medium , provided the original author and source are credited .
+people are increasingly leaving digital traces of their daily activities through interacting with their digital environment .
+among these traces , financial transactions are of paramount interest since they provide a panoramic view of human life through the lens of purchases , from food and clothes to sport and travel .
+although many analyses have been done to study the individual preferences based on credit card transaction , characterizing human behavior at larger scales remains largely unexplored .
+this is mainly due to the lack of models that can relate individual transactions to macro - socioeconomic indicators .
+building these models , not only can we obtain a nearly real - time information about socioeconomic characteristics of regions , usually available yearly or quarterly through official statistics , but also it can reveal hidden social and economic structures that cannot be captured by official indicators .
+in this paper , we aim to elucidate how macro - socioeconomic patterns could be understood based on individual financial decisions .
+to this end , we reveal the underlying interconnection of the network of spending leveraging anonymized individual credit / debit card transactions data , craft micro - socioeconomic indices that consists of various social and economic aspects of human life , and propose a machine learning framework to predict macro - socioeconomic indicators .
+this research has been funded through the senseable city lab consortium .
+the consortium 's support has been in the form of salaries for the senseable city lab 's researchers ( bh , em , ib , ss and cr ) .
+however , the consortium did not have any additional role in study design , data collection and analysis , decision to publish , or preparation of the manuscript.data availabilitythe official statistics are available through instituto nacional de estadistica ( http :// www.ine.es ) and eurostat ( http :// ec.europa.eu / eurostat ) .
+the transactional dataset analyzed in this paper was not originally generated by the authors of this manuscript but collected by the third - party organization banco bilbao vizcaya argentaria ( bbva ) .
+for reasons related to privacy protection , the original dataset is covered by a non - disclosure agreement and cannot be publicly shared .
+other interested researchers can initiate a request to access the restricted data by contacting juan de dios romero ( juandedios.romero @ bbvadata.com ) and signing the non - disclosure agreement .
+data availability the official statistics are available through instituto nacional de estadistica ( http :// www.ine.es ) and eurostat ( http :// ec.europa.eu / eurostat ) .
+the transactional dataset analyzed in this paper was not originally generated by the authors of this manuscript but collected by the third - party organization banco bilbao vizcaya argentaria ( bbva ) .
+for reasons related to privacy protection , the original dataset is covered by a non - disclosure agreement and cannot be publicly shared .
+other interested researchers can initiate a request to access the restricted data by contacting juan de dios romero ( juandedios.romero @ bbvadata.com ) and signing the non - disclosure agreement .
+introduction since the advent of pervasive digital technology , people are ubiquitously interacting with their environment and leaving digital traces of their daily activities , from when they are commuting to work by taking a bus or driving their own car to when they are socializing by making a call or posting to social media .
+many of these traces contain geolocated information , which enables identifying location and time of a certain activity , recorded through various technologies such as mobile phones , wearables , connected cars , social media , and credit cards .
+this geolocated data has created a great potential for studies on human mobility [ 1 , 2 ] , social phenomena [ 3 - 6 ] , epidemic outbreaks [ 7 ] , healthcare [ 8 ] , urban structure [ 9 ] , etc .
+among these datasets , credit card transactions are of paramount interest since , through the lens of purchases , they can provide a panoramic view of human life and represent the decisions made by individuals .
+these decisions and the underlying patterns behind them , not only affect the micro - economy , but also have direct influence on macro - economy [ 10 ] .
+however , unlike official economic indicators , credit card transactions do not readily provide insight into economy and need models that link individual spending activities to macro - indicators .
+moreover , from the collapse of markets during the great depression to the failures that surrounded the global economic downturns of 2008 , macroeconomics had failed to predict , prevent , or explain the occurrence of such momentous events .
+much is due to the lack of the models in use , and the gap that exists in the models between individual behaviors and macro - phenomena .
+in this paper , we aim to build connections between individual economic activities and macro - socioeconomic indicators on various spatial scales .
+currently these indices are calculated on very coarse - grained spatial scales and reported very infrequently , e.g. , quarterly or even annually .
+our motivation is to be able to not only calculate indices in real - time , but also further zoom in to the city or neighborhood level providing people with indices that can describe socioeconomic characteristics of the exact location where they live , rather than provide them with average values that very often have large deviations .
+this information can be then used by policy makers , business investors or people deciding where to live [ 11 ] .
+individual spending activities , which were investigated before the digital era , have been collected using field studies [ 12 ] , questionnaires [ 13 ] , surveys from users [ 14 ] and retailers [ 15 ] .
+the focus of those studies was mostly on finding correlations between demographic factors ( e.g. , age group , gender , education level , occupation or income ) and either shopping patterns [ 14 , 16 , 17 ] or predisposition to use different payment methods such as bank cards , checks or money [ 18 - 21 ] .
+since these studies were mostly based on survey results , they may have been affected by the fact that people could have altered their answers knowing that they were monitored .
+today in this digital era in some cases information about people 's behavior is collected even without their awareness , let alone their informed consent .
+however , as bank card transaction data is highly sensitive and includes a lot of private information , access to it has been so far highly restricted .
+therefore , related studies have been mostly focused on card systems [ 22 - 24 ] , rather than on human behavior that can be derived from people using them .
+nevertheless , a few studies focus on extracting some features of human behavior based on the credit card transit demostrate sactions to investigate how individual spending is affecting those individuals .
+for example , some studies wanted to uncover the predictability of people 's spending choices [ 25 ] or examine the relationship between wealth / income and financial mistakes [ 26 ] .
+in recent years , individual financial transaction datasets have been utilized to infer interesting perspectives on human mobility [ 27 , 28 ] , revealing different characteristics of people 's dynamics and spending habits with a novel scale - free classification of spanish cities [ 29 ] .
+moreover , financial transactions from retail market data is used to calculate a quantification of the average sophistication of satisfied needs of a population as a promising predictor of gross domestic product ( gdp ) [ 30 ] .
+in this study , using individual credit card transactions , we design models to show how individual behaviors can be scaled up with varying degrees of resolution with the aim of uncovering macro - trends .
+here , we perform a comparative quantitative analysis of city microeconomics , aiming to see how macroeconomic patterns could be understood starting from individual economic transactions .
+this is especially relevant as in the modern world not only businesses , but also entire neighborhoods , cities and regions compete for opportunities and investment resources .
+in this competition , it is very important to be able to quantify the current location 's success in comparison with the others and more importantly - - the existing development potential .
+bank data is unique for that purpose providing direct measurements for a number of aspects of human economic activity at a very fine - grained scale .
+given the existing advanced real - time data infrastructure in the banking system , this creates a really exciting opportunity .
+besides bank card transactions , recorded by banco bilbao vizcaya argentaria ( bbva ) , here we use spain 's official statistical data on macro - socioeconomic indicators such gdp per capita , housing prices , unemployment rate , percentage of higher education , crime rate , and life expectancy on the province level ( see materials and methods for more information ) .
+in the proposed predictive modeling framework , we aim to uncover different performance aspects of geographic areas at different spatial and temporal scales by designing and calculating different micro - socioeconomic indices solely based on individual bank card transactions .
+they comprise simple quantities , such as density of spending , fraction of foreign tourists in the area , along with more sophisticated ones , such as diversity of individual shopping patterns , business crossover through shared customers , and individual mobility ( see s1 table for more details ) .
+second , we present our machine learning framework whose inputs are micro - socioeconomic indices and outputs are the prediction of official macro - socioeconomic indicators .
+since the proposed predictive model is not specific to the region 's size , i.e. , all the micro - socioeconomic indices can be evaluated at any scale , we can zoom in to more fine - grained spatial areas such as cities for which the official data does not exist .
+the scalability attribute of this model holds a great promise towards building a valid and consistent multi - scale measure of economic achievement and , more importantly , of existing opportunities across the territory .
+understanding and accounting for the impact of the different parameters we used towards a global index of a location holds tremendous potential for more informed business decision making , more reliable urban planning , and more thoughtful policy making .
+results through the lens of bank card transactions , we look at the economy and well - being of regions from three perspectives : 1 ) network of spending activities , where we investigate how regions are economically connected to each other and what are the boundaries , 2 ) micro - socioeconomic similarities across the boundaries , where we study similarities of regions based on micro - socioeconomic indices and 3 ) macro - socioeconomic indicators , where we build a predictive model that enable us to predict official statistics based on micro - socioeconomic indices .
+although this analysis can be done at any geospatial scale , since provinces are the smallest region size with the reliable official statistics , we focus on 52 provinces and autonomous cities without loss of generality ( see materials and methods for more details about political divisions in spain ) .
+network of spending activities we build a network of economic connectivity of regions based on the amount of money spent by residents of a specific region at another region .
+in this way , the network has n = 52 nodes ( i.e. , provinces ) and e = 2,652 directed links .
+a direct weighted link lij between two nodes / provinces i and j has been created if there was a transaction in the province j made by people living in the province i. the weight of the links wij corresponds to normalized total amount of transactions between the two provinces .
+in this scenario , the network consists of e ~ n2 number of edges , which means that this is a fully connected graph ( i.e. , at least one transaction was made between any pair of two provinces ) .
+fig 1 ( a ) shows this network by visualizing only the top 5 % of economic connections overlaid on a map of spain .
+it shows the structure of the network as well as importance of each node based on its total amount of spending traffic .
+10.1371 / journal.pone.0187031.g001 fig 1 network of the spending activity establishes links between regions .
+( a ) a network of the spending activity in spain : size of the nodes depends on the incoming activity ( i.e. , bank card activity from people of other provinces ) , and color of nodes reflects their community .
+for the visualization purpose , here we take into account only the most influencing links with more than 5.3 . 103 transactions that correspond to the top 5 % percentile .
+namely , in this scenario we generate a network with 160 directed weighted links , where the weight corresponds to total amount of transactions from one province to another province .
+visualization was done using gephi .
+( b ) the community detection algorithm , performed on the fully connected network described in the text and shown in s1 fig , is able to identify 6 well - distinguished adjacent macro - communities .
+( c ) spain divided in 17 units called autonomous communities .
+in s1 fig we report the normalized frequency distributions of the amount and number of transactions between spanish provinces .
+it is clear that there is a correlation between the amount and the number of transactions as emphasized in s2 fig. once the network is generated , we study the community structure of the spending activity network and compare it with the official division of spain in 17 autonomous communities .
+we apply combo algorithm [ 31 ] to detect the underlying macro - communities of this network .
+the algorithm partitions the network in 6 macro - communities as shown in fig 1 ( b ) .
+also the color of nodes in fig 1 ( a ) refers to the community they belong to. fig 1 ( c ) illustrates the official division of spain in 17 autonomous communities , where each of them has its own executive power , legislative power and judicial power .
+our modus operandi is able to detect 6 macro - communities , which in most of the cases are well aligned with the division of spain in 17 autonomous communities , grouping autonomous communities together : the first one groups andalucia and extremadura together ( dark green color ) with the dominant provinces of sevilla and malaga , the second one covers cataluna and aragon ( light blue color ) with the dominant province of barcelona , the third one is a big community that comprises valencia , murcia , castilla - la mancha , madrid , castilla y leon and asturias ( dark blue color ) with the dominant province of madrid , the forth community is galicia ( red ) with the dominant province of a coruna , and the fifth one represents the canary islands ( yellow ) .
+finally , la rioja , navarra , pais vasco and cantabria are all in the same community ( brown ) with the dominant province of bizkaia .
+it is interesting that from the macro - communities shown by the network of spending , the cultural boundaries among provinces arise with the exception of the mediterranean provinces of castellon , valencia , alicante and baleares that in principle have more in common with cataluna than with madrid from a cultural perspective .
+we use the so called normalized mutual information ( nmi ) [ 32 ] ( the code is available at https :// sites.google.com / site / andrealancichinetti / software ) in order to evaluate the goodness of the community detection .
+we compare the partition generated by combo with the partition given by the 17 autonomous communities .
+the value of the nmi is 0.51 which is a high value if we consider that the partition generated by combo is composed by 6 communities instead of the 17 autonomous communities used as testing benchmark : such a high value of the nmi means that this modus operandi allows to detect an important and significant geographical partition of the country .
+socioeconomic similarities across the boundaries aggregated amount and number of transactions are important indicators of economic vitality of a region .
+however , they are not fully representative of underlying economic activities that lead to a complex macroeconomic behavior .
+bank transactional big data provides an unprecedented opportunity to look at other aspects of human spending behavior .
+to this end , we have designed 33 micro - socioeconomic indices ( see s1 table ) that can be evaluated at any spatiotemporal level .
+among these indices , besides the ones representing microeconomic behavior of regions , there are indices characterizing social behavior of them .
+the correlation between these indices and official statistics is visualized in s3 ( a ) fig. using these micro - socioeconomic indices , we identify similarities between regions from two different standpoints : ( 1 ) partitioning dissimilar regions and ( 2 ) agglomerating similar regions .
+for the first one , we use k - means clustering on micro - socioeconomic indices with various numbers of clusters and evaluate them with silhouette score ( see materials and methods for more details ) .
+fig 2 shows the results of this clustering for two and four clusters , corresponding to the highest silhouette scores .
+it is interesting that these clusters are not merely representative of economic performance of regions , but take into account some notion of social similarities .
+while the clustering based on official statistics , shown in s5 ( a ) fig , separates spain into northern and southern parts , clustering based on micro - socioeconomic indices , as shown in fig 2 ( a ) , utilizes a more complex similarity measure and separates the rural and less populated areas of the country ( red ) with median density of 26.8 / km2 and median gdp per capita of 19,132 euro ) , versus the more urbanized and more populated areas ( blue , though lleida is an exception in its cluster ) with median density of 136.6 / km2 and median gdp per capita of 22,597 euro ) .
+10.1371 / journal.pone.0187031.g002 fig 2 cluster of provinces based on micro - socioeconomic indices .
+( a ) k - means clustering with two clusters .
+( b ) k - means clustering with four clusters .
+( c ) the silhouette score for using different clusters in k - means clustering .
+( d ) dendrogram of agglomerative hierarchical clustering .
+clusters with more partitions also reveal new similarity patterns that are not aligned with the geopolitical representation of regions in spain , as represented in fig 2 ( b ) .
+to look at similarities from the second standpoint , we employ agglomerative hierarchical clustering .
+although both clustering methods try to define the relation between regions , this bottom - up approach is able to isolate very distinct regions .
+this hierarchy of clusters is represented as a dendrogram ( a tree diagram ) , see fig 2 ( d ) .
+the tree starts at the top with a unique cluster that gathers all the regions , and the leaves at the bottom are the clusters with only one region in each. by looking at this dendrogram , we can readily realize the abnormal behavior of las palmas , an island in africa , and also ceuta and melilla , autonomous cities in the south of spain and the north of africa , with respect to the rest of spain .
+it is interesting that this method makes a group consisting only of madrid and barcelona , which have a lot in common in terms of economies and tourism .
+it is worth mentioning that clustering on micro - socioeconomic indices , constructed purely upon credit / debit card transactions reveals many patterns and much information about the performance of regions and their similarities that are not necessarily tied to their geolocations .
+predicting official socioeconomic indicators in this part , we are aiming to predict some of the most utilized official statistics merely based on information from credit / debit card transactions .
+these official statistics include some macroeconomic indicators like gdp per capita , housing prices , unemployment rate , as well as some social and wellbeing indicators like percentage of higher education , life expectancy and crime rate .
+as previously explained , we first build a feature space that consists of 33 parameters x = { x1 , x2 , ... , x33 } .
+then we investigate the correlation between all pairs of micro - socioeconomic indices , as well as their correlation with official statistics to understand their relationship and if any of the features can be a sole predictor of any official indicator .
+s3 ( a ) fig shows a heat map of such a correlation matrix where we can observe linear correlation patterns .
+this figure illustrates intercorrelations among extracted micro - socioeconomic indices and suggests that all the conveyed information can be explained with less number of variables .
+we address this redundancy by employing dimensionality reduction methods to automatically build a reduced features space .
+we apply principal component analysis ( pca ) on the micro - socioeconomic indices to obtain a new set of features that are linearly uncorrelated , called principal components ( pcs ) as shown in s3 ( b ) fig. one can observe in this figure that the first few pcs show a strong correlation with official statistics and these correlations fade away by going toward the last pcs .
+it demonstrates the fact that although we have the same number of pcs as the initial number of features , not all the pcs are equally important and many of them can be discarded without losing valuable information .
+s4 fig shows that more than 89 % of variability in the data can be represented by only 9 pcs , where the first pc alone is responsible for almost 40 %. by removing linear correlations , through pca , not only we get a clearer insight to the relationship of our features with official statistics , but we can also build a flexible model whose complexity can be tuned by choosing different number of pcs through cross validation iteration .
+in this work , we propose a modular and flexible machine learning workflow for predictive modeling of official macro - socioeconomic indicators , which is illustrated in fig 3 and explained in materials and methods .
+10.1371 / journal.pone.0187031.g003 fig 3 modular machine learning workflow for predictive modeling of macro - socioeconomic indicators .
+we employ support vector machines ( svm ) as a regressor at the core of our methodology , which offers the best performance in prediction of all six official indices .
+table 1 lists for each official index the optimum number of pcs needed to maximize the prediction quality ( r2 ) .
+an interesting observation here is that each target index requires different level of complexity and information to be able to provide a decent prediction , e.g. , while housing price level and unemployment rate are explainable using only the first two pcs , gdp per capita require more information from seven pcs .
+10.1371 / journal.pone.0187031.t001 table 1 predictive modeling of official socioeconomic indicators based on bank big data .
+the prediction coefficient of determination ( r2 ) and optimal number of required pcs for predicting each macro - socioeconomic indicator are reported .
+quantity validation r2 number of pcs gdp per capita 0.729 7 housing 0.764 2 unemployment 0.738 2 education 0.753 5 crime 0.620 8 life 0.558 5 fig 4 compares the predicted value of official indices with the corresponding expected values .
+it shows that our predictive model performs decently on macroeconomic indicators such as gdp per capita , housing price level and unemployment rate , which have explicit relation to people 's spending .
+the proposed methodology also demonstrates an acceptable performance in predicting indicators with not straightforward relationship with spending behavior of people , such as percentage of higher education .
+for the more social and wellbeing indices , with moderate prediction r2 values , although it nicely captures the general trends of regions , it urges for more information from different aspects of people 's life in order to obtain a proper prediction power .
+10.1371 / journal.pone.0187031.g004 fig 4 outcome of predictive modeling of official socioeconomic indicators based on individual transactions .
+each subplot shows the performance of the proposed methodology to predict six official socio - economic features ( target ) .
+the prediction is based on commercial indices built upon financial transactions and employing an iterative methodology , which takes advantage of pca , support vector machines .
+the orange dotted lines indicate the ideal prediction .
+this methodology shares the concept of regularization and feature selection with regularized regression methods , such as lasso and ridge ( see materials and methods section ) which improve interpretability of the statistical models and prediction accuracy .
+however , it provides a general framework to equip any regression method with a such attribute .
+to verify this concept we compare the proposed methodology with different regularized methods .
+fig 5 shows the prediction performance of various regression methods , such as ordinary least square ( ols ) , lasso linear regression , ridge linear regression and svm .
+the performance is evaluated in term of r2 values and employing k - fold cross validation ( see materials and methods ) .
+we also calculate their p - value in order to evaluate the significancy of each regression and accounted for bonferroni correction , see s6 fig for significancy of each method on gdp per capita prediction .
+10.1371 / journal.pone.0187031.g005 fig 5 comparison of performance of proposed methodology using different regression methods .
+the proposed method can utilizes any regression method at its core and here its performance using four common regression methods on predicting gdp per capita based on micro - socioeconomic indices is illustrated .
+the rightmost points can be interpreted as the values without using dimensionality reduction phase .
+although here we use the aforementioned dimensionality reduction method , the rightmost value of this plot , which means using all the pcs without reduction , is essentially equivalent to using the regression methods without adopting the pca phase .
+this figure can bring us to three important observations .
+first , ols method completely failed at predicting targets with larger number of pcs since it does not have the regularization ability .
+second , the regularized linear regression methods significantly improve the prediction accuracy and are able to provide a proper r2 values similar to the nonlinear method ( svm ) with high number of features .
+third , adopting the pca phase improves all the regression method , even methods with regularization , and help a simple method without the regularization mechanism ( e.g. , ols ) performs decently .
+moreover , due to the huge difference in geopolitical situation of provinces , they might show anomalous behaviors in official statistics and hinder the prediction .
+to alleviate this issue we add the outlier removal phase , explained in materials and methods section .
+as illustrated in fig 5 for svm method , it demonstrates a considerable improvement in the predictive model .
+discussion due to increase of the number and complexity of interconnected systems , systems today do not only interact through conventional interfaces , explicitly defined at design - time , but also through the physical world including humans [ 33 ] .
+not only can we not control outcomes of artificial system designs , but also impacts of policy makers' decisions may have unexpected and undesirable consequences on our societies .
+some of the negative consequences could be stopped and reversed if we had real - time information about the outcomes of our policies or design choices .
+in the cases of artificially designed systems , information we collect often is real - time , unlike in the cases of policies affecting our societies which often only rely on data officially collected quarterly , yearly or rarer .
+on the other hand , since the advent of pervasive digital technology in our everyday life , people are leaving an increasing number of digital traces .
+creating data analytics and data visualization from this new layer of information sheds light on human behavior from the micro - scale of individuals and households , which can scale up to a macro - scale characterization of cities and countries and can provide more frequent feedback on how our policies are working .
+in this paper , we present a framework that allows decision makers to see almost immediately what the impacts of their socioeconomic measures are .
+namely , the vast number of bank card transactions each day carries a collective knowledge about the society and its economy .
+as people are using more and more debit and credit cards to purchase their goods and services , information about individual 's purchases becomes more available and the analyses reflect more accurately the underlying social and economic behavior of people .
+due to sensitivity of such data , many anonymization techniques are used to remove identifiable information and protect individual privacy although recent studies warn about re - identifiability of people based on their unique behavior [ 34 , 35 ] .
+here , we explore millions of anonymized credit / debit card transactions in spain , provided by bbva , which holds a ubiquitous banking infrastructure in the country .
+the data provides an opportunity to uncover macro - trends derived from a fine - grained scale of individual economic behavior .
+in light of the failure of past decades to produce models that effectively predict and explain the macroeconomic trends , we noticed that a gap exists between models of micro - behaviors and macro - phenomena .
+in our framework , we extract 33 different characteristics of socioeconomic behavior quantifiable from the dataset of bbva bank card transactions , and then evaluate them on the example of spain .
+we show that those quantities could be used for estimating economic performance of the regions in the country , as the proposed supervised machine learning technique performs well on the validation samples for predicting major official statistical quantities such as gdp per capita , housing prices , unemployment rate , level of higher education , life expectancy and crime rate at the scale of spanish provinces .
+building the connection between individual transactions and official indicators , reported at specific time points , enables us to predict these indicators at arbitrary time points and also to evaluate temporal variation of economic performance of the regions , which is especially useful since official statistics are more static and cannot give a really fine - grained longitudinal perspective .
+besides spanning the time domain , this data - driven approach allows us not only to change the spatial scale to evaluate indicators in the spatial scales that no official statistics is available , but also to draw arbitrary boundaries that are not commensurate with official boundaries of regions and evaluate corresponding macro - indicators .
+the ability of this machine learning platform to be generalized over time and space set the ground for adaptive policy making approaches in which a policy can be adjusted in time and be customized for specific regions .
+the generalization of the proposed framework fairly relies on the availability of target information , particularly in determining the number of pcs in dimensionality reductions part .
+in a broad range of applications , when the target information is available , like official statistics at province level , we can easily find the optimal hyper parameters by maximizing the prediction accuracy .
+however , it is not the case in many real - world applications where the target information ( ground truth information ) is partially available or not available at all .
+we can cope with these scenarios in different ways depending on the type and availability of data .
+when the target information can be achieved through other sources for a small subsample of data despite the fact that such information is not feasible to acquire for the whole dataset , or when the target information is available at a spatial scale ( e.g. , provinces ) , but not available at a finer spatial scale ( e.g. , cities ) , we can use the transferability of these models with respect to sample size and spatial scale .
+in this way , the model is trained on the smaller or coarser dataset with ground truth information and then the learnt parameters and hyper - parameters ( e.g. , number of pc 's ) are used for prediction over larger or spatially finer datasets .
+however , it is not plausible when there is not any target information available at all .
+in this case , we can eliminate any supervised part of the methodology with their unsupervised approximation .
+hence , we can select the number of pcs based on a cut - off in the pca 's explained variable spectrum ( e.g. , 90 % cumulative variability ) .
+although in this way the number of pcs is not optimal with respect to the target indicators , they can efficiently help in overcoming the inter - correlation of feature space and reduce overfitting while keeping the most important features .
+as we mentioned , the introduced micro - socioeconomic indices are scale independent and thus can be evaluated for any spatial division ; however , evaluating such indicators for building a reliable predictive model in practice is a two - fold problem .
+due to the limited number of transactions and heterogeneous market share of bbva , in the finer scale , there would not be enough information for a robust calculation of the micro - socioeconomic indices .
+hence , by coarsening the scale , we can calculate more reliably these indices .
+on the other hand , at the very coarse scales , where the number of regions is rather small , we will end up with a few data point to build the predictive model .
+this fact not only affects the robustness of regression models , but also causes the more complex nonlinear models to overfit the training set and consequently aggravate the validation score .
+the proposed approach in this paper holds tremendous potential in its far - reaching applicability to discover patterns that can be used in urban planning , policy - making and business decisions .
+we believe that the tools similar to the one we designed and deployed in interactive web application ( https :// urban - lens.herokuapp.com ) will also enable citizens to ( 1 ) obtain official statistics of provinces as well as spending characteristics , ( 2 ) visualize each of them through a density plot over the country , and ( 3 ) compare the provinces based on commercial indicators and official statistics , quantitatively and visually .
+materials and methods geographical information our study region is spain with an area of 505,519 km2 and 46,507,760 of inhabitants ( 2014 ) .
+it is bordered to the northeast with france ( which is separated from the chain of the pyrenees ) and andorra , on the south by the mediterranean sea and gibraltar ( small possession of the united kingdom ) and , in africa , with morocco ( through the autonomous cities of ceuta and melilla , its exclave ) .
+spain is divided into 17 autonomous communities ( comunidades autonomas ) which are further divided into 50 provinces , plus 2 autonomous cities : ceuta and melilla ( officially designated as plazas de soberania en el norte de africa ) .
+ceuta , melilla and other small islands , which extend over 0.65 km2 and count 312 inhabitants are the remains of the vast colonial empire that the country possessed .
+in total , spain has 31.65 km2 of territory in north africa , populated by 138,228 inhabitants .
+bank card transactions dataset we analyze spain microeconomic activity during the year 2011 represented by the complete set of bank card transactions recorded by bbva during 2011 , all over spain ( i.e. , 50 provinces plus 2 autonomous cities : ceuta and melilla ) .
+all the aggregated data used in this paper at the province level are available to public at http :// senseable.mit.edu / urban - lens / although access to individual transactions is protected by a non - disclosure agreement and is not publicly available .
+transactions stored in our dataset were performed by two groups of bank card users .
+the first one consists of bbva direct customers , residents of spain , who hold a debit or credit card issued by bbva .
+in 2011 , the total number of active customers was around 4.5 million , altogether they executed more than 178 million transactions in over 1.2 million points of sale , spending over 10 billion euros .
+the second group of bank card users includes over 8.6 million foreign customers of all other banks abroad coming from 175 countries , who made purchases through one of the approximately 300 thousand bbva card terminals .
+in total , they executed additional 17 million transactions , spending over 1.5 billion euro .
+due to the sensitive nature of bank data , our dataset was anonymized by bbva prior to sharing , in accordance to all local privacy protection laws and regulations .
+as a result , customers are identified by randomly generated ids , connected with certain demographic characteristics and an indication of a residence location - - at the level of zip code for direct customers of bbva and country of residence for all others .
+each transaction is denoted with its value , a time stamp , a retail location where it was performed , and a business category it belongs to. the business classification includes 76 categories , which were further aggregated into 12 meaningful major groups ( e.g. , purchases of food , fashion , home appliances or travel activities ) .
+micro - socioeconomic indices in this first step of our model we built a feature space using the bbva dataset of individual spending behavior for the period of one year and by extracting 33 different microeconomics indicators that explain economic behaviors from both customer and business sides ( see s1 table ) .
+before calculating the aforementioned parameters , the bbva dataset had to be pre - processed in order to compensate for potential bias introduced by the spatial inhomogeneity of bbva market share .
+the first concern was : what is bbva penetration in the whole banking market for the given area ( i.e. , what is the ratio of bbva customers and economically active population ) ?
+therefore , in order to estimate the total domestic customer spending volume , customers' activity was normalized by the bank market share corresponding to their residence location and grouped at the level of provinces .
+another type of bias is related to unequal distribution of foreign customers performing transactions in bbva point of sale terminals in different locations across the whole spain .
+in this case the normalization procedure relied on bbva business market share defined , for the purpose of this study , as a ratio of bank card transactions executed by domestic customers in bbva terminals and their transactions in all other terminals located in the considered area .
+the appropriate normalization allows estimation of the total spending volume of foreign customers visiting a particular location .
+the full list of indicators at the province scale , available in s1 table , can be split in three macro - categories : ( i ) customer and ( ii ) business ( i.e. , merchant ) oriented and ( iii ) categories of spending .
+the first eleven indicators refer to the economic activity inside each province .
+indicator 1 has been computed by evaluating the average density of number of transactions made within 1 km2 of the province area , while indicator 2 refers to the average density of amount of money spent , and indicator 3 denotes the ratio between total amount and number of transactions made by all customers within the considered area .
+indicators 4 , 5 and 6 are more focused on the customer side .
+indicator 4 evaluates the average number of transactions per customer , i.e. , the ratio between the total number of transactions made by residents of the area and the number of active residents in terms of transaction activity .
+indicator 5 computes the fraction between the total amount and the number of transactions made by residents of the considered area everywhere in the country , while indicator 6 evaluates the percentage of the number of transactions made within the area by its domestic out - of - province visitors .
+moreover , we also evaluated the effect of the foreign activity by considering the percentage of the number of transactions made within the area by its foreign visitors .
+in order to also include the effect of the structure of activity by its type , we consider something that what we call - - earning and spending diversity .
+in that sense , indicators 8 and 9 represent transactions made over the number of top business categories ( of 76 ) enough to cover 80 % of the total activity of area residents or activity within the area , respectively .
+additionally , indicator 10 reflects the number of active businesses within the area per km2 .
+furthermore , indicators 11 to 21 correspond to the specific properties of the structure of spending activity within the area taking into account spending in different business categories , such as food , taxi , public transportation , etc .
+finally , we evaluate the effect of the temporal activity by distinguishing nighttime and weekend temporal windows .
+for the purpose of defining indicators 22 to 29 we assume that nighttime activity happens between 10 pm and 6 am , while weekend activity counts for transactions made on saturdays and sundays .
+indicators 30 to 32 reflect the customer activity inside or outside their provinces .
+the last indicator computes the percentage of the total amount of transactions made by residents in the expensive businesses , i.e. , those which average transaction amount is above average for the corresponding business category .
+dataset of official statistics many official statistical quantities are available for spanish province level , being included in official spanish statistic reports from instituto nacional de estadistica and eurostat web pages .
+we also consider statistics on customer wealth and housing categories available on the census unit level ( over 32,000 units ) , which allow aggregation to the municipality ( over 8,000 ) , comarca ( 368 ) and provinces and autonomous cities ( 52 ) scale .
+we perform aggregation to the bigger spatial units computing weighted averages of the considered parameters ( weighting each census unit contribution according to its population ) .
+on that end we compute an estimate for average income , percentage of high / low income residents , percentage of individual and new houses .
+as mentioned in the introduction , a huge number of indicators can be used to characterize quality of life for whole countries and their citizens .
+in this work we decided to focus on six macro - socioeconomic indicators for the year 2011 that are available for spanish province level and that are included in official spanish statistic reports from websites of instituto nacional de estadistica ( http :// www.ine.es ) and eurostat ( http :// ec.europa.eu / eurostat ) : gdp per capita , housing price level , unemployment rate , crime rate , percentage of higher education , and life expectancy .
+we choose gdp per capita as it is widely used as a benchmark of successful public policy initiatives and as the primary objective of the lending decisions of major global economic institutions .
+the advantage of gdp is that it measures the aggregate economic activity within a country , but the downside is that economic activity generated for whatever purpose ( e.g. , building prisons or schools , spending more on health care , whether or not it is medically beneficial ) raises gdp per capita in the same way .
+in addition to economic indices , we also use social ones that are compiled by the statistics division , department of economic and social affairs of the united nations secretariat ( http :// www.un.org / en / development / desa / index.html ) using many different national and international sources .
+namely , the indices presented in this paper consist mainly of the minimum list that has been proposed for follow - up and monitoring implementation of major united nations conferences on children , population and development , social development and women .
+this minimum list is contained in the report of the expert group on the statistical implications of recent major united nations conferences ( e / cn.3 / ac.1 / 1996 / r.4 ) .
+technical background on the development of social indices is available in two united nations publications : handbook on social indicators ( united nations publication , series f , no .
+49 , 1989 ) and towards a system of social and demographic statistics ( united nations publication , series f , no. 18 , 1975 ) .
+all aforementioned indices are provided for the following areas : population , health , housing , education and work .
+machine learning workflow the proposed machine learning workflow , from the raw data to the prediction phase , is demonstrated in fig 3 .
+the first step in building our model is to normalize all micro - and macroeconomic parameters to be between 0 and 1 by fitting an appropriate distribution , followed by performing dimensionality reduction using standard pca .
+after doing pca , the next step in building of our model process is to train the model using the selected feature space that explains the statistical quantities at the considered spatial scale .
+the proposed machine learning workflow is modular and flexible and allows us to use the regression methods of our choice .
+normalization each of the devised predictive indicators ( s1 table ) and socioeconomic features has different scales , and thus we need to normalize and transform them to a common basis .
+in order to do that and also to reduce the influence of outliers ( extreme values ) in the data without removing them , we use sigmoidal normalization .
+in doing so , we transform the data using cumulative distribution function of fitted distribution into quantile space .
+this is similar to the quantile normalization introduced in [ 36 ] , but instead of using the certain empirical distribution , in this paper we use the actual best - fit distribution function .
+for each indicator and feature we find distribution parametrized by theta , which minimizes negative log likelihood estimation : - logl ( theta | x )= - sumi = 1nlogf ( xi | theta ) ( 1 ) where l is likelihood function and f is viewed as the probability of xi sampled from a distribution parametrized by theta .
+clustering in this paper , we perform cluster analysis of the regions with two fundamentally different method : k - means clustering , and agglomerative hierarchical clustering .
+in k - means clustering , we start with some random centroids whose voronoi cells define clusters and continue to optimize their position .
+this algorithm aims to partition regions in k clusters ( ci ) by minimizing within - cluster sum of squares , minsumi = 1ksumxinci || x - mui || 2 , ( 2 ) where muj is the centroid of cluster i. in general , this metric is not normalized and poses problem in high - dimensional spaces , where euclidean distances tend to become inflated due to the curse of dimensionality .
+to ameliorate this problem , we use pca prior to performing clustering .
+moreover , since the outcome of k - means can highly depends on the initial choice of centroids , we run the clustering with 1000 times with different initializations using the k - means ++ [ 37 ] for smarter selection of centroids that speed - up the convergence .
+to evaluate the performance of clustering we use silhouette score , which is a measure of how similar a region is to its own cluster compared to regions from other clusters .
+for each sample , the silhouette coefficient is defined as follow , s ( i )= b ( i ) - a ( i ) max ( a ( i ) , b ( i )) ( 3 ) where a ( i ) is a measure of dissimilarity of xi within the cluster ( the mean distance to all other points in the same cluster ) and b ( i ) is a measure of lowest average dissimilarity of xi to any other cluster ( the mean distance to all other points in the neighboring cluster ) .
+then we use mean of all silhouette coefficients to evaluate silhouette score for the clustering .
+on the other hand , the agglomerative hierarchical clustering takes a bottom - up approach , where we start with one cluster for each region and as we move up the hierarchy , the pairs of clusters are successively merged based on their similarities .
+the clusters can be merged together based on different linkage criteria .
+here we used average linkage which is the average of the distances between all observations of pairs of clusters .
+principal component analysis since many of the indicators are strongly correlated with each other ( please refer to s3 fig ) , the next step is to perform dimensionality reduction using standard pca [ 38 ] .
+pca can be used to compress the information from a large number of variables to a smaller dataset while minimizing the information lost during this process [ 39 ] .
+pca seeks four goals : [ 40 ] extract the most important information from the data ; compress the size of the dataset by keeping only the important information ; simplify the description of the dataset ; and analyze the structure of the observations and the variables .
+pca finds a set of linearly uncorrelated basis by applying either singular value decomposition ( svd ) of the indicators or eigenvalue decomposition of the covariance matrix of indicators .
+considering the following covariance matrix , x =[ - - x1t - - - - x2t - - ...
+- - xnt - - ] c =( x - x ) t ( x - x ) where x is a vector of the average of x at each dimension , each set of eigenvector ( piinrd ) and eigenvalue ( lambdai ) satisfies : cpi = lambdaipi .
+( 4 ) each eigenvector is called a pc , whose corresponding eigenvalue defines its importance or amount of explained variability .
+thus , by sorting eigenvalues from largest to smallest , we can select first d corresponding pcs and define a reduced basis for projection , which is an optimal basis that minimizes the projection error : p =[ p1t,p2t ,... , pdt ] zi = xip where ziinrd is the projection of xiinrd and d << d. it provides us with a set of eigenvectors , called pcs , and associated eigenvalues , which represent the amount of explained variability .
+cumulative sum of this sorted eigenvectors gives the notion of how many pcs is required to recover a desired variability of the system .
+s4 fig shows the amount of explained variability as a function of preserving number of pcs .
+this can also be interpreted as a tuning parameter to define the level of details in the reduced description of the system .
+in this research , we analyze the performance of the models by using different number of pcs and pick the one that maximize the model performance .
+selected pcs are then used as a feature space for training our model to predict quality of life parameters at the province level in spain .
+as mentioned before , this model can be further applied for predicting quality of life parameters on much more fine - grained spatial scales ( e.g. , cities , districts and smaller neighborhoods ) for which consistent official statistics does not exist .
+outlier removal in regression analysis , an outlier is a data point that by far does not follow the general trends in the dataset .
+it may have different sources , such as excessive variability in the measurement and recording error .
+there are many possible way of finding outliers [ 41 ] .
+here , we evaluate for each data point its out - of - sample error , using leave - one - out cross validation .
+in this way , we will have the distribution of out - of - sample errors , which shows how much each data point is not following general trend of the rest of data .
+then , we fit a lognormal distribution function to find the error distribution and use the 95 percentiles of this distribution as a cutoff for removing outliers .
+cross validation learning the parameters of a predictive model , we need to test them on a set of new data from which we have not learned the parameters ( unseen data ) .
+in order to do that we need to hold out part of the available data and try to build the model based on the rest of the data , called training set .
+then we use the hold - out data , test set , to evaluate the goodness of prediction with some metrics .
+this procedure called cross validation .
+there is a variety of cross validation methods , such as k - fold and leave - one - out method , and random permutation .
+in this paper , we employed k - fold method , where we divide the samples into k equal groups ( folds ) and at each iteration we put aside one of these groups as test set and consider the rest as training set .
+thus , at the end we will have prediction for all the samples since each sample has been in the test set exactly once .
+here we use k = 10 .
+regression methods after doing pca , the next step in building of our model process is to train the model using the selected feature space that explains the statistical quantities at the considered spatial scale .
+we denote the predictors with an n x d matrix x , where n is number of regions and d is the number of variables that is taken into account , and each target with a vector y. linear regression we start with ordinary least square ( ols ) , in which a coefficient is calculated for each predictor as well as an additional one for the perception .
+however , this method is prone to overfitting .
+to overcome this issue , we employ penalized regression , also known as regularized regression , in which a penalty is added for over - confidence in the parameter values .
+two types of penalties are typically used for regression : l1 penalties , known as lasso regression , and l2 penalty , known as ridge regression .
+argminbeta || y - betatx ||( ordinary ) argminbeta || y - betatx ||+ alpha1sumi | betai |( lasso ) argminbeta || y - betatx ||+ alpha2sumibetai2 ( ridge ) support vector regression we implement support vector machine ( svm ) [ 42 ] with radial - basis - function kernel .
+this method implicitly maps the inputs into high - dimensional feature spaces using the kernel trick and then try to build the regression model upon it. the error function , which gives zero error if the absolute difference between the prediction y ^( x ) and the target y ( x ) is less than epsilon where epsilon > 0 , is given by : eepsilon ( y ^( x ) - y ( x ))={ 0,if | y ^( x ) - y ( x )|< epsilon | y ^( x ) - y ( x )| - epsilon,otherwise ( 5 ) we therefore minimize a regularized error function as following , csumi = 1neepsilon ( y ^ i - yi )+ 12 || w || 2 , ( 6 ) where c is the regularization constant .
+in this work , we use svr implementation of scikit - learn [ 43 ] python packages .
+see smola and scholkopf [ 44 ] for more details on support vector regression .
+to determine the degree to which the model fits our data , we use the coefficient of determination ( r2 ) metric , i.e. , measure based on unweighted residual sums of squares .
+the benchmark is the residual sum of squares in the intercept - only model , with fitted mean y . in this paper , we use the ( unweighted ) residual sum of squares yield as : r2 = 1 - sumi = 1n ( yi - yi ^) 2sumi = 1n ( yi - yi ) 2 , ( 7 ) where yi ^ is the predicted value by the machine learning algorithm and yi is the target value .
+supporting information s1 table micro - socioeconomic indices consist of 33 indices representing economic and social behavior of residence and businesses .
+these indices can be evaluated at various spatial scales from small scale of zip codes to larger scale of provinces and countries based on the bank card transactions .
+( pdf ) click here for additional data file .
+s1 fig frequency of inter - regional transactions .
+normalized frequency distribution for the total amount ( a ) and total number of transactions ( b ) between provinces in spain .
+( tif ) click here for additional data file .
+s2 fig number of transactions vs. amount of transaction .
+the relationship between total amount and total number of transactions can be describe with a power law although the exponent is close to one ( 0.96 ) .
+( tif ) click here for additional data file .
+s3 fig correlation matrix of the micro - socioeconomic indices and official indicators .
+the correlation matrix is calculated for the socioeconomic indices before ( a ) and after ( b ) applying pca ( without reducing the dimensionality of data ) .
+( tif ) click here for additional data file .
+s4 fig explained variability in pca .
+the cumulative sum of the ordered eigenvalues associated with the pcs of micro - socioeconomic indices is illustrated .
+( tif ) click here for additional data file .
+s5 fig clustering based on official statistics .
+k - means clustering of spanish provinces based on official socioeconomic indicators considering two clusters ( a ) and four clusters ( b ) .
+( tif ) click here for additional data file .
+s6 fig p - value of prediction of different regression methods when using various number of pcs .
+the dotted green line shows the significant level ( alpha = 0.0003 ) when applying bonferroni correction with family - wise error rate alphaf = 0.05 and number of comparison m = 33 x 5 .
+the bottom figure is zoomed in to the smaller values .
+( tif ) click here for additional data file .
+the authors would like to thank banco bilbao vizcaya argentaria ( bbva ) for providing the dataset for this research .
+special thanks to juan murillo arias , marco bressan , elena alfaro martinez , maria hernandez rubio , and juan de dios romero for organizational support of the project and stimulating discussions .
+we further want to thank allianz , american air liquide , the amsterdam institute for advanced metropolitan solutions , ericsson , the fraunhofer institute , liberty mutual institute , philips , the kuwait - mit center for natural resources and the environment , singapore - mit alliance for research and technology ( smart ) , uber , unicredit , volkswagen electronics research laboratory , and all the members of the mit senseable city lab consortium for supporting this research .
+references 1 gonzalez mc , hidalgo ca , barabasi al . understanding individual human mobility patterns . nature .
+2008 ; 453 ( 7196 ) : 779 - 782 . doi : 10.1038 / nature06958 18528393 2 song c , qu z , blumm n , barabasi al . limits of predictability in human mobility . science .
+2010 ; 327 ( 5968 ) : 1018 - 1021 . doi : 10.1126 / science.1177170 20167789 3 lazer d , pentland a , adamic l , aral s , barabasi al , brewer d , et al computational social science . science .
+2009 ; 323 ( 5915 ) : 721 - 723 . doi : 10.1126 / science.1167742 19197046 4 watts dj . a twenty - first century science . nature .
+2007 ; 445 ( 7127 ) : 489 - 489 . doi : 10.1038 / 445489a 17268455 5 vespignani a . predicting the behavior of techno - social systems . science .
+2009 ; 325 ( 5939 ) : 425 - 428 . doi : 10.1126 / science.1171990 19628859 6 crandall dj , backstrom l , cosley d , suri s , huttenlocher d , kleinberg j . inferring social ties from geographic coincidences . proceedings of the national academy of sciences .
+2010 ; 107 ( 52 ) : 22436 - 22441 . doi : 10.1073 / pnas.1006155107 7 balcan d , colizza v , goncalves b , hu h , ramasco jj , vespignani a . multiscale mobility networks and the spatial spreading of infectious diseases . proceedings of the national academy of sciences .
+2009 ; 106 ( 51 ) : 21484 - 21489 . doi : 10.1073 / pnas.0906910106 8 travis b murdoch asd . the inevitable application of big data to health care . jama .
+2013 ; 309 ( 13 ) : 1351 - 1352 . doi : 10.1001 / jama.2013.393 23549579 9 louail t , lenormand m , cantu ros og , picornell m , herranz r , frias - martinez e , et al from mobile phone data to the spatial structure of cities . scientific reports .
+2015 ; 4 ( 1 ) : 5276 doi : 10.1038 / srep05276 10 baumol wj , blinder as . microeconomics : principles and policy .
+cengage learning ; 2011 . 11 florida r . who 's your city ?
+how the creative economy is making where to live the most important decision of your life .
+vintage canada ; 2010 . 12 lloyd r , jennings d . shopping behavior and income : comparisons in an urban environment . economic geography .
+1978 ; 54 ( 2 ) : 157 - 167 . doi : 10.2307 / 142850 13 childers tl , car cl , peck j , carson s . hedonic and utilitarian motivations for online retail shopping behavior . journal of retailing .
+2001 ; 77 ( 4 ) : 511 - 535 . doi : 10.1016 / s0022 - 4359 ( 01 ) 00056 - 2 14 dholakia rr . going shopping : key determinants of shopping behaviors and motivations . international journal of retail & distribution management .
+1999 ; 27 ( 4 ) : 154 - 165 . doi : 10.1108 / 09590559910268499 15 buckinx w , van den poel d . customer base analysis : partial defection of behaviourally loyal clients in a non - contractual fmcg retail setting . european journal of operational research .
+2005 ; 164 ( 1 ) : 252 - 268 . doi : 10.1016 / j.ejor.2003.12.010 16 bhantagar a , misra s , rao hr . on risk , convenience , and internet shopping behavior . communications of the acm .
+2000 ; 43 ( 11 ) : 98 - 105 . doi : 10.1145 / 353360.353371 17 hui tk , wan d . factors affecting internet shopping behaviour in singapore : gender and educational issues . international journal of consumer studies .
+2007 ; 31 ( 3 ) : 310 - 316 . doi : 10.1111 / j.1470 - 6431.2006.00554.x 18 boeschoten wc . cash management , payment patterns and the demand for money . the economist .
+1998 ; 146 ( 1 ) : 117 - 142 . doi : 10.1023 / a : 1003258026314 19 hayhoe cr , leach lj , turner pr , bruin mj , lawrence fc . differences in spending habits and credit use of college students . journal of consumer affairs .
+2008 ; 34 ( 1 ) : 113 - 133 . doi : 10.1111 / j.1745 - 6606.2000.tb00087.x 20 bounie d , francois a. cash , check or bank card ?
+the effects of transaction characteristics on the use of payment instruments .
+telecom paris economics and social sciences working paper no ess - 06 - 05 .
+2006 ; .
+21 borzekowski r , kiser ek , ahmed s . consumers 's use of debit cards : patterns , preferences , and price response . journal of money , credit and banking .
+2008 ; 40 ( 1 ) : 149 - 172 . doi : 10.1111 / j.1538 - 4616.2008.00107.x 22 chan pk , fan w , prodromidis al , stolfo sj . distributed data mining in credit card fraud detection . intelligent systems and their applicationsl ( ieee ) .
+1999 ; 14 ( 3 ) : 67 - 74 . doi : 10.1109 / 5254.809570 23 rysman m . an empirical analysis of payment card usage . the journal of industrial economics .
+2007 ; 55 ( 1 ) : 1 - 36 . doi : 10.1111 / j.1467 - 6451.2007.00301.x 24 mahmoudi n , duman e . detecting credit card fraud by modified fisher discriminant analysis . expert systems with applications .
+2015 ; 42 ( 5 ) : 2510 - 2516 . doi : 10.1016 / j.eswa.2014.10.037 25 krumme c , llorente a , cebrian m , pentland a , moro e . the predictability of consumer visitation patterns . scientific reports .
+2013 ; 3 : 1645 doi : 10.1038 / srep01645 23598917 26 scholnick b , massoud n , saunders a . the impact of wealth on financial mistakes : evidence from credit card non - payment . journal of financial stability .
+2013 ; 9 ( 1 ) : 26 - 37 . doi : 10.1016 / j.jfs.2012.11.005 27 sobolevsky s , sitko i , tachet des combes r , hawelka b , arias jm , ratti c. money on the move : big data of bank card transactions as the new proxy for human mobility patterns and regional delineation .
+the case of residents and foreign visitors in spain .
+in : proceedings of the ieee international congress on big data ; 2014. p. 136 - 143 .
+28 lenormand m , louail t , cantu - ros og , picornell m , herranz r , arias jm , et al influence of sociodemographics on human mobility . scientific reports .
+2015 ; 5 doi : 10.1038 / srep10075 29 sobolevsky s , sitko i , combes rtd , hawelka b , arias jm , ratti c . cities through the prism of people 's spending behavior . plos one .
+2016 ; 11 ( 2 ) : e0146291 doi : 10.1371 / journal.pone.0146291 26849218 30 guidotti r , coscia m , pedreschi d , pennacchioli d . in : wierzbicki a , brandes u , schweitzer f , pedreschi d , editors .
+going beyond gdp to nowcast well - being using retail market data .
+cham : springer international publishing ; 2016 p .
+29 - 42 . 31 sobolevsky s , campari r , belyi a , ratti c . general optimization technique for high - quality community detection in complex networks . physical review e .
+2014 ; 90 : 012811 doi : 10.1103 / physreve.90.012811 32 lancichinetti a , fortunato s , kertesz j . detecting the overlapping and hierarchical community structure in complex networks . new journal of physics .
+2009 ; 11 ( 3 ) : 033015 doi : 10.1088 / 1367 - 2630 / 11 / 3 / 033015 33 tomforde s , haehner j , seebach h , reif w , sick b , wacker a , et al. engineering and mastering interwoven systems .
+in : proceedings of the 27th international conference on architecture of computing systems ; 2014. p. 1 - 8 .
+34 de montjoye ya , hidalgo ca , verleysen m , blondel vd . unique in the crowd : the privacy bounds of human mobility .
+2013 ; 3 : 1376 . 35 de montjoye ya , radaelli l , singh vk , pentland as . unique in the shopping mall : on the reidentifiability of credit card metadata . science .
+2015 ; 347 ( 6221 ) : 536 - 539 . doi : 10.1126 / science.1256297 25635097 36 bolstad bm , irizarry ra , astrand m , speed tp . a comparison of normalization methods for high density oligonucleotide array data based on variance and bias . bioinformatics .
+2003 ; 19 ( 2 ) : 185 - 193 . doi : 10.1093 / bioinformatics / 19.2.185 12538238 37 arthur d , vassilvitskii s. k - means ++ : the advantages of careful seeding .
+proceedings of the eighteenth annual acm - siam symposium on discrete algorithms .
+2007 ; p .
+1027 - 1025 .
+38 pearson k . liii .
+on lines and planes of closest fit to systems of points in space . philosophical magazine series 6 .
+1901 ; 2 ( 11 ) : 559 - 572 . doi : 10.1080 / 14786440109462720 39 jolliffe i . principal component analysis .
+wiley online library ; 2002 . 40 abdi h , williams lj . principal component analysis . wiley interdisciplinary reviews : computational statistics .
+2010 ; 2 ( 4 ) : 433 - 459 . doi : 10.1002 / wics.101 41 chandola v , banerjee a , kumar v . anomaly detection . acm computing surveys .
+2009 ; 41 ( 3 ) : 1 - 58 . doi : 10.1145 / 1541880.1541882 42 cortes c , vapnik v . support - vector networks . machine learning .
+1995 ; 20 ( 3 ) : 273 - 297 . doi : 10.1007 / bf00994018 43 pedregosa f , varoquaux g , gramfort a , michel v , thirion b , grisel o , et al scikit - learn : machine learning in python . journal of machine learning research .
+2011 ; 12 : 2825 - 2830 . 44 smola aj , scholkopf b . a tutorial on support vector regression . statistics and computing .
+2004 ; 14 ( 3 ) : 199 - 222 . doi : 10.1023 / b : stco.0000035301.49549.88

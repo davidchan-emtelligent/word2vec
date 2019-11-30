@@ -1,0 +1,267 @@
+plos one plos one plos plosone plos one 1932 - 6203 public library of science san francisco , ca usa 29136653 5685631 10.1371 / journal.pone.0187901 pone - d - 17 - 18612 research articleresearch and analysis methodsmathematical and statistical techniquesmathematical functionscurve fittingphysical sciencesphysicsacousticsbackground noise ( acoustics ) computer and information sciencesdata managementresearch and analysis methodsimmunologic techniquesimmunoassayscomputer and information sciencessoftware engineeringsoftware toolsengineering and technologysoftware engineeringsoftware toolsmedicine and health sciencesparasitic diseasesmalariamedicine and health sciencestropical diseasesmalariaengineering and technologyindustrial engineeringquality controlbiology and life sciencesphysiologyimmune physiologyantibodiesmedicine and health sciencesphysiologyimmune physiologyantibodiesbiology and life sciencesimmunologyimmune system proteinsantibodiesmedicine and health sciencesimmunologyimmune system proteinsantibodiesbiology and life sciencesbiochemistryproteinsimmune system proteinsantibodies drlumi : an open - source package to manage data , calibrate , and conduct quality control of multiplex bead - based immunoassays data analysis drlumi : a r package for multiplex immunoassays http :// orcid.org / 0000 - 0001 - 7974 - 5256 sanz hector conceptualizationformal analysismethodologysoftwarevalidationvisualizationwriting - original draftwriting - review & editing1 * aponte john j. conceptualizationinvestigationmethodologysupervisionvalidationwriting - review & editing1 harezlak jaroslaw conceptualizationinvestigationmethodologysupervisionwriting - review & editing2 dong yan investigationmethodologywriting - review & editing2 ayestaran aintzane writing - review & editing1 nhabomba augusto writing - review & editing3 mpina maxmillian writing - review & editing4 maurin obiang regis writing - review & editing5 diez - padrisa nuria conceptualizationwriting - review & editing1 aguilar ruth conceptualizationwriting - review & editing1 moncunill gemma conceptualizationwriting - review & editing1 selidji todagbe agnandij writing - review & editing56 daubenberger claudia writing - review & editing78 dobano carlota conceptualizationwriting - review & editing1 valim clarissa conceptualizationinvestigationmethodologysupervisionvalidationwriting - review & editing910 1 isglobal , barcelona ctr. int .
+health res .
+( cresib ) , hospital clinic - universitat de barcelona , barcelona , spain 2 department of biostatistics , indiana university fairbanks school of public health , indianapolis , indiana , united states of america 3 centro de investigacao em saude de manhica ( cism ) , maputo , mozambique 4 ifakara health institute , bagamoyo , tanzania 5 centre de recherches medicales de lambarene ( cermel ) , albert schweitzer hospital , lambarene , gabon 6 institut fur tropenmedizin , university of tubingen , tubingen , germany 7 swiss tropical and public health institute , basel , switzerland 8 university of basel , basel , switzerland 9 department of immunology and infectious diseases , harvard school of public health , boston , massachusetts , united states of america 10 department of osteopathic medical specialties , michigan state university , college of osteopathic medicine east lansing , michigan , united states of america tetteh kevin k.a. editor london school of hygiene and tropical medicine , united kingdom competing interests : the authors have declared that no competing interests exist .
+* e - mail : hector.sanz @ isglobal.org 14 11 2017 2017 12 11 e0187901 15 5 2017 28 10 2017 ( c ) 2017 sanz et al 2017 sanz et althis is an open access article distributed under the terms of the creative commons attribution license , which permits unrestricted use , distribution , and reproduction in any medium , provided the original author and source are credited .
+multiplex bead - based immunoassays are used to measure concentrations of several analytes simultaneously .
+these assays include control standard curves ( sc ) to reduce between - plate variability and normalize quantitation of analytes of biological samples .
+suboptimal calibration might result in large random error and decreased number of samples with analyte concentrations within the limits of quantification .
+suboptimal calibration may be a consequence of poor fitness of the functions used for the sc , the treatment of the background noise and the method used to estimate the limits of quantification .
+currently assessment of fitness of curves is largely dependent on operator and that may add additional error .
+moreover , there is no software to automate data managing and quality control .
+in this article we present a r package , drlumi , with functions for managing data , calibrating assays and performing quality control .
+to optimize the assay the package implements : i ) three dose - response functions , ii ) four approaches for treating background noise and iii ) three methods for estimating limits of quantifications .
+other implemented functions are focused on the quality control of the fitted standard curve : detection of outliers , estimation of the confidence or prediction interval , and estimation of summary statistics. with demonstration purpose , we apply the software to 30 cytokines , chemokines and growth factors measured in a multiplex bead - based immunoassay in a study aiming to measure correlates of risk or protection from malaria of the rts,s malaria vaccine nested in the phase 3 randomized controlled trial of this vaccine .
+the work described in this publication was made possible by grants from the path - mvi ( grant 00408682 - col , gat0888 - 08 - 00374112.1 - col ) , national institutes of health ( nih ) - national institute of allergy and infectious diseases ( niaid ) , grant number r01ai095789 , the european union 's seventh framework programme for research , technological development and demonstration under grant agreement number 305869 , the ministerio de economia y competitividad ( instituto de salud carlos iii , pi11 / 00423 ) , the agencia de gestio d'ajuts universitaris i de recerca agaur , grant number 2014sgr991 .
+the content of this publication is solely the responsibility of the authors and does not necessarily represent the official views of any of the funders.data availabilityall relevant data are within the paper and its supporting information files .
+data availability all relevant data are within the paper and its supporting information files .
+introduction multiplex bead - based immunoassays are used to measure concentrations of several cytokines and chemokines , antibodies , or other proteins simultaneously saving sample volume , money , and time .
+one of the common technologies used for several assays is luminex systems [ 1 ] .
+these assays have been widely applied in biomarker studies , or more generally in studies searching correlates with diagnosis , immunity , and vaccine - induced protection [ 2 - 5 ] .
+generally , in these assays , sets of magnetic beads are pre - gated on a known fluorescence signal , thus allowing multiplex analyte detection .
+when the assay kits are prepared , each set of beads with a corresponding fluorescence signal is coated with antibodies targeting to capture a specific analyte .
+the different sets of beads , targeting each analyte of interest , are mixed with the subject 's liquid samples in plates and are allowed to capture all existing analytes in the samples .
+a second antibody is then added to the plate that binds to the analyte captured by the antibodies adhered to the beads , making a sandwich with the analyte to be quantitated .
+the assay final raw output is the median fluorescence intensity ( mfi ) over all beads containing the corresponding analyte that are captured by the reader [ 1,2,6 ] .
+commonly , to calibrate inherent assay variability and quantitate analyte concentrations , each plate includes wells containing increasing serial dilutions of a reference sample with known concentration of each analyte , also called standard samples .
+mfis from these wells are used to fit a sigmoidal ( often a 5 parameter log - logistic ) curve , called standard curve , with the mfi as a function of the concentration of the analyte in the standard samples .
+to calibrate each subject 's response , the mfi of the subject sample is converted to analyte concentration using the standard curve .
+the minimum and maximum concentrations of an analyte that can be reliably quantitated are called lower and higher limits of quantification ( lloq and hloq ) , respectively .
+additionally , to estimate the background noise , negative controls containing no analyte , also called blank controls , are included in each assay plate .
+the mfi of these negative or blank controls is usually subtracted from the mfi of the standard samples before fitting the standard curve in an attempt to control inherent noise .
+when pre - processing the data from the assay , several analytical factors may result in sub - optimal calibration and ultimately lead to failure to quantitate a large amount of samples because concentrations are outside the limits of quantification ( loq ) , including a poorly fitted standard curve and the method used to estimate the loqs .
+additionally , the approach used to account for the background noise when estimating standard curves can also affect the fitting of the standard curves and impact the assay calibration and number of samples quantitated .
+ultimately , when analyzing assay data , these problems may result in : substantial amount of missing data in some analytes ; excessive " noise " in the data decreasing analytical precision and " study power " ; and differential error of measurement and biases .
+several packages are available in the r statistical environment [ 7 ] to fit nonlinear models and analyze dose - response data , including drc [ 8 ] and ncal [ 9 ] .
+these packages allow fitting models using a variety of parametric curves to calibrate samples .
+drlumi package was customized to multiplex bead immunoassays based on luminex ( r ) technology , although it could be easily expanded to other assays .
+drlumi adds to the functionality of the aforementioned packages via : i ) prompt reading and automating management of data from multiplex immunoassay ; ii ) producing metrics to quality assurance / quality control ( qa / qc ) of the assay ; iii ) providing four alternative approaches to manage background noise ; and iv ) containing three approaches to estimate loqs using standard curves estimated through the four - and five - parameter log - logistic and exponential models .
+the functionality added by the package helps to increase accuracy and precision of the assay in several ways including : i ) decreases operator errors when manually managing data or empirically curating curves and identifying outliers ; ii ) allows real - time monitoring and correction of problems with operators or instruments ; iii ) provides approaches to fit more precise standard curves allowing more precise quantification of analytes in each plate ; iv ) allows more precise quantification of analytes by defining a boundary mfi to be used in quantification that optimizes precision .
+all functions in the package are written in the r programming language and several of them rely on other r packages easily downloadable , e.g. reshape and hmisc .
+the r environment is open - source and available online under the gnu general public license ( gplv2 ) .
+this article provides an overview on the usage of the main functions of the package and examples of the implemented methods with a real - life dataset .
+methods drlumi is based on the following core functions : data _ selection , scluminex , loq and generic plot and summary functions. through these functions , the package can automatically read and format the assay data to be used in the pre - processing or lower - level analyses .
+however , the data used to estimate standard curves do not need to be produced by the package and the user may prefer to provide to the package a dataset managed elsewhere .
+additional core functions of drlumi are dedicated to pre - processing the data , i.e. , to the estimation of standard curves and calibration of " real - life " test samples with the corresponding curves , and to the automation of qa / qc of the estimated standard curve and the assay in general .
+also , it is possible to flag samples once they are identified as errors due to wells contamination or pipetting errors , for example , and the package will not use those samples for fitting the standard curve .
+this allows tracking all fitting process .
+the methods used by each of those functions are further discussed below .
+automatic data extraction and management generally , the instrument that reads the assay is connected to software that produces a report including the mfi of standard samples , negative controls and test samples .
+drlumi has implemented two specific functions for managing data when the software that produces this report ( a raw data ) is the xponent ( r ) software ( s1 file ) .
+the package reads this report as a dataset and using the data _ selection function extracts and formats the variables and samples from this report into analyzable datasets .
+the xponent software 3.1 version produces two types of datasets from every assay : i ) in one the unit is a bead analyte - specific and associated with this bead is its fluorescence intensity ( one dataset for each analyte ) ; ii ) in a second dataset the unit is a sample with the mfi over all beads detected .
+the lum _ import function allows importing both types of csv raw datasets .
+if mfi sample data are imported , a list with all identified datasets and variables is returned and if bead data are imported , all bead files are combined in one dataset .
+when applying the lum _ export function to a lum _ import class object , the function returns all datasets in a proper format to work with and allows exporting the data into several csv files ( for fluorescence - type data ) or a compressed file ( for bead - type data ) .
+models for the calibration curve given the underlying biological assumption of these assays , the mfi as a function of concentration is expected to be non - linear , more specifically , sigmoidal with a saturation point after a concentration threshold .
+the 5 - parameter log - logistic ( 5 - parameter ll ) functions have often been used to represent this sigmoidal function because they allow the upper and lower asymptotes to have different lengths .
+however , depending on the specific assay , the 5 - parameter ll does not fit well the data or even does not converge .
+for instance , depending on the number of wells / points used to estimate the curve or when the data fall entirely in one asymptotic region [ 10 ] , the 4 - parameter ll fit may be more appropriate .
+also , when several analytes are multiplexed , some standard curves used to calibrate the assay may never reach the upper asymptote while others do reach it , given the maximum concentration of controls for the different analytes .
+this may happen because the assay and corresponding dilutions are planned to be optimal for the majority of but not necessarily for all analytes .
+in these cases , an exponential fit may be more appropriate for the standard curve .
+since data from immunoassays are often heteroscedastic , the three non - linear models are fit using logarithm base 10 transformed data to stabilize the variance [ 11 ] .
+using base 10 logarithms , the parameterization of the five - parameter logistic function implemented in the package [ 10 ] is f ( x ; b,c,d,e,f )= c + d - c ( 1 + 10b ( x - e )) f where c is the lower asymptote , d is the upper asymptote , e is the concentration that produces a response halfway between c and d , b is the slope around the e parameter and f is the asymmetry for the slope .
+the asymmetry parameter allows the length of lower and upper asymptotes to be different .
+the four - parameter logistic function , has the same expression as the five - parameter when the asymmetry parameter is fixed to be one : f ( x ; b,c,d,e )= c + d - c1 + 10b ( x - e ) the exponential growth function is parameterized as : f ( x ; y0,b )= y010xb where b is the growth rate and y0 is the response in the absence of the analyte .
+treatment of blank controls blank controls are defined in this text as samples estimating the background noise level .
+often in multiplex immunoassays , these samples contain only buffer ( solution used in all plates wells ) and no analyte .
+in average , across several runs of an unbiased assay ( no systematic background signal ) , the mfi of blank controls shall be close to 0 .
+however , real life assays have random error and thus , the mfi of blank control wells varies across plates .
+the scluminex function implements four methods to account for the background noise estimated by the blank controls when fitting standard curves .
+these estimates can be based on the geometric mean ( gm ) of the blank control , if more than one blank control well is included in the assay , or be based on a single blank control well .
+traditionally , in immunoassays , the mfi of blank control is subtracted off from the mfi of the standard or test well .
+thus , the package implements the " subtract " method in which , the background noise measured by the blank control mfi is subtracted from every observed point of the standard curve before fitting the curve .
+subtracting the blank controls may oftentimes result in poor fitness of the standard curves and adversely affect assay output , as illustrated in cartoons showed in fig 1 .
+heuristically , the lower asymptote of a curve represents the absence of analyte and shall approximate the mfi produced by the background noise .
+subtracting off the background from the curve is equivalent to removing the lower asymptote .
+curves without the lower asymptote will have large variances ( lower reliability ) reflecting the fact that they are poorly fit .
+in practice , the lower asymptote estimated with a few highly diluted wells including nearly 0 analyte concentrations shall correspond to the background noise ( absence of analyte ) .
+the observed mfi in the blank control well in a plate shall be equal to the true mfi of the background signal ( expected to be 0 in an unbiased assay ) plus a random error .
+the random error of the background signal in a given plate cannot be assumed to be the same of the random error in other wells containing more concentrated samples , particularly in a non - linear function .
+subtracting the mfi of the blank control well from all other wells may add and not subtract error from the assay because it relies on an assumption that the random error was the same in all plate wells .
+moreover , this subtraction for values close to the asymptote level may generate negative mfis that after logarithm transformation will be excluded from the curve fitting .
+the actual assay data cannot be lower than 0 .
+10.1371 / journal.pone.0187901.g001 fig 1 cartoon showing the influence of the subtract method into the standard samples .
+background noise calculated as the geometric mean of the blank controls is shown as a horizontal dashed line .
+( a ) standard curve plotting the mfi in the original scale as a function of concentration ; ( b ) standard curve plotting the mfi in the original scale as a function of concentration after subtracting the mfi of the blank control from all standard samples ; ( c ) standard curve plotting the mfi in the log10 scale as a function of concentration ; and ( d ) standard curve plotting the mfi in the log10 scale as a function of concentration after subtracting the mfi of the blank control from all standard samples .
+in the second method , " ignore " , the background is ignored , and therefore the blank controls are not taken into account when fitting the standard curve .
+this allows the left tail of the curve , when the dilution of the reference sample is very high , to asymptotically approach the true background value .
+adjustments for assay background in this case , are handled by the lower limits of quantification of the assay .
+in the third method , " include " , the background is included as another point when fitting the standard curve using the gm of the blank controls .
+the expected concentration of the blank control well to be added to the curve is assumed to be equal to the minimum expected concentration value of the standard divided by the dilution factor .
+this method may result in inappropriately extending the standard curve and may be used in very specific circumstances since it is fully dependent on the blank controls characteristics .
+on one hand , if the blank controls are contaminated , obtaining an abnormally large value , for example , the lower asymptote estimation of the standard curve will be totally biased ( getting a poorer standard curve ) .
+on the other hand , if there are not enough dilutions of the standard samples , the extra standard sample using the background information will influence data similarly to an outlier due to the fact that the standard points have not reached the lower asymptote .
+therefore , this method is especially useful when the standard curves have enough dilutions and the blank controls are reliably measured .
+finally , the fourth implemented method , " constraint " , consist in constraining the lower asymptote of the model to the background noise .
+in this last method one less parameter will be estimated ( c parameter for the five and four - parameters log - logistic functions and y0 for the exponential growth function ) .
+plots and statistics useful for qa / qc calling the r generic plot function to a scluminex object creates a standard curve or residuals plot either for all analytes or for one specific analyte .
+when plotting the standard curve , depending on the user 's specification , the confidence interval or the prediction interval can be shown .
+the confidence interval corresponds to the prediction interval of the regression and is estimated using all wells of the standard reference of a plate using the t - student distribution .
+while reliable curves with narrow confidence intervals have all points lying on or close to the fitted curve , unreliable curves have large intervals and observed values are more distant from the curve .
+the plot also includes the gm of the blank controls if background information was given to the scluminex function .
+if after examining the appropriate statistics the user identifies an outlier among the observed data points and decides to flag it so that the point is excluded from the curve fitting , the function includes the flagged point in the plot ( as an empty circle ) although the point is not used in the estimation of the plotted curve .
+this way all steps in the qa / qc process are recorded .
+an important feature of the package is to provide an objective assessment to judge points of the standard curve that may result in poor fitness because of mistakes in the assay .
+generally , decisions about outlying observations are based on subjective assessment of investigators .
+in the package , the standardized residuals of the curve can be plotted as a function of the fitted values and points beyond a user - specified cutoff are marked with the well position in order to easily identify outliers .
+the function get _ outliers allows identifying residuals that are beyond a specified cutoff and all information related to this point is shown ( analyte , plate and well ) .
+moreover , a normal quantile - quantile plot of the standardized residuals can also be obtained .
+additional functions of the package to support qa / qc are the get _ outliers function and the intra _ icc function .
+methods to estimate the limits of quantification ( loq ) the methods implemented for estimation of the loqs are based on standard curves .
+heuristically , ideal loqs would restrict the quantification of concentration to samples with mfi within the portion of the standard curve that is " approximately " linear , since this is the portion of the curve in which mapping of mfi to concentration can be done more reliably .
+in the extreme , mfis located at the asymptote of the curves cannot be mapped to a unique concentration value .
+the three approaches included in the package have been described in the literature [ 12 - 14 ] and are called : " derivative " , " interval " , and " coefficient of variation " .
+each method focuses on a specific aspect of the standard curve .
+the derivative method is based on the second order derivative of the standard curve model [ 12 ] .
+the maximum and minimum values of the second order derivative are the hloq and lloq , and are estimated through the roots of the third derivative .
+the package calculates the derivatives analytically for the three models implemented to fit standard curves .
+the interval method is based on the coefficients associated with the asymptotes of the models [ 13 ] .
+the lloq is the concentration value at the intersection of the lower boundary of the prediction interval of the standard curve and the upper boundary for the confidence interval for the coefficient of the lower asymptote estimated by the model ( if this confidence interval is estimable ) .
+similarly , the hloq is the concentration value at the intersection between the upper boundary of the prediction interval of the standard curve and the lower boundary of the confidence interval for the coefficient of the upper asymptote estimated by the model ( if this confidence interval is estimable ) .
+the level of confidence can be specified by the user .
+the coefficient of variation method is based on the estimation of the coefficient of variation of the fitted concentration values [ 14,15 ] .
+using the delta method , the package estimates the standard error ( se ) of the fitted concentration conditional on the observed mfi [ 16 ] , and then calculates the coefficient of variation ( cv ) as e ( se ( x ) ln ( 10 )) 2 - 1 where se ( x ) is the standard error of the fitted concentration .
+for a specific coefficient of variation cutoff , the lloq and hloq are calculated as the fitted concentration values whose coefficient of variation is lower or equal to the specified cutoff ( by default 20 %) .
+in practice , the derivative method constrains the quantification of concentrations through the standard curve to the nearly linear part of the curve .
+the interval method constrains the loq to values that are statistically significantly different from the asymptote values .
+the coefficient of variation method results in loqs with variability lower than the specified cv. the choice among methods depends on the assay and the analyte .
+ideally one wants to choose an approach that allows quantitating the maximum number of samples while keeping the loqs of all plates above the background noise and limits of detection ( lods ) .
+a more detailed documentation of all these features with additional examples and figures of all functions are included in the vignette of the package ( https :// cran.r - project.org / package = drlumi ) .
+package availability and requirements for installation the drlumi package itself is available as supporting file ( s2 file ) .
+in addition , it is freely available at https :// cran.r - project.org / package = drlumi .
+the package requires the r software version 3.2.2 or above and some additional packages that will be installed with the package , if the user does not have them installed in their r environment .
+additional instructions about installation and use of the package can be found at the url : https :// cran.r - project.org / web / packages / drlumi / vignettes / drlumi.pdf results and discussion fig 2 shows the functions and methods implemented in the package .
+the main function of the package , scluminex , is used to fit the calibration curve and allows the estimation of the concentration of the test samples .
+this function requires a dataset with mfi and expected concentration of the standard samples organized in the following columns : the identification of the plate / experiment ; the well position in the plate ; the name of the analyte ; the sample identification ; the mfi ; and the expected concentration .
+the scluminex function has default names for all the columns but the user can specify the name depending on the dataset ( fig 3a ) .
+optionally , another dataset with the negative controls can be used to include their information when estimating the calibration curve .
+the columns of this dataset should have the same names as the standard dataset ( fig 3b ) .
+as explained in the methods , the user can provide to scluminex the data adequately pre - formatted or the package can automatically generate the necessary data for scluminex through use of lum _ import , when the software used in the device that generates data is the xponent ( r ) 3.1 .
+10.1371 / journal.pone.0187901.g002 fig 2 schematic representation of the functions and arguments included in the drlumi package .
+the names of the functions are shown inside blue boxes , options and names of arguments of the functions are shown inside red ellipses .
+the green boxes show the starting points of the flow depending on the origin of the raw data .
+10.1371 / journal.pone.0187901.g003 fig 3 format of the input dataset used by the package .
+( a ) dataset user can create for the package ; ( b ) package automated data management : datasets produced by the package when data is automatically extracted from the assay machine .
+the function scluminex can fit standard curves based on the three parametric nonlinear least squares models described above [ 11 ] : 5 - parameter ll , 4 - parameter ll , and 2 - parameter exponential growth .
+although the parameterization of the models is in logarithm scale , as described previously , the user should input mfis and theoretical concentrations in the original scale .
+the package fits these three models sequentially .
+for example , first a 5 - parameter ll model is fit that may not converge , i.e. , the numerical algorithm cannot attain a maximum for the optimization function and estimate parameters .
+in case of non - convergence , the 4 - parameter ll is automatically fitted ( and the user is informed about the non - convergence and change of model ) ; if the 4 - parameter ll also does not converge , the exponential growth model is automatically fitted .
+therefore , models across analytes can differ .
+the user can change this default option and specify the order of the models to be fitted ( if more than one is specified ) or specify only one model that will be used for all data .
+it is arguable , however , if a user would want to specify a single model to fit all data that it could add error to the data .
+for instance , if standard curves of a given analyte in 10 plates are fit and in 7 of them the 5 - parameter function converged and in the remaining 3 of them only the 4 - parameter ll4 converged ( or even the exponential model converged ) , the user could re - fit the standard curve of the 10 plates using the simpler model by setting an argument in the function ( lfct ) , i.e. , the 4 - parameter ( or the exponential model ) .
+however , in doing so the user is unnecessarily using a " worse " standard curve to calibrate the assay in the first 7 plates in which the 5 - parameter ll5 converged and potentially not calibrating so well the test samples .
+additional arguments to allow users to customize the assay are available including some characteristics of the nonlinear least squares algorithm , such as , the maximum number of iterations allowed .
+the coefficients of the standard curves , i.e. the parameters that determine the sigmoidal fit by analyte ( for example , the lower and upper asymptotes , the slope and the halfway value between asymptotes in a four - parameters logistic function ) , with the corresponding standard errors and t - tests to assess whether the coefficients are different from zero can be summarized for each analyte applying the as.data.frame function to a summary.scluminex object .
+these statistics may help investigators to assess the fitness of the curve .
+for instance , curves with slope not statistically significantly different from 0 may be flat and suggest problems with the specific plate .
+other useful statistics to assess the fitness of the curve and perform qa / qc of the assay are calculated : adjusted r2 [ 17 ] , the neill test [ 18 ] ( which is an anova - based lack - of - fit test ) and the akaike information criterion ( aic ) [ 19 ] .
+an additional function of the package to support qa / qc is the intra _ icc function that estimates the intraclass correlation coefficient , for instance , to assess reliability across operators .
+this function calls the icc function from the irr package [ 20 ] and all arguments of this function can be specified .
+estimation of loqs using the three different approaches is illustrated in fig 4 .
+10.1371 / journal.pone.0187901.g004 fig 4 estimation of the limits of quantification ( loq ) , based on the " derivative " ( a ) , the " interval " ( b ) , and the " coefficient of variation " methods ( c ) .
+in a solid and dashed black lines show the standard curve and the second order derivative , respectively .
+dashed blue lines show the limits of quantification .
+in b , solid and dashed red lines show the asymptote coefficients and the 95 % confidence interval , respectively .
+dashed blue lines show the loq , and dashed black lines show the 95 % prediction interval of the standard curve .
+in c , solid red and black lines show the coefficient of variation ( cv ) estimated for each fitted concentration and the standard curve , respectively .
+dashed blue lines show the loq , and the dashed black line shows the user specified cv cutoff .
+to demonstrate the use of the drlumi package , a toy dataset based on real data from a study about correlates of protection from malaria with the rts,s / as01e malaria vaccine has been analyzed [ 21 ] .
+this trial is registered with clinicaltrials.gov , number nct00866619 .
+the figures and statistics were generated with the package ( code available in the package inst / extdata / toydata.r folder ) .
+four analytes were created based on a 4 - parameter ll model emulating a real study assay to exemplify different scenarios .
+therefore , each generated analyte is exemplifying a potential scenario that can be found in a real multiplex immunoassay in which one antigen can present outliers and the others do not .
+the four scenarios ( analytes ) were analyzed using the drlumi package , in a single dataset as in usual multiplex immunoassays .
+two blank controls were used for the estimation of the background noise .
+although drlumi could fit standard curves using any number of dilutions determined by the number of data - points specified for the curves in the dataset or the plate map , the assays that motivated the toy data had curves with 16 serial dilutions .
+therefore , the toy example had 16 serial dilutions ( 1:2 ) and the first dilution ( highest concentration ) was duplicated ( thus , a total of 17 points ) .
+in the first scenario ( analyte 1 , fig 5a ) , all 17 points were used in the fit of the curve ; there were no outliers .
+in the second scenario ( analyte 2 ) , instead of observing 17 points , only 10 points were analyzed .
+in the third scenario ( analyte 3 ) , only 10 points were observed and 1 of those was an outlier that was created by randomly assigning a standard deviation to these points two times larger than the standard deviation of the original data .
+in the fourth scenario ( analyte 4 ) , all 17 points were observed but 2 of those were outliers .
+the four - parameter log - logistic function was fitted for all scenarios .
+the blank controls in the four scenarios were obtained from the same real assay .
+10.1371 / journal.pone.0187901.g005 fig 5 standard curves based on the four - parameter log - logistic model ( fct ) fitted using the four alternative approaches to treat background noise ( bkg ) in the four emulated datasets .
+the dashed lines represent the confidence interval of the curve , and the green line represents the geometric mean of the blank controls .
+rs = r - square .
+( a ) standard curve fitted using " ignore " background noise method ; ( b ) standard curve fitted including the background noise as an extra point when fitting the curve , using " include " background method ; ( c ) standard curve fitted subtracting the background noise using the " subtract " method ; ( d ) standard curve fitted constraining the lower asymptote to the background noise using the " constraint " method .
+for each scenario , the four background methods were fitted ( fig 5a - 5d ) and the standardized residuals plots ( fig 6a - 6d ) obtained .
+in all cases , points with absolute value larger than two were considered outliers .
+in the analyte 3 scenario , there was a point that visually seemed an outlier but had a residual lower than 2 in all methods except in the include and constraint , where the point was identified as an outlier .
+after identifying the outliers and generating a flag variable into the dataset with the get _ outliers function , we fitted and plotted again the curve with the scluminex and the plot.scluminex functions to generate the same plots with the flagged points .
+curves ( fig 7a - 7d ) and standardized residual plots ( fig 8a - 8d ) were fitted using the four approaches to account for background noise .
+the flagged points are identified in the standard curve plot as non - filled points .
+the residual plots of the newly fitted curves showed new points with residual larger than the cutoff value of two .
+for the include background method the gm of the two blank controls was identified as an outlier for analyte 1 .
+10.1371 / journal.pone.0187901.g006 fig 6 standardized residuals as a function of the predicted base 10 logarithm median fluorescence intensity ( mfi ) for the four emulated datasets based on standard curves fitted using the four different approaches to treat background noise .
+points outside of the range specified by the dashed lines are in red and labeled according to the well location in the 96 - well plate .
+( a ) standard curve fitted using " ignore " background noise method ; ( b ) standard curve fitted including the background noise as an extra point when fitting the curve , using " include " background method ; ( c ) standard curve fitted subtracting the background noise using the " subtract " method ; ( d ) standard curve fitted constraining the lower asymptote to the background noise using the " constraint " method .
+10.1371 / journal.pone.0187901.g007 fig 7 standard curves based on the four - parameter log - logistic model ( fct ) fitted using the four alternative approaches to treat background noise ( bkg ) in the four emulated datasets after the outliers identified in fig 5 were flagged ( empty circles ) .
+the dashed lines represent the confidence interval of the curve , and the green line represents the geometric mean of the blank controls .
+rs = r - square .
+( a ) standard curve fitted using " ignore " background noise method ; ( b ) standard curve fitted including the background noise as an extra point when fitting the curve , using " include " background method ; ( c ) standard curve fitted subtracting the background noise using the " subtract " method ; ( d ) standard curve fitted constraining the lower asymptote to the background noise using the " constraint " method .
+10.1371 / journal.pone.0187901.g008 fig 8 standardized residuals as a function of the predicted base 10 logarithm median fluorescence intensity ( mfi ) for the four emulated datasets based on standard curves fitted after outliers were flagged and using the four different approaches to treat background noise .
+points outside of the range specified by the dashed lines are in red and labeled according to the well location in the 96 - well plate .
+( a ) standard curve fitted using " ignore " background noise method ; ( b ) standard curve fitted including the background noise as an extra point when fitting the curve , using " include " background method ; ( c ) standard curve fitted subtracting the background noise using the " subtract " method ; ( d ) standard curve fitted constraining the lower asymptote to the background noise using the " constraint " method .
+summary statistics before and after exclusion of outliers for the subtract method were generated using the generic r function summary and as.data.frame to a scluminex object ( table 1 ) .
+using this method , points with lower mfis than background were automatically excluded because they obtained negative mfis ; therefore , 15 points for analyte 1 and analyte 4 were analyzed .
+aic and goodness - of - fit statistics ( neil test p - value ) were automatically estimated by the package but aic should be compared across same datasets ( same analytes and same number of observations ) .
+10.1371 / journal.pone.0187901.t001 table 1 comparison of automatically generated results provided by the package before / after flagging outliers for the subtract background method for the simulated analytes .
+in analyte 1 no outliers and no missing values were included , in analyte 2 seven missing values were included , in analyte 3 one outlier and seven missing values were included and in analyte 4 two outliers were included in the original simulated data .
+only in analyte 4 outliers were flagged by the package and their removal changed results .
+for analyte 4 , the limits of quantification for the coefficient of variation method could not be estimated with all data due to the fact that the minimum coefficient of variation value was larger than the specified 30 % cutoff .
+subtract blank control analyte 1 analyte 2 analyte 3 analyte 4 before / after standard points , n 15 10 10 15 / 14 r2 1.00 1.00 0.96 0.90 / 0.97 akaike information criteria - 51.6 - 35.3 4.1 18 / 0.9 neill test p value 0.05 0.10 0.40 0.17 / 0.18 outliers detected , n 0 0 0 1 / 1 derivative method loq , log 10 scale ( 0.16 ; 2.1 ) ( 0.05 ; 2.14 ) ( 0.29 ; 2.29 ) ( 0.61 ; 2.44 ) / ( 0.38 ; 2.09 ) dynamic range , log 10 scale 1.94 2.09 2 1.81 / 1.71 interval method ( 95 % ci ) loq , log 10 scale ( - 0.03 ; 3.88 ) ( - 0.03 ; 3.58 ) ( 1.63 ; 1.68 ) ( 1.63 ; 2.11 ) / ( 1.1 ; 2.00 ) dynamic range , log 10 scale 3.91 3.61 0.05 0.48 / 0.9 coefficient of variation method ( 30 % cutoff ) loq , log 10 scale ( - 0.03 ; 3.56 ) ( - 0.03 ; 3.46 ) ( 0.34 ; 1.97 ) - - / ( 0.31 ; 2.11 ) dynamic range , log 10 scale 3.59 3.49 1.63 - - / 1.81 the loqs based on the three methods were estimated in this dataset ( table 1 ) ; for the coefficient of variation method the specified cutoff was 30 % , although oftentimes a cutoff of 20 % or less may be desirable .
+for the interval method the 95 % level of confidence was used .
+the dynamic ranges ( difference between hloq and lloq ) are shown .
+the loq could not be estimated before flagging outliers for analyte 4 because the minimum coefficient of variation obtained from all fitted concentration range was greater than 30 % so all coefficients of variation were above the specified cutoff. of note , the package estimates loqs specific to a plate and the standard curve of the plate instead of estimating a single lloq and hloq applicable to the entire assay .
+standard curve shape and range parameter estimates may vary across plates and this variation is what allows curves to be used to calibrate random plate - to - plate variability of a test sample .
+background signal of blank controls also vary with the same factors that affect standard curve variability .
+therefore , when estimating loqs based on standard curve , we believe that the concentrations of an analyte in a test sample that can be reliably quantitated can be better estimated through the range and the variability of the curve in the plate the test sample is included .
+for instance , a plate with larger assay variability shall have a standard curve with larger variance .
+therefore , in this plate , a cv of 20 % will correspond to a higher threshold of mfi or concentration than the threshold in a plate with low variability in which standard curves presented narrow variability of the standard curve and its parameters .
+part of a qa / qc report using results generated by the package based on real multiplex immunoassay experiment is shown in supporting information ( s3 file ) .
+in this experiment , a panel with 30 analytes was analyzed and all information generated by the package was used : summary of coefficients , standard curves figures , residuals and limits of quantification .
+conclusions the drlumi package implements several tools to pre - process multiplex immunoassay data .
+the package includes alternative methods to account for background noise ( estimated by blank controls ) when fitting the standard curves , to estimate the loq , and to automate qa / qc. additionally , the function helps the analyst to automatically read data generated by xponent ( r ) 3.1 software .
+these features result in a faster and more adequate data pre - processing , and as a result , more powerful and accurate analysis of biomarkers , correlates of protection or any other analysis of association based on multiplex bead immunoassays .
+although the package is particularly tailored to assays based on luminex systems technology it can be easily expandable in the future to analyze data of other technologies , such as somascan assays .
+we are permanently maintaining the package and plan a new release with a more user - friendly interface so that laboratory investigators not acquainted with the r software could easily use the package functionality .
+the package can replace with advantages other packages commercially available distributed by companies that produce multiplex bead based assays .
+supporting information s1 file example of a raw data file generated by the xponent ( r ) software and importable by the drlumi package .
+( csv ) click here for additional data file .
+s2 file the drlumi package .
+( tar ) click here for additional data file .
+s3 file example of quality assurance / quality control ( qa / qc ) report developed using drlumi when monitoring the conduct of a multiplex bead immunoassay analyzing samples from a study about correlates of protection in malaria .
+( pdf ) click here for additional data file .
+we thank all the volunteers of the rts,s immune correlates study ( mal067 ) , an ancillary study of the rts,s phase iii african pediatric clinical trial , without whom mal067 would not be possible .
+we thank the mal055 clinical team , the field and laboratory personnel from the cermel , cism and ihi .
+we are also grateful to the members of the mal067 vaccine immunology workgroup ( viw ) , its working groups ( statistical and cellular ) and management team ( nana aba williams and claudia hernandez ) , and to diana barrios and personnel from isglobal for luminex support .
+we also thank glaxosmithkline for providing information related to the mal067 study samples .
+references 1 elshal mf , mccoy jp . multiplex bead array assays : performance evaluation and comparison of sensitivity to elisa . methods ( san diego , calif ) .
+united states ; 2006 ; 38 : 317 - 323 . doi : 10.1016 / j.ymeth.2005.11.010 16481199 2 moncunill g , aponte jj , nhabomba aj , dobano c . performance of multiplex commercial kits to quantify cytokine and chemokine responses in culture supernatants from plasmodium falciparum stimulations . plos one .
+2013 ; 8 doi : 10.1371 / journal.pone.0052587 23300981 3 berthoud tk , manaca mn , quelhas d , aguilar r , guinovart c , puyol l , et al comparison of commercial kits to measure cytokine responses to plasmodium falciparum by multiplex microsphere suspension array technology . malaria journal .
+biomed central ltd ; 2011 ; 10 : 115 doi : 10.1186 / 1475 - 2875 - 10 - 115 21554671 4 valim c , ahmad r , lanaspa m , tan y , acacio s , gillette ma , et al responses to bacteria , virus , and malaria distinguish the etiology of pediatric clinical pneumonia . american journal of respiratory and critical care medicine .
+united states ; 2016 ; 193 : 448 - 459 . doi : 10.1164 / rccm.201506 - 1100oc 26469764 5 muller b , harbarth s , stolz d , bingisser r , mueller c , leuppi j , et al diagnostic and prognostic accuracy of clinical and laboratory parameters in community - acquired pneumonia . bmc infectious diseases .
+england ; 2007 ; 7 : 10 doi : 10.1186 / 1471 - 2334 - 7 - 10 17335562 6 moncunill g , campo jj , dobano c . quantification of multiple cytokines and chemokines using cytometric bead arrays in : vancurova i , editor .
+cytokine bioassays : methods and protocols .
+new york , ny : springer new york ; 2014 pp .
+65 - 86 . doi : 10.1007 / 978 - 1 - 4939 - 0928 - 5 _ 6 7 r core team .
+r : a language and environment for statistical computing [ internet ] .
+vienna , austria ; 2014 http :// www.r - project.org / 8 ritz c , streibig jc , ritz c . & streibig jc . bioassay analysis using r . journal of statistical software .
+2005 ; 12 : 1 - 22 . 9 fong y , sebestyen k , yu x , gilbert p , self s . systems biology ncal : an r package for non - linear calibration . bioinformatics .
+2013 ; 29 : 2653 - 2654 . 23926226 10 gottschalk pg , dunn jr . the five - parameter logistic : a characterization and comparison with the four - parameter logistic . analytical biochemistry .
+2005 ; 343 : 54 - 65 . doi : 10.1016 / j.ab.2005.04.035 15953581 11 bates dm , watts dg . nonlinear regression analysis and its applications .
+new york , chichester : j. wiley ; 12 ritz c , spiess a - n . qpcr : an r package for sigmoidal model selection in quantitative real - time polymerase chain reaction analysis . bioinformatics ( oxford , england ) .
+2008 ; 24 : 1549 - 1551 . doi : 10.1093 / bioinformatics / btn227 18482995 13 quinn cp , semenova v a .
+, elie cm , romero - steiner s , greene c , li h , et al specific , sensitive , and quantitative enzyme - linked immunosorbent assay for human immunoglobulin g antibodies to anthrax toxin protective antigen . emerging infectious diseases .
+2002 ; 8 : 1103 - 1110 . doi : 10.3201 / eid0810.020380 12396924 14 defawe od , fong y , vasilyeva e , pickett m , carter dk , gabriel e , et al optimization and qualification of a multiplex bead array to assess cytokine and chemokine production by vaccine - specific cells . journal of immunological methods .
+elsevier b.v. ; 2012 ; 382 : 117 - 128 . doi : 10.1016 / j.jim.2012.05.011 22626638 15 gottschalk pg , dunn jr . determining the error of dose estimates and minimum and maximum acceptable concentrations from assays with nonlinear dose - - response curves . computer methods and programs in biomedicine .
+2005 ; 80 : 204 - 215 . doi : 10.1016 / j.cmpb.2005.08.003 16256244 16 oehlert gw . a note on the delta method .
+1992 ; 46 : 27 - 29 . 17 theil h . economic forecasts and policy .
+north - holland , amsterdam ; 1961 . 18 neill jw . testing for lack of fit in nonlinear regression . the annals of statistics .
+institute of mathematical statistics ; 1988 ; 16 : 733 - 740 . http :// www.jstor.org / stable / 2241752 19 sakamoto y , ishiguro m , kitagawa g . akaike information criterion statistics [ internet ] .
+tokyo : ktk dordrecht ; 1986 http :// opac.inria.fr / record = b1135735 20 gamer m , lemon jim singh ifp . irr : various coefficients of interrater reliability and agreement [ internet ] .
+2012 http :// cran.r - project.org / package = irr 21 moncunill g , mpina m , nhabomba aj , aguilar r , ayestaran a , sanz h , et al distinct th1 and th2 cellular responses associated with malaria protection and risk in rts,s / as01e vaccinees . clin infect dis .
+2017 ; 65 : 746 - 755 . doi : 10.1093 / cid / cix429 28505356

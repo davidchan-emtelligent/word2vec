@@ -1,0 +1,233 @@
+plos one plos one plos plosone plos one 1932 - 6203 public library of science san francisco , ca usa 29141013 5687723 10.1371 / journal.pone.0188406 pone - d - 17 - 35696 research articleresearch and analysis methodsdatabase and informatics methodsbioinformaticssequence analysissequence motif analysisbiology and life sciencesbiochemistryhormonesplant hormonescytokininsbiology and life sciencesbiochemistryplant biochemistryplant hormonescytokininsbiology and life sciencesplant scienceplant biochemistryplant hormonescytokininsbiology and life sciencesgeneticsmutagenesisbiology and life sciencesmolecular biologymolecular biology techniquesartificial gene amplification and extensionpolymerase chain reactionresearch and analysis methodsmolecular biology techniquesartificial gene amplification and extensionpolymerase chain reactionresearch and analysis methodsexperimental organism systemsmodel organismsarabidopsis thalianaresearch and analysis methodsmodel organismsarabidopsis thalianabiology and life sciencesorganismseukaryotaplantsbrassicaarabidopsis thalianaresearch and analysis methodsexperimental organism systemsplant and algal modelsarabidopsis thalianaresearch and analysis methodsdatabase and informatics methodsbioinformaticssequence analysissequence alignmentbiology and life sciencesbiotechnologybioengineeringsynthetic bioengineeringgenome engineeringsynthetic genome editingcrisprengineering and technologybioengineeringsynthetic bioengineeringgenome engineeringsynthetic genome editingcrisprbiology and life sciencessynthetic biologysynthetic bioengineeringgenome engineeringsynthetic genome editingcrisprengineering and technologysynthetic biologysynthetic bioengineeringgenome engineeringsynthetic genome editingcrisprbiology and life sciencessynthetic biologysynthetic genomicssynthetic genome editingcrisprengineering and technologysynthetic biologysynthetic genomicssynthetic genome editingcrisprbiology and life sciencesbiochemistrynucleotidesoligonucleotides indcaps : a tool for designing screening primers for crispr / cas9 mutagenesis events a tool for designing screening primers for crispr / cas9 mutagenesis events hodgens charles conceptualizationinvestigationmethodologysoftwarewriting - original draftwriting - review & editing1 nimchuk zachary l. conceptualizationproject administrationwriting - original draftwriting - review & editing12 http :// orcid.org / 0000 - 0002 - 5766 - 812x kieber joseph j. conceptualizationfunding acquisitionproject administrationwriting - original draftwriting - review & editing12 * 1 curriculum in genetics and molecular biology , university of north carolina , chapel hill , north carolina , united states of america 2 department of biology , university of north carolina , chapel hill , north carolina , united states of america kalendar ruslan editor university of helsinki , finland competing interests : the authors have declared that no competing interests exist .
+* e - mail : jkieber @ unc.edu 15 11 2017 2017 12 11 e0188406 3 10 2017 6 11 2017 ( c ) 2017 hodgens et al 2017 hodgens et althis is an open access article distributed under the terms of the creative commons attribution license , which permits unrestricted use , distribution , and reproduction in any medium , provided the original author and source are credited .
+genetic manipulation of organisms using crispr / cas9 technology generally produces small insertions / deletions ( indels ) that can be difficult to detect .
+here , we describe a technique to easily and rapidly identify such indels .
+sequence - identified mutations that alter a restriction enzyme recognition site can be readily distinguished from wild - type alleles using a cleaved amplified polymorphic sequence ( caps ) technique .
+if a restriction site is created or altered by the mutation such that only one allele contains the restriction site , a polymerase chain reaction ( pcr ) followed by a restriction digest can be used to distinguish the two alleles .
+however , in the case of most crispr - induced alleles , no such restriction sites are present in the target sequences .
+in this case , a derived caps ( dcaps ) approach can be used in which mismatches are purposefully introduced in the oligonucleotide primers to create a restriction site in one , but not both , of the amplified templates .
+web - based tools exist to aid dcaps primer design , but when supplied sequences that include indels , the current tools often fail to suggest appropriate primers .
+here , we report the development of a python - based , species - agnostic web tool , called indcaps , suitable for the design of pcr primers used in dcaps assays that is compatible with indels .
+this tool should have wide utility for screening editing events following crispr / cas9 mutagenesis as well as for identifying specific editing events in a pool of crispr - mediated mutagenesis events .
+this tool was field - tested in a crispr mutagenesis experiment targeting a cytokinin receptor ( ahk3 ) in arabidopsis thaliana .
+the tool suggested primers that successfully distinguished between wild - type and edited alleles of a target locus and facilitated the isolation of two novel ahk3 null alleles .
+users can access indcaps and design pcr primers to employ dcaps to identify crispr / cas9 alleles at http :// indcaps.kieber.cloudapps.unc.edu / .
+http :// dx.doi.org / 10.13039 / 100000001national science foundationios - 1238051http :// orcid.org / 0000 - 0002 - 5766 - 812x kieber joseph j. this work was supported by a grant from the national science foundation ( ios - 1238051 and ios - 1455607 ) https :// www.nsf.gov / div / index.jsp ? div = ios .
+the funder had no role in study design , data collection and analysis , decision to publish , or preparation of the manuscript.data availabilityall relevant data are within the paper and its supporting information files .
+data availability all relevant data are within the paper and its supporting information files .
+introduction it is often necessary to genotype biological samples to select individuals from a large population with a desired genetic variant .
+genetic variants generated by mutagenesis or natural variation can take the form of single nucleotide polymorphisms ( snps ) or insertions / deletions ( indels ) .
+sufficiently large indels can be distinguished using pcr followed by agarose or polyacrylamide gel electrophoresis ( page ) , but differences of one or two base pairs can be difficult to distinguish reliably even with page , and snp alleles are refractory to size - based genotyping .
+diagnostic tools for genotyping samples with snps or small indels include pcr - based cleaved amplified polymorphic sequences ( caps ) or derived caps markers ( dcaps ) [ 1 ] .
+a typical caps assay consists of a short amplicon centered on a restriction site present in only one genotype .
+the caps assay identifies the genotype of the individual based on whether or not the pcr product is cleaved by the differential restriction enzyme ( fig 1a ) .
+a dcaps assay can be used if there are no restriction sites differentially present in the wild - type and mutant genomic sequences .
+the dcaps assay introduces or disrupts a restriction enzyme motif near the mutation by amplifying the target sequences using an oligonucleotide primer that includes one or more mismatches relative to the template ( fig 1b ) .
+the mismatches are chosen so that following amplification , a restriction site is introduced into either the wild - type or the mutant amplified fragment , which can then be distinguished by restriction enzyme digestion followed by agarose gel electrophoresis .
+10.1371 / journal.pone.0188406.g001 fig 1 caps / dcaps markers can distinguish alleles , but output of dcaps finder 2.0 can be flawed .
+( a ) diagram of caps technique .
+an amplicon centered on a restriction site ( blue bar ) disrupted by a snp or indel ( red bar ) is differentially cleaved by a restriction enzyme ( re ) in the wild - type vs mutant .
+( b ) diagram of the dcaps technique .
+a restriction site can be introduced into either the wild - type or mutant target sequences using mismatched oligonucleotide primers to discriminate two sequences .
+the mutation ( green bar ) disrupts the introduced restriction site such that it is not cleaved by the restriction enzyme ( re ) .
+gel electrophoresis can be used to identify the size difference between the wild - type and mutant fragments in both the caps and dcaps methods .
+( c - f ) a sequence with a two base pair deletion at a crispr cut site , chosen using crispr - plant [ 12 ] , was supplied to dcaps finder 2.0 with a mismatch allowance of 1 base pair .
+a minority of proposed assays are viable ( c ) , but others possess too many mismatches for successful amplification by pcr or do not introduce diagnostic restriction sites ( d - f ) .
+as crispr / cas9 - generated mutant alleles become more prevalent , there is a growing need for a facile method for screening and genotyping indel alleles [ 2 - 5 ] .
+assays based on dcaps markers are ideal for this as they are simple , robust , inexpensive , and relatively high throughput .
+however , designing productive primers for allele - specific dcaps assays can be cumbersome .
+here , we present the development of a new web - based tool to design dcaps primers for indels that should be of general utility for analysis of crispr / cas9 - generated mutant alleles in any species .
+we demonstrate the utility of this tool using crispr / cas9 targeting of the ahk3 locus in arabidopsis thaliana .
+ahk2 , ahk3 , and ahk4 are the three receptors present in arabidopsis that are involved in the perception of cytokinin , a plant hormone regulating a diverse set of biological functions in plants [ 6 ] .
+previous studies have identified null alleles of ahk2 and ahk4 , but the previously identified ahk3 - 3 allele is hypomorphic rather than a null allele , as residual full - length ahk3 transcript was found to be present in ahk3 - 3 seedlings [ 7 ] .
+primers generated by the indcaps tool were successfully used to identify editing events at the ahk3 locus , and viable triple null mutant lines for the cytokinin histidine kinase receptors were identified .
+the indcaps tool has the potential to be an important resource for investigators seeking to find new crispr alleles or design genotyping primers for known alleles .
+materials and methods software the indcaps package was written in python ( version 3.5.2 ) and is implemented as a web application using the flask framework ( 0.12 ) , the bleach package ( 1.5.0 ) for input scrubbing , and the gunicorn wsgi http server ( 19.7.1 ) .
+it is provided through an openshift application platform available from unc - chapel hill .
+the website is available at http :// indcaps.kieber.cloudapps.unc.edu .
+the source code is available at https :// github.com / kieberlab / indcaps .
+plant growth and transformation plants were grown at 21degreesc in long days ( 16 h light ) .
+the ahk2 - 7 cre1 - 12 double mutant was transformed with pch59 , a pcut series binary expression vector containing ahk3 - targeting grna sequences and expressing plant codon optimized cas9 [ 8 ] , by the floral dip method [ 9 ] .
+putative transformants were selected on murashige and skoog media containing 50 mug / ml hygromycin and then transferred to soil and allowed to set seed .
+t2 seeds were plated on murashige and skoog plant growth media ( 2400 mg / l ms salts , 250 mg / l mes buffer ) [ 10 ] , and then seedlings were transplanted to soil and genotyped for editing at the ahk3 locus .
+detection of ahk3 mutations using dcaps oligonucleotide primers were designed to detect editing at the ahk3 locus using the indcaps tool .
+amplification of the ahk3 locus was performed with primers ahk3.dc.f and ahk3.dc.rc ( data in s1 text ) followed by digestion of the amplicon with bsa bi. digests were analyzed using gel electrophoresis with a 3 % agarose gel .
+lines lacking any wild - type digestion pattern were selected for analysis .
+sanger sequencing was used to characterize editing events as single base - pair indels and to confirm homozygosity .
+results and discussion dcaps finder 2.0 has poor compatibility with indel alleles while a web tool for the design of dcaps primers has been described [ 11 ] , it was designed primarily to detect snp alleles .
+primers generated with the tool for small indels often will not actually amplify either the wild - type or mutant sequences by pcr , or in some cases will not actually distinguish between the wild - type and mutant sequences .
+for example , an analysis of potential dcaps primers generated by the existing dcaps program ( http :// helix.wustl.edu / dcaps / dcaps.html ) for indels in several genes in a. thaliana demonstrated that as few as 15 % of the suggested primers are capable of distinguishing the provided alleles ( ahk3 , 50 % capable ; cenh3 , 14 % ; ago1 , 17 % ; med20 , 13 % ; rb1 , 15 % , see table 1 for further details ) .
+primers from dcaps finder 2.0 were examined by constructing the amplicons which the primer would generate in both the wild - type and an edited sequence and examining the amplicons for utility in a caps or dcaps assay .
+many of the primer pairs are non - functional and either do not generate a diagnostic restriction site or likely would not amplify the target dna due to alignment gaps or extensive 3 ' mismatches between the primer and one of the template sequences ( fig 1c - 1f ) .
+there are workaround methods for dcaps finder 2.0 in which the user supplies two sequences in which the terminal base is the indel , rather than placing the indel in the middle of the provided sequences .
+this approach will ignore any potential assays in which a restriction motif may overlap the indel site , as the program has no information about bases on the other side of the indel .
+the reason dcaps finder 2.0 falters on indel alleles is not clear as the source code is no longer available .
+10.1371 / journal.pone.0188406.t001 table 1 number of productive primers generated for tested loci .
+simulated amplicons were made using generated primers .
+non - productive primers did not amplify sequences capable of being distinguished with a restriction digest .
+problematic primers amplify sequences capable of being distinguished , but the reaction would likely not amplify dna due to primer defects such as 3 ' mismatches or gaps in alignment to provided sequence .
+productive primers are expected to successfully amplify dna capable of being distinguished by a restriction digestion .
+gene locus target sequence productive primers problematic primers non - productive primers ahk3 at1g27320 ggttgagatcaagatagaca 8 3 5 cenh3 at1g01370 tcacaacctcggaatcaaac 3 3 22 ago1 at1g48410 gagccttcacctccttcaga 2 5 29 med20 at2g28230 ggctgcttactgttgatcct 0 3 20 rb1 at3g12280 cccatttggttcaatgggcg 5 1 35 a web - based tool for design of primers to detect indels : indcaps a new software package , indcaps , was developed to facilitate the design of dcaps primers for indels .
+this software has also been adapted for the design of caps and dcaps oligonucleotide primers used in pcr amplification of target sequences in order to screen for editing events following crispr / cas9 - mediated mutagenesis [ 13 ] .
+the tool is available at http :// indcaps.kieber.cloudapps.unc.edu .
+the interface presents two dialog boxes to the user .
+the first box is for the generation of dcaps primers for known alleles .
+the second box is for the generation of dcaps primers for detecting unknown alleles .
+the first box requires the user to submit two sequences .
+no assumptions are made about either sequence being a wild - type or mutant allele , so order does not matter .
+ideally , each sequence is centered on the mutation of interest .
+the two sequences do not need to be the same length , but should have homology arms of at least 20 bases flanking the mutation of interest .
+the user is also asked to submit a maximum number of mismatches in the primer .
+the default value is 1 mismatch .
+increasing the maximum mismatch value should result in more enzymes being reported , but as with any dcaps assay , this may result in primers which are less likely to successfully amplify dna .
+several advanced options are also available .
+amplicon length can be specified .
+this parameter dictates how far downstream the tool examines the sequence when looking for exact matches for each restriction site .
+a restriction enzyme is rejected if there is a cleavage site in the shared downstream region , which would complicate the analysis of the diagnostic cleavage at the site of interest .
+depending on the size of the submitted sequence , the amplicon length may be longer than the sequence available to the program .
+in this case , the entire submitted sequence downstream of the primer is considered .
+if the user intends to use a paired primer lying outside the sequence supplied to the program , the user should check that either no exact restriction digests are present in the region not shown to the program or any exact restriction sites will still permit discrimination between diagnostic bands when analyzed with gel electrophoresis .
+primers can be chosen based on a strict primer length or by a target melting temperature .
+a target size may be desired if the user wishes to ensure that a sufficiently large fragment will be cleaved .
+this may be useful in gc rich areas where a primer designed to match a target melting temperature would be short , resulting in small shifts in band sizes after cleavage and electrophoresis .
+melting temperature calculations are performed using the nearest neighbor method [ 14 ] using thermodynamic parameters published by sugimoto et al .
+[ 15 ] , as implemented in the oligo calc tool [ 16 ] .
+it is necessary to assume certain information about the primer concentration and sodium ion concentration in the pcr reaction to calculate the melting temperature .
+default values have been provided , but those parameters can be modified as necessary by the user through the web interface .
+also , primers which contain terminal 3 ' mismatches are rejected by default .
+some researchers have reported that certain terminal 3 ' mismatches are compatible with pcr [ 17 - 19 ] , but due to inconsistencies in the literature , the default assumption for this tool is that 3 ' mismatches will not amplify .
+if the user wishes to allow certain 3 ' mismatches , the option is available .
+if enabled , 3 ' g / t mismatches are ignored .
+the second box presented by the tool to the user permits screening for mutagenesis events in a crispr - mediated mutagenesis experiment .
+the box requires the user to submit the wild - type genomic sequence the user intends to target .
+the sequence should contain at least twenty bases on each side of the cleavage site .
+the user should also include the crispr target site oriented 5 ' to 3 ' , not including the pam .
+the crispr target sequence is not required to be in the same orientation as the wild - type sequence .
+the tool assumes that the last base of the provided sequence immediately precedes the pam if aligned to the wild - type sequence and that cleavage occurs at the - 3 position .
+the mismatch max parameter behaves as it does in the first box .
+the final major parameter is the acceptable loss threshold , which is the percent of editing events the user is willing to miss with their screening .
+lower values mean the user wants to detect more editing events .
+higher values mean the user is willing to accept missing certain editing events .
+missed editing events , in this context , are most likely to occur if an insertion event occurs relative to an enzyme with degenerate bases in its recognition motif .
+the advanced options are the same as for those in the first box .
+an additional application is facilitated by the first box , the known - alleles tool .
+cripsr - mediated mutagenesis events create random mutations at the target locus .
+it may be desired in some cases to generate an isogenic mutation in a novel biological context , such as a different ecotype or genetic background .
+this is especially useful in cases where multiple mutant loci must be maintained and introducing an isogenic mutation would prove easier than screening multiple segregating loci as a result of a cross .
+the output of the known - alleles tool indicates which of the two supplied sequences is cleaved by the restriction digest .
+if the user supplies the wild - type sequence and the specific mutant sequence they wish to find and choose an assay where the mutant sequence is cleaved , then a caps / dcaps assay can be used to screen a pool of crispr - generated mutants for a specific mutation .
+this could be feasibly accomplished by a two - step process , where primers generated by the unknown allele indcaps application are used to screen for lines showing any evidence of crispr - mediated editing events , and then a second primer set is used to screen for a specific mutation within that population .
+after analysis is complete , the user may be presented with several candidate primers .
+the user is required to choose their own downstream primer .
+currently , the primers are evaluated only by their length or melting temperature , depending on the user 's specification. .
+the user can choose any of the reported primers , but may prefer certain assays over others due to cost or availability of the enzyme , compatibility of the enzyme with their pcr conditions , or personal preference in enzyme choice .
+technical details of the indcaps package a general outline of the algorithm that was developed is illustrated in fig 2 .
+the user - supplied sequences ( based on the mutagenesis target ) are compared by defining shared and unshared regions in each sequence .
+in the case of a snp allele , each sequence will have an unshared region of one base .
+for indel alleles , the sequence with the deletion relative to the other will have an unshared region of 0 bases and the sequence with the relative insertion will have an unshared region equal to the number of inserted bases .
+10.1371 / journal.pone.0188406.g002 fig 2 algorithm for generation of oligonucleotide primers useful for caps and dcaps assays .
+two user - supplied sequences are analyzed , with one end near the predicted mutation site .
+shared and unshared regions are identified in each sequence .
+a sub - sequence near the last shared base from each direction is isolated and compared to a library of restriction enzyme recognition motifs ( https :// www.neb.com / tools - and - resources / selection - charts / alphabetized - list - of - recognition - specificities ) .
+if a diagnostic site is detected , determined by an exact or close motif match in only one sequence , a primer is generated .
+the primer disrupts any exact matches present in the shared regions and is checked to ensure the mismatch number is less than the specified maximum .
+two core assumptions are made when designing diagnostic assays : 1 ) designed primers must be wholly contained in the shared region ; and 2 ) putative restriction sites must have at least one base pair of overlap with both the shared and unshared regions .
+a library of restriction enzyme recognition sites ( https :// www.neb.com / tools - and - resources / selection - charts / alphabetized - list - of - recognition - specificities ) ( excluding nicking or double - cutting enzymes ) is compared to both shared regions and to a subsequence near the last shared base .
+sequences are compared using a modified hamming distance metric , where the number of non - similar bases is counted , allowing for degeneracy .
+for example , the sequences gcat and ggtt have a distance of 2 , and the sequences gcat and gytt have a distance of 1 .
+each recognition site is iterated across the subsequence and the distance at each position is calculated .
+if the distance for a comparison is below the user - specified mismatch threshold , that position is stored as a potential assay .
+an enzyme is rejected if it cuts in the downstream shared region , and exact matches in the primer are disrupted with mismatches during the primer design stage .
+each set of sequences is analyzed twice , once as supplied , and again using the reverse complement of each sequence .
+an enzyme that is rejected because it cuts in the shared , downstream region of both sequences from one direction may be suitable if the primer is aligned to the reverse complement of the two sequences .
+for efficiency purposes , primers are designed only if a potential caps / dcaps assay is detected in comparisons of the input sequences ; the number of comparisons made is reduced if primers are designed for specific assays rather than designing all possible primers and assessing them for compatibility with caps / dcaps assays .
+primers are designed with their 3 ' end at the last shared base of the two sequences .
+the primer length is then extended in the 5 ' direction to generate candidate output primers .
+each candidate primer is assessed by its length or melting temperature , according to the user 's choice , and the primer best matching the chosen criterion is reported .
+for the purpose of crispr / cas9 screening , a profile of possible editing events is used to simulate editing events in the wild - type sequence .
+currently , the default editing events are single base pair insertion and deletion events .
+future versions of the software will allow the user to supply a custom profile of events .
+the user is required to provide the specific target sequence used in crispr / cas9 mutagenesis and the cut site is assumed to be at the - 3 position of the provided 20 - bp target [ 13 ] .
+all possible sequence variants are created and compared to the wild - type sequence to identify the last shared base .
+the last shared base is taken to be the last base in the wild - type sequence shared with all sequence variants .
+a simplifying assumption is made when designing primers for unknown alleles : cleavage will occur in the wild - type sequence and will be disrupted in mutant sequences .
+use of indcaps to find mutants in cytokinin signaling cytokinins , a class of adenine - derived signaling molecules are involved in regulating a diverse set of biological processes .
+cytokinins are perceived by arabidopsis histidine kinase ( ahk ) proteins [ 20 , 21 ] in the endoplasmic reticulum [ 22 , 23 ] , which undergo autophosphorylation on a his residue .
+this phosphate is ultimately transferred to either type - a or type - b response regulator proteins ( arrs ) via the histidine phosphotransfer ( ahp ) proteins [ 24 - 26 ] .
+type - b arrs are transcription factors activated by phosphorylation [ 27 ] .
+type - a arrs lack a dna - binding domain , are cytokinin - inducible , and negatively regulate cytokinin signaling [ 28 , 29 ] .
+the cytokinin ahk receptors are encoded by ahk2 , ahk3 , and ahk4 / cre1 in arabidopsis .
+multiple mutant lines with various loss - of - function t - dna insertion alleles of each gene have been identified .
+the most severely affected triple mutant line , , ahk2 - 7 ahk3 - 3 cre1 - 12 , harbors null alleles for ahk2 and ahk4 , but still contains residual full - length wild - type transcript for ahk3 [ 7 ] .
+we sought to identify a crispr - induced null allele of ahk3 in an ahk2 ahk4 background by introducing a frameshift mutation in ahk3 .
+this would reveal the effect of complete disruption of the ahk cytokinin receptors in arabidopsis .
+the indcaps tool was tested by designing primers for a crispr mutagenesis experiment targeting the ahk3 gene ( fig 3 ) .
+a crispr / cas9 target was designed to target the first exon of ahk3 using the crispr - plant resource [ 12 ] .
+the target site chosen is before the cyclases / histidine kinases associated sensory extracellular ( chase ) domain , the cytokinin binding domain of the ahks .
+the ahk3 targeting plasmid , pch59 , was stably transformed into an ahk2 - 7 cre1 - 12 mutant line [ 20 , 21 , 30 ] , referred to as ahk2,4 hereafter .
+the pch59 vector was constructed by cloning a commercially synthesized grna fragment into a pcut binary vector system expressing plant codon optimized cas9 [ 8 ] .
+t1 transformed seedlings were identified by hygromycin selection and grown to maturity .
+the t2 progeny were screened for ahk3 editing events using primers generated by indcaps .
+viable seedlings with homozygous , single base pair insertions causing frameshift mutations disrupting the ahk3 coding region were identified .
+these alleles , denoted ahk3 - 9 and ahk3 - 10 , are single base pair insertions of a and c , respectively .
+the frameshift produces an early stop codon 25 residues after the edit location .
+the resulting predicted protein retains two transmembrane domains , but no functional chase domain or cytosolic histidine kinase or receiver domains .
+these triple cre1 - 12 ahk2 - 7 ahk3 mutants were viable and resembled the cre1 - 12 ahk2 - 7 ahk3 - 3 [ 31 ] .
+these results demonstrate that the complete disruption of all three ahk cytokinin receptors does not result in embryo lethality .
+as these are the only chase - domain containing proteins in arabidopsis , this suggests that either cytokinin is not essential for early development , or that there are other as yet unidentified cytokinin receptors .
+10.1371 / journal.pone.0188406.g003 fig 3 homozygous editing events in ahk3 were identified .
+( a ) the indcaps package was used to generate a primer recognizing a bsa bi site spanning the crispr cut site ( between the green bases ) .
+a single mismatch was required in the primer ( indicated in red ) .
+the genomic locus for ahk3 is shown .
+boxes indicate exons , red bars - - transmembrane domains , black region - - chase domain , grey region - - histidine kinase domain , yellow region - - receiver domain , blue region - 3 ' utr .
+locations of t - dna insertion sites ( ahk3 - 1 , ahk3 - 3 , and ahk3 - 7 ) and targeted editing site are indicated .
+( b,c ) the assay was used to screen a. thaliana plants stably transformed with a pcut binary vector system [ 8 ] and sgrna constructs targeting ahk3 .
+( b ) wild - type controls at edit location .
+( c ) t2 plants from two representative independent transformation events are shown .
+the uncut amplicon is 90 bp and the wild - type allele is cleaved to produce 36 bp and 54 bp fragments .
+( d ) progeny from two t2 plants heterozygous for editing events were selected and analyzed for editing .
+( e ) a. thaliana seedlings imaged at 2.5 weeks of growth .
+shown are col - 0 ; ahk3 - 3 ; ahk2,4 ; ahk2 - 5 ahk3 - 7 cre1 - 12 ; ahk2 - 1 /+ ahk3 - 1 ahk4 - 1 ; ahk2 - 7 ahk3 - 3 /+ cre1 - 12 ; ahk2 - 7 ahk3 - 9 cre1 - 12 ; ahk2 - 7 ahk3 - 10 cre1 - 12 .
+all plants at same scale .
+in addition to analysis of crispr - induced ahk4 alleles , indcaps tool has been successfully use by multiple other members of the authors' research groups to successfully target at least five additional genes .
+conclusions the indcaps package provides a useful tool for researchers using crispr - mediated mutagenesis as it facilitates the screening of individuals in which editing of the target has occurred .
+it also provides replacement for existing tools for the design of primers for dcaps analysis capable of distinguishing known indel alleles .
+we employed this tool to successfully design diagnostic primers to identify crispr - induced ahk3 null alleles , the subsequent analysis of which showed that the cytokinin ahk receptors are not essential for embryo development .
+supporting information s1 text primers used to detect editing events .
+( txt ) click here for additional data file .
+we would like to thank g. eric schaller , brian nalley , christian burr , amala john , joanna polko , lauren ross , and ariel aldrette for helping with the visual design of the website and the figures for this paper and jamie winshell for technical support .
+this work was supported by grants from the national science foundation ( ios - 1238051 and ios - 1455607 ) .
+references 1 neff mm , neff jd , chory j , pepper ae . dcaps , a simple technique for the genetic analysis of single nucleotide polymorphisms : experimental applications in arabidopsis thaliana genetics . plant j .
+1998 ; 14 : 387 - 92 . 9628033 2 tandon p , conlon f , furlow jd , horb me . expanding the genetic toolkit in xenopus : approaches and opportunities for human disease modeling . dev biol .
+2017 ; 426 : 325 - 35 . 27109192 3 farboud b . targeted genome editing in caenorhabditis elegans using crispr / cas9 . wiley interdiscip rev dev biol .
+2017 ; 6 : e287 - n / a . 4 karkute sg , singh ak , gupta op , singh pm , singh b . crispr / cas9 mediated genome engineering for improvement of horticultural crops . front plant sci. 2017 ; 8 . 5 housden be , perrimon n . cas9 - mediated genome engineering in drosophila melanogaster . cold spring harb protoc .
+2016 ; 2016 : pdb.top086843 .
+6 kieber jj , schaller ge . cytokinins . arabidopsis book .
+2014 ; 12 : e0168 doi : 10.1199 / tab.0168 24465173 7 cheng c - y , mathews de , eric schaller g , kieber jj . cytokinin - dependent specification of the functional megaspore in the arabidopsis female gametophyte . plant j .
+2013 ; 73 : 929 - 40 . doi : 10.1111 / tpj.12084 23181607 8 peterson ba , haak dc , nishimura mt , teixeira pjpl , james sr , dangl jl , et al genome - wide assessment of efficiency and specificity in crispr / cas9 mediated multiple site targeting in arabidopsis . plos one .
+2016 ; 11 : e0162169 doi : 10.1371 / journal.pone.0162169 27622539 9 clough sj , bent af . floral dip : a simplified method for agrobacterium - mediated transformation of arabidopsis thaliana . plant j .
+1998 ; 16 : 735 - 43 . 10069079 10 murashige t , skoog f . a revised medium for rapid growth and bioassays with tohaoco tissue cultures . physiol plant .
+1962 ; 15 : 473 - 97 . 11 neff mm , turk e , kalishman m . web - based primer design for single nucleotide polymorphism analysis . trends genet .
+2002 ; 18 : 613 - 5 . 12446140 12 xie k , zhang j , yang y . genome - wide prediction of highly specific guide rna spacers for crispr - - cas9 - mediated genome editing in model plants and major crops . mol plant .
+2014 ; 7 : 923 - 6 . doi : 10.1093 / mp / ssu009 24482433 13 cong l , ran fa , cox d , lin s , barretto r , habib n , et al multiplex genome engineering using crispr / cas systems . science .
+2013 ; 339 : 819 - 23 . doi : 10.1126 / science.1231143 23287718 14 breslauer kj , frank r , blocker h , marky la . predicting dna duplex stability from the base sequence . proc natl acad sci usa .
+1986 ; 83 : 3746 - 50 . 3459152 15 sugimoto n , nakano s , yoneyama m , honda k . improved thermodynamic parameters and helix initiation factor to predict stability of dna duplexes . nucleic acids res .
+1996 ; 24 ( 22 ) : 4501 - 5 . 8948641 16 kibbe wa . oligocalc : an online oligonucleotide properties calculator . nucleic acids res .
+2007 ; 35 ( suppl _ 2 ) : w43 - w6 . 17452344 17 simsek m , adnan h . effect of single mismatches at 3 - end of primers on polymerase chain reaction . j sci res med sci 2000 ; 2 : 11 - 4 . 24019700 18 kwok s , kellogg de , mckinney n , spasic d , goda l , levenson c , et al effects of primer - template mismatches on the polymerase chain reaction : human immunodeficiency virus type 1 model studies . nucleic acids res .
+1990 ; 18 : 999 - 1005 . 2179874 19 newton cr , graham a , heptinstall le , powell sj , summers c , kalsheker n , et al analysis of any point mutation in dna .
+the amplification refractory mutation system ( arms ) . nucleic acids res .
+1989 ; 17 : 2503 - 16 . 2785681 20 inoue t , higuchi m , hashimoto y , seki m , kobayashi m , kato t , et al identification of cre1 as a cytokinin receptor from arabidopsis . nature .
+2001 ; 409 : 1060 - 3 . doi : 10.1038 / 35059117 11234017 21 yamada h , suzuki t , terada k , takei k , ishikawa k , miwa k , et al the arabidopsis ahk4 histidine kinase is a cytokinin - binding receptor that transduces cytokinin signals across the membrane . plant cell physiol .
+2001 ; 41 : 1017 - 23 . 22 caesar k , thamm amk , witthoft j , elgass k , huppenberger p , grefen c , et al evidence for the localization of the arabidopsis cytokinin receptors ahk3 and ahk4 in the endoplasmic reticulum . j exp bot .
+2011 ; 62 : 5571 - 80 . doi : 10.1093 / jxb / err238 21841169 23 wulfetange k , lomin sn , romanov ga , stolz a , heyl a , schmulling t . the cytokinin receptors of arabidopsis are located mainly to the endoplasmic reticulum . plant physiol .
+2011 ; 156 : 1808 - 18 . doi : 10.1104 / pp.111.180539 21709172 24 hutchison ce , li j , argueso c , gonzalez m , lee e , lewis mw , et al the arabidopsis histidine phosphotransfer proteins are redundant positive regulators of cytokinin signaling . plant cell .
+2006 ; 18 : 3073 - 87 . doi : 10.1105 / tpc.106.045674 17122069 25 punwani ja , hutchison ce , schaller ge , k j.j .
+.
+the subcellular distribution of the arabidopsis histidine phosphotransfer proteins is independent of cytokinin signaling . plant j .
+2010 ; 62 : 473 - 82 . doi : 10.1111 / j.1365 - 313x.2010.04165.x 20136728 26 punwani ja , kieber jj . localization of the arabidopsis histidine phosphotransfer proteins is independent of cytokinin . plant signal behav .
+2010 ; 5 : 896 - 8 . doi : 10.4161 / psb.5.7.12094 20484973 27 mason mg , mathews de , argyros da , maxwell bb , kieber jj , alonso jm , et al multiple type - b response regulators mediate cytokinin signal transduction in arabidopsis . plant cell .
+2005 ; 17 : 3007 - 18 . doi : 10.1105 / tpc.105.035451 16227453 28 to jp , deruere j , maxwell bb , morris vf , hutchison ce , schaller ge , et al cytokinin regulates type - a arabidopsis response regulator activity and protein stability via two - component phosphorelay . plant cell .
+2007 ; 19 : 3901 - 14 . doi : 10.1105 / tpc.107.052662 18065689 29 to jpc , haberer g , ferreira fj , deruere j , mason mg , schaller ge , et al type - a arrs are partially redundant negative regulators of cytokinin signaling in arabidopsis . plant cell .
+2004 ; 16 : 658 - 71 . doi : 10.1105 / tpc.018978 14973166 30 cheng cy , kieber jj . the role of cytokinin in ovule development in arabidopsis . plant signal behav .
+2013 ; 8 : e23393 doi : 10.4161 / psb.23393 23333968 31 argyros rd , mathews de , chiang yh , palmer cm , thibault dm , etheridge n , et al type b response regulators of arabidopsis play key roles in cytokinin signaling and plant development . plant cell .
+2008 ; 20 : 2102 - 16 . doi : 10.1105 / tpc.108.059584 18723577

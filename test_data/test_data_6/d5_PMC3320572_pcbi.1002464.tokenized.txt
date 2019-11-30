@@ -1,0 +1,355 @@
+plos comput biol plos comput .
+biol plos ploscomp plos computational biology 1553 - 734x 1553 - 7358 public library of science san francisco , usa 22496636 3320572 pcompbiol - d - 11 - 01330 10.1371 / journal.pcbi.1002464 research articlebiologycomputational biologygenomicsgenome analysis toolscomputer sciencealgorithmscomputer applications rna - seq mapping and detection of gene fusions with a suffix array algorithm rna - seq mapping and detection of gene fusions sakarya onur 1 * breu heinz 1 radovich milan 2 chen yongzhi 1 wang yulei n .
+1 barbacioru catalin 1 utiramerur sowmi 1 whitley penn p .
+3 brockman joel p .
+3 vatta paolo 1 zhang zheng 1 popescu liviu 1 muller matthew w .
+1 kudlingar vidya 1 garg nriti 1 li chieh - yuan 1 kong benjamin s .
+1 bodeau john p .
+1 nutter robert c .
+1 gu jian 3 bramlett kelli s .
+3 ichikawa jeffrey k .
+1 hyland fiona c .
+1 * siddiqui asim s .
+1 * 1 life technologies , foster city , california , united states of america 2 indiana university school of medicine , indianapolis , indiana , united states of america 3 life technologies ( ambion ) , austin , texas , united states of america zhang weixiong editor washington university in saint louis , united states of america * e - mail : osakarya @ yahoo.com ( os ) ; fiona.hyland @ lifetech.com ( fch ) ; asim.siddiqui @ lifetech.com ( ass ) conceived and designed the experiments : os pv hbb mr jg ksb fch ass .
+performed the experiments : os hbb yc ynw cb su zz lp mwm vk ng c - yl bsk jpb jg. analyzed the data : os mr ynw ppw pv fch .
+contributed reagents / materials / analysis tools : ynw jpb rcn ksb jki fch ass .
+wrote the paper : os fch ass .
+4 2012 5 4 2012 8 4 e1002464 7 9 2011 21 2 2012 sakarya et al .
+2012 this is an open - access article distributed under the terms of the creative commons attribution license , which permits unrestricted use , distribution , and reproduction in any medium , provided the original author and source are properly credited .
+high - throughput rna sequencing enables quantification of transcripts ( both known and novel ) , exon / exon junctions and fusions of exons from different genes .
+discovery of gene fusions - particularly those expressed with low abundance - is a challenge with short - and medium - length sequencing reads .
+to address this challenge , we implemented an rna - seq mapping pipeline within the lifescope software .
+we introduced new features including filter and junction mapping , annotation - aided pairing rescue and accurate mapping quality values .
+we combined this pipeline with a suffix array spliced read ( sasr ) aligner to detect chimeric transcripts .
+performing paired - end rna - seq of the breast cancer cell line mcf - 7 using the solid system , we called 40 gene fusions among over 120,000 splicing junctions .
+we validated 36 of these 40 fusions with taqman assays , of which 25 were expressed in mcf - 7 but not the human brain reference .
+an intra - chromosomal gene fusion involving the estrogen receptor alpha gene esr1 , and another involving the rps6kb1 ( ribosomal protein s6 kinase beta - 1 ) were recurrently expressed in a number of breast tumor cell lines and a clinical tumor sample .
+author summary advances in sequencing technology are enabling detailed characterization of rna transcripts from biological samples .
+the fundamental challenge of accurately mapping the reads on transcripts and gleaning biological meaning from the data remains .
+one class of transcripts , gene fusions , is particularly important in cancer .
+some gene fusions are prominent markers in leukemia , prostate , and other cancers and putatively causative in certain tumor types .
+we present a set of new rna - seq analysis techniques to map reads , and count expression of genes , exons and splicing junctions , especially those that give evidence of gene fusions .
+these tools are available in a software package with a straightforward graphical user interface .
+using this software , we called and validated several gene fusions in a breast cancer cell line. by testing the presence of these fusions in a larger population of tumor cell lines and clinical samples , we found that two of them were expressed recurrently .
+introduction the transcriptome comprises the set of all transcripts in a cell and their quantity at a specific stage and time .
+rna - seq enables hypothesis - neutral investigation of the expression of the transcripts including non - coding rna and viruses [ 1 ] .
+rna - seq provides advantages over microarray technology such as the detection of novel transcripts ( both truly novel as well as those arising from alternative splicing ) and sensitivity over a greater range of expression [ 2 ] .
+methods to more comprehensively analyze rna sequencing data are being developed , with particular focus on normalization of differential gene expression , annotation of the transcriptome , and characterization of the splicing junctions [ 3 ] - [ 12 ] .
+paired - end rna - seq further enhances quantification of alternative transcripts [ 13 ] - [ 16 ] .
+analysis of tissue and single - cell - specific rna is revealing cellular gene expression diversity and phenotypy [ 17 ] - [ 19 ] .
+gene fusions arise from mutations including translocations , deletions , inversions , or trans - splicing .
+fusion genes are thought to cause tumorigenesis by over - activating proto - oncogenes , deactivating tumor suppressors , or altering the regulation and / or splicing of other genes which lead to defects in key signaling pathways [ 20 ] .
+fused rnas are found to occur in significantly higher frequency in cancer than in matched benign samples and may be potential biomarkers [ 21 ] .
+for example , 95 % of patients with clinical chronic myeloid leukemia ( cml ) express the bcr - abl gene fusion in their leukemia cells due to a reciprocal translocation between the long arms of chromosomes 9 and 22 [ 22 ] , [ 23 ] .
+bcr - abl is also found to be a factor in 30 % to 50 % of adult acute lymphoblastic leukemia cases [ 24 ] .
+imatinib is a specific tyrosine kinase inhibitor targeting bcr - abl and is an effective treatment for cml [ 25 ] , [ 26 ] .
+gene fusions are also detected repeatedly in other tumors .
+examples include etv6 - ntrk3 in mesoblastic nephroma , congenital fibrosarcoma , and breast carcinoma [ 27 ] - [ 29 ] .
+myb - nfib in head and neck tumors [ 30 ] , tmprss2 - erg / ets in prostate cancer [ 31 ] - [ 34 ] , and eml4 - alk in lung cancer [ 33 ] , [ 35 ] .
+most lung tumors with alk rearrangements are shown to shrink and stabilize when patients are given the alk inhibitor crizotinib [ 36 ] .
+hypothesis - neutral gene fusion detection with rna - seq was recently demonstrated by different groups [ 37 ] - [ 46 ] .
+for example , the fusionseq software uses paired - end reads to find candidate fusions , and applies a set of filtration modules to remove false positive candidates [ 41 ] .
+fusionseq applies misalignment filters for large - and small - scale homology , low complexity repetitive regions , and mitochondrial genes particularly considering reads that fall on snp regions or on rna edited transcripts that may cause misalignments .
+defuse guides a dynamic programming based spliced read detection module with paired - end alignments [ 42 ] .
+both of these methods reply upon paired - end alignments as the initial evidence and apply spliced read mapping on the candidate regions .
+peralign relies upon mapping spliced reads to the whole genome first and then guiding them with paired - end alignments [ 38 ] .
+in this study , we describe a new method which considers spliced - read and paired - end alignments independently from each other , enabling detection of fusions from single fragment or paired - end experiments .
+we also introduce techniques for mapping of spliced - reads to a suffix array based virtual gene fusion reference with annotation - aided pairing rescue and methods for quality assessment of alignments and splice junctions .
+we tested our analysis tool by calling the exon / exon junctions and gene fusions from data generated by sequencing three paired - end rna - seq libraries , each with two technical replicates .
+we also compared our results to tophat and fusionseq software on the mcf - 7 sample .
+next we validated candidate mcf - 7 gene fusions using taqman ( r ) assays and showed that 90 % of the calls were valid and over 65 % were specific to mcf - 7 .
+we also identified what appears to be an early breakpoint bias at the 5 ' fused genes .
+finally , we surveyed a subset of mcf - 7 and uhr fusions on a panel of breast cancer cell lines and discovered evidence for recurrence .
+results a combined strategy to detect splice junctions and fusion breakpoints we prepared strand - specific , paired - end rna libraries from the universal human reference ( uhr ) , the human brain reference ( hbr ) , and the breast cancer cell line mcf - 7 using the total rna - seq kit from applied biosystems .
+these rna libraries were sequenced using ligation - based high throughput solid ( tm ) system [ 47 ] .
+fragments were gel - selected for insert sizes between 100 - 200 base pairs ( figure s1 in text s1 ) .
+using a new transcriptome alignment pipeline in which each pair of reads is mapped to genome , junction , exon and filter references and paired with a pairing quality value ( pqv ) , we obtained total of 580 million read pairs that were confidently mapped to the human genome ( table s1 in text s2 ) .
+histograms of gene expression showed a wide range of distribution , and average r2 correlation of gene expression between replicates ranged from 0.95 to 0.96 ( figures s2 , s3 in text s1 ) .
+splice junctions were discovered by combining three approaches : ( 1 ) bridge evidence found by paired - end reads in which the forward read maps on an exon and the reverse read maps on another exon with a pqv above a confidence threshold ; ( 2 ) span evidence found by single reads ( of paired - end reads ) in which the read alignment spans the breakpoint of a set of known and putative splice junctions ; ( 3 ) fusion span evidence found by fusion alignments spanning hypothetical breakpoints of any two exons discovered using the sasr aligner which assesses all exon - exon combinations in the genome ( figure 1 ) .
+using this strategy , for each sample , we identified an average of 133,000 refseq and 15,315 non - refseq ( putative ) splice junctions and 5 to 56 candidate fusion breakpoints ( table 1 and table s1 in text s2 ) .
+10.1371 / journal.pcbi.1002464.g001 figure 1 rna - seq mapping and splice junction detection methodology. a. four reads that span ( spliced single reads ) , and three reads that bridge ( paired - end reads ) the junction are shown .
+the top chart shows a bird 's eye view of the genomic alignments detected for seven pairs of reads between the two exons .
+areas of the read highlighted in red correspond to colors that do not align to a genomic reference , and dots in the reference are unknown colors / bases. b. mapping pipeline is reviewed in the methods sections .
+candidate junctions correspond to a sparse graph of junction evidences .
+after the candidates are found , splice junction and fusion predictions are made with optional quality thresholds. c. as a first step in sasr , 10 to 35 bp ends from each end of the exon are stored in two lexicographical dictionaries .
+stored suffix starts are shown as a vertical stop and end with empty triangles. d. 10 base pairs from the left and right ends of the read ( decamers ) are searched in the 3 ' and 5 ' end dictionaries , respectively , with a binary string search .
+decamers are matched without mismatches .
+matching decamers are extended as possible ( with up to two mismatches ) to determine whether they cover the entire suffix .
+mismatches are illustrated as vertical lines .
+up to ten bases are clipped from the ends of the reads until a matching read is found. e. decamer block size frequency in the hg18 refseq database .
+10.1371 / journal.pcbi.1002464.t001 table 1 mapping and splicing statistics for paired - end runs .
+dataset # confidently aligned pairs # known splice # putative splice # putative fusion uhr - 1 79,654,007 127,987 9,025 5 uhr - 2 113,699,316 136,839 14,365 13 hbr - 1 89,066,940 129,031 8,709 8 hbr - 2 130,521,674 138,718 14,204 14 mcf - 7 - 1 79,654,007 123,442 17,373 40 mcf - 7 - 2 86,796,592 120,503 19,437 56 notes : confidently aligned pairs was defined as primary alignments with pqv > 10 .
+120 and 150 refer to insert size of rna library .
+mcf - 7 and mcf - 7 - 2 libraries were prepared separately from the same lot .
+known splicing events are found in refseq database whereas putative splicing events were not .
+to assess the performance of mapping quality values generated with the system , we compared fold - change ratio ( log2 [ uhr / hbr ]) of gene rpkm values with gene expression assays from the microarray quality control ( maqc ) project [ 48 ] , [ 49 ] .
+we compared correlation of four different pqv ( 1 , 10 , 20 and 40 ) thresholds with the assays ( figure s4 in text s1 ) .
+pearson correlations of data from taqman assays with that of the data from the solid system were not significantly different between pqv thresholds .
+the slope ( m ) of the regression fits , however , was significantly affected by the threshold settings .
+as pqv is increased from 1 to 40 , the slope increased dramatically from 0.77 to 0.88 , indicating significantly greater accuracy compared to a " gold standard " qpcr method .
+the increase in accuracy is likely a result of increased specificity .
+essentially , the log ratio dynamic range increases with increasing pqv settings ( figure s5 in text s1 ) .
+rpkm distributions show an increase in low - end signal for lower pqv .
+if this increase in " sensitivity " represents additional noise , it can contribute to a loss of accuracy in the fold change calculations .
+the increase in the low end suggests that these reads may be spurious ( figure s6 in text s1 ) .
+parameter stringency and quality assessment in order to find optimal filters for detecting splice junctions with our combined approach , we compared three quality thresholds using data from the uhr and hbr barcoded libraries : ( 1 ) one span evidence ( 1 - sr ) , ( 2 ) two unique span evidences ( 2 - sr ) , and ( 3 ) one bridge and one span evidences ( 1 - pe - 1 - sr ) .
+in addition to these tested thresholds , we applied default filter of choosing only primary alignments with pqv > 10 .
+the results , as illustrated in figure 2 , suggest an increased number of false positives for 1 - sr evidence even though it may have greater sensitivity .
+1 - pe - 1 - sr threshold reduced false positives especially for fusions , generating less calls than 2 - sr threshold .
+for the analyses described later in the text , 1 - pe - 1 - sr threshold was chosen for calling splice junctions and 2 - pe - 2 - sr for calling gene fusions .
+on average , 82 % of junctions identified in the libraries were present in the refseq database .
+84 % of these known junctions and 26 % of the putative junctions were shared between at least two of the three libraries ( figure s7 in text s1 ) .
+the highest number of library - specific known junctions was observed in hbr , and the highest number of library - specific putative junctions was observed in mcf - 7 .
+10.1371 / journal.pcbi.1002464.g002 figure 2 combined evidence improves specificity of splice and fusion detection .
+scatterplots show the increasing mapped coverage ( x - axis ) versus left : known refseq junctions ; middle : putative junctions ; right : fusion junctions .
+top track shows results for uhr and bottom track for hbr .
+three different evidence thresholds were compared : 1 ) red line : one span ( sr ) evidence required for junction call , 2 ) magenta line : two span ( 2 - sr ) evidences required for junction call , and 3 ) blue line : one span and one bridge evidence ( 1 - sr - 1 - pe ) required for junction call .
+next , we formulated a junction confidence value ( jcv ) and investigated its utility to identify true versus false junctions .
+details of jcv and its formulation are explained in supplementary methods in text s1 .
+one type of false positive fusion junction is likely called between highly expressed exons for which the random chance of encountering a misalignment or mispairing is elevated .
+homology between highly expressed genes would also increase this type of false positive .
+we created jcv to test the quantity and quality of bridge evidences when compared to an ' error expectation metric ' .
+this metric is defined as the estimation of the null hypothesis of encountering a random junction between the two exons .
+increasing jcv increased known / putative junction ratio which was predictive of the false discovery rate and at the same time distinguished significant number of novel junctions to either lower or higher score bins ( figure 3a ) .
+known / putative ratios ranged from 0.15 for jcv cutoff of 0 ; 3 for jcv cutoff of 50 and 16 for jcv cutoff of 100 .
+in order to test the sensitivity of jcv , we simulated 1,000,000 junctions based on a combination parameter model of true junction expression ratio and false junction misalignment ratio .
+true positive rate ( tpr ) and false positive rate ( fpr ) were calculated by comparing whether a called junction was real ( figures s8 , s9 , s10 in text s1 ) .
+these simulations showed that jcv was predictive of true junction calls and higher jcv thresholds resulted in much less fpr and slightly less tpr .
+we performed a separate simulation of gene fusion detection using reads from a dh10b ( e.coli ) dna sequencing experiment where introns , exons and a gene model were simulated to make the data similar to rna - seq experiments .
+our algorithm was able to detect 86 out of 93 simulated fusions in this experiment ( figure s11 in text s1 ) .
+10.1371 / journal.pcbi.1002464.g003 figure 3 improvements by junction confidence value and comparison to tophat. a. logarithms of number of known and putative junctions are shown with yellow and blue bars respectively .
+the ratio of known over putative is shown with dashed line .
+dataset consisted of 64,000 sample uhr junctions called with default thresholds. b. tophat and lifescope candidate calls were compared to each other and also to refseq database .
+tophat junctions were filtered with score > 5 , and lifescope junctions were filtered with 1 - sr - 1 - pe threshold ( requiring one span and one bridge evidence ) .
+next , we ran tophat ( v1.3.0 ) on the mcf - 7 - 1 dataset by using default paired - end parameters for color space .
+tophat reported 124,236,156 mapped reads of which 33,634,800 were properly paired whereas lifescope reported 404,901,929 mapped reads , of which 300,341,259 pairs were mapped to the same chromosome and 158,050,096 were properly paired ( table s1 in text s2 ). of note , tophat allows 2 mismatches on mapped reads by default and does not report pairs of reads mapped across different chromosomes .
+next we identified appropriate score threshold for calling tophat junctions .
+for each junction found , tophat reports a score which corresponds to the number of reads that span the junction .
+tophat reported 1,391,319 total junctions without any score filter and with score > 5 threshold this number reduced to 53,402 ( figure s12 in text s1 ) .
+we used tophat candidate junctions with score > 5 for comparison to refseq known and lifescope candidate junctions ( figure 3b ) .
+there is some evidence that score > 10 may yield more specific results for tophat ( figure s12 in text s1 ). of note , known ( refseq ) junctions called by tophat dropped from 129,316 ( score > 0 ) to 106,962 ( score > 5 ) .
+these results suggest that tophat detects a large number of putative novel junctions yet is not as sensitive when distinguishing false positives .
+lifescope detected 15,074 putative novel junctions between known exons of the same gene that were n't called by tophat .
+we could distinguish that more than half of these ' lifescope - only ' junctions were likely true positives by looking at their jcv ; 3,520 had jcv = 0 and 8,481 had jcv = 100 with the rest having scores between 0 and 100 .
+detection and validation of fusion transcripts in the mcf - 7 cell line using the combined bridge & span approach described above on the uhr sample , we called and validated previously reported gene fusions including bcr - abl1 , gas6 - rasa3 , arfgef2 - sulf2 , nup214 - xkr3 and bat3 - slc44a4 [ 37 ] , [ 39 ] , [ 40 ] .
+these fusions were not described in the literature for hbr , and as expected were not identified in the hbr samples sequenced .
+in mcf - 7 , a total of 40 putative fusions were identified in the first sequencing run ( 50x25 paired - end ) , of which 26 were detected again in a second run ( 75x35 paired - end ) out of a total 56 fusion calls ( table s2 in text s2 ) .
+we also analyzed first mcf - 7 sequencing dataset using fusionseq ( sboner et. al. ) .
+six of the forty gene fusions identified by lifescope were also called by this software .
+fusionseq 's confidence value ( resper ) for these calls ranged from 1.15 to 4.53. of importance , the ribosomal filter and single read validation module of fusionseq ( version 0.7 ) did not handle color space data or data with different read length pairs adding to 5807 total calls with resper > 1 ( table s3 in text s2 ) .
+based on the calls from the first mcf - 7 sequencing experiment , we prepared 40 taqman fusion assays and run them on the uhr , hbr , and mcf - 7 samples along with the prostate cell line pc - 3 as an additional control .
+36 ( 90 %) of the fusions were validated with the assays and 25 ( 63 %) were found to be specific to mcf - 7 and uhr ( table 2 and table s4 in text s2 ) .
+to note , 19 of these " specific " fusions were called with our algorithms in the second run of mcf - 7 .
+jcv values correlated with whether a fusion was called again , and also with the number of unique start points ( figure s13 in text s1 ) .
+10.1371 / journal.pcbi.1002464.t002 table 2 validated mcf - 7 gene fusions and taqman expression ratios .
+5 ' gene exon chr 3 ' gene exon chr distance mcf - 7 uhr hbr pc - 3 arfgef2 - 1 20 sulf2 - 3 20 inverted 20.6 24.2 40.0 39.7 slc25a24 - 4 1 nbpf6 - 16 1 inverted 23.9 27.9 40.0 40.0 usp31 - 1 16 cryl1 - 4 13 inter - chr 27.5 31.8 40.0 40.0 tbl1xr1 - 1 3 rgs17 - 2 6 inter - chr 26.1 30.6 40.0 40.0 taf4 - 1 20 brip1 - 5 17 inter - chr 25.6 29.2 40.0 40.0 rps6kb1 - 6 17 diaph3 - 30 13 inter - chr 22.6 26.1 40.0 36.7 bcas4 - 1 20 bcas3 - 24 17 inter - chr 21.3 25.3 40.0 40.0 ahcyl1 - 1 1 rad51c - 10 17 inter - chr 31.0 34.8 40.0 40.0 abca5 - 4 17 ppp4r1l - 4 20 inter - chr 26.1 29.9 40.0 40.0 c16orf45 - 1 16 abcc1 - 15 16 641567 25.3 29.2 40.0 40.0 c16orf62 - 8 16 iqck - 10 16 264613 26.7 30.5 40.0 40.0 cxorf15 - 1 x syap1 - 2 x - 51362 29.1 32.7 40.0 40.0 myo6 - 1 6 senp6 - 15 6 - 70841 28.4 31.9 40.0 40.0 rps6kb1 - 2 17 tmem49 - 11 17 - 72316 24.4 28.4 40.0 39.8 smarca4 - 7 19 carm1 - 2 19 - 81642 29.9 33.1 40.0 40.0 pop1 - 2 8 matn2 - 15 8 - 86928 28.5 31.8 40.0 40.0 gatad2b - 1 1 nup210l - 28 1 - 107321 28.3 32.4 40.0 40.0 esr1 - 2 6 c6orf97 - 7 6 - 116116 32.3 35.0 40.0 40.0 esr1 - 2 6 c6orf97 - 6 6 - 128831 25.2 29.1 40.0 40.0 depdc1b - 7 5 elovl7 - 8 5 - 118895 25.6 29.0 39.8 40.0 gcn1l1 - 2 12 msi1 - 12 12 - 157216 25.3 28.2 40.0 39.8 atxn7l3 - 1 17 fam171a2 - 4 17 - 158568 24.8 28.3 40.0 40.0 sytl2 - 1 11 picalm - 20 11 - 217187 26.7 30.7 40.0 40.0 adamts19 - 1 5 slc27a6 - 10 5 - 432137 26.5 31.3 40.0 40.0 adamts19 - 2 5 slc27a6 - 10 5 - 433412 25.8 30.5 40.0 40.0 notes : each exon name ( gene name - dash - exon - order ) was obtained from refseq database .
+inverted fusions are on same chromosome but different strands .
+last four columns show the cycle threshold ( ct ) value in taqman assays .
+lower ct values indicate higher expression .
+real - time pcr cycle threshold ( ct ) values showed that each of the mcf - 7 gene fusions was expressed in uhr with around ten - fold less expression ( table 2 ) .
+this suggests that mcf - 7 or one of its parent or sister cell lines is very likely part of the uhr pool .
+according to the information provided by the supplier , uhr rna is prepared from a pool of ten different cancer cell lines , one of which is an ' adenocarinoma , mammary gland ' .
+mcf - 7 is an adenocarcinoma cell line from mammary gland. from the rna - seq calls , nine of the mcf - 7 gene fusions were detectable in uhr with ~ 200 million confidently mapped reads whereas these fusions were detectable in mcf - 7 with only ~ 80 million reads .
+it is likely that deeper sequencing of the uhr pool would have identified the remaining fusions .
+many mcf - 7 fusions were between genes in three bands of chr 1 , chr 17 and chr 20 ( figure 4 ) .
+these bands were previously described as rearrangement " hot - spots " [ 50 ]. of the total 11 inter - chromosomal or inverted intra - chromosomal fusions , five had premature stop codons ( not in frame ) , while six were in frame .
+two of the fusions were alternatively spliced including the fusion from the second exon of esr1 to the sixth and seventh exon of c6orf97 , and the fusion from the first and second exon of adamts19 to the tenth exon of slc27a6 .
+we also found several new intra - chromosomal gene fusions mostly between adjacent or neighboring genes ( table s4 in text s2 ) .
+10.1371 / journal.pcbi.1002464.g004 figure 4 localization of gene fusions on specific chromosomal regions. a. whole genome and b. chr 1 , 17 and 20 gene fusions circular graph .
+red lines represent inter - chromosomal gene fusions , blue lines represent inverted intra - chromosomal and black lines represent same - strand intra - chromosomal fusion events .
+graphs were drawn with circos software [ 61 ] .
+we observed an enrichment of fusions for which the breakpoints were in the first intron of a gene , a similar bias explained also in inaki et al. , 2011 .
+this pattern was not observed for the uhr and hbr samples ( figure 5a - b ) .
+on average , first introns in the refseq database ( hg18 ) constitute 22 % of a gene .
+we asked whether the large intron size alone might explain the breakpoint bias at the 5 ' introns .
+we used a parametric bootstrap approach to test the hypothesis that gene fusions are more likely to occur towards the 5 ' end of a gene ; for example , after the first exon .
+assuming that the breakpoint was in the middle of the intron following the fused exon , we considered breakpoints for 23 fusions from table 2 ( omitting multiple splices for esr1 and adamts19 ) .
+we simulated 100,000 gene fusion locations in these 23 genes from a uniform distribution within the gene .
+we normalized the location of the real gene fusions by gene length ( defined as the distance between the start of the first exon and the end of the last exon ) .
+we calculated the mean fusion location of the 23 genes , in the observed fusions and in the simulated fusions .
+in the real fusions , the mean insert location was 0.2587 ( 26 % of the length of the gene , figure 5c ) .
+in 100,000 simulated sets of 23 fusions , the mean was 0.5 and the standard deviation was 0.06 .
+only three in 100,000 of the simulated sets of fusions had a value less than 0.2587 .
+thus the observed location of the gene fusions is statistically significantly biased towards the 5 ' end of the gene , with a p - value estimated at 3x10 - 5 .
+10.1371 / journal.pcbi.1002464.g005 figure 5 fusion breakpoints are biased to 5 ' end of the genes .
+histogram of order of 5 ' ( yellow ) and 3 ' ( green ) intron breakpoints for a. mcf - 7 , b. uhr and hbr combined gene fusions .
+breakpoint is inferred to happen at the intron ( x axis ) following the exon that is fused .
+y axis shows the count of breakpoints that are inferred to happen at numbered intron. c. boxplot of the distribution of simulated gene fusion locations for each of the 23 genes in which a fusion was observed .
+magenta star marks the location of the observed fusion , relative to the 5 ' exon .
+23 fusions correspond to the gene fusions from table 2 ( except for esr1 - c6orf97 , and adamts19 - slc27a6 alternatively spliced fusions merged into single data points ) .
+survey of uhr and mcf - 7 fusions in cell lines and clinical tumor samples to test recurrence , we selected 24 fusions from uhr and mcf - 7 and investigated their expression in 20 cancer cell line samples ( figure 6 ) .
+uhr fusions bcr - abl1 and bat3 - slc44a4 were found expressed in the myelogenous leukemia cell line k562 but with eightfold higher expression than in uhr .
+gas6 - rasa3 fusion was expressed only in uhr .
+most of the fusions in mcf - 7 were also expressed at a low level in the du4475 cell line with a higher ct value (> 35 for most cases ) .
+both mcf - 7 and du4475 cell lines are traced to a 69 / 70 - year old caucasian female from georgetown , but contamination , mixing , mislabeling , or differences in culturing may have caused the observed expression .
+10.1371 / journal.pcbi.1002464.g006 figure 6 screening of fusion assays in cancer cell lines reveal recurring fusions .
+heat map of the expression of selected gene fusions ( rows ) in 20 samples including 18 cancer cell lines ( columns ) .
+lower cycle threshold ( ct ) indicates a higher level of expression and is highlighted in blue .
+high ct ( max 40 , yellow ) indicates no expression .
+ppia is used as positive control and non template control sample ( ntc ) as negative control .
+two of the intra - chromosomal gene fusions were expressed in multiple samples : esr1 - c6orf97 and rps6kb1 - tmem49 .
+the first of these fusions , between the estrogen receptor alpha gene esr1 and its neighboring gene c6orf97 on chr 6 was expressed in two other er + breast cancer cell lines in addition to uhr , mcf - 7 , and du4475 .
+this fusion may have occurred due to an inversion or rearrangement , as normally the esr1 gene is downstream of c6orf97 on the genome ( on the same strand , 128,831 base pairs apart ) ; yet the fusion junction was observed to be from the second exon of esr1 to the sixth exon of c6orf97 , in the reverse order of expected transcription .
+we noted that these two genes were considerably expressed in mcf - 7 ( rpkm 16 and 46 average ) , though not expressed at all in hbr ( rpkm < 0.5 ) , and weakly expressed in uhr ( rpkm 1 and 1.8 ) .
+the second recurring fusion , rps6kb1 - tmem49 , was found expressed in four cancer cell lines including hcc2157 and helas3 .
+we further tested the presence of 24 candidate fusions in cdna from 48 clinical samples of normal and breast tumors ( origene ) .
+we found esr1 - c6orf97 expressed in one er + tumor , and none of the other fusions were expressed .
+discussion rna - seq allows interrogation of known and novel transcript expression and discovery of gene fusions .
+we describe a new suffix array algorithm to find fusion breakpoint spanning reads in a hypothesis - neutral fashion .
+we combine this algorithm with a new paired - end mapping approach to detect gene fusions sensitively and reliably .
+our mapping method works with a predefined set of exon boundaries which is readily available for the human genome from refgene or ensembl databases .
+to detect novel splicing sites different from the known junctions , one can first find novel expressed islands of reads with tools such as tophat [ 8 ] , and next add the predicted novel exons to the gene model , prior to using our tool .
+other de novo assembly algorithms , as long as they generate de novo exon boundaries , and mapped back to genome coordinates , may also be used with our tool [ 51 ] - [ 54 ]. by sequencing and analyzing the maqc samples uhr and hbr , and the breast cancer cell line mcf - 7 , we validated 25 gene fusions specific to mcf - 7 and uhr. of these , five were not in frame and had premature stop codons .
+these fusions might still deploy a negative constraint on the fused genes by increasing non - sense mediated decay ( nmd ) [ 55 ] .
+in addition , several gene fusions that occur at the genomic level might not have been detected by messenger rna sequencing ( mrna ) because their pre - cursor mrnas would have been degraded by the nmd mechanism .
+such fusions may be identified by dna - level sequencing. of the 29 intra - chromosomal fusions called in mcf - 7 in this study , 12 were not described in investigated literature ( table s4 in text s2 ) .
+interestingly , most of the adjacent mcf - 7 gene fusions did not fit the standard definition of " read - through " since they did not occur between last and first exons of the fused genes and in some cases they occurred in inverse order of expected transcription .
+this indicates that these fusions may had arisen due to trans - splicing or structural mutations such as deletions or inversions .
+these hypotheses may be tested by directly sequencing the dna from these regions. by surveying cancer cell lines with taqman assays , we observed that two of the mcf - 7 fusions involving adjacent genes , esr1 - c6orf97 and rbs6kb1 - tmem49 were expressed recurrently .
+fusions of the esr1 gene may disrupt estrogen signaling pathways and thus events involving this gene may be significant .
+rbs6kb1 - vmp1 fusion was described as a recurrent event recently by another group [ 45 ] .
+vmp1 is another name for tmem49 .
+amplification of the rps6kb1 loci ( ribosomal protein s6 kinase beta - 1 ) was described in other breast cancers as an oncogene event [ 56 ] .
+still , it is possible these recurrent fusions arise only in immortalized cell lines rather than being driver mutations .
+in fact , the esr1 fusion tested positive in only one of the 48 clinical breast samples , while the rps6kb1 fusion was not expressed in any of them. of interest , six of the fusions originated on the band 17q23 , which was previously identified as a common region of amplification in cancer [ 57 ] .
+in many of the mcf - 7 fusions , the first or early introns of the 5 ' genes harbored the gene fusion breakpoint .
+a similar pattern was observed in prostate cancer : the complete exon - 1 of tmprss2 was identified to fuse with etv1 or erg as one of the most recurrent rearrangements [ 31 ] .
+recent studies on prostate cancer found extended breakpoints at the androgen receptor binding sites possibly due to line - 1 - induced orf or topoisomerase - ii beta .
+these enzymes , when co - recruited with an androgen receptor , were linked to increased chromosomal translocations of the tmprss2 , etv1 , and erg genes [ 58 ] , [ 59 ] .
+presence of the early 5 ' breakpoints in mcf - 7 genes suggest that recurrent double - stranded breaks may occur in breast tumors at the gene promoter and early splicing sites due to factors not mediated by the androgen receptor .
+in conclusion , we presented a novel method of splice and fusion detection from rna - seq data .
+we sequenced mcf - 7 , uhr and hbr , and demonstrated high specificity in finding splices and fusions de novo .
+we further showed that two of the mcf - 7 gene fusions are expressed recurrently in a number of tumor cell lines .
+materials and methods the instruments and reagents used in this study are for research use only and not intended for diagnostic procedures .
+additional methods are provided at supplementary information online .
+rna - seq alignment pipeline reads were aligned to a reference using the mapreads module of the bioscope 1.3 and lifescope 2.0 software ( http :// www.lifetechnologies.com / lifescope ) .
+four fasta references were used for increased throughput and accuracy : ( 1 ) genomic reference , ( 2 ) junction reference , ( 3 ) exon reference , and ( 4 ) filter reference ( figure 1b ) .
+filter reference contained polya , polyc , polyg , polyt , ribosomal rnas , trnas , line , sine , ltr and satellite repeats , rrna , scrna and snrnas , as well as adaptor , barcode , and primer sequences .
+in our experiments , most reads filtered to ribosomal rnas and merged adaptor - barcode - primer sequences .
+when aligning reads to the genome , two mismatches were allowed on the seed , and alignments were extended when possible based on a dynamic scoring function .
+the junction reference library was generated from a list of known and putative exon - exon pairs within refseq transcripts and contained approximately two million fasta entries .
+reverse reads in our experiments were shorter than forward reads ( 25 vs 50 , or 35 vs 75 ) .
+to increase the mapping rate for the shorter reverse reads , they were additionally aligned to an ' exon reference ' by allowing three mismatches on the seed .
+this exon reference contained each known exon as a separate reference entry .
+an exon rescue step was performed for reads where one pair was mapped within a gene and its pair was unaligned , by aligning the unmapped read within the downstream exons of the same gene with up to six mismatches .
+the genome , exon , junction , and rescued alignments were merged to generate a single set of alignments for the forward and reverse tags separately .
+reads that aligned confidently to the filter reference were subtracted from these alignments .
+a final pairing step was performed to find most probable alignment pairs and assign a pairing quality value ( for formulas see methods in text s1 ) .
+these final paired alignments were put in a genome - coordinate bam file which represents the summary of mapped alignments except for fusion alignments found by sasr .
+suffix array spliced read ( sasr ) fusion finder for reads that were admissible as a candidate to be spliced on a fusion junction ( see methods in text s1 for admission criteria ) , we performed a suffix array search as follows .
+a read was defined to provide evidence of a splice junction between an exon x and exon y if and only if ( 1 ) exon x maps to the prefix of the read , ( 2 ) exon y maps to the suffix of the read and ( 3 ) the sum of the two map lengths is equal to the length of the read .
+for 50 - bp long reads ( or 49 colors plus a leading base ) , the suffix data structure was simply a list ( an array ) of all suffixes of length 10 through 38 from all exons .
+the suffixes were stored in lexicographically increasing order .
+a string s = s1s2 ... sm is lexicographically ( i.e. alphabetically ) less than a string t = t1t2 ... tn if s1 < t1 or s1 = t1 , and string s2s3 ... sm is lexicographically less than string t2t3 ... tn. each suffix was represented compactly by a pair of integers ( an integer and a byte in the implementation ) : an index to the relevant exon in the input exon list , and the length of the suffix .
+such a data structure is called a suffix array [ 60 ] .
+because of the lexicographic order proper , all suffixes that start with any given decamer were consecutive in such a list .
+therefore , one may quickly find all matching suffixes with a binary search into the suffix array .
+once the list of exons that mapped to the prefix and suffix of the read were identified , it could be determined whether the read provided evidence for a unique junction .
+junction evidence graph and evaluation filters a read was considered to be a span evidence for a junction x - y between two exons if it was already junction mapped or if it was discovered by sasr as described above .
+a paired - end read was considered bridge evidence for a junction x - y if one read of the pair mapped to exon x and the other mapped to exon y with pqv > 10 .
+candidate junctions were stored , each with a count of evidence , number of unique start points and corresponding pqv , in a sparse , directed graph .
+in this graph , exons corresponded to nodes , and span and bridge evidences corresponded to two types of edges between nodes .
+after all evidence was collected , junctions were called by evaluating each candidate and assigning a junction confidence value .
+at least one and two unique evidences of each type were respectively required to call same - gene and different - gene junctions ( fusion ) .
+exons could partially overlap , allowing for junctions with different donor and acceptor sites to be counted as alternative splices as long as at least two alternatives were detected .
+genes with overlapping annotations were not counted towards a gene fusion if the evidence was ambiguous .
+paired - end rna library preparation and sequencing human breast adenocarcinoma ( mcf - 7 ) total rna and firstchoice ( r ) human brain reference rna ( hbr ) were obtained from ambion .
+universal human reference total rna ( uhr ) was obtained from stratagene .
+oligo ( dt ) selection was performed twice by using micropoly ( a ) purist ( tm ) kit ( ambion ) according to the manufacturer 's recommendations .
+after polya selection , 500 ng polya rna was fragmented using rnase iii .
+50 ng fragmented rna was then subjected to hybridization and ligation using the solid total rna - seq kit ( ambion ) according to the manufacturer 's instructions .
+duplicate libraries , with three different insert sizes ( 100 - 200 bp , 100 - 300 bp , 150 - 250 bp ) , were generated from hbr and uhr rnas .
+a total of 12 libraries were multiplexed using the solid rna barcoding kit ( applied biosystems ) and pooled at an equi - molar ratio .
+two libraries were made from same lot of mcf - 7 polya rna with standard insert size ( 100 - 200 bp ) .
+the final purified products were quantitated using a nanodrop ( r ) instrument , and the size range of the products was confirmed by bioanalyzer ( tm ) instrument analysis .
+the samples were then diluted and used for emulsion pcr .
+libraries were sequenced utilizing 50 or 75 bp forward and 25 or 35 bp reverse paired - end sequencing chemistry on the solid system [ 47 ] .
+taqman real - time pcr assay validation taqman probes and primers were designed for selected fusion targets .
+for each putative fusion call , the target region for assay design was composed of 200 bases around the fusion point : the first 100 from the 5 ' gene exon and the second 100 from the 3 ' gene exon .
+if either of the exons was smaller than 100 bases , the entire exon was taken but no bases from a further exon were used .
+therefore , any target region had a maximum of 200 bases .
+these target sequences were then used to select taqman assay probes and primers which were ordered from applied biosystems .
+these assays were used to validate the novel fusion candidates in universal human reference rna sample ( stratagene ) , mcf - 7 rna ( ambion ) , human brain reference rna ( ambion ) , and a no template control sample .
+cdnas were generated from 2.5 ug total rna from each sample using the high capacity cdna archive kit and protocol ( applied biosystems ) .
+the resulting cdna products were diluted twenty - fold and four replicates were run for each gene for each sample in a 384 - well format plate on 7900ht fast real - time pcr system ( applied biosystems ) .
+cancer cell line and breast cancer clinical sample screening 24 selected fusion targets ( figure 6 ) were screened across 20 cancer cell line rnas and negative template control ( ntc , table s5 in text s2 ) using taqman probe and primers .
+real - time pcr reactions were run as described above .
+the same selected 24 fusion targets were also screened in 48 breast cancer clinical samples ( origene ) using taqman probe and primers .
+cdnas were generated from 2 ng total rna from each sample using the high capacity cdna archive kit and protocol ( applied biosystems ) .
+the resulting cdna was subjected to a 16 - cycle pcr amplification followed by real - time pcr reaction using the manufacturer 's taqman preamp master mix kit protocol ( applied biosystems ) .
+preamplifed cdna products were diluted twentyfold and four replicates were run for each gene for each sample in a 384 - well plate on a 7900ht fast real - time pcr system ( applied biosystems ) .
+supporting information text s1 supporting methods and figures .
+this text contains additional methods and figures in support of the main manuscript .
+( docx ) click here for additional data file .
+test s2 supporting tables .
+this table contains supplementary tables supplied as multiple worksheets in support of the main manuscript .
+( xls ) click here for additional data file .
+we would like to thank the following people for discussion and support : allison leon , susan azad , brian tuch , yutao fu , dustin holloway , jeoffrey schageman , chris mueller , mark mooney , darryl leon , daryl thomas , armin spura , jingwei ni , james caffrey , michael rhodes , gina costa , francisco de la vega , and ellen beasley .
+we also thank goke ojewole , alec wong , karl kuhlmann , srikanth jandhyala , brijesh krishnaswami , namita patel , jing zhai , and yuandan lou for software implementation and testing .
+thanks to andreas sboner and andrew mchpherson for discussions and clarifications with using fusionseq and defuse .
+i have read the journal 's policy and have the following conflicts .
+some of the authors are employees of life technologies corporation .
+life technologies supported the studies of which data were used in this manuscript .
+employees of the supporter have designed the studies and collected data that were used in this manuscript and had a role in the decision to publish .
+references 1 wang z gerstein m snyder m 2009 rna - seq : a revolutionary tool for transcriptomics .
+nat rev genet 10 57 63 19015660 2 mortazavi a williams ba mccue k schaeffer l wold b 2008 mapping and quantifying mammalian transcriptomes by rna - seq .
+nat methods 5 621 628 18516045 3 de bona f ossowski s schneeberger k ratsch g 2008 optimal spliced alignments of short sequence reads .
+bioinformatics 24 i174 180 18689821 4 denoeud f aury jm da silva c noel b rogier o 2008 annotating genomes with massive - scale rna sequencing .
+genome biol 9 r175 19087247 5 nagalakshmi u wang z waern k shou c raha d 2008 the transcriptional landscape of the yeast genome defined by rna sequencing .
+science 320 1344 1349 18451266 6 wang et sandberg r luo s khrebtukova i zhang l 2008 alternative isoform regulation in human tissue transcriptomes .
+nature 456 470 476 18978772 7 cloonan n xu q faulkner gj taylor df tang dt 2009 rna - mate : a recursive mapping strategy for high - throughput rna - sequencing data .
+bioinformatics 25 2615 2616 19648138 8 trapnell c pachter l salzberg sl 2009 tophat : discovering splice junctions with rna - seq .
+bioinformatics 25 1105 1111 19289445 9 yassour m kaplan t fraser hb levin jz pfiffner j 2009 ab initio construction of a eukaryotic transcriptome by massively parallel mrna sequencing .
+proc natl acad sci u s a 106 3264 3269 19208812 10 ameur a wetterbom a feuk l gyllensten u 2010 global and unbiased detection of splice junctions from rna - seq data .
+genome biol 11 r34 20236510 11 ozsolak f platt ar jones dr reifenberger jg sass le 2009 direct rna sequencing .
+nature 461 814 818 19776739 12 au kf jiang h lin l xing y wong wh 2010 detection of splice junctions from paired - end rna - seq data by splicemap .
+nucleic acids res 38 4570 4578 20371516 13 trapnell c williams ba pertea g mortazavi a kwan g 2010 transcript assembly and quantification by rna - seq reveals unannotated transcripts and isoform switching during cell differentiation .
+nat biotech 28 511 515 14 guttman m garber m levin jz donaghey j robinson j 2010 ab initio reconstruction of cell type - specific transcriptomes in mouse reveals the conserved multi - exonic structure of lincrnas .
+nat biotech 28 503 510 15 nicolae m mangul s mandoiu ii zelikovsky a 2011 estimation of alternative splicing isoform frequencies from rna - seq data .
+algorithms mol biol 6 9 21504602 16 li b dewey cn 2011 rsem : accurate transcript quantification from rna - seq data with or without a reference genome .
+bmc bioinformatics 12 323 21816040 17 cloonan n forrest a kolle g gardiner b faulkner g 2008 stem cell transcriptome profiling via massive - scale mrna sequencing .
+nat methods 5 613 619 18516046 18 tang f barbacioru c wang y nordman e lee c 2009 mrna - seq whole - transcriptome analysis of a single cell .
+nat methods 6 377 382 19349980 19 kosik ks 2010 micrornas and cellular phenotypy .
+cell 143 21 26 20887887 20 palanisamy n ateeq b kalyana - sundaram s pflueger d ramnarayanan k 2010 rearrangements of the raf kinase pathway in prostate cancer , gastric cancer and melanoma .
+nat med 16 793 798 20526349 21 kannan k wang l wang j ittmann mm li w 2011 recurrent chimeric rnas enriched in human prostate cancer identified by deep sequencing .
+proc natl acad sci u s a 108 9172 9177 21571633 22 rowley jd 1973 a new consistent chromosomal abnormality in chronic myelogenous leukaemia identified by quinacrine fluorescence and giemsa staining .
+nature 243 290 293 4126434 23 shepherd p suffolk r halsey j allan n 1995 analysis of molecular breakpoint and m - rna transcripts in a prospective randomized trial of interferon in chronic myeloid leukaemia : no correlation with clinical features , cytogenetic response , duration of chronic phase , or survival .
+br j haematol 89 546 554 7734353 24 westbrook ca hooberman al spino c dodge rk larson ra 1992 clinical significance of the bcr - abl fusion gene in adult acute lymphoblastic leukemia : a cancer and leukemia group b study ( 8762 ) .
+blood 80 2983 2990 1467514 25 o'brien sg guilhot f larson ra gathmann i baccarani m 2003 imatinib compared with interferon and low - dose cytarabine for newly diagnosed chronic - phase chronic myeloid leukemia .
+n engl j med 348 994 1004 12637609 26 druker bj guilhot f o'brien sg gathmann i kantarjian h 2006 five - year follow - up of patients receiving imatinib for chronic myeloid leukemia .
+n engl j med 355 2408 2417 17151364 27 rubin bp chen cj morgan tw xiao s grier he 1998 congenital mesoblastic nephroma t ( 12 ; 15 ) is associated with etv6 - ntrk3 gene fusion : cytogenetic and molecular relationship to congenital ( infantile ) fibrosarcoma .
+am j pathol 153 1451 1458 9811336 28 knezevich sr mcfadden de tao w lim jf sorensen ph 1998 a novel etv6 - ntrk3 gene fusion in congenital fibrosarcoma .
+nat genet 18 184 187 9462753 29 tognon c knezevich sr huntsman d roskelley cd melnyk n 2002 expression of the etv6 - ntrk3 gene fusion as a primary event in human secretory breast carcinoma .
+cancer cell 2 367 376 12450792 30 persson m andren y mark j horlings hm persson f 2009 recurrent fusion of myb and nfib transcription factor genes in carcinomas of the breast and head and neck .
+proc natl acad sci u s a 106 18740 18744 19841262 31 tomlins sa rhodes dr perner s dhanasekaran sm mehra r 2005 recurrent fusion of tmprss2 and ets transcription factor genes in prostate cancer .
+science 310 644 648 16254181 32 kumar - sinha c tomlins sa chinnaiyan am 2008 recurrent gene fusions in prostate cancer .
+nat rev cancer 8 497 511 18563191 33 koivunen jp mermel c zejnullahu k murphy c lifshits e 2008 eml4 - alk fusion gene and efficacy of an alk kinase inhibitor in lung cancer .
+clin cancer res 14 4275 4283 18594010 34 wang j cai y ren c ittmann m 2006 expression of variant tmprss2 / erg fusion messenger rnas is associated with aggressive prostate cancer .
+cancer res 66 8347 8351 16951141 35 perner s wagner pl demichelis f mehra r lafargue cj 2008 eml4 - alk fusion lung cancer : a rare acquired event .
+neoplasia 10 298 302 18320074 36 kwak el bang yj camidge dr shaw at solomon b 2010 anaplastic lymphoma kinase inhibition in non - small - cell lung cancer .
+n engl j med 363 1693 1703 20979469 37 berger mf levin jz vijayendran k sivachenko a adiconis x 2010 integrative analysis of the melanoma transcriptome .
+genome res 20 413 427 20179022 38 hu y wang k he x chiang dy prins jf 2010 a probabilistic framework for aligning paired - end rna - seq data .
+bioinformatics 26 1950 7 20576625 39 maher ca kumar - sinha c cao x kalyana - sundaram s han b 2009 transcriptome sequencing to detect gene fusions in cancer .
+nature 458 97 101 19136943 40 maher ca palanisamy n brenner jc cao x kalyana - sundaram s 2009 chimeric transcript discovery by paired - end transcriptome sequencing .
+proc natl acad sci u s a 106 12353 12358 19592507 41 sboner a habegger l pflueger d terry s chen dz 2010 fusionseq : a modular framework for finding gene fusions by analyzing paired - end rna - sequencing data .
+genome biol 11 r104 20964841 42 mcpherson a hormozdiari f zayed a giuliany r ha g 2011 defuse : an algorithm for gene fusion discovery in tumor rna - seq data .
+plos comput biol 7 e1001138 21625565 43 edgren h murumagi a kangaspeska s nicorici d hongisto v 2011 identification of fusion genes in breast cancer by paired - end rna - sequencing .
+genome biol 12 r6 21247443 44 asmann yw hossain a necela bm middha s kalari kr 2011 a novel bioinformatics pipeline for identification and characterization of fusion transcripts in breast cancer and normal cell lines .
+nucleic acids res 39 e100 21622959 45 inaki k hillmer am ukil l yao f woo xy 2011 transcriptional consequences of genomic structural aberrations in breast cancer .
+genome res 21 676 687 21467264 46 kinsella m harismendy o nakano m frazer ka bafna v 2011 sensitive gene fusion detection using ambiguously mapping rna - seq read pairs .
+bioinformatics 27 1068 1075 21330288 47 mckernan kj peckham he costa gl mclaughlin sf fu y 2009 sequence and structural variation in a human genome uncovered by short - read , massively parallel ligation sequencing using two - base encoding .
+genome res 19 1527 1541 19546169 48 shi l reid lh jones wd shippy r warrington ja 2006 the microarray quality control ( maqc ) project shows inter - and intraplatform reproducibility of gene expression measurements .
+nat biotechnol 24 1151 1161 16964229 49 canales rd luo y willey jc austermiller b barbacioru cc 2006 evaluation of dna microarray results with quantitative gene expression platforms .
+nat biotechnol 24 1115 1122 16964225 50 hampton oa den hollander p miller ca delgado da li j 2009 a sequence - level map of chromosomal breakpoints in the mcf - 7 breast cancer cell line yields insights into the evolution of a cancer genome .
+genome res 19 167 177 19056696 51 surget - groba y montoya - burgos ji 2010 optimization of de novo transcriptome assembly from next - generation sequencing data .
+genome res 20 1432 1440 20693479 52 birol i jackman sd nielsen cb qian jq varhol r 2009 de novo transcriptome assembly with abyss .
+bioinformatics 25 2872 2877 19528083 53 robertson g schein j chiu r corbett r field m 2010 de novo assembly and analysis of rna - seq data .
+nat methods 7 909 912 20935650 54 zerbino d birney e 2008 velvet : algorithms for de novo short read assembly using de bruijn graphs .
+genome res 18 821 829 18349386 55 lewis bp green re brenner se 2003 evidence for the widespread coupling of alternative splicing and nonsense - mediated mrna decay in humans .
+proc natl acad sci u s a 100 189 192 12502788 56 adem c soderberg cl hafner k reynolds c slezak jm 2004 erbb2 , tbx2 , rps6kb1 , and myc alterations in breast tissues of brca1 and brca2 mutation carriers .
+genes chromosomes cancer 41 1 11 15236312 57 monni o barlund m mousses s kononen j sauter g 2001 comprehensive copy number and gene expression profiling of the 17q23 amplicon in human breast cancer .
+proc natl acad sci u s a 98 5711 5716 11331760 58 haffner mc aryee mj toubaji a esopi dm albadine r 2010 androgen - induced top2b - mediated double - strand breaks and prostate cancer gene rearrangements .
+nat genet 42 668 675 20601956 59 lin c yang l tanasa b hutt k ju bg 2009 nuclear receptor - induced chromosomal proximity and dna breaks underlie specific translocations in cancer .
+cell 139 1069 1083 19962179 60 manber u myers g 1993 suffix arrays : a new method for on - line string searches .
+siam journal on computing 22 935 948 61 krzywinski m schein j birol i connors j gascoyne r 2009 circos : an information aesthetic for comparative genomics .
+genome res 19 1639 1645 19541911

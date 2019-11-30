@@ -1,0 +1,294 @@
+bmc med inform decis mak bmc med inform decis mak bmc medical informatics and decision making 1472 - 6947 biomed central 26733152 4699052 1472 - 6947 - 15 - s5 - s3 10.1186 / 1472 - 6947 - 15 - s5 - s3 proceedings private genome analysis through homomorphic encryption kim miran 1 alfks500 @ snu.ac.kr lauter kristin 2 1 department of mathematical sciences , gwanakro 1 , seoul , korea 2 cryptography research group , microsoft research , redmond , wa , usa 2015 21 12 2015 15 suppl 5 proceedings of the 4th idash privacy workshop : critical assessment of data privacy and protection ( cadpp ) challengexiaoqian jiang , shuang wang , xiaofeng wang and haixu tangpublication charges for this supplement were supported by idash u54hl108460 , idash linked r01hg007078 ( indiana university ) , nhgri k99hg008175 and nlm r00lm011392 .
+articles have undergone the journal 's standard peer review process for supplements .
+the supplement editors declare that they have no competing interests .
+s3 s3 copyright ( c ) 2015 kim and lauter .
+2015 kim and lauter.this is an open access article distributed under the terms of the creative commons attribution license ( http :// creativecommons.org / licenses / by / 4.0 ) , which permits unrestricted use , distribution , and reproduction in any medium , provided the original work is properly cited .
+the creative commons public domain dedication waiver ( http :// creativecommons.org / publicdomain / zero / 1.0 /) applies to the data made available in this article , unless otherwise stated .
+background the rapid development of genome sequencing technology allows researchers to access large genome datasets .
+however , outsourcing the data processing o the cloud poses high risks for personal privacy .
+the aim of this paper is to give a practical solution for this problem using homomorphic encryption .
+in our approach , all the computations can be performed in an untrusted cloud without requiring the decryption key or any interaction with the data owner , which preserves the privacy of genome data .
+methods we present evaluation algorithms for secure computation of the minor allele frequencies and chi2 statistic in a genome - wide association studies setting .
+we also describe how to privately compute the hamming distance and approximate edit distance between encrypted dna sequences .
+finally , we compare performance details of using two practical homomorphic encryption schemes - the bgv scheme by gentry , halevi and smart and the yashe scheme by bos , lauter , loftus and naehrig .
+results the approach with the yashe scheme analyzes data from 400 people within about 2 seconds and picks a variant associated with disease from 311 spots .
+for another task , using the bgv scheme , it took about 65 seconds to securely compute the approximate edit distance for dna sequences of size 5k and figure out the differences between them .
+conclusions the performance numbers for bgv are better than yashe when homomorphically evaluating deep circuits ( like the hamming distance algorithm or approximate edit distance algorithm ) .
+on the other hand , it is more efficient to use the yashe scheme for a low - degree computation , such as minor allele frequencies or chi2 test statistic in a case - control study .
+homomorphic encryption genome - wide association studies hamming distance approximate edit distance 16 3 2015 4th idash privacy workshopsan diego , ca , usa introduction the rapid development of genome sequencing technology has led to the genome era .
+we expect that the price of a whole genome sequence will soon be $ 1k in a day , which enables researchers to access large genome datasets .
+moreover , many genome projects like the personal genome project ( pgp ) [ 1 ] and the hapmap project [ 2 ] display genotypic information in public databases , so genomic data has become publicly accessible .
+while genome data can be used for a wide range of applications including healthcare , biomedical research , and forensics , it can be misused , violating personal privacy via genetic disease disclosure or genetic discrimination .
+even when explicit identifiers ( e.g. , name , date of birth or address ) are removed from genomic data , one can often recover the identity information [ 3 - 5 ] .
+for these reasons , genomic data should be handled with care .
+there have been many attempts to protect genomic privacy using cryptographic methods .
+in particular , it has been suggested that we can preserve privacy through ( partially ) homomorphic encryption , which allows computations to be carried out on ciphertexts .
+kantarcioglu et al .
+[ 6 ] presented a novel framework that allows organizations to support data mining without violating genomic privacy .
+baldi et al .
+[ 7 ] proposed a cryptographic protocol to determine whether there exists a biological parent - child relationship between two individuals .
+ayday et al .
+[ 8 ] recently conducted privacy - preserving computation of disease risk based on genomic and non - genomic data .
+however , these methods used homomorphic computation involving a single operation on ciphertexts ( e.g. , either additions or multiplications , not both ) , thus they could support a limited set of genomic queries .
+fully homomorphic encryption ( e.g. , [ 9 - 11 ]) permits encrypted data to be computed on without decryption , so it allows us to evaluate arbitrary arithmetic circuits over encrypted data .
+thus , we can privately perform all types of genome analysis using homomorphic encryption ( he ) cryptosystems .
+moreover , we can delegate intensive computation to a public cloud and store large amounts of data in it. recently , many protocols to conduct privacy - preserving computation of genomic tests with fully homomorphic encryption have been introduced .
+yasuda et al .
+[ 12 ] gave a practical solution for computation of multiple hamming distance values using the lnv scheme [ 13 ] on encrypted data , so to find the locations where a pattern occurs in a text .
+graepel et al .
+[ 14 ] and bos et al .
+[ 15 ] applied he to machine learning , and described how to privately conduct predictive analysis based on an encrypted learned model .
+lauter et al .
+[ 16 ] gave a solution to privately compute the basic genomic algorithms used in genetic association studies .
+cheon et al .
+[ 17 ] described how to calculate edit distance on homomorphically encrypted data .
+in this paper , we propose efficient evaluation algorithms to compute genomic tests on encrypted data .
+we first consider the basic tests which are used in genome - wide association studies ( gwas ) .
+they are conducted to analyze the statistical associations between common genetic variants in different individuals .
+in particular , we focus on the minor allele frequencies ( mafs ) and chi2 test statistic between the variants of case and control groups .
+secondly , we consider dna sequence comparison which can be used in sequence alignment and gene finding .
+we show how to privately compute the hamming distance and approximate edit distance on encrypted data .
+we also adapt these methods to the practical he schemes - bgv scheme [ 18 ] by gentry , halevi and smart and yashe scheme [ 19 ] by bos , lauter , loftus and naehrig .
+finally , we compare the performance of the two encryption schemes in these contexts .
+in practice , we take advantage of batching techniques to parallelize both space and computation time together .
+one possible scenario could be of interest in situations involving patients , a data owner ( e.g. , a healthcare organization or a medical center ) and a public cloud .
+in our solution , a data owner wants to store large amounts of data in the cloud and many users may interact with the same data over time .
+the cloud can handle all that interaction through computation on encrypted data , so it does not require further interaction from the data owner .
+the patients can upload their encrypted data directly to the cloud using the public key .
+the genomic tests are performed on the cloud and the encrypted results are returned to the data owner .
+finally , the data owner decrypts the results using the secret key to share it with the patient .
+all the computations in the cloud are performed on encrypted data without requiring the decryption key , so the privacy of genomic data can be protected by the semantic security of the underlying he schemes .
+background the idash ( integrating data for analysis , ' anonymization ' and sharing ) national center organized the idash privacy & security challenge for secure genome analysis .
+this paper is based on a submission to the idash challenge which consisted of two tasks : i ) secure outsourcing of gwas and ii ) secure comparison between genomic data .
+two tasks for idash challenge given the encrypted genotypes of two groups of individuals over many single nucleotide variants ( snvs ) , the goal of the first task is to privately compute the mafs in each group and a chi2 test statistic between the two groups on each site .
+suppose that a and b are two alleles of the gene , and let naa , nab , nbb denote the numbers of observed individuals for genotypes aa , ab , bb , respectively .
+the allele counts of a and b are given by na = let2naa + nab and nb = let2nbb + nab .
+then the maf of the given alleles is defined by min ( na,nb ) na + nb. if we let n be the total number of people in a sample population , the total number of alleles in the sample is na + nb = 2n , so we compute only one of two allele counts in encrypted form .
+the minimum can then easily be computed after decryption and we obtain the maf by one division by 2n . the chi2 test statistic in case - control groups is computed based on the allelic contingency table ( table 1 ) : table 1 allelic contingency table allele type total a b case na nb r = 2n control na ' nb ' s = 2n total g = na + na ' k = nb + nb ' t = 4n t ( nan'b - nbn'a ) r.s.g.k. algorithm 1 hamming distance algorithm 1 : h < - - 0 2 : for i in ldo 3 : if (' xi.sv ' or ' yi.sv ') in {' ins ' , ' del '} then 4 : hi < - - 0 5 : else if (( xi or yi ) == ' empty ') or 6 : (( xi.ref == yi.ref ) and ( xi.alt ! = yi.alt )) then 7 : hi < - - 1 8 : else 9 : hi < - - 0 10 : end if 11 : h < - - h + hi 12 : end for 13 : return h we observe that the test can be written as a function of na and na ' .
+more precisely , it is expressed as 4n ( na ( 2n - n'a ) - n'a ( 2n - na )) 22n.2n.g.k = 4n ( na - n'a ) 2 ( na + n'a ).( 4n - ( na + n'a )) .
+let na ( j ) and n'a ( j ) denote the allele counts of a at snv j in the case group and control group , respectively .
+as discussed above , it suffices to compute ( na ( j )+ n'a ( j )) and ( na ( j ) - n'a ( j )) over encrypted data .
+the goal of the second task is to privately compute the hamming distance and approximate edit distance between the encrypted genome sequences .
+suppose that two participants have variation call format ( vcf ) files which summarize their variants compared with the reference genome ( e.g. , insertion , deletion , or substitution at a given position of a given chromosome ) .
+if there is only one record in the vcf files at a specified location , the other one is considered to be an empty set (' empty ') .
+let l be a list indexed by the positions of two participants .
+then we can define the hamming distance as described in algorithm 1 , where " xi.sv " denotes the type of structural variant relative to the reference , " xi.ref " the reference bases and " xi.alt " the alternate non - reference alleles .
+the standard dynamic programming approach to compute the full wagner - fischer edit distance [ 20 ] is computed in a recursive way , so the multiplicative depth of the circuit to be homomorphically evaluated is too large .
+recently , cheon et al .
+[ 17 ] presented an algorithm to compute the wf edit distance over packed ciphertexts but it took about 27 seconds even on length 8 dna sequences .
+on the other hand , in this task we are given the distance to a public human dna sequence ( called the reference genome ) , which allows us to efficiently approximate the edit distance using algorithm 2 .
+it is calculated based on the set difference metric , which enables parallel processing in computation .
+algorithm 2 approximate edit distance algorithm 1 : e < - - 0 2 : for iinldo 3 : if xi == ' empty ' then 4 : d ( xi ) < - - 0 5 : else if ' xi.sv ' == ' del ' then 6 : d ( xi ) < - - len ( xi.ref ) 7 : else 8 : d ( xi ) < - - len ( xi.alt ) 9 : end if 10 : define d ( yi ) with the same way as d ( xi ) 11 : if (( xi.ref == yi.ref ) and ( xi.alt == yi.alt )) then 12 : ei < - - 0 13 : else 14 : ei < - - max { d ( xi ) , d ( yi )} 15 : end if 16 : e < - - e + ei 17 : end for 18 : return e practical homomorphic encryption fully homomorphic cryptosystems allow us to homomorphically evaluate any arithmetic circuit without decryption .
+however , the noise of the resulting ciphertext grows during homomorphic evaluations , slightly with addition but substantially with multiplication .
+for efficiency reasons for tasks which are known in advance , we use a more practical somewhat homomorphic encryption ( she ) scheme , which evaluates functions up to a certain complexity .
+in particular , two techniques are used for noise management of she : one is the modulus - switching technique introduced by brakerski , gentry and vaikuntanathan [ 21 ] , which scales down a ciphertext during every multiplication operation and reduces the noise by its scaling factor .
+the other is a scale - invariant technique proposed by brakerski [ 22 ] such that the same modulus is used throughout the evaluation process .
+let us denote by [.] q the reduction modulo q into the interval ( - q / 2,q / 2 ] intersectionz of the integer or integer polynomial ( coefficient - wise ) .
+for a security parameter lambda , we choose an integer m = m ( lambda ) that defines the m - th cyclotomic polynomial phim ( x ) .
+for a polynomial ring r = z [ x ]/( phim ( x )) , set the plaintext space to rt := r / tr for some fixed t >= 2 and the ciphertext space to rq := r / qr for an integer q = q ( lambda ) .
+let chi = chi ( lambda ) denote a noise distribution over the ring r. we use the standard notation a < - - d to denote that a is chosen from the distribution d. now , we recall the bgv scheme [ 18 ] and the scale - invariant yashe scheme [ 19 ] .
+the bgv scheme gentry , halevi and smart [ 18 ] constructed an efficient bgv - type she scheme .
+the security of this scheme is based on the ( decisional ) ring learning with errors ( rlwe ) assumption , which was first introduced by lyubashevsky , peikert and regev [ 23 ] .
+the assumption is that it is infeasible to distinguish the following two distributions .
+the first distribution consists of pairs ( ai , ui ) , where ai , ui < - - rq uniformly at random .
+the second distribution consists of pairs of the form ( ai , bi ) = ( ai , ais + ei ) where ai < - - rq drawn uniformly and s , ei < - - chi . note that we can generate rlwe samples as ( ai , ais + tei ) where t and q are relatively prime .
+to improve efficiency for he , they use very sparse secret keys s with coefficients sampled from { - 1 , 0 , 1 } .
+here is the she scheme of [ 18 ] : * paramsgen : given the security parameter lambda , choose an odd integer m , a chain of moduli q0 < q1 < ...
+< ql - 1 = q , a plaintext modulus t with 1 < t < q0 , and discrete gaussian distribution chierr . output ( m , { qi } , t , chierr ) .
+* keygen : on the input parameters , choose a random s from { 0 , +/ - 1 } phi ( m ) and generate an rlwe instance ( a , b ) = ( a , [ as + te ] q ) for e < - - chierr .
+we set the key pair : ( pk , sk ) = (( a , b ) , s ) with an evaluation key evkinrp.ql - 22 for a large integer p .
+* encryption : to encrypt m in rt , choose a small polynomial v and two gaussian polynomials e0 , e1 over rq . then compute the ciphertext given by enc ( m , pk ) = ( c0 , c1 ) = ( m , 0 ) + ( bv + te0 , av + te1 ) in rq2 .
+* decryption : given a ciphertext ct = ( c0 , c1 ) at level l , output dec ( ct,sk )=[ c0 - s.c1 ] ql mod t where the polynomial [ c0 - s.c1 ] ql is called the noise in the ciphertext ct .
+* homomorphic evaluation : given two ciphertexts ct = ( c0 , c1 ) and ct '=( c0 ' , c1 ') at level l , the homomorphic addition is computed by ctadd =([ c0 + c0 '] ql ,[ c1 + c1 '] ql ) .
+the homomorphic multiplication is computed by ctmult = switchkey ( c0 * c1 , evk ) where c0 * c1 =([ c0c0 '] ql ,[ c0c1 '+ c1c0 '] ql ,[ c1c1 '] ql ) and the key switching function switchkey is used to reduce the size of ciphertexts to two ring elements .
+we also apply modulus switching from qi to qi - 1 in order to reduce the noise .
+if we reach the smallest modulus q0 , we can no longer compute on ciphertexts .
+smart and vercauteren [ 24 ] observed that rt is isomorphic to producti = 1lzt [ x ]/ fi ( x ) if phim ( x ) factors modulo t into l irreducible factors fi ( x ) of the same degree .
+namely , a plaintext polynomial m can be considered as a vector of l small polynomials , m mod fi , called plaintext slots .
+we can also transform the plain - text vector ( m1 ,... , mr ) inproducti = 1lzt [ x ]/ fi ( x ) to an element m in rt using the polynomial chinese remainder theorem ( i.e. , m = crt ( m1 , ... , mr )) .
+in particular , it is possible to add and multiply on the slots : if m , m ' in rt encode ( m1 , ... , ml ) and ( m1 ',... , ml ') respectively , then we see that m + m '= mi + mi ' mod fi and m.m '= mi.mi ' mod fi. this technique was adapted to the bgv scheme .
+the yashe scheme a practical she scheme , yashe , was proposed in [ 19 ] based on combining ideas from [ 22,25,26 ] .
+the security of this scheme is based on the hardness of the rlwe assumption similar to the one for bgv .
+it also relies on the decisional small polynomial ratio ( dspr ) assumption which was introduced by lopez - alt , tromer , and vaikuntanathan [ 26 ] .
+let tinrqx be invertible in rq , yi in rq and zi = yi / t ( mod q ) for i = 1 , 2 .
+for z in rq , and , we define chiz = chi + z to be the distribution shifted by z. the assumption is that it is hard to distinguish elements of the form h = a / b , where a < - - y1 + tchiz , b < - - y2 + tchiz , from elements drawn uniformly from rq . the yashe scheme consists of the following algorithms .
+* paramsgen : given the security parameter lambda , choose m to be a power of 2 ( the m - th cyclotomic polynomial is phim ( x ) = xn + 1 ( n = phi ( m ) = m / 2 ) , modulus q and t with 1 < t < q , truncated discrete gaussian distribution chierr on r such that the coefficients of the polynomial are selected in the range [ - b ( lambda ) , b ( lambda )]) , and an integer base omega > 1 .
+output ( m , q , t , chierr , omega ) .
+* keygen : on the input parameters , sample f ' , g < - - { 0 , +/ - 1 } phi ( m ) and set f = [ tf ' + 1 ] q. if f is not invertible modulo q , choose a new f ' and compute the inverse f - 1 in r of f modulo q and set h = [ tgf - 1 ] q . let lomega,q = [ logomega ( q )] + 1 and define pomega,q ( a )=([ aomegai ] q ) i = 0lomega,q - 1 .
+sample e,s < - - chierrlomega,q and compute gamma =[ pomega,q ( f )+ e + hs ] inrqlomega,q . then we set the key pair : ( pk , sk , evk ) = ( h , f , gamma ) .
+* encryption : to encrypt m in rt , choose e , s < - - chierr and then compute the ciphertext enc ( m,pk )= qt. [ m ] t + e + hsqinrq .
+* decryption : given a ciphertext ct , output dec ( ct,sk )=[ tq. [ f.ct ] q ] mod t. the inherent noise in the ciphertext is defined as the minimum value of infinite norm || v || infinity = maxi {| vi |} such that f.ct =[ qt ].[ m ] t + v ( mod ) q * homomorphic evaluation : given two ciphertexts ct and ct ' , homomorphic addition is computed as ctadd =[ ct + ct '] q * homomorphic evaluation : given two ciphertexts ct and ct ' , homomorphic addition is computed as ctadd =[ ct + ct '] q. homomorphic multiplication is computed as ctmult = switchkeytqct.ct'q,evk where the key switching function switchkey is used to transform a ciphertext decryptable under the original secret key f ( see [ 19 ] for details ) .
+our methods for private genome analysis in this section , we describe how to encode and encrypt the genomic data for each task .
+based on these methods , we propose the evaluation algorithms to compute the genomic tests on encrypted data .
+encoding genomic data lauter et al .
+[ 16 ] presented a method to encode a person 's genotype given a candidate allele associated to a specified disease .
+they used a binary dummy vector representation , which makes the number of ciphertexts too large .
+in contrast , we encode the genotypes as integers so that one can efficiently compute their sums and differences over the integers .
+more precisely , for a bi - allelic gene with alleles a and b , there are 3 possible single nucleotide polymorphisms ( snps ) - aa , ab , bb , and they are encoded as follows : aa - - > 2 , ab - - > 1 , bb - - > 0 .
+figure 1 shows the file format of the data for task 1 and its encodings .
+figure 1 a snapshot of the dataset for task 1 and its encodings .
+now , we describe how genomic data can be encoded for dna comparison .
+the first step is to curate the data using the positions in the vcf files of two participants .
+in other words , the server should arrange the information and make the merged list l so that each individual can encode their genotypic information according to the list .
+let l ( l ) denote the length of the list l. then , for 1 <= i <= l ( l ) , we define two values ei = 1ifposiinl0o.w , , fi = 0ifsviin { ins , del } 1o.w , .
+the value ei defines whether the genotype at the specified locus is missing ; the value fi specifies the variants compared with the reference .
+since both vcf files are aligned with the same reference genome , we do n't need to compare the columns of ' ref ' .
+to improve performance , we assume that it suffices to compare 7 snps between two non - reference sequences .
+in the following , we describe how to encode the sequences .
+each snp is represented by two bits as a - - > 00 , g - - > 01 , c - - > 10 , t - - > 11 , and then concatenated with each other .
+next we pad with 1 at the end of the bit string so as to distinguish the a - strings .
+finally , we pad with zeros to make it a binary string of length 15 , denoted by si. let si [ j ] denote j - th bit of si. if a person 's snv at the given locus is not known ( i.e. , ei = 0 ) , then it is encoded as 0 - string .
+for example , ' gt c ' is encoded as a bit string 01 || 11 || 10 || 10 ...
+0 , of length 15 .
+finally , let us consider the i - th genotype lengths di , di'of two participants defined as follows : when it has no variants at the given locus of the sequence , set zero as the length at the locus .
+if it includes a deletion compared with the reference , use the length of reference .
+otherwise , we take the length of the target sequence at the current locus .
+in figure 2 , we illustrate the file format of the data for task 2 and its encodings .
+figure 2 a snapshot of the dataset for task 2 and its encodings .
+( a ) hu604d39 and ( b ) hu661ad0 .
+homomorphic computation of the bgv scheme we describe how to compute the genomic algorithms described above on encrypted genetic data using the bgv scheme .
+task 1 : gwas on encrypted genomic data using the encodings that we propose for practical he , we can homomorphically evaluate any function involving additions and multiplications , but it is not known how to perform homomorphic division of integer values .
+we obtain the counts using a few homomorphic additions .
+let gj be the encoded value of snv site j based on the encoding method as described above .
+then each person packs gj into the j - th slot .
+let s be the total number of snvs .
+assuming that each ciphertext holds l plaintext slots for s <= l , the i - th person encrypts the vector ( gi ( 1 ),... , gi ( s ) , 0 ... , 0 ) inztl using batching as cti = enc ( crt (( gi ( 1 ),... , gi ( s ) , 0 ... , 0 ) , pk ) .
+let cteval be a ciphertext given by the homomorphic operation cteval = sumi = 1ncti .
+note that the use of batching technique enables to perform n aggregate operations in parallel .
+next , let m = dec ( cteval , sk ) denote the decryption of the ciphertext cteval and decode the s outputs from the output plaintext polynomial as follows : let mj be the constant coefficient of m mod fj for 1 <= j <= s. that is , we have mj = letm modfj = sumi = 1ngi ( j ) .
+thus the maf of snv j in the group is computed as min { mj,2n - mj } 2n .
+for the homomorphic evaluation of chi2 test , each group performs aggregations over ciphertexts as shown in ( 1 ) .
+let ctcase and ctcont denote the ciphertexts by the evaluations in the case and control groups , respectively .
+then one can compute two ciphertexts by the homomorphic operations ct + = letctcase + ctcont,ct - = letctcase - ctcont .
+the plaintext polynomial from ct + can be decoded as the plaintext slots which have ( na ( j )+ n'a ( j )) at the j - th slot .
+in other words , we have dec ( ct + , sk ) mod fj = sumi = 1n ( gi ( j ) - g'i ( j ))=( na ( j ) - n'a ( j )) .
+similarly , the plaintext polynomial from ct - is decoded as the plaintext slots which has the value congruent to ( na - na ') in the interval [ 0,t ) intersectionz .
+thus , if the output value is larger than t2 , then subtract t from it ; that is , we have dec ( ct + , sk ) mod fj = sumi = 1n ( gi ( j ) - g'i ( j ))=( na ( j ) - n'a ( j )) .
+task 2 : secure dna sequence comparison we represent sequence comparison algorithms as binary circuits and then evaluate them over encrypted data .
+we use the native plaintext space of binary polynomials ( i.e. , r2 = z2 [ x ]/( phim ( x ))) , and denote xor and and as (+) and ^ , respectively .
+for simplicity , you may consider the plaintext space z2l supporting batching operation with l slots .
+for the homomorphic evaluation of hamming distance , the genomic data of two participants , denoted by ( ei,fi,si ) and ( ei ' , fi ' , si ') , are encrypted bit - wise .
+for example , the encryptions of ei 's are in the form of enc ( crt ( e1 ,... , el ) , pk ) , enc ( crt ( el + 1 ,... , e2l ) , pk ),... , enc ( crt ( ell / l.l + 1 ,... , ell,0 ,... 0 ) , pk ) .
+this allows to compute the same function on l inputs at the price of one computation .
+then one can evaluate the following binary circuit over encryption : e ( si,s'i )^( ei (+) e'i (+) 1 )(+) 1 ^ fi ^ fi ' where e ( si,s'i )=^ j = 115 ( si [ j ](+) s'i [ j ](+) 1 ) has 1 if and only if si,s'i are the same .
+after homomorphic computations , the output can be decrypted with the secret key .
+the plaintext polynomial has the hamming distance result of snv site i at the i - th slot , so we need only aggregate them .
+now , we consider the comparison binary circuit ( described in [ 17 ]) for the secure computation of the approximate edit distance .
+we express an unsigned mu - bit integer x in its binary representation and denote the j - th coordinate of x by x [ j ] ( i.e. , x = sumj = 1mux [ j ] 2j - 1,x [ j ] in { 0,1 }) .
+for two mu - bit integers x and y , the comparison circuit is defined by c ( x,y )= 1ifx < y,0o.w. , and this is written recursively as c ( x ; y ) := cmu where cj =(( x [ j ](+) 1 )^ y [ j ])(+)(( x [ j ](+) 1 (+) y [ j ])^ cj - 1 ) for j >= 2 with an initial value c1 =( x [ 1 ](+) 1 )^ y [ 1 ] .
+then the j - th bit of maximum value between two inputs is defined as follows : max { x,y }[ j ]=(( 1 (+) c ( x,y ))^ x [ j ])(+)( c ( x,y )^ y [ j ])= x [ j ](+)( c ( x,y )^( x [ j ](+) y [ j ])) .
+for the bit - sliced implementation , all the lengths are also expressed in a binary representation and we denote the maximum length of snps by mu. it follows from the primitive circuits that we can evaluate the circuits homomorphically : e ( si,s'i )^( fi (+) f'i (+) 1 )(+) 1 ^ max { di,di '}[ j ] .
+finally , one can decrypt the results and decode l ( l ) values from the output plaintext polynomials .
+more precisely , let li,j be the value at i - th slot which corresponds to the j - th bit .
+we see that sumj = 1muli,j.2j - 1 is the approximate edit distance of snv site i , hence we need only perform aggregation operations over them .
+homomorphic computation of the yashe scheme we explain how to evaluate the genomic algorithms homomorphically using the yashe scheme .
+task 1 : gwas on encrypted genomic data lauter et al .
+[ 13 ] introduced a method how to pack m bits b0 , ... , bm - 1 into a single ciphertext that encodes the polynomial b ( x )= sumi = 0m - 1bixi .
+we note that polynomial addition corresponds to simple component - wise addition of the vectors .
+since a case - control study requires only additions , this method can be used for our case .
+when using a ring polynomial xn + 1 with a power - of - two n , we can embed data of n '= letns persons into a single plaintext polynomial .
+namely , one can encrypt the polynomial pmg1 = g11 ,... , g1s ,... , gn '= gn'1 ,... , gn 's = let sumi = 1n'sumj = 0s - 1gijxj + s.i - 1 .
+the simple aggregation operations are performed over packed ciphertexts .
+now , let m = sumj = 0n 's - 1mjxjinrt denote the decryption result of the evaluated ciphertext .
+then , for 1 <= j <= s , one can aggregate n ' data from the output plaintext polynomial by computing mj < - - sumi = 0n ' - 1mj + is , which is the allele counts of a at the snv site j. notice that if n '= 1 , then we do n't need to do the above operations .
+hence , the maf of the snv j in the group is computed as min { mj,2n - mj } 2n .
+similarly , let ct + and ct - denote the ciphertexts computed by the homomorphic additions and subtractions after simple aggregations .
+as we have demonstrated , we need additional aggregation processes after decryptions .
+let m += sumj = 0n 's - 1mj + xj,m - = sumj = 0n 's - 1mj - xj denote the decryption polynomials of ct + and ct - , respectively .
+then , for 1 <= j <= s , one can obtain the allele counts by computing as naj + na '( j )= sumi = 0n ' - 1mj + is + , naj - na '( j )= sumi = 0n ' - 1mj + is - t. task 2 : secure dna sequence comparison since polynomial multiplication does not correspond to component - wise multiplication of the vectors , we have to consider another packing method instead of [ 13 ] .
+let us consider the polynomial - crt packing method .
+the m - th cyclotomic polynomial phim ( x ) factors modulo 2 into a product of the same irreducible factors ( i.e. , phimx = xn + 1 = x + 1n mod 2 ) ; so we cannot apply batching technique with these parameters .
+we can instead do that if taking a prime t ( not 2 ) such that the polynomial splits into the distinct factors modulo t , but the use of a different message space leads to change our primitive circuits .
+as noted in [ 27 ] , we see that for x,yin { 0,1 } , the following properties hold : x (+) y =( x - y ) 2 and x ^ y = x.y where - and . are arithmetic operations over integers. from these observations , we can amend the evaluation circuit for the hamming distance as follows : ( e ( si,s'i ).(( ei - e'i ) 2 - 1 )+ 1 ). fi.f'i where esi,s'i = productj = 1151 - sij - s'ij2 .
+we note that for mu - bit integer x and y , the comparison circuit c ( x ; y ) = cmu can be expressed as cj = 1 - xj.yj + 1 - xj - yj2.cj - 1 .
+for j >= 2 with c1 = 1 - x1.y1 since it is available to compute on large integer inputs , the maximum value is defined by maxx,y = 1 - cx,y.x + cx,y.y = x + cx,y.y - x. using these circuits , we compute the ciphertext given by the homomorphic operations 1 + esi,s'i.fi - f'i2 - 1.maxdi,d'i. then we get the encryptions of the approximate edit distance result of snv i. results and discussion in this section , we explain how to set the parameters for homomorphic evaluations and present our experimental results .
+we used bgv scheme with shoup - halevi 's he library [ 28 ] ( called helib ) .
+helib is written in c ++ and based on the arithmetic library ntl [ 29 ] over gmp .
+our experiments with bgv were performed on a linux machine with an intel xeon 2.67 ghz processor .
+we also implemented yashe scheme with arith library in c. the measurements were done in an intel core 3.60ghz , running 64 - bit windows 7 .
+the dataset used for task 1 consists of 200 case group ( constructed from 200 participants from pgp ) and 200 control group ( simulated based on the haplotypes of 174 participants from ceu population of apmap project ) .
+the dataset for task 2 consists of two individual genomes randomly selected from pgp .
+theoretical comparison between bgv and yashe bgv scheme has a chain of ciphertext moduli by a set of primes of roughly the same size , p0 , ... , pl - 1 , that is , the i - th modulus qi is defined as qi = productk = 0ipk .
+for simplicity , assume that p is the approximate size of the pis .
+given the lattice dimension n = phi ( m ) , the plaintext modulus t , and the hamming weight h of the secret key , it follows from theorem 3 in [ 27 ] that the depth of a classical homomorphic multiplication is dn,t =~ log2h.n.t42log2p =~ log2h.n.t436 , so the total number of modulus switching operations during the m - levels of multiplications is about m.dn,t. since we first should do one modulus switching to the initial ciphertext before homomorphic computation , we see that l = m . dn,t + 2 .
+thus we can approximate the size of the ciphertext modulus qbgv in the bgv scheme ( from c.3 in [ 18 ]) as follows : log2qbgv =~ 24 + 32log2n + l - 2. ( 11 + 12log2n )< l + 1. ( 11 + 12log2n ) since a fresh ciphertext in bgv consists of a pair of polynomials over rql - 1 , the size of ciphertext from the above inequality is about | ctbgv |=~ 2n.log2qbgv =~ 2nl + 1. ( 11 + 12log2n ) similarly , [ 19 , lemma 9 ] provides a theoretical upper bound on the noise growth after m multiplicative levels for yashe as ( nt ) 2 ( m - 1 ) . ( 12n2tsigmalomega,qomegam ) when taking b = 6sigma as the coefficient bound of error polynomials .
+it should be less than the ratio of qyashe to t so that the decryption procedure works ; we should select a ciphertext modulus qyashe so as to satisfy log2qyashe =~ 2m.log2nt + log212sigmalomega,qomegam >= 2m.log2nt since a ciphertext consists of only a single ring element , the size is about | ctyashe |=~ n.log2qyashe =~ 2nm.log2nt .
+we summarize the above results in table 2 .
+table 2 the theoretical sizes of ciphertext modulus and a ciphertext bgv yashe log2 q ( m.log2 ( h.n.t4 ) 36 + 3 ).( 11 + 12log2n ) 2m . log2 nt | ct | 2n ( m.log2 ( h.n.t4 ) 36 + 3 ).( 11 + 12log2n ) 2nm . log2 nt note that it is difficult to compare these two schemes because their parameters depend on at least 4 variables : the plaintext modulus , t , the dimension , n , the hamming weight , h , and the number of multaplicative levels to be evaluated , m. however we observe that , in the case that log2 n =~ 14 and h = 64 , we have : log2qyashe - log2qbgv =~ 2m.log2nt - m.dn,t + 3. ( 11 + 12log2n )=~ 2m.14 + log2t - m.dn,t + 3.18 = 2m.14 + log2t - 9.dn,t - 54 =~ 2m14 + log2t - 9.20 + 4log2t36 + eta - 54 = 18m1 - eta - 54forsome0 <= eta < 1 .
+hence , if m is large , we can use a smaller ciphertext modulus to evaluate m - levels of multiplications with bgv in comparison to yashe ; however , the yashe scheme has smaller ciphertexts than bgv .
+this follows from the fact that | ctbgv | - | ctyashe |=~ 2m.dn,t + 3. ( 11 + 12log2n ) - 2m.log2nt =~ 2m.18.dn,t - 14 - log2t + 108 =~ 2m.log2t + 18eta - 4 + 108 for some 0 <= eta < 1 ; if log2 t >= 4 , then log2 t + 18eta - 4 >= 0 ; otherwise , we have dn,t = 1 and so 18.dn,t - 14 - log2t > 0 .
+let us contrast the complexity of homomorphic multiplication operations for the two schemes .
+one of the new optimizations for bgv is to convert polynomials between coefficient and evaluation representations .
+most of the homomorphic operations are performed in the more efficient evaluation representation , but it sometimes requires coefficient representation .
+note that these conversions take the most time in execution .
+in more detail , at the l - th level of this scheme , the key switching procedure requires o ( l ) fast fourier transforms ( ffts ) and the modulus switching operation requires ( l + 1 ) ffts .
+since helib uses the bluestein fft algorithm [ 30 ] ( with run - time complexity of o ( n log n )) , this yields an overall complexity of o ( ln log n ) for a multiplication of ciphertexts .
+for the polynomial multiplication in the base ring rq = zq [ x ]/( xn + 1 ) , we implemented the fft algorithm by nussbaumer [ 31 ] based on recursive negacyclic convolutions ( with run - time complexity 92nlognloglogn + o ( nlogn ) of arithmetic operations in zq ) .
+the homomorphic multiplication in yashe includes a costly key switching operation which is an inner product on rqlomega,q , hence we obtain a total cost of lomega,q.92nlognloglogn + onlogn operations for a ciphertext multiplication .
+therefore , bgv is expected to be faster than yashe for a ciphertext multiplication if we take similar parameters with q and n. how to set parameters the security of bgv relies on the hardness of the rlwe assumption .
+similarly , yashe is provably secure in the sense of ind - cpa under the rlwe assumption and dspr assumption .
+the main difference between the schemes is that bgv uses an odd integer m while yashe chooses m to be a power - of - two with a prime integer q such that q = 1 ( mod m ) .
+in [ 23 ] , it was shown that the hardness of rlwe with the cyclotomic polynomial phim ( x ) = xphi ( m ) + 1 can be established by a quantum reduction to shortest vector problems in ideal lattices .
+this means that yashe is believed to be secure as long as the lattice problems are hard to solve .
+parameters of the bgv scheme to homomorphically evaluate the algorithms for task 1 , we first choose sufficiently large t so that no reductions modulo t occurs in the plaintext slots .
+for example , we take t as the smallest power - of - two which satisfies the following inequalities : na ( j )= sumi = 1200gi ( j )<= sumi = 12002 = 400 < t since the total number of people in the same group is n = 200 .
+so it suffices to take t = 29 for privately computing the minor allele counts .
+in the case of chi2 test , we have na ( j )+ n'a ( j )= sumi = 1200gi ( j )+ sumi = 1200g'i ( j )<= 2sumi = 12002 = 800 < t , thus we set the parameter t = 210 .
+for the second task , we used t = 2 to evaluate binary circuits .
+now , we derive a lower - bound on phi ( m ) such that ( 2 ) phim >= llogm + 23 - 8.5.lambda + 1107.2. from the security analysis of [ 18 ] based on lindner and peikert 's method [ 32 ] .
+for the efficiency of the implementation , we choose the smallest integer m so as to satisfy inequality ( 2 ) and pack the message into plaintext slots as many as possible .
+next , we define a ladder of moduli to make the correct decryption after computation with l levels ( see [ 18 ] for details ) .
+finally , we consider the discrete gaussian distribution chierr = dz,sigma with mean 0 and standard deviation sigma = 3.2 over the integers to sample random error polynomials .
+parameters of the yashe scheme as discussed before , t = 210 will suffice to compute the mafs and chi2 statistic .
+for the second task , we look for the parameter t != 2 which maximizes the number of slots we can handle in one go. we fix the word omega = 2128 for the evaluation key and the standard deviation sigma = 8 for the error distribution chierr .
+since we can estimate the size of noise during homomorphic operations , we get the lower bound on q to ensure the correctness .
+we also have maximal values of q to ensure the desired security using the results of [ 33 ] , so that we can have more loose bound than that from lp 's method .
+then we set m as a power - of - two to get a non - trivial interval for q and then select a smallest q in this interval .
+implementation results we present the parameter setting and performance results for secure genome analysis in table 3 and 4 .
+all the parameters provide 80 - bit security level .
+we give the plaintext modulus t , the size of the ciphertext modulus q , the lattice dimension n = phi ( m ) , and the number of plaintext slots l. we also give the circuit depth l so that he scheme can correctly evaluate such a computation on encrypted data .
+in particular , it can be considered as the number of ciphertext moduli in the bgv scheme .
+we consider the ciphertext size in kbytes for a set of parameters .
+the last columns give the timings for the key generation , encryption , evaluation and decryption .
+table 3 implementation results of task 1 using bgv and yashe s t log2 q n l l | ct | keygen encrypt eval decrypt bgv maf 311610 29 6061 52928190 378630 3 78 kb122 kb 6.92s10.28s 11.90s14.85s 29.99 ms33.36 ms 290.06 ms690.23 ms chi 2 311610 210 6061 52928190 378630 3 78 kb122 kb 6.35s12.27s 11.61s15.13s 30.05 ms38.17 ms 560.10 ms720.33 ms yashe maf 311610 210 48 1024 1024 0 6 kb 0.01s0.04s 1.63s4.10s 5.74 ms 16.98 ms 33.71 ms16.78 ms chi 2 311610 0.01s0.04s 1.61s4.12s 5.99 ms17.20 ms 16.73 ms17.01 ms table 4 implementation results of task 2 using bgv and yashe size t log2 q n l l | ct | keygen encrypt eval decrypt bgv hamming 5k10k 2 132 8190 630 7 264 kb 2.53s 12.65s24.90s 15.39s29.39s 0.64s1.29s edit 5k10k 150 8 300 kb 3.41s 16.98s33.34s 40.86s76.08s 2.97s5.81s yashe hamming 5k10k 8191 384 8192 4096 6 384 kb 130.59s 29.70s58.82s 68.31s134.87s 2.67s5.04s edit 5k10k 58.46s116.61s 110.18s245.04s 2.66s5.07s performance results of task 1 in table 3 the top four rows refer to the results using bgv , and the bottom four rows refer to results using yashe for computing the mafs and chi2 statistic in case - control groups .
+note that the number of slots means that how many messages we can pack into one single ciphertext .
+when using yashe , we can evaluate simultaneously by embedding the data into the coefficients of plaintext polynomial ; the maximal degree of plaintext polynomial in this case is considered to be the number of slots .
+in practice , we need to apply one more modulus - switching during homomorphic additions for the bgv scheme , so the total number of ciphertext moduli is l = 1 + 2 = 3 .
+on the contrary , l means the levels of multiplications in yashe ( without taking into account the additions ) .
+in other words , when evaluating a polynomial of degree d on encrypted data , we have l =~ log d levels of multiplications by computing in a binary tree way .
+thus , l = 0 suffices to support such homomorphic additions in task 1 .
+thus we do n't need to generate the evaluation key , which enables to take less time for key generation than bgv .
+moreover , the evaluation performance of yashe is much better since bgv requires a costly modulus switching operations even for computing simple homomorphic additions .
+performance results of task 2 table 4 presents the parameter setting and performance results for secure dna sequence comparison using bgv and yashe .
+we evaluated the performance with the input data of different sizes 5k and 10k .
+we implemented the comparison circuit with the same method as described in [ 17 , lemma 1 ] in order to reduce the circuit depth over encryption .
+as discussed before , given the parameter l , we obtain the approximate size of ciphertext modulus as log2 q =~ 43 + 18 . ( l - 2 ) for bgv when using t = 2 and r = z [ x ]/( phi8191 ( x )) .
+since it should support l = 7 or 8 to correctly evaluate genomic algorithms of task 2 , we use the modulus q around 130 to 150 .
+on the other hand , the size of the parameter q in yashe should be strictly larger than 2l log2 ( nt ) =~ 52l with t = 29 and r = z [ x ]/( x8192 + 1 ) .
+so we used a 384 - bit prime q such that q = 1 ( mod 214 ) .
+in the implementation of yashe scheme , computing the inverse of f modulo q turns out to be the most - time consuming part of the key - generation , which runs in around 128.34 seconds ( s ) .
+in total , it takes about 130.59s to generate the public key , secret key and evaluation keys , while the key generation of the bgv scheme takes about 3.41s in order to support 8 levels .
+there is also quite a big gap between the two schemes in timings for a multiplication of ciphertexts : bgv takes around 0.07s , while yashe takes around 1.75s ( including the key switching step ) under the parameter settings used in task 2 .
+for the efficiency of the yashe scheme , we might avoid a costly key switching step during the homomorphic multiplication ; however , it supports a limited number of homomorphic multiplications without the key switching step .
+this follows since the noise grows exponentially with the multiplicative depth through such consecutive operations .
+one alternative is to use a hybrid approach , in which we leave out key switching in certain places but do it in others using the evaluation key with a power of the secret key so that one can keep the ciphertext noise small for correct decryption .
+as a result , polynomial multiplication modulo xn + 1 takes about 0.64s , but it is still slower than that in bgv .
+as expected , bgv is faster than yashe to evaluate the genomic algorithms for dna sequence comparison .
+conclusions in this paper , we discussed how to privately perform genomic tests on encrypted genome data using homomorphic encryption .
+in addition to the efficient implementations of bgv and yashe , we compared two schemes both theoretically and practically .
+we found that there is a trade - off between the security and performance .
+yashe uses a power - of - two dimension n which defines the 2n - th cyclotomic polynomial ; this is a good choice for providing strong security , but it requires larger parameters to ensure correctness than bgv , and the homomorphic multiplication in yashe is slower than that in bgv .
+therefore , the performance numbers for bgv are better than yashe when homomorphically evaluating deep circuits ( like the hamming distance algorithm or approximate edit distance algorithm ) .
+on the other hand , it is more efficient to use the yashe scheme for a low - degree computation , such as minor allele frequencies or chi2 test statistic in a case - control study .
+competing interests the authors declare that they have no competing interests .
+authors' contributions mk and kl designed the baseline methods .
+mk drafted the manuscript and conducted the experiment for the competition .
+kl guided the experimental design and provided detailed edits .
+acknowledgements the authors would like to thank michael naehrig for extensive assistance with the code for the yashe - based implementation for the contest .
+the authors would also like to thank the idash secure genome analysis contest organizers , in particular xiaoqian jiang and shuang wang , for running the contest and providing the opportunity to submit competing implementations for these important tasks .
+mk was supported by the national research foundation of korea ( nrf ) grant funded by the korea government ( msip ) ( no. 2014r1a2a 1a11050917 ) .
+this article has been published as part of bmc medical informatics and decision making volume 15 supplement 5 , 2015 : proceedings of the 4th idash privacy workshop : critical assessment of data privacy and protection ( cadpp ) challenge .
+the full contents of the supplement are available online at http :// www.biomedcentral.com / 1472 - 6947 / 15 / s5 .
+declarations publication funding for this supplement was supported by idash u54hl108460 , idash linked r01hg007078 ( indiana university ) , nhgri k99hg008175 and nlm r00lm011392 .
+personal genome project http :// www.personalgenomes.org / hapmap project http :// hapmap.ncbi.nlm.nih.gov / humbert m ayday e hubaux j - p telenti a addressing the concerns of the lacks family : quantification of kin genomic privacy proceedings of the acm sigsac conference on computer and communications security 2013 1141 1152 erlich y narayanan a routes for breaching and protecting genetic privacy nature reviews genetics 2014 15 6 409 421 naveed m ayday e clayton ew fellay j gunter ca hubaux j - p malin ba wang x privacy in the genomic eraarxiv,abs / 1405.1891v3 kantarcioglu m jiang w liu y malin b a cryptographic approach to securely share and query genomic sequences ieee trans on inf technol biomed 2008 12 5 606 617 baldi p baronio r cristofaro ed countering gattaca : efficient and secure testing of fully - sequenced human genomes proceedings of the 18th acm conference on computer and communications security 2011 691 702 ayday e raisaro jl mclaren pj fellay j hubaux j - p privacy - preserving computation of disease risk by using genomic , clinical , and environmental data usenix workshop on health information technologies 2013 gentry c fully homomorphic encryption using ideal lattices proceedings of the 40th acm symposium on theory of computing 2009 169 178 van dijk m gentry c halevi s vaikuntanathan v fully homomorphic encryption over the integers proceedings of advances in cryptology - eurocrypt 2010 6110 24 43 gentry c sahai a waters b homomorphic encryption from learning with errors : conceptually - simpler , asymptotically - faster , attribute - based proceedings of advances in cryptology - crypto 2013 8042 75 92 yasuda m shimoyama t kogure j yokoyama k koshiba t secure pattern matching using somewhat homomorphic encryption proceedings of the 2013 acm cloud computing security workshop 65 76 lauter k naehrig m vaikuntanathan v can homomorphic encryption be practical ?
+proceedings of the 18th acm conference on cloud computing security 2011 113 124 graepel t lauter k naehrig m ml confidential : machine learning on encrypted data proceedings of information security and cryptology - icisc 2012 7839 1 21 bos jw lauter k naehrig m private predictive analysis on encrypted medical data journal of biomedical informatics 2014 50 234 243 24835616 lauter k lopez - alt a naehrig m private computation on encrypted genomic data proceedings of progress in cryptology - latincrypt 2014 8895 3 27 cheon jh kim m lauter k brenner m , christin n , johnson b , rohloff k homomorphic computation of edit distance proceedings of financial cryptography and data security - fc international workshop wahc 2015 8976 194 212 gentry c halevi s smart n homomorphic evaluation of the aes circuit proceedings of advances in cryptology - crypto 2012 7417 850 867 bos jw lauter k loftus j naehrig m improved security for a ring - based fully homomorphic encryption scheme proceedings of cryptography and coding - 14th ima international conference 2013 8308 45 64 wagner ra fischer mj the string to string correction problem journal of the acm 1974 21 1 168 173 brakerski z gentry c vaikuntanathan v ( leveled ) fully homomorphic encryption without bootstrapping proceedings of the 3rd innovations in theoretical computer science conference 2012 309 325 brakerski z fully homomorphic encryption without modulus swithing from classical gapsvp proceedings of advances in cryptology - crypto 2012 7417 868 886 lyubashevsky v peikert c regev o on ideal lattices and learning with errors over rings proceedings of advances in cryptology - eurocrypt 2010 6110 1 23 smart n vercauteren f fully homomorphic simd operations designs , codes and cryptography 2014 71 1 57 81 stehle d steinfeld r making ntru as secure as worst - case problems over ideal lattices proceedings of advances in cryptology - eurocrypt 2011 6632 27 47 lopez - alt a tromer e vaikuntanathan v on - the - fly multiparty computation on the cloud via multikey fully homomorphic encryption proceedings of the 40th acm symposium on theory of computing 2012 1219 1234 cheon jh kim m kim m brenner m , christin n , johnson b , rohloff k search - and - compute on encrypted data proceedings of financial cryptography and data security - fc international workshop wahc 2015 8976 142 159 halevi s shoup v design and implementation of a homomorphic encryption library technical report , ibm 2013 shoup v ntl : a library for doing number theory http :// www.shoup.net / ntl bluestein li a linear filtering approach to the computation of discrete fourier transform ieee transactions on audio and electroacoustics 18 4 451 455 nussbaumer hj fast polynomial transform algorithms for digital convolution ieee trans on acoustics , speech and signal proceesing 1980 28 2 205 215 lindner r peikert c better key sizes ( and attacks ) for lwe - based encryption proceedings of topics in cryptology - ct - rsa 2011 6558 319 339 lepoint t naehrig m a comparison of the homomorphic encryption schemes fv and yashe proceedings of progress in cryptology - africacrypt 2014 8469 318 335

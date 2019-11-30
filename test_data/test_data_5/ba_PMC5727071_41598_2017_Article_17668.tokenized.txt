@@ -1,0 +1,322 @@
+sci rep sci rep scientific reports 2045 - 2322 nature publishing group uk london 29234074 5727071 17668 10.1038 / s41598 - 017 - 17668 - 5 article motion guided spatiotemporal sparsity for high quality 4d - cbct reconstruction http :// orcid.org / 0000 - 0001 - 9088 - 0299 liu yang tao xi ma jianhua bian zhaoying zeng dong feng qianjin chen wufan chenwf @ fimmu.com zhang hua xinsier @ smu.edu.cn 0000 0000 8877 7471grid.284723.8guangdong provincial key laboratory of medical image processing , southern medical university , guangzhou , guangdong , 510515 china 12 12 2017 12 12 2017 2017 7 17461 19 5 2017 29 11 2017 ( c ) the author ( s ) 2017 open access this article is licensed under a creative commons attribution 4.0 international license , which permits use , sharing , adaptation , distribution and reproduction in any medium or format , as long as you give appropriate credit to the original author ( s ) and the source , provide a link to the creative commons license , and indicate if changes were made .
+the images or other third party material in this article are included in the article 's creative commons license , unless indicated otherwise in a credit line to the material .
+if material is not included in the article 's creative commons license and your intended use is not permitted by statutory regulation or exceeds the permitted use , you will need to obtain permission directly from the copyright holder .
+to view a copy of this license , visit http :// creativecommons.org / licenses / by / 4.0 / .
+conventional cone - beam computed tomography is often deteriorated by respiratory motion blur , which negatively affects target delineation .
+on the other side , the four dimensional cone - beam computed tomography ( 4d - cbct ) can be considered to describe tumor and organ motion .
+but for current on - board cbct imaging system , the slow rotation speed limits the projection number at each phase , and the associated reconstructions are contaminated by noise and streak artifacts using the conventional algorithm .
+to address the problem , we propose a novel framework to reconstruct 4d - cbct from the under - sampled measurements - - motion guided spatiotemporal sparsity ( mgss ) .
+in this algorithm , we try to divide the cbct images at each phase into cubes ( 3d blocks ) and track the cubes with estimated motion field vectors through phase , then apply regional spatiotemporal sparsity on the tracked cubes .
+specifically , we recast the tracked cubes into four - dimensional matrix , and use the higher order singular value decomposition ( hosvd ) technique to analyze the regional spatiotemporal sparsity .
+subsequently , the blocky spatiotemporal sparsity is incorporated into a cost function for the image reconstruction .
+the phantom simulation and real patient data are used to evaluate this algorithm .
+results show that the mgss algorithm achieved improved 4d - cbct image quality with less noise and artifacts compared to the conventional algorithms .
+issue - copyright - statement ( c ) the author ( s ) 2017 introduction three - dimensional cone - beam computed tomography ( 3d - cbct ) has been widely used in image guided radiation therapy ( igrt ) 1 - 3 .
+it can provide the volumetric information for tumor localization in igrt .
+but for thoracic and upper abdominal regions , the 3d - cbct image is often deteriorated by motion blur4 .
+to address the problem , four - dimensional cbct ( 4d - cbct ) imaging that incorporating temporal ( phase ) information on the basis of 3d - cbct was proposed5 - 7 .
+compared to 3d - cbct imaging , 4d - cbct can provide the patient - specific respiratory motion information and multiple three - dimensional volumes to represent the different status in the breathing cycle8 - 10 .
+for 4d - cbct imaging , the respiratory signal is recorded or estimated and motion contained cone - beam projections are usually sorted into 8 - 10 subsets according to the respiratory signal .
+however , the gantry rotation speed and frame rate of the flat - panel imager limit the total number of cone - beam projections ( usually 600 ~ 800 ) , which result in relatively fewer projections in each respiratory phase .
+consequently , the reconstructed cbct images by using the conventional feldkamp - davis - kress ( fdk ) algorithm11 suffer from significant artifacts and noise12,13 .
+in addition , the randomness of breathing would lead to the cone - beam projections bunched into several clusters , and the bunched sampling scheme will aggravate the noises and artifacts level in the reconstructed images14 .
+to address this problem , various strategies have been proposed to improve the image quality of 4d - cbct15 .
+on one side , increasing the number of angular sampling , multiple - gantry rotation and slow - gantry rotation schemes were structured7,13 .
+but these schemes will prolong the time of data acquisition and increase the risk of motion embracing .
+on the other side , lots of reconstruction algorithms16 - 18 have been proposed to improve the quality of 4d - cbct image , such like the total variation minimization based algorithms15,19,20 , the mckinnon - bates ( mkb ) algorithm21,22 , the prior image constrained compressed sensing ( piccs ) algorithm23 and the auto - adaptive phase correlation ( aapc ) algorithm24 .
+as shown in the study by frank bergnera et al. , the reconstruction algorithms using an iterative scheme can remarkably reduce the 4d - cbct specific artifacts25 .
+nevertheless , algorithms that use the full data set , at least for initialization , such as mkb and piccs algorithm , are only a trade - off and achieve sub - optimal temporal resolution , of which the residual motion could still be found in the reconstructed 4d - cbct images26 .
+on the other hand , algorithms that only use the projections assigned to the current phase to reconstruct the final image can fully achieve the temporal resolution , such as the total variation minimization based algorithm .
+for these algorithm , when the projection number is very low or there exist small size and low - contrast objects , tiny structure may be usually erased with the piecewise smooth constraint .
+in recent years , the image restoration or denoising algorithms based on block processing have shown increasing vitality .
+the earliest concept of ' patch ' was proposed in haralick 's study on textural features for image classification27 .
+in 1980 , js lee pioneeringly used this concept for image enhancement28 .
+latterly , algorithms such like the dictionary learning based image reconstruction / restoration approaches29 , the nonlocal means filter30 and the bm3d algorithm31 , et al.32 - 34 , have been successfully developed .
+local patches often experience much less distortion than the global image and therefore it becomes easier to define the similarity between local patches .
+low - rank and sparsity can be better reflected in patch based processing .
+in this work , we propose to reconstruct 4d - cbct volumes from the subset projections of current phase and incorporate the image domain phase - correlated information into the iterative procedure .
+motived by the success of block based image restoration , we propose a motion guided spatiotemporal sparsity ( mgss ) to formulate the regularization for 4d - cbct reconstruction .
+in this scheme , cbct images of different phases are divided into small cubes ( three - dimensional blocks ) and the cubes are tracked with estimated motion vector fields through time ( phase ) .
+after then , regional spatiotemporal sparsity is applied on the tracked cubes .
+specifically , we recast the tracked cubes into four - dimensional matrix , and use the higher order singular value decomposition ( hosvd ) 35 technique to analyze the regional spatiotemporal sparsity .
+finally , a cost function is formulated with embedding the block based spatiotemporal sparsity .
+one simple but effective optimization algorithm was used for the cost function solution .
+this paper is structured as follows : in the method part , we first present the flow chart of the proposed mgss scheme and then give detailed introduction of each step .
+after this , we formulate the reconstruction framework that incorporates the mgss scheme .
+in the experiment part , we exhibit the results of the ncat phantom simulation data , 4dct based simulation data and real patient data by using fdk , sart - tv and the mgss algorithms .
+lastly , in the discussion part , we simply discuss the superiority and limitation of the proposed algorithm .
+methods flow chart of the proposed mgss algorithm in this work , the proposed motion guided spatiotemporal sparsity ( mgss ) applying to 4d - cbct reconstruction comprises the following steps ; estimate the motion maps for each voxel between adjacent phases of the 4d - cbct images .
+divide the cbct sequence images into cubes ( 3d blocks ) , and track the cubes through time using the three - dimensional motion maps obtained in step 1 .
+stack the tracked cubes and apply regional spatiotemporal sparsity on the tracked cubes by framing the 4d - cbct reconstruction problem to be a constrained optimization problem , and then optimize the problem to get the reconstructions .
+in the following sections , we will introduce these steps in detail .
+motion maps estimation in this study , we are not devoted to develop new algorithm to achieve the three - dimensional motion vector fields ( 3d - mvfs ) between cbct images of adjacent phases , but rather we use the real - time image - based tracker ( rtit ) 36 toolbox to estimate the three - dimensional motion maps .
+the rtit toolbox is an available open source with implementation of the optical flow based registration algorithms37,38 .
+assume that we obtain the initial / current 4d - cbct estimation , with the rtit , we can achieve the pixel based motion vector fields consisting of the changes in space coordinates that describe the distribution of the apparent motion velocities of intensity patterns in the sequences of images .
+cubes tracking with mvfs for the task of cubes tracking , we define the voxel space - time position as \ documentclass [ 12pt ]{ minimal } \ usepackage { amsmath } \ usepackage { wasysym } \ usepackage { amsfonts } \ usepackage { amssymb } \ usepackage { amsbsy } \ usepackage { mathrsfs } \ usepackage { upgreek } \ setlength {\ oddsidemargin }{ - 69pt } \ begin { document }$$ u =( x ,\ , y ,\ , z ,\ , t )$$\ end { document } u =( x,y,z,t ) , where x , y , z and t represent the spatial position of the voxel in the cbct volumetric image and the temporal phase index , respectively .
+in mgss , we fetch the cubes ( 3d blocks ) from the images of the first phase and use the 3d - mvfs to track structurally similar cubes in the other phases .
+specifically , the first phase image was initiated with highly overlapping cubes .
+in the extreme case , all the voxels in the first phase image can be defined as the central voxel of one cube , but this may result in huge computation burden .
+thus in this study , rather than sliding by one voxel to every next , we use a step of nstep = 2 voxels to define the cubes .
+for the motion tracking , considering one cube \ documentclass [ 12pt ]{ minimal } \ usepackage { amsmath } \ usepackage { wasysym } \ usepackage { amsfonts } \ usepackage { amssymb } \ usepackage { amsbsy } \ usepackage { mathrsfs } \ usepackage { upgreek } \ setlength {\ oddsidemargin }{ - 69pt } \ begin { document }$$ b ({ u }_{ 1 })\ in {{ x }_{ 1 }}^{{ n }_{ b }\ times { n }_{ b }\ times { n }_{ b }}$$\ end { document } b ( u1 ) inx1nbxnbxnb , here \ documentclass [ 12pt ]{ minimal } \ usepackage { amsmath } \ usepackage { wasysym } \ usepackage { amsfonts } \ usepackage { amssymb } \ usepackage { amsbsy } \ usepackage { mathrsfs } \ usepackage { upgreek } \ setlength {\ oddsidemargin }{ - 69pt } \ begin { document }$${ u }_{ 1 }=({ x }_{ 1 },\,{ y }_{ 1 },\,{{\ rm { z }}}_{ 1 },\,{ t }_{ 1 })$$\ end { document } u1 =( x1,y1,z1,t1 ) indicates the central pixel position of the cubes with spatial position to be \ documentclass [ 12pt ]{ minimal } \ usepackage { amsmath } \ usepackage { wasysym } \ usepackage { amsfonts } \ usepackage { amssymb } \ usepackage { amsbsy } \ usepackage { mathrsfs } \ usepackage { upgreek } \ setlength {\ oddsidemargin }{ - 69pt } \ begin { document }$$({ x }_{ 1 },\,{ y }_{ 1 },\,{{\ rm { z }}}_{ 1 })$$\ end { document }( x1,y1,z1 ) and temporal phase index to be t 1. by using deltau to denote the displacement of the central voxel in the cube between t 1 and t 2 phases , we can use u 1 + deltau to track the center pixel location for cube in the t 2 phase .
+considering u 1 + deltau might be non - integral , the next block center voxel was taken as u 2 = { u 1 + deltau 2 } , where "{}" is a rounding operation .
+extracting the voxels centered from u 2 , we can constitute a new cube b ( u 2 ) with the same block size .
+following this schedule , b ( u n ) can be tracked with u n = { u 1 + deltau n } using the above block - center - tracking method .
+a block cluster can be ulteriorly constructed : \ documentclass [ 12pt ]{ minimal } \ usepackage { amsmath } \ usepackage { wasysym } \ usepackage { amsfonts } \ usepackage { amssymb } \ usepackage { amsbsy } \ usepackage { mathrsfs } \ usepackage { upgreek } \ setlength {\ oddsidemargin }{ - 69pt } \ begin { document }$${{\ rm {\ theta }}}_{ mgss }=[ b ({ u }_{ 1 }) , b ({ u }_{ 2 }),\ mathrm {...} , b ({ u }_{ nt })]$$\ end { document } thetamgss =[ b ( u1 ) , b ( u2 ),... , b ( unt )] .
+here the cluster thetamgss is a four dimensional matrix with the size of \ documentclass [ 12pt ]{ minimal } \ usepackage { amsmath } \ usepackage { wasysym } \ usepackage { amsfonts } \ usepackage { amssymb } \ usepackage { amsbsy } \ usepackage { mathrsfs } \ usepackage { upgreek } \ setlength {\ oddsidemargin }{ - 69pt } \ begin { document }$${ n }_{ b }\ times { n }_{ b }\ times { n }_{ b }\ times { n }_{ t }$$\ end { document } nbxnbxnbxnt .
+based on the fact that not all the chest is moving during the cbct scan , the tracked cubes for the static parts should be noisy blocks with same anatomy structures .
+as shown in fig. 1 , compared to the blocks of the same spatial position in the original phases , the tracked blocks exhibit more mutual similarity .
+figure 1 an example of blocks tracked ( red squares ) and not tracked ( yellow squares ) through all the frames .
+regional spatiotemporal sparsity the technology about matrix rank sparsity has been successfully investigated in the field of dynamic image reconstruction , such as the k - t slr method39 .
+in some previous studies40 , matrix rank sparsity was often used to dispose the entire image .
+but the recent studies , such like low - dimensional - structure self - learning and thresholding ( lost ) 41 and compartment - based k - t principal component analysis42 have indicated that the spatiotemporal sparsity and reconstruction quality could be further promoted by separating the entire image into blocks .
+under the patch - based processing theory , decomposition of the tracked regions of dynamic datasets using the singular value decomposition ( svd ) algorithm has been reported43 .
+in chen 's work , blocks in the clusters were vectorized and each cluster theta was first rearranged into a 2 - d matrix \ documentclass [ 12pt ]{ minimal } \ usepackage { amsmath } \ usepackage { wasysym } \ usepackage { amsfonts } \ usepackage { amssymb } \ usepackage { amsbsy } \ usepackage { mathrsfs } \ usepackage { upgreek } \ setlength {\ oddsidemargin }{ - 69pt } \ begin { document }$$\ tilde {{\ rm {\ theta }}}\ in {{\ mathbb { c }}}^{{ n }_{ s }\ times { n }_{ t }}({ n }_{ s }={ n }_{ b }\ times { n }_{ b })$$\ end { document } theta ~ incnsxnt ( ns = nbxnb ) .
+the svd technique was then adopted to decompose the cluster : \ documentclass [ 12pt ]{ minimal } \ usepackage { amsmath } \ usepackage { wasysym } \ usepackage { amsfonts } \ usepackage { amssymb } \ usepackage { amsbsy } \ usepackage { mathrsfs } \ usepackage { upgreek } \ setlength {\ oddsidemargin }{ - 69pt } \ begin { document }$${\ tilde {{\ rm {\ theta }}}}_{ svd }= u { s }_{ svd }{ v }^{\ ast }$$\ end { document } theta ~ svd = ussvdv * .
+if the cluster is truly spatiotemporal sparsity , a least number of significant values will be found in the singular matrix s svd .
+for the standard svd , the image blocks are manually vectorized and then the image structural properties in the spatial domain are ignored .
+to address the problem , the higher order singular value decomposition ( hosvd ) , which is able to directly decompose dynamic datasets into a multidimensional singular matrix rather than unfolding the blocks into column vectors , has been reported35 .
+also , in this work , we use the hosvd to decompose the clusters due to its naturality and flexibility. by using the hosvd technique , a four - dimensional tensor theta can be decomposed as : 1 \ documentclass [ 12pt ]{ minimal } \ usepackage { amsmath } \ usepackage { wasysym } \ usepackage { amsfonts } \ usepackage { amssymb } \ usepackage { amsbsy } \ usepackage { mathrsfs } \ usepackage { upgreek } \ setlength {\ oddsidemargin }{ - 69pt } \ begin { document }$${\ rm {\ theta }}={ s }_{ hosvd }{\ times }_{ 1 }{ u }^{( 1 )}{\ times }_{ 2 }{ u }^{( 2 )}{\ times }_{ 3 }{ u }^{( 3 )}{\ times }_{ 4 }{ u }^{( 4 )}$$\ end { document } theta = shosvdx1u ( 1 ) x2u ( 2 ) x3u ( 3 ) x4u ( 4 ) where u ( 1 ) , u ( 2 ) , u ( 3 ) , u ( 4 ) are orthogonal matrices that contain the orthonormal vectors spanning the column space of the matrix theta .
+here , the symbol xn stands for the n - th mode tensor product .
+the core tensor s hosvd is not necessarily diagonal matrix , which implies that each dimension of the tensor can have a different rank .
+generally , noise and artifacts can be attenuated by approximating the rank of the core tensor .
+however , the computation of the best rank approximation requires an iterative alternated least - square ( als ) algorithm and is quite time consuming44 .
+moreover , the approximation obtained from simple truncation has been proved to be in most cases quite similar to the optimal approximation45 .
+base on this , in our study , we apply a soft - thresholding strategy on the hosvd coefficients to reduce noise and artifacts .
+the thresholding of the rank coefficients can be represented as follows : 2 \ documentclass [ 12pt ]{ minimal } \ usepackage { amsmath } \ usepackage { wasysym } \ usepackage { amsfonts } \ usepackage { amssymb } \ usepackage { amsbsy } \ usepackage { mathrsfs } \ usepackage { upgreek } \ setlength {\ oddsidemargin }{ - 69pt } \ begin { document }$${\ hat { s }}_{ hosvd }={ h }_{\ tau }({ s }_{ hosvd })$$\ end { document } s ^ hosvd = htau ( shosvd ) where h tau denotes the soft - thresholding operator with threshold tau .
+then a new tensor can be synthesized by the inverse hosvd transformation with truncated coefficients \ documentclass [ 12pt ]{ minimal } \ usepackage { amsmath } \ usepackage { wasysym } \ usepackage { amsfonts } \ usepackage { amssymb } \ usepackage { amsbsy } \ usepackage { mathrsfs } \ usepackage { upgreek } \ setlength {\ oddsidemargin }{ - 69pt } \ begin { document }$${\ hat { s }}_{ hosvd }$$\ end { document } s ^ hosvd and the orthogonal matrices u ( 1 ) , u ( 2 ) , u ( 3 ) , u ( 4 ) : 3 \ documentclass [ 12pt ]{ minimal } \ usepackage { amsmath } \ usepackage { wasysym } \ usepackage { amsfonts } \ usepackage { amssymb } \ usepackage { amsbsy } \ usepackage { mathrsfs } \ usepackage { upgreek } \ setlength {\ oddsidemargin }{ - 69pt } \ begin { document }$${{\ rm {\ theta }}}_{ hosvd }^{\ ast }={\ hat { s }}_{ hosvd }{\ times }_{ 1 }{ u }^{( 1 )}{\ times }_{ 2 }{ u }^{( 2 )}{\ times }_{ 3 }{ u }^{( 3 )}{\ times }_{ 4 }{ u }^{( 4 )}$$\ end { document } thetahosvd *= s ^ hosvdx1u ( 1 ) x2u ( 2 ) x3u ( 3 ) x4u ( 4 ) the above operation is repeated for each reference cube , thus provides multiple estimates at the same coordinate .
+for this reason , the final estimates are aggregated by weighted averaging all the obtained block - wise estimates that overlapped at each voxel .
+mgss based 4d - cbct reconstruction to incorporate the motion tracking induced blocky spatiotemporal sparsity into the cbct reconstruction framework , in this section , we formulate the following minimization scheme : 4 \ documentclass [ 12pt ]{ minimal } \ usepackage { amsmath } \ usepackage { wasysym } \ usepackage { amsfonts } \ usepackage { amssymb } \ usepackage { amsbsy } \ usepackage { mathrsfs } \ usepackage { upgreek } \ setlength {\ oddsidemargin }{ - 69pt } \ begin { document }$$\ begin { array }{ c }{\ rm { miniminze }}{}_{ f,u }{\ rm {\ phi }}({ t }_{ u }\ cdot f )\\ s.t. {\ vert af - y \ vert }^{ 2 } < \ delta \ end { array }$$\ end { document } miniminzef,uphi ( tu.f ) s.t. || af - y || 2 < deltawhere f represents the estimated dynamic images , a is the cbct imaging system matrix with elements of a ij , y denotes the projection measurements .
+operator phi is the cube based sparsity penalties , while \ documentclass [ 12pt ]{ minimal } \ usepackage { amsmath } \ usepackage { wasysym } \ usepackage { amsfonts } \ usepackage { amssymb } \ usepackage { amsbsy } \ usepackage { mathrsfs } \ usepackage { upgreek } \ setlength {\ oddsidemargin }{ - 69pt } \ begin { document }$${ t }_{ u }\ cdot f $$\ end { document } tu.f denotes the dataset that includes a sequence of 4d matrix of the tracked cubes .
+operator t u includes two steps : ( 1 ) track three - dimensional blocks with the motion vector , and ( 2 ) rearrange the three - dimensional blocks into 4d matrix .
+to optimize the problem in ( 4 ) , in this work , inspired by the techniques used by pan et al.46 , we present an efficient way to solve ( 4 ) , which can be summarized as : ( 1 ) sart47 step : 5 \ documentclass [ 12pt ]{ minimal } \ usepackage { amsmath } \ usepackage { wasysym } \ usepackage { amsfonts } \ usepackage { amssymb } \ usepackage { amsbsy } \ usepackage { mathrsfs } \ usepackage { upgreek } \ setlength {\ oddsidemargin }{ - 69pt } \ begin { document }$${ f }_{ j }^{( n + 1 / 2 )}={ f }_{ j }^{( n )}+\ lambda (\ sum _{ i }[{ a }_{ ij }\ frac {{ y }_{ i } - \ sum _{ n = 1 }^{ n }{ a }_{ in }\,{ f }_{ j }^{( n )}}{\ sum _{ n = 1 }^{ n }{ a }_{ in }}]/\ sum _{ i }{ a }_{ ij })$$\ end { document } fj ( n + 1 / 2 )= fj ( n )+ lambda ( sumi [ aijyi - sumn = 1nainfj ( n ) sumn = 1nain ]/ sumiaij ) here lambda is an over - relaxed factor .
+( 2 ) mgss step :\ documentclass [ 12pt ]{ minimal } \ usepackage { amsmath } \ usepackage { wasysym } \ usepackage { amsfonts } \ usepackage { amssymb } \ usepackage { amsbsy } \ usepackage { mathrsfs } \ usepackage { upgreek } \ setlength {\ oddsidemargin }{ - 69pt } \ begin { document }$${ f }^{( n + 1 )}= w ({\ tilde {{\ rm {\ theta }}}}_{ mgss }^{\ ast }({ f }^{( n + 1 / 2 )}))$$\ end { document } f ( n + 1 )= w ( theta ~ mgss *( f ( n + 1 / 2 ))) here , \ documentclass [ 12pt ]{ minimal } \ usepackage { amsmath } \ usepackage { wasysym } \ usepackage { amsfonts } \ usepackage { amssymb } \ usepackage { amsbsy } \ usepackage { mathrsfs } \ usepackage { upgreek } \ setlength {\ oddsidemargin }{ - 69pt } \ begin { document }$${\ tilde {{\ rm {\ theta }}}}_{ mgss }^{\ ast }({ f }^{( n + 1 / 2 )})$$\ end { document } theta ~ mgss *( f ( n + 1 / 2 )) denotes the restored block - based clusters based on \ documentclass [ 12pt ]{ minimal } \ usepackage { amsmath } \ usepackage { wasysym } \ usepackage { amsfonts } \ usepackage { amssymb } \ usepackage { amsbsy } \ usepackage { mathrsfs } \ usepackage { upgreek } \ setlength {\ oddsidemargin }{ - 69pt } \ begin { document }$${ f }^{( n + 1 / 2 )}$$\ end { document } f ( n + 1 / 2 ) by using the hosvd approach 6 \ documentclass [ 12pt ]{ minimal } \ usepackage { amsmath } \ usepackage { wasysym } \ usepackage { amsfonts } \ usepackage { amssymb } \ usepackage { amsbsy } \ usepackage { mathrsfs } \ usepackage { upgreek } \ setlength {\ oddsidemargin }{ - 69pt } \ begin { document }$${{\ rm {\ theta }}}_{ mgss }^{\ ast }={\ hat { s }}_{ mgss }{\ times }_{ 1 }{ u }^{( 1 )}{\ times }_{ 2 }{ u }^{( 2 )}{\ times }_{ 3 }{ u }^{( 3 )}{\ times }_{ 4 }{ u }^{( 4 )}$$\ end { document } thetamgss *= s ^ mgssx1u ( 1 ) x2u ( 2 ) x3u ( 3 ) x4u ( 4 ) w is a weighted averaging operator indicates how the cubes are merged back into the image .
+the elements of w is the reciprocal of the times which one pixel was overlapped by different cubes .
+in our implementation , the mgss step is carried out after 10th iteration of sart step until \ documentclass [ 12pt ]{ minimal } \ usepackage { amsmath } \ usepackage { wasysym } \ usepackage { amsfonts } \ usepackage { amssymb } \ usepackage { amsbsy } \ usepackage { mathrsfs } \ usepackage { upgreek } \ setlength {\ oddsidemargin }{ - 69pt } \ begin { document }$${|{ f }^{( n )} - { f }^{( n - 1 )}|}^{ 2 } < \ xi $$\ end { document }| f ( n ) - f ( n - 1 )| 2 < xi or reached the predetermined iterative number .
+also one implicit motion vector field estimation step was performed using the intermediate reconstructions of sart .
+results data acquisition of digital simulation ncat phantom based simulation in this work , the 4d nurbs - based cardiac - torso ( ncat ) 48 phantom , which is capable of providing the realistic model of human anatomy and simulating cardiac and respiratory motion simultaneously , was used for data simulation .
+a dynamic phantom with ten respiratory phases and breathing period set to be 5 s was generated .
+the maximum diaphragm motion and the maximum chest anterior - posterior motion is 20 mm and 5 mm. we manually added several tumors with different sizes , contrast and shapes in the right lung field of phantom to test the robustness of the mgss algorithm .
+the diameters of the spherical tumors were : 6 mm , 10 mm , 16 mm and 22 mm. the long diameter and short diameter of the non - spherical tumor is : 28 mm and 22 mm. for all simulations , the size of the digital phantom is 256 x 256 x 150 , with voxel size of 2 x 2 x 2 mm3 .
+the projections were generated by utilizing fast ray - tracing technique .
+the projection size of each angular view is 300 x 200 with detector pixel size 2 x 2 mm2 .
+in the process of simulation , projection views are evenly distributed over 360 degrees with the projection number of each phase range from 21 to 51 .
+the noisy signal s i at each detector bin i was simulated based on the poisson noise model : 7 \ documentclass [ 12pt ]{ minimal } \ usepackage { amsmath } \ usepackage { wasysym } \ usepackage { amsfonts } \ usepackage { amssymb } \ usepackage { amsbsy } \ usepackage { mathrsfs } \ usepackage { upgreek } \ setlength {\ oddsidemargin }{ - 69pt } \ begin { document }$${ s }_{ i }= poisson ({ i }_{ 0 }\,\ exp ( - { y }_{ i }))+ normal ( 0 ,{\ sigma }_{ e }^{ 2 })$$\ end { document } si = poisson ( i0exp ( - yi ))+ normal ( 0,sigmae2 ) here i 0 and \ documentclass [ 12pt ]{ minimal } \ usepackage { amsmath } \ usepackage { wasysym } \ usepackage { amsfonts } \ usepackage { amssymb } \ usepackage { amsbsy } \ usepackage { mathrsfs } \ usepackage { upgreek } \ setlength {\ oddsidemargin }{ - 69pt } \ begin { document }$${\ sigma }_{ e }^{ 2 }$$\ end { document } sigmae2 represent the incident x - ray intensity and the background noise , respectively .
+i 0 is set to be 2 x 106 and \ documentclass [ 12pt ]{ minimal } \ usepackage { amsmath } \ usepackage { wasysym } \ usepackage { amsfonts } \ usepackage { amssymb } \ usepackage { amsbsy } \ usepackage { mathrsfs } \ usepackage { upgreek } \ setlength {\ oddsidemargin }{ - 69pt } \ begin { document }$${\ sigma }_{ e }^{ 2 }$$\ end { document } sigmae2 is chosen to be 10 .
+4dct based simulation to further evaluate the performance of the mgss algorithm , the 4dct based digital phantom simulation was also performed .
+the 4dct images were acquired on a 16 - slice helical ct scanner ( brilliance big bore , philips medical systems , andover , ma ) .
+the three dimensional ct volumes at each phase were first interpolated to be isotropic data set with voxel size 1.0254 x 1.0254 x 1.0254 mm3 .
+then cb projections were computed from the reference 3d ct image using the projection matrix .
+the scan geometry was chosen according to the varian on - board imager ( r ) and true beam ( tm ) cbct units .
+data acquisition of patient the patient data was downloaded from an open data website ( http :// wiki.openrtk.org / index.php / rtk / examples / mccbctreconstruction ) .
+the cone - beam projections were acquired on the elekta synergy system .
+the clinical dataset consisted of 644 projections and were sorted to 10 phases based on the as method49 .
+the size of the digital flat panel is 512 x 512 with the pixel size of 0.8 x 0.8 mm2 .
+in our experiments , the isotropic reconstruction target resolution was set to be 1.2 x 1.2 x 1.2 mm3 on a 256 x 256 x 200 matrix .
+evaluation metrics to quantitative evaluate the performance of the proposed algorithm , we calculate the relative root mean square error ( rrmse ) between the phantom images and the reconstructions .
+the rrmse is defined as : 8 \ documentclass [ 12pt ]{ minimal } \ usepackage { amsmath } \ usepackage { wasysym } \ usepackage { amsfonts } \ usepackage { amssymb } \ usepackage { amsbsy } \ usepackage { mathrsfs } \ usepackage { upgreek } \ setlength {\ oddsidemargin }{ - 69pt } \ begin { document }$${\ rm { rrmse }}=\ sqrt {\ sum _{ m = 1 }^{ q }{|{ f }_{ m } - { f }_{{\ rm { p }} , m }|}^{ 2 }/\ sum _{ m = 1 }^{ q }{|{ f }_{{\ rm { p }} , m }|}^{ 2 }}$$\ end { document } rrmse = summ = 1q | fm - fp,m | 2 / summ = 1q | fp,m | 2here , f denotes the target image , f p denotes the phantom image , and m is the voxel index .
+the universal quality index50 ( uqi ) index was utilized to conduct region of interest ( roi ) based analysis by evaluating the degree of similarity between the reconstructed and the reference images .
+we select rois including the tumor and lung details within the reconstructed and reference images , the mean , variance and covariance of intensities in the rois can be respectively calculated as : 9 \ documentclass [ 12pt ]{ minimal } \ usepackage { amsmath } \ usepackage { wasysym } \ usepackage { amsfonts } \ usepackage { amssymb } \ usepackage { amsbsy } \ usepackage { mathrsfs } \ usepackage { upgreek } \ setlength {\ oddsidemargin }{ - 69pt } \ begin { document }$$\ bar { f }=\ frac { 1 }{ q }\ sum _{ m = 1 }^{ q }{ f }_{ m },\ quad \,\,{\ sigma }^{ 2 }=\ frac { 1 }{ q - 1 }\ sum _{ m = 1 }^{ q }{({ f }_{ m } - \ bar { f })}^{ 2 }$$\ end { document } f = 1qsumm = 1qfm,sigma2 = 1q - 1summ = 1q ( fm - f ) 2 10 \ documentclass [ 12pt ]{ minimal } \ usepackage { amsmath } \ usepackage { wasysym } \ usepackage { amsfonts } \ usepackage { amssymb } \ usepackage { amsbsy } \ usepackage { mathrsfs } \ usepackage { upgreek } \ setlength {\ oddsidemargin }{ - 69pt } \ begin { document }$${\ bar { f }}_{ ture }=\ frac { 1 }{ q }\ sum _{ m = 1 }^{ q }{ f }_{ ture,m },{\ sigma }_{ ture }^{ 2 }=\ frac { 1 }{ q - 1 }\ sum _{ m = 1 }^{ q }{({ f }_{ ture,m } - {\ bar { f }}_{ ture })}^{ 2 }$$\ end { document } f ture = 1qsumm = 1qfture,m,sigmature2 = 1q - 1summ = 1q ( fture,m - f ture ) 2 11 \ documentclass [ 12pt ]{ minimal } \ usepackage { amsmath } \ usepackage { wasysym } \ usepackage { amsfonts } \ usepackage { amssymb } \ usepackage { amsbsy } \ usepackage { mathrsfs } \ usepackage { upgreek } \ setlength {\ oddsidemargin }{ - 69pt } \ begin { document }$$ cov ( f ,{ f }_{ ture })=\ frac { 1 }{ q - 1 }\ sum _{ m = 1 }^{ q }({ f }_{ m } - \ bar { f })({ f }_{ ture,m } - {\ bar { f }}_{ ture })$$\ end { document } cov ( f,fture )= 1q - 1summ = 1q ( fm - f )( fture,m - f ture ) the f ture denotes the golden standard image , m is the voxel index , and q denotes the number of voxels within the roi .
+the uqi can be calculated as follows : 12 \ documentclass [ 12pt ]{ minimal } \ usepackage { amsmath } \ usepackage { wasysym } \ usepackage { amsfonts } \ usepackage { amssymb } \ usepackage { amsbsy } \ usepackage { mathrsfs } \ usepackage { upgreek } \ setlength {\ oddsidemargin }{ - 69pt } \ begin { document }$$ uqi =\ frac { 2cov ( f ,{ f }_{ ture })}{{\ sigma }^{ 2 }+{\ sigma }_{ ture }^{ 2 }}\ frac { 2 {\ bar { f }}_{ ture }\ bar { f }}{{\ bar { f }}^{ 2 }+{\ bar { f }}_{ ture }^{ 2 }}$$\ end { document } uqi = 2cov ( f,fture ) sigma2 + sigmature22f turef f 2 + f ture2uqi measures the intensity similarity between the two images , and its value ranges from zero to one .
+a uqi value closer to one suggests better similarity to the reference image .
+digital ncat phantom study visual inspection figure 2 shows the results of the ncat phantom reconstructed by using different methods at transverse , coronal , and sagittal planes for phase # 1 with the projection number set to be 21 .
+the columns one to three show the transverse , coronal , and sagittal images , respectively .
+first row in fig. 2 shows the designed digital phantom images .
+the second row shows the results which were reconstructed by using the fdk algorithm from all projections .
+as we can see , the motion blurring artifacts are obvious .
+the third row shows the phase correlated 4d - cbct images reconstructed by the fdk algorithm , and we can see that the fdk reconstructions are full of noise and streak artifacts .
+for the sart - tv reconstructions , the fine structures inside the lung area are severely blurred though the view aliasing artifacts are suppressed .
+compared to fdk and sart - tv algorithms , the proposed mgss approach can yield images with superior quality .
+moreover , figs 3 and 4 demonstrate the reconstructions of - 31 and - 51 views , which further illustrate the gains of the proposed mgss approach .
+figure 2 results of 4d ncat phantom with 21 projections for each phase .
+first row shows the begin - expiration phase of digital phantom .
+second row shows the 3d - cbct reconstructed from all projections by fdk .
+the third to last rows show 4d - cbct images at the begin - expiration phase reconstructed by using fdk , sart - tv and proposed mgss algorithm , respectively .
+the transverse , coronal , and sagittal planes have been shown in the first , second and third columns , respectively .
+figure 3 reconstructions of 4d ncat phantom with 31 projections for each phase .
+the first to third rows show 4d - cbct at the begin - expiration phase reconstructed by fdk , sart - tv and proposed mgss algorithms , respectively .
+figure 4 reconstructions of 4d ncat phantom with 51 projections for each phase .
+the first to third rows show 4d - cbct at the begin - expiration phase reconstructed by fdk , sart - tv and proposed mgss algorithms , respectively .
+quantitative evaluation table 1 presents the results of rrmse measures with the projection views range from 21 to 51 for each phase .
+the rrmses of ten phases reconstructions by using the proposed mgss reduced by an average of 43 % compared to those of fdk reconstructions .
+it can be obviously seen that the mgss algorithm can achieve smaller rrmse values compared to the other algorithms , which suggests the promising performance of the proposed mgss approach .
+table 1 rrmse measures on the reconstructions of the fdk , sart - tv and mgss reconstructions , respectively .
+views method phasenumber ( tumor diameter : 10 mm ) one two three four five six seven eight nine ten 21 fdk 8.72e - 03 8.77e - 03 8.90e - 03 9.02e - 03 9.11e - 03 9.14e - 03 9.13e - 03 9.04e - 03 8.90e - 03 8.72e - 03 sart - tv 2.16e - 03 2.16e - 03 2.17e - 03 2.15e - 03 2.16e - 03 2.17e - 03 2.17e - 03 2.16e - 03 2.18e - 03 2.19e - 03 mgss 9.11e - 04 9.10e - 04 9.09e - 04 9.05e - 04 9.07e - 04 9.10e - 04 9.09e - 04 9.09e - 04 9.15e - 04 9.17e - 04 31 fdk 8.33e - 03 8.38e - 03 8.53e - 03 8.67e - 03 8.77e - 03 8.83e - 03 8.82e - 03 8.74e - 03 8.59e - 03 8.41e - 03 sart - tv 1.99e - 03 1.93e - 03 1.97e - 03 1.98e - 03 1.96e - 03 1.98e - 03 1.97e - 03 1.98e - 03 1.97e - 03 1.98e - 03 mgss 8.73e - 04 8.74e - 04 8.74e - 04 8.70e - 04 8.71e - 04 8.71e - 04 8.68e - 04 8.67e - 04 8.66e - 04 8.69e - 04 41 fdk 8.12e - 03 8.07e - 03 7.92e - 03 7.79e - 03 7.68e - 03 7.62e - 03 7.63e - 03 7.71e - 03 7.86e - 03 8.04e - 03 sart - tv 1.80e - 03 1.81e - 03 1.82e - 03 1.81e - 03 1.83e - 03 1.80e - 03 1.79e - 03 1.82e - 03 1.81e - 03 1.80e - 03 mgss 8.11e - 04 8.10e - 04 8.11e - 04 8.08e - 04 8.11e - 04 8.10e - 04 8.10e - 04 8.09e - 04 8.11e - 04 8.13e - 04 51 fdk 8.00e - 03 7.96e - 03 7.82e - 03 7.68e - 03 7.58e - 03 7.52e - 03 7.53e - 03 7.62e - 03 7.76e - 03 7.93e - 03 sart - tv 1.74e - 03 1.75e - 03 1.74e - 03 1.73e - 03 1.76e - 03 1.74e - 03 1.75e - 03 1.76e - 03 1.73e - 03 1.74e - 03 mgss 7.96e - 04 7.93e - 04 7.96e - 04 7.92e - 04 7.94e - 04 7.93e - 04 7.92e - 04 7.89e - 04 7.93e - 04 7.95e - 04 figure 5 illustrates the horizontal profiles of the transverse plane images in fig. 2. it can be observed that the profiles obtained from the mgss reconstructions match much better than the others , which suggest that the present mgss approach achieves more noticeable gains than other approaches .
+figure 5 horizontal profiles of reconstructions shown in fig. 2. the profiles located at the pixel position x from 0 to 256 and y = 46 ( a ) , y = 67 ( b ) .
+the ' black line ' generated from the ncat phantom acts as the ground - truth for comparison .
+motion trajectory accuracy because of the various applications of igrt is interested in the tumor position information , we are devoted to extract the motion trajectories from different reconstruction schemes : fdk , sart - tv and the proposed mgss algorithms .
+we define the motion trajectories which extracted from the ncat phantom with high - contrast tumor as a reference .
+in this paper , we extract the movement information from the center of tumor .
+the motion trajectories have been showed in fig. 6. as we can see , the motion information of tumor extracted from mgss algorithm matches well with the reference trajectory , while the trajectories extracted from the fdk diverges the reference trajectory .
+figure 6 motion trajectories extracted from the result of 4d - cbct along the superior - inferior direction .
+low contrast lesion detection study to test the robustness of the mgss algorithm in reproducing the low contrast lesion , figs 7 and 8 present the reconstructions of ncat phantom with different tumor sizes and shapes at the transverse and coronal planes .
+the first row shows the designed phantom image used for visual comparison .
+the second to fourth rows show 4d - cbct at the begin - expiration phase reconstructed by using fdk , sart - tv and proposed mgss algorithms , respectively .
+it can be seen , the low contrast tumors in the ncat phantom ca n't be completely rebuilt by the fdk and sart - tv algorithms .
+the morphology of tumors is partly destroyed .
+the phenomenon is particularly evident for tumors with small size .
+on the contrast , the mgss algorithm can mostly recover the tumors with relatively complete morphological structures .
+furthermore , fig. 9 presents the uqi test on the rois shown in fig. 8. all the results suggest that , with the introduction of phase - correlated information , the mgss algorithm has better lesion detection ability than algorithms that only using the single phase information .
+figure 7 reconstructions of 4d ncat phantom with 21 projections .
+the first to the fourth columns show the transverse planes of 4d ncat phantom with tumors of diameters : 6 mm , 16 mm , 22 mm and 28 mm , respectively .
+figure 8 reconstructions of 4d ncat phantom with 21 projections .
+the first to the fourth columns show the coronal planes of 4d ncat phantom with tumors of diameters : 6 mm , 16 mm , 22 mm and 28 mm , respectively .
+figure 9 the uqi measures on the rois in fig. 8 for ten phase .
+parameter selection in our method , there are two parameters need to be tuned : ( 1 ) the tracked cube size ; ( 2 ) the soft - thresholding coefficients for the hosvd processing .
+the cube size plays an important role in our work as it not only directly affects the accuracy of the results , but also affects the computation time .
+traditionally , for the block - based techniques , the size of the cube is an empirical parameter specified by the user .
+a reasonable cube size can help us attend to the local structure characteristics while removing undesirable distortions .
+to study the influence of the cube size on the proposed algorithm , we experimentally change the size of cube to get the associated reconstructions and calculate the rrmses between the reconstructions and the designed phantom image .
+we reconstruct the ncat phantom from - 21 projections with block size set from 3 x 3 x 3 to 23 x 23 x 23 .
+figure 10 shows the reconstructions of cube size to be 5 x 5 x 5 , 7 x 7 x 7 , 9 x 9 x 9 , 13 x 13 x 13 , 17 x 17 x 17 , 23 x 23 x 23 .
+as shown in fig. 10 , on one hand , boundary distortion could be observed when the cube size is too small .
+on the other hand , the image blur increases with the increase of the cube size .
+this phenomenon is due to the large cube contains too much structural information , the movement of central voxel in the cube is not enough to describe the whole cube .
+thus , to generate high quality 4d - cbct image , appropriate size of the cube is needed .
+moreover , as shown in fig. 11 , the averaged rrmses of ten phases reconstructions indicate that with the cube size range from 7 x 7 x 7 to 11 x 11 x 11 , we can get relative smaller rrmses .
+in order to balance the reconstruction quality and computational time , in our other experiments , the cube size was fixed to 9 x 9 x 9 .
+figure 10 ten phases reconstructions from - 21 projections with block size set to be 5 x 5 x 5 , 7 x 7 x 7 , 9 x 9 x 9 , 13 x 13 x 13 , 17 x 17 x 17 , 23 x 23 x 23 .
+figure 11 the averaged rrmses of ten phases reconstructions with different cube size .
+for the parameter of thresholding coefficients for the hosvd processing , we choose with a threshold of \ documentclass [ 12pt ]{ minimal } \ usepackage { amsmath } \ usepackage { wasysym } \ usepackage { amsfonts } \ usepackage { amssymb } \ usepackage { amsbsy } \ usepackage { mathrsfs } \ usepackage { upgreek } \ setlength {\ oddsidemargin }{ - 69pt } \ begin { document }$$\ sigma \ sqrt { 2 \,\ mathrm { log }\,{ p }^{ 2 }}$$\ end { document } sigma2logp2 to manipulate the coefficients of core tensor .
+this is also an experiential selection as used in other works51 .
+here , sigma is defined as the standard deviation of a uniform region in the intermediary images during the iteration and p is the cube size .
+algorithm convergence to validate and analyze the convergence of the present mgss method , the \ documentclass [ 12pt ]{ minimal } \ usepackage { amsmath } \ usepackage { wasysym } \ usepackage { amsfonts } \ usepackage { amssymb } \ usepackage { amsbsy } \ usepackage { mathrsfs } \ usepackage { upgreek } \ setlength {\ oddsidemargin }{ - 69pt } \ begin { document }$$|{ f }({\ bf { n }}) - { f }({\ bf { n }} - 1 )|$$\ end { document }| f ( n ) - f ( n - 1 )| ( absolute value of differences between two adjacent estimations ) measuring on the entire to - be - reconstructed ncat phantom image were performed .
+figure 12 shows the \ documentclass [ 12pt ]{ minimal } \ usepackage { amsmath } \ usepackage { wasysym } \ usepackage { amsfonts } \ usepackage { amssymb } \ usepackage { amsbsy } \ usepackage { mathrsfs } \ usepackage { upgreek } \ setlength {\ oddsidemargin }{ - 69pt } \ begin { document }$$|{ f }({\ bf { n }}) - { f }({\ bf { n }}{ - } 1 )|$$\ end { document }| f ( n ) - f ( n - 1 )| measures with respect to the number of iterations .
+results show that the present mgss algorithm can yield a steadily convergence solution .
+figure 12 the convergence curve of the mgss algorithm .
+influence of motion tracking to demonstrate the effect of the estimated motion fields on the reconstruction , we plot the rrmse measures as a function of the number of iterations for the mgss with and without motion tracking .
+figure 13 shows the benefits of motion guidance , as mgss with motion tracking can obtain reduced rrmse as compared to mgss without motion tracking .
+figure 13 also illustrates the convergence of the proposed mgss algorithm .
+figure 13 the rrmse measures as a function of the number of iterations for the mgss algorithm with and without motion tracking .
+realistic 4d ct based digital phantom study figure 14 shows the results of the realistic digital phantom reconstructed by using different methods at transverse , coronal , and sagittal planes for phase # 1 with the projection number set to be 21 .
+first column in fig. 14 shows the 4dct images using as the golden standard for comparison .
+the second column shows 4d - cbct images reconstructed by the fdk algorithm .
+it can be seen that the fdk reconstructions are seriously contaminated by noise and artifacts , and some anatomical structures ca n't be clearly seen .
+for the sart - tv reconstruction , some fine structures have been erased though most of the view aliasing artifacts are suppressed .
+compared to fdk and sart - tv algorithms , the proposed mgss approach can yield images with superior quality .
+in addition , the uqi test between the reconstructions and golden standard image were calculated .
+figure 15 shows the test results of then phases at the transverse , sagittal and coronal planes , separately .
+for then phases , the uqi values of mgss reconstructions are always higher than 0.95 , which suggests the promising performance of the proposed mgss algorithm .
+figure 14 results of realistic digital phantom with 21 projections for each phase .
+first column shows the begin - expiration phase of the 4dct images .
+the second to last columns show 4d - cbct images at the begin - expiration phase reconstructed by using fdk , sart - tv and proposed mgss algorithms , respectively .
+figure 15 the uqi tests on ten phases reconstructions from - 21views projection at the transverse , sagittal and coronal planes separately .
+patient study figure 16 shows the representative reconstructions of patient data by using the fdk , sart - tv and mgss methods .
+each row of fig. 16 shows the image of 4d - cbct at different phase in respiratory cycle : 20 - 30 % , 40 - 50 % , 60 - 70 % , 80 - 90 % .
+the first column in fig. 16 shows the sagittal view of 4d - cbct images reconstructed by conventional fdk .
+because of the limited number of projections at each phase , severe noise and artifacts present in the fdk reconstruction .
+the second column of fig. 16 shows the results of sart - tv algorithm .
+although noise and artifacts have been remarkably reduced , details within the lung area and edges of bony structure ca n't be clearly seen .
+last column of fig. 16 shows the images reconstructed by mgss method , from which we can observe noise is suppressed .
+the boundaries of bony structures as well as fine structures inside the lung are well preserved .
+to further illustrate the performance of our algorithm , zoomed images of the tumor areas in the then phasesof the reconstructions by using different reconstruction are presented ( fig. 17 ) .
+figure 16 results of patient data reconstructed by using different methods .
+the left to the right columns show the 4d - cbct reconstructed by fdk , sart - tv and proposed mgss algorithm , respectively.each row shows images at the different phases in the breathing cycle : 20 - 30 % , 40 - 50 % , 60 - 70 % , 80 - 90 % .
+figure 17 the zoomed tumor areas in the reconstructions of ten phases .
+the first to the third rows show the tumor image which were reconstructed by fdk , sart - tv , and mgss , respectively .
+discussion in this work , we developed a mgss algorithm to improve the image quality of 4d - cbct .
+this algorithm is developed on the assumption that there exists high structural similarity between the images of neighbored phases , which is similar with chen 's work on dynamic mr reconstruction43 .
+in chen 's work , two dimensional patches are tracked with estimated motion maps and then svd was used to decompose the tacked cluster .
+for the standard svd , the image blocks are manually vectorized and then the image structural properties in the spatial domain are ignored .
+for the proposed mgss algorithm , the 3d - mvfs between phases were utilized to track the three dimensional cubes and then form the cluster thetamgss with the size of \ documentclass [ 12pt ]{ minimal } \ usepackage { amsmath } \ usepackage { wasysym } \ usepackage { amsfonts } \ usepackage { amssymb } \ usepackage { amsbsy } \ usepackage { mathrsfs } \ usepackage { upgreek } \ setlength {\ oddsidemargin }{ - 69pt } \ begin { document }$${ n }_{ b }\ times { n }_{ b }\ times { n }_{ b }\ times { n }_{ t }$$\ end { document } nbxnbxnbxnt .
+to preserve the structural properties , in this work , the higher order singular value decomposition which is able to directly decompose dynamic datasets into a multidimensional singular matrix rather than unfolding the cubes into column vectors , was used to process the four dimensional cluster thetamgss .
+the mgss algorithm can reveal the fine details shared by grouped blocks and preserve the essential unique features of each individual block .
+results of digital phantom and patient data demonstrate the proposed approach can significantly suppress the view aliasing artifacts and noise .
+one important step in the proposed mgss algorithm is : cube based motion tracking .
+we utilize the real - time image - based tracker ( rtit ) 36 toolbox to obtain the voxel - by - voxel displacement maps between 3d images of different phases .
+specifically , we rely mainly on the displacement of the center voxel of cube in the current phase to determine the cube in the next phase .
+we assume the displacements of region are changing smoothly .
+thus , the central voxel is sufficient to describe the cube motion. and in this case , the accuracy of 3d - mvfs estimation would play an important role in finding cubes with similar structures .
+in this work , the initial 3d - mvfs are generated after the first sart iteration , which may not so accurate .
+notably , as the iteration goes on , the 3d - mvfs would be updated with intermediate reconstructions , and therefore both the image quality and the accuracy of the 3d - mvfs will be improved .
+other approaches such like the 3d - mvfs initialized with those got from the 4d planning ct of the same patient can be considered .
+there is a very important parameter need to be tuned for the proposed mgss approach : the tracked cube size .
+a large size cube may include more details and local geometry , but on the other side , if the cube size is too large , the central voxel will be insufficient to describe the whole cube motion and also result in increasing computation time .
+thus , the proper selection of the cube size is critical .
+in our studies , we change the block size from 3 x 3 x 3 to 23 x 23 x 23 and generate the reconstructions as shown in fig. 10 and rrmses between the reconstructions and the phantom images .
+for visual inspection , too small or large cube size would lead to image blur or distortion .
+the rrmse results suggest that when the cube size set to be 9 x 9 x 9 , we can get relative higher quality image with smaller rrmse for the ncat phantom .
+also as illustrated in other studies of hosvd technique , the appropriate selection of the cube size should base on the structural complexity of the target image and may be different for different images .
+but overall , in our work for lung ct imaging , we found the cube size set to be 9 x 9 x 9 is robust enough to balance the structural information and computation time .
+another issue of the proposed mgss algorithm is the heavy computation burden .
+it takes about 30 minutes on a desktop computer ( 3.60 ghz intel ( r ) i7 cpu with 8gb ram ) to run one iteration .
+on one hand , as mentioned above , we can short the computation time with a relatively small cube size as well as an elegant initialization .
+on the other hand , we can use a step of nstep pixels in transverse , coronal , and sagittal directions , respectively .
+hence , the number of overlapping cubes is decreased by 1 / nstep 3 .
+but with large nstep or large motion , gaps between moved blocks may appear , then a mask of the uncovered areas ( gaps ) on the n - th frame after block motion tracking can be detected and non - motion tracking is performed for the gap blocks to avoid potential additional gaps .
+other techniques including using the graphics processing unit ( gpu ) can be also considered to short the computation time .
+in summary , we have developed a mgss algorithm to improve the image quality of 4d - cbct .
+this method effectively utilizes the correlated information from other phases to reconstruct any particular phase of 4d - cbct. by enforcing the regional spatiotemporal sparsity on the tracked cubes , noise and artifacts can be suppressed and the image quality of 4d - cbct can be substantially improved .
+publisher 's note : springer nature remains neutral with regard to jurisdictional claims in published maps and institutional affiliations .
+acknowledgements this work was partially supported by the national natural science foundation of chinaunder grants ( no .
+81501466 , no .
+61571214 , no .
+81371544 ) , the natural science foundation of guangdong provinceunder grants ( no .
+2015a030310018 ) , theguangzhou science and technology project ( no. 201710010099 ) .
+the authors thank the rtk group very much for the supplying of the opensource data of cbct .
+the authors would also like to thank the anonymous reviewers for their constructive comments and suggestions that greatly improved the quality of the manuscript .
+author contributions y.l. and h.z. wrote the main manuscript text , y.l. , h.z. and z.b. did the whole experiments , x.t. , d.z. , q.f. , j.m. and w.c. revised the manuscript .
+all authors reviewed the manuscript .
+competing interests the authors declare that they have no competing interests .
+references 1 .
+jaffray da siewerdsen jh wong jw martinez aa flat - panel cone - beam computed tomography for image - guided radiation therapy international journal of radiation oncology * biology * physics 2002 53 1337 1349 10.1016 / s0360 - 3016 ( 02 ) 02884 - 5 2 .
+oldham m cone - beam - ct guided radiation therapy : a model for on - line application radiotherapy and oncology 2005 75 271 .
+e1 271 .
+e8 10.1016 / j.radonc.2005.03.026 15890419 3 .
+pouliot j low - dose megavoltage cone - beam ct for radiation therapy international journal of radiation oncology * biology * physics 2005 61 552 560 10.1016 / j.ijrobp.2004.10.011 4 .
+chen gt kung jh beaudette kp artifacts in computed tomography scanning of moving objects semin radiat oncol 2004 14 19 26 10.1053 / j.semradonc.2003.10.004 14752730 5 .
+sonke j zijp l remeijer p van herk m respiratory correlated cone beam ct medical physics 2005 32 1176 1186 10.1118 / 1.1869074 15895601 6 .
+li t four - dimensional cone - beam computed tomography using an on - board imager medical physics 2006 33 3825 3833 10.1118 / 1.2349692 17089847 7 .
+lu j four - dimensional cone beam ct with adaptive gantry rotation and adaptive data sampling medical physics 2007 34 3520 3529 10.1118 / 1.2767145 17926955 8 .
+ford ec mageras gs yorke e ling cc respiration - correlated spiral ct : a method of measuring respiratory - induced anatomic motion for radiation treatment planning medical physics 2003 30 88 97 10.1118 / 1.1531177 12557983 9 .
+low da a method for the reconstruction of four - dimensional synchronized ct scans acquired during free breathing medical physics 2003 30 1254 1263 10.1118 / 1.1576230 12852551 10 .
+pan t lee t rietzel e chen gt 4d - ct imaging of a volume influenced by respiratory motion on multi - slice ct medical physics 2004 31 333 340 10.1118 / 1.1639993 15000619 11 .
+feldkamp la davis lc kress jw practical cone - beam algorithm josa a 1984 1 612 619 10.1364 / josaa.1.000612 12 .
+li t koong a xing l enhanced 4d cone - beam ct with inter - phase motion model medical physics 2007 34 3688 3695 10.1118 / 1.2767144 17926972 13 .
+li t xing l optimizing 4d cone - beam ct acquisition protocol for external beam radiotherapy international journal of radiation oncology * biology * physics 2007 67 1211 1219 10.1016 / j.ijrobp.2006.10.024 14 .
+li t schreibmann e yang y xing l motion correction for improved target localization with on - board cone - beam computed tomography phys med biol 2006 51 253 67 10.1088 / 0031 - 9155 / 51 / 2 / 005 16394337 15 .
+zhang h few - view cone - beam ct reconstruction with deformed prior image med phys 2014 41 121905 10.1118 / 1.4901265 25471965 16 .
+wang j li t xing l iterative image reconstruction for cbct using edge - preserving prior medical physics 2009 36 252 260 10.1118 / 1.3036112 19235393 17 .
+brock rs docef a murphy mj reconstruction of a cone - beam ct image via forward iterative projection matching medical physics 2010 37 6212 6220 10.1118 / 1.3515460 21302778 18 .
+jia x dong b lou y jiang sb gpu - based iterative cone - beam ct reconstruction using tight frame regularization physics in medicine and biology 2011 56 3787 10.1088 / 0031 - 9155 / 56 / 13 / 004 21628778 19 .
+sidky ey pan x image reconstruction in circular cone - beam computed tomography by constrained , total - variation minimization physics in medicine and biology 2008 53 4777 10.1088 / 0031 - 9155 / 53 / 17 / 021 18701771 20 .
+sidky ey enhanced imaging of microcalcifications in digital breast tomosynthesis through improved image - reconstruction algorithms medical physics 2009 36 4920 32 10.1118 / 1.3232211 19994501 21 .
+kinnon gcm bates rht towards imaging the beating heart usefully with a conventional ct scanner ieee transactions on biomedical engineering 1981 bme - 28 123 127 10.1109 / tbme.1981.324785 22 .
+leng s streaking artifacts reduction in four - dimensional cone - beam computed tomography medical physics 2008 35 4649 59 10.1118 / 1.2977736 18975711 23 .
+leng s high temporal resolution and streak - free four - dimensional cone - beam computed tomography physics in medicine & biology 2008 53 5653 73 10.1088 / 0031 - 9155 / 53 / 20 / 006 18812650 24 .
+bergner f autoadaptive phase - correlated ( aapc ) reconstruction for 4d cbct medical physics 2009 36 5695 5706 10.1118 / 1.3260919 20095282 25 .
+kida s masutani y nakano m imae t haga a improvement of 4d cone - beam ct image quality via iterative reconstruction method ieice technical report 2012 112 73 75 26 .
+bergner f an investigation of 4d cone - beam ct algorithms for slowly rotating scanners medical physics 2010 37 5044 5053 10.1118 / 1.3480986 20964224 27 .
+haralick rm statistical and structural approaches to texture proceedings of the ieee 1979 67 786 804 10.1109 / proc.1979.11328 28 .
+lee js digital image enhancement and noise filtering by use of local statistics ieee transactions on pattern analysis & machine intelligence 1980 2 165 168 10.1109 / tpami.1980.4766994 21868887 29 .
+aharon m elad m bruckstein a k - svd : an algorithm for designing overcomplete dictionaries for sparse representation ieee transactions on signal processing 2006 54 4311 4322 10.1109 / tsp.2006.881199 30 .
+buades a coll b morel jm a review of image denoising algorithms , with a new one siam journal on multiscale modeling & simulation 2005 4 490 530 10.1137 / 040616024 31 .
+dabov k foi a katkovnik v egiazarian k image denoising by sparse 3 - d transform - domain collaborative filtering ieee transactions on image processing 2007 16 2080 95 10.1109 / tip.2007.901238 17688213 32 .
+liu , c .
+& freeman , w. t. a high - quality video denoising algorithm based on reliable motion estimation .
+european conference on computer vision 706 - 719 ( 2010 ) .
+33. dwivedi , a .
+& shrivastava , s. k. an efficient and fast patch reordering approach for image denoising without losing structural information .
+international conference on computer communications 1 - 6 ( 2014 ) .
+34. parameswaran , s. , luo , e .
+& nguyen , t. q. patch matching for image denoising using neighborhood - based collaborative filtering .
+ieee transactions on circuits and systems for video technology , 1 - 1 ( 2016 ) .
+35. costantini r sbaiz l susstrunk s higher order svd analysis for dynamic texture synthesis ieee transactions on image processing a publication of the ieee signal processing society 2008 17 42 52 10.1109 / tip.2007.910956 18229803 36 .
+ries m real - time 3d target tracking in mri guided focused ultrasound ablations in moving tissues magn reson med 2010 64 1704 12 10.1002 / mrm.22548 20878763 37 .
+zachiu , c. , senneville , b. d. d. , moonen , c .
+& ries , m. a framework for the correction of slow physiological drifts during mr - guided hifu therapies : proof of concept .
+medical physics42 ( 2015 ) .
+38. zachiu c papadakis n ries m moonen c denis dsb an improved optical flow tracking technique for real - time mr - guided beam therapies in moving organs physics in medicine & biology 2015 60 9003 29 10.1088 / 0031 - 9155 / 60 / 23 / 9003 26540256 39 .
+lingala sg hu y dibella e jacob m accelerated dynamic mri exploiting sparsity and low - rank structure : k - t slr ieee transactions on medical imaging 2011 30 1042 1054 10.1109 / tmi.2010.2100850 21292593 40 .
+cai jf jia x gao h jiang sb cine cone beam ct reconstruction using low - rank matrix factorization : algorithm and a proof - of - principle study ieee transactions on medical imaging 2014 33 1581 1591 10.1109 / tmi.2014.2319055 24771574 41 .
+akcakaya m low - dimensional - structure self - learning and thresholding : regularization beyond compressed sensing for mri reconstruction magn reson med 2011 66 756 67 10.1002 / mrm.22841 21465542 42 .
+vitanis v high resolution three - dimensional cardiac perfusion imaging using compartment - based k - t principal component analysis magn reson med 2011 65 575 87 10.1002 / mrm.22620 20928876 43 .
+chen x salerno m yang y epstein fh motion - compensated compressed sensing for dynamic contrast - enhanced mri using regional spatiotemporal sparsity and region tracking : block low - rank sparsity with motion - guidance ( blosm ) magnetic resonance in medicine 2014 72 1028 1038 10.1002 / mrm.25018 24243528 44 .
+lathauwer ld moor bd vandewalle j on the best rank - 1 and rank - ( r 1 , r 2 , ... , r n ) approximation of higher - order tensors siam journal on matrix analysis & applications 2000 21 1324 1342 10.1137 / s0895479898346995 45 .
+pan h huang tz ma t two - step group - based adaptive soft - thresholding algorithm for image denoising optik - international journal for light and electron optics 2016 127 503 509 10.1016 / j.ijleo.2015.08.131 46 .
+jorgensen js sidky ey pan x quantifying admissible undersampling for sparsity - exploiting iterative image reconstruction in x - ray ct ieee trans med imaging 2013 32 460 73 10.1109 / tmi.2012.2230185 23204282 47 .
+andersen ah kak ac simultaneous algebraic reconstruction technique ( sart ) : a superior implementation of the art algorithm ultrasonic imaging 1984 6 81 94 10.1177 / 016173468400600107 6548059 48 .
+segars , w. p. et al. development and application of the new dynamic nurbs - based cardiac - torso ( ncat ) phantom ( 2001 ) .
+49. zijp , l. , sonke , j. j. & herk , m. v. extraction of the respiratory signal from sequential thorax cone - beam x - ray images .
+in iccr ( 2004 ) .
+50. wang z bovik ac sheikh hr simoncelli ep image quality assessment : from error visibility to structural similarity ieee transactions on image processing a publication of the ieee signal processing society 2004 13 600 10.1109 / tip.2003.819861 15376593 51 .
+dabov k foi a egiazarian k image denoising with block - matching and 3d filtering proceedings of spie - the international society for optical engineering 2006 6064 354 365

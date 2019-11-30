@@ -1,0 +1,620 @@
+plos one plos one plos plosone plos one 1932 - 6203 public library of science san francisco , ca usa 26161667 4498698 10.1371 / journal.pone.0131520 pone - d - 14 - 15453 research article an automated , adaptive framework for optimizing preprocessing pipelines in task - based functional mri adaptive pipeline optimization in task fmri churchill nathan w .
+1 2 currency * spring robyn 1 3 afshin - pour babak 1 dong fan 1 strother stephen c .
+1 2 3 1 rotman research institute , baycrest hospital , toronto , ontario , canada 2 department of medical biophysics , university of toronto , toronto , ontario , canada 3 institute of medical science , university of toronto , toronto , ontario , canada bodurka jerzy editor laureate institute for brain research and the university of oklahoma , united states competing interests : the authors have declared that no competing interests exist .
+conceived and designed the experiments : ss. performed the experiments : nc rs. analyzed the data : nc. contributed reagents / materials / analysis tools : fd ba rs. wrote the paper : nc ss. manuscript editing : fd ba rs. currency current address : neuroscience research program , st. michael 's hospital , toronto , ontario , canada * e - mail : nchurchill.research @ gmail.com 10 7 2015 2015 10 7 e0131520 7 4 2014 3 6 2015 ( c ) 2015 churchill et al 2015 churchill et althis is an open - access article distributed under the terms of the creative commons attribution license , which permits unrestricted use , distribution , and reproduction in any medium , provided the original author and source are properly credited .
+bold fmri is sensitive to blood - oxygenation changes correlated with brain function ; however , it is limited by relatively weak signal and significant noise confounds .
+many preprocessing algorithms have been developed to control noise and improve signal detection in fmri .
+although the chosen set of preprocessing and analysis steps ( the " pipeline ") significantly affects signal detection , pipelines are rarely quantitatively validated in the neuroimaging literature , due to complex preprocessing interactions .
+this paper outlines and validates an adaptive resampling framework for evaluating and optimizing preprocessing choices by optimizing data - driven metrics of task prediction and spatial reproducibility .
+compared to standard " fixed " preprocessing pipelines , this optimization approach significantly improves independent validation measures of within - subject test - retest , and between - subject activation overlap , and behavioural prediction accuracy .
+we demonstrate that preprocessing choices function as implicit model regularizers , and that improvements due to pipeline optimization generalize across a range of simple to complex experimental tasks and analysis models .
+results are shown for brief scanning sessions (< 3 minutes each ) , demonstrating that with pipeline optimization , it is possible to obtain reliable results and brain - behaviour correlations in relatively small datasets .
+this work was partially supported by cihr grant # mop84483 , a bridging cihr grant # iao123872 , and a brain , mind and behaviour grant from the james s. mcdonnell foundation .
+s.c.s. , r.s. and f.d. acknowledge partial support from the ontario brain institute , and s.c.s. and r.s. also acknowledge support of the heart and stroke foundation of ontario , through the canadian partnership for stroke recovery .
+the funders had no role in study design , data collection and analysis , decision to publish , or preparation of the manuscript.data availabilityregarding data sharing , we have made available fmri pipeline results for all tasks , analysis models and optimization pipelines ( along with subject behavioural measures ) , deposited online at figshare.com ( doi : 10.6084 / m9.figshare.1299085 ) .
+this doi is listed in the manuscript .
+it will be made publicly accessible , pending article acceptance .
+this represents a minimal data set that provides the underlying numerical values behind any figures , tables , graphs , and statistical analyses that are necessary to replicate the findings in the study .
+for further information on pipeline optimization methods and raw data , readers can also contact the corresponding author ( nathan churchill ; nchurchill.research @ gmail.com ) .
+data availability regarding data sharing , we have made available fmri pipeline results for all tasks , analysis models and optimization pipelines ( along with subject behavioural measures ) , deposited online at figshare.com ( doi : 10.6084 / m9.figshare.1299085 ) .
+this doi is listed in the manuscript .
+it will be made publicly accessible , pending article acceptance .
+this represents a minimal data set that provides the underlying numerical values behind any figures , tables , graphs , and statistical analyses that are necessary to replicate the findings in the study .
+for further information on pipeline optimization methods and raw data , readers can also contact the corresponding author ( nathan churchill ; nchurchill.research @ gmail.com ) .
+introduction blood - oxygenation level dependent functional magnetic resonance imaging ( bold fmri ) is a versatile imaging modality , which is widely used in experimental neuroscience and emerging clinical applications .
+however , the bold changes linked to neuronal brain function are relatively small , and significant noise confounds are often present .
+the principal noise sources in fmri are subject - dependent , including the effects of head movement and physiological processes , such as respiration and cardiac pulsation .
+the signal changes caused by such confounds are highly variable between subjects , and even across scanning sessions for a single subject , with complex spatial and temporal structure .
+this limits our ability to reliably detect neuronal - linked bold signals with adequate power , especially for complex task paradigms and studies of clinical , aging and child populations [ 1 - 4 ] .
+consequently , there is much debate concerning the reproducibility , validity and power of published fmri measurements [ 5 - 10 ] .
+the resulting low power and low reliability of fmri also limits our ability to measure brain - behaviour relationships , which is a key goal of many fmri studies .
+to control noise and improve signal detection , a variety of image preprocessing algorithms have been developed , from generalized techniques ( e.g. spatial smoothing of brain voxels ) to artifact - specific correction ( e.g. motion correction algorithms ) .
+over the past two decades , it has been established that the chosen set of preprocessing steps and analysis model ( the " pipeline ") significantly impacts fmri results [ 11 - 22 ] .
+nonetheless , most fmri literature has not emphasized the quantitative validation of preprocessing choices , implicitly assuming that analysis results are insensitive to them , or that the widely - used , open - source preprocessing packages produce near - optimal results .
+this has led to inconsistent , often under - and un - reported pipeline methodologies [ 23 - 25 ] , and sub - optimal signal detection in fmri experiments , all of which contribute potential bias and unwanted methodological noise in the quest to characterize brain function and brain - behaviour relationships .
+some of the issues with sub - optimal signal detection may be improved by making well - motivated choices in how fmri data are preprocessed [ 21,22 ] .
+for example : there are significant differences in the robustness of different motion correction algorithms [ 17 ] ; the impact of residual motion correction techniques depends largely on the choice of experimental design and task contrast [ 26,27 ] ; physiological noise corrections may significantly reduce differences between analysis models [ 11 ] ; and the order in which preprocessing steps are performed has a significant impact on their efficacy [ 28,29 ] .
+nonetheless , choosing the optimal sequence of preprocessing steps is a daunting task ; while it is important to make sensible pipeline choices , many algorithms have been published , and it quickly becomes non - trivial to account for the many possible interactions between experimental task design , preprocessing and analysis algorithms .
+some advocate a conservative approach , using a fixed , standardized pipeline to control all anticipated noise confounds [ 9,30 ] .
+this strategy limits pipeline flexibility and reduces power , but provides strong control against false - positive activations .
+overly - flexible preprocessing selection is a significant issue if unconstrained , or if pipelines are chosen to maximize the significance of findings , leading to highly biased results [ 31 ] .
+as an alternative , we show that flexible , adaptive pipeline optimization is a powerful tool for improving signal detection in fmri , if we select preprocessing steps that optimize the statistical analysis criteria of prediction accuracy ( p ) and spatial reproducibility ( r ) .
+in this paper , we propose an automated , adaptive framework , which optimizes the preprocessing of individual subject task runs , by identifying the pipeline that maximizes ( p,r ) metrics .
+it is based on the npairs resampling framework of [ 32 ] , and constitutes a significant extension of previous work on pipeline optimization [ 13 - 14,20 - 22 ] .
+this framework is an alternative to standard preprocessing methods in fmri literature , which are usually based on subjective visual assessments of data quality ; these are time - consuming to evaluate and may lead to biased , non - replicable results .
+this paper establishes the framework used to preprocess individual scanning runs , along with independent validation measures to evaluate the effects of pipeline optimization , which are summarized in fig 1 .
+preprocessing steps are selected to independently maximize ( p , r ) metrics and the resulting statistical parametric maps ( spms ) for individual task runs within scanning sessions ( fig 1a ; separate light and dark blue data sets , and their spms ) .
+we validate this approach by measuring the reliability of spm activation patterns from these independently - optimized task runs , including within - subject , between - session comparisons ( i.e. test - retest reliability ; fig 1b ) , and between - subject , within - session comparisons ( i.e. group - level reliability ; fig 1c ) .
+in addition , we measure the correlation between the spm activation patterns and behavioural metrics measured and tested completely independently of our pipeline optimization procedures ( i.e. brain - behaviour relationships ; fig 1d ) .
+because we are comparing independently - optimized runs , these measures avoid issues of circularity when quantifying model performance [ 31 ] .
+we demonstrate that our pipeline optimization framework significantly improves all three independent validation measures , across multiple tasks and analysis models .
+10.1371 / journal.pone.0131520.g001 fig 1 the pipeline optimization and validation procedure of this paper .
+this schematically represents the approach to pipeline optimization , and independent validation measures used to test the quality of optimized results .
+( a ) for all subjects and each of the three tasks , we have raw data from two scanning sessions ( i.e. test and retest ) in red .
+for each task run and session , we identify the optimal pipeline based on measures of prediction and reproducibility ( p , r ) , and output optimally preprocessed data ( blue ) and an analysis spm .
+( b - d ) cross - validation measures , computed on spms of independently - optimized datasets .
+( b ) activation overlap between spms of the two scanning sessions , within each subject .
+( c ) activation overlap between subject spms , within a single scanning session .
+( d ) correlation between spm activity and independent behavioural measures ( bij = subject i , session j ) , measured via partial least squares analysis .
+materials and methods in this section , we first describe the different task datasets used to evaluate pipeline optimization ( experimental data ) .
+we then establish the set of preprocessing and analysis options included in the pipeline framework ( preprocessing pipeline steps ; analysis models ) .
+afterwards , we define metrics of prediction and reproducibility , which are used to quantify pipeline performance ( optimization metrics ) , and the different approaches to pipeline selection that are compared in this paper ( pipeline optimization approaches ) .
+afterwards , we measure the effects of pipeline optimization on performance metrics and spatial brain patterns ( the effects of pipeline optimization ) , along with independent validation measures of spatial reliability ( validation 1 : spatial reliability of independent sessions ) and brain - behaviour correlations ( validation 2 : estimating brain - behaviour correlations ) .
+the fmri pipeline results and behavioural measures are deposited at figshare.com ( doi : 10.6084 / m9.figshare.1299085 ) .
+experimental data we performed pipeline analyses on data from a cognitive task battery , designed for clinical implementation in the assessment of stroke and vascular - cognitive impairment .
+we collected data from 27 young , healthy volunteers ( 15 female , ages 21 - 33 yrs , median 25 yrs ) , and we acquired retest session data from 20 out of 27 volunteers ( 12 female , ages 22 - 33 yrs , median 25 yrs ) at a median 6 months after the initial testing session ( range 2 - 23 months ) .
+participants were confirmed right - handed with the edinburgh handedness inventory [ 33 ] , and screened for cognitive and neurological deficits , by self - report and the mini - mental status examination [ 34 ] .
+all participants gave written informed consent for their participation and the experiment was conducted in the rotman research institute , baycrest hospital , with the approval of the baycrest research ethics board .
+bold fmri data were acquired on a 3t mr scanner ( magnetom tim trio , vb15a software ; siemens ag , erlangen , germany ) , with a 12 - channel head coil .
+a t1 - contrast anatomical scan was obtained ( oblique - axial 3d mprage , 2.63 / 2000 / 1100 ms te / tr / ti , 9degrees fa , 256 x 192 matrix , 160 slices per volume , voxel dimensions 1x1x1 mm3 ) , followed by bold fmri ( 2d ge - epi , 30 / 2000 ms te / tr , 70degrees fa , 64x64 matrix , 30 slices per volume , voxel dimensions 3.125x3.125x5 mm3 ) .
+during scanning , we also measured cardiac and breathing rates via photoplethysmograph and pneumatic belt , respectively .
+for both test and retest sessions , participants received a 15 minute orientation in an mri simulator , and performed two runs of each task in the scanner , separated by approximately 10 minutes of other behavioural tests .
+the tasks in the battery included an initial encoding task ( enc ) , followed by a block - design adaptation of the trail - making test ( tmt ) , a block - design , forced - choice recognition tasks ( rec ) of the encoded line drawings , and a rapid event - related sustained attention to response task ( sart ) .
+the tasks were relatively brief (< 3 minutes each ) , and involved a range of different cognitive contrasts , to explore the effects of pipeline optimization under different experimental designs .
+we focused on pipeline optimization within relatively brief runs ( i.e. within each of the two task runs per testing session ) , to demonstrate that we can obtain reliable measures in small , complex task datasets if preprocessing is optimized .
+all tasks were performed in the fmri scanner using an fmri - compatible response tablet [ 35 ] , and presented to subjects in a fixed ordering of enc , tmt , rec , sart to ensure a constant delay between encoding and recognition tasks .
+the encoding of line drawn objects involved overt naming and will be addressed in future work .
+recognition ( rec ) alternating scanning task and control blocks of 24 s were presented 4 times , for a total task scanning time per subject of 192 s. during the task blocks , participants were presented with a previously encoded figure side - by - side with two other figures ( semantic and perceptual foils ) on a projection screen every 3 s , and were asked to touch the location of the original figure on the tablet .
+figures were line drawn objects from the boston naming test [ 36 ] .
+during control blocks , participants touched a fixation cross presented at random intervals of 1 - 3 s. we analyzed the contrast between recall and control tasks , as a robust block - design contrast .
+trail - making test ( tmt ) the task was similar to the widely used clinical version [ 37 ] , consisting of stimulus types : taska , in which numbers 1 - 14 are pseudo - randomly displayed on a viewing screen , and taskb , in which numbers 1 - 7 and letters a - g are displayed .
+subjects used the tablet to draw a line connecting items in sequence ( 1 - 2 - 3 - 4 - ...) or ( 1 - a - 2 - b - ...) , connecting as many as possible for a 20s block interval , while maintaining accuracy .
+a control stimulus was presented after each block , in which participants traced a line from the center of the screen to a dot ( randomly placed at a fixed radius from the center of the screen ) repeated 10 times .
+for a single run , each participant performed a 4 - block , 40 - scan epoch of taska - control - taskb - control twice .
+we analyzed the contrast between task b and task a conditions , as a relatively subtle block - design contrast of brain states .
+sustained attention to response task ( sart ) this task was presented as a fast event - related go - nogo design [ 38 ] .
+the set of integers 1 - 9 were presented in random order on the screen , followed by a masking image .
+stimuli were presented for 250 ms , while the mask was shown for a randomized inter - stimulus interval , of mean 1250 +/ - 210 ms. participants were asked to respond to all integers except ' 3 ' ( the nogo stimulus ) using the mri - compatible writing tablet , by touching the stylus to the tablet surface .
+a single run consisted of 100 presented digits , with 75 go stimuli and 25 nogo stimuli , in randomized order , with 76 scans per run .
+we estimated the main haemodynamic response associated with go stimulus in a 9 - tr time window , as a representative event - related design .
+preprocessing pipeline steps the proposed fmri pipeline is an automated framework , which is used to measure the effects of different preprocessing choices on signal detection in fmri data .
+this framework can test any combination of pre - existing or new preprocessing algorithms , and determine the set of preprocessing choices that optimizes signal detection based on our prediction and reproducibility metrics .
+here , we establish a 13 - step pipeline , with a focus on optimizing a comprehensive set of 9 steps .
+all of these pipeline steps are either widely used in the fmri literature , or have a significant impact on task performance , based on prior studies .
+the pipeline steps are listed in table 1 , in the order in which they were applied , along with the options tested for each step .
+for the purposes of this report we did not attempt to test the much more computationally intensive possibilities of different orderings of the steps .
+10.1371 / journal.pone.0131520.t001 table 1 list of pipeline steps , and choices tested for each step .
+steps that are varied during each subject 's pipeline optimization are in bold , and other steps are held fixed .
+we tested pipeline optimization for fixed analysis models : gaussian naive bayes ( gnb ; univariate ) and canonical variates analysis ( cva ; multivariate ) .
+cva analysis is performed using 1 to k principal components ( pcs ) , where we vary k = 1 to 10 .
+pipeline steps choices 1 .
+estimate minimum - displacement brain volume on 2 .
+rigid - body motion correction off / on 3 .
+censoring of outlier brain volumes off / on 4 .
+physiological correction ; external physiological measures ( retroicor ) off / on 5 .
+slice - timing correction off / on 6 .
+spatial smoothing 6mm fwhm 7 .
+subject - specific non - neuronal tissue mask on 8 .
+temporal detrending orders 0 to 5 9 .
+motion parameter regression off / on 10 .
+global signal regression using principal component analysis ( pca ) off / on 11 .
+including task design as a regressor off / on 12 .
+physiological correction ; multivariate data - driven model ( phycaa +) off / on 13 .
+analysis model : univariate ( gnb ) or multivariate ( cva )* gnb or cva when processing an fmri dataset , the pipeline consists of the following sequence of 13 steps .
+the 9 steps in bold are tested during pipeline optimization , while other steps are fixed , and applied to all datasets .
+preprocessing steps ( 2 - 6 ) are based on utilities in the widely - used afni package ( analysis of functional neuroimaging ; afni.nimh.nih.gov / afni ) ; all other steps were developed in - house , and developed in matlab ( matlab and statistics toolbox release 2012b , the mathworks , inc. , natick , ma ) .
+estimate minimum - displacement brain volume : identify the volume with minimum head displacement in the scanning run , which had minimum euclidean distance from the median coordinates in principal component ( pca ) space of the 4d data set .
+this is used as a reference for motion correction ( step 2 ) to minimize the average distance that motion alignment displaces each brain volume , as the accuracy of motion correction decreases with distance from the reference volume [ 39 ] .
+motion correction [ off / on ] : use the afni 3dvolreg algorithm to transform each image to the volume with minimum estimated displacement , to correct for rigid - body head motion .
+this step is tested in the pipeline , as its effects vary by dataset : it reduces motion artifact , particularly younger and older groups , and clinical datasets [ 1,4,40 ] , but may produce biased results in cases of large bold response and relatively small head movements [ 41 ] .
+censoring of outlier brain volumes [ off / on ] : remove outlier timepoints that are caused by abrupt head motion , and replace them by interpolating from adjacent volumes ( algorithm is fully described in s1 text ; code available at : www.nitrc.org / projects / spikecor _ fmri ) .
+the censoring step is a robust alternative to typical " scrubbing " algorithms [ 42 - 43 ] , which is fully automated , and does not create discontinuities in the data [ 44 ] .
+there have been no major studies of censoring in fmri task data , and thus its impact and importance as a preprocessing step is largely unknown .
+physiological correction ; external physiological measures [ on / off ] : apply retroicor [ 45 ] , using afni 's 3dretroicor software .
+this parametric model uses external measures of respiration and heartbeat .
+a 2nd - order fourier series was used to fit voxel time - courses , relative to the phase of cardiac and respiratory cycles .
+this step is optimized , as its impact on signal detection has been shown to vary as a function of subject and dataset [ 21 - 22 ] .
+slice - timing correction [ off / on ] : correct for timing offsets between axial slices due to epi acquisition , by using afni 's 3dtshift with fourier interpolation to resample the voxel time - courses .
+for event - related data that require estimation of the temporal haemodynamic response ( e.g. sart ) , this step is fixed on. for block designs , this step is tested during pipeline optimization ; while sladky et al .
+[ 46 ] showed that slice - timing correction improves detection power in block designs , we have observed subject - dependent effects of including this step [ 47 ] , which may be due to interactions with critically - sampled physiological noise not removed by a previous retroicor step .
+our results show a significant impact on prediction and reproducibility metrics of slice timing with block designs for some subjects .
+spatial smoothing : the brain volumes are spatially smoothed with a 3d isotropic gaussian kernel , using the afni 3dmerge algorithm .
+for current results , we use a fixed scale of fwhm = 6mm ; this parameter may be varied in future studies .
+for example , the size and " focalness " of activations vary by task [ 48 ] , and the smoothing scale may be chosen to optimize the detection of these brain regions [ 14 ] .
+interactions with spatial smoothing scale are testable in our framework , but beyond the scope of the current paper , which is focused on the optimization of temporal preprocessing choices .
+subject - specific non - neuronal tissue mask : generate a data - driven mask of non - neuronal tissues ( vasculature , sinuses and ventricles ) that should be excluded prior to analysis .
+otherwise , these voxels produce false - positive activations , and biased estimates of spatial reproducibility .
+this step uses the phycaa + algorithm [ 49 ] to estimate subject - specific masks , to account for inter - subject differences in vasculature .
+temporal detrending [ order 0 to 5 ] : regress out low - frequency fluctuations from fmri data , by fitting a legendre polynomial of order n in a general linear model ( glm , which also includes steps 9 to 11 ) .
+the algorithm tests detrending with an n th - order polynomial , for n = 0 to 5 .
+detrending provides non - specific noise correction , including head motion , scanner drift , and physiological noise [ 50 ] .
+different detrending models are tested , as the optimal order varies as a function of subject and task design [ 12,21 - 22 ] .
+motion parameter regression [ off / on ] : perform pca on the motion parameter estimates ( output from 3dvolreg in step 2 ) , and identify the 1 - k pcs that account for > 85 % of motion variance .
+these components are regressed from the data in a glm model , which includes steps 8 , 10 - 11 .
+this step is tested in the pipeline , as its effects vary by dataset : it controls residual motion artifact [ 4,41,50 ] , but it may also reduce experimental power , particularly in cases of large bold response and low head motion [ 21 , 26 - 27 ] .
+global signal regression using pca [ off / on ] : perform pca on the fmri data and regress out pc # 1 time - series , which tends to be highly correlated with global signal effects , as part of a glm including steps 8 - 9 , 11 .
+this approach minimizes the distortion of signal independent of global effects , unlike simple regression of mean bold signal [ 51 ] .
+the exact mechanism underlying global modulation remains unclear , but it may constitute physiological noise [ 52 ] , neuronal response [ 53 ] , or a mixture of both .
+the magnitude of global signal expression appears to be subject - dependent [ 54,55 ] , indicating the importance of adaptively estimating it across subjects .
+including task design as a regressor [ off / on ] : convolve the task paradigm with afni 's standard ' spmg1 ' hrf function ( afni.nimh.nih.gov / pub / dist / doc / program _ help / 3ddeconvolve.html ) .
+this regressor is included in the glm model with steps 8 - 10 .
+when these nuisance regressors are correlated with the task paradigm , step 11 protects against over - estimation of noise variance , and over - regression of task - related signal .
+this step is tested in the pipeline : although it controls against over - regression of task - related signal , the most robust bold response may be only weakly correlated with the task paradigm [ 56 ] , and this step may over - constrain subsequent analyses .
+physiological correction ; multivariate data - driven model [ off / on ] : use the multivariate data - driven phycaa + model [ 49 ] ( code available at : www.nitrc.org / projects / phycaa _ plus ) to identify physiological noise components in the data , which are regressed out from the fmri data .
+it has been previously demonstrated that this step significantly improves the prediction and reproducibility of fmri task analyses .
+analysis : for each combination of pipeline steps , the preprocessed data are analyzed in the npairs split - half framework [ 32 ] previously described in [ 22 ] .
+we test pipeline optimization for two predictive analysis models : univariate ( gaussian naive bayes ) and multivariate ( canonical variates analysis ) , discussed in the next section .
+for multivariate analyses , we perform pca subspace estimation [ dimensionalities k = 1 to 10 ] , by transforming each data split into a reduced principal component subspace , of pcs 1 - k. this may be thought of as a pca denoising step , in the preprocessing for our multivariate model .
+we then analyze each split , producing metrics of ( p ) prediction accuracy and ( r ) spatial reproducibility of the activation maps , for the pipeline data .
+steps 8 - 10 are regressed as nuisance covariates in a general linear model ( glm ) , and step 11 includes the task paradigm in the same glm design matrix , to protect against over - regression of task - related bold signal. from this list of choices , we can test a large number of different preprocessing pipelines by turning each of the 9 optional steps off and on. the total number of tested pipelines per subject is 28x6 = 1,536 ( gaussian naive bayes analysis ) and 28x6x10 = 15,360 ( canonical variates analysis ) .
+analysis models the analysis models that have been developed for fmri task data can be broadly categorized as either univariate or multivariate .
+univariate models assume brain voxels are independent random mixtures of signal and noise .
+this is a simplification , as brain regions have significant functional correlations [ 57 - 59 ] ; nonetheless , it provides a well - posed model of brain activity that is easy to interpret .
+multivariate models account for covariance between brain regions , identifying regions that fluctuate coherently in response to stimuli ; they are effective when individual voxels are noisy , but co - vary strongly .
+in this paper , we perform pipeline optimization for representative univariate and multivariate analysis models .
+both are predictive models that use a training dataset to construct a model of brain activity , and use this model to predict the experimental condition of independent test data .
+univariate analysis we employed a gaussian naive bayes model ( gnb ; a predictive glm ) in order to perform classification on independent test data .
+it is one of the most widely used predictive models in fmri literature [ 60 ] , and measures the joint posterior probability of all brain voxels in test data , along with a sensitivity map of activated voxels [ 61,62 ] .
+for rec and tmt , we classify test data from two task conditions ( 2 - class prediction ) .
+for sart , we estimate an hrf in a 9 - tr time window ( 9 - class prediction , where each time - lag is a class ) .
+see optimization metrics for further prediction details , along with the appendix of [ 49 ] .
+multivariate analysis we employed canonical variates analysis ( cva ) , which has been used in numerous studies [ 4,13 - 15,20 - 22,62 ] , and estimates a multivariate gaussian model for fmri task conditions .
+cva is highly flexible , able to analyze block and event - related data , and generalizes to an arbitrary number of task conditions .
+for 2 - condition rec and tmt tasks , it is equivalent to a linear discriminant , and obtains one brain eigenimage .
+for sart data , analyzed in a 9 - tr time window , we optimize the first eigenimage , which reflects the primary hrf .
+as with gnb , we perform 2 - class prediction for rec and tmt , and 9 - class prediction for sart .
+optimization metrics our goal is to identify the optimal preprocessing pipelines , which maximize the detection of neuronal - linked bold response and minimize noise confounds .
+a major challenge is to quantify the impact of preprocessing choices on analysis results in fmri , in the absence of a " ground truth " .
+the bold amplitude and regions of brain activation vary across subjects and sessions ; therefore , there is no single generalized bold response to a stimulus .
+moreover , we may not know the expected pattern of brain activation for novel task paradigms .
+simulations , though instructive , provide limited information on pipeline effects .
+it remains an ongoing challenge to simulate the complexity of brain networks , and current models do not contain the same information content that is present in real data [ 63 ] .
+two alternative metrics are used to measure pipeline effects in experimental data : the prediction accuracy of the analysis models , and the spatial reproducibility of brain maps , computed in the split - half npairs framework [ 32 ] ; these metrics are briefly summarized , but refer to [ 13 - 15,21 - 22,32 ] for further details .
+the split - half approach is used to independently optimize every task run , i.e. it is applied separately to each of the 6 task runs ( 2 runs per task type ) in each testing session .
+for a single continuous task run , this preprocessed dataset is split ( in time ) into two halves , which are preprocessed and analyzed independently .
+we use the independent analysis results to compute prediction ( p ) , where a classifier ( analysis ) model is built on training data in a single split - half , and we measure its ability to correctly predict the experimental condition of scans from an independent test dataset , i.e. the other split - half .
+this is given by the average posterior probability p that test scans are correctly assigned to the true experimental condition .
+as a probability measure , p takes values in the range [ 0,1 ] where p = 1 indicates perfect prediction .
+prediction quantifies how well our analysis model generalizes to new fmri data .
+we also compute reproducibility ( r ) , which measures how stable the activation patterns are across independent data split - halves .
+we obtain r by the pearson correlation between pairwise voxel values of the two brain maps .
+this metric can take values in the range [ - 1,1 ] , with r = 1 indicating a perfectly reproducible brain map .
+the global signal - to - noise ratio ( gsnr ) of bold response can be computed based from reproducibility [ 62 ] , by the equation gsnr = 2r /( 1 - r ) we also use the two split - half brain maps to estimate a reproducible z - scored statistical parametric map ( spm ) , for which [ 32 ] provides further details .
+for every individual run , we apply each of the 1,536 ( or 15,360 ) preprocessing combinations , analyze each pipeline , and obtain ( p , r ) measures .
+we then select the pipelines that optimize ( p , r ) values .
+although prediction and reproducibility are important goals for any neuroscientific experiment , it is rarely possible to simultaneously optimize both metrics .
+this is due to p and r representing important trade - offs in model parameterization , making it generally undesirable to strictly optimize one metric [ 56 ] .
+models that optimize r have more stable brain patterns , but are often less sensitive to stimulus - coupled brain response ( i.e. they exhibit weak prediction ) .
+for example , an analysis model that ignores data input and generates a fixed brain pattern will be perfectly reproducible ( r = 1 ) , but with no ability to predict brain state .
+conversely , models with optimized p are highly predictive of stimulus condition , but tend to extract non - reproducible brain patterns .
+for example , a model that only selects a small number of the highly task - coupled brain voxels may be highly predictive of class structure ( p =~ 1 ) , but will have low reproducibility , as the selected voxels vary between splits due to random signal / noise variations .
+standard analysis models and experimental data rarely produce such extreme results .
+however , the choice of optimization criteria significantly alters results , potentially identifying different or partial brain networks with varying signal strengths and spatial extents [ 15,56,62 ] .
+this paper therefore focuses on pipeline optimization by minimizing euclidean distance d ( p , r ) , relative to perfect model performance ( p = 1 , r = 1 ) .
+the joint optimization of ( p , r ) provides a compromise between the two model parameterizations , which can be used to select an optimal pipeline [ 13,20 ] .
+pipeline optimization approaches this paper compares three different approaches to pipeline selection , which are described schematically in fig 2 .
+s1 and s2 tables list the fraction of subjects optimized with each preprocessing step , as a function of optimization pipeline .
+for the current results , all steps are optimized except pipeline steps ( 1 , 6 , 7 ) , which are fixed on. step 1 ( selection of minimum displacement volume ) is fixed , so that we can compare the same motcor procedure across all pipelines ; step 6 ( spatial smoothing ) is fixed in order to compare pipelines activations at a consistent spatial scale ; step 7 ( masking non - neuronal brain voxels ) is required to compare a consistent set of brain voxels across all pipelines .
+note that because of steps 1 and 7 , the cons pipeline will be more optimized than is standard literature practice .
+10.1371 / journal.pone.0131520.g002 fig 2 different approaches to optimizing preprocessing pipelines .
+this toy example depicts n subjects , with 4 preprocessing pipeline steps ; each step may be either applied to data ( on ) or not applied ( off ) .
+a standard conservative approach ( cons ) applies all commonly - used noise correction steps to fmri data .
+a fixed optimal pipeline ( fix ) applies the single set of pipeline steps that optimizes average prediction and reproducibility ( p,r ) across subjects .
+individual optimization ( ind ) selects the combination of pipeline choices , specific to each subject and session , which maximizes prediction and reproducibility ( p , r ) .
+to see the preprocessing choices for optimized pipelines in our current results , refer to s1 and s2 tables .
+conservative pipeline ( cons ) this applies the full set of preprocessing steps that are widely used in fmri preprocessing ( steps 2 - 5 , 8 , 9 ) : motion correction , outlier censoring , retroicor , slice - timing correction , motion parameter regression , and linear detrending ( chosen by afni 's heuristic criterion ; afni.nimh.nih.gov / pub / dist / doc / program _ help / 3ddeconvolve.html ) .
+this gives strong control over potential fmri noise sources , and provides an example of a standard literature preprocessing pipeline , which we compare against our adaptive optimization methods .
+for this pipeline , we apply the same set to all subjects and experimental tasks .
+fixed optimization ( fix ) for each task , we select a single , fixed set of pipeline choices across subjects , that give smallest average d ( p , r ) .
+we use a non - parametric procedure established in [ 21 - 22 ] to identify the optimal fixed pipelines : for m pipelines and s subjects , ( 1 ) rank the pipelines 1 - m for each subject , with lower rank indicating better pipeline performance ; ( 2 ) compute the median ranking of each pipeline , across subjects ; ( 3 ) select the pipeline with lowest median ranking , as our optimal fix choice .
+we can perform further statistical testing to determine whether fixed pipeline choice has a consistent , significant impact on d ( p , r ) ; churchill et al .
+[ 22 ] provide in - depth discussion of fixed pipeline testing .
+the fix pipeline is the single fixed set of preprocessing choices with highest median ( p , r ) across subjects .
+all other fixed pipelines will have comparable or lower median ( p , r ) and gsnr values .
+individual pipeline optimization ( ind ) for each subject , session , run and task , we identify the pipeline combination that maximizes r ( ind - r ) , maximizes p ( ind - p ) or minimizes d ( p , r ) ( ind - d ) .
+for ind optimization , we require an additional step to account for task - coupled motion , which generates artifact that is task - correlated and reproducible , and thus not controlled by optimizing ( p , r ) metrics .
+we used the quantitative procedure established in [ 22 ] to reject pipelines corrupted with motion artifact when optimizing ; the procedure is described in s2 text .
+the effects of pipeline optimization we computed the mean ( p , gsnr ) values , within each individual task run and analysis model of the first test session .
+in each case , the mean is computed across all ( 27 subjects ) x ( 2 runs per task ) = 54 datasets , along with the +/ - 1 standard deviation ellipse , enclosing ~ 68 % of data points .
+we also measured the average correlation between all optimised pipeline / analysis model spms , for each experimental task .
+for each of the 54 datasets , we compute the 6x6 correlation matrix between brain maps of each pipeline and analysis model combination .
+we then computed the average of all of these correlation matrices .
+finally , for each pipeline optimization approach , we produced a z - scored plot of the first pc eigenimage , computed over all 54 spms .
+this is shown for representative tmt data and the cva analysis model ( see s3 text for the estimation procedure ) .
+the z - scored eigenimages depict the brain pattern that expresses the greatest variance across all subject spms , for the full set of ( 27 subjects ) x ( 2 runs per session ) = 54 datasets .
+the z - scores in these maps quantify statistical reproducibility of the eigenimage values .
+validation 1 : spatial reliability of independent sessions we used activation overlap to test whether datasets with independently optimized ind pipelines show greater reliability of brain regions compared to cons .
+because ind pipeline optimization is performed entirely within individual scanning runs ( i.e. no information is shared between subjects , between repeated task runs within a session , or between test - retest sessions ) , we can independently compare spms between scanning sessions and between subjects , without any issues of circularity in model validation .
+activation overlap is widely used in the fmri literature to measure the reliability of significantly active brain regions [ 8 ] .
+for each spm , we identified active voxels at a false - discovery rate ( fdr ) = 0.05 threshold , to correct for multiple comparisons .
+we then measured pairwise overlap using the jaccard index , ( intersection of active voxels )/( union of active voxels ) .
+we measured both within - subject , between - session overlap , and within - session , between - subject overlap .
+for all 27 subjects , we have a test session with 2 runs per task .
+for 20 of these subjects , we also have a retest session with 2 runs per task , acquired a median of 6 months after the test session .
+overlap measures are computed as follows : within - subject , between - session testing for each task , we measured the pairwise overlap between ( 1 ) run - 1 ( test ) vs. run - 1 ( retest ) sessions , and ( 2 ) run - 2 ( test ) vs. run - 2 ( retest ) , for all 20 subjects with retest data .
+we chose to compare test - retest overlap within runs , in order to avoid possible confounds due to non - stationary learning and habituation effects between run - 1 and run - 2 .
+after computing all pairwise overlaps , this produced ( 2 runs ) x ( 20 subjects ) = 40 independent measures of overlap , for each task. between - subject , within - session testing using only data within a single task run and test session , we measured mean overlap of each subject with all others in the group ; this was performed separately for the two task runs in each session , to minimize non - stationary in bold response as a function of run or session .
+for the first test session , this produced ( 27 mean overlap estimates ) x ( 2 runs ) = 54 overlap measures .
+for the second retest session , this produced ( 20 mean overlap estimates ) x ( 2 runs ) = 40 overlap measures .
+for each task , this produces 94 mean inter - subject overlap values total .
+we then plotted the distribution of activation overlap values for cons vs. ind pipelines , for each experimental task and analysis model , including the mean over all 40 ( within - subject ) or 94 ( between - subject ) overlap measures , and the +/ - 1 standard deviation ellipse , enclosing ~ 68 % of data points .
+validation 2 : estimating brain - behaviour correlations one of the major goals of fmri is to link brain function with behaviour .
+therefore , an important test of pipeline optimization is whether it improves the reliability and generalizability of brain - behaviour correlations across subjects , which is independent of our ( p , r ) pipeline optimization criteria applied within subject , task and session .
+it is important to note that this test is unrelated to the spatial reliability of spms discussed in validation 1 : spatial reliability of independent sessions .
+we may obtain a highly reliable spm pattern across subjects , but if the magnitude of activation is unrelated to task performance , this produces low brain - behaviour correlations .
+conversely , the spm patterns may be spatially sparse and generally unreliable across subjects , but with a subset of brain regions where activation is highly correlated with task performance .
+thus , it is important to understand how pipeline choices affect both of these validation measures .
+to measure brain - behaviour relationships , we performed partial least squares ( pls ) analysis of the optimized pipeline spms against behavioural metrics .
+the pls model is widely used in fmri [ 64 ] .
+it estimates the spatial brain map of greatest covariance with a behavioural measure of interest .
+behavioural pls was performed in a split - half estimation framework [ 65 ] ( see s4 text for algorithm details ) .
+this model uses a resampling approach similar to the one in optimization metrics , producing ( 1 ) a reproducible z - scored map of brain regions showing greatest covariance with behavioural performance , ( 2 ) the global signal - to - noise ratio of the behavioural brain pattern ( gsnr behav ) , and ( 3 ) an unbiased measure of multivariate brain - behaviour correlation ( rhobehav ) .
+we compute median gsnr behav and rhobehav values , and average z - scored brain map , over 100 resampling iterations .
+this behavioural pls analysis is performed separately for both cons and ind pipeline spms .
+we use these results to test whether there is a significant , reliable difference between median ( gsnr behav , rhobehav ) for ind vs. cons pipelines , using bootstrap resampling .
+we perform sampling with replacement on the 100 split - half estimates , compute the median ( gsnr behav , rhobehav ) for both pipelines , and then measure deltagsnr = ( gsnr ind - gsnr cons ) and deltarho = ( rhoind - rhocons ) .
+this is repeated for 1000 iterations , and we measure the fraction of resamples in which deltagsnr > 0 and deltarho > 0 ( i.e. 100,000 resamples total ) .
+this provides empirical significance estimates on the difference between ind and cons pipelines .
+we performed behavioural pls analysis with significance testing , for the three different tasks and two different analysis models .
+behavioural measures the behavioural metrics analyzed for each task are listed below .
+in order to maximize power of the pls analyses , we examined all ( 27 test + 20 retest subjects ) x ( 2 sessions per run ) = 94 data points for each task .
+recognition ( rec ) : we analyzed the difference in mean reaction time ( rt ) for ( task - - control ) , measured in milliseconds .
+we averaged mean rts across all task onsets , for a given task session .
+trail - making test ( tmt ) : we analyzed the difference in average inter - item speed for ( trailsa - - trailsb ) , measured in m / s. we measured the time interval between completion of subsequent items , divided by the total distance traversed by the cursor , and averaged across all blocks for a given task session .
+sustained attention to response task ( sart ) : we analyzed the accuracy of task performance , measured as the fraction of correct go - condition responses ( button press after viewing stimuli ) per run .
+multivariate behavioural analysis is highly sensitive to outlier data , an issue that increases in smaller sample sizes and complex , heterogeneous tasks .
+for all pipelines , we performed two outlier tests prior to pls analysis : one to identify behavioural outliers and one to identify outliers in fmri data .
+behavioural outlier subjects were identified if either ( a ) mean reaction time was less than 100 ms , ( b ) mean accuracy was less than 50 % , or ( c ) mean rt was shorter for the more difficult task ( recall task for rec , and taskb for tmt ; this indicates that learning effects may predominate in the task ) .
+the fmri outlier estimation process is a multivariate procedure based on the rv coefficient , defined in s5 text .
+data sets that were outliers in either behaviour or fmri data were discarded , and pls analysis performed on the remaining data points .
+s3 table provides a summary of the discarded outliers for each task ; for all tasks and analysis models , we identified between 9 and 12 outlier runs ( out of 94 datasets ) .
+results in this section , we first demonstrate the effects of pipeline optimization on performance metrics and spatial brain patterns ( the effects of pipeline optimization ) , then we show the impact of pipeline optimization for independent validation measures of spatial reliability ( validation 1 : spatial reliability of independent sessions ) and brain - behaviour correlations ( validation 2 : estimating brain - behaviour correlations ) .
+the results are shown for three different experimental tasks : the block - design rec task , the more complex block - design tmt task , and the fast event - related sart task .
+we also analyzed all fmri data using both univariate gnb ( a predictive glm ) and multivariate cva models , to show that pipeline optimization effects generalize across models .
+the effects of pipeline optimization fig 3 plots metrics of pipeline performance , gsnr vs. p. the gsnr is a metric of signal detection that is monotonically related to spatial reproducibility r ( refer to methods ; optimization metrics ) .
+the mean ( p , gsnr ) values are plotted for the three tasks , and both gnb ( top ) and cva ( bottom ) analysis models .
+results are plotted for cons , fix and the three ind pipelines .
+for all tasks and analysis models , increasing model flexibility improves both p and gsnr metrics , where ind > fix > cons .
+the ind models also demonstrate a trade - off between metrics , as ind - p optimization produces ( higher p , lower gsnr ) , ind - r produces ( lower p , higher gsnr ) , and ind - d is intermediate between these two extremes .
+see s1 fig for a plot of individual subject ( p , gsnr ) values .
+10.1371 / journal.pone.0131520.g003 fig 3 prediction and global signal - to - noise ratio for different preprocessing pipelines .
+pipelines include a standard conservative pipeline ( cons ) , fixed optimization ( fix ) , and individual optimization maximizing prediction ( ind - p ) , reproducibility ( ind - r ) or both metrics ( ind - d ) .
+each point shows average ( gsnr , p ) coordinates , for a different experimental task and analysis model , with +/ - 1 standard deviation ellipses ( enclosing ~ 68 % of data points ) .
+dashed lines indicate chance ( random guessing ) for prediction .
+tasks include : recognition ( rec ) , trail - making test ( tmt ) and sustained attention to response task ( sart ) .
+analysis models include : univariate gaussian naive bayes ( gnb ) and multivariate canonical variates analysis ( cva ) .
+to see individual subject ( gsnr , p ) values , see s1 fig. the ( p , gsnr ) metrics reflect the quality of preprocessed data , but they provide no information about the similarity of the underlying spatial patterns of brain activation between pipelines .
+this is a critical issue , as neuroscience studies are often concerned with localizing the brain areas implicated in task performance .
+therefore , we evaluated the relative similarity of spm patterns for different pipeline optimization procedures .
+fig 4a plots the average correlation between brain maps as a function of pipeline choice and analysis model , with results shown for the three different tasks .
+for the simple rec task , all pipeline brain maps have relatively high correlations , but mean correlations are comparatively low between cva and gnb models .
+for the more complex tmt and event - related sart tasks , all correlations are decreased , and mean correlations between pipelines are more comparable to those between analysis models , although analysis model results are different regardless of the pipelines used .
+therefore , pipeline choice has a greater impact on the spatial brain pattern for the more complex tmt task and event - related sart tasks , but the choice of analysis model is even more important .
+10.1371 / journal.pone.0131520.g004 fig 4 spatial brain pattern similarity between preprocessing pipelines .
+( a ) average correlation between pipeline spms , for recognition ( rec ) , trail - making test ( tmt ) and sustained attention to response task ( sart ) .
+pipelines include : conservative ( cons ) and optimal fixed ( fix ) , along with individually optimized pipelines based on prediction ( ind - p ) , reproducibility ( ind - r ) , and both metrics ( ind - d ) ; results are shown for univariate gnb analysis and multivariate cva analysis .
+( b ) the first principal component of subject spms for a representative tmt task , with gnb and cva across five different preprocessing pipelines ; these are the most stable spatial patterns across subjects .
+spms are z - scored using a cross - validation procedure ( optimization metrics ) , and thresholded at false - discovery rate fdr = . 05 to correct for multiple comparisons .
+for all tasks , the pipeline spmzs with highest correlation are ind - r and ind - d , and fix for all but sart where a more complicated similarity pattern is seen .
+this indicates that flexible pipelines optimized with r have the most consistent patterns , which tend to be quite similar to those for ind - d. fig 4b demonstrates how pipeline choice alters the activation patterns .
+we plot the z - scored first principal component in tmt data ( i.e. the brain pattern of greatest variance across subjects' spms ) , for each pipeline and analysis model .
+in these plots , z - scores reflect the magnitude of reproducible activation across subjects ( details in optimization metrics ) .
+in general , multivariate cva detects sparser task - positive activations and greater task - negative activations , compared to univariate gnb .
+for both models , the cons pipeline produces the most conservative extent of brain activations .
+fix , ind - d and ind - r patterns are similar , with greater activation extent and magnitude , particularly in task - negative regions for cva .
+the ind - p pipeline shows extensive task - positive signal , but weaker z - score magnitudes .
+these results further demonstrate that flexible pipelines optimized with r have the most consistent patterns , with the greatest extent of reliable activations .
+validation 1 : spatial reliability of independent sessions for the first validation measure , we assess the spatial reliability of activation patterns , between independently - optimized fmri datasets .
+it is critical that fmri activations have spatially reliable locations for repeated measures of a fixed task stimulus , in order to meaningfully interpret the brain regions recruited by a given task .
+we measure the overlap of active brain regions for ( 1 ) within - subject , between - session ( test - retest run reliability , which is relevant to task learning studies and clinical assessments of disease progression and treatment ) , and ( 2 ) between - subject , within - session ( which is relevant for group - level studies ) .
+we compared ind - d optimization against the standard cons pipeline ; ind - d is chosen as a representative pipeline , as it significantly improves both model prediction ( p ) and signal detection ( gsnr ) in all cases relative to con and fix ( p < 0.01 , paired wilcoxon tests ) , as shown in fig 3 .
+see s2 fig for the effects of fix optimization , and individual overlap values for both fix and ind - d. the fix results are omitted from the main text for clarity , as they are intermediate between cons and ind ; i.e. fix significantly improves relative to cons , and ind - d significantly improves relative to fix .
+for each spm , we identify significantly active brain voxels at a fdr = 0.05 threshold , to correct for multiple comparisons .
+we then measured the overlap of activated regions between pairs of spms , using the jaccard index .
+fig 5 compares the average overlap of brain maps for cons vs. ind - d pipelines , for each of the 3 tasks and both gnb and cva analysis models ; the figure depicts the mean overlap across all subjects , along with +/ - 1 the +/ - 1 standard deviation ellipse , enclosing ~ 68 % of data points .
+the ind - d pipeline consistently improves average within - subject ( fig 5a ) and between - subject ( fig 5b ) activation overlap .
+all improvements are significant ( paired wilcoxon tests , p < 0.001 for all ) .
+the relative improvement in overlap was greatest in more complex tasks .
+for example , mean between - subject overlap in rec increased by a factor of 1.5x , whereas for tmt it increased by 2.3x , and for sart , increased by a factor of 3.0x .
+see s2 fig for the plot of individual subject pairwise overlap values .
+10.1371 / journal.pone.0131520.g005 fig 5 change in activation overlap for individual subject optimization .
+points represent average pairwise activation overlap between independently optimized pipelines , comparing standard conservative preprocessing ( cons ) against individually optimized pipelines using the d ( p , r ) metric ( ind - d ) .
+results are shown for ( a ) within - subject between - session overlap , and ( b ) between - subject , within - session overlap .
+overlap is measured by jaccard index between spms at a false discovery rate = 0.05 threshold , for each task and analysis model .
+the +/ - 1 standard deviation ellipses are also plotted ( enclosing ~ 68 % of data points ) .
+to see individual subject overlap values , see s2 fig. validation 2 : estimating brain - behaviour correlations for the second validation , we measured the gsnr and predictive validity of behavioural correlations , for the different pipeline datasets .
+one of the main goals of fmri is to link functional brain measures with behaviour .
+we therefore tested whether ind pipelines improve brain - behaviour correlations relative to cons .
+to measure the amount of behavioural information captured in subjects' spms for different pipelines , we performed a pls analysis of spms against behavioural measures [ 64,65 ] .
+using this model , we obtained : a z - scored spm that is correlated with behaviour , gsnr behav of the pattern , and unbiased correlation of brain - pattern expression with behaviour ( rhobehav ) .
+as in the previous section , results are shown for both cons and ind - d pipelines , for each task and analysis model .
+see s3 fig for the effects of fix optimization ; they tend to be better than cons but comparable or lower in performance compared to ind - d. fig 6a plots the median ( rhobehav , gsnr behav ,) values for pls analysis of every task , and both gnb and cva analysis models .
+we plot cons vs. ind - d pipeline results , which are connected by a line for each task and analysis model .
+for all tasks and analysis models , the median gsnr behav is significantly improved ( p < 0.01 , bootstrap significance estimates ) ; median rhobehav is significantly improved in all cases ( p <= 0.03 ) except for tmt + gnb , where there is a non - significant change ( p = 0.61 ) .
+fig 6b plots the z - scored map of brain regions with the greatest behavioural correlations , for each task and pipeline for the cva model .
+we observe activations that are consistent between cons and ind - d pipelines , but ind - d produces larger reproducible z - scores and more and larger activation regions for all tasks .
+10.1371 / journal.pone.0131520.g006 fig 6 change in behavioural correlation and global signal to noise ratio for individual subject optimization .
+( a ) global signal - to - noise ratio ( gsnrbehav ) vs. behavioural correlations ( rhobehav ) , for partial least squares ( pls ) analysis of the correlation between spm activation and behavioural performance .
+results are shown for three tasks : recognition ( rec ) , trail - making test ( tmt ) and sustained attention to response task ( sart ) .
+we also plot results for two analysis models : univariate gnb and multivariate cva .
+for each task / analysis model , we plot a line connecting ( gsnrbehav , rhobehav ) from the standard conservative pipeline ( cons ) to the individually optimized one ( ind - d ) .
+ind - d optimization significantly improves gsnrbehav in all cases ( p < 0.01 ) , and significantly improves rhobehav in all cases except tmt + gnb ( marked with a '*') at p <= 0.03 ( see methdods : validation 2 : behavioural testing ) .
+( b ) z - scored spms showing brain regions that are most correlated with behavioural performance in pls analysis , for all tasks and both pipelines , for the cva model .
+discussion our results demonstrate that a conservative preprocessing pipeline may strongly limit signal detection in fmri , although depending on the task it may still achieve significant spatial pattern reliability and behavioural prediction .
+if pipeline steps are carefully chosen to optimize prediction and reproducibility , we can significantly improve independent tests of both the reliability of activation patterns within - and between - subjects , and correlations with independent behavioural measures .
+for this pipeline framework , we chose an extensive set of preprocessing choices , based on widespread literature use or previous pipeline testing [ 13 - 14,20 - 22,32 ] .
+however , the list of preprocessing steps is not meant to be definitive ; our primary goal is to demonstrate the validity of the testing framework .
+a key feature of this framework is that it can incorporate novel preprocessing steps , and compare them against pre - existing pipeline options .
+one major goal of developing this pipeline optimization framework is to reduce issues of subjective pipeline selection , which may produce highly biased , circular results .
+common approaches of iteratively examining data and then applying preprocessing steps to correct for perceived noise / artifact can accidentally create results that are biased towards detecting some " expected " signal. and perhaps more importantly , the criteria used to select pipelines cannot be replicated in other studies .
+in the proposed framework , users are provided with pipelines that optimize the quantitative criterion of euclidean distance d ( p , r ) .
+the development of automated pipeline frameworks in fmri may also help rectify issues of ( a ) inconsistent preprocessing descriptions , and ( b ) space limitations when reporting preprocessing methodology in fmri literature .
+under a standardized pipeline , the full sequence of preprocessing algorithms ( and versions ) can be reported individually , and users simply cite software , with a brief summary of chosen pipeline steps , e.g. in the form of s1 and s2 tables , which avoids having to devote space to a full description of preprocessing steps .
+summary of findings as shown in fig 3 , the choice of preprocessing pipeline determines the prediction and gsnr ( or reproducibility ) of results .
+constrained cons and fix pipelines produce lower p and gsnr , indicating relatively large model bias and variance , respectively [ 32,56 ] .
+in contrast , flexible ind pipelines produce significantly higher ( p , gsnr ) .
+there is a trade - off in performance , depending on optimization criterion : ind - p has lower gsnr , whereas ind - r has lower p. this effect has been previously observed for multivariate classifiers , where weak regularization produces ( higher p , lower r ) , and stronger regularization produces ( lower p , higher r ) [ 13,15,56 ] .
+therefore , adaptive pipeline optimization serves a similar role as multivariate regularization , by constraining analysis models .
+fig 4 indicates that the greatest effect of pipelines on brain patterns depends on whether we perform flexible pipeline optimization using reproducibility .
+for univariate gnb , this primarily increases sensitivity to task - positive regions ; multivariate cva shows increased sensitivity to task - negative regions consistent with the default - mode [ 66,67 ] , which is associated with spontaneous thought and decreased activity during external tasks .
+this is expected , as the dmn produces coherent bold fluctuations with high spatial reproducibility but weak correlations with task response .
+thus , the gnb model ( which is insensitive to inter - voxel correlations ) and prediction optimization cannot reliably detect this network .
+finally , we note that the cons pipeline is least sensitive to both task - positive and - negative networks .
+pipeline optimization improves the overlap of independently - optimized spms ( fig 5 ) .
+these results demonstrate that , even for relatively complex tasks and short task runs , we significantly improve test - retest and group reliability .
+this is particularly relevant in cases where it is critical to obtain reliable measures and where noise effects predominate , including clinical studies , and studies of aging and child populations [ 1 - 4 ] .
+we also demonstrate significant improvements in validity of behavioural studies ( fig 6 ) , including better predicted behavioural correlations and greater stability of associated spatial patterns .
+these validation results strongly suggest that our optimized pipelines increase the sensitivity to brain regions that are reliably associated with behavioural performance , and are therefore likely to be associated with task - linked neuronal signals .
+applications and limitations the task data were acquired during scanning sessions with multiple brief runs (< 3 minutes each ) , for which we demonstrate the ability to detect strong , reliable activations that are comparable to standard experimental datasets .
+the brief design is also relevant for clinical applications , in which scanning must be brief to ensure patient compliance , and large portions of data may be discarded due to poor behavioural performance or artifact [ 1,3 ] .
+it is not yet known whether the benefit of pipeline optimization is comparable for standard experimental datasets with far more data points .
+it is possible that the power increase reduces the impact of pipeline choice .
+however , preliminary resting - state studies [ 68 ] indicate a comparable benefit of pipeline optimization across a range of different sample sizes .
+in addition , increased scanning time only guarantees increased power if bold effects are stationary .
+if more data is acquired in the presence of dynamic bold changes , this may increase the variance of signal estimates .
+this underscores the potential importance of improving signal quality in shorter epoch datasets , and the impact of epoch length should be further investigated in future research. from an application standpoint , adaptive pipeline optimization raises potential concerns of comparability between different groups .
+but it is not always appreciated that adaptive preprocessing is already in widespread use for fmri , particularly when comparing groups that differ systematically in signal / noise parameters .
+component models based on ica are routinely fit to data from individual subjects , leading to different orders of regression model per subject [ 69 ] .
+similarly , " scrubbing " protocols that discard or interpolate scan volumes per subject alter the temporal smoothness of data in different ways , depending on the number of discarded outliers [ 42,43 ] .
+while such practises are well - established in the fmri literature , it does not guarantee that they are appropriate preprocessing strategies , and adaptive methods may lead to spurious results that are driven by processing algorithms rather than brain function .
+in general , highly flexible preprocessing techniques should be examined with caution and carefully validated using multiple different datasets and metrics to assess for potential biases .
+the principal issue is whether adaptive preprocessing increases model over - fit relative to a fixed model .
+as demonstrated in this paper , ind optimization significantly improves generalization , based on multiple validation metrics .
+prior simulation studies have also established that ind is not significantly more biased than fix pipelines [ 22 ] , and we have previously shown that the advantageous or deleterious impact of particular choices ( e.g. motion parameter regression ) may depend on the magnitude of structured signal artefacts ( e.g. motion amplitude ) [ 21 ]. that being said , no model is completely free from bias , and all preprocessing choices may have systematic effects on results .
+for this reason , we would advocate the reporting of preprocessing choices , and post - hoc examination of ind and fix results , to gain a better understanding of pipeline effects , along with the reporting of independent performance measures such as between - subject activation overlap and levels of behavioural prediction .
+in addition , we would emphasize that it is critical to test all preprocessing steps being applied to one 's fmri data within this optimization framework .
+otherwise , the " pre - selection " of a subset of pipeline steps may re - introduce user - dependent biases into the pipeline optimization framework .
+a major advantage of the proposed cross - validation model is that it does not require correction for degrees of freedom ( dof ) when comparing pipelines .
+in standard significance testing , model fit can be trivially inflated by increasing dof , but an overly - flexible model will exhibit poor reproducibility ( r ) and predictive generalization ( p ) .
+thus , the optimization framework avoids cases where it is more challenging to compare dof between models , e.g. in standard null - hypothesis testing and theoretic estimators of model fit , such as bayes information criterion ( bic ) and akaike information criterion ( aic ) .
+for example , while dof can be easily estimated for glm regressors , it is less clear how spatial smoothing and outlier censoring constrains the data space and subsequent analyses .
+since the split - half model obtains cross - validated estimates of signal and noise , they can be directly used for second level group analyses , such as the pls behavioural analyses performed in this paper .
+similarly , other post - hoc analyses on the optimally preprocessed data can be used in a cross - validation framework , or for measuring reliability of activations .
+conversely , single - subject inferential testing based on p - values would have to keep track of the regression models used for individual subjects .
+the assumptions of our pipeline framework must also be considered in the context of the data that is being optimized .
+our framework identifies the pipeline with the most reproducible spm and optimal prediction between within - run data splits .
+in cases where we expect changes in the patterns of brain activity over the course of a task run ( e.g. a motor learning task ) , this is inappropriate , as the model will treat these changes as non - reproducible confounds .
+however , as we show , a sequence of short runs may be individually optimized , which is suitable for probing learning changes over multiple practice sessions .
+as a rule , optimization should be done at the largest time - scale on which the hypothesis presumes stationary bold signal .
+this paper shows such an optimization approach in practise , as we adaptively fit different pipelines for run 1 and run 2 within a single scanning session , across multiple tasks .
+future research in this paper we focused principally on the effects of including / excluding a fixed order of pipeline steps .
+one may also consider permuting the order in which preprocessing pipelines are applied .
+this has only been examined in limited contexts , partly due to the combinatorial explosion of possible ways in which pipeline steps may be ordered .
+for example , the relative order of motion correction , retroicor and slice - timing has been investigated [ 28 ] ; the order in which spectral filtering , de - spiking and nuisance regression is performed has also been tested [ 29 ] .
+in some cases there is a well - motivated ordering of steps , e.g. spectral filtering should not precede nuisance regression , as it will introduce artifactual frequencies .
+in other cases , it is less clear .
+for example , should de - spiking precede nuisance regression , or be performed afterwards ?
+this is an area that must be investigated in future work .
+another area of future investigation lies in the optimization of spatial preprocessing methods such as the choice of smoothing kernels .
+it is well established that some fixed spatial smoothing is beneficial at the group level , and that it significantly improves various performance metrics [ 15 ][ 70 ] .
+but while studies have consistently demonstrated the benefit of individual subject optimization for temporal processing methods ( e.g. regression of nuisance covariates ) , less is known about individual spatial processing optimization .
+according to the matched filter theorem [ 71 ] , the choice of smoothing scale dictates the size of detected activations , and so it may be desirable to employ a " 2 - stage " optimization process , wherein the optimal fixed smoothing kernel is chosen across subjects , and temporal processing steps are optimized at the individual subject level .
+however , there is some evidence that smoothing can also be successfully optimized at the individual level [ 14 ] , and some studies even advocate adapting smoothing as a function of both dataset and brain region [ 72 ] .
+another , more challenging issue is the integration of quality control ( qc ) protocols into pipeline optimization .
+qc measures serve a distinct but complementary role relative to pipeline optimization , in identifying the regularities of data , and identifying datasets where the pre - existing preprocessing tools cannot adequately correct for artifact .
+in many ways , it is a more challenging prospect to develop a comprehensive qc protocol , as it requires that one catalogue all of the ways in which artifacts can occur , whereas pipeline optimization is primarily driven by a fixed set of optimization metrics .
+while this is a recognized issue , there are currently no agreed - upon guidelines for fmri qc [ 23 , 25 ] , although suggested protocols have been developed [ 73 ] and packages have been developed for public use ( e.g. www.nitrc.org / projects / artifact _ detect ) .
+this remains an area of active research , and may require multiple stages. that is , qc prior to preprocessing optimization and afterwards , in order to verify that pipeline optimization was successful .
+supporting information s1 fig prediction and global signal - to - noise ratio for different preprocessing pipelines .
+pipelines include a standard conservative pipeline ( cons ) , fixed optimization ( fix ) , and individual optimization maximizing prediction ( ind - p ) , reproducibility ( ind - r ) or both metrics ( ind - d ) .
+large icons show average ( gsnr , p ) coordinates , for a different experimental task and analysis model , with +/ - 1 standard deviation ellipses ( enclosing ~ 68 % of data points ) .
+dashed lines indicate chance ( random guessing ) for prediction .
+scatter points represent individual subject ( gsnr , p ) values .
+tasks include : recognition ( rec ) , trail - making test ( tmt ) and sustained attention to response task ( sart ) .
+analysis models include : univariate gaussian naive bayes ( gnb ) and multivariate canonical variates analysis ( cva ) .
+( png ) click here for additional data file .
+s2 fig change in activation overlap for optimal fixed and individual subject pipelines .
+large icons represent average pairwise activation overlap between independently optimized pipelines , comparing standard conservative preprocessing ( cons ) against the optimal fixed pipeline ( fix ) and individually optimized pipelines ( ind - d ) , both optimized using the d ( p , r ) metric .
+scatter points represent individual subject overlap values .
+results are shown for a. within - subject between - session overlap , and b. between - subject , within - session overlap .
+overlap is measured by jaccard index between spms at a false discovery rate = 0.05 threshold , for each task and analysis model .
+the +/ - 1 standard deviation ellipses are also plotted ( enclosing ~ 68 % of data points ) .
+( png ) click here for additional data file .
+s3 fig change in behavioural correlation and global signal to noise ratio for optimal fixed and individual subject pipelines .
+we plot global signal - to - noise ratio ( gsnrbehav ) vs. behavioural correlations ( rhobehav ) , for partial least squares ( pls ) analysis of the correlation between spm activation and behavioural performance .
+results are shown for three tasks : recognition ( rec ) , trail - making test ( tmt ) and sustained attention to response task ( sart ) .
+we also plot results for two analysis models : univariate gnb and multivariate cva .
+for each task / analysis model , we plot a line connecting ( gsnrbehav , rhobehav ) from the standard conservative pipeline ( cons ) to ( a ) the optimal fixed pipeline ( fix ) , and ( b ) the individually optimized pipeline ( ind - d ) .
+fix and ind - d data - points are represented by circles ; cons data - points are represented by triangles .
+( png ) click here for additional data file .
+s1 table fraction of subjects that include each preprocessing step under different pipeline optimization approaches , for univariate gaussian naive bayes .
+darker shading indicates a greater fraction of subjects .
+results are shown for tasks : recognition ( rec ) , trail - making test ( tmt ) and sustained attention to response task ( sart ) .
+pipelines include conservative preprocessing ( cons ) , fixed optimal pipelines ( fix ) , and individual pipelines optimized with prediction ( ind - p ) , reproducibility ( ind - r ) and both metrics ( ind - d ) .
+preprocessing steps include : motion correction ( mc ) , censoring outliers ( cens ) , physiological correction with retroicor ( ret ) , slice - timing correction ( stc ) , motion parameter regression ( mpr ) , including task design regressor ( task ) , global signal regression ( gspc1 ) , physiological correction with phycaa + ( phy +) and temporal detrending ( det ) .
+for det , we plot the median [ minimum , maximum ] detrending order for each task and pipeline .
+( docx ) click here for additional data file .
+s2 table fraction of subjects that include each preprocessing step under different pipeline optimization approaches , for multivariate canonical variates analysis .
+darker shading indicates a greater fraction of subjects .
+results are shown for tasks : recognition ( rec ) , trail - making test ( tmt ) and sustained attention to response task ( sart ) .
+pipelines include conservative preprocessing ( cons ) , fixed optimal pipelines ( fix ) , and individual pipelines optimized with prediction ( ind - p ) , reproducibility ( ind - r ) and both metrics ( ind - d ) .
+preprocessing steps include : motion correction ( mc ) , censoring outliers ( cens ) , physiological correction with retroicor ( ret ) , slice - timing correction ( stc ) , motion parameter regression ( mpr ) , including task design regressor ( task ) , global signal regression ( gspc1 ) , physiological correction with phycaa + ( phy +) and temporal detrending ( det ) .
+for det , we plot the median [ minimum , maximum ] detrending order for each task and pipeline .
+( docx ) click here for additional data file .
+s3 table summary of significant outlier datasets , for different tasks and pipelines .
+we list significant outliers in behavioural metrics , and in fmri data ( see supplementary note 4 for fmri outlier testing procedure ) .
+we also list the number of remaining runs , out of the original 94 runs .
+( docx ) click here for additional data file .
+s1 text censoring outlier brain volumes .
+this supporting text provides a detailed description of the algorithm used to detect " spikes " created by abrupt head motion during scanning , which are then removed by interpolating neighbouring voxel values .
+( docx ) click here for additional data file .
+s2 text finding pipelines with task - coupled head motion .
+in this text , we define the algorithm that is used to identify subject pipelines that produce activation maps with significant motion artifact , identified via significant weighting of brain edges .
+( docx ) click here for additional data file .
+s3 text reproducible principal component brain maps .
+this procedure is used to obtain reproducible z - scored brain patterns that explain the greatest variance within a set of subject activation maps .
+( docx ) click here for additional data file .
+s4 text split - half behavioural partial least squares .
+this algorithm is used to identify brain patterns that have greatest covariance with behaviour , within a set of subject activation maps .
+it is estimated in a split - half cross - validation framework in order to obtain reproducible z - scored brain patterns and unbiased measures of behavioural correlation .
+( docx ) click here for additional data file .
+s5 text identifying outlier subjects before group analysis .
+this procedure is used to detect subjects with activation patterns that are significant outliers , based on their influence in multivariate principal component space .
+this allows us to remove them prior to behavioural analyses , in order to improve the stability of results .
+( docx ) click here for additional data file .
+this work was partially supported by cihr grant # mop84483 , a bridging cihr grant # iao123872 , and a brain , mind and behaviour grant from the james s. mcdonnell foundation .
+s.c.s. , r.s. and f.d. acknowledge partial support from the ontario brain institute , and s.c.s. and r.s. also acknowledge support of the heart & stroke foundation of ontario , through the canadian partnership for stroke recovery .
+references 1 bullmore et , brammer mj , rabe - hesketh s ( 1999 ) .
+methods for diagnosis and treatment of stimulus - correlated motion in generic brain activation studies using fmri . humbrain mapp 7 ( 1 ) : 38 - 48 2 d'esposito m , deouell l , gazzaley a ( 2003 ) .
+alterations in the bold fmri signal with ageing and disease : a challenge for neuroimaging . nat. rev. neurosci .
+4 : 863 - 872 14595398 3 mazaika p , whitfield - gabrieli s , reiss a , glover g ( 2007 ) .
+artifact repair for fmri data from high motion clinical subjects . ohbm .
+13 4 evans jw , todd rw , taylor mj , strother sc ( 2010 ) .
+group specific optimization of fmri processing steps for child and adult data . neuroimage .
+50 ( 2 ) : 479 - 490 19962441 5 le th , hu x . ( 1997 ) .
+methods for assessing accuracy and reliability in functional mri . nmr biomed .
+10 ( 4 - 5 ) : 160 - 164 . 9430342 6 specht k , willmes k , shah nj , jancke l ( 2003 ) .
+assessment of reliability in functional imaging studies . j. magn. reson. imag .
+17 ( 4 ) : 463 - 471 . 7 caceres a , hall dl , zelaya fo , williams sc , mehta ma ( 2009 ) .
+measuring fmri reliability with the intra - class correlation coefficient . neuroimage 45 ( 3 ) : 758 - 768 . 19166942 8 bennett cm , miller mb ( 2011 ) .
+how reliable are the results from functional magnetic resonance imaging ?
+.
+annals of the new york academy of sciences .
+1191 ( 1 ) : 133 - 155 . 9 carp j ( 2012 ) .
+on the plurality of ( methodological ) worlds : estimating the analytic flexibility of fmri experiments . frontiers in neuroscience .
+6 : 149 23087605 10 button ks , ioannidis jp , mokrysz c , nosek ba , flint j , robinson es , et al ( 2013 ) .
+power failure : why small sample size undermines the reliability of neuroscience . nat. rev. neurosci .
+14 ( 5 ) : 365 - 376 23571845 11 tegeler c , strother sc , anderson jr , kim sg ( 1999 ) .
+reproducibility of bold - based functional mri obtained at 4 t . hum .
+brain mapp .
+7 : 267 - 283 10408770 12 tanabe j , miller d , tregellas j , freedman r , meyer fg ( 2002 ) .
+comparison of detrending methods for optimal fmri preprocessing . neuroimage .
+15 : 902 - 907 11906230 13 laconte s , anderson j , muley s , ashe j , frutiger s , rehm k , et al ( 2003 ) .
+the evaluation of preprocessing choices in single - subject bold fmri using npairs performance metrics . neuroimage .
+18 ( 1 ) : 10 - 27 12507440 14 shaw me , strother sc , gavrilescu m , podzebenko k , waites a , watson j , et al ( 2003 ) .
+evaluating subject specific preprocessing choices in multisubject fmri data sets using data - driven performance metrics . neuroimage .
+19 ( 3 ) : 988 - 1001 . 12880827 15 strother s , la conte s , hansen lk , anderson j , zhang j , pulapura s , et al ( 2004 ) .
+optimizing the fmri data - processing pipeline using prediction and reproducibility performance metrics : i. a preliminary group analysis . neuroimage .
+23 : s196 - s207 15501090 16 poline jb , strother sc , dehaene - lambertz g , egan gf , lancaster jl ( 2006 ) .
+motivation and synthesis of the fiac experiment : reproducibility of fmri results across expert analyses . hum. brain. mapp .
+27 ( 5 ) : 351 - 9 . 17 morgan vl , dawant bm , li y , pickens dr ( 2007 ) .
+comparison of fmri statistical software packages and strategies for analysis of images containing random and stimulus - correlated motion . comput. med. imag. graph .
+31 ( 6 ) : 436 - 446 . 18 sarty ge ( 2007 ) .
+computing brain activation maps from fmri time - series images .
+cambridge university press . 19 murphy k , birn rm , handwerker da , jones tb , bandettini pa ( 2009 ) .
+the impact of global signal regression on resting state correlations : are anti - correlated networks introduced ?
+neuroimage .
+47 : 1092 - 1104 19460443 20 zhang j , anderson jr , liang l , pulapura sk , gatewood l , rottenberg da , et al ( 2009 ) .
+evaluation and optimization of fmri single - subject processing pipelines with npairs and second - level cva . magn. reson. imag .
+27 : 264 - 278 21 churchill nw , oder a , abdi h , tam f , lee w , thomas c , et al ( 2012 ) .
+optimizing preprocessing and analysis pipelines for single - subject fmri. i. standard temporal motion and physiological noise correction methods . hum .
+brain mapp .
+33 : 609 - 627 21455942 22 churchill nw , yourganov g , oder a , tam f , graham sj , strother sc ( 2012 ) .
+optimizing preprocessing and analysis pipelines for single - subject fmri : 2 .
+interactions with ica , pca , task contrast and inter - subject heterogeneity . pone .
+7 ( 2 ) : e31147 23 poldrack ra , fletcher pc , henson rn , worsley kj , brett m , nichols te , et al ( 2008 ) .
+guidelines for reporting an fmri study . neuroimage .
+40 ( 2 ) : 409 - 414 . 18191585 24 nichols te , poline jb ( 2009 ) .
+commentary on vul et al. ' s ( 2009 )" puzzlingly high correlations in fmri studies of emotion , personality , and social cognition " . perspect. psych. sci. 4 ( 3 ) : 291 - 93 25 carp j ( 2012 ) .
+the secret lives of experiments : methods reporting in the fmri literature . neuroimage .
+63 ( 1 ) : 289 - 300 . 22796459 26 johnstone t , walsh ks , greischar ll , alexander al , fox as , davidson rj , et al ( 2006 ) .
+motion correction and the use of motion covariates in multiple - subject fmri analysis . hum brain mapp 27 : 779 - 788 16456818 27 ollinger jm , oakes tr , alexander al , haeberli f , dalton km , davidson rj ( 2009 ) .
+the secret life of motion covariates . neuroimage 47 : s122 28 jones , bandettini pa , birn rm , et al ( 2009 ) integration of motion correction and physiological noise regression in fmri . neuroimage 42 ( 2 ) : 582 - 590 . 29 hallquist , hwang k , luna b ( 2013 ) the nuisance of nuisance regression : spectral misspecification in a common approach to resting - state fmri preprocessing reintroduces noise and obscures functional connectivity . neuroimage 82 : 208 - 225 . doi : 10.1016 / j.neuroimage.2013.05.116 23747457 30 satterthwaite td , elliott ma , gerraty rt , ruparel k , loughead j , calkins me , et al ( 2013 ) .
+an improved framework for confound regression and filtering for control of motion artifact in the preprocessing of resting - state functional connectivity data . neuroimage .
+64 : 240 - 256 doi : 10.1016 / j.neuroimage.2012.08.052 22926292 31 kriegeskorte n , simmons wk , bellgowan ps , baker ci ( 2009 ) .
+circular analysis in systems neuroscience : the dangers of double dipping . nat. neurosci .
+12 ( 5 ) : 535 - 540 . doi : 10.1038 / nn.2303 19396166 32 strother sc , anderson j , hansen lk , kjems u , kustra r , sidtis j , et al ( 2002 ) .
+the quantitative evaluation of functional neuroimaging experiments : the npairs data analysis framework . neuroimage .
+15 : 747 - 771 11906218 33 oldfield rc ( 1971 ) .
+the assessment and analysis of handedness : the edinburgh inventory . neuropsychologia .
+9 ( 1 ) : 97 - 113 5146491 34 folstein mf , folstein se , mchugh pr ( 1975 ) .
+" mini - mental state " : a practical method for grading the cognitive state of patients for the clinician . journal of psychiatric research .
+12 ( 3 ) : 189 - 198 1202204 35 tam f , churchill n , strother s , graham s ( 2011 ) .
+a new tablet for writing and drawing during functional mri . hum .
+brain mapp 32 ( 2 ) : 240 - 248 doi : 10.1002 / hbm.21013 20336688 36 himmanen sa , gentles k , sailor k ( 2003 ) .
+rated familiarity , visual complexity , and image agreement and their relation to naming difficulty for items from the boston naming test . journal of clinical and exp. neuropsych .
+25 ( 8 ) : 1178 - 1185 . 37 bowie cr , harvey pd ( 2006 ) .
+administration and interpretation of the trail making test . nat. protocols .
+1 : 2277 - 2281 17406468 38 fassbender c , murphy k , foxe jj , wylie gr , javitt dc , robertson ih , et al ( 2004 ) .
+a topography of executive functions and their interactions revealed by functional magnetic resonance imaging . cogn .
+brain res .
+20 : 132 - 43 39 ardekani ba , bachman ah , helpern ja ( 2001 ) .
+a quantitative comparison of motion detection algorithms in fmri . magn. reson. imag .
+19 ( 7 ) : 959 - 963 . 40 seto e , sela g , mcilroy we , black se , staines wr , bronskill m , et al ( 2001 ) .
+quantifying head motion associated with motor tasks used in fmri . neuroimage .
+14 : 284 - 297 . 11467903 41 freire l , mangin jf ( 2001 ) .
+motion correction algorithms may create spurious brain activations in the absence of subject motion . neuroimage .
+14 : 709 - 722 11506543 42 van dijk kra , sabuncu mr , buckner rl ( 2012 ) .
+the influence of head motion on intrinsic functional connectivity mri . neuroimage .
+59 ( 1 ) : 431 - 438 doi : 10.1016 / j.neuroimage.2011.07.044 21810475 43 power jd , barnes ka , snyder az , schlagger bl , petersen se ( 2012 ) .
+spurious but systematic correlations in functional connectivity mri networks arise from subject motion . neuroimage .
+59 ( 3 ) : 2142 - 54 doi : 10.1016 / j.neuroimage.2011.10.018 22019881 44 campbell k , grigg o , saverino c , churchill n , grady c ( 2013 ) .
+age differences in the intrinsic functional connectivity of default network subsystems . frontiers in human neuroscience .
+5 : 73 45 glover gh , li tq , ress d ( 2001 ) .
+image - based method for retrospective correction of physiological motion effects in fmri : retroicor . magn. reson. med. 44 : 162 - 167 46 sladky r , friston kj , trostl j , cunnington r , moser e , windischberger c ( 2011 ) .
+slice - timing effects and their correction in functional mri . neuroimage .
+58 ( 2 ) : 588 - 594 doi : 10.1016 / j.neuroimage.2011.06.078 21757015 47 churchill nw , spring r , strother sc ( 2014 ) .
+a framework for adaptive preprocessing optimization in functional mri . ohbm 2014 48 worsley kj , friston kj ( 1995 ) .
+analysis of fmri time - series revisited - again . neuroimage 2 : 173 - 81 9343600 49 churchill nw , strother sc ( 2013 ) .
+phycaa + : an improved procedure for controlling physiological noise in bold fmri . neuroimage 82 : 306 - 325 doi : 10.1016 / j.neuroimage.2013.05.102 23727534 50 lund te , madsen kh , sidaros k , luo wl , nichols te ( 2006 ) .
+non - white noise in fmri : does modelling have an impact ?
+neuroimage .
+29 ( 1 ) : 54 - 66 16099175 51 carbonell f , bellec p , shmuel a ( 2011 ) .
+global and system - specific resting - state fmri fluctuations are uncorrelated : principal component analysis reveals anti - correlated networks . brain connectivity .
+1 ( 6 ) : 496 - 510 doi : 10.1089 / brain.2011.0065 22444074 52 birn rm , diamond jb , smith ma , bandettini pa ( 2006 ) .
+separating respiratory - variation - related fluctuations from neuronal - activity - related fluctuations in fmri . neuroimage .
+31 : 1536 - 1548 16632379 53 scholvinck m , maier a , ye f , duyn j , leopold d ( 2010 ) .
+neural basis of global resting - state fmri activity . proc. natl. acad. sci. usa .
+107 : 10238 doi : 10.1073 / pnas.0913110107 20439733 54 hongjian h , liu tt ( 2012 ) .
+a geometric view of global signal confounds in resting - state functional mri . neuroimage 59 ( 3 ) : 2339 - 2348 . doi : 10.1016 / j.neuroimage.2011.09.018 21982929 55 wong cw , olafsson v , tal o , liu tt ( 2013 ) .
+the amplitude of the resting - state fmri global signal is related to eeg vigilance measures . neuroimage 83 : 983 - 990 . doi : 10.1016 / j.neuroimage.2013.07.057 23899724 56 rasmussen pm , hansen lk , madsen kh , churchill nw , strother sc ( 2012 ) .
+pattern reproducibility , interpretability , and sparsity in classi ? cation models in neuroimaging . p. recog .
+45 ( 6 ) : 2085 - 2100 . 57 friston kj , frith cd , frackowiak rsj , turner r ( 1995 ) .
+characterizing dynamic brain responses with fmri : a multivariate approach . neuroimage 2 : 166 - 172 9343599 58 beckmann cf , deluca m , devlin jt , smith sm ( 2005 ) .
+investigations into resting - state connectivity using independent component analysis . philos. trans. r. soc. lond. b. biol. sci. 360 : 1001 - 13 16087444 59 fox md , snyder az , vincent jl , corbetta m , van essen dc , raichle me ( 2005 ) .
+the human brain is intrinsically organized into dynamic , anticorrelated functional networks . proc. natl. acad. sci. usa .
+102 : 9673 - 9678 . 15976020 60 pereira f , mitchell t , botvinick m ( 2009 ) .
+machine learning classifiers and fmri : a tutorial overview . neuroimage .
+45 : s199 - s209 doi : 10.1016 / j.neuroimage.2008.11.007 19070668 61 kjems u , hansen lk , anderson j , frutiger s , muley s , sidtis j , et al ( 2002 ) .
+the quantitative evaluation of functional neuroimaging experiments : mutual information learning curves . neuroimage 15 , 772 - 786 11906219 62 yourganov g , chen x , lukic as , grady cl , small sl , wernick mn , et al ( 2011 ) .
+dimensionality estimation for optimal detection of functional networks in bold fmri data . neuroimage .
+56 ( 2 ) : 531 - 543 doi : 10.1016 / j.neuroimage.2010.09.034 20858546 63 afshin - pour b , soltanian - zadeh h , hossein - zadeh ga , grady cl , strother sc ( 2011 ) .
+a mutual information - based metric for evaluation of fmri data - processing approaches . hum .
+brain mapp .
+32 ( 5 ) : 699 - 715 . doi : 10.1002 / hbm.21057 20533565 64 krishnan a , williams lj , mcintosh ar , abdi h ( 2011 ) .
+partial least squares ( pls ) methods for neuroimaging : a tutorial and review . neuroimage .
+56 : 455 - 75 . doi : 10.1016 / j.neuroimage.2010.07.034 20656037 65 churchill nw , spring r , kovacevic n , mcintosh r , strother sc ( 2013b ) .
+the stability of behavioral pls results in ill - posed neuroimaging problems in new perspectives in partial least squares and related methods .
+springer new york 171 - 183 66 raichle me , macleod am , snyder az , powers wj , gusnard da , shulman gl ( 2001 ) .
+a default mode of brain function . proc. natl. acad. sci. usa .
+98 : 676 - 682 . 11209064 67 greicius md , krasnow b , reiss al , menon v ( 2003 ) .
+functional connectivity in the resting brain : a network analysis of the default mode hypothesis . proc. natl. acad. sci. usa .
+100 : 253 - 258 12506194 68 churchill nw , afshin - pour b , strother sc ( 2014 ) .
+pipeline optimization of resting - state fmri : improving signal detection and spatial reliability. proc .
+20th annual meeting ohbm , hamburg germany 69 salimi - khorshidi g , douaud g , beckmann cf , glasser mf , griffanti l , smith sm ( 2014 ) .
+automatic denoising of functional mri data : combining independent component analysis and hierarchical fusion of classifiers . neuroimage 90 : 449 - 468 . doi : 10.1016 / j.neuroimage.2013.11.046 24389422 70 white t , o'leary d , magnotta v , arndt s , flaum m , andreasen nc ( 2001 ) .
+" anatomic and functional variability : the effects of filter size in group fmri data analysis " , neuroimage , vol. 13 , pp .
+577 - 88 11305887 71 turin gl ( 1976 ) .
+an introduction to digital matched filters . proceedings of the ieee , 64 ( 7 ) : 1092 - 1112 . 72 yue y , loh jm , lindquist ma ( 2010 ) .
+adaptive spatial smoothing of fmri images . statistics and its interface , 3 , 3 - 13 . 73 friedman l , glover gh ( 2006 ) .
+report on a multicenter fmri quality assurance protocol . journal of magnetic resonance imaging 23 ( 6 ) : 827 - 839 . 16649196

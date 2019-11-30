@@ -1,0 +1,409 @@
+bmc bioinformatics bmc bioinformatics 1471 - 2105 biomed central 20646302 2918581 1471 - 2105 - 11 - 385 10.1186 / 1471 - 2105 - 11 - 385 research article applications of a formal approach to decipher discrete genetic networks corblin fabien 12 fabien.corblin @ irisa.fr fanchon eric 1 eric.fanchon @ imag.fr trilling laurent 1 laurent.trilling @ imag.fr 1 laboratoire timc - imag , umr cnrs / ujf 5525 , domaine de la merci , 38710 la tronche , france 2 laboratoire irisa - inria centre de rennes , campus de beaulieu , 35042 rennes , france 2010 20 7 2010 11 385 385 22 1 2010 20 7 2010 copyright ( c ) 2010 corblin et al ; licensee biomed central ltd .
+2010 corblin et al ; licensee biomed central ltd.this is an open access article distributed under the terms of the creative commons attribution license ( http :// creativecommons.org / licenses / by / 2.0 ) , which permits unrestricted use , distribution , and reproduction in any medium , provided the original work is properly cited .
+background a growing demand for tools to assist the building and analysis of biological networks exists in systems biology .
+we argue that the use of a formal approach is relevant and applicable to address questions raised by biologists about such networks .
+the behaviour of these systems being complex , it is essential to exploit efficiently every bit of experimental information .
+in our approach , both the evolution rules and the partial knowledge about the structure and the behaviour of the network are formalized using a common constraint - based language .
+results in this article our formal and declarative approach is applied to three biological applications .
+the software environment that we developed allows to specifically address each application through a new class of biologically relevant queries .
+we show that we can describe easily and in a formal manner the partial knowledge about a genetic network .
+moreover we show that this environment , based on a constraint algorithmic approach , offers a wide variety of functionalities , going beyond simple simulations , such as proof of consistency , model revision , prediction of properties , search for minimal models relatively to specified criteria .
+conclusions the formal approach proposed here deeply changes the way to proceed in the exploration of genetic and biochemical networks , first by avoiding the usual trial - and - error procedure , and second by placing the emphasis on sets of solutions , rather than a single solution arbitrarily chosen among many others .
+last , the constraint approach promotes an integration of model and experimental data in a single framework .
+background a central task in molecular systems biology is to build and analyze genetic and biochemical networks in order to decipher the properties of cellular phenomena .
+the emphasis is not on investigating in detail one or a few molecules at a time , as is done traditionally in molecular biology , but rather on focusing on the network level .
+we are specifically interested here in gene regulatory networks ( grns ) formalized as discrete genetic networks as defined by r. thomas [ 1,2 ] .
+the main goal of this formalism is to obtain a qualitative understanding of the network dynamics by reasoning on discrete entities .
+in grns the molecular players are the genes and the proteins they produce .
+a genetic interaction corresponds to the fact that a gene gi produces a protein pi which influences the expression rate of another gene gj , or gi itself .
+the set of all these genetic interactions constitute the interaction graph , to be defined formally later .
+in a given state of the network , each gene has a certain expression rate ( the rate of production of the encoded protein ) which depends on the presence or absence of a subset of proteins , the activators or repressors of the considered gene .
+the expression rate of a gene is maximum when all its activators are present and all its repressors are absent .
+in this context a basic objective is to analyze the temporal evolution of the protein concentrations in given external conditions .
+this can be done when the values of the model parameters have been measured .
+when this is not the case , the problem is then to exploit the knowledge about network behaviour ( e.g. response to perturbations , phenotype change when one or several genes are knocked - out ) to deduce the possible values of the parameters .
+a frequently used method consists in performing a large number of simulations by varying some parameters ( generally one or two at a time ) and selecting a posteriori the set of values that is consistent with the observed behaviour .
+as explained below , we propose a different approach for this inference problem .
+beyond these basic functionalities ( simulation , inference of parameter values ) , the construction of grn models consistent with experimental data requires more sophisticated tools .
+it often occurs that a proposed model displays inconsistencies with part of the data .
+in such cases it is necessary to critically analyze the hypotheses used in building the model and to revise them .
+this analysis can be done " by hand " for small networks , e.g. up to three genes , but requires the use of computational tools to cope with the complexity of larger networks .
+in still other situations the observational constraints are weak with respect to the number of variables , and the number of solutions is very large .
+in such cases , it is interesting to derive properties that are shared by all the solutions , or subsets of them , in order to get a better understanding of the model properties and to design new experiments having the potential to substantially reduce the set of solutions .
+fundamentally , we want to provide the biologist studying grns with a software environment allowing to perform such tasks .
+the available knowledge is partial and bears on both the structure of the network of interest ( the set of interactions ) and the behaviour of the network in various conditions .
+the first kind of knowledge is said to be structural , or local ( each interaction is a piece of information and can be studied in itself ) , whereas the second kind is said to be behavioural , or global ( the network as a whole is giving rise to a given behaviour ) .
+the network architecture and its behaviour are closely inter - related .
+this relation is implemented formally as a set of constraints in a straightforward manner in our software environment , named gnbox ( genetic networks toolbox - additional file 1 ) .
+more precisely , the philosophy of this approach is to represent a given problem , or set of problems , as a set of formulae linking variables .
+in our case this entails the specification of ( i ) the rules defining the updating scheme ( how the successors of a state are computed ) ; ( ii ) the network architecture ( set of interactions ) ; ( iii ) the observations about the behaviours of the network ( partial information about paths ) , or any working hypothese about the system ; ( iv ) the query itself ( e.g. number of stationnary states , possible values of initially unkown parameters ) .
+the set of constraints thus defined is then submitted to a solver whether there exists solutions or not .
+a distinctive feature of the constraint approach is constraint propagation .
+it implements deduction rules and allows in favorable conditions to reduce drastically the search space , thus limiting enumeration. of course some amount of enumeration is usually still necessary , but the aim of the game is to reduce it as much as possible .
+this formal relation is " executable " and allows not only to perform basic functionalities such as simulation or reverse - engineering , but also to assert and obtain properties on both the behaviours and the interactions .
+more specifically , we implemented in this constraint - based setting four main functionalities : ( i ) proof of consistency or inconsistency of a constraint pool , ( ii ) constraint relaxation in case of inconsistency ( model revision ) , ( iii ) prediction of properties in case of consistency , ( iv ) search for minimal models , with respect to the number of thresholds , for example .
+in this article we present our approach and we show how it can be applied successfully to the analysis of three different biological problems .
+in the section methods we present the formalism we developped .
+we present the formal definition of interaction graphs and of the evolution rules of thomas networks .
+these notions are required to express the queries implementing the functionalities mentionned above .
+other notions related the specification of interaction compositions facilitate the expression of properties involving kinetic parameters .
+the implementation is discussed in [ 3 ] .
+in the section results and discussion we present three applications which differ by both the type of knowledge available and the type of biological questions asked .
+these applications permit ( i ) to illustrate the different functionalities of gnbox , ( ii ) to show the feasibility of this constraint - based approach on realistic biological problems , and ( iii ) to support the idea that a formal and declarative approach is very interesting to decipher the properties of grns , in order to assist in their construction .
+methods we present briefly in this section the constraint technology , the constraint - based formalization of thomas networks , the constraint - based formalization of biological properties of these networks , and the features of our software environment gnbox to elucidate grns .
+below we use the following mathematical notations : an integer x taking values between min and max is denoted x in min. . max , a boolean b is an integer such as b in 0. . 1 , b1 <=> b2 means that the boolean b1 is equal ( or equivalent ) to the boolean b2 , b1 implies b2 is denoted b1 => b2 , the boolean equal to b1 and b2 is denoted b1 ^ b2 , the boolean equal to b1 or b2 is denoted b1 or b2 , the boolean equal to the conjunction of a list of boolean bi is denoted ^ i bi , the boolean equal to the disjunction of a list of boolean bi is denoted ori bi. constraint technology we propose to implement the approach ( particularly the link between network structure and behaviour ) using constraint logic programming ( clp ) technology , with a finite domain solver .
+clp is a programming paradigm based on first order logic .
+clp considers specific classes of logical terms and proposes efficient resolution methods of equations over these terms ( constraints ) .
+a clp program is a logic formula , and its execution is the construction of a proof of consistency ( or inconsistency ) of this formula .
+the formula is consistent when it is possible to find an instantiation of the variables which satisfies the formula .
+logicians call such an instantiation a model .
+a clp program is reversible in the sense that it permits to impose and obtain partial knowledge over all the variables of the formula ( including in our case the variables describing the interactions and behaviours ) .
+for example , let say that p ( x , y ) is a predicate defining a relationship between two entities x and y. if a measurement allows to reduce the domain of values of x , this information can be added as an additional constraint , and a query can be submitted about the possible values of y. the solver will try to propagate the additional information on x to reduce the domain of y , taking into account p ( x , y ) .
+conversely , if the measurement has been performed on y , this information can be propagated to x through p ( x , y ) .
+this is reversibility .
+it must be said that different kinds of solvers exist , characterized by the type of variables ( e.g. finite domain integers , reals ) and the type of propagation rules used , among other things .
+as all the variables describing interactions and behaviours have finite integer domains in the discrete framework used , the use of a constraint solver over finite domains is very well suited .
+in addition , the expressive power of first order logic and constraints over integers allows the definition of very general properties and functionalities .
+finally , in order to be able to take advantage of the very efficient boolean satisfiability ( sat ) solvers available , the gnbox environment is able to translate the clp formalization into a boolean formula in conjunctive normal form ( conjunction of disjunctions of boolean variables or their negation , the input format used by most sat solvers ) .
+details on the translation into cnf can be found in [ 3 ] .
+in this way we combine the expressive power of clp with the efficiency of sat solvers .
+formalization of thomas networks in this subsection we present a constraint - based formalism to impose , check and infer properties about discrete genetic networks as defined by r. thomas .
+we first introduce the notions needed to define and formalize the interaction graph and the evolution rules of thomas networks .
+we define in the next subsection the notions of composition of interactions , additivity and observability properties which are useful to express hypotheses about kinetic parameters .
+all the presented notions of this subsection and the next one are illustrated with the example of figure 1 and figure 2 , and will be put into use in the biological applications of the section results .
+figure 1 illustration of main notions defining a model m from an example of interaction graph . figure 2 examples of interaction compositions and resulting compositions of cellular contexts over example in figure 1 .
+the structure of a grn is represented in an abstract way by an interaction graph . the nodes of are genes .
+each node is associated to a concentration variable representing the concentration of the protein produced by the corresponding gene .
+the oriented edges of represent interactions between these genes , denoted by for the interaction on the gene ( component ) c of index r , r in 1. . rc , where rc is the number of interactions on c. an integer variable representing a discrete threshold labels each edge .
+in papers using the formalism of r. thomas edges in interaction graphs are also labeled by a sign [ 1 ] .
+we choose more primitive interaction graphs without these labels in order to generalize the formalization and to facilitate the expression of hypotheses about the way interactions compose on target nodes .
+the presence of an interaction from gene a to gene b ( with a threshold t ) indicates that protein a can potentially modify the expression rate of gene b. furthermore , this change in expression rate , when it actually exists , takes place when concentration of a crosses threshold t. in other words , this interaction indicates that the rate of production of protein b can be influenced by the position of protein a with respect to threshold t. it has to be noted that such an interaction does not actually impose a difference in production rate .
+rather , the absence of such an interaction forbids the existence of such a difference in production rate .
+such an interaction is represented by the triplet ( a , t , b ) ( labelled edge ) .
+in the example in figure 1 , the rows "" and " interactions " give respectively the definition of the interaction graph and the sets of interactions for the target genes x and y. the network structure being defined , the next step is to define the network state and dynamics .
+a state s of the network is a list of gene product concentrations ( protein or rna ) .
+the concentrations are discretized according to the thresholds appearing in . the concentration of the product of gene c in state s is the integer sc in 0. . maxc , where maxc is the maximal value of the discrete concentration of protein c. the threshold of component c of index p is in 1. . maxc , where the index p takes its values in 1. . maxc ( obviously if a concentration is cut by maxc thresholds the associated discretized variable will take maxc + 1 values ) .
+for a given system with n genes , ci , i in 1. . n , is the variable associated to the ith gene , and state s is the ordered list . so , the discrete concentration space contains states .
+we are now in a position to explain how the successor states of a given state are computed .
+each state s is associated to a so - called focal state , denoted by , and belonging to the same state space .
+the focal state gives the direction of evolution ( tendency ) for each concentration .
+consider for instance s = < 0 , 0 > and fs = < 1 , 1 > in a 2 - dimensional system .
+the successor of s is not < 1 , 1 > as is the case in synchronous updating schemes .
+rather fs = < 1 , 1 > indicates the direction of evolution of each component taken separately .
+here both are increasing and s = < 0 , 0 > has 2 successors , < 1 , 0 > and < 0 , 1 > .
+in other words two transitions are possible from s , and this type of updating scheme is often called asynchronous , but nondeterministic is a better term .
+what is the basis of this non - determinism ?
+if the numerical values ( real numbers ) of the initial concentrations , together with those of the model parameters were known , it would be possible to determine the exact successor .
+in the discrete abstraction considered here this information is not available and consequently both possibilities must be taken into account .
+non - determinism is a fundamental property of this abstraction due to the information loss induced by the partition of concentration space into rectangular domains .
+we chose this formalism in this study because it is well founded and it is a good match to the qualitative knowledge generally available in systems biology at present .
+nevertheless , it should be kept in mind that our constraint approach is not tied to thomas networks .
+other types of discrete dynamical rules could be implemented , e.g. kauffman - like boolean networks with parallel ( synchronous ) [ 4 ] or block - sequential updating scheme [ 5,6 ] .
+to implement the thomas evolution rules we need first to specify the equations which link a state s to its focal state fs. these equations are named focal equations .
+a set of rules then links state s , the focal state fs associated to s , and the successor states of s. we stress here that these rules must be viewed as relationships linking different kinds of unknowns .
+as explained above ( reversibility ) , the use of these relationships depends on the available information in a given state of knowledge .
+if the concentration values making state s are all known , together with the position of its focal state , then the successors of s can be computed .
+but the relationships can be exploited in other ways , too .
+the system of focal equations contains different kinds of parameters : constant concentrations associated to input genes ( that is genes that are influenced by no genes in the network and whose state is fixed by external conditions ) , parameters related to reaction kinetics ( similar to those that would appear in a differential description ) , and thresholds . the set of all these parameters is denoted by p. the parameters are amongs the unknowns of the system of constraints because their values are in general not known , or only partially known .
+the evolution rules , once formalized ( see below ) , lend to a first set of logical constraints .
+to this first set are added structural constraints over the parameters derived from experimental data , and working hypotheses .
+the set of solutions of such a system of constraints defines a set of instantiated models ( i.e. models in which all parameters are instantiated ) .
+the couple composed of a focal equation system and a set of structural constraints is called a parameterized constrained model m , or just model .
+a typical query includes one or several structurally - related models ( when data are available on several mutants ) , and some additional behavioural constraints .
+if the resulting system ( set of all constraints of the query ) is under - constrained this set contains a large number of solutions .
+if it is over - constrained it is empty .
+in our context , this last case is interpreted as a contradiction between , on one hand , the experimental evidence and , on the other hand , the network structure or the hypotheses .
+more sophisticated queries are presented in the application part below , to illustrate the high - level functionalities mentioned in the introduction .
+the parameterized focal equation system of a model m is completely defined by an interaction graph . in fact these two entities contain exactly the same information ( as long as kinetic parameters are not instantiated nor constrained ) .
+the set of interactions of having the gene c as target induces a partition of the concentration space according to the thresholds of these interactions .
+this partition defines a set of regions called the cellular contexts of c. as long as the concentration of the proteins c ' regulating c do not cross one of the thresholds , the system stays in the same cellular context , because from the viewpoint of gene c the regulatory conditions have not changed .
+this means that all the states s belonging to the same cellular context of c have the same focal component fc,s of the focal state fs. the value of fc,s being generally unknown , a formal parameter called discrete kinetic parameter is introduced for each cellular context of c with index l. these parameters are the discrete version of the ratio of protein production rate over degradation rate .
+when the value of is high in some cellular context , this is interpreted by saying that in the states belonging to that context the production rate of the protein associated to gene c is high , and / or its degradation rate low .
+but in the qualitative setting of thomas formalism it should be kept in mind that we have only access to a discretized version of the production rate to degradation rate ratio .
+the number of cellular contexts for a given gene c is , and so is the number of parameters .
+we have introduced the main notions unformally ( interaction , threshold , state , focal state , focal equation , cellular context , discrete kinetic parameter ) , and will now present formal definitions which are directly usable in constraint form .
+definition 1 let c be a component , and let s be a state .
+the focal component of c in s , denoted by fc,s , is defined by the following focal equation of c : .
+where is the discrete kinetic parameter of c with index l , l in 1. . lc , and is a condition true if s belongs to the cellular context of c with index l. the indexing convention is the following : l is equal to v + 1 where v is the decimal value of the binary number composed of the booleans with , these booleans being arranged in increasing order of r ( this is just meant at providing a unique numbering of the cellular context and is not fundamental ) .
+the above formula means that if state s' belongs to the cellular context of index l ' for gene c ( that is is true ) then the focal component fc,s' is equal to . example 1 the row " cellular contexts " in figure 1 describes formally and graphically , for a given order of thresholds , the cellular contexts for each component x and y of the considered example .
+component x is the target of only one interaction and is thus associated to two cellular contexts , y is the target of two interactions and has 4 cellular contexts .
+the row " discrete kinetic parameters " gives the list of these parameters .
+the subscripts and superscripts make the correspondence with the associated cellular contexts ( with , etc. ) .
+finally the row " focal component " gives the equations describing the focal components fx , s and fy , s of a state s. the row " focal state " in figure 1 describes the focal state fs = < fx,s , fy,s > of s. the focal state defines the direction of the dynamic transitions starting in s. in the thomas networks , the authorized transitions are such that : .
+1. s' and s are the same state or are neighbors , 2 .
+s' and s differ on at most one component .
+3. s' is in the " direction " of the focal state fs. the first property ( formally ) is due to the fact that the concentrations evolve continuously , thus jumps over states are not allowed .
+the second is commonly called asynchronicity .
+the third one is specific to the discretization of evolution equations due to thomas .
+we explained above that when two concentrations are increasing in a given state , it is not known in this kind of abstraction which will reach first its next threshold , and consequently which transition will occur first .
+in this situation both transitions are taken into account leading to two successors for the state considered ( of course this generalizes to more than two ) .
+this is intimately connected to the non - determinism inherent to abstractions based on phase space partition .
+the rules have the following consequences : s = s' <=> fs = s ( stationarity of s ) , = sc + 1 => fc,s > sc ( rising transition according to c ) and = sc - 1 => fc,s < sc ( downward transition according to c ) .
+it is possible to specify a knock - out or ectopic expression mutation .
+for each non - input mutated gene c set to a constant value v , the constraint ^ l = v must be introduced .
+for a mutated input gene to the value v the input parameter of the model is set to this value v. in some cases it is necessary to use several models in the same query , one model corresponding to the wild type and the others to mutants .
+in such cases we introduce constraints specifying that for all couples of models ( malpha , mbeta ) the thresholds of malpha are equal to those of mbeta , and the parameters of malpha associated to genes c which are not mutated in malpha and mbeta are equal to those of mbeta .
+the constraints between the input parameters of malpha and mbeta depends of the considered biological application ( see constraint 4 , in the section results and discussion ) .
+a user of gnbox must describe the structure of the studied grn ( possible interactions between genes ) , and can use the language lg1 to specify the existence of a behaviour .
+the language lg1 is composed of the predicate path ( m , path , l ) which is true if path is a succession of l states authorized by the model m ( achieving a formal link between a model and its behaviours ) , and a language to impose arithmetic constraints between variables of path .
+language lg1 is used to formalize observations on the behaviour of the system .
+our approach allows to specify ( declare ) partial information .
+for example only a few concentrations may have been measured .
+absence of information is absence of constraints .
+interaction compositions the interaction graph lists the interactions individually but does not contain information on the manner in which different interactions are composed when they have the same target gene .
+the information about the way to compose interactions is embodied in relationships linking the parameters contained in . however , the manual interpretation of instantiations or properties over parameters of p is not convenient , especially for users not acquainted with the formalism of thomas networks .
+for this reason we designed a higher level language lg2 to impose , check and infer properties about the way to compose the interactions in in the manner of the traditional notion of the logic of regulation ( neg , and , or gates ) .
+it should be understood that this is not fundamental to the approach but merely a facility to handle relationships between parameters induced by the composition of interactions .
+the user always has the choice to work directly on these relationships .
+we explained above that the specification of a set of interactions for a gene c partitions ( in cellular contexts ) the concentration space by hyperplanes ( corresponding to thresholds of interactions acting on c ) .
+lg2 permits , for every c , to partition the concentration space in union of cellular contexts of c , named compositions of cellular contexts , via the definition of interaction compositions .
+any union of cellular contexts can be specified , and in particular an union of disconnected regions .
+similarly to the semantic of a set of interactions , the semantic of a set of interaction compositions is the following : all the states belonging to a given composition of cellular contexts of c have the same evolution tendency of the concentration of protein c. the borders between these regions are constituted of parts of threshold hyperplanes of interactions taking part in the composition .
+we name these borders interaction compositions .
+an interaction composition for c , denoted by , rc in 1. . rcc , rcc being the number of interaction composition on c , permits to indicate where it is possible to have a change in the evolution trend of component c. informally , one can see an interaction composition as a new artificial species which interacts on c and which induces a new partition of state space into two regions .
+first , let us remark again that an interaction induces a partition of state space into two regions by the hyperplane associated to the threshold . by convention , the part where the states s are such that is true is said to satisfy . an interaction composition also partition the state space into two regions , but the border is not necessarily a hyper - plane defined by a single threshold .
+an interaction composition can have the following forms : * an interaction . * . the region where the state s are such that is said to satisfy . * , where ic and ic ' are interaction compositions .
+the region where the states s satisfies both ic and ic ' is said to satisfy . * , where ic and ic ' are interaction compositions .
+the region where the states s satisfies ic , or ic ' , or both , is said to satisfy . example 2 the sixth row in figure 2 gives three possible sets of interactions compositions for y , related to the example in figure 1 .
+the four first rows recall the context of example in figure 1 .
+the fifth row gives the set of interaction compositions over x. the seventh row shows for each of these couple of sets a graphical representation of the detailed structure of the network , with signs + and - over interactions and bridges , denoted by and , to express a conjunction between two interaction compositions .
+finally , the last row shows the resulting compositions of cellular contexts for y. the first case ( second column of last row ) leads to the same partition of the discrete concentration space of y ( the areas described by the cellular contexts are the same that those described by the compositions of cellular contexts ) .
+the second case expresses with the sole interaction composition on y , , that either the concentration of x and y are above and , respectively ( the tendency of y is unique in this region ) , or the concentration of x or y are below and , respectively ( the tendency of y is unique in this region ) .
+the third case expresses quite the same of the second case but permits that x interacts on y whatever the concentration of y. so , we obtain three compositions of cellular contexts because the fact that x can interact on y all along the border of the threshold . example 3 the figure 3 gives an example of a set of interaction compositions and resulting composition of cellular contexts .
+in the first column , we can see an interaction graph with two components a and b , a set of four interactions over b , and a partition of the concentration space into nine non empty cellular contexts .
+the indexes l of the conditions cell appear in circles .
+the other cellular contexts are empty according to the order of the values of the thresholds . note that usually this order is not known and the values of thresholds for a same species can be equal .
+in the second column ( to make a parallel with the interactions and cellular contexts ) we assumed to have two interaction compositions .
+we obtain a partition of the concentration space into four non empty compositions of cellular contexts ( the pink region being the union of the two disconnected cellular contexts 1 and 12 ) .
+figure 3 example of interaction compositions and resulting compositions of cellular contexts for a given order of thresholds .
+additivity and observability properties the language lg2 allows to define specific effects of an interaction composition on a component c. here by effect we mean a shift in the position of the focal component fc when the border associated to the interaction composition is crossed .
+biologically , an increase of the tendency of c can be due to an increase of the expression rate of gene c , or a decrease of the degradation rate of the corresponding protein .
+in other formalisms these effects are specified by labelling the arcs of the interaction graph with signs ( we have used this in the 7th row in figure 2 ) .
+a + sign ( respectively a - sign ) for an interaction of a gene a on b in the signed interaction graph means informally that the interaction of a on b is an activation ( respectively an inhibition ) .
+however , the exact meaning of the terms activation and inhibition is not clear , especially when several interactions combine on a gene : does an activation of b by a forbid an inhibition of b by a or not ? is an activation of b by a necessarily observed all along the border associated to the interaction or not ?
+two properties are used to clarify formally these questions .
+the first one , called additivity , is the systematic non - strict increase of tendency of c when a border is crossed in some predefined direction .
+in other words the effect on c of the interaction composition adds to the effect of all other interaction compositions on c. the direction in which the border is crossed for this property is the one given by the passage from a state where the interaction composition is not satisfied to a state where it is satisfied .
+the second property , called observability , is the existence of a strict increase of the tendency on c. this means that the effect on the tendency of c exists at least at one crossing point ( where the border associated to the interaction composition is crossed in the same direction as the additivity property ) .
+in contrast to the additivity property , observability property requires only the existence of an effect somewhere along the border .
+to define these effects more formally we introduce for each interaction composition on c a set , denoted by , containing all couples of states ( s0 , s1 ) such that ( i ) s0 is adjacent to s1 , ( ii ) s0 is a state in the region where is not satisfied , and ( iii ) s1 is a state in the region where is satisfied .
+example 4 for the interaction composition of the example given in figure 3 we get = {(< 0 , 1 > , < 0 , 0 >) , (< 1 , 1 > , < 1 , 0 >) , (< 2 , 0 > , < 1 , 0 >) , (< 1 , 3 > , < 2 , 3 >) , (< 2 , 2 > , < 2 , 3 >) , (< 3 , 2 > , < 3 , 3 >)} .
+each of the couples ( s0 , s1 ) of this set is represented in figure 4 by a kind of arrow symbol , where the ' o ' end is associated to state s0 , and the '|' end to state s1 .
+figure 4 graphical representation of relative to example in figure 3 .
+lg2 allows to specify that an interaction composition has an additive effect , denoted by , i.e. that the difference of trend of c is positive or zero all along the border defined by . the exact semantics of is : for every couple ( s0 , s1 ) of the trend of c in s0 is less than or equal to the trend of c in s1 .
+since the trend of a state is equal to the trend of all the states in the same cellular context , the additivity constraints are expressed as relations between discrete kinetic parameters . example 5 for the example in figure 2 ( with the given order of thresholds ) we have = {(< 0,0 > , < 1,0 >) , (< 0,1 >) , < 1,1 >) , (< 0,2 > , < 1,2 >)} , and due to the negative sign associated to the interaction of y on x. for the first case of interaction compositions on = {(< 0,0 > , < 1,0 >) , (< 1,1 > , < 1,1 > , (< 0,2 > , < 1,2 >)} , , and = {(< 0,1 > , < 0,2 >) , (< 1,1 > , < 1,2 >)} , . for the second case of interaction compositions on y , = {(< 0,2 > , < 1,2 >) , (< 1,1 > , < 1,2 >)} and . if this additivity property is true , the only case of activation of y is when x and y are above and respectively .
+for the third case ( the same as the first one in the first case because is the same ) and ( the same as the first one in the second case ) .
+if these aditivity are true , there are two cases of activation of y , one above and one above and . moreover , the second case of activation is greater than the first one , due to the additivity property . if multi - arcs are present in the interaction graph ( several arcs with the same origin and the same target node ) the cellular contexts on each side of the border defined by the interaction composition are not the same depending on the values of the thresholds associated to the multi - arc .
+in that case the additivity constraints are relations involving also thresholds .
+briefly , the additivity constraint of the interaction composition is : ^( adj ( l0 , ll , rc ) => >= ) with adj ( l0 , l1 , rc ) true if it exists a couple ( s0 , s1 ) of such that ( the cellular contexts l0 and l1 are non empty , adjacent , and on each side of the border defined by ) .
+example 6 for the example in figure 3 , the additivity constraint of the composition is : .
+according to the identifiers l of cellular contexts for b ( and so the identifiers of discrete kinetic parameters ) .
+it can be checked with the graphic representation of cellular contexts of b in figure 3 that for we obtain . this example shows that specifying additivity properties can be much more compact than working at the level of parameters .
+without language lg2 we would have to write the above formula .
+in addition to the additivity property , lg2 allows to specify that an interaction composition has an observable effect , denoted by , i.e. that the difference of trend of c is strictly positive at least at one position along the border defined by . the exact semantics of is : for at least one couple ( s0 , s1 ) of the trend of c in s0 is strictly less than the trend of c in s1 .
+to be more explicit , an interaction can be removed from the interaction graph if neither the interaction composition ( reduced to a single interaction ) , nor its negation is observable .
+briefly the observability constraint of the interaction composition is : with adj ( l0 , l1 , rc ) true if it exists a couple ( s0 , s1 ) of such that . example 7 for the example in figure 3 with the constraint is . gnbox features the core functionality of the gnbox environment is to test , for a given structure of a grn , the consistency of a set of hypotheses about the behaviours of this grn ( language lg1 ) for several mutant types , about the interaction compositions ( language lg2 ) , and even directly about the parameters in p. gn - box is able to identify consistent solutions in terms of state variables that define the behaviour ( lg1 ) and in terms of parameters of p. in cases where the set of hypotheses is inconsistent , it is desirable to determine the possible relaxations of hypotheses to remove the inconsistency .
+gnbox can identify automatically , among a defined set of questionable hypotheses , all subsets of hypotheses whose relaxation removes the inconsistency ( subsets of necessarily false hypotheses ) .
+these subsets are represented as disjunctions of conjunctions of negations of hypotheses .
+for example , the hypotheses h1 and h2 must be relaxed or the hypothesis h3 must be relaxed : ( noth1 ^ noth2 ) v noth3 .
+also gnbox automatically identifies , among a defined set of hypotheses , all subsets of hypotheses necessarily true .
+these subsets are represented by disjunctions of conjunctions of hypotheses .
+for example , the hypotheses h1 and h2 are true or the hypothesis h3 is true : ( h1 ^ h2 ) or h3 .
+results and discussion application to the immunity control by the lambda bacteriophage the analysis of this network adapted from [ 7 ] illustrates mainly the capability of gnbox ( i ) to express constraints about reachability of states , and ( ii ) to find the minimal interaction graph consistent with observations .
+the lambda bacteriophage ( or simply lambda phage ) is a virus that infects the bacterium escherichia coli .
+the infection starts by the injection of the genetic material of the virus into the cytoplasm of the bacterium .
+we focus here on two simple observations about the evolution of the bacterium after infection : either the viral dna is integrated in the genetic material of the bacterium , and the cells continue to divide normally ( thus reproducing the phage dna in the same process ) , or the genetic material replicates in the cytoplasm of the bacterial cell to create new viral particles and then new viruses until lysis ( destruction ) of the cell , which leads to the release of new virus particles in the extracellular medium .
+the first case corresponds to the lysogenic phase while the second corresponds to the lytic phase .
+the decision between these two phases is made by a network of viral genes .
+the model proposed in [ 7 ] contains four viral genes denoted by ci , cro , cii and n. the gene ci is expressed only in the lysogenic phase , cro is expressed only in the lytic phase and genes cii and n are not expressed in both phases .
+the graph of interactions between these genes is given in figure 5 .
+interactions and interaction compositions ( deduced from experimental data ) are given in table 1 .
+we consider the set of all additivity and observability constraints for all these interaction compositions , etc. ) .
+in the following we assume that the thresholds are ordered so that . according to the previous section the set of interactions , the hypotheses about interaction compositions ( set of interaction compositions , additivity properties , observability properties ) and the hypotheses on threshold values define a parameterized constrained model ( couple composed of a focal equation system derived from and a set of structural constraints ) .
+we call it mlambda and it is defined formally by the predicate model _ lambda ( mlambda ) .
+a state s for this model is represented by an ordered list < sci , scro , scii , sn > of discrete protein concentrations .
+according to and hypotheses on threshold values , we have maxci = 2 , maxcro = 3 , maxcii = 1 , maxn = 1 .
+so the concentration space contains ( 2 + 1 )*( 3 + 1 )*( 1 + 1 )*( 1 + 1 ) = 48 states .
+table 1 interactions and interaction compositions hypotheses for the model about immunity control by the lambda phage species interactions interaction compositions ci cro cii n figure 5 interaction graph for the model about immunity control by the lambda phage .
+the uninfected cell does not have any viral protein and can therefore be represented by the state s0 = < s0ci , s0cro , s0cii , s0n > = < 0 , 0 , 0 , 0 > in the lysogenic phase of the virus - host system the only viral gene expressed is ci. this phase is represented by the state s1 = < s1ci , s1cro , s1cii , s1n > = < 2 , 0 , 0 , 0 > such that the concentration of protein ci remains equal to its highest value .
+in the lytic phase the only viral gene expressed is cro .
+in a continuous description this phase is represented by a state which is not contained within a domain , but which is at the border between two adjacent domains .
+we could introduce in our formalism additional states corresponding to borders between domains .
+such states are called singular states in [ 2 ] .
+we choose here to stick to the simpler formalism , and we represent the lytic phase as a cycle between the two following states : s2 = < 0 , 2 , 0 , 0 > and s3 = < 0 , 3 , 0 , 0 > , such that the concentration of the protein cro remains around the highest values 2 and 3 [ 7 ] .
+biological observations tell us that these two phases must be attractors of the network dynamics , and that they are reachable from the initial conditions .
+these observations are formalized by constraint 1 where the lengths of the third and fourth paths for the reachability of the two phases are equal to 48 states , 48 being the total number of states of the state space .
+constraint 1 the gnbox environment proves the consistency of this pool of constraints in 2 seconds .
+all run times mentioned in this article are obtained on a laptop with 2 gb of ram and running at 2.4 ghz .
+moreover gnbox can provide the instantiations of the parameters of p that satisfy the pool of constraints .
+example 8 an example of instantiation is : ( remember that the indexes l of discrete kinetic parameters are set at their creation from the numbering of interactions see definition 1 ) .
+the set of transitions from s to s ' , denoted by s - >> s ' , for this instantiation is represented in figure 6 .
+figure 6 set of possible transitions for the instantiation of parameters in example 8 of the model about immunity control by the lambda phage .
+an interesting question , akin to reverse - engineering of the network , is : what are the minimal numbers of interaction compositions necessary to get a model consistent with constraint 1 without specifying any additivity or observability constraints ?
+in other words , we search for the minimal interaction graphs , in terms of interactions , which satisfy the observed behaviors. from a constraint point of view , this problem is specified and implemented in the following way .
+for each interaction composition on a gene c , a boolean variable is created which means " all pairs of states separated only by this interaction composition have the same evolution tendency for c " .
+then gnbox searches for consistent models such that the number of these boolean variables which are true is maximized .
+gnbox finds that only two interactions on cro are necessary ( in two seconds ) .
+so , the minimal interaction graph contains only two interactions on cro and no interactions on the other genes .
+the result is surprising at first sight , but it should be borne in mind that the query contains only poor information about behaviours and no information on the interaction graph ( but the limitation to possible interactions ) , the goal being to infer the minimum graph implied by this information .
+this does not preclude the existence of other interactions , but means that those are not necessary to account for the behaviours included in the query .
+finally this application lead us to the interesting question of the length l of the longest path without cycle in the state space for a given set of hypotheses set .
+we call this length the diameter of the network for set .
+this knowledge permits to restrict the length of paths in subsequent queries considering a set of hypotheses including set .
+in our case set is constraint 1 .
+the diameter for set is 43 .
+this highly combinatorial problem is answered in two queries : one to prove the existence of a solution for a length l of 43 in 459 seconds , the other showing inconsistency for a length l of 44 in 489 seconds .
+application to the carbon nutritional stress response in the bacterium escherichia coli the modeling and analysis of this network is adapted from [ 8 ] .
+it illustrates a case of model revision coming from an inconsistency of the initial set of hypotheses .
+we performed a similar and more exhaustive study reported in [ 9 ] .
+we show that by an automatic relaxation method over biological constraints we can suggest lines of research to the biologist or , said differently , generate new hypotheses .
+populations of the bacterium escherichia coli grow exponentially in favorable conditions .
+this state is called the exponential phase .
+in stressing conditions , when food ( carbon ) starts to be lacking , the populations stop growing and they enter in a state called stationary phase , with altered physiology and morphology .
+the phenomenon is reversible : the population can return to the exponential phase if the conditions become favorable again .
+the model , proposed in [ 8 ] and adapted to our formalism , contains one input node sig ( signal , 0 in the absence of stress and 1 in the presence of stress ) and five species : crp , cya , fis , gyr and top .
+the interaction graph is given in figure 7 where the input sig is represented by a dotted circle filled in blue .
+interactions and interaction compositions are given in table 2 .
+moreover we consider the set of all additivity and observability constraints for all interaction compositions .
+as before , the thresholds are ordered and equal to p. the model obtained from all these hypotheses is denoted by mcoli .
+thus we have maxcrp = 2 , maxcya = 2 , maxfis = 3 , maxgyr = 2 and maxtop = 2 ( for the input sig we have maxsig = 1 ) .
+we obtain a concentration space of ( 2 + 1 ) * ( 2 + 1 ) * ( 3 + 1 ) * ( 2 + 1 ) * ( 2 + 1 ) = 324 states .
+figure 7 interaction graph for the model about carbon nutritional stress in e. coli .
+table 2 interactions and interaction compositions hypotheses for the model about carbon nutritional stress in e. coli species interactions interaction compositions crp cya fis gyr top the exponential phase and the stationary phase are modeled by two states , respectively sns ( ns for " not stressed ") and ss ( s for " stressed ") .
+as stated in [ 8 ] , there exists partial knowledge about these states : constraint 2 note that only three components are instantiated in each state and that there is a relationship between the two others which expresses the fact that the super - coiling of dna is higher in the exponential phase .
+to model the presence or the absence of stress we use two models : a model without stress ( sig = 0 ) and a model with stress ( sig = 1 ) .
+these two models are the same biological model mcoli in different conditions .
+so they share the same discrete kinetic parameters . in absence of stress the system beginning in the stressed state ss can reach the non - stressed state sns , which is steady .
+in presence of stress the system beginning in sns can reach ss , which is steady .
+we formalize that by : constraint 3 where l is the length of the third and fourth paths for the reachability of the two steady states .
+in the following queries we choose l = 10 and l = 100 to compare performance , but if we want a general query without any limitation on l we should choose l = 324 ( the total number of states of the model ) but the amount of memory needed to generate the pool of constraints becomes very large .
+we point out here that for such queries involving paths , this approach is limited to networks of medium size. with gnbox we prove that the pool of constraints composed of constraints for models and constraint 2 and constraint 3 is inconsistent in 2 seconds for path length l = 10 states , and 13 seconds for path length l = 100 .
+in fact just imposing the existence of two steady states gives an inconsistency in less than 1 second , thus proving that the constraint pool is inconsistent whatever the value of l. in [ 8 ] it is noted that the proposed instantiated model is indeed inconsistent .
+here we prove in addition that there exists no other instantiation of the discrete kinetic parameters ( accepting the interaction compositions hypotheses ) able to restore consistency .
+in other words it is proved that this network architecture with these hypotheses on interaction compositions is incompatible with the observations .
+it is thus necessary to revise the model .
+in [ 8 ] the authors suggest that a regulator or an interaction may be missing in the model .
+here , instead , we keep the interaction graph as it is , and try to change the way interactions are composed .
+the set of unreliable hypotheses is the set of all additivity and observability properties about interaction compositions .
+we allow the relaxation of these hypotheses and we obtain the property in 7 seconds with a path length l = 10 , and in 830 seconds with a path length l = 100 .
+discussions with the biologist lead to the conclusion that it is not acceptable to relax the additivity property of the first composition on gyr , . this suggests that the composition on top , , is the one which is not additive and consequently that it is possible to observe an inhibition of top by fis .
+this inhibition effect is actually observed for another kind of stress .
+in [ 10 ] it is said : " when fis levels are low , hydrogen peroxide treatment results in topa activation " .
+this means that fis acts in some cellular contexts as an inhibitor of top .
+this paper shows that the protein fis can indeed play an inhibitory role on top in some contexts , and it thus gives support to the new hypothesis that fis plays an inhibitory role in the response to nutritional stress .
+it is remarkable that this pool of constraints is inconsistent given that the number of adjustable parameters is relatively high .
+we insist here on the fact that inspection of the constraint pool did not allow to resolve manually this inconsistency .
+finally , it appears that the hypotheses of interaction compositions on top are not well supported by experiments , and we propose to determine the necessarily observable compositions of the type and () .
+the rationale for limiting the compositions to basic types ( signed interactions ) is to provide easily interpretable results in terms of the interaction graph complemented with interaction signs ( corresponding to the choice between activation and inhibition ) .
+this allows to determine for example whether there are unnecessary arcs in . on the other hand this restriction still allows to guide the user in the choice of hypotheses about interaction compositions .
+we conserve all the previous hypotheses except the ones about the interaction compositions on top .
+we consider a new set of these six interaction compositions for top : . finally we challenge the observability constraints onto them to find which of them are necessary for these hypotheses .
+gnbox returns the property ( observability property of or observability property of ) in 4 seconds with a length of path l = 10 , and the same formula in 60 seconds with a length of path l = 100 .
+this indicates that any solution of all constraints ( except the hypotheses of composition on top ) has the property or the property . this result provides an essential information to help the biologist to make additional hypotheses about interaction compositions .
+application to the gap - gene module of the segmentation of the drosophila melanogaster embryo in the first hours after fertilization , the embryo of the fly drosophila melanogaster undergoes segmentation along the anteroposterior axis ( head to tail ) .
+the embryo is partitioned into segments , each segment being made of cells characterized by specific levels of a set of proteins .
+segmentation takes place in several successive stages controlled by distinct genetic modules .
+here we focus on the gap - gene regulatory module .
+the modeling and analysis of this network illustrates the expression of steady states in several segments of the embryo for the wild type and several mutant types , and the search for the minimum number of thresholds necessary to account for all the observations .
+the initial model is adapted from [ 11,12 ] .
+although this model is not the most recent available , it is convenient for our purpose .
+the resolution of this query provides a set of minimal models ( in terms of number of thresholds ) consistent with a set of very diverse observations .
+the connection between the observations for all these models ( one for each mutant type and for each segment ) adds a new level of complexity .
+the model , proposed in [ 11,12 ] , controlling the gap - gene module contains seven genes : giant denoted by gt , hunchback zygotic denoted by hbz , hunchback maternal denoted by hbm , kruppel denoted by kr , knirps denoted by kni , bicoid denoted by bcd , and caudal denoted by cad .
+the genes bcd , hbm and cad are input genes : they influence other genes but are not influenced by any gene .
+stocks of maternal mrna and proteins are accumulated at specific places of the egg before fertilization .
+these molecules generate gradients along the anteroposterior axis .
+in the model these quantities are represented by input parameters ( one for each chemical species and each region ) .
+the interaction graph between these genes is given in figure 8 where input genes are represented by dotted circles filled in blue .
+interactions and interaction compositions are given in table 3 .
+moreover we consider the set of all additivity and observability constraints for all interaction compositions .
+the modeling in [ 11,12 ] takes into account four adjacent segments along the anteroposterior axis , denoted by a , b , c and d. genetic experiments produced information on the concentration of the gap - gene proteins for the wild type , denoted by wt , and nine mutants .
+the mutants are : knock - out ( ko ) on gt ( the focal value of the gt component is 0 everywhere ) denoted by gt0 , ko on both hbz and hbm denoted by hb0 , ko on kr denoted by kr0 , ko on kni denoted by kni0 , ko on bcd denoted by bcd0 , ko on hbm denoted by hbm0 , ko on cad denoted by cad0 , ectopic expression equal to 1 on gt ( the focal value of the gt component is everywhere equal to 1 ) denoted by gt1 , ectopic expression equal to 1 on kni denoted by kni1 .
+we define a model mr,t for each segment rin { a , b , c , d } and each type t in { wt , gt0 , hb0 , kr0 , kni0 , bcd0 , cad0 , hbm0 , gt1 , kni } .
+for example , mb,gt0 corresponds to the model of the mutant type gt0 in segment b. the input parameters , discrete kinetic parameters and threshold parameters , between models are linked by introducing equality constraints between them , as explained in the section on the formalization of thomas networks .
+thus it would be redundant to impose constraints about interaction compositions for mutant types ( the corresponding constraints for the wild type are sufficient ) .
+obviously , these constraints lead to exactly the same threshold and discrete kinetic parameters for the four models associated to the four segments and each mutant .
+table 3 interactions and interaction compositions hypotheses for the model about gap - gene module of the segmentation of the d. melanogaster embryo species interactions interaction compositions gt hbz kr kni figure 8 interaction graph for the model about gap - gene module of the segmentation of the d. melanogaster embryo .
+the concentrations of the proteins produced by input genes bcd , hbm and cad for each region r and each mutant type t are respectively denoted by and . we impose in constraint 4 that the inputs in the mutant types are equal to those of the wild type , except in the cases where some input genes themselves are mutated .
+this exception is due to the fact that the inputs come from the mother system , so only a mutation in this system can change the concentration value of the corresponding input .
+constraint 4 moreover , we have inequality constraints between the thresholds for this model : constraint 5 the observations relate to the existence of one steady state by mutant type and by segment with some properties between these states .
+the steady states are represented by ordered lists of four protein concentrations : for each region r and each mutant type t. the constraint associated to the observation of the steady state of each region r and each type t is : constraint 6 the gradients of maternal origin mentioned above are used by the cell to derive positional information .
+to represent these gradients , the antero - posterior axis is partitioned into segments , each segment being identified by a combination of values of the input molecules bcd , hbm and cad .
+we impose that the combinations of input quantities are different for all pairs of segments for the wild type : constraint 7 table 4 shows the constraints between the concentrations of the steady states in regions a , b , c and d for each species and for each mutant ; the bold font indicates a change of constraint compared to the wild type .
+all these constraints come from the interpretation of data in [ 12 ] .
+the first column of the table gives the mutant type , the second the genes , the third , fourth , fifth and sixth represent the steady state of the region a , b , c and d , respectively .
+inequality symbols appear between the columns labeled a , b , c , d. they indicate constraints between concentrations of steady states of adjacent segments .
+finally the two last columns give other constraints involving concentrations in segments that are not necessarily adjacent and comments about the differences compared to the wild type .
+table 4 constraints between stationary states and between input parameters for each region and each mutant type for the model about gap - gene module of the segmentation of the d. melanogaster embryo type species a b c d supp. constr .
+comments wt bcd >= >= >= hbm >= >= >= cad <= <= <= gt > < hbz >= >= >= kr < >= >= kni <= < > gt0 gt >= >= >= knock - out hbz < >= >= kr <= < <= kni expands into d hb0 bcd >= >= >= knock - out hbm cad <= <= <= gt gt expand into bc hbz knock - out kr loss of kr into bc kni loss of kni into bc kr0 gt gt expands into bc hbz >= >= >= kr knock - out kni loss of kni into bc kni0 gt < hbz > >= >= kr >= >= >= kni < increase of kr into c knoct - out bcd0 bcd knock - out hbm >= >= >= cad <= <= <= gt < loss of gt into a hbz loss of hbz into abc kr loss of kr into bc kni >= >= > kni expands into ab hbm0 bcd >= >= >= hbm knock - out cad <= <= <= gt > < hbz >= >= >= kr < >= >= kni >= < > cad0 bcd >= >= >= hbm >= >= >= cad gt > knock - outlass of gt into d hbz >= >= >= kr < >= >= increase of kr of into c kni lass of kni into c gt1 gt ectopic expression hbz >= >= >= kr < >= >= kni lass of kni into c kni1 gt >= > < activation of gt into b hbz >= >= >= kr >= kni lass of kr into bectopic expression we note in the following cgap the set of constraints associated to the existence of the steady states of the 4 regions for each of the 10 types ( composed of constraints defining and linking the models mr,t , constraint 4 , constraint 5 , constraint 6 , constraint 7 , and constraints in table 4 ) .
+if we add to cgap the constraint represented in table 5 about the instantiation of steady states for all types , input parameters for the wild type according to the second table of [ 12 ] , and the constraint ^ c ^ p we obtain a consistency in 11 seconds .
+table 5 constraints of instantiation of stationary states according to the second table in [ 12 ] for each region and each mutant type for the model about gap - gene module of the segmentation of the d. melanogaster embryo type species a b c d wt bcd 3 2 1 0 hbm 1 1 0 0 cad 0 0 1 2 gt 1 0 0 1 hbz 3 2 1 0 kr 0 2 1 0 kni 0 0 1 0 gt0 gt 0 0 0 0 hbz 3 2 1 0 kr 0 2 1 0 kni 0 0 1 1 hb0 gt 1 1 1 1 hbz 0 0 0 0 kr 0 0 0 0 kni 0 0 0 0 kr0 gt 1 1 1 1 hbz 3 2 1 0 kr 0 0 0 0 kni 0 0 0 0 kni0 gt 1 0 0 1 hbz 3 2 1 0 kr 0 2 2 0 kni 0 0 0 0 bcd0 gt 0 0 0 1 hbz 0 0 0 0 kr 0 0 0 0 kni 1 1 1 0 hbm0 gt 1 0 0 1 hbz 3 2 1 0 kr 0 2 1 0 kni 0 0 1 0 cad0 gt 1 0 0 0 hbz 3 2 1 0 kr 0 2 2 0 kni 0 0 0 0 gt1 gt 1 1 1 1 hbz 3 2 1 0 kr 0 1 1 0 kni 1 1 1 1 kni1 gt 1 1 0 1 hbz 3 2 1 0 kr 0 0 1 0 kni 1 1 1 1 it appears in the second figure of [ 11 ] that there is no auto - interaction onto hbz .
+in fact , after discussion with d. thieffry , a synergy between hunchback and bicoid on the activation of hunchback has been reported , and hbm and hbz are the same species in distinct compartments .
+this explain the interaction compositions onto hbz with indexes 3 , 4 and 5 .
+if we do not consider this auto - interaction in cgap by replacing the last three interaction compositions onto hbz by and , and we still consider the constraint in table 5 and the constraint ^ c ^ p , we obtain an inconsistency in 7 seconds .
+so we consider in the following the proposed model with this auto - interaction onto hbz ( in order to have a similar model to those in [ 11,12 ]) .
+obviously , cgap alone ( without the constraint represented in table 5 and the constraint ^ c ^ p ) is consistent according to the first query .
+in previous applications the thresholds are instantiated and equal to p , p taking a value between 1 and maxc .
+this implies that the concentrations of c can take values between 0 and maxc .
+insofar as the subdivision of the concentration space is only speculative , it is interesting to ask what is the smallest number of distinct thresholds necessary to get a model consistent with the observations .
+the extreme case would be the satisfaction of all observations and hypotheses with one threshold per component , i.e. with a boolean model .
+it appears that cgap plus ^ c ^ p is inconsistent in 2 seconds .
+we can check easily this inconsistency : the constraint is inconsistent with the observability constraint of because no state s satisfies i.e. the condition . to identify the minimum number of different thresholds needed to satisfy all the observations and hypotheses , we must build a query using the method of relaxation of constraints .
+but in this case , the relaxation takes place on the number of thresholds in 1. . maxc for each component c. to summarize , we challenge the hypotheses about the number of thresholds for all components. from a constraint point of view , this problem is specified and implemented in the following way .
+we introduce boolean variables bj,c equivalent to " the number of thresholds for c is less or equal to j " , j being an integer in the interval 1. . maxc - 1 .
+so we get six boolean variables in our case : and for hbz , b1 , kr for kr , b1 , bcd and b2 , bcd for bcd , b1 , cad for cad .
+then gnbox searches for models consistent with the set of constraints defined above such that the number of these boolean variables which are true is maximum .
+gnbox finds in 22 seconds that the only boolean variables to be false are and b2 , cad .
+this indicates that hbz must have at least 2 different values of thresholds , and cad must have at least 2 different values of thresholds .
+the last query gives , in 17 seconds , two possible instantiations of the accepting cgap and the minimal number of thresholds given by the previous query : . one remarks that the three thresholds of hbz share only two values .
+conclusions our methodology is composed of two parts : ( i ) a declarative constraint - based approach ; ( ii ) a formalism for the description of the dynamics of discrete networks .
+we have presented here applications involving gene regulatory networks whose behaviour is satisfactorily represented in the formalism of r. thomas .
+but it is important to note that the methodology can be applied to many other types of dynamical rules , such as hopfield - like networks , boolean networks with parallel , sequential or block - sequential updating .
+the only requirement is that the dynamical rules should be expressed as constraints on finite - domain variables .
+the potential domain of application of this methodology is thus much larger than just gene regulatory networks .
+the thomas' networks have largely been applied to the analysis of grns , for example those described in [ 7,13 - 15 ] or those described in [ 8,16,17 ] which use a very similar qualitative formalism .
+several modeling and simulation tools of biological regulatory networks ( for example ginsim [ 18 ] , biocham [ 19 ] , gna [ 20 ]) are used in combination with model checkers ( nusmv , cadp ) and based on diverse formalisms ( logic , petri nets , odes ) .
+the idea is to add to the simulation functionality a formal verification functionality to check , or optimize [ 21 ] , the fitness between the simulated and the observed behaviours .
+three types of abstractions are available in biocham , among which ordinary differential equations and boolean networks .
+the inference of parameters is based on the technique of model - checking and the definition of a continuous degree of satisfaction of a temporal logic formula formalizing some observation on behaviour .
+this permits to find biochemical kinetic parameter values which are optimal with respect to a set of biological properties .
+moreover it is possible to find the effect of parameter variations on the robustness of a behaviour specification [ 22 ] .
+our work differs significantly in that it focuses to face the problem of incomplete knowledge to produce , by a constraint - based process , a class of models from which it is expected to design new experiments .
+a steady state search module , including the so - called singular states , exists in gna based on an integration of the sat solver sat4j [ 23 ] .
+this integration of a constraint approach avoids the generation of all the transitions to identify the steady states .
+but in contrast to our work aiming at providing general queries , [ 23 ] focus on the search of steady states , and only in the case of completely instantiated models ( kinetic parameters instantiated and order of the thresholds predefined ) .
+the work in [ 24 ] search the same steady states with a csp ( constraint satisfaction problem ) formalization , the performances are worse than in [ 23 ] .
+in our work , we can write easily queries to identify steady states , and even cycles of length smaller than some predefined value .
+in addition in our case the kinetic parameters and the orders between thresholds can be only partially known .
+as explained here , other much more sophisticated queries are available , although in the current version we do not include singular states .
+the formal approach proposed here modifies deeply the way to proceed in the building and in the exploration of genetic and biochemical networks , first by avoiding the usual trial - and - error procedure , and second by putting the emphasis on sets of solutions , rather than a single consistent solution arbitrarily chosen in a set .
+last , the constraint approach lends to a unified description of network architecture and network behaviour , as both are described in terms on formal constraints .
+the knowledge available to initiate the modeling of a given phenomenon is generally sparse with respect to the complexity of the behaviour of the underlying networks .
+it is thus essential to exploit consistently , efficiently , and in a joint manner , every bit of experimental information .
+the representation of knowledge in terms of constraints is a way to achieve , at least to some extent , this goal .
+our environment gnbox implements a wide panel of functionalities : simulations , consistency proof , relaxation in case of inconsistency , search for a minimal model , prediction of properties in case of consistency .
+this last functionality generates properties which are verified by all solutions of the constraint pool .
+in line with what we said above , note that such properties are really supported by data .
+this contrasts with the usual practice of using just one solution to make prediction , neglecting the existence of other solutions .
+properties of the selected single model should not be considered as true predictions .
+we have presented three biological applications illustrating the use of most of these functionalities .
+these applications involve networks containing about 5 species and 15 possible interactions , and with set of hypotheses and observations without systematic instantiation of threshold parameters , with a large range of types of behaviours .
+in the third application the queries involve several structurally related models in order to incorporate knowledge about wild - type and mutant behaviour , in four segments of the embryo .
+the set of constraints generates a dense network of dependencies between the variables .
+the performances of gnbox are good for the different types of queries presented in the three applications .
+the most computer - intensive queries are those involving paths .
+for such queries our approach is limited to networks of medium size .
+the perspectives are governed by the biological problems .
+the methodologies and technologies employed must be chosen according to these problems .
+a first perspective is to prioritize biological experiments .
+for example , consider a situation in which the state of knowledge is such that the number of consistent instantiated models is still large , and it is possible to perform double knock - out experiments .
+in such situation it would be interesting to be able to determine the most informative choice of pairs of genes to target for knock - out , an informative experiment being one which will potentially add non redundant constraints and thus reduce the set of solutions .
+another perspective is to refine the abstraction of the discrete behaviours : for example by taking into account the trajectories sliding along the thresholds [ 17,25 ] , and taking into account the difference of delays of chemical reactions [ 26 - 28 ] .
+another perspective is the extended repairing consistency techniques adding species , related to the problem of composing networks [ 29 ] .
+authors' contributions the methods and applications was mainly developed by fc on theoretical foundation and ideas provided by ef and lt. all authors equally wrote this manuscript and approved it. supplementary material additional file 1 gnbox .
+click here for file acknowledgements this work was performed at the timc - imag laboratory .
+final editing of the manuscript was made while fc was at irisa - inria .
+the work was supported by microsoft research through its phd scholarship programme with a grant to fc. ef thanks ixxi ( institut des systemes complexes rhone - alpes ) for partial financial support .
+we thank denis thieffry for helpful clarifications on the drosophila embryo segmentation model .
+thomas r d'ari r biological feedback 1990 crc press thomas r kaufman m multistationarity , the basis of cell differentiation and memory. ii. logical analysis of regulatory networks in term of feedback circuits chaos 2001 11 180 195 10.1063 / 1.1349893 12779452 corblin f bordeaux l fanchon e hamadi y trilling l connections and integration with sat solvers : a survey and a case study in computational biology hybrid optimization : the 10 years of cpaior , springer 2010 in press kauffman s metabolic stability and epigenesis in randomly constructed genetic nets journal of theoretical biology 1969 22 437 467 10.1016 / 0022 - 5193 ( 69 ) 90015 - 0 5803332 demongeot j elena a sene s robustness in regulatory networks : a multi - disciplinary approach acta biotheoretica 2008 56 27 49 10.1007 / s10441 - 008 - 9029 - x 18379883 mendoza l alvarez - buylla e dynamics of the genetic regulatory network for arabidopsis thaliana flower morphogenesis journal of theoretical biology 1998 193 2 307 319 10.1006 / jtbi.1998.0701 9714934 thieffry d thomas r dynamical behaviour of biological regulatory networks - ii. immunity control in bacteriophage lambda bulletin of mathematical biology 1995 57 277 297 7703921 ropers d de jong h page m schneider d geiselmann j qualitative simulation of the carbon starvation response in escherichia coli biosystems 2006 84 2 124 152 10.1016 / j.biosystems.2005.10.005 16325332 corblin f tripodi s fanchon e ropers d trilling l a declarative constraint - based method for analyzing discrete gene regulation networks biosystems 2009 98 2 91 104 10.1016 / j.biosystems.2009.07.007 19664681 weinstein - fischer d altuvia s differential regulation of escherichia coli topoisomerase i by fis mol microbiol 2007 63 4 1131 1144 10.1111 / j.1365 - 2958.2006.05569.x 17233826 sanchez l thieffry d a logical analysis of the drosophila gap - gene system j theor biol 2001 211 115 141 10.1006 / jtbi.2001.2335 11419955 thieffry d sanchez l alternative epigenetic states understood in terms of specific regulatory structures annals of the new york academy of sciences 2002 981 135 153 10.1111 / j.1749 - 6632.2002.tb04916.x 12547678 sanchez l van helden j thieffry d establishment of the dorso - ventral pattern during embryonic development of drosophila melanogaster : a logical analysis j theor biol 1997 187 377 389 10.1006 / jtbi.1997.0523 fanchon e corblin f trilling l hermant b gulino d danos v , schachter v modeling the molecular network controlling adhesion between human endothelial cells : inference and simulation using constraint logic programming lncs , computational methods in systems biology 2005 3082 104 118 full _ text guespin - michel j bernot g comet jp merieau a richard a hulen c polack b epigenesis and dynamic similarity in two regulatory networks in pseudomonas aeruginosa acta biotheoretica 2004 52 4 379 390 10.1023 / b : acbi.0000046604.18092.a7 15520540 de jong h geiselmann j batt g hernandez c page m qualitative simulation of the initiation of sporulation in bacillus subtilis bulletin of mathematical biology 2004 66 2 261 299 10.1016 / j.bulm.2003.08.009 14871567 de jong h gouze jl hernandez c page m sari t geiselmann j qualitative simulation of genetic regulatory networks using piecewise - linear models bulletin of mathematical biology 2004 66 2 301 340 10.1016 / j.bulm.2003.08.010 14871568 naldi a berenguier d faure a lopez f thieffry d chaouiya c logical modelling of regulatory networks with ginsim 2.3 biosystems 2009 97 2 134 139 10.1016 / j.biosystems.2009.04.008 19426782 calzone l fages f soliman s biocham : an environment for modeling biological systems and formalizing experimental knowledge bioinformatics 2006 22 14 1805 1807 10.1093 / bioinformatics / btl172 16672256 de jong h geiselmann j hernandez c page m genetic network analyser : qualitative simulation of genetic regulatory networks bioinformatics 2003 19 3 336 344 10.1093 / bioinformatics / btf851 12584118 rizk a batt g fages f soliman s heiner m , uhrmacher a on a continuous degree of satisfaction of temporal logic formulae with applications to systems biology proc. of the fourth international conference on computational methods in systems biology ( cmsb'08 ) , lncs 2008 5307 springer 251 268 rizk a batt g fages f soliman s a general computational method for robustness analysis with applications to synthetic gene networks bioinformatics 2009 25 12 169 178 10.1093 / bioinformatics / btp200 de jong h page m search for steady states of piecewise - linear differential equation models of genetic regulatory networks ieee / acm trans .
+comput biol bioinform 2008 5 02 208 222 10.1109 / tcbb.2007.70254 18451430 devloo v hansen p labbe m identification of all steady states in large biological systems by logical analysis bulletin of mathematical biology 2003 65 6 1025 1051 10.1016 / s0092 - 8240 ( 03 ) 00061 - 2 14607287 corblin f fanchon e trilling l modelisation de reseaux biologiques discrets en programmation logique par contraintes tsi ( technique et science informatiques ) 2007 26 73 98 10.3166 / tsi.26.73 - 98 siebert h bockmayr a temporal constraints in the logical analysis of regulatory networks theoretical computer science 2008 391 3 258 275 10.1016 / j.tcs.2007.11.010 ahmad j bernot g comet jp lime d roux o hybrid modelling and dynamical analysis of gene regulatory networks with delays complexus 2006 3 4 10.1159 / 000110010 batt g salah r maler o on timed models of gene networks lncs 2007 4763 38 52 gossler g compositional reachability analysis of genetic networks computational methods in systems biology 2006 4210 lncs , springer berlin / heidelberg 212 226 full _ text

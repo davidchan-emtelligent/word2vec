@@ -1,0 +1,321 @@
+plos one plos one plos plosone plos one 1932 - 6203 public library of science san francisco , ca usa 29149210 5693437 10.1371 / journal.pone.0188183 pone - d - 17 - 25639 research articlebiology and life sciencesmolecular biologymolecular biology techniquesartificial gene amplification and extensionpolymerase chain reactionresearch and analysis methodsmolecular biology techniquesartificial gene amplification and extensionpolymerase chain reactionbiology and life sciencesgeneticsgenetic locicomputer and information sciencescomputer softwareopen source softwarescience policyopen scienceopen source softwareresearch and analysis methodsmathematical and statistical techniquesstatistical methodsmonte carlo methodphysical sciencesmathematicsstatistics ( mathematics ) statistical methodsmonte carlo methodbiology and life sciencesgeneticsdnadna damagebiology and life sciencesbiochemistrynucleic acidsdnadna damagebiology and life sciencesgeneticshereditygenetic mappingvariant genotypesmedicine and health sciencesdiagnostic medicineclinical laboratory sciencesforensicssocial scienceslaw and legal sciencesforensicssocial scienceslaw and legal sciencescriminal justice systemcriminal investigations development and validation of open - source software for dna mixture interpretation based on a quantitative continuous model new open - source software for dna mixture interpretation manabe sho conceptualizationfunding acquisitionmethodologysoftwarevalidationwriting - original draft1 morimoto chie validationwriting - review & editing1 hamano yuya data curation12 fujimoto shuntaro validation1 http :// orcid.org / 0000 - 0003 - 2664 - 0471 tamaki keiji funding acquisitionproject administrationsupervisionwriting - review & editing1 * 1 department of forensic medicine , kyoto university graduate school of medicine , kyoto , japan 2 forensic science laboratory , kyoto prefectural police headquarters , kyoto , japan calafell francesc editor universitat pompeu fabra , spain competing interests : the authors have declared that no competing interests exist .
+* e - mail : ktamaki @ fp.med.kyoto - u.ac.jp 17 11 2017 2017 12 11 e0188183 7 7 2017 2 11 2017 ( c ) 2017 manabe et al 2017 manabe et althis is an open access article distributed under the terms of the creative commons attribution license , which permits unrestricted use , distribution , and reproduction in any medium , provided the original author and source are credited .
+in criminal investigations , forensic scientists need to evaluate dna mixtures .
+the estimation of the number of contributors and evaluation of the contribution of a person of interest ( poi ) from these samples are challenging .
+in this study , we developed a new open - source software " kongoh " for interpreting dna mixture based on a quantitative continuous model .
+the model uses quantitative information of peak heights in the dna profile and considers the effect of artifacts and allelic drop - out. by using this software , the likelihoods of 1 - 4 persons' contributions are calculated , and the most optimal number of contributors is automatically determined ; this differs from other open - source software .
+therefore , we can eliminate the need to manually determine the number of contributors before the analysis .
+kongoh also considers allele - or locus - specific effects of biological parameters based on the experimental data .
+we then validated kongoh by calculating the likelihood ratio ( lr ) of a poi 's contribution in true contributors and non - contributors by using 2 - 4 person mixtures analyzed through a 15 short tandem repeat typing system .
+most lr values obtained from kongoh during true - contributor testing strongly supported the poi 's contribution even for small amounts or degraded dna samples .
+kongoh correctly rejected a false hypothesis in the non - contributor testing , generated reproducible lr values , and demonstrated higher accuracy of the estimated number of contributors than another software based on the quantitative continuous model .
+therefore , kongoh is useful in accurately interpreting dna evidence like mixtures and small amounts or degraded dna samples .
+this work was supported by the japan society for the promotion of science ( jsps ) kakenhi grant number 16h05273 and 14j03372.data availabilitythe software source code is freely available at github ( https :// github.com / manabe0322 / kongoh / releases ) .
+testing set for dna degradation and pcr inhibition are obtained from the publicly available data sets in project research openness for validation with empirical data ( provedit : http :// search.bu.edu ) .
+the kyoto university graduate school and faculty of medicine ethics committee has placed data sharing restrictions to protect personal information .
+therefore , with respect to the profiles of dna mixtures and the genotypes of each individual , the sample approval allowed us to use these data for this study only .
+the datasets generated and / or analyzed during the current study are not publicly available owing to participant confidentiality , but will be available from the corresponding author on reasonable request after obtaining ethical approvals from the ethics committee of kyoto university graduate school and faculty of medicine ( http :// www.ec.med.kyoto - u.ac.jp / index.html ) .
+data availability the software source code is freely available at github ( https :// github.com / manabe0322 / kongoh / releases ) .
+testing set for dna degradation and pcr inhibition are obtained from the publicly available data sets in project research openness for validation with empirical data ( provedit : http :// search.bu.edu ) .
+the kyoto university graduate school and faculty of medicine ethics committee has placed data sharing restrictions to protect personal information .
+therefore , with respect to the profiles of dna mixtures and the genotypes of each individual , the sample approval allowed us to use these data for this study only .
+the datasets generated and / or analyzed during the current study are not publicly available owing to participant confidentiality , but will be available from the corresponding author on reasonable request after obtaining ethical approvals from the ethics committee of kyoto university graduate school and faculty of medicine ( http :// www.ec.med.kyoto - u.ac.jp / index.html ) .
+introduction in forensic casework , the dna typing system for short tandem repeat ( str ) loci is used for criminal investigations .
+str alleles of approximately 15 loci are amplified simultaneously in the polymerase chain reaction ( pcr ) process , and the repeated numbers are determined through the observed allelic peaks in capillary electrophoresis .
+as commercially available kits are highly sensitive , the correct genotype is usually identified using less than 1 ng of human genomic dna .
+the likelihood ratio ( lr ) is often used for interpreting dna evidence by calculating the weight of the evidence from the ratio of likelihood of a prosecution hypothesis ( e.g. , a suspect is a contributor ) and that of a defense hypothesis ( e.g. , a suspect is not a contributor ) .
+if lr > 1 , the evidence supports the prosecution hypothesis ; however , if lr < 1 , the evidence supports the defense hypothesis .
+however , forensic scientists often need to evaluate dna mixtures of two or more individuals in criminal investigations .
+the estimation of the number of contributors and evaluation of the contribution of a person of interest ( poi ) , such as victim or suspect , by using these samples is very challenging .
+the obtaining of complete profiles from these samples may not be feasible because some alleles might not be recorded if the peak they generate is below a threshold ( i.e. , allelic drop - out ) .
+small allelic peaks derived from the minor contributors in a dna sample may not be distinguished from artifacts called - 1 backward stutter peaks ( i.e. , one repeat shorter than the allele ) , which result from the slippage product of the str allele in the pcr process [ 1 ] .
+the three types of lr - based interpretational models for mixtures and small amount of dna samples are binary , semi - continuous ( qualitative continuous ) , and fully continuous ( quantitative continuous ) .
+the conventional method of interpreting dna mixture is based on a binary model , wherein the probability of the evidence is assigned as zero or one [ 2 ] .
+in general , this model does not use peak height information ( i.e. , unrestricted combinatorial approach [ 2 ]) , and does not consider allelic drop - out ; therefore , it cannot be employed for interpreting small amounts of dna profiles .
+the qualitative continuous model allows for improved interpretation of these profiles by using the drop - out probability [ 3 ] .
+although the open - source software based on this model has been developed ( e.g. , lrmix studio [ 4 ] and lab retriever [ 5 ]) , this model does not use peak height information , and the user must call peaks as alleles and assign stutter peaks .
+therefore , stutter peaks can be assigned as allelic and accounted for as an extra contributor .
+some countries have begun using a quantitative continuous model to calculate rigorous lr values for investigating whether a poi is a contributor in a crime stain profile .
+in this model , the peak height information is used and allelic drop - outs are considered for calculating the probability of obtaining a profile , given all possible genotype combinations of the contributors .
+therefore , a fixed filter for removing stutter peaks does not require to be used for determining whether a peak in the stutter position represents a stutter or an allele .
+thus , this model can avoid the subjectivity induced by forensic scientists [ 6 ] .
+software have been developed based on the quantitative continuous models : dna.view mixture solutiontm , liraht [ 7 ] , dnamixtures [ 8 ] , euroformix [ 9 ] , and likeltd [ 10 ] use the gamma distribution to model peak heights , while ceesit [ 11 ] uses normal distribution .
+furthermore , strmix [ 12 ] and trueallele [ 13 ] perform markov chain monte carlo simulation to estimate the distributions of peak heights by incorporating many biological parameters .
+however , there are some problems in these current software based on the quantitative continuous model .
+all software based on the model are commercial or proprietary , except for euroformix , likeltd , and ceesit .
+the lack of availability of software has inhibited comparative studies .
+in open - source software likeltd and ceesit , we can hypothesize only up to three contributors in the mixture .
+furthermore , the number of contributors must be determined manually before the software analysis in all three open source software .
+in the current study , we developed a new open - source software called kongoh ( the japanese word for " mixture ") based on a quantitative continuous model .
+the software consists of a graphical user interface written in r language ( version 3.3.2 ) [ 14 ] and the source code is freely available at github ( https :// github.com / manabe0322 / kongoh / releases ) .
+unlike other open - source software , likelihood values in both hypotheses of up to four contributor ( s ) are automatically calculated , and the number that shows maximum likelihood is regarded as the best number .
+therefore , the number of contributors does not need to be determined manually before software analysis .
+in kongoh , lr is calculated as a ratio of the maximum likelihood in the prosecution hypothesis and that in the defense hypothesis .
+furthermore , likelihood calculation is based on the biological parameters determined through experimental data to interpret dna mixture accurately .
+in this study , we validated the software by referring to the guidelines for the validation of probabilistic genotyping systems published by the scientific working group on dna analysis methods ( swgdam ) [ 15 ] .
+we performed the validations based on the following metrics : sensitivity ( i.e. , lr of true contributors ) , specificity ( i.e. , lr of non - contributors ) , precision ( i.e. , reproducibility of lr values ) , accuracy of calculations , and case - type samples .
+calculations in kongoh were compared with those obtained from a binary model , a qualitative continuous model ( lrmix studio ) , and another quantitative continuous model ( euroformix ) and the differences or the similarities of the results were checked .
+we also investigated the accuracy of the estimated number of contributors in each model .
+methods dna profiles used in kongoh the profile of 15 str loci typed by the identifiler ( r ) plus system can be interpreted using the current version of kongoh .
+the system is run for 28 amplification cycles .
+the pcr products are analyzed using an abi 3130xl genetic analyzer with 10 - s injection time , and the data are analyzed using genemappertm software ( thermo fisher scientific ) .
+we used 30 relative fluorescence units ( rfu ) as the analytical threshold ( at ) for peak detection .
+the peak located at the position of the - 1 backward stutter does not need to be designated as an allele or stutter because the derivation of the peak can be determined probabilistically by using kongoh .
+forward stutters and - 2 backward stutters are not considered in the current version of kongoh because these peaks are considerably small and not relevant for mixture interpretation [ 16 ] .
+kongoh also considers allelic drop - out , as explained in the s1 appendix .
+allelic drop - in , which refers to small unexpected peaks , does not need to be considered in 28 cycles because drop - in tends to be observed for higher amplification cycles [ 17 ] .
+if drop - in peaks are observed , they are explained by additional unknown contributors in kongoh [ 8 ] .
+lrs the lr compares the conditional probabilities of obtaining the crime stain profile ( csp ) under the prosecution hypothesis ( hp ) and defense hypothesis ( hd ) .
+a poi is assumed present under hp but not under hd. the lr is defined as follows : lr = f ( csp | hp ) f ( csp | hd ) ( 1 ) if lr > 1 , the evidence supports hp , but if lr < 1 , the evidence supports hd. for dna mixture interpretation based on the quantitative continuous model in kongoh , the numerator and denominator of the right - hand side term in eq ( 1 ) are calculated as follows : f ( csp | h )= productlsumif ( cspl | gl,i ) pr ( gl,i | h ) ( 2 ) where f ( cspl | gl,i ) is the probability density of obtaining the csp given an ith ( i = 1 , 2 ,... i ) genotype combination gl,i of all contributors in locus l. f ( cspl | gl,i ) is called weight ( wl,i ) , which represents a goodness of fit of the observed peak heights to the genotype combination gl,i [ 12 ] .
+pr ( gl,i | h ) is the probability of obtaining gl,i given a hypothesis h , which represents the contributor combination ( e.g. , poi and two unknowns contribute to csp ) .
+in other words , pr ( gl,i | h ) represents the frequency of the genotype combination gl,i. the sub - population effect can be considered for calculating the genotype frequency in kongoh .
+gl,i sets differ as per the number of contributors hypothesized in h. eq ( 1 ) for the lr is rewritten as follows : lr = productlsumiwl,ipr ( gl,i | hp ) productlsumi'wl,i'pr ( gl,i '| hd ) ( 3 ) where gl ,( 1,2 ,... , i ) are specified by hp and gl ,( 1,2 ,... , i ') are specified by hd. in the binary model , the wl,i or wl,i ' values are assigned zero or one depending on whether the evidence is deemed impossible or possible if it originated from the specified genotype combinations .
+in the quantitative continuous model , the wl,i or wl,i ' values are determined continuously by comparing the observed peak heights with the expected peak heights calculated using biological parameters .
+these equations have also been used in other software based on the quantitative continuous model [ 12 ] ; however , we changed some parameters and the computational principle .
+in kongoh , the wl,i or wl,i ' values are determined using the following five biological parameters : mixture ratio ( mrn ) , dna degradation ( d ) , locus - specific amplification efficiency ( ael ) , heterozygote balance ( hbal ) , and stutter ratio ( sral ) .
+the subscripts of each parameter denote the contributor ( n ) , allele ( a ) , or locus ( l ) .
+the variance of these parameters was considered according to the peak height values .
+to estimate the distributions of the expected peak heights , a monte carlo simulation is performed based on the probability distributions of the five parameters determined through the experimental data [ 18 , 19 ] .
+the peak heights generated through the simulation are then approximated using gamma distributions .
+the likelihoods of 1 - 4 contributors in both hp and hd are calculated according to eq ( 2 ) , and the number that shows maximum likelihood is regarded as best ( i.e. , the best h ) .
+the likelihoods of any number of contributors can be theoretically calculated ; however , there is a practical computational time limit that restricts kongoh to a maximum of four contributors .
+mrn and d are also estimated based on the maximum likelihood in both hp and hd. in kongoh , lr is calculated as the ratio of the maximum likelihood in hp to that in hd ; therefore , the hypothesized numbers of contributors may be different in hp and hd. for example , if a poi 's genotype is ( 10 , 11 ) in the mixed profile shown in fig 1 , explaining the mixture as a two - person contribution in hp will be difficult because of the heterozygous peak imbalance of the poi and the other contributor .
+thus , three or more contributors are required in hp. on the other hand , the mixture can be easily explained as two contributors in hd by considering the genotype combination of ( 9 , 10 ) and ( 11 , 12 ) .
+10.1371 / journal.pone.0188183.g001 fig 1 example of the crime stain profile ( csp ) in a single locus .
+fig 2 shows the procedure for calculating the lr in eq ( 3 ) .
+first , we calculated wl,i of all gl,i for 1 - 4 contributors .
+then , we set hypotheses ( h ) , which represent the contributor combinations .
+we investigate both hp and hd by changing the number of contributors from one to four .
+we can incorporate other known profiles ( e.g. , a victim 's profile ) in both hp and hd. next , we calculate the likelihoods of obtaining csp in all h using allele frequencies in a target population and wl,i. after the likelihoods of all h ( i.e. , both hp and hd in 1 - 4 contributors ) are calculated , an lr value is calculated using the ratio of the maximum likelihood in hp to that in hd. we have provided a detailed explanation of the procedure in the s1 appendix .
+10.1371 / journal.pone.0188183.g002 fig 2 procedure for calculating lr in kongoh .
+testing set kongoh was validated using 27 two - person mixtures , 27 three - person mixtures , and 18 four - person mixtures .
+these mixtures were experimentally prepared using non - degraded dna from pristine blood samples .
+we created three sets of two - person mixtures , in which the dna samples of each pair were mixed in ratios of 1:1 , 3:1 , and 9:1 .
+further , we created three sets of three - person mixtures , in which the dna samples of each trio were mixed in ratios of 1:1:1 , 3:2:1 , and 8:1:1 .
+finally , we created two sets of four - person mixtures , in which the dna samples of each quartet were mixed in ratios of 1:1:1:1 , 4:3:2:1 , and 7:1:1:1 .
+we chose the contributors' combinations in some mixtures to have many masked / shared alleles .
+for example , the maximum number of alleles was four in one set of three - and four - person mixture each ; therefore , these mixtures could be considered as two - person contributions ( s1 fig ) .
+the total dna concentration of each mixture was adjusted to 0.1 , 0.05 , and 0.025 ng / mul , and 10 mul dna solutions of all the mixtures were analyzed according to the description in " dna profiles used in kongoh " .
+all blood donors signed written consent forms prior to donation .
+this study was approved by the ethics committee of kyoto university graduate school and faculty of medicine ( number g1051 ) and conducted according to the guidelines approved by that committee .
+the committee has placed data sharing restrictions to protect personal information .
+therefore , with respect to the profiles of dna mixtures and the genotypes of each individual , the sample approval allowed us to use these data for only this study .
+the datasets generated and / or analyzed during the current study are not publicly available owing to participant confidentiality , but will be available from the corresponding author on reasonable request after obtaining ethical approvals from the ethics committee of kyoto university graduate school and faculty of medicine ( http :// www.ec.med.kyoto - u.ac.jp / index.html ) .
+we also investigated 4 two - person profiles through dna degradation by uv exposure and 4 two - person profiles with pcr inhibition by using humic acid , which were obtained from the publicly available data sets in project research openness for validation with empirical data ( provedit : http :// sites.bu.edu / grgicak / provedit /) .
+these dna samples were already amplified using the identifiler plus kit with 28 cycles , and analyzed using an abi 3130xl genetic analyzer with 10 - s injection time .
+validation by referring to the swgdam guidelines we validated kongoh by referring to the swgdam guidelines [ 15 , 20 ] .
+developmental validation of the swgdam guidelines includes conceptual validation [ 21 ] , that is , publishing the underlying scientific principle ( s ) of the software in a peer - reviewed scientific journal .
+the underlying principles and characteristics of kongoh have been discussed in " likelihood ratios ," and a detailed explanation is provided in the s1 appendix .
+developmental validation also includes operational validation [ 21 ] , that is sensitivity , specificity , precision , accuracy , and case - type samples .
+for calculating lr in sensitivity validation , we designated two pois in each mixture .
+one poi was the contributor with the largest amount of dna , and the other was the contributor with the smallest amount of dna .
+for example , in a mixture with person a : person b : person c = 3:2:1 , we first designated person a as the major poi and persons b and c as unknown contributors .
+second , we designated person c as the minor poi and persons a and b as unknown contributors .
+we also selected person a or c as poi and remaining persons as unknown contributors in the 1:1:1 mixture .
+then , we calculated two lr values for the major and minor pois in each mixture .
+in specificity validation , we computationally generated genotypes of 100 non - contributors based on japanese allele frequencies [ 22 ] , and then calculated the lr assuming each non - contributor as a poi in six mixtures each of two - , three - , and four - persons .
+the precision validation was performed by repeating the lr calculation of true contributors and non - contributors .
+we then investigated the correlation of lr values between each run through pearson 's product - moment correlation test using r language [ 14 ] .
+p < 0.05 was considered statistically significant .
+for accuracy validation , we confirmed the accuracy of each calculation performed using the kongoh program .
+the testing set included case - type samples of stutter , masked / shared alleles , differential and preferential amplifications , degradation , and inhibition .
+the following mixtures were the samples in which distinguishing minor allelic peaks from stutters was difficult : 9:1 , 8:1:1 , and 7:1:1:1 .
+four - person mixtures or samples with different dna amount between contributors ( e.g. , 9:1 mixtures ) had some masked / shared alleles .
+in particular , one set each of three - and four - person mixtures could be explained as two contributors because of many masked / shared alleles .
+differential amplification is defined as the selection of one locus over another during the pcr [ 23 ] .
+preferential amplification is defined as the unequal sampling of two heterozygote alleles present in a locus due to stochastic fluctuation arising when only a few dna molecules are used to initiate the pcr [ 23 ] .
+differential and preferential amplifications could potentially occur in small amounts of dna samples , mixtures with minor contributors , and dna degradation .
+we used profiles with dna degradation and those with pcr inhibition obtained from the provedit dataset .
+to calculate genotype frequencies in the likelihoods , japanese allele frequencies [ 22 ] were used for our experimental dataset , and caucasian allele frequencies [ 24 ] were used for the provedit dataset .
+comparative studies with other models the lr values generated from true - contributor testing were compared with those of a binary model , lrmix studio ( version 2.1.3 ) , and euroformix ( version 1.7 ) .
+we used the same 6 two - person , 6 three - person , and 6 four - person mixtures as those used in non - contributor testing .
+the lr values of all models were also calculated according to the ratio of maximum likelihoods in hp and hd assuming a 1 - 4 person contribution .
+for the binary model , all the mixtures were genotyped using 150 rfu as the at and - 1 backward stutters were removed by the stutter filters in each locus .
+in general , 150 rfu corresponds to the threshold for avoiding the interpretation of dna profiles with allelic drop - out [ 25 ] ; therefore , we used the threshold as a substitute for at in the binary model .
+the likelihoods were calculated using lrmix studio by setting the drop - out probability pr ( d ) = 0 , the drop - in probability pr ( c ) = 0 , and the theta correction fst = 0 ( i.e. , without considering sub - population effect in the validation ) .
+in lrmix studio , pr ( d ) was determined by the maximum likelihood estimation in each hypothesis of 1 - 4 contributors [ 26 ] .
+we set pr ( c ) = 0 and fst = 0 , which is the same condition as that in the kongoh analysis .
+all the mixtures were genotyped using 30 rfu as the at and - 1 backward stutters were removed using the stutter filters .
+in euroformix , we again set pr ( c ) = 0 and fst = 0 .
+we considered the effect of degradation and stutter .
+all mixtures were genotyped using 30 rfu as the at and the stutter filters were removed .
+determination of the number of contributors we confirmed the accuracy of the estimated number of contributors in each mixture .
+the confirmation was performed by comparing the likelihoods of 1 - 4 unknown contributors , and the number showing the maximum likelihood was determined as the number of contributors .
+we then compared the results with those of the binary model , lrmixstudio , and euroformix using the same 6 two - person , 6 three - person , and 6 four - person mixtures as those used in non - contributor testing .
+results lrs in true - contributor testing we validated sensitivity using profiles of 27 two - person mixtures , 27 three - person mixtures , and 18 four - person mixtures , including samples of various dna amounts and mixture ratios , without degradation and inhibition .
+we considered a true major contributor and a true minor contributor as pois in each mixture , and calculated the lr values of each poi ( fig 3 ) .
+the lr values tended to decrease as the amount of dna of the poi decreased .
+the lr values of the poi with more than 0.1 ng tended to be greater than 10,000 , which can be considered as a " very strong evidence to support " the contribution by the poi [ 27 ] .
+even in the case - type samples , wherein it is difficult to distinguish small allelic peaks from stutter peaks , and with allelic products of minor contributor ( s ) masked by large allelic peaks , the lr values in true - contributor testing showed high sensitivity .
+for example , in a 4 - person mixture with many masked / shared alleles ( s1 fig ) , the lr values for the major and minor pois were 2.27 x 1016 and 4.47 x 108 , respectively .
+in mixtures with allelic drop - outs due to small amounts of dna , lr values were greater than one if the number of drop - outs was less than four .
+however , there were five mixtures that exhibited lr < 1 ( i.e. , type i errors ) .
+the dna amount of the poi in these five mixtures was only 25 or 42 pg , and 5 - 11 drop - outs of poi alleles were confirmed .
+10.1371 / journal.pone.0188183.g003 fig 3 plots of poi 's dna amount vs lr values in true - contributor testing .
+the red , green , and blue plots represent lr values of two - person , three - person , and four - person mixtures , respectively .
+lrs in non - contributor testing for validating specificity , we calculated the lr values of computationally generated 100 non - contributor genotypes by using 18 mixtures ( fig 4 ) .
+all the lr values of the non contributors were below one ; therefore , there were no type ii errors ( i.e. , failure to reject a false hypothesis ) .
+on the other hand , all the mixtures indicated that the lr values of the true contributor were greater than those of any other non - contributor .
+these tendencies were also observed in case - type samples of 9:1 , 8:1:1 , and 7:1:1:1 mixtures with masked / shared alleles , difficulty in distinguishing minor allelic peaks from stutter peaks , and allelic drop - outs of the minor poi .
+while the lr values of the true minor contributor in 2 four - person mixtures ( i.e. , 4:3:2:1 and 7:1:1:1 with 0.25 ng dna ) were smaller than 10,000 , most lr values of the non - contributors in these mixtures were significantly small ( i.e. , lr < 1 / 10,000 ) .
+10.1371 / journal.pone.0188183.g004 fig 4 lr values in non - contributor testing are shown in white circles .
+the red and blue plots represent lr values of the major and minor pois , respectively .
+reproducibility of lrs for validating precision , we repeated the lr calculation of all 72 mixtures in true - contributor testing and 18 mixtures in non - contributor testing and compared the results of two runs ( fig 5 ) .
+the plots lie close to the x = y diagonal line ; therefore , there is little variation between each run .
+the pearson 's correlation coefficient ( r ) was 0.999932 , and the two runs demonstrated a significantly strong correlation ( p < 2.2 x 10 - 16 ) .
+in true - contributor testing , the larger lr values were within twice the smaller lr values between two runs in 94.4 % mixtures .
+the ratio of the larger lr to the smaller lr between two runs was at most 3.4 ( i.e. , lr = 3.33 x 109 and 9.83 x 108 in a 1:1:1 mixture with 1 ng dna of the poi ) .
+in non - contributor testing , the difference of lr values between each run increased slightly .
+the maximum ratio of the larger lr to the smaller lr between two runs was 10.7 ( i.e. , lr = 1.49 x 10 - 17 and 1.39 x 10 - 18 in a 4:3:2:1 mixture with 1 ng total dna ) .
+however , in 93.4 % non - contributor testing , the larger lr values were within 5 times the smaller lr values .
+therefore , there is no discrepancy in the supporting hypothesis between the two runs .
+10.1371 / journal.pone.0188183.g005 fig 5 lr values of two runs .
+the red and blue plots represent the results of true - contributor and non - contributor testing , respectively .
+the black line represents the x = y diagonal line and r is the correlation coefficient obtained by pearson 's product - moment correlation test .
+accuracy of calculations performed by kongoh swgdam also recommends that studies should assess the accuracy of the calculations performed by the software .
+we confirmed the accuracy of each calculation performed by the kongoh program , that is , the sampling from the probability distributions of biological parameters , gamma approximation of the expected peak heights , probability density of the observed peak heights given the expected peak heights , calculation of genotype frequencies , and calculation of lr. we also confirmed that the lr values for a major poi in mixtures with completely determined genotype of the poi through the peak height information ( e.g. , lr of a major poi in 9:1 mixture shown in fig 4 ) were the same as those of the reciprocal of the poi genotype frequency .
+lrs of case - type samples the testing set that includes case - type samples of stutter , masked / shared alleles , and small amounts of dna has high sensitivity , specificity , and precision as shown in figs 3 - 5 .
+we also interpreted the profiles of degradation and inhibition , which were obtained from the provedit dataset .
+we investigated 3 two - person mixture profiles with degradation through uv exposure and 3 two - person mixture profiles with inhibition through humic acid .
+these profiles were 1:4 mixtures of the same two persons , and the total dna amount was 0.155 ng ; however , dna conditions were different in each .
+these dna samples were already genotyped using the identifiler plus kit .
+the dna damage methods and calculation results of these profiles are shown in table 1 .
+10.1371 / journal.pone.0188183.t001 table 1 dna damage method and calculation results of degradation and inhibition profiles .
+dna damage method estimated d valuea lr ( minor poi ) lr ( major poi ) uv 15 min - 0.0025 2.55 x 107 3.44 x 1019 uv 60 min - 0.005 1.62 x 103 2.59 x 1014 uv 105 min - 0.0075 1.27 x 105 2.16 x 1019 humic acid 15 microl 0 1.86 x 1011 2.24 x 1022 humic acid 22 microl 0 3.62 x 106 1.65 x 1022 humic acid 35 mul 0 4.71 x 108 2.16 x 1022 a estimated d values in each mixture were the same in both hp and hd. in samples with uv exposure , the lr values of the true major poi were strongly supportive of the contribution even in the samples with highly damaged dna ( table 1 ) .
+the lr values of the true minor poi were comparatively smaller than those of the major poi but greater than 100,000 , except for the sample with 60 min uv exposure .
+bright et al. showed that the peak height exponentially decreases with increasing molecular weight of the pcr fragment [ 28 ] .
+we confirmed 9 - 10 drop - outs of the minor poi alleles ; these tended to be observed at loci with higher molecular weight alleles .
+dna degradation parameters ( d ) reflect the degree of degradation and tend to be smaller with increasing dna damage , as explained in s1 appendix .
+the estimated d values demonstrated negative correlation with uv exposure times in both hp and hd ( table 1 ) .
+therefore , kongoh was able to deal with peak heights appropriately in degraded samples .
+loci with lower molecular weight alleles were effective for elucidating a poi 's contribution .
+in samples with inhibition through humic acid , the lr values of the true poi were strongly supportive of the contribution , even in the case of 2 - 7 drop - outs of the minor contributor .
+unlike samples with uv exposure , peak heights did not correlate with molecular weights because inhibitors may act at each locus in the same manner regardless of the molecular weights .
+therefore , the dna degradation parameters were estimated as zero ( i.e. , no degradation ) .
+comparison of obtained lrs with those of other models we compared the lr values of kongoh with those of a binary model , a qualitative continuous model ( lrmix studio ) , and another quantitative continuous model ( euroformix ) to confirm the differences or similarities among the results .
+the lr values of true - contributor testing in the quantitative continuous model are expected to be greater than those in the binary and qualitative continuous models because peak height information is used in the quantitative continuous model .
+both kongoh and euroformix are based on the quantitative continuous model ; therefore , the lr values are expected to be similar. by using 18 mixtures , kongoh generally tended to generate higher lr values than the binary and lrmix studio models , especially in mixtures with different dna amounts among contributors ( figs 6 - 8 ) .
+in mixtures containing the same dna amounts from all contributors ( i.e. , 1:1 , 1:1:1 , and 1:1:1:1 ) , the peak heights had little influence on the increasing of the lr values in kongoh from those in the binary and lrmix studio because similar weights were obtained in each genotype combination without allelic imbalance .
+although the lr values of the minor poi in the binary model were mostly zero owing to some of their alleles dropping out ( i.e. , less than 150 rfu for the analytical threshold in the binary model ) , high lr values were obtained using kongoh .
+in lrmix studio , lr = 0 was avoided in mixtures with small dna amount of poi by using the drop - out probability ( pr ( d )) .
+however , strongly supportive lr values ( i.e. , lr > 10,000 ) were not obtained in some minor contributors ( e.g. , 9:1 , 3:2:1 , or 8:1:1 with 0.25 ng dna ) .
+kongoh generated high lr values in two - and three - person mixtures with small amounts of dna .
+10.1371 / journal.pone.0188183.g006 fig 6 lr values of four models in two - person mixtures .
+white , light grey , dark grey , and black bars indicate the lr values of binary model , lrmix studio , euroformix , and kongoh , respectively .
+( a ) lr values of major poi .
+( b ) lr values of minor poi .
+the asterisks indicate that the lr of binary is zero .
+10.1371 / journal.pone.0188183.g007 fig 7 lr values of four models in three - person mixtures .
+white , light grey , dark grey , and black bars indicate the lr values of binary model , lrmix studio , euroformix , and kongoh , respectively .
+( a ) lr values of major poi .
+( b ) lr values of minor poi .
+the asterisks indicate that the lr of binary is zero .
+10.1371 / journal.pone.0188183.g008 fig 8 lr values of four models in four - person mixtures .
+white , light grey , dark grey , and black bars indicate the lr values of binary model , lrmix studio , euroformix , and kongoh , respectively .
+( a ) lr values of the major poi .
+( b ) lr values of the minor poi .
+the asterisks indicate that the lr of binary is zero .
+the lr values of kongoh tended to be similar to those of euroformix even in four - person mixtures ; therefore , kongoh could deal with peak heights appropriately based on the quantitative continuous model .
+however , some lr values of the minor pois in four - person mixtures were less than 10,000 in both kongoh and euroformix .
+in addition , lr variation was observed in minor poi of 7:1:1:1 mixtures with 0.25 ng dna and with three drop - out alleles of the poi ( fig 8b ) .
+this may be attributed to the difference in the computational principle of estimating peak height variances between kongoh and euroformix especially in small amounts of dna samples with drop - outs .
+kongoh estimates peak height distributions by using the monte carlo simulation based on experimental data to consider allele - or locus - specific effects .
+in euroformix , the expected peak heights are modeled broadly by using gamma distribution , thus providing a versatile method regardless of allele - or locus - specific effects .
+accuracy of the number of contributors we also investigated the accuracy of the number of contributors by comparing the likelihoods of 1 - 4 unknown contributors .
+the number with the maximum likelihood was determined as the number of contributors .
+for determining the number of contributors , kongoh demonstrated higher accuracy than any other model ( table 2 ) .
+using the binary model , the number of contributors was correctly determined in only 8 out of 18 mixtures ( table 2 ) .
+in lrmix studio and euroformix , we may have slight confidence in the determined number because the difference between the maximum likelihood and the second - best likelihood was within 5 times in all mixtures ( s1 table and s2 table ) .
+10.1371 / journal.pone.0188183.t002 table 2 rate of correctly determined number of contributors in four models .
+mixture binary lrmix studio euroformix kongoh two - person 5 / 6 5 / 6 5 / 6 6 / 6 three - person 3 / 6 0 / 6 3 / 6 6 / 6 four - person 0 / 6 5 / 6 3 / 6 2 / 6 in kongoh , the number of contributors was correctly determined in all two - and three - person mixtures .
+the maximum likelihoods were more than 30 times larger than the second - best likelihoods in all mixtures ( s2 table ) .
+four incorrect estimates were observed in four - person mixtures .
+in particular , in the 7:1:1:1 mixture with 0.25 ng dna , determining the number of contributors was difficult owing to 14 drop - out alleles and allelic peaks to be distinguished from stutter peaks .
+in addition , there was slight difference between the maximum likelihood and the second - best likelihood in four - person mixtures even though the number was correctly estimated ( s2 table ) .
+therefore , it is difficult to support the estimated number of contributors strongly in four - person mixtures .
+in the total testing set without degradation or inhibition , the number of contributors was correctly determined in 25 out of 27 two - person mixtures , 22 out of 27 three - person mixtures , and 7 out of 18 four - person mixtures using kongoh .
+while the estimation was especially difficult in four - person mixtures , estimation of the number of contributors in mixtures with 1 ng dna could be done with high accuracy ( i.e. , eight out of nine two - person mixtures , eight out of nine three - person mixtures , and four out of six four - person mixtures ) .
+in all two - person mixtures with degradation or inhibition , the number of contributors was correctly determined as two .
+three - and four - person mixtures with degradation or inhibition will be investigated in future work .
+other remarks when we calculated the lr of 72 mixtures by hypothesizing 1 - 4 contributors , the runtime of analyzing one mixture was approximately 10 h on a standard desktop computer .
+when we hypothesized 1 - 3 contributors , the runtime was significantly reduced to only a few minutes .
+the mixture ratios in both hp and hd were nearly exactly estimated for all mixtures including the degraded samples except for those when the number of contributors was incorrectly estimated .
+the estimated mixture ratios in hd are shown in s3 table for mixtures used for the comparative studies and s4 table for mixtures with degradation or inhibition .
+the degradation parameters of all the mixtures without degradation were also correctly estimated as zero ( i.e. , no degradation ) .
+discussion we developed a new open - source software kongoh based on a quantitative continuous model for dna evidence interpretation .
+the software automatically calculates the lr values by the ratio of the maximum likelihood in a prosecution hypothesis and in defense hypothesis .
+therefore , it does not need to determine the number of contributors manually .
+however , the number of contributors is generally specified as the same value in both hypotheses prior to analysis .
+presciuttini and egeland regarding hypotheses states that if we are interested in whether the poi is a contributor or not , other parameters such as the number of contributors need to be the same in both prosecution and defense hypothesis [ 29 ] .
+the most probable number of contributors estimated by kongoh in both hypotheses may be different sometimes , but gill et al. mentioned that there is no reason for the numbers to be the same under alternative hypotheses [ 30 ] .
+kongoh outputs all the likelihoods of 1 - 4 contributors in both hypotheses as well as the lr value using their maximum likelihoods .
+therefore , users can select the likelihoods for any number of contributors to calculate lr. in the current version of kongoh , we need to prepare profiles typed by the identifiler plus kit and analyzed by the abi 3130xl genetic analyzer because kongoh incorporates allele - or locus - specific effects of the typing condition by using experimental data .
+if we have the experimental data of each parameter from other typing kits or sequencers , we will interpret profiles typed by other systems using kongoh .
+however , the gamma model ( e.g. , euroformix ) provides a versatile method by modelling the expected peak heights broadly , regardless of the allele - or locus - specific effects .
+in this study , kongoh demonstrated higher accuracy of the estimated number of contributors than euroformix due to incorporating the allele - or locus - specific effects of the system .
+therefore , the likelihood values expect to be calculated more rigorously by considering the allele - or locus - specific effects than without these effects .
+we validated kongoh by referring to the swgdam guidelines , and the lr values generated by kongoh demonstrated high sensitivity , specificity , and precision even in case - type samples .
+kongoh generated larger lr values than binary and qualitative continuous models , even when some alleles of minor contributors were dropped out .
+we then confirmed similarities in the lr values obtained by kongoh and other software of the quantitative continuous model ( euroformix ) .
+the estimated dna degradation parameters demonstrated correlation with uv exposure times .
+therefore , kongoh was found to deal with peak heights appropriately based on the quantitative continuous model .
+furthermore , kongoh achieved higher accuracy of the estimated number of contributors than any other models .
+therefore , kongoh is useful in accurate interpretation of dna evidence such as mixtures and small amounts or degraded dna samples .
+however , some mixtures generated small lr values in true - contributor testing , especially in four - person mixtures with small amount of dna , many masked / shared alleles , and many allelic drop - outs .
+in addition , determining the number of contributors was especially difficult in four - person mixtures because there was little difference between the likelihood values of each hypothesized contributor .
+therefore , there is a limitation on the number of contributors being more than three in the current identifiler plus system .
+we also have to determine the limitation in dna with degradation or with pcr inhibition by using three - and four - person mixtures .
+additionally , we should calculate lr values by considering the analysis of replicates in the same sample after dna extraction .
+allelic drop - out and heterozygote imbalance stochastically occur in each pcr amplification ; therefore , it is common to perform multiple replicates of genotyping to help assess these stochastic effects [ 4 , 31 ] .
+kongoh is useful for accurate interpretation of dna evidence , such as mixtures and small amounts of dna samples .
+in future , we intend to apply kongoh to newer str typing kits with high sensitivity by considering the effect of other artifacts such as forward stutters and - 2 backward stutters .
+supporting information s1 appendix detailed explanation of the calculation principle of the software .
+( pdf ) click here for additional data file .
+s1 table likelihoods of 1 - 4 unknown contributors in binary model and lrmix studio .
+boldface denotes the likelihood of the estimated number .
+( pdf ) click here for additional data file .
+s2 table likelihoods of 1 - 4 unknown contributors in euroformix and kongoh .
+boldface denotes the likelihood of the estimated number .
+( pdf ) click here for additional data file .
+s3 table estimated mixture ratio in samples without dna damage .
+( pdf ) click here for additional data file .
+s4 table estimated mixture ratio in degraded or inhibited 1:4 mixtures with 0.155 ng .
+( pdf ) click here for additional data file .
+s1 fig an example of a profile analyzed by genemappertm software .
+the profile is a 4 - person mixture with 1 ng dna and the mixture ratio is 7:1:1:1 .
+the mixture could be considered as two - person contribution because of many masked / shared alleles .
+( pdf ) click here for additional data file .
+we are very grateful to ryo yamada for his critique and insightful discussion on the manuscript .
+this work was supported by jsps kakenhi grant number 16h05273 and 14j03372 .
+references 1 clayton tm , whitaker jp , sparkes r , gill p . analysis and interpretation of mixed forensic stains using dna str profiling . forensic sci int .
+1998 ; 91 : 55 - 70 . 9493345 2 gill p , brenner ch , buckleton js , carracedo a , krawczak m , mayr wr , et al dna commission of the international society of forensic genetics : recommendations on the interpretation of mixtures . forensic sci int .
+2006 ; 160 : 90 - 101 . doi : 10.1016 / j.forsciint.2006.04.009 16750605 3 gill p , gusmao l , haned h , mayr wr , morling n , parson w , et al dna commission of the international society of forensic genetics : recommendations on the evaluation of str typing results that may include drop - out and / or drop - in using probabilistic methods . forensic sci int genet .
+2012 ; 6 : 679 - 88 . doi : 10.1016 / j.fsigen.2012.06.002 22864188 4 haned h , slooten k , gill p . exploratory data analysis for the interpretation of low template dna mixtures . forensic sci int genet .
+2012 ; 6 : 762 - 74 . doi : 10.1016 / j.fsigen.2012.08.008 22981542 5 lohmueller ke , rudin n . calculating the weight of evidence in low - template forensic dna casework . j forensic sci. 2013 ; 58 : s243 - s9 . doi : 10.1111 / 1556 - 4029.12017 23082963 6 kelly h , bright j - a , buckleton js , curran jm . a comparison of statistical models for the analysis of complex forensic dna profiles . sci justice .
+2014 ; 54 : 66 - 70 . doi : 10.1016 / j.scijus.2013.07.003 24438780 7 puch - solis r , rodgers l , mazumder a , pope s , evett i , curran j , et al evaluating forensic dna profiles using peak heights , allowing for multiple donors , allelic dropout and stutters . forensic sci int genet .
+2013 ; 7 : 555 - 63 . doi : 10.1016 / j.fsigen.2013.05.009 23948327 8 cowell rg , graversen t , lauritzen sl , mortera j . analysis of forensic dna mixtures with artefacts . appl statist .
+2015 ; 64 : 1 - 48 . 9 bleka o , storvik g , gill p . euroformix : an open source software based on a continuous model to evaluate str dna profiles from a mixture of contributors with artefacts . forensic sci int genet .
+2016 ; 21 : 35 - 44 . doi : 10.1016 / j.fsigen.2015.11.008 26720812 10 steele cd , greenhalgh m , balding dj . evaluation of low - template dna profiles using peak heights . stat appl genet mol biol .
+2016 ; 15 : 431 - 45 . doi : 10.1515 / sagmb - 2016 - 0038 27416618 11 swaminathan h , garg a , grgicak cm , medard m , lun ds . ceesit : a computational tool for the interpretation of str mixtures . forensic sci int genet .
+2016 ; 22 : 149 - 60 . doi : 10.1016 / j.fsigen.2016.02.005 26946255 12 taylor d , bright j - a , buckleton j . the interpretation of single source and mixed dna profiles . forensic sci int genet .
+2013 ; 7 : 516 - 28 . doi : 10.1016 / j.fsigen.2013.05.011 23948322 13 perlin mw , legler mm , spencer ce , smith jl , allan wp , belrose jl , et al validating trueallele ( r ) dna mixture interpretation . j forensic sci. 2011 ; 56 : 1430 - 47 . doi : 10.1111 / j.1556 - 4029.2011.01859.x 21827458 14 r core team .
+r : a language and environment for statistical computing .
+r foundation for statistical computing , vienna , austria 2017 available : http :// www.r - project.org / .
+15 scientific working group on dna analysis methods ( swgdam ) .
+guidelines for the validation of probabilistic genotyping systems .
+2015. https :// media.wix.com / ugd / 4344b0 _ 22776006b67c4a32a5ffc04fe3b56515.pdf .
+16 gibb aj , huell a - l , simmons mc , brown rm . characterisation of forward stutter in the ampflstr ( r ) sgm plus ( r ) pcr . sci justice .
+2009 ; 49 : 24 - 31 . 19418925 17 petricevic s , whitaker j , buckleton j , vintiner s , patel j , simon p , et al validation and development of interpretation guidelines for low copy number ( lcn ) dna profiling in new zealand using the ampflstr ( r ) sgm plus ( tm ) multiplex . forensic sci int genet .
+2010 ; 4 : 305 - 10 . doi : 10.1016 / j.fsigen.2009.11.003 20457035 18 manabe s , hamano y , kawai c , morimoto c , tamaki k . development of new peak - height models for a continuous method of mixture interpretation . forensic sci int genet suppl ser .
+2015 ; 5 : e104 - e6 . 19 manabe s , hamano y , morimoto c , kawai c , fujimoto s , tamaki k . new stutter ratio distribution for dna mixture interpretation based on a continuous model . leg med ( tokyo ) .
+2016 ; 19 : 16 - 21 . 26980248 20 bright j - a , taylor d , mcgovern c , cooper s , russell l , abarno d , et al developmental validation of strmix ( tm ) , expert software for the interpretation of forensic dna profiles . forensic sci int genet .
+2016 ; 23 : 226 - 39 . doi : 10.1016 / j.fsigen.2016.05.007 27235797 21 haned h , gill p , lohmueller k , inman k , rudin n . validation of probabilistic genotyping software for use in forensic dna casework : definitions and illustrations . sci justice .
+2016 ; 56 : 104 - 8 . doi : 10.1016 / j.scijus.2015.11.007 26976468 22 yoshida k , takahashi k - i , kasai k . allele frequencies of 15 loci using ampflstr identifiler kit in japanese population . j forensic sci. 2005 ; 50 : 718 - 9 . 15932118 23 quality assurance standards for forensic dna testing laboratories .
+http :// media.wix.com / ugd / 4344b0 _ 4a22824ce56f43d4b1a4d2486409f95d.pdf ( 2011 ) .
+24 hill cr , duewer dl , kline mc , coble md , butler jm . u.s. population data for 29 autosomal str loci . forensic sci int genet .
+2013 ; 7 : e82 - e3 . doi : 10.1016 / j.fsigen.2012.12.004 23317915 25 budowle b , onorato aj , callaghan tf , manna ad , gross am , guerrieri ra , et al mixture interpretation : defining the relevant features for guidelines for the assessment of mixed dna profiles in forensic casework . j forensic sci. 2009 ; 54 : 810 - 21 . doi : 10.1111 / j.1556 - 4029.2009.01046.x 19368620 26 bleka o , benschop ccg , storvik g , gill p . a comparative study of qualitative and quantitative models used to interpret complex str dna profiles . forensic sci int genet .
+2016 ; 25 : 85 - 96 . doi : 10.1016 / j.fsigen.2016.07.016 27529774 27 evett iw , jackson g , lambert ja , mccrossan s . the impact of the principles of evidence interpretation on the structure and content of statements . sci justice .
+2000 ; 40 : 233 - 9 . doi : 10.1016 / s1355 - 0306 ( 00 ) 71993 - 9 11094820 28 bright j - a , taylor d , curran j , buckleton js . degradation of forensic dna profiles . aust j forensic sci. 2013 ; 45 : 445 - 9 . 29 presciuttini s , egeland t . about the number of contributors to a forensic sample . forensic sci int genet .
+2016 ; 25 : e18 - e9 . doi : 10.1016 / j.fsigen.2016.08.005 27526619 30 gill p , haned h , bleka o , hansson o , dorum g , egeland t . genotyping and interpretation of str - dna : low - template , mixtures and database matches - - twenty years of research and development . forensic sci int genet .
+2015 ; 18 : 100 - 17 . doi : 10.1016 / j.fsigen.2015.03.014 25866376 31 steele cd , greenhalgh m , balding dj . verifying likelihoods for low template dna profiles using multiple replicates . forensic sci int genet .
+2014 ; 13 : 82 - 89 . doi : 10.1016 / j.fsigen.2014.06.018 25082140

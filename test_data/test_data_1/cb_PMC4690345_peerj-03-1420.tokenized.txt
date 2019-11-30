@@ -1,0 +1,170 @@
+peerj peerj peerj peerj peerj 2167 - 8359 peerj inc .
+san francisco , usa 26713226 4690345 1420 10.7717 / peerj.1420 biodiversitybioinformaticsenvironmental sciencesmicrobiologymolecular biology swarm v2 : highly - scalable and high - resolution amplicon clustering mahe frederic 1 mahe @ rhrk.uni - kl.de rognes torbjorn 23 torognes @ ifi.uio.no quince christopher 4 de vargas colomban 56 dunthorn micah 1 1 department of ecology , technische universitat kaiserslautern , kaiserslautern , germany 2 department of informatics , university of oslo , oslo , norway 3 department of microbiology , oslo university hospital , rikshospitalet , oslo , norway 4 warwick medical school , university of warwick , warwick , united kingdom 5 umr 7144 , epep - evolution des protistes et des ecosystemes pelagiques , station biologique de roscoff , cnrs , roscoff , france 6 umr7144 station biologique de roscoff , sorbonne universites , upmc univ paris 06 , roscoff , france van wezel gilles 10 12 2015 2015 3 e1420 4 8 2015 31 10 2015 ( c ) 2015 mahe et al .
+2015 mahe et al.this is an open access article distributed under the terms of the creative commons attribution license , which permits unrestricted use , distribution , reproduction and adaptation in any medium and for any purpose provided that it is properly attributed .
+for attribution , the original author ( s ) , title , publication source ( peerj ) and either doi or url of the article must be cited .
+previously we presented swarm v1 , a novel and open source amplicon clustering program that produced fine - scale molecular operational taxonomic units ( otus ) , free of arbitrary global clustering thresholds and input - order dependency .
+swarm v1 worked with an initial phase that used iterative single - linkage with a local clustering threshold ( d ) , followed by a phase that used the internal abundance structures of clusters to break chained otus .
+here we present swarm v2 , which has two important novel features : ( 1 ) a new algorithm for d = 1 that allows the computation time of the program to scale linearly with increasing amounts of data ; and ( 2 ) the new fastidious option that reduces under - grouping by grafting low abundant otus ( e.g. , singletons and doubletons ) onto larger ones .
+swarm v2 also directly integrates the clustering and breaking phases , dereplicates sequencing reads with d = 0 , outputs otu representatives in fasta format , and plots individual otus as two - dimensional networks .
+environmental diversity barcoding molecular operational taxonomic units deutsche forschungsgemeinschaft # du1319 / 1 - 1epsrc career acceleration fellowshipep / h003851 / 1eu eranet biodiversa program biomarks # 2008 - 6530french government " investissements d'avenir " project oceanomicsanr - 11 - btbr - 0008eu fp7 program microb3287589fm and md were supported by the deutsche forschungsgemeinschaft ( grant # du1319 / 1 - 1 ) .
+cq is funded by an epsrc career acceleration fellowship - - ep / h003851 / 1 .
+cdev were supported by the eu eranet biodiversa program biomarks ( grant # 2008 - 6530 ) and the french government " investissements d'avenir " project oceanomics ( anr - 11 - btbr - 0008 ) and the eu fp7 program microb3 ( contract number 287589 ) .
+the funders had no role in study design , data collection and analysis , decision to publish , or preparation of the manuscript .
+introduction traditional de novo amplicon clustering methods that can handle large high - throughput sequencing datasets ( e.g. , edgar , 2010 ; ghodsi , liu & pop , 2011 ; fu et al. , 2012 ) suffer from two fundamental problems .
+first , they rely on an arbitrary fixed global clustering threshold to group amplicons into molecular operational taxonomic units ( otus ) .
+global clustering thresholds have rarely been justified and are not applicable to all taxa and marker lengths ( e.g. , caron et al. , 2009 ; nebel et al. , 2011 ; dunthorn et al. , 2012 ; brown et al. , 2015 ) .
+second , there is variability in the clustering results due to amplicon input order ( koeppel & wu , 2013 ; mahe et al. , 2014 ) .
+to solve these problems , we previously introduced the open source swarm v1 program that implemented an initial clustering phase written in c + + , then a breaking phase written in python ( mahe et al. , 2014 ) .
+swarm 's clustering phase ( fig. 1a ) was novel in its approach to single linkage clustering in that , instead of using a global clustering ( e.g. , hartmann et al. , 2012 ; huse et al. , 2010 ) , amplicons were iteratively added together using a small local clustering threshold ( d ) until no more amplicons could be added .
+using d = 1 produced the highest resolution otus .
+swarm 's breaking phase ( fig. 1b ) was novel in that it used the abundance of amplicons to reveal the internal structure of potentially chained otus ( i.e. , a low abundant link between high abundant amplicons ) .
+these chained otus were then refined by splitting them .
+10.7717 / peerj.1420 / fig - 1 figure 1 schematic view of swarm 's clustering and refinement approach .
+( a ) swarm clusters amplicons iteratively by using a small user - chosen local threshold , d , allowing otus to grow to their natural limits , where no other amplicons can be added .
+( b ) swarm takes into account the abundance of each amplicon to produce higher resolution clusters , by not allowing the formation of amplicon chains .
+the darker the red , the higher the abundance .
+( c ) the fastidious option avoids under - grouping ( e.g. , the production of small otus such as singletons and doubletons ) by postulating the existence of virtual linking amplicons to graft smaller otus onto larger ones .
+since its introduction , swarm v1 has been used in a variety of datasets ( de vargas et al. , 2015 ; filker et al. , 2015 ; lima - mendez et al. , 2015 ; mahe et al. , 2015 ; oikonomou et al. , 2015 ) .
+however , since the breaking phase was written in python , it lacked scalability and was cumbersome to use .
+kopylova et al .
+( pers. comm. , 2015 ) also found that in comparison to other clustering methods , swarm v1 tended to produce relatively more low abundant otus ; e.g. , singletons and doubletons. and most importantly , swarm v1 and other current de novo algorithms could not cluster today 's largest high - throughout sequencing datasets within a reasonable amount of time ( rideout et al. , 2014 ) .
+here we introduce swarm v2 to help solve these problems , as well as to introduce new and useful features .
+material and methods linear complexity de novo clustering approach today 's largest amplicon datasets contain hundreds of millions of amplicons and pose a computational challenge to de novo clustering methods .
+because of this scalability problem , rideout et al .
+( 2014 ) proposed using a mixed clustering approach with an initial closed - reference clustering that compares the amplicons to what is known in taxonomic reference databases to capture most of the data , followed by a de novo clustering with the remaining amplicons .
+we feel that using only de novo clustering is the most powerful approach when working with amplicons from unexplored environments that lack sufficient taxonomic reference databases , or with rare taxa that were previously missed in already - sampled environments .
+we therefore worked to improve swarm 's scalability .
+like other current de novo clustering approaches , swarm v1 presented an apparent quadratic behavior in that it needs to perform a number of comparisons that grows as the square of the number of amplicons .
+in swarm v2 , we first reduced computational time by improving the multithreading and making a better usage of multi - core cpus .
+we further reduced computational time by using a novel algorithmic approach .
+this linear complexity approach only applies for d = 1 , which is swarm 's default and preferred parameter as it produces the highest resolution clusters .
+as background to this linear approach , let us consider a nucleic sequence s made of as , cs , gs and ts. a " microvariant " is a sequence with one difference ( d = 1 ) to the original sequence s. how many distinct microvariants can derive from s ?
+in a sequence s of length l , each position can be substituted with 3 different bases , so there are 3l possible microvariants due to substitutions .
+each position in s can be deleted once , so there are l possible microvariants due to deletions .
+insertions are more complicated .
+an insertion can happen before or after each position in the sequence s , and four different nucleotides can be inserted resulting in 4 ( l + 1 ) microvariants .
+however , some insertions will result in the same microvariant : for example , inserting a " g " before or after a " g " will result in the same sequence " gg. " as that situation arises for all positions in s but one , the maximum number of distinct insertions is not 4 ( l + 1 ) , but 3 ( l + 1 ) + 1 = 3l + 4 .
+in total , the maximum number of microvariants that can be obtained from a given sequence s of length l is 3l + l + 3l + 4 = 7l + 4 .
+as stated above , different sequence modifications can produce the same microvariant .
+the final number of distinct microvariants depends on the number of homopolymer stretches in the sequence .
+in the extreme situation where the sequence is entirely made of one type of nucleotide , the number of microvariants due to deletions drops from l to 1 .
+for example , if s is entirely made of " g ," all possible deletions yield the same microvariant .
+the total number of distinct microvariants then drops to its minimum value : 3l + 1 + 3 ( l + 1 ) + 1 = 6l + 5 .
+the number of distinct microvariants that can be obtained from a sequence s of length l then varies from 6l + 5 to 7l + 4 .
+in practice , it means that a typical high - throughput sequencing 16s rrna sequence of 130 nucleotides will yield at least 785 microvariants and at most 914 , and that the number of microvariants will increase linearly with the sequence length. with current sequencing technologies read length increases at a slower rate than read number , and is safe to assume it will continue to do so in the foreseeable future .
+based on these characteristics of microvariants , we switched from an approximate - string comparison approach to an exact - string comparison approach. that is , for a given amplicon , instead of doing an exact pairwise alignment comparison against all available amplicons in the pool that have yet to be subsumed into an otu , swarm v2 generates all possible microvariants of the amplicon and checks whether or not they are present in the amplicon pool using a hash table .
+this exact - string search approach is extremely fast , and does not depend on the number of available amplicons in the pool .
+therefore , the apparent computational complexity changes from n2 to n x l , where l is the average amplicon length .
+reducing under - grouping as observed by kopylova et al .
+( pers. comm. , 2015 ) , swarm v1 tended to produce relatively more low abundant otus ; e.g. , singletons and doubletons .
+this problem is due to swarm 's approach that depends on the existence of a continuous path of linked amplicons .
+linking amplicons can be missing , especially when sequencing is shallow .
+when this occurs , there can be under - grouping of closely related amplicons leading to small otus surrounding a larger otu .
+to address this problem in swarm v2 , we introduced a new step - - called the fastidious option - - to graft low abundant otus onto more abundant ones by postulating a linking amplicon ( fig. 1c ) .
+a low abundant otu is defined as an otu with a total abundance lower than 3 , i.e. , an abundance of one ( singletons ) or two ( doubletons ). that default threshold value can be modified by users with the option - b. in practice , microvariants ( independent of the microvariants produced in the clustering phase ) are produced for all the amplicons belonging to low abundant otus and stored in a bloom filter ( a probabilistic dictionary ) .
+microvariants are then produced for high - abundant amplicons and cross - checked against the bloom filter .
+the fastidious option can consume a large amount of memory , but is apparently linear in terms of computation time ( see results ) .
+the user does have control over memory usage and can exchange memory space for computation time .
+as of now , the fastidious option can only be used with d = 1 , which is swarm 's default and recommended d value. with higher d values , the time and space complexity of our fastidious algorithm grows too fast to be practical .
+the fastidious option can be viewed as a way to reduce data loss , as many researchers conservatively consider low abundant otus as spurious errors and remove them from downstream analyses ( behnke et al. , 2011 ; kunin et al. , 2010 ). with the fastidious option , though , one can retain many of these amplicons by attaching them to more abundant otus .
+in contrast with an increase of d , the fastidious option does not slow down computation and does not degrade the clustering resolution ; i.e. , it reduces the under - grouping of amplicons without inducing much over - grouping ( see section " statistics on mock - communities " in file s1 ) .
+other new and useful features in swarm v2 we introduce a number of options improving both speed and usability .
+first , there is a simpler user command line interface .
+for example , the breaking phase is now written in c + + and is performed directly during the growth phase , which further significantly reduces computation time .
+we chose to implement a strict , simple , non - parametric breaking model that prevents any increase in abundance along a continuous amplicon path ( fig. 1b ) .
+breaking of linked chains can be deactivated .
+second , swarm v2 extends the notion of clustering by allowing the option d = 0 .
+users can now dereplicate their sequencing reads into strictly identical amplicons ( sensu mahe et al. , 2015 ; i.e. , reads that have exactly the same sequences with no substitutions , insertions , or deletions ) .
+this fast dereplication approach uses the same algorithm as in vsearch ( https :// github.com / torognes / vsearch ) .
+third , swarm v2 can output otu representative amplicons in fasta format .
+a representative is the most abundant amplicon of an otu , and its abundance is updated to reflect the total otu abundance .
+otu representatives are normally used for downstream community - comparative , novel - diversity , and ecosystem - functioning questions .
+fourth , swarm v2 offers the possibility to visualize the internal structure of otus , which allows the user to gain further knowledge of its underlying genetic and ecological diversity ( figs. 2 and 3 ) .
+these plots are in the form of a network projected in two - dimensions .
+edges in these networks only represent the parameter d used ; the length of the edges carries no information .
+the nodes in the networks represent amplicons .
+the abundance information of these amplicons is represented in three ways : the size of the node , the color of the node , and text when its abundance value is 10 or more .
+analyses to demonstrate the apparent linear complexity of swarm v2 , we analyzed 16s rrna reads from the earth microbiome project ( gilbert , jansson & knight , 2014 ) , which is the largest amplicon dataset currently available .
+the following swarm commands were used : swarm - d 1 in.fasta , and swarm - d 1 - f in.fasta .
+to illustrate over - and under - grouping of amplicons , the importance of the breaking phase , high - resolution clustering , and swarm 's ability to visualize otus' internal structures , we used 18s rrna amplicon data from the biomarks consortium ( logares et al. , 2014 ) that sampled european near - shore marine sites .
+the pr2 v203 reference database was used for taxonomic assignment ( guillou et al. , 2013 ) .
+the full methods can be found online in html format ( file s1 ) .
+results and discussion time and space benchmarks for d = 1 , swarm 's default parameter , using the full - and sub - datasets of the earth microbiome project we were able to evaluate swarm v2 's clustering time and memory usage .
+these timing experiments were obtained with swarm v2.1.1 on a machine with 1,024 gb of ram running red hat centos v6.6 and linux kernel v3.9.1 on four intel xeon e5 - 4620 processors ( 2.2 ghz ) having a total of 32 physical cores .
+swarm was run with 8 threads ( option " - t 8 ") , breaking activated ( default behaviour ) , and memory limited to 240 gb (" - c 245760 ") .
+the times indicated below are the averages of four runs. with the sub - dataset of 154,896,650 strictly identical amplicons ( representing 1,277,640,415 reads ) , swarm without the fastidious option took 1 h and 45 min +/ - 1 min. with the full - dataset of 314,871,149 strictly identical amplicons ( representing 2,254,207,945 reads ) , swarm without the fastidious option took 3 h and 41 min +/ - 1 min .
+doubling of dataset size approximately doubles the run time , confirming the apparent linear time complexity .
+therefore , if the size of the earth microbiome project were to increase ten times , it should take about ten times longer to cluster it ( less than two days ) .
+these fast times of swarm v2 contrast with the estimated computational time of uclust v6.1 as inferred by rideout et al .
+( 2014 ) .
+using a smaller partial - dataset of the earth microbiome project consisting of only 660,000,000 reads ( that dereplicate into a unspecified number of strictly identical amplicons ) , rideout et al .
+( 2014 ) estimated uclust 's runtime to 150 days on a 8 - core computer. with the sub - dataset representing 24 gb of input data , the memory usage of swarm v2 with d = 1 was 41 gb. with the full - dataset representing 49 gb of input data , the memory usage was 86 gb. memory requirements can therefore be estimated to be approximately equal to the size of the input dataset plus 2 / 3 .
+when clustering at d = 1 and using the fastidious option , the total computational time of the sub - dataset was 4 h and 59 min +/ - 1 min , which resulted in 40.0 % fewer otus in total .
+the total computational time of the full - dataset took 11 h and 28 min +/ - 5 min , which resulted in 38.3 % fewer otus in total .
+this considerable reduction in the number of singletons and doubletons in both datasets helps solve the problem found by kopylova et al .
+( pers. comm. , 2015 ) .
+the computation time is about three times longer when using the fastidious option than without it. the total memory usage of d = 1 with the fastidious option for the sub - dataset was 114 gb , while it was 239 gb ( capped ) for the full - dataset .
+this amount of memory might not be available to all users .
+therefore we have implemented two options to control and cap memory usage of the fastidious option : by defining the maximum memory footprint , and by adjusting the size of the bloom filter entries .
+both of these options allow users to trade computational time for memory space .
+otu visualizations we provide examples of swarm v2 's graphical representation of the internal structure of its high - resolution otus by using v4 and v9 18s rrna amplicons .
+in both cases the breaking phase and fastidious option were turned off. with the v9 data ( about 129 bp in length ) , the graph shows two high abundant otus linked by one lower abundant amplicon ( fig. 2 ) .
+the number of nucleotide differences between these two linked otus is only two , or about 98.4 % similarity .
+if the breaking phase and fastidious option were applied to these v9 amplicons , nine separate otus would have been formed : two high abundant , and seven low abundant .
+these two high abundant otus are taxonomically assigned to different genera of collodaria ( radiolaria ) .
+on the same v9 amplicons , uclust v6 ( as well as v7 and v8 ) using a global clustering threshold of 97 % similarity produced 37 otus ( one high abundant , and 36 low abundant ) .
+the one high abundant otu from uclust lumped the two collodaria genera , thus masking meaningful biological data .
+10.7717 / peerj.1420 / fig - 2 figure 2 graphical representation of an otu produced by swarm ( breaking and grafting phases deactivated ) when clustering the biomarks 18s rrna v9 dataset ( amplicons are appr. 129 bp in length ) .
+nodes represent amplicons .
+node size , color and text annotations represent the abundance of each amplicon .
+edges represent one difference ( substitution , deletion or insertion ) ; the length of the edges carries no information .
+the red - colored edge indicates where swarm 's breaking phase cuts when it is not deactivated , resulting into two high abundant otus , each being assigned to a different genus of collodaria ( radiolaria ). with the v4 amplicons ( about 380 bp in length ) , the graph shows three high abundant otus linked by one to three low abundant amplicons ( fig. 3 ) .
+the number of nucleotide differences between these three linked otus is only two and four , or about at least 98.9 % similarity .
+if the breaking phase and fastidious option were applied to these v4 amplicons , seven separate otus would have been formed : three high abundant , and four low abundant .
+these three high abundant otus are assigned to different taxa of cnidaria .
+on the same v4 amplicons , uclust v6 ( as well as v7 and v8 ) produced only one otu with the widely used global clustering threshold of 97 % similarity , again masking meaningful biological data .
+these amplicon data show that , compared to uclust , swarm v2 can distinguish higher - resolution clusters and reduces both over - grouping and under - grouping on a range of marker lengths .
+in both of these amplicon examples , swarm v2 is able to distinguish different taxa , while uclust conceals them .
+10.7717 / peerj.1420 / fig - 3 figure 3 graphical representation of an otu produced by swarm ( breaking and grafting phases deactivated ) when clustering the biomarks 18s rrna v4 dataset ( amplicons are appr. 380 bp in length ) .
+nodes represent amplicons .
+node size , color and text annotations represent the abundance of each amplicon .
+edges represent one difference ( substitution , deletion or insertion ) ; the length of the edges carries no information .
+the red - colored edges indicate where swarm 's breaking phase cuts when it is not deactivated , resulting into three high abundant otus , each being assigned to a different taxa of cnidaria ( metazoa ) .
+outlook we are currently working on a number of fronts to continue making swarm harder , better , faster , stronger .
+for example , preliminary experiments indicate that with a novel multithreading approach for d >= 2 a ten - fold increase in speed could be obtained ( although d >= 2 will still be quadratic in behavior ) .
+internally encoding nucleotides on two bits instead of eight bits may help reduce both memory consumption and computational time .
+additional computation time can be saved by merging the fastidious option with the initial clustering phase .
+to facilitate its usage , swarm v2 can be included in qiime ( caporaso et al. , 2010 ) , which already offers swarm v1.2 , and in galaxy ( goecks , nekrutenko & taylor , 2010 ) .
+in summary , swarm v2 is a highly - scalable approach that uses a local clustering threshold to produce high - resolution de novo otus and reduces low abundant otus .
+swarm v2 is an optimized c + + program able to handle many hundreds of millions of amplicons .
+it is open source and freely available at https :// github.com / torognes / swarm under the gnu affero general public license version 3 .
+supplemental information 10.7717 / peerj.1420 / supp - 1 file s1 data and code snippets used to produce the results presented in the manuscript click here for additional data file .
+we would like to thank the earth microbiome project for the use of their data and their constructive comments .
+daft punk provided the background music .
+we are grateful to the computational resources at the regional computing center at the university of kaiserslautern , and the abel computing cluster at the university of oslo .
+additional information and declarations competing interests the authors declare there are no competing interests .
+author contributions frederic mahe and torbjorn rognes conceived and designed the experiments , performed the experiments , analyzed the data , wrote the paper , prepared figures and / or tables , reviewed drafts of the paper .
+christopher quince and colomban de vargas conceived and designed the experiments , contributed reagents / materials / analysis tools , reviewed drafts of the paper .
+micah dunthorn conceived and designed the experiments , analyzed the data , wrote the paper , prepared figures and / or tables , reviewed drafts of the paper .
+data availability the following information was supplied regarding data availability : https :// github.com / torognes / swarm .
+references behnke et al .
+( 2011 ) behnke a engel m christen r nebel m klein rr stoeck t depicting more accurate pictures of protistan community complexity using pyrosequencing of hypervariable ssu rrna gene regions environmental microbiology 2 2011 13 340 349 10.1111 / j.1462 - 2920.2010.02332.x 21281421 brown et al .
+( 2015 ) brown ea chain fjj crease tj macisaac hj cristescu me divergence thresholds and divergent biodiversity estimates : can metabarcoding reliably describe zooplankton communities ?
+ecology and evolution 11 2015 5 2234 2251 10.1002 / ece3.1485 26078859 caporaso et al .
+( 2010 ) caporaso jg kuczynski j stombaugh j bittinger k bushman fd costello ek fierer n pena ag goodrich jk gordon ji huttley ga kelley st knights d koenig je ley re lozupone ca mcdonald d muegge bd pirrung m reeder j sevinsky jr turnbaugh pj walters wa widmann j yatsunenko t zaneveld j knight r qiime allows analysis of high - throughput community sequencing data nature methods 5 2010 7 335 336 10.1038 / nmeth.f.303 20383131 caron et al .
+( 2009 ) caron da countway pd savai p gast rj schnetzer a moorthi sd dennett mr moran dm jones ac defining dna - based operational taxonomic units for microbial - eukaryote ecology applied and environmental microbiology 18 2009 75 5797 5808 10.1128 / aem.00298 - 09 19592529 de vargas et al .
+( 2015 ) de vargas c audic s henry n decelle j mahe f logares r lara e berney c le bescot n probert i carmichael m poulain j romac s colin s aury j - m bittner l chaffron s dunthorn m engelen s flegontova o guidi l horak a jaillon o lukes j malviya s morard r mulot m scalco e siano r vincent f zingone a dimier c picheral m searson s kandels - lewis s tara oceans coordinators acinas sg bork p bowler c gorsky g grimsley n hingamp p iudicone d not f ogata h pesant s raes j sieracki me speich s stemman l sunagawa s weissenbach j wincker p karsenti e eukaryotic plankton diversity in the sunlit global ocean science 6237 2015 348 1261605 10.1126 / science.1261605 25999516 dunthorn et al .
+( 2012 ) dunthorn m klier j bunge j stoeck t comparing the hyper - variable v4 and v9 regions of the small subunit rdna for assessment of ciliate environmental diversity journal of eukaryotic microbiology 2 2012 59 185 187 10.1111 / j.1550 - 7408.2011.00602.x 22236102 edgar ( 2010 ) edgar rc search and clustering orders of magnitude faster than blast bioinformatics 19 2010 26 2460 2461 10.1093 / bioinformatics / btq461 20709691 filker et al .
+( 2015 ) filker s gimmler a dunthorn m mahe f stoeck t deep sequencing uncovers protistan plankton diversity in the portuguese ria formosa solar saltern ponds extremophiles 2 2015 19 283 295 10.1007 / s00792 - 014 - 0713 - 2 25472012 fu et al .
+( 2012 ) fu l niu b zhu z wu s li w cd - hit : accelerated for clustering the next - generation sequencing data bioinformatics 23 2012 28 3150 3152 10.1093 / bioinformatics / bts565 23060610 ghodsi , liu & pop ( 2011 ) ghodsi m liu b pop m dnaclust : accurate and efficient clustering of phylogenetic marker genes bmc bioinformatics 1 2011 12 271 10.1186 / 1471 - 2105 - 12 - 271 21718538 gilbert , jansson & knight ( 2014 ) gilbert j jansson j knight r the earth microbiome project : successes and aspirations bmc biology 1 2014 12 69 10.1186 / s12915 - 014 - 0069 - 1 25184604 goecks , nekrutenko & taylor ( 2010 ) goecks j nekrutenko a taylor j the galaxy team galaxy : a comprehensive approach for supporting accessible , reproducible , and transparent computational research in the life sciences genome biology 8 2010 11 article r86 10.1186 / gb - 2010 - 11 - 8 - r86 guillou et al .
+( 2013 ) guillou l bachar d audic s bass d berney c bittner l boutte c burgaud g de vargas c decelle j del campo j dolan j dunthorn m edvardsen b holzmann m kooistra w lara e le bescot n logares r mahe f massana r montresor m morard r not f pawlowski j probert i sauvadet a - l siano r stoeck t vaulot d zimmermann p christen r the protist ribosomal reference database ( pr2 ) : a catalog of unicellular eukaryote small sub - unit rrna sequences with curated taxonomy nucleic acids research d1 2013 41 d597 d604 10.1093 / nar / gks1160 23193267 hartmann et al .
+( 2012 ) hartmann m howes cg vaninsberghe d yu h bachar d christen r henrik nilsson r hallam sj mohn ww significant and persistent impact of timber harvesting on soil microbial communities in northern coniferous forests isme journal 12 2012 6 2199 2218 10.1038 / ismej.2012.84 22855212 huse et al .
+( 2010 ) huse sm mark welch d morrison hg sogin ml ironing out the wrinkles in the rare biosphere through improved otu clustering environmental microbiology 7 2010 12 1889 1898 10.1111 / j.1462 - 2920.2010.02193.x 20236171 koeppel & wu ( 2013 ) koeppel af wu m surprisingly extensive mixed phylogenetic and ecological signals among bacterial operational taxonomic units nucleic acids research 10 2013 41 5175 5188 10.1093 / nar / gkt241 23571758 kunin et al .
+( 2010 ) kunin v engelbrektson a ochman h hugenholtz p wrinkles in the rare biosphere : pyrosequencing errors can lead to artificial inflation of diversity estimates environmental microbiology 1 2010 12 118 123 10.1111 / j.1462 - 2920.2009.02051.x 19725865 lima - mendez et al .
+( 2015 ) lima - mendez g faust k henry n decelle j colin s carcillo f chaffron s ignacio - espinosa jc roux s vincent f bittner l darzi y wang j audic s berline l bontempi g cabello am coppola l cornejo - castillo fm d'ovidio f de meester l ferrera i garet - delmas m - j guidi l lara e pesant s royo - llonch m salazar g sanchez p sebastian m souffreau c dimier c picheral m searson s kandels - lewis s tara oceans coordinators gorsky g not f ogata h speich s stemmann l weissenbach j wincker p acinas sg sunagawa s bork p sullivan mb karsenti e bowler c de vargas c raes j determinants of community structure in the global plankton interactome science 6237 2015 348 1262073 10.1126 / science.1262073 25999517 logares et al .
+( 2014 ) logares r audic s bass d bittner l boutte c christen r claverie j - m decelle j dolan jr dunthorn m edvardsen b gobet a kooistra whcf mahe f not f ogata h pawlowski j pernice mc romac s shalchian - tabrizi k simon n stoeck t santini s siano r wincker p zingone a richards ta de vargas c massana r patterns of rare and abundant marine microbial eukaryotes current biology 8 2014 24 813 821 10.1016 / j.cub.2014.02.050 24704080 mahe et al .
+( 2015 ) mahe f mayor j bunge j chi j siemensmeyer t wahl b paprotka t filker s dunthorn m comparing high - throughput platforms for sequencing the v4 region of ssu - rdna in environmental microbial eukaryotic diversity survey journal of eukaryotic microbiology 3 2015 62 338 345 10.1111 / jeu.12187 25312509 mahe et al .
+( 2014 ) mahe f rognes t quince c de vargas c dunthorn m swarm : robust and fast clustering method for amplicon - based studies peer journal 2014 2 e1420 10.7717 / peerj.593 nebel et al .
+( 2011 ) nebel m pfabel c stock a dunthorn m stoeck t delimiting operational taxonomic units for assessing ciliate environmental diversity using small - subunit rrna gene sequences environmental microbiology reports 2 2011 3 154 158 10.1111 / j.1758 - 2229.2010.00200.x 23761246 oikonomou et al .
+( 2015 ) oikonomou a filker s breiner h - w stoeck t protistan diversity in a permanently stratified meromictic lake ( lake alatsee , sw germany ) environmental microbiology 6 2015 17 2144 2157 10.1111 / 1462 - 2920.12666 25330396 rideout et al .
+( 2014 ) rideout jr he y navas - molina ja walters wa ursell lk gibbons sm chase j mcdonald d gonzalez a robbins - pianka a clemente jc gilbert ja huse sm zhou h - w knight r caporaso jg subsampled open - reference clustering creates consistent , comprehensive otu definitions and scales to billions of sequences peerj 2014 2 e1420 10.7717 / peerj.545

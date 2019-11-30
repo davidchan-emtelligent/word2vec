@@ -1,0 +1,142 @@
+101245791 32393 immunome res immunome res immunome research 1745 - 7580 28747991 5524134 nihms877546 article a computational pipeline to generate mhc binding motifs wang peng 1 sidney john 1 sette alessandro 1 peters bjoern 1 * 1 la jolla institute for allergy & immunology , 9420 athena circle , la jolla , ca 92037 , usa * corresponding author : pw : pwang @ liai.org , js : jsidney @ liai.org , as : alex @ liai.org , bp : bpeters @ liai.org 23 5 2017 5 2011 24 7 2017 7 2 3licensee nikolai petrovsky publishing .
+this is an open access article distributed under the terms of the creative commons attribution license ( http :// creativecommons.org / licenses / by / 2.0 ) , which permits unrestricted use , distribution , and reproduction in any medium , provided the original work is properly cited .
+background major histocompatibility complex ( mhc ) class i molecules play key roles in host immunity against pathogens by presenting peptide antigens to cd8 + t - cells .
+many variants of mhc molecules exist , and each has a unique preference for certain peptide ligands .
+both experimental approaches and computational algorithms have been utilized to analyze these peptide mhc binding characteristics .
+traditionally , mhc binding specificities have been described in terms of binding motifs .
+such motifs classify certain peptide positions as primary and secondary anchors according to their impact on binding , and they list the preferred and deleterious residues at these positions .
+this provides a concise and easily communicatable summary of mhc binding specificities .
+however , so far there has been no algorithm to generate such binding motifs in an automated and uniform fashion .
+results in this paper , we present a computational pipeline that takes peptide mhc binding data as input and produces a concise mhc binding motif .
+we tested our pipeline on a set of 18 mhc class i molecules and showed that the derived motifs are consistent with historic expert assignments .
+conclusions we have implemented a pipeline that formally codifies rules to generate mhc binding motifs .
+the pipeline has been incorporated into the immune epitope database and analysis resource ( iedb ) and motifs can be visualized while browsing mhc alleles in the iedb .
+background a central process in host immunity against pathogenic antigens is the presentation of peptide ligands by mhc class i molecules to cd8 + cytotoxic t - cells [ 1 ] .
+the mhc class i molecule consists of two chains , a heavy chain with three domains ( alpha1 , alpha2 and alpha3 ) and a small beta - 2 microglobulin unit [ 2 ] .
+peptides are presented in a groove formed between alpha1 and alpha2 domains .
+the mhc class i binding groove is in a closed conformation since both ends of the groove are blocked by large aromatic residues .
+this limits the length of the presented peptides to 8 - 10 amino acids .
+despite the relatively limited length , a single mhc molecule is capable of presenting peptides of tremendous diversity [ 3 ] and discovering novel peptide ligands remains a challenging task .
+a hallmark of the interaction between peptide ligands and mhc class i molecule is the existence of anchors .
+the anchor residues , typically found at position 2 and the and c - terminus of a peptide , form extensive networks of hydrogen bonds with mhc class i molecule and contribute the most to binding energy [ 4 ] .
+a large number of experimental studies have been carried out to determine anchor positions and their associated residue preference for mhc class i molecules .
+those studies revealed significant diversity in the number of anchors , anchor position as well as the residue preference among different mhc class i molecules .
+a large number of bioinformatics studies have been carried out to analyze mhc peptide binding and develop algorithms to predict high affinity binders [ 5 - 10 ] .
+while the derived machine learning approaches can exhibit good performance for prediction , they do not provide an easily communicable summary of the binding specificity of an mhc allele , which is desired by experimentalists .
+while logo based approaches are popular to display transcription factor binding motifs or conserved protein domains [ 11 - 13 ] , they are less useful to describe mhc binding motifs since they do n't explicitly display anchor information and residue preferences .
+in practice , experimentalists have for decades described the mhc class i binding in terms of anchors and key residues critical for favorable binding .
+there is therefore a need to supply such a summary of binding characteristics .
+in this study , we report our implementation of an automatic computational pipeline to display mhc class i binding motifs in an experimentalist friendly fashion .
+we start by generating scoring matrices from binding data via the stabilized matrix method ( smm ) [ 7 , 14 ] .
+the smm scoring matrices were then analyzed to design a computational algorithm that identifies anchor residues and determines residue preference .
+we have tested the resulting method on a set of 18 mhc class i molecules and compared the results to previously published reports of binding motifs as well as those contained in the syfpeithi database [ 15 ] .
+those comparisons showed that our methods are effective in automatically determining anchor positions and residues preferences in agreement with historic manual assignments .
+finally , we have implemented the pipeline into iedb [ 16 ] , which now provides automatically updated motifs based on the accumulated binding data stored in the database .
+results the mhc class i binding affinity dataset for deriving motif display algorithms the iedb is a comprehensive resource of immune epitopes and currently stores results from over 160,000 peptide : mhc binding affinities .
+for this study , we extracted binding affinities for 18 human and mouse mhc class i molecules from the iedb .
+these mhc class i molecules were selected based on a previous study in which the anchor positions and residue preferences were assigned directly from experimental data by a human expert [ 17 ] , which serves as a gold standard .
+the retrieved peptide binding data for the alleles utilized are summarized in table 1 .
+on average , each mhc class i molecule dataset comprised 776 total data points and 279 binders .
+the hla - a * 0201 molecule had the highest number of data points ( 3,319 ) as well as binders ( 1,392 ) confirming its status as the best studied mhc class i molecules .
+the h - 2 - kk molecule had the smallest number of total data points ( 164 ) and the h - 2 - dd molecule had the smallest number of binders ( 13 ) .
+establishing algorithms to automatically identify anchor positions and residue preference we started by learning scoring matrices from binding data utilizing the smm approach .
+we choose smm since it is one the best performing matrix methods available , and because matrix methods provide a readily interpretable input to assess the relative importance of positions and residues in a peptide for binding .
+the smm matrices were then analyzed to calculate spread factors ( sf ) for each column , defined as the difference between the highest and lowest matrix value .
+for a given peptide position , the sf values can be interpreted as evaluating the difference for binding on a log10 ( ic50 ) scale between having the best or worst amino acid residue at that position .
+we utilized the sf values as input to an algorithm to determine anchor positions in a peptide .
+we heuristically optimized the algorithm , resulting in the procedure outlined in figure 1a as a flow chart .
+the steps in this procedure were chosen to maximize the congruence with past manual assignments of anchor positions for the set of 18 mhc class i molecules identified in the gold standard previous study [ 17 ] .
+a confusion matrix comparing the different assignments is shown in table 2 .
+our automatic method achieved 96.7 % specificity and 82.1 % sensitivity suggesting that it is highly effective in reproducing anchor - and non - anchor positions assignments made by experts .
+after the anchor positions were identified , two separate algorithms were applied to determine residue preference for anchor positions ( figure 1b ) and non - anchor positions ( figure 1c ) .
+for anchor positions , the maximum entry in each column was set as reference .
+the other values in the same column were then compared to the reference to determine residue preference for this position .
+for non - anchor positions , the median value in each column was set as reference and the residue preference was determined following the procedure described in the flow chart .
+we again optimized these algorithms to maximize the agreement of the algorithmically determined preference pattern with that identified in the gold standard expert assignments ( table 3a ). from the data shown in table 3a , it is clear that the residue preference determined by our automatic approach agrees well with those determined by domain experts .
+for example , for hla - a * 0201 our approach identified l and m as preferred residue for anchor position 2 and l and v for anchor position 9 .
+in comparison , the expert assignments based on combinatorial library method designed l as preferred residues for anchor position 2 and v and i as preferred residues for anchor position 9 , and the expert assignments based on pool sequencing motifs approach identified l and m as preferred residues for anchor position 2 and v and l as preferred residues for anchor position 9 .
+having optimized the algorithm , we tested its performance on an independent dataset , namely the mhc binding motifs stored in the syfpeithi database ( table 3b ) .
+our results showed overall consistency with information stored in syfpeithi .
+there were two noticeable differences in anchor positions .
+for hla - a * 3001 , our algorithm designed position 3 as anchor while syfpeithi designed position 2 as anchor .
+for hla - b * 0801 , our automatic algorithm designed three anchors ( position 5 , 6 and 9 ) while syfpeithi designed position 3 as anchor .
+for the remaining 13 alleles for which anchor assignments were made by both approaches , the positions are either identical between the two methods or the positions identified by one method are a subset of the other .
+overall this demonstrates that the anchor positions identified by our algorithm are largely in agreement with the assignments made in the syfpeithi database .
+extend motif display algorithm to multiple lengths for mhc class i alleles while the lengths of mhc class i binding peptides are much more restricted compared to mhc class ii molecules , mhc class i molecules do bind epitopes of different lengths .
+therefore , it is necessary to develop several motifs of peptides with different lengths for the same mhc molecule .
+for example , a large number of epitopes of length 8 as well as 9 have been reported for the mouse mhc class i molecule h2 - kb [ 15 , 18 - 20 ] , so both lengths have to be considered when making motifs .
+at the same time , it is not meaningful to calculate binding motifs for peptide lengths that an mhc allele is unlikely to bind in the first place .
+for example , there are no known 8 - mer t cell epitopes for hla - a * 26 according to either the iedb [ 16 ] or syfpeithi [ 15 ] .
+in order to identify what peptide lengths are meaningful to include for each mhc allele in our motif display algorithms , we implemented a simple cutoff based approach .
+for each allele , we first selected the motif length with the highest number of known binders and designate this length as the default motif .
+additional motif lengths were considered to be viable if there are 200 or more binders contained in the iedb .
+after a motif length is selected , standard motif display algorithm describe in previous section were employed to generate motif of desired length .
+integrate automatic motif display into iedb we have developed a set of python scripts to implement the motif length selection algorithm , automatic anchor and residue preference identification algorithms and display the resulting motifs .
+those programs have been integrated into the iedb and provide users with a visual presentation of mhc class i binding motifs .
+two types of motif displays have been implemented .
+the first approach is a concise display of the classical binding motif ( figure 2a ) .
+this approach does n't provide quantitative information .
+instead , it includes the key characteristics of binding specificity and provides a simple , visual presentation of the underlying motif .
+for alleles where motifs of different lengths are available , a tab based system was utilized and the most preferable motif was marked with "*" .
+in addition , a colored matrix ( figure 2b ) approach was also provided .
+the colored matrix provided detailed information of the binding specificity matrix learned from smm algorithm .
+the contribution of each residue to binding at different positions is represented by a float number that provides a quantitative measurement .
+in order to facilitate visualization , residues are colored according to their contribution to binding , and using a coloring scheme accessible to the color blind .
+these motif displays are now integrated into the mhc allele summary pages ( see for example http :// iedb.org / mhcalleleid / 122 ) of the immune epitope database which are easiest to access through the ' browse by mhc allele ' interface ( http :// iedb.org / bb _ allele.php ) .
+discussion in bioinformatics in general , sequence motifs are a popular approach to describe conservation among e.g. protein domains or transcription factor binding sites .
+several programs have been developed to display such motifs as logos where bigger letters corresponding to higher level of conservation .
+since such traditional motifs are derived from alignments of conserved sequences , extending them to mhc binding motifs has limited use , as they will only contain information about residues that are favorable for binding at each position .
+since deleterious residues provide vital information regarding the binding characteristics of a mhc molecule , an alternative approach has been developed which displays a traditional logo with two parts denoting positive and negative contributions separately [ 21 ] .
+in our approach , quantitative binding data ( binders and non - binders with binding affinities ) were analyzed using the smm algorithm to generate the initial scoring matrix from which the motif is derived .
+both favorable and deleterious residues were then displayed in a single motif .
+our approach was aimed at providing a representation of mhc binding motifs in terms of anchor residues and residue preference as it would have classically been created by an experimentalist .
+such a cartoon like approach provides a concise summary of the motif which is particularly easy to communicate .
+at the same time , we wanted to take advantage of the ability to create these motifs in an automated fashion based on binding data accumulated in the iedb .
+this also for the first time provided a rigorous definition of what it means e.g. for a position to be an ' anchor ' .
+in our algorithm to identify anchor positions , we utilized the fold difference between highest and lowest affinity of any residue at a given position as a straight forward way to assess the impact of a position on binding .
+this outperformed other similar metrics , such as the standard deviation of residue affinities , both in terms of predictive performance and simplicity .
+the cutoffs used in our algorithms were determined via systematic testing of a wide range of parameters and comparing the results against a benchmark set of expert defined binding motifs .
+after finalizing the algorithm , we compared its motifs with those stored in the syfpeithi database , and found an overall high agreement .
+as perfect agreement on a non - quantitative concept such as motifs is impossible to achieve , we are very satisfied with the achieved performance .
+a potential weakness is that we could only utilize a limited set of alleles to empirically tune parameters .
+it is possible that our parameters will not be universally applicable to other alleles and motif construction and visualization in general .
+we will therefore monitor how well the calculated motifs agree with publications over time , and if necessary adjust the heuristic parameters .
+an important strength of our automatic motif display pipeline is to allow the side - by - side comparison of different length motifs for the same allele .
+this capacity allows user to easily carry out further analysis of binding motifs and identify insightful trend in binding .
+for example , two motifs ( length 8 and 9 ) for h2 - kb allele were displayed by the automatic pipeline on iedb website ( http :// iedb.org / mhcalleleid / 122 ) .
+position 3 was identified as anchor in both motifs and the residue preference largely remained the same .
+this suggested that position 3 is critical for binding regardless of epitope length .
+on the other hand , the main anchor at position 5 for motif of length 8 became a non - anchor position for motif of length 9 and the c - terminal residue now became main anchor position for motif of length 9 .
+such changes suggest that as epitope length increases , the middle potion of the epitope has to adopt a more bulged conformation to fit the longer peptide into mhc class i binding groove which caused position 9 to replace position 5 as main anchor .
+a natural extension of our automatic pipeline is to display binding motifs for mhc class ii molecules .
+a key difference between mhc class ii molecules and mhc class i molecules is that the peptide binding groove of mhc class ii molecule is open at both end which allows the presentation of peptides of variable length .
+as a consequence , motif identification for mhc class ii molecules is noticeably more difficult than that of mhc lass i molecules .
+our initial attempts at creating automated algorithms to deduce mhc class ii binding motifs that agree with published data from experimentalists were not successful .
+we plan to further work in this area , and test if newly improved mhc class ii binding prediction approaches [ 22 ] will improve the ability to establish such algorithms .
+conclusions in this study , we have presented an automatic pipeline to display mhc class i binding motifs .
+we took a heuristic approach to generate binding motifs and have achieved largely consistent results with manually curated motifs by domain experts .
+the fully automatic , python script based pipeline allows the binding motifs to be easily updated or extended to new alleles as we accumulate more binding data .
+comparing to logo based approach , our method combined the strength of easy to understand classical motif with an information rich binding matrix .
+in addition , the capacity to display multiple motifs for peptides of different lengths binding to the same allele side - by - side allows users to quickly identify key properties of epitope binding .
+finally , we have implemented the automatic motif display pipeline into iedb to better serve to the immunology as well as bioinformatics research community .
+methods stabilized matrix method to derive scoring matrix the stabilized matrix method ( smm ) has been described in detail previously [ 7 ] .
+briefly , each amino acid was encoded as a binary vector of length 20 , with zeros at all positions except the one coding for the specific amino acid .
+using such notion , a peptide of length n can be encoded as an n * 20 binary vector .
+for a set of peptides , the vector representing each peptide can be stacked up to generate a matrix h where each row corresponds to a peptide .
+the best scoring matrix w can then be derived by minimizing the difference between the predicted binding affinities ( hw ) and the measured binding affinities ymeas while suppressing the effects of the noise in experiments with a regularization term wtlambdaw where lambda is a positive scalar or a diagonal matrix with positive entries .
+computational programs to determine viable motif lengths the algorithms to viable motif lengths were implemented in a python script .
+the script will read in binding data statistics from iedb and count the number of known binders for each allele .
+motif lengths were recorded as valid if there are more than 200 known binders of that length .
+computational programs to display binding motif cartoon and colored scoring matrix on iedb website sub - heading for this section the algorithms to determine anchor position and residue preference were implemented in python as a cgi script .
+the script will read in smm scoring matrixes stored on the iedb analysis resource server and automatically generate html code to display colored smm scoring matrices and jpeg files for the cartoon like motifs display .
+this work was supported by the national institutes of health contract hhsn26620040006c .
+competing interests the authors declare that they have no competing interests .
+authors' contributions pw , js and bp designed the algorithm .
+pw implemented the python scripts .
+as and bp conceived the study .
+pw , js , as and bp wrote the manuscript .
+all authors participated in discussions , and reviewed and approved the final manuscript version .
+1 smith - garvin je koretzky ga jordan ms t cell activation annu rev immunol 2009 27 591 619 19132916 2 madden dr the three - dimensional structure of peptide - mhc complexes annu rev immunol 1995 13 587 622 7612235 3 falk k rotzschke o stevanovic s jung g rammensee hg allele - specific motifs revealed by sequencing of self - peptides eluted from mhc molecules nature 1991 351 290 296 1709722 4 bouvier m wiley dc importance of peptide amino and carboxyl termini to the stability of mhc class i molecules science 1994 265 398 402 8023162 5 bui hh sidney j peters b sathiamurthy m sinichi a purton ka mothe br chisari fv watkins di sette a automated generation and evaluation of specific mhc binding predictive tools : arb matrix applications immunogenetics 2005 57 304 314 15868141 6 reche pa glutting jp zhang h reinherz el enhancement to the rankpep resource for the prediction of peptide binding to mhc molecules using profiles immunogenetics 2004 56 405 419 15349703 7 peters b sette a generating quantitative models describing the sequence specificity of biological processes with the stabilized matrix method bmc bioinformatics 2005 6 132 15927070 8 nielsen m lundegaard c worning p hvid cs lamberth k buus s brunak s lund o improved prediction of mhc class i and class ii epitopes using a novel gibbs sampling approach bioinformatics 2004 20 1388 1397 14962912 9 donnes p elofsson a prediction of mhc class i binding peptides , using svmhc bmc bioinformatics 2002 3 25 12225620 10 nielsen m lundegaard c worning p lauemoller sl lamberth k buus s brunak s lund o reliable prediction of t - cell epitopes using neural networks with novel sequence representations protein sci 2003 12 1007 1017 12717023 11 schuster - bockler b schultz j rahmann s hmm logos for visualization of protein families bmc bioinformatics 2004 5 7 14736340 12 schneider td stephens rm sequence logos : a new way to display consensus sequences nucleic acids res 1990 18 6097 6100 2172928 13 crooks ge hon g chandonia jm brenner se we - blogo : a sequence logo generator genome res 2004 14 1188 1190 15173120 14 kim y sidney j pinilla c sette a peters b derivation of an amino acid similarity matrix for peptide : mhc binding and its application as a bayesian prior bmc bioinformatics 2009 10 394 19948066 15 rammensee h bachmann j emmerich np bachor oa stevanovic s syfpeithi : database for mhc ligands and peptide motifs immunogenetics 1999 50 213 219 10602881 16 vita r zarebski l greenbaum ja emami h hoof i salimi n damle r sette a peters b the immune epitope database 2.0 nucleic acids res 2009 38 d854 862 19906713 17 sidney j assarsson e moore c ngo s pinilla c sette a peters b quantitative peptide binding motifs for 19 human and mouse mhc class i molecules derived using positional scanning combinatorial peptide libraries immunome res 2008 4 2 18221540 18 obst r netuschil n klopfer k stevanovic s rammensee hg the role of peptides in t cell alloreactivity is determined by self - major histocompatibility complex molecules j exp med 2000 191 805 812 10704462 19 sabatino de mingozzi f hui dj chen h colosi p ertl hc high ka identification of mouse aav capsid - specific cd8 + t cell epitopes mol ther 2005 12 1023 1033 16263332 20 munks mw gold mc zajac al doom cm morello cs spector dh hill ab genome - wide analysis reveals a highly diverse cd8 t cell response to murine cytomegalovirus j immunol 2006 176 3760 3766 16517745 21 rapin n hoof i lund o nielsen m mhc motif viewer immunogenetics 2008 60 759 765 18766337 22 nielsen m lund o nn - align .
+an artificial neural network - based alignment algorithm for mhc class ii peptide binding prediction bmc bioinformatics 2009 10 296 19765293 figure 1a flow chart showing the algorithm to determine anchor positions figure 1b flow chart showing the algorithm determining the residue preference for anchor positions figure 1c flow chart showing the algorithm determining the residue preference for non - anchor positions figure 2a graphic representation of mhc binding motif for h - 2 - kb molecule figure 2b a sample amino acid binding matrix with color - coding to indicate anchor position , and preferred , deleterious , and tolerated residues as a function of position .
+table 1 experimentally measured binding affinities for 18 human and mouse mhc class i alleles used in this study allele length all binders h - 2 - db 9 1204 263 h - 2 - dd 9 201 13 h - 2 - kd 9 298 126 h - 2 - kk 9 164 78 hla - a * 0201 9 3319 1392 hla - a * 3001 9 641 351 hla - a * 3201 9 573 275 hla - a * 6802 9 2223 562 hla - b * 0702 9 675 211 hla - b * 0801 9 608 297 hla - b * 1501 9 668 388 hla - b * 1503 9 496 348 hla - b * 2705 9 435 155 hla - b * 3501 9 560 155 hla - b * 5101 9 539 83 hla - b * 5301 9 539 161 hla - b * 5401 9 539 91 hla - b * 5801 9 278 66 average 9 776 279 min 9 164 13 max 9 3319 1392 table 2 confusion matrix shows that automatic algorithm can effectively identify anchor and non - anchor positions based on smm scoring matrix alone actual anchor non - anchor predicted anchor 32 4 non - anchor 7 119 table 3a comparison of anchor residue preference identified with automatic approach with published motifs and those using positional scanning combinatorial libraries pool sequencing motif combinatorial library motif automatically derived motif system allele p2 p3 p5 p6 p9 p2 p3 p5 p6 p9 p2 p3 p5 p6 p9 hla a * 0201 lm [ ivatq ] vl [ miat ] l [ mq ] vi [ la ] lm vl a * 3001 yf l rk ka [ lviy ] kr k a * 3201 [ mlitvqs ] [ wifyht ] tmiqlvs [ a ] fiylw mltv fiw a * 6802 [ lmtvatqs ] [ lmtvat ] vts [ lalmp ] vali tv v b * 0702 p l [ fwyivma ] p [ va ] lfayi [ m ] p fml b * 0801 rk rk livm rhkf f [ rh ] lfmvia [ e ] hkr f fiml b * 1501 ql fy fy [ m ] mlq fy b * 1503 qk fy qmk [ lhase ] f [ my ] kmq fy b * 2705 r krlyanfmik r r. flmwy fihkmlry b * 3501 p yfmli [ wva ] pa fym [ a ] p fmy b * 5101 apg vi [ fwylma ] pa [ gqvs ] i [ v ] p iv b * 5301 p wfl [ yivma ] pa [ iy ] fc [ iw ] p w b * 5401 p [ fwylivma ] a [ p ] av p a b * 5801 ast fw sta [ vg ] wfiy [ mc ] ast w h - 2 db n livm n [ l ] iml [ vf ] n iml dd g p rk lfi g p fli [ c ] g p fimlrtv kd yf liym y ilv [ m ] y hil kk e livm e [ d ] iv [ fl ] e i table 3b comparison of anchor residue preference identified with automatic approach with those documented in syfpeithi database .
+syfpeithi motif automatically derived motif system allele p2 p3 p5 p6 p9 p2 p3 p5 p6 p9 hla a * 0201 lm vl lm vl a * 3001 yf l kr k a * 3201 mltv fiw a * 6802 tv v b * 0702 p l p fml b * 0801 k hkr f fiml b * 1501 mlq fy b * 1503 qk fy kmq fy b * 2705 r fl r flmwt fihkmlry b * 3501 p yfmli p fmy b * 5101 apg vi p iv b * 5301 p wfl p w b " 5401 p p a b * 5801 ast fw ast w h - 2 db n livm n iml dd p lfi g p fimlrtv kd yf liv y hil kk e iv e i

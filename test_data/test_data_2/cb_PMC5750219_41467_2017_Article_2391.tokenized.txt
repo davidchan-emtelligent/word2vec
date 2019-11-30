@@ -1,0 +1,400 @@
+nat commun nat commun nature communications 2041 - 1723 nature publishing group uk london 29295995 5750219 2391 10.1038 / s41467 - 017 - 02391 - 6 article perturbation - response genes reveal signaling footprints in cancer gene expression schubert michael 1 klinger bertram 23 klunemann martina 23 sieber anja 23 http :// orcid.org / 0000 - 0001 - 9176 - 4660 uhlitz florian 23 sauer sascha 4 garnett mathew j .
+5 http :// orcid.org / 0000 - 0002 - 0171 - 7447 bluthgen nils 23 http :// orcid.org / 0000 - 0002 - 8552 - 8976 saez - rodriguez julio saezrodriguez @ gmail.com 16 1 european molecular biology laboratory , european bioinformatics institute , wellcome genome campus , cambridge , cb10 1sd uk 2 0000 0001 2218 4662grid.6363.0institute of pathology , charite universitatsmedizin berlin , chariteplatz 1 , 10117 berlin , germany 3 0000 0001 2248 7639grid.7468.diri life sciences and institute for theoretical biology , humboldt university berlin , philippstr .
+13 / haus 18 , 10115 berlin , germany 4 max delbruck center for molecular medicine ( mdc ) , berlin institute for medical systems biology / berlin institute of health , robert - rossle - str .
+10 , 13092 berlin , germany 5 wellcome trust sanger institute , wellcome genome campus , cambridge , cb10 1sa uk 6 0000 0001 0728 696xgrid.1957.arwth aachen university , faculty of medicine , joint research centre for computational biomedicine , aachen , 52057 germany 2 1 2018 2 1 2018 2018 9 20 7 9 2016 24 11 2017 ( c ) the author ( s ) 2017 open access this article is licensed under a creative commons attribution 4.0 international license , which permits use , sharing , adaptation , distribution and reproduction in any medium or format , as long as you give appropriate credit to the original author ( s ) and the source , provide a link to the creative commons license , and indicate if changes were made .
+the images or other third party material in this article are included in the article 's creative commons license , unless indicated otherwise in a credit line to the material .
+if material is not included in the article 's creative commons license and your intended use is not permitted by statutory regulation or exceeds the permitted use , you will need to obtain permission directly from the copyright holder .
+to view a copy of this license , visit http :// creativecommons.org / licenses / by / 4.0 / .
+aberrant cell signaling can cause cancer and other diseases and is a focal point of drug research .
+a common approach is to infer signaling activity of pathways from gene expression .
+however , mapping gene expression to pathway components disregards the effect of post - translational modifications , and downstream signatures represent very specific experimental conditions .
+here we present progeny , a method that overcomes both limitations by leveraging a large compendium of publicly available perturbation experiments to yield a common core of pathway responsive genes .
+unlike pathway mapping methods , progeny can ( i ) recover the effect of known driver mutations , ( ii ) provide or improve strong markers for drug indications , and ( iii ) distinguish between oncogenic and tumor suppressor pathways for patient survival .
+collectively , these results show that progeny accurately infers pathway activity from gene expression in a wide range of conditions .
+deregulation of signalling is responsible for many cancer phenotypes .
+leveraging available perturbation data , here the authors assess large - scale pathway activity patterns based on consensus downstream readout genes , enabling accurate prediction of the effects of mutations and small molecules .
+issue - copyright - statement ( c ) the author ( s ) 2018 introduction a wealth of molecular data have become available that reflects a cell 's state in different diseases .
+the challenge that remains is how to derive predictive and reliable biomarkers for disease status , treatment opportunities , or patient outcome in a way that is both relevant and interpretable. of particular interest are methods that infer and quantify deregulation of signaling pathways , as those are key for many processes underpinning different diseases .
+a particular example of this is cancer , which is largely caused by cell signaling aberrations created by driver mutations and copy number alterations1 .
+here , efforts like the tcga2 and icgc3 have pioneered molecular characterization of primary tumors on a large scale .
+in addition , the gdsc4,5 and ccle6 have focussed on preclinical biomarkers of drug sensitivity in cancer cell lines .
+these initiatives have provided profound insight in the molecular markup of the disease .
+however , putting the genomic alterations investigated in the functional context of the pathways they alter may provide additional information on mechanisms of pathogenesis and treatment opportunities7. with direct measurements of signaling activity not widely available , the latter has often been inferred using gene expression .
+this includes quantifying the expression level of a pathway gene set ( e.g. , gene ontology8 or reactome9 ) using gene set enrichment analysis10 , or other methods that are able to take pathway structure into account11 - 13 .
+while these methods can be applied to almost any pathway , they are based on mapping transcript expression to the corresponding signaling proteins and hence do not take into account the effect of post - translational modifications ( fig. 1a ) .
+it is therefore unclear if and under what circumstances the pathway scores obtained by these methods reflect signaling activity. fig. 1 deriving pathway - response signatures for 11 pathways .
+a reasoning about pathway activation .
+most pathway approaches make use of either the set ( top panel ) or infer or incorporate structure ( middle panel ) of signaling molecules to make statements about a possible activation , while signature - based approaches such as progeny consider the genes affected by perturbing the pathway .
+b workflow of the data curation and model building .
+( 1 ) finding and curation of 208 publicly available experiment series in the arrayexpress database , ( 2 ) extracting 556 perturbation experiments from series' raw data , ( 3 ) performing qc metrics and discarding failures , ( 4 ) computing z - scores per experiment , ( 5 ) using a linear regression model to fit genes responsive to all pathways simultaneously obtaining the z - coefficients matrix , ( 6 ) assigning pathway scores using the coefficients matrix and basal expression data .
+see methods section for details .
+c size of the data set compared to an individual gene expression signature experiment .
+the amount of experiments that comprise each pathway is shown to scale and indicated .
+figure 1b ( 2 ) created by guillaime paumier is published under a cc - by - sa license , sourced from https :// commons.wikimedia.org / wiki / file : dna _ microarray.svg .
+figure 1b ( 4 ) is an adaptation ( by chen - pan liao ) of the original work of user : jhguch at en.wikipedia , published under a cc - by - sa license , sourced from https :// commons.wikimedia.org / wiki / file : boxplot _ vs _ pdf.svg .
+figure 1b ( 6 ) is an adaptation ( by user : ogrebot ) of the original work of user : bilou at en.wikipedia , published under a cc - by - sa license , sourced from https :// commons.wikimedia.org / wiki / file : matrix _ multiplication _ diagram _ 2.svg a complementary approach is to contrast two conditions with known differential activity by means of a gene expression signature14. of particular interest are short - term perturbation experiments that capture the primary response to a stimulus .
+a well - known example of this is the connectivity map15 that has been used to match drug - induced gene expression changes for disease indications or drug repurposing16 .
+in a similar manner , many signatures have been proposed to infer pathway activity17 - 23 , including seminal work by bild et al.17 that was later also used to predict drug response in breast cancer cell lines18,24 .
+however , the same signaling pathways may trigger different downstream gene expression programs depending on the cell type or the perturbing agent used .
+hence , if gene expression signatures are to be used as a generally applicable pathway method , there is a need to address this context specificity .
+in the past , methods have been developed that addressed this by building consensus models over multiple signatures and using these to infer pathway activity5,25,26 .
+these methods , however , have been limited by a low number of perturbation experiments as well as inherent application constraints .
+here , we overcome the limitations of both approaches by leveraging a large compendium of publicly available perturbation experiments that yield a common core of pathway responsive genes to a specified set of stimuli .
+progeny is able to better infer pathway activity from perturbation experiments than epsa25 , is applicable to panels of samples unlike speed26 , and performs better than a previous extension we proposed to the latter5 .
+we performed a systematic comparison of progeny and other commonly used pathway methods for 11 cancer - relevant pathways .
+we investigated how well each method can recover pathway perturbations and constitutive activity mediated by driver mutations in the cancer genome atlas ( tcga ) 2 .
+we further examined how well they can explain drug sensitivity to 265 drugs in 805 cancer cell lines in the genomics of drug sensitivity in cancer ( gdsc ) 4,5 and patient survival in 7254 primary tumors spanning 34 tumor types using tcga data .
+we found that progeny significantly outperforms existing methods for these tasks .
+results consensus gene signatures for pathway activity we curated ( workflow in fig. 1b ; experiments in supplementary note 1 ) a total of 208 different submissions to arrayexpress / geo , spanning perturbations of the 11 pathways egfr , mapk , pi3k , vegf , jak - stat , tgfb , tnfa , nfkb , hypoxia , p53 - mediated dna damage response , and trail ( apoptosis ) .
+our data set consists of 568 experiments and 2652 microarrays , making it the largest study of pathway signatures to date ( fig. 1c and supplementary fig. 1 ) .
+we calculated z - scores of gene expression changes for each experiment , for which we trained a regression model using the perturbed pathway as input and gene expression as a response variable .
+for each pathway , we identified 100 responsive genes that are most consistently deregulated across experiments ( supplementary fig. 2 ) .
+these responsive genes are specific to the perturbed pathway and have little overlap with genes encoding for its signaling proteins ( supplementary fig. 3 ) .
+this underscores the fact that pathway expression and activation are distinct processes and suggests that they should be treated separately .
+we use the z - scores of those 100 pathway - responsive genes in a simple , yet effective , linear model to infer pathway activity from gene expression called progeny ( for pathway responsive genes , but also to indicate the descent of the method from previously published experiments ; supplementary data 1 ) .
+we find that our responsive genes are often enriched in biological processes related to a signaling pathway , but not the pathway itself ( supplementary fig. 4 ) .
+using a leave - one - out strategy of model building and perturbation scoring , our inferred pathway activation is strongly ( p < 10 - 10 , except p < 10 - 5 for trail ) associated with the pathway that was experimentally perturbed .
+the associations of a pathway signature with other pathways are weaker ( p > 10 - 5 ) , except for egfr with mapk / pi3k and tnfa with nfkb / mapk ( fig. 2a and supplementary fig. 5 , left ) , where there is biologically known cross - activation27 .
+relative activation patterns are consistent across input experiments ( supplementary fig. 5 , right ). fig. 2 evaluation of pathway - response signatures .
+a associations for progeny pathway scores with experimental perturbation for experiments that the model was not built with ( leave - one - out cross - validation ) .
+each pathway is strongly associated with its own perturbation , and we observe few cases of cross - talk in agreement with biological knowledge .
+b pathway perturbations in hek293 cell line activate the corresponding signaling proteins .
+mek and erk for mapk pathway , stat3 for interferon - induced jak - stat , akt for pi3k , smad2 for tgfb , and ikb for tnf - alpha - induced nfkb .
+as expected , all increased upon stimulation except akt that decreased upon inhibition .
+activation shown relative to maximum readout per antibody , p values reported for one - sample one - sided t test .
+results are significant if p < 0.05 and perturbation is at least 30 % of maximum .
+c progeny correctly infers pathway activity from gene expression in the hek293 experiments .
+associations are significant if p value of two - sample one - sided t test < 0.05 and experiments are at least 1.5 standard deviations above or below the control .
+d stability of basal pathway scores when bootstrapping input experiments .
+bars show how much more variance in pathway scores ( gdsc panel ) is introduced by cell line identity over using resampled perturbation experiments in model building .
+variance by cell line is over five times as high for most pathways , and roughly twice as high for trail and vegf progeny separates basal and perturbed arrays better ( supplementary table 1 ; binomial test ; p < 0.04 ) than epsa25 on our curated set of experiments , and in addition to speed26 also infers the sign of pathway activity ( supplementary fig. 6 ) .
+we find that building the consensus of many experiments is essential , as the z - scores from a single experiment perform no better than random , and using too few experiments to derive the model degrades performance .
+the exact number of experiments required differs between pathways , but we see a plateau effect between 20 and 50 signatures for most of them .
+in order to also test progeny on a completely separate set , we set aside 10 perturbation experiments that also measured pathway activity in an orthogonal manner .
+we compared the activity measurement from basal and perturbed condition with the pathway scores that progeny inferred , and found that our method could always predict the direction of perturbation correctly , with separation statistics that are comparable to direct measurements ( supplementary fig. 7 ) .
+furthermore , we performed independent validation experiments using the hek293 - er cell line , where we performed 5 distinct pathway perturbations .
+we induced raf / mapk signaling using 4 - hydroxy tamoxifen ( 4oht ) that stimulates an raf - er transgene , and used the pi3k inhibitor ly294002 to block the pi3k / akt pathway , tnf - alpha to activate the tnf - alpha pathway as well as the nfkb pathway downstream of it , tgf - beta 1 to activate the tgfb pathway , and ifn - gamma to activate the jak - stat pathway .
+we subsequently measured phospho - proteomics ( fig. 2c ) and gene expression upon perturbation .
+results of these experiments confirmed that the progeny scores ( fig. 2d ) capture pathway activity , as they accurately reflected the activated pathway and agreed with the measured changes in the activity status of key proteins in the corresponding pathways measured by phosphorylation .
+now that we have confirmed how pathway - responsive genes behave when a stimulus is present , we can take the idea one step further and hypothesize that the existence of a different basal expression level of the responsive genes may in turn correspond to cell - intrinsic signaling activity .
+when we apply progeny to a cell line panel , we find that the obtained pathway scores are robust to changes in the experiments that the model was derived from ( fig. 2d ) , and also observe a similar correlation as the previously observed cross - activation upon perturbation ( supplementary fig. 8 ) .
+recovering mechanisms of known driver mutations if our reasoning is correct and progeny signatures in basal gene expression correspond to intrinsic signaling activity , we should be able to see a higher pathway score in cancer patients with an activating driver mutation in that pathway and a lower score for pathway suppression compared to patients where no such alteration is present .
+we selected all cancer types in the tcga for which there were tissue - matched normals available , in order to make full use of the pathway methods that require them .
+we calculated pathway scores for those using progeny , reactome9 and gene ontology8 enrichment , spia11 , pathifier13 , paradigm12 , a modified version of speed5 , and the gatza et al.18 signatures ( supplementary table 2 ) .
+we used an anova to calculate significant associations between the presence and absence of mutations and copy number alterations and the inferred pathway scores for our method ( fig. 3a ) and others ( supplementary fig. 9 ). fig. 3 ability of pathway methods to recover well - known mutations .
+a volcano plot of pan - cancer associations between driver mutations and copy number aberrations with differences in pathway score .
+pathway scores calculated from basal gene expression in the tcga for primary tumors .
+size of points corresponds to occurrence of aberration .
+type of aberration is indicated by superscript " mut " if mutated and " amp "/" del " if amplified or deleted , with colors as indicated .
+effect sizes on the horizontal axis larger than zero indicate pathway activation and smaller than zero indicate inferred inhibition .
+p values on the vertical axis fdr - adjusted with a significance threshold of 5 % .
+associations shown without correcting for different cancer types .
+associations with a black outer ring are also significant if corrected .
+b comparison of pathway scores ( vertical axes ) across different methods ( horizontal axes ) for tp53 and kras mutations , egfr amplifications and vhl mutations .
+wald statistic shown as shades of green for downregulated and red for upregulated pathways .
+p value labels shown as indicated .
+white squares where a pathway was not available for a method in terms of proliferative signaling , we find that progeny identifies egfr amplifications to activate both the egfr and mapk pathways ( fdr < 10 - 9 ) .
+kras mutations and amplifications show an increase in inferred mapk / egfr activity .
+other methods do not detect a strong activation of the mapk / egfr pathways given those alterations ( fig. 3b. ; top right and bottom left ) .
+we find the same effect for braf mutations ( fdr < 10 - 10 ) that additionally activate tnfa / nfkb ( fdr < 10 - 15 ) .
+for tp53 mutations , progeny finds a significant reduction in p53 / dna damage response activity ( fdr < 10 - 64 ) and activation of the pi3k and hypoxia pathways ( fdr < 10 - 15 ) .
+this is in contrast to loss of tp53 , where we only find a reduction in p53 / ddr ( fdr < 10 - 3 ) , but no strong evidence of modification of any other pathway ( fdr > 0.04 ) .
+the dual nature of tp53 mutations and loss are in line with the recent discovery that tp53 mutations can act in an oncogenic manner in addition to disrupting its tumor suppressor activity , which has been shown for individual cancer types28 - 31 .
+in addition , this analysis suggests a link between tp53 mutations and genes that are induced by activation of canonical oncogenic signaling such as pi3k or the hypoxic response .
+other methods ( fig. 3b. ; top left ) do not recover the expected negative association between these alterations and p53 / ddr activity .
+gene ontology showed a much weaker effect in the same direction , while reactome , pathifier , and spia showed an incorrect positive effect .
+these methods do , however , capture the activation of other oncogenic pathways , suggesting that this effect is driven by expression changes that then lead to changes in activity .
+progeny finds that vhl mutations ( which have a high overlap with kidney renal carcinoma , kirc ) are associated with an expected stronger induction of hypoxic genes32 compared to other cancer types ( fdr < 10 - 200 ) .
+it is the only method to recover hypoxia as the strongest link with vhl mutations , while the other methods primarily report expression changes in unrelated pathways ( fig. 3b. ; bottom right ) .
+more surprisingly , we find that presence of pik3ca amplifications and pten deletions is also more connected to increasing the hypoxic response ( fdr < 10 - 6 ) compared to an effect on the pi3k - responsive genes ( supplementary table 3 ) .
+a role of pi3k signaling in hypoxia has been shown before33 - 35 .
+these highlights reflect the more general pattern that progeny is able to correctly infer the impact of driver mutations that the other pathway expression - based methods could not .
+the latter are only able to identify some cases where activity is mediated by changes in the expression level of the pathway members itself .
+associations with drug response the next question we tried to answer is how well progeny is able to explain drug sensitivity in cancer cell lines .
+we took as a measure of efficacy the ic50 , i.e. , the drug concentration that reduces viability of cancer cells by 50 % , for 265 drugs and 805 cell lines from the gdsc project5 .
+we performed an anova between those ic50 values and inferred pathway scores of progeny and the other methods we investigated .
+we found 178 significant associations for progeny ( 10 % fdr in fig. 4a and supplementary fig. 10 ) , dominated by sensitivity associations between mapk / egfr activity and drugs targeting mapk pathway ( fig. 4b ) that are consistent with oncogene addiction .
+in particular , this includes associations of the mapk / egfr pathways with different mek inhibitors ( trametinib , rdea119 , ci - 1040 , etc. ) , a raf inhibitor ( az628 ) and a tak1 inhibitor ( 7 - oxozeaenol ) .
+however , the strongest hit we obtained was the association between nutlin - 3a and p53 - responsive genes .
+nutlin - 3a is an mdm2 - inhibitor that in turn stabilizes p53 .
+since it has also previously been shown that a mutation in tp53 is strongly associated with increased resistance to nutlin - 3a4 , this is a well - understood mechanism of sensitivity ( presence ) or resistance ( absence of p53 activity ) to this drug that our method captures , but none of the pathway expression - based methods do. fig. 4 mapk and p53 scores drive drug response across all cancer types .
+a comparison of the associations obtained by different pathway methods .
+number of associations on the vertical and fdr on the horizontal axis .
+progeny yield more and stronger associations than all other pathway methods .
+mutation associations are only stronger for tp53 / nutlin - 3a and drugs that were specifically designed to bind to a mutated protein .
+paradigm not shown because no associations < 10 % fdr .
+markers ( green ) and greater than zero resistance markers ( red ) .
+p values fdr - corrected .
+b pathway context of the strongest associations ( supplementary fig. 10 ) between egfr / mapk pathways and their inhibitors obtained by progeny .
+c comparison of stratification by mutations and pathway scores .
+mapk pathway ( braf , nras , or kras ) mutations and trametinib on top left panel , az628 bottom left , braf mutations and dabrafenib top right , and p53 pathway / tp53 mutations / nutlin - 3a bottom right .
+for each of the four cases , the leftmost violin plot shows the distribution of ic50s across all cell lines , followed by a stratification in wild - type ( green ) and mutant cell lines ( blue box ) .
+the three rightmost violin plots show stratification of all the cell lines by the top , the two middle , and the bottom quartile of inferred pathway score ( indicated by shade of color ) .
+the two remaining violin plots in the middle show mutated ( braf , kras , or nras ; blue color ) or wild - type ( tp53 ; green color ) cell lines stratified by the top - and bottom quartiles of mapk or p53 pathways scores ( mann - whitney u - test statistics as indicated ) considering the overall number of associations , the other pathway methods provided a lower number across the range of significance ( fig. 4a ) .
+progeny outperforms associations obtained with driver mutations at 10 % fdr , as those only yield 136 associations .
+the latter only provides stronger associations for tp53 , where the signature is a compound of p53 signaling and dna damage response , and plx4720 / dabrafenib , drugs that were specifically designed to target mutated braf .
+for 147 out of 265 drugs covered by significant associations with either progeny or driver mutations , progeny provided stronger associations for 78 , with a significant enrichment in cytotoxic drugs compared to targeted drugs for mutations ( fisher 's exact test , p < 0.01 ) .
+however , stratification using progeny and mutated driver genes is not mutually exclusive .
+our pathway scores are able to further stratify the mutated and wild - type sub - populations into more and less sensitive cell lines ( fig. 4c and supplementary tables 4 - 5 ) .
+this includes , but is not limited to , braf , nras , or kras mutations using mapk pathway activity and the mek inhibitor trametinib ( fig. 4c ; top left ) or raf inhibitor az628 ( fig. 4c ; bottom left ) , braf mutations with dabrafenib ( fig. 4c ; top right ) , and tp53 mutations with p53 / ddr and nutlin - 3a ( fig. 4c ; bottom left ) .
+for mapk - and braf - mutated cell lines , we find that cell lines with an active mapk pathway according to progeny are 65 ( az628 ) , 9130 ( trametinib ) , or 104 fold ( dabrafenib ) more sensitive than those where it is inactive .
+for trametinib , cell lines with active mapk , but no mutation in braf , kras , or nras are 15 times more sensitive than cell lines that harbor a mutation in any of them , but our analysis determined that mapk is inactive ( supplementary table 5 ; fold changes reported for median of subset ) .
+taken together , these results show that progeny can be used to complement mutation - derived biomarkers by either refining them or providing an alternative where no such marker exists .
+associations obtained with other methods do not show strong interactions between pathways and drugs that target their members ( supplementary fig. 10 ) .
+furthermore , our associations hold true in an independent sensitivity screen for overlapping drugs ( ccle ; supplementary table 6 ) .
+implications for patient survival the implications of inferred pathway activity compared to pathway expression is expected to be less clear for patient survival than for cell line drug response due to the many more factors that affect the phenotype observed .
+nonetheless , we were interested in how our inferred pathway activity compared to pathway expression methods in terms of overall patient survival .
+across all cancer types , progeny found a strong association between the activation of egfr , mapk , pi3k , and hypoxia pathways and decreased survival , similar to other signature methods ( fig. 5a ) .
+gene ontology found much weaker associations for expression of those pathways , and the other pathway mapping methods missed them almost entirely .
+progeny is the only method to find an increase in survival associated with the activation of the trail / apoptosis pathway , while other methods show either a decrease or no effect , or we did not find an appropriate pathway in the signatures we compared .
+for jak - stat , nfkb , p53 , and vegf pathways there are no significant associations that are picked up by more than one method ( fdr < 0.05 ) .
+compared to pathway mapping , signature methods provide associations of similar strength with overlapping pathways. fig. 5 response signatures outperform pathway methods for patient survival .
+a pan - cancer associations between pathway scores and patient survival .
+pathways on the horizontal axis and different methods on the vertical axis .
+associations of survival increase ( green ) and decrease .
+significance labels as indicated .
+shades correspond to effect size , p values as indicated .
+b volcano plot of cancers - specific associations between patient survival and inferred pathway score using progeny .
+effect size on the horizontal axis .
+below zero indicates increased survival ( green ) , above decreased survival ( red ) .
+fdr - adjusted p values on the vertical axis .
+size of the dots corresponds to number of patients in each cohort .
+c kaplan - meier curves of individual associations for kidney ( kirc ) , low - grade glioma ( lgg ) , and adrenocortical carcinoma ( acc ) .
+pathway scores are split in top and bottom quartiles and center half .
+lines show the fraction of patients ( vertical axis ) that are alive at a given time ( horizontal axis ) within one year .
+p values for discretized scores for individual cancer types , progeny finds a similar separation between oncogenic and tumor - suppressor pathways ( fig. 5b ) , showing that it can capture both general and specific patterns in gene expression changes .
+importantly , pathway mapping methods do not provide this separation and our associations are significant for more cancer types and more specific to individual pathways ( supplementary fig. 11 ) .
+in addition , we find cancer - specific associations of pathways with no effect in the pan - cancer setting : for instance , with progeny , adrenocortical carcinoma ( acc ) shows a significant increase of survival with p53 activity ( fdr < 10 - 3 ) .
+this positive effect of p53 on survival is supported by the fact that acc samples do not harbor any previously reported gain - of - function tp53 variants31 .
+kidney renal clear cell carcinoma ( kirc ) and low - grade glioma ( lgg ) show decreased survival with tnfa and jak - stat pathways , respectively , where specific activating mutations are much less known than for egfr / mapk .
+for these three associations , the top and bottom quartiles of progeny pathway activity were able to stratify patients in groups with over 25 % difference in one year survival ( fig. 5c ) .
+these associations are stable when resampling patients ( supplementary table 7 ) .
+in summary , we can observe that signature - based methods generally outperform pathway mapping for survival associations , but the difference between progeny and the signatures of speed5,26 and gatza et al.18 is less pronounced than for driver mutations or drug response .
+discussion the explanation of phenotypes in cancer , such as cell line drug response or patient survival , has largely been focussed on genomic alterations ( mutations , copy number alterations , and structural variations ) .
+while this approach has generated many important insights into cancer biology , it does not directly make statements about the impact of those aberrations on cellular processes and signal transduction in particular .
+pathway methods , mostly used on gene expression , have produced mixed results when it comes to delivering actionable evidence .
+this can in part be due to lack of robustness , as suggested by the heterogeneity in responses of individual signatures ( supplementary fig. 6 ) , but arguably also by the fact that extracting features that reflect pathway activity from gene expression is not trivial. with proteomics lagging behind sequencing data for the foreseeable future , we have a need to address the accurate inference of pathway activity from gene expression in heterogeneous samples using a general downstream gene expression pattern .
+we developed progeny in order to achieve this .
+progeny leverages a large compendium of pathway - responsive gene signatures derived from a wide range of different conditions in order to identify genes that are consistently deregulated .
+while this approach has been taken before , previous studies either focussed less on integrating responses from many different cell lines25 or derived their scores from a much smaller collection of perturbation experiments5,26 .
+we found that despite the heterogeneity of individual gene expression experiments , progeny closely corresponds to pathway perturbations .
+progeny can recover the impact of known driver mutations from basal - gene expression , but also identify cases where a pathway is active without their presence .
+in contrast , pathway mapping only recovers known associations , where this effect is mediated by expression changes in pathway members , such as tp53 oncogene activation or copy number aberrations .
+we applied progeny to a drug sensitivity data set , where the significant associations we obtained corresponded better to known drug - pathway interactions than those of competing methods .
+progeny was also able to consistently distinguish between oncogenic driver pathways ( mainly egfr and mapk ) and cell death ( trail ) pathways for patient survival .
+overall , our results suggest that progeny provides a better measure of pathway activity than other pathway methods , irrespective of whether the latter was derived from gene sets or directed paths .
+the latter can be used for many more pathways , as information on the pathway components is more often available than perturbation experiments .
+however , our results indicate that one should be cautious when interpreting the expression level of a pathway as its activity .
+we have shown that progeny is able to refine our understanding of the impact of mutations , as well as their utility for cell line drug response and patient survival .
+it provides a strong evidence that in order to infer pathway activity , e.g. , for patient stratification , a downstream readout should be used instead of mapping transcript expression levels to signaling molecules .
+while progeny provides a good estimate of pathway activity in large and heterogeneous data sets , signatures derived from , for instance , a specific tissue may still more closely reflect activation status given the same context .
+we see a hint of this when applying the gatza et al. signatures for the tcga breast cancer cohort , but more studies will be required to fully elucidate the differences between a common response and additional transcriptional modules that may not always be activated .
+we believe that our curated set of experiments and computational pipeline will be useful to further investigate this aspect of specialized vs. consensus signatures and when either of them should be used .
+methods data from the cancer genome atlas ( tcga ) to obtain the tcga data , we used the firehose tool from the broad institute ( http :// gdac.broadinstitute.org /) , release 28 january 2016 .
+for gene expression , we used all data labeled " level 3 rna - seq v2 " .
+we extracted the raw counts from the text files for each gene , discarded those that did not have a valid hgnc symbol , and averaged expression levels where more than one row corresponded to a given gene .
+we then performed a variance stabilizing transformation ( deseq2 package36 , bioconductor ) for each tcga study separately , to be able to use linear modeling techniques with the count - based rna - seq data .
+the data used corresponds to 34 cancer types and a total of 9737 tumor and 641 matched normal samples. from the clinical data , we extracted the vital status and used known survival time or known time of last follow - up as the survival time for the downstream analyses .
+we converted the time in days to months by dividing by 30.4 .
+we obtained both mrna expression levels as well as survival times for 10,544 patients , distributed across 33 cancer types .
+for comparing different pathway methods , we only used cancer types with tissue - matched controls , leaving 5927 samples in 13 cancer types .
+data for cell line gene expression and drug sensitivity we used version 17a of the genomics of drug sensitivity in cancer ( gdsc ) data5 , comprised of molecular data for 1001 cell lines and 265 anticancer drugs , specifically microarray gene expression data ( arrayexpress accession e - mtab - 3610 ) and the ic50 values for each drug - cell line combination .
+for computing pan - cancer associations , we used the subset with tcga - like cancer type label , leaving 805 cell lines .
+we downloaded the cancer cell line encyclopedia ( ccle ) microarray gene expression and drug sensitivity data from the ccle web page ( https :// portals.broadinstitute.org / ccle ) .
+for microarray data ( 2013 - 03 - 18 ) , we performed rma normalization , and mapped the probes to hgnc gene symbols .
+we used drug profiling data version 2012 - 02 - 20 and drug metadata version 2015 - 02 - 24 .
+perturbation experiments of hek293 cell line hek293incrementraf1 : er cells were acquired and cultured as previously described37 .
+before treatments , cells were starved in serum - free medium overnight .
+cells were treated with 4 - hydroxy tamoxifen ( 4oht , sigma - aldrich ; 0.5 microm ) , ly294002 ( life technologies ; 10 microm ) or the following ligands from peprotech : tnf - alpha ( 20 ng / ml ) , tgf - beta 1 ( 10 ng / ml ) , ifn - gamma ( 50 ng / ml ) .
+cell lines have been tested for mycoplasma infection using tenor gem classic ( minerva biolabs ) .
+rna sequencing for hek293 perturbations after 4 h of treatment , total rna was extracted with qiagen rneasymini kit .
+sequencing libraries were prepared using illumina truseq mrna library prep kit v2 and sequenced on illumina hiseq 2000 .
+read quality was assessed using fastqc and sequencing adapters were trimmed using cutadapt38 .
+reads were mapped with star aligner v2.5.0c39 on hg19 using gencode v19 for annotation and quantified with subread featurecounts40 .
+the preprocessing pipeline was written in snakemake41 .
+raw read counts were then normalized with deseq2 and variance stabilization transformed36 .
+phosphoprotein measurements for hek293 perturbations protein extracts of cells were prepared by incubation with cell lysis buffer ( bio - plex pro cell signaling reagent kit , bio - rad ) .
+the bio - plex protein array system ( bio - rad , hercules , ca ) was used , as described earlier42 .
+a total of 10 microg protein was analyzed .
+the following analytes were used : akts473 , c - juns63 , erk1 / 2t202,y204 / t185,y187 , ikbas32,s36 , jnkt183,y185 , mek1s217,s221 and mtors2448 .
+the beads and detection antibodies were diluted 1:3 .
+for data acquisition , the xponent software was used .
+the following antibodies were used for western blot measurements : rabbit anti human p - smad2 ( ser465 / 467 ) ( 138d4 ) # 3108 , rabbit anti human p - stat3 ( tyr 705 ) # 9131 and rabbit anti human beta - tubulin # 2146 .
+all primary antibodies were diluted 1:1000 and obtained from cell signaling technology .
+electrophoresis was performed and lysates were transferred onto nitrocellulose membranes .
+unbound protein sites were blocked with 1:2 odyssey blocking buffer ( from li - cor ) and pbs .
+thereafter , specific proteins were detected by incubation with primary antibodies diluted in the same blocking buffer containing 0.1 % tween - 20 overnight at 4 degreesc followed by near - infrared dye labeled secondary antibodies .
+for detection of phosphorylated smad2 and stat3 , a total of 30 and 60 microg protein was used , respectively .
+membrane images were taken using li - cor odyssey fc. the bands were quantified by determining the background corrected total intensities using imagestudio software ( li - cor ) .
+all signals were normalized to beta - tubulin .
+two biological replicates were measured both after 30 min and 1 h and outcomes were analyzed together by calculating log2 ratios to their respective solvent control ( bsa ) .
+curation of perturbation - response experiments our method is dependent on a sufficiently large number of available perturbation experiments that activate or inhibit one of the pathways we were looking at. the following conditions needed to be met in order for us to consider an experiment : ( 1 ) the compound or factor used for perturbation was one of our curated list of pathway - perturbing agents ( supplementary note 1 ) ; ( 2 ) the perturbation lasted for less than 24 h to capture genes that belong to the primary response ; ( 3 ) there was raw data available for at least two control arrays and one perturbed array ; ( 4 ) it was a single - channel array ; ( 5 ) we could process the arrays using available bioconductor packages ; ( 6 ) the array was not custom - made so we could use standard annotations .
+we curated a list of known pathway activators and inhibitors for 11 pathways , where the interaction between each compound and pathway is well established in literature ( supplementary note 1 ) .
+we then used those as query terms for public perturbation experiments in the arrayexpress database43 and included a total of 219 submissions and 581 experiments in our data set , where each experiment is a distinct comparison between basal and perturbed arrays .
+if there were multiple time points , different cells , different concentrations , or different perturbing agents within a single database submission , they were considered as different experiments .
+microarray processing started from the curated list of perturbation - induced gene expression experiments , we included all single - channel microarrays with at least two replicates in the basal condition with raw data available that could be processed by either the limma44 , oligo45 , or affy46 bioconductor packages and for which there was a respective annotation package available .
+we first calculated a probe - level expression levels for 581 full series of arrays , where we performed quality control of the raw data using rle and nuse cutoffs under 0.1 and kept all arrays below that threshold .
+if after filtering less than two basal condition arrays remained , the whole experiment was discarded .
+for the remaining 575 experiments we normalized expression data using the rma algorithm and mapped the probe identifiers to hgnc symbols .
+building a linear model of pathway - response genes we set aside 10 experiments for model validation .
+for the remainder and each hgnc symbol , we calculated a model based on mean and standard deviation of the gene expression level , and computed the z - score as average number of standard deviations that the expression level in the perturbed array was shifted from the basal arrays .
+we then performed loess smoothing for all z - scores in a given experiment using our null model as described previously26 from the z - scores of all experiments and all pathways , we performed a linear regression with the pathway as input and the z - scores as response variable for each gene separately :\ documentclass [ 12pt ]{ minimal } \ usepackage { amsmath } \ usepackage { wasysym } \ usepackage { amsfonts } \ usepackage { amssymb } \ usepackage { amsbsy } \ usepackage { mathrsfs } \ usepackage { upgreek } \ setlength {\ oddsidemargin }{ - 69pt } \ begin { document }$$ z _ g \ sim m _{\ mathrm { p }} \ ldots \ forall g ,{\ mathrm { p }}$$\ end { document } zg ~ mp ... for - allg,pwhere z g is the z - score for a given gene g across all input experiments .
+m p is a perturbation indicator vector across all input experiments for each pathway p that has the coefficient 1 if the experiment had a pathway activated , - 1 if inhibited , and 0 otherwise .
+for instance , the hypoxia pathway had experiments with low oxygen conditions set as 1 , hif1a knockdown as - 1 , and all other experiments as 0 .
+the same is true for egfr and egf treatment vs. egfr inhibitors , respectively , with the additional coefficients of mapk pathways set to 1 because of known cross - talk .
+tnfa perturbations also changed nfkb coefficients for the same reason. from the result of the linear model , we selected the top 100 genes per pathway according to their significance ( pvalue ) and took their estimate ( the fitted z - scores ) as coefficient .
+we set all other gene coefficients to 0 .
+this way , we obtained a matrix with hgnc symbols in rows and pathways in columns , where each pathway had 100 non - zero gene coefficients ( supplementary data 1 ) .
+progeny scores each column in the matrix of perturbation - response genes corresponds to a plane in gene expression space , in which each cell line or tumor sample is located .
+if you follow its normal vector from the origin , the distance it spans corresponds to the pathway score p , each sample is assigned ( matrix of samples in rows , pathways in columns ) .
+in practice , this is achieved by a simple matrix multiplication between the gene expression matrix ( samples in rows , genes in columns , values are expression levels ) and the model matrix ( genes in rows , pathways in columns , values are our top 100 coefficients ):\ documentclass [ 12pt ]{ minimal } \ usepackage { amsmath } \ usepackage { wasysym } \ usepackage { amsfonts } \ usepackage { amssymb } \ usepackage { amsbsy } \ usepackage { mathrsfs } \ usepackage { upgreek } \ setlength {\ oddsidemargin }{ - 69pt } \ begin { document }$$ p = e \ times g $$\ end { document } p = exgwe then scaled each pathway or gene set score to have a mean of zero and standard deviation of one , in order to factor out the difference in strength of gene expression signatures and thus be able to compare the relative scores across pathways and samples at the same time .
+epsa model the epsa model was built as previously published25 with the following modifications : ( 1 ) we used the mean of the treated and untreated arrays for each experiment in order to avoid bias by experiment size ; ( 2 ) we calculated significance of differential expression with limma 44 , not sam ; and ( 3 ) we selected the top 100 significant genes due to very different gene numbers at 5 or 10 % fdr .
+comparison to other signature and signature consensus methods we calculate pathway scores for all perturbation experiments in the direction of activation ( activated - - control and control - - inhibition ) .
+for methods that work on differential expression ( speed : both using the original web server at https :// speed.sys - bio.net and running the method on our perturbation experiments , gsea using kolmogorov - smirnov statistic ) , we use the negative logarithm of the p value as pathway score .
+for methods that score individual samples ( progeny , epsa ) , we use the difference of the mean between basal and perturbed arrays for each experiment .
+for both , we normalize the pathway scores per experiment because of the different strength of perturbations .
+we then quantify how well each pathway signature ranks experiments , where a pathway was perturbed before experiments where a pathway was not perturbed by the receiver operator auc .
+we quantify if a given method has a consistently higher auc than another across pathways using a binomial test ( supplementary fig. 6a ) .
+in addition , we quantify the influence of the number of signatures on the roc auc .
+for this , we build the progeny model by sampling n signatures per pathway 10 times with replacement and calculate the auc as described above ( supplementary fig. 6b ) .
+validation of progeny scores on public experiments we previously set aside 10 public perturbations experiments that measure both pathway activation ( mainly western blots ) and gene expression upon perturbation , which were not included in any of the model building .
+for each of those experiments , we quantified the blot bands in the original publication ( doi and experimental details in supplementary fig. 7 ) using imagej for the control vs. perturbed condition if no numerical values were reported .
+we calculated progeny pathway scores for both the control and perturbed condition , and plotted the spread of the control scores vs. the spread of the perturbed scores .
+we set the median of the control to 0 , and the total standard deviation of the control - perturbed pair to 1 for easier presentation ( without changing test statistics ) .
+we performed a one - tailed t test between each control and perturbed pair and report the p values ( supplementary fig. 7 ) .
+validation of progeny scores on hek293 perturbations we confirmed pathway activation using mek for the mapk pathway , stat3 for jak - stat , akt for pi3k , smad2 for tgfbeta , ikb for nfkb by performing a one - sample one - tailed t test of the fold change over bsa , including samples from both 0.5 and 1 h after perturbation .
+we report all fold changes with a p value < 0.05 and at least 30 % of the maximum antibody readout as significant ( fig. 2c ) .
+we then computed the pathway scores for all conditions , and scaled each pathway score to have a mean of 0 and standard deviation of 1 .
+we then computed the difference between the control condition ( bsa treatment ) and each perturbation .
+for this comparison , we plot the difference in means ( fig. 2c ) and perform a one - tailed t test .
+here , we reported all pathway changes as significant if they have a p value < 0.05 and an activation status that is 1.5 standard deviations above or below the control .
+pathway scores using gene sets we matched our defined set of pathways to the publicly available pathway database reactome9 and gene ontology ( go ) 8 categories , as well as gatza et al. signatures ( supplementary table 2a , b , f ) , to obtain a uniform set across pathway resources that makes them comparable .
+the speed platform already uses the same pathways , so no mapping was required .
+we calculated pathway scores as gene set variation analysis ( gsva ) scores that are able to assign a score to each individual sample ( unlike gsea that compares groups ) .
+spia scores signaling pathway impact analysis ( spia ) 11 is a method that utilizes the directionality and signs in a kegg47 pathway graph to determine if in a given pathway structure the available species are more or less available to transduce a signal .
+as the species considered for a pathway are usually mrnas of genes , this method infers signaling activity by the proxy of gene expression .
+in order to do this , spia scores require the comparison with a normal condition in order to compute both their scores and their significance .
+we used the spia bioconductor package11 in our analyses , focussing on the subset of pathways used by the other methods ( supplementary table 2c ) .
+we calculated our scores either for each cell line compared to the rest of a given tissue where no normals are available ( i.e. for the gdsc and drug response data ) or compared to the tissue - matched normals ( for the tcga data used in driver and survival associations ) .
+pathifier scores as pathifier13 requires the comparison with a baseline condition in order to compute scores , we computed the gdsc / tcga scores as with spia .
+as gene sets , we selected reactome pathways that corresponded to our set of pathways ( supplementary table 2b ) , where pathifier calculated the " signal flow " from the baseline and compared it to each sample .
+paradigm scores we used the paradigm software from the public software repository ( https :// github.com / sbenz / paradigm ) and a model of the cell signaling network48 from the corresponding tcga publication ( https :// tcga - data.nci.nih.gov / docs / publications / coadread _ 2012 /) .
+we normalized our gene expression data from both gdsc and tcga using ranks to assign equally spaced values between 0 and 1 for each sample within a given tissue .
+we then ran paradigm inference using the same options as in the above publication for each sample separately .
+we used nodes in the network representing pathway activity to our set of pathways ( supplementary table 2d ) to obtain pathway scores that are comparable to the other methods , averaging scores where there were more than one for a given sample and node .
+recall of perturbation experiments we calculate pathway scores for each of our curated experiments using all pathway methods .
+for gene set methods ( go , reactome , gatza ) we use the difference in gsva without kernel density estimator due to low sample numbers .
+for progeny , we exclude the experiment we quantify from model building ( leave - one - out cross - validation ) .
+we calculate linear associations between perturbations and assigned scores and plot the assigned pathway scores ( using whether a pathway was perturbed as 0 / 1 coefficients and the pathway scores as response variable ; pathway inhibitions encoded as negative pathway activations ) and show the relative ( column scale function in pheatmap ) activation patterns as heatmaps ( supplementary fig. 7 ) .
+associations with known driver mutations and cnas for comparing the impact of mutations across different pathway methods , we used tcga cohorts , where tissue - matched controls were available , leaving 6549 samples across 13 cancer types .
+for mutated genes , we considered all genes that had a change of coding sequence ( snp , small indels in maf files ) as mutated and all others as not mutated .
+for copy number alterations ( cnas ) , we used the thresholded gistic49 scores , where we considered homozygous deletions ( - 2 ) and strong amplifications ( 2 ) as altered , no change ( 0 ) as basal and discarded intermediate values ( - 1 , 1 ) from our analysis .
+we focussed our analysis of the mutations and copy number alterations on the subset of 464 driver genes that were also used in the gdsc .
+we used the sets of mutations and cnas to compute the linear associations between samples for all different methods we looked at. drug associations using gdsc cell lines we performed drug association using an anova between 265 drug ic50s and 11 inferred pathway scores conditioned on msi status , doing a total of 2915 comparisons for which we correct the p values using the false discovery rate .
+for pan - cancer associations , we used the cancer type as a covariate in order to discard the effect that different tissues have on the observed drug response .
+while this will also remove genuine differences in pathway activation between different cancer types , we would not be able to distinguish between those and other confounders that impact the sensitivity of a certain cell line from a given tissue to a drug .
+our pan - cancer association are thus the same of intra - tissue differences in drug response explained by inferred ( our method , go , or reactome ) pathway scores .
+we selected four of our strongest associations to investigate whether they provide additional information of what is known by mutation data .
+for two mek inhibitors , we show the difference between wild - type and mutant mapk pathway ( defined as a mutation in either nras , kras , or braf ) with a discretized pathway score ( upper and lower quartile vs. the rest ) , as well as the combination between the upper quartile of tissue - specific pathway scores and presence of a mapk mutation .
+for a braf inhibitor , we show additional stratification on top of braf mutations , and for nutlin - 3a on top of tp53 mutations .
+survival associations using tcga data starting from the pathway scores derived with go / reactome gsea , spia , pathifier , paradigm , and our method on the tcga data as described above , we used cox proportional hazard model ( r package survival ) to calculate survival associations for pan - cancer and each tissue - specific cohort .
+for the pan - cancer cohort , we fitted the model for each pathway and method separately , regressing out the study of origin and age of the patient .
+for the tissue - specific cohorts , we regressed out the age of the patients .
+we adjusted the p values using the fdr method for each method and study separately .
+we selected a significance threshold of 5 and 10 % for the pan - cancer and cancer - specific associations for which we show a matrix plot and a volcano plot of associations , respectively .
+in order to get distinct classes needed for interpretable kaplan - meier survival curves ( fig. 4c ) , we split three of our obtained pathway scores in upper , the two middle , and lower quartile .
+code availability progeny is available as an r package on bioconductor .
+the code used for the analysis in this paper is available at https :// github.com / saezlab / footprints .
+data availability rna - seq data are accessible from gene expression omnibus ( geo ) under accession number gse97979 .
+phosphoprotein measurements are available as supplementary data 2 .
+electronic supplementary material supplementary information peer review file description of additional supplementary files supplementary data 1 supplementary data 2 electronic supplementary material supplementary information accompanies this paper at 10.1038 / s41467 - 017 - 02391 - 6 .
+publisher 's note : springer nature remains neutral with regard to jurisdictional claims in published maps and institutional affiliations .
+acknowledgements m.s. is funded by a mrc case fellowship ( 1246915 ) awarded to j.s .
+- r. and joanna betts ( gsk ) .
+n.b. acknowledges funding by bmbf ( oncopath ) .
+m.j.g. is supported with funding from the wellcome trust ( 102696 ) , stand up to cancer ( su2c - aacr - dt1213 ) , the dutch cancer society ( h1 / 2014 - 6919 ) and cancer research uk ( c44943 / a22536 ) .
+we thank francesco iorio , florian markowetz , bence szalai and alvis brazma for useful discussions .
+we thank s. cagnol and p. lenormand for providing the hek293deltaraf1 : er cell line .
+author contributions m.s. designed research , performed all analyses , and wrote the manuscript .
+a.s. , f.u. , b.k. and s.s. performed and preprocessed validation experiments , supervised by n.b. b.k. , m.k. , n.b. and m.j.g. supported result interpretation and manuscript writing .
+j.s .
+- r. supervised the project and contributed to writing the manuscript .
+competing interests the authors declare no competing financial interests .
+references 1 .
+hanahan d weinberg ra the hallmarks of cancer cell 2000 100 57 70 10.1016 / s0092 - 8674 ( 00 ) 81683 - 9 10647931 2 .
+the cancer genome atlas research network .
+the cancer genome atlas pan - cancer analysis project nat. genet .
+2013 45 1113 1120 10.1038 / ng.2764 24071849 3 .
+international cancer genome consortium .
+international network of cancer genome projects nature 2010 464 993 998 10.1038 / nature08987 20393554 4 .
+garnett mj systematic identification of genomic markers of drug sensitivity in cancer cells nature 2012 483 570 575 10.1038 / nature11005 22460902 5 .
+iorio f a landscape of pharmacogenomic interactions in cancer cell 2016 166 740 754 10.1016 / j.cell.2016.06.017 27397505 6 .
+barretina j the cancer cell line encyclopedia enables predictive modelling of anticancer drug sensitivity nature 2012 483 603 607 10.1038 / nature11003 22460905 7 .
+mutation consequences and pathway analysis working group of the international cancer genome consortium .
+pathway and network analysis of cancer genomes nat. methods 2015 12 615 621 10.1038 / nmeth.3440 26125594 8 .
+gene ontology consortium .
+the gene ontology ( go ) database and informatics resource nucleic acids res .
+2004 32 d258 d261 10.1093 / nar / gkh036 14681407 9 .
+croft d reactome : a database of reactions , pathways and biological processes nucleic acids res .
+2011 39 d691 d697 10.1093 / nar / gkq1018 21067998 10 .
+subramanian a gene set enrichment analysis : a knowledge - based approach for interpreting genome - wide expression profiles proc .
+natl acad. sci. usa 2005 102 15545 15550 10.1073 / pnas.0506580102 16199517 11 .
+tarca al a novel signaling pathway impact analysis bioinformatics 2008 25 75 82 10.1093 / bioinformatics / btn577 18990722 12 .
+vaske cj inference of patient - specific pathway activities from multi - dimensional cancer genomics data using paradigm bioinformatics 2010 26 i237 i245 10.1093 / bioinformatics / btq182 20529912 13 .
+drier y sheffer m domany e pathway - based personalized analysis of cancer proc .
+natl acad. sci. usa 2013 110 6388 6393 10.1073 / pnas.1219651110 23547110 14 .
+va n't veer lj bernards r enabling personalized cancer medicine through analysis of gene - expression patterns nature 2008 452 564 570 10.1038 / nature06915 18385730 15 .
+lamb j the connectivity map : using gene - expression signatures to connect small molecules , genes , and disease science 2006 313 1929 1935 10.1126 / science.1132939 17008526 16 .
+iorio f rittman t ge h menden m saez - rodriguez j transcriptional data : a new gateway to drug repositioning ?
+drug discov .
+today 2013 18 350 357 10.1016 / j.drudis.2012.07.014 22897878 17 .
+bild ah oncogenic pathway signatures in human cancers as a guide to targeted therapies nature 2005 439 353 357 10.1038 / nature04296 16273092 18 .
+gatza ml a pathway - based classification of human breast cancer proc .
+natl acad. sci. usa 2010 107 6994 6999 10.1073 / pnas.0912708107 20335537 19 .
+maiso p metabolic signature identifies novel targets for drug resistance in multiple myeloma cancer res .
+2015 75 2071 2082 10.1158 / 0008 - 5472.can - 14 - 3400 25769724 20 .
+fardin p the l1 - l2 regularization framework unmasks the hypoxia signature hidden in the transcriptome of a set of heterogeneous neuroblastoma cell lines bmc genomics 2009 10 474 10.1186 / 1471 - 2164 - 10 - 474 19832978 21 .
+fardin p a biology - driven approach identifies the hypoxia gene signature as a predictor of the outcome of neuroblastoma patients mol .
+cancer 2010 9 185 10.1186 / 1476 - 4598 - 9 - 185 20624283 22 .
+fertig ej gene expression signatures modulated by epidermal growth factor receptor activation and their relationship to cetuximab resistance in head and neck squamous cell carcinoma bmc genomics 2012 13 160 10.1186 / 1471 - 2164 - 13 - 160 22549044 23 .
+jurchott k identification of y - box binding protein 1 as a core regulator of mek / erk pathway - dependent gene signatures in colorectal cancer cells plos genet .
+2010 6 e1001231 10.1371 / journal.pgen.1001231 21170361 24 .
+gatza ml silva go parker js fan c perou cm an integrated genomics approach identifies drivers of proliferation in luminal - subtype human breast cancer nat. genet .
+2014 46 1051 1059 10.1038 / ng.3073 25151356 25 .
+tenenbaum jd walker mg utz pj butte aj expression - based pathway signature analysis ( epsa ) : mining publicly available microarray data for insight into human disease bmc med. genomics 2008 1 51 10.1186 / 1755 - 8794 - 1 - 51 18937865 26 .
+parikh jr klinger b xia y marto ja bluthgen n discovering causal signaling pathways through gene - expression patterns nucleic acids res .
+2010 38 w109 w117 10.1093 / nar / gkq424 20494976 27 .
+kant s tnf - stimulated map kinase activation mediated by a rho family gtpase signaling pathway genes dev .
+2011 25 2069 2078 10.1101 / gad.17224711 21979919 28 .
+olive kp mutant p53 gain of function in two mouse models of li - fraumeni syndrome cell 2004 119 847 860 10.1016 / j.cell.2004.11.004 15607980 29 .
+zhang c tumour - associated mutant p53 drives the warburg effect nat. commun .
+2013 4 2935 24343302 30 .
+weissmueller s mutant p53 drives pancreatic cancer metastasis through cell - autonomous pdgf receptor beta signaling cell 2014 157 382 394 10.1016 / j.cell.2014.01.066 24725405 31 .
+zhu j gain - of - function p53 mutants co - opt chromatin pathways to drive cancer growth nature 2015 525 206 211 10.1038 / nature15251 26331536 32 .
+maxwell ph the tumour suppressor protein vhl targets hypoxia - inducible factors for oxygen - dependent proteolysis nature 1999 399 271 275 10.1038 / 20459 10353251 33 .
+zhou j schmid t frank r brune b pi3k / akt is required for heat shock proteins to protect hypoxia - inducible factor 1alpha from pvhl - independent degradation j. biol. chem .
+2004 279 13506 13513 10.1074 / jbc.m310164200 14726529 34 .
+yang xm role of pi3k / akt and mek / erk in mediating hypoxia - induced expression of hif - 1alpha and vegf in laser - induced rat choroidal neovascularization invest. ophthalmol. vis. sci. 2009 50 1873 1879 10.1167 / iovs.08 - 2591 19098317 35 .
+kilic - eren m boylu t tabor v targeting pi3k / akt represses hypoxia inducible factor - 1a activation and sensitizes rhabdomyosarcoma and ewing 's sarcoma cells for apoptosis cancer cell. int .
+2013 13 1 8 10.1186 / 1475 - 2867 - 13 - 36 23305405 36 .
+love mi huber w anders s moderated estimation of fold change and dispersion for rna - seq data with deseq2 genome biol .
+2014 15 550 10.1186 / s13059 - 014 - 0550 - 8 25516281 37 .
+uhlitz f an immediate - late gene expression module decodes erk signal duration mol. syst. biol .
+2017 13 1 15 10.15252 / msb.20177986 38 .
+martin m cutadapt removes adapter sequences from high - throughput sequencing reads embnet. j. 2011 17 10 12 10.14806 / ej.17.1.200 39 .
+dobin a star : ultrafast universal rna - seq aligner bioinformatics 2013 29 15 21 10.1093 / bioinformatics / bts635 23104886 40 .
+liao y smyth gk shi w featurecounts : an efficient general purpose program for assigning sequence reads to genomic features bioinformatics 2014 30 923 930 10.1093 / bioinformatics / btt656 24227677 41 .
+koster j rahmann s snakemake - a scalable bioinformatics workflow engine bioinformatics 2012 28 2520 2522 10.1093 / bioinformatics / bts480 22908215 42 .
+klinger b network quantification of egfr signaling unveils potential for targeted combination therapy mol. syst. biol .
+2013 9 673 10.1038 / msb.2013.29 23752269 43 .
+parkinson h arrayexpress - - a public database of microarray experiments and gene expression profiles nucleic acids res .
+2007 35 d747 d750 10.1093 / nar / gkl995 17132828 44 .
+smyth , g. k. in bioinformatics and computational biology solutions using r and bioconductor 397 - 420 ( springer , new york , 2005 ) .
+45. carvalho bs irizarry ra a framework for oligonucleotide microarray preprocessing bioinformatics 2010 26 2363 2367 10.1093 / bioinformatics / btq431 20688976 46 .
+gautier l cope l bolstad bm irizarry ra affy - analysis of affymetrix genechip data at the probe level bioinformatics 2004 20 307 315 10.1093 / bioinformatics / btg405 14960456 47 .
+kanehisa m goto s kegg : kyoto encyclopedia of genes and genomes nucleic acids res .
+2000 28 27 30 10.1093 / nar / 28.1.27 10592173 48 .
+cancer genome atlas network .
+comprehensive molecular characterization of human colon and rectal cancer nature 2012 487 330 337 10.1038 / nature11252 22810696 49 .
+beroukhim r assessing the significance of chromosomal aberrations in cancer : methodology and application to glioma proc .
+natl acad. sci. usa 2007 104 20007 20012 10.1073 / pnas.0710052104 18077431

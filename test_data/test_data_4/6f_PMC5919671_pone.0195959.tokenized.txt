@@ -1,0 +1,652 @@
+plos one plos one plos plosone plos one 1932 - 6203 public library of science san francisco , ca usa 29698493 5919671 pone - d - 18 - 05863 10.1371 / journal.pone.0195959 research articlecomputer and information sciencesdata visualizationinfographicsgraphscomputer and information sciencesnetwork analysisphysical sciencesmathematicsprobability theoryrandom variablesresearch and analysis methodsmathematical and statistical techniquesmathematical modelsrandom walkbiology and life sciencesecologycommunity ecologycommunity structureecology and environmental sciencesecologycommunity ecologycommunity structurephysical sciencesmathematicsprobability theorylaw of large numberspeople and placespopulation groupingsprofessionssex workerscomputer and information sciencesnetwork analysissocial networkssocial sciencessociologysocial networks one - step estimation of networked population size : respondent - driven capture - recapture with anonymity one - step estimation of networked population size : respondent - driven capture - recapture with anonymity http :// orcid.org / 0000 - 0001 - 8823 - 6752 khan bilal formal analysisinvestigationmethodology1 * lee hsuan - wei formal analysisinvestigationmethodology1 fellows ian formal analysisinvestigationmethodology2 http :// orcid.org / 0000 - 0002 - 9185 - 0240 dombrowski kirk formal analysisinvestigationmethodology1 1 department of sociology , university of nebraska - lincoln , lincoln , nebraska , united states of america 2 fellow statistics , san diego , california , united states of america tang ming editor east china normal university , china competing interests : the authors have declared that no competing interests exist .
+* e - mail : bkhan2 @ unl.edu 2018 26 4 2018 13 4 e0195959 22 2 2018 31 3 2018 ( c ) 2018 khan et al 2018 khan et althis is an open access article distributed under the terms of the creative commons attribution license , which permits unrestricted use , distribution , and reproduction in any medium , provided the original author and source are credited .
+size estimation is particularly important for populations whose members experience disproportionate health issues or pose elevated health risks to the ambient social structures in which they are embedded .
+efforts to derive size estimates are often frustrated when the population is hidden or hard - to - reach in ways that preclude conventional survey strategies , as is the case when social stigma is associated with group membership or when group members are involved in illegal activities .
+this paper extends prior research on the problem of network population size estimation , building on established survey / sampling methodologies commonly used with hard - to - reach groups .
+three novel one - step , network - based population size estimators are presented , for use in the context of uniform random sampling , respondent - driven sampling , and when networks exhibit significant clustering effects .
+we give provably sufficient conditions for the consistency of these estimators in large configuration networks .
+simulation experiments across a wide range of synthetic network topologies validate the performance of the estimators , which also perform well on a real - world location - based social networking data set with significant clustering .
+finally , the proposed schemes are extended to allow them to be used in settings where participant anonymity is required .
+systematic experiments show favorable tradeoffs between anonymity guarantees and estimator performance .
+taken together , we demonstrate that reasonable population size estimates are derived from anonymous respondent driven samples of 250 - 750 individuals , within ambient populations of 5,000 - 40,000 .
+the method thus represents a novel and cost - effective means for health planners and those agencies concerned with health and disease surveillance to estimate the size of hidden populations .
+we discuss limitations and future work in the concluding section .
+http :// dx.doi.org / 10.13039 / 100000001national science foundationmms - 0851555 fellows ian http :// dx.doi.org / 10.13039 / 100000001national science foundationses - 1357619 fellows ian http :// dx.doi.org / 10.13039 / 100000026national institute on drug abuser01 da037117http :// orcid.org / 0000 - 0001 - 8823 - 6752 khan bilal http :// dx.doi.org / 10.13039 / 100000057national institute of general medical sciencesr01 gm118427http :// orcid.org / 0000 - 0001 - 8823 - 6752 khan bilal http :// dx.doi.org / 10.13039 / 100000026national institute on drug abuser01 da037117http :// orcid.org / 0000 - 0002 - 9185 - 0240 dombrowski kirk http :// dx.doi.org / 10.13039 / 100000057national institute of general medical sciencesr01 gm118427http :// orcid.org / 0000 - 0002 - 9185 - 0240 dombrowski kirk research reported in this publication was supported by the national institutes for health , national institute on drug abuse under award number r01 da037117 and national institute for general medicine r01 gm118427 , as well as national science foundation grants mms - 0851555 and ses - 1357619.data availabilityall java software developed and used is available at https :// github.com / grouptheory / telefunken - support / tree / master / java .
+all r software developed and used is available at https :// github.com / grouptheory / telefunkensupport / tree / master / r - v1 .
+all data inputs and outputs are available at https :// github.com / grouptheory / telefunken - support / tree / master / figures _ and _ data .
+data availability all java software developed and used is available at https :// github.com / grouptheory / telefunken - support / tree / master / java .
+all r software developed and used is available at https :// github.com / grouptheory / telefunkensupport / tree / master / r - v1 .
+all data inputs and outputs are available at https :// github.com / grouptheory / telefunken - support / tree / master / figures _ and _ data .
+1 introduction estimating the size of hidden and hard - to - reach populations is of critical importance to health officials seeking to mitigate the extent of health problems that may be concentrated within such populations [ 1 ] , or when " reservoirs " of infection among a hidden population pose a health risk to the ambient population in which the hidden population is embedded [ 2 , 3 ] .
+in the former , otherwise treatable maladies can remain unaddressed , multiplying eventual treatment costs when cases are discovered at more advanced stages .
+such is the situation , for example , with mental illness among homeless and street dwelling populations [ 4 - 6 ] .
+an embedded " hidden " population can also frustrate intervention efforts that might otherwise be effective in the ambient population , preventing control of infection prevalence [ 7 ] .
+one example of this is the high prevalence of sexually transmitted disease among commercial sex workers [ 8 - 10 ] .
+in all such situations , health officials seek to estimate both the overall prevalence levels of maladies within a hidden population and the size of the population itself , in order to know the scope of treatment needs and overall social risk .
+efforts to ascertain prevalence and size estimates are frustrated by a range of factors that contribute to the " hiddenness " of the population .
+such factors include heavy social stigma that inhibits the members of the hidden population from revealing their membership status .
+this is the case for people who inject drugs ( pwid ) , who may be unwilling to self - identify as such under ordinary survey conditions [ 11 , 12 ] .
+hiddenness due to stigma can be further compounded when such activities are illegal , when they carry heavy personal costs ( such as when self - identified heterosexual men also have sex with men ) , or when disease status is unknown ( such as undiagnosed hiv infection rates among pwid ) .
+in these situations , conventional sampling is unreliable , and ordinary multiplier methods based on conventional sampling are rendered ineffective .
+a number of techniques have been devised to address the problems of prevalence and population size estimation .
+these include capture - recapture [ 13 , 14 ] , chain referral [ 15 , 16 ] , venue - based sampling [ 17 , 18 ] , cluster sampling [ 19 ] , and combinations thereof .
+among the most popular is respondent - driven sampling ( rds ) [ 20 - 22 ] , which has been adapted for use in many situations , and which is employed widely in hiv surveillance efforts both within the united states and beyond [ 23 ] .
+rds employs an incentivized chain referral process to recruit a sample of the hidden population .
+under restricted but recognized conditions , rds can be shown to result in a steady - state , " equilibrium " sample , and numerous methods have been derived for producing reasonable prevalence estimates from such a sample , while accounting for biases introduced in the referral process [ 24 - 29 ] .
+the ease of implementing rds , the fact that it can operate under conditions of anonymity ( via numbered coupons that track referrals ) , and its rigorous treatment under a range of statistical assumptions have made it a popular choice for researchers working with hidden populations [ 30 ] .
+while significant operational , design and analytical challenges frequently arise in deploying the rds framework [ 31 - 33 ] , the ability of the rds - based methods to produce meaningful prevalence data remains , and presents considerable potential for use in population size estimation .
+unfortunately , rigorous strategies for estimating the overall size of the hidden population from rds data have been less successful , relying on simulation - based validation that fails to yield analytic insight , and generating widely varying estimates [ 34 , 35 ] .
+while berchenko and frost have developed techniques that combine capture - recapture methods with rds , their approach requires an initial degree - biased random sample and a second ( independent ) respondent driven sample [ 36 ] .
+their hybrid schemes have been validated through simulations , and applied in the context of several field studies [ 37 , 38 ] .
+in comparison , the approach we develop here requires only a single rds sample , and is evaluated through both mathematical proofs and simulation experiments .
+other specialized methods have been developed to address size estimation for hidden populations , including capture - recapture procedures ( sometimes called mark - recapture or multiplier procedures ) [ 39 , 40 ] and network scale - up methods ( nsum ) [ 41 ] .
+multiplier schemes typically use a sample of the hidden population and some external , often institutional knowledge - base ( e.g. arrest records or hospital admissions ) for estimation purposes [ 14 , 42 ] .
+in these methods , two assumptions must generally be met : ( i ) the sample is representative of the hidden population at large , and ( ii ) everyone in the hidden population is equally likely to be " captured " in the official statistics being used [ 43 ] .
+while representativeness can sometimes be assumed ( as in the case of rds ) , it is often difficult to establish the uniformity of the capture statistics .
+frankly stated , police arrests and hospital admissions can seldom be assumed to draw randomly from the hidden population .
+further , capture - recapture / multiplier methods often require that the sample be identifiable in the institutional record , implying that expectations of anonymity on the part of sample respondents be abandoned .
+when working with hidden and highly stigmatized populations , such a sacrifice can be highly detrimental to both recruitment and informant reliability [ 44 ] .
+network scale - up methods are also used to establish the size of hidden populations , though work in this area remains at an early stage .
+here members of the entire population ( ambient plus hidden ) are asked to report on the number of known associates who fit the hidden population criteria [ 45 , 46 ] .
+this approach has the advantage of being employable under ordinary random sampling conditions that can make use of known sampling frames ( i.e. mail surveys and / or random digit dialing ) [ 47 ] .
+however , the technique requires that ordinary people know whom among their associates fit the criteria for inclusion in the hidden category [ 48 , 49 ] .
+such an assumption faces objections in many of the situations in which we might wish to apply the technique , as when we seek to estimate the size of populations of pwid or sex workers .
+in these types of settings , individuals from the hidden population may go to great lengths to hide their membership status from friends and associates .
+such effects inject " transmission error " into nsum calculations , a quantity that is difficult to both detect and measure .
+in previous work , we presented a novel capture - recapture methodology for estimating the size of a hidden population from an rds sample [ 50 ] , referred to there as the " telefunken " method .
+the method could be easily integrated into a conventional rds framework , allowing researchers to continue to take advantage of the wide body of work on rds and its ability to yield reliable prevalence estimates .
+the method was adopted experimentally in the context of efforts to collect data on commercially sexually exploited children [ 51 ] and , later , users of methamphetamine [ 52 ] .
+both these studies made use of rds and took place in new york city .
+subsequent implementations of the technique provided further evidence of its effectiveness and ease of implementation [ 34 ] .
+the telefunken method was so named because its application entailed asking each rds respondent to report on others in the population known to them by providing an encoding of their associates' telephone number and demographic features ( note that the technique is in no way related to the german apparatus company , telefunken ) .
+in taking this approach , the method avoided reliance on official statistics ( as needed in scale - up methods ) , and the requirement of drawing two independent samples ( as needed by capture - recapture methods ) .
+each individual 's code was created by considering a protocol - specified number of digits of their phone number , in order from last to first , and encoding each digit as 0 / 1 based on whether it was even or odd , and again 0 / 1 based on whether it was low ( 0 - 4 ) or high ( 5 - 9 ) ; in this manner , each subject and associate was " identified " by means of a multibit binary code .
+this many - to - one encoding allowed for ongoing anonymity for both respondents and their reported associates , while enabling the matching of contacts across numerous respondent interviews .
+in essence , the telefunken method represents a " one - step " approach which lifts many assumptions normally associated with other capture - recapture methods , and can be achieved using a single rds sample from the hidden population .
+if shown to be effective , such an approach lends simplicity and greater cost - effectiveness to the size estimation procedure , potentially allowing for widespread application .
+concerning the issue of anonymity , independently and in roughly the same time period , fellows put forward a general framework of privatized network sampling ( pns ) design [ 53 ] .
+pns addresses two of the major concerns with regard to rds data , namely the assumption that coupons are passed at random among alters , and that subjects can accurately report the number of alters that they have .
+as pns is closely related to rds , the standard rds estimators may be used on data collected with a pns design .
+given the growing interest in telefunken and pns - like techniques [ 26 , 34 , 54 ] , this paper aims to provide a systematic exposition of its strategy for one - step , anonymity preserving , network - based population size estimation .
+in what follows we formally describe the technique , analyze its mathematical properties , and validate its performance through simulations under a variety of implementation conditions .
+the simulations show considerable promise for the technique in scenarios normally associated with research among " hidden populations " .
+limitations and next steps toward validation / extension are discussed at the end of the paper .
+2 background current network size estimation methods are based on quantifying the " repetition " or overlap observed across multiple samples [ 55 ] - - where the category of objects sampled may be nodes , edges , distances , paths , motifs , or substructures [ 56 , 57 ] , depending on the specific approach in question .
+node sampling methods often begin by taking independent uniform random samples of the population .
+in interpreting the overlap between samples [ 58 , 59 ] , these methods are based on the same principle as the well - studied " coupon collector 's problem " from probability theory , for which maximum likelihood estimators and conservative confidence intervals are well known [ 60 ] .
+this classic method considers two uniform independent random samples [ 61 ] ; in ecology , the method is often referred to as the " mark and recapture " protocol .
+within a population v , the protocol first selects a uniform random " capture " sample s subset / equal v , and then a second ( and independent ) uniform random " recapture " sample r subset / equal v. from independence assumptions one infers that | v || s |=~| r || sintersectionr | ( 1 ) and hence | v |=~| s |.| r || sintersectionr | .
+( 2 ) the right - hand - side expression in ( 2 ) is known as the lincoln - peterson estimator [ 62 , 63 ] .
+many extensions and improvements to this classical technique have been developed , such as those making use of weighted sampling techniques [ 64 ] , or sampling that is biased by the degree distribution of network nodes [ 65 ] .
+edge sampling approaches to population size estimation have also been developed [ 66 - 68 ] .
+these methods not only consider a sampled set of nodes , but also elicit a sample of their network neighbors .
+while edge sampling encounters problems associated with a bias toward high degree nodes , these methods offer potential gains in efficiency in dense graphs and where independent random sampling of nodes is restricted .
+lastly , sampling via random walks represents a practical approach that is commonly used in estimating the size of social networks .
+random walk methods start from an arbitrary node , then move to a neighboring node uniformly at random , and iterate .
+a typical random walk visits every node with a frequency proportional to its degree , but this bias can be quantified by markov chain analysis , and corrected to enable the derivation of an estimate of graph size from the frequency with which sampled nodes appear ( and reappear ) during the walk process .
+random walk methods have largely used a sampling with replacement model , which may , in theory , introduce bias in estimates when the ( fractional ) size of the sample is large [ 24 , 69 ] ; however , there is some recent experimental evidence that such concerns may be overstated [ 70 ] .
+these methods are widely used to measure the size of online social networks , and are frequently employed in conjunction with a variety of web crawler data [ 71 - 75 ] .
+the approach developed here is inspired by and builds on several of the above strategies , including random walks and edge elicitation .
+an outline of this paper follows : in section 3.1 , we present a population estimator for uniform random samples .
+this estimator is extended for respondent - driven samples in section 3.2 .
+the two estimators are evaluated over a broad range of graph families ( see subsection 4.1 ) using a general experimental framework ( see subsection 4.2 ) .
+the experimental results are presented in sections 4.3 and 4.4 .
+in section 4.5 , we adapt the estimators for use in networks with clustering , showing in section 4.6 that the revised schemes continue to perform well on synthetic networks .
+in section 5 , we extend the network size estimation schemes to allow for protection of subject privacy .
+these anonymity - preserving extensions are evaluated through simulation experiments in sections 5.2 and 5.3 .
+the impact of non - uniformities is assessed in section 6 , with special consideration of degree bias in rds seed selection , and bottlenecking due to community structure .
+the performance of the proposed estimators is evaluated on a real - world network in section 7 .
+finally , discussion and limitations are presented in section 8 .
+3 new population size estimators we seek to generalize the lincoln - peterson framework of overlapping capture and recapture sets ( 2 ) to the context of networked populations , and describe it formally in the language of graphs .
+the following definition provides graph - theoretic notations which will be necessary in order to precisely define the proposed sampling and estimation processes .
+definition 1 .
+let g = ( v , e ) be a graph .
+for each v in v , denote the degree of v in g as d ( v ) .
+given a subset / equal v , denote the ( arithmetic ) mean degree of vertices in a as : d ( a ):= 1 | a | sumvinad ( v ) ( 3 ) and the ( harmonic ) mean degree of vertices in a as d ~( a ):=| a | sumvina1d ( v ) .
+( 4 ) noting that the latter is more robust against the presence of high - degree outliers .
+if h = ( s , f ) is a subgraph on s subset / equal v with edge set f subset / equal e intersection ( s x s ) , the " free neighborhood " of u ( in g modulo h ) is defined as n ( u,f ):={ v |( u,v ) ine \ f } subset / equalv .
+( 5 ) note that when g is allowed to have parallel edges ( as is the case when it is obtained through configuration graph sampling ) , then n ( u , f ) may be a multiset .
+the " free ends " of s ( in g modulo h ) are taken to be the disjoint union ( multiset ) r ( s,f ):= coproductuinsn ( u,f ) subset / equalv ( 6 ) and the " matches " of s ( in g modulo h ) are taken to be the disjoint union ( multiset ) m ( s,f ):= coproductuins ( n ( u,f ) intersections ) subset / equalv .
+( 7 ) we denote the respective cardinalities of these multisets as < r ( s,f )>:= sumuins | n ( u,f )|< m ( s,f )>:= sumuins | n ( u,f ) intersections | .
+notation 1 .
+in the arguments that follow , graph - theoretic quantities ( such as those formalized in definition 1 ) will sometimes be considered simultaneously in the context of more than one graph - - e.g. g1 = ( v1 , e1 ) , and g2 = ( v2 , e2 ) .
+to avoid ambiguity in such settings , we will make the context clear by appending the graph as a parameter - - e.g. the arithmetic mean degree of vertices in g1 is denoted d ( v1 ; g1 ) , while the harmonic mean degree of vertices in g2 is expressed as d ~( v2 ; g2 ) .
+notation 2 .
+whenever we are considering a multiset x , we will denote to its multiset cardinality as < x > , while its set cardinality will be written as | x *| .
+for example , if x = { 1 , 1 , 2 , 8 , 8 , 8 } then < x > = 6 , while | x *| = 3 .
+definition 2 .
+given multisets of vertices a , b subset / equal v we denote their characteristic functions as chia,chib : v - - > n and define the multisets a \ b , a intersection b , a union b by the respective characteristic functions chia \ b,chiaintersectionb,chiaunionb : v - - > n where for each v in v chia \ b ( v ):= max { 0,chia ( v ) - chib ( v )} chiaintersectionb ( v ):= min { chia ( v ) , chib ( v )} chiaunionb ( v ):= chia ( v )+ chib ( v ) .
+we say that a subset / equal b are multisets , if for - allv in v , we have chia ( v ) <= chib ( v ) .
+3.1 population size from a uniform random sample with the formalisms of definition 1 in place , we can define the estimator n1 , which , given a uniform random subset of vertices t subset / equal v , yields an estimate of | v | .
+definition 3 .
+given a graph g = ( v , e ) and t subset / equal v , define n1 ( t ):=| t |.< r ( t,empty )>< m ( t,empty )> .
+( 8 ) lemma 1 shows that as the sample size grows , n1 converges to | v | .
+lemma 1 .
+let g = ( v , e ) be a graph and let t1 subset / equal t2 subset / equal t3 subset / equal ...
+subset / equal v be an ascending chain converging to infinityi = 1infinityti = v. then limi - - > infinityn1 ( ti )| v |= 1. proof .
+put ri := r ( ti , empty ) , mi := m ( ti , empty ) , and deltai := ri \ mi. note that r1 subset / equal r2 subset / equal r3 subset / equal ... and m1 subset / equal m2 subset / equal m3 subset / equal ... are ascending chains of multisets , and mi subset / equal ri ( i = 1 , 2 ,...) .
+suppose u in deltai and chiri ( u )= a ; clearly 0 < a <= d ( u ) .
+then since the ascending chain ( ti ) i = 1 , 2 ,.. .
+converges to v , there exists a least j0 > i for which chimj ( u )= d ( u ) and therefore chideltaj ( u )= 0 for all j >= j0 .
+it follows that intersectioni = 1infinityri \ mi = empty where multiset intersection and difference are as described in definition 2 , and thus limi - - > infinity < ri >< mi >= 1 which implies limi - - > infinity n1 ( ti )/| ti | = 1 , completing the proof .
+the next proposition gives sufficient conditions under which uniform random samples t subset / equal v produce consistent estimates n1 ( t ) ~ | v | when | v | is large .
+concrete realizations of these conditions are presented in corollary 1 .
+proposition 1 .
+for n = 1 , 2 ,.. .
+let gn = ( vn , en ) be a graph on | vn | = f ( n ) vertices , where f ( n ) grows unboundedly .
+let cn in ( 0 , 1 ] and take tn subset / equal vn to be a subset of size | tn | = [ cn . f ( n )] selected using uniform random sampling in vn. if cn . f ( n ) diverges as n goes to infinity while cn2.d ( vn ) - - - > theta1 ( 9 ) for some finite constant theta1 > 0 , then n1 ( tn )| vn | necessarily converges to 1. proof .
+define random variables r n := 1f ( n )< r ( tn,empty )>= 1f ( n ) sumuintnd ( u ) ( 10 ) m n := 1f ( n )< m ( tn,empty )> .
+( 11 ) for uniform random u in vn , e [ d ( u )]= d ( vn ) .
+since | tn | = [ cn . f ( n )] diverges , the law of large numbers and linearity of expectation imply that as n tends to infinity < r ( tn,empty )>= sumuintnd ( u ) - - > psumuintnd ( vn )=| tn |. d ( vn ) ( 12 ) and thus cn.r n = 1f ( n )< r ( tn,empty )> - - > pcn.1f ( n ).| tn |. d ( vn )= cn2.d ( vn ) - - > ptheta1 .
+( 13 ) now for each u in tn we have e [< n ( u , fn ) intersection tn >] = d ( u ) . | tn |/ f ( n ) .
+again , by the law of large numbers and linearity of expectation , as n tends to infinity m n - - > pr n. | tn | f ( n )= r n.cn - - > ptheta1 .
+( 14 ) considering ( 13 ) and ( 14 ) as preconditions of slutsky 's theorem [ 76 ] , we conclude : n1 ( tn ) f ( n )= 1f ( n ). cn.f ( n ). r nm n - - > dplimn - - > infinitycn.r nplimn - - > infinitym n = theta1theta1 = 1 .
+the correspondence between eq ( 8 ) in definition 3 and our previous telefunken estimator is clear [ 77 ] .
+in addition , eq ( 8 ) demonstrates a parallel structure with the lincoln - peterson estimator shown in expression ( 2 ) : t represents the first assay ( set ) ; r ( t , empty ) stands for the second assay ( a multiset ) ; the multiset m ( t , empty ) is the subpopulation of the first assay that is recaptured by the second assay. of course , in the present setting , the second assay r ( t , empty ) is far from independent of the first assay t , since the two sets are intrinsically linked through the network geometry of g. nevertheless , the fact that t is a random subset of v is enough to neutralize the impact of this non - independence and enable consistent estimation of population size .
+corollary 1 .
+several special cases of proposition 1 are of interest .
+in each of these cases , it is straightforward to verify that as n goes to infinity , cn . f ( n ) diverges , while cn2.d ( vn ) tends to some finite strictly positive constant : when f ( n ) = o ( n ) , cn = o ( 1 ) is a constant , and d ( vn )= o ( 1 ) is a constant .
+in this case , we have a family of graphs of increasing size and constant average degree , in which we are taking uniform random samples whose size is a constant proportion of the entire population .
+when f ( n ) = o ( n ) , cn = o ( g ( n )/ n ) , and d ( vn )= o ( n1 - epsilon / g ( n ) 2 ) , where g ( n ) is a function which diverges , and epsilon > 0 is a constant .
+for example , if we take g ( n ) = nepsilon , then cn = o ( 1 / n1 - epsilon ) , and d ( vn )= o ( n1 - 3epsilon ) .
+as epsilon tends to 0 , we approach a family of graphs of increasing size and linear average degree , in which we are taking uniform random samples of an absolute constant size .
+this special limit case is manifested by erdos - renyi graphs [ 78 ] .
+3.2 population size from a respondent - driven sample although the n1 estimator shows robust performance under uniform random sampling ( see section 4.3 ) , random sampling is seldom a feasible strategy with hidden populations .
+as discussed above , sampling hard - to - reach populations presents considerable practical challenges [ 55 ] , and many current surveys of hidden populations have come to depend on a tracked " peer referral " process known as respondent driven sampling [ 21 ] .
+for purposes of estimation , we consider a respondent - driven sample to be a random variable based on several parameters : an underlying networked population g = ( v , e ) , a specified number of seeds | d | , the number of recruiting coupons c to be given to each subject , and the target sample size r. in our simulation experiments , the sampling procedure begins by randomly choosing | d | initial " seed " subjects in the network .
+for most of this paper , seeds are selected uniformly at random , though later , in section 6 , we will report on the differential impact of non - uniform rds seed selection - - specifically , seed selection that is biased by ego network size or restricted by the presence of community structures .
+each seed subject is given c recruiting coupons and asked to participate in a " referral " process by distributing these among their study - eligible peers .
+each subject v succeeds in recruiting between 0 and min { c , d ( v )} individuals from their ego network , with the precise number being determined stochastically according to a specified distribution deltar on { 0 , 1 , ... , c } .
+each referred peer is assumed to come in for their interview at a time that is offset from their recruiter 's interview by an amount that random and exponentially distributed with rate lambdaw .
+when one or more of the recruited peers come in for interview with the coupon given to them by their recruiter , they too are given c coupons and asked to participate in the referral process .
+the scheme proceeds recursively in this manner using a finite number of 3r depletable coupons , until all r individuals have been recruited and interviewed .
+if ( and whenever ) the referral process stalls before r subjects have been interviewed , a new seed is recruited .
+participation incentives are arranged to ensure that no subject will be the recipient of more than one coupon , and thus the process results in a collection of disjoint directed trees rooted at the seeds [ 79 ] .
+the precise values of the rds parameters | d | , c , r and implementation parameters deltar , lambdaw for our simulation experiments are detailed in assumption 2 ; the stochastic process used to generate the underlying synthetic networks g ( v , e ) on which this rds operates is described in section 4.1 .
+given the tendency of rds to oversample high degree nodes , issues arise when estimation techniques attempt to make use of the degree statistics of a respondent driven sample .
+special steps must be taken to account for differences between the average degree of an rds sample and the average degree of the population from which the rds sample is drawn .
+the simplifying assumption below is needed for our formal proofs of the proposed estimators' performance .
+we emphasize that this assumption is not enforced ( and is often violated ) within the synthetic networks we used in our simulations , through which the proposed estimators' performance was experimentally evaluated .
+assumption 1 .
+whenever we are considering h = ( s , f ) to be a subgraph on s subset / equal v obtained through an rds process inside graph g = ( v , e ) , we will assume d ~( s )~ d ( v ) .
+this assumption is justified in prior work [ 20 , 22 ] , is provably true for configuration graphs [ 24 ] , and is reflective of the basic fact that the harmonic mean is robust against the presence of high - degree outliers , as we may expect to face when s is obtained via a non - uniform sampling process like rds .
+the next estimator n2 , provides an estimate | v | from a respondent driven sample s subset / equal v. definition 4 .
+given a graph g = ( v , e ) , a set s subset / equal v , and h = ( s , f ) a subgraph with edge set f subset / equal e intersection ( s x s ) , define n2 ( s,f ):= d ( s ) - 1d ~( s ).| s |.< r ( s,f )>< m ( s,f )> ( 15 ) the next proposition gives sufficient conditions under which respondent - driven samples s subset / equal v produce consistent estimates n2 ( t ) ~ | v | when | v | is large .
+proposition 2 .
+for n = 1 , 2 , ...
+let gn = ( vn , en ) be a graph obtained by configuration graph sampling via degree distribution dn , where the vertex set size | vn | = f ( n ) grows unboundedly .
+let cn in ( 0 , 1 ] , and take sn subset / equal vn to be a subset of size | sn | = [ cn . f ( n )] selected using rds sampling in gn from | dn | seeds chosen uniformly at random .
+define the random variable deltan := d ( sn ) - 1d ~( sn ) .
+accepting assumption 1 , if cn . f ( n )/ dn diverges as n goes to infinity , while deltan2.cn2.d ( vn )=( d ( sn ) - 1 ) 2.cn2d ~( sn ) - - > ptheta2 ( 16 ) for some finite constant theta2 > 0 , then n2 ( sn )| vn | necessarily converges to 1. proof .
+let ( sn , fn ) be a subgraph produced by an rds sampling process in gn , and let tn subset / equal vn be an equal - sized set of vertices chosen by uniform random sampling , i.e. | tn | = | sn | .
+for random u in sn and v in tn , as n tends to infinity | n ( u,empty )| d ( sn ) - | n ( v,empty )| d ( tn )=| n ( u,empty )| d ( sn ) - | n ( v,empty )| d ( vn )=| n ( u,empty )| d ( sn ) - | n ( v,empty )| d ~( sn ) - - > p0 .
+( 17 ) where the first equality stems from the law of large numbers , and the second from assumption 1 .
+now sn is an rds sample and hence is the disjoint union of dn many trees .
+it follows that | fn || sn |= 1 - | dn |[ cn.f ( n )] .
+since | sn | = [ cn . f ( n )] diverges and cn . f ( n )/ dn diverges , we may conclude that limn - - > infinity | fn || sn |= 1 .
+( 18 ) we note that | n ( u , fn )| <= | n ( u , empty )| , and incorporating ( 18 ) back into the final expression in ( 17 ) , we deduce | n ( u,fn )| d ( sn ) - 1 - | n ( v,empty )| d ~( sn ) - - > p0 .
+( 19 ) definition 1 's eq ( 6 ) and linearity of expectation then imply that as n tends to infinity < r ( sn,fn )> - - > pd ( sn ) - 1d ~( sn ).< r ( tn,empty )> .
+( 20 ) the configuration graph sampling process dictates that as n tends to infinity , for uniformly random u in sn e [< n ( u,fn ) intersectionsn >]=[ d ( u ) - 1 ].< r ( sn,fn )> 2 | en |=[ d ( u ) - 1 ].< r ( sn,fn )> d ( vn ). f ( n ) .
+definition 1 's eq ( 7 ) , expression ( 20 ) , the law of large numbers , and linearity of expectation , together imply that as n tends to infinity < m ( sn,fn )> - - > p < r ( sn,fn )> 2d ( vn ). f ( n ) - - > p1d ( vn ). f ( n ).[ d ( sn ) - 1d ~( sn )] 2. < r ( tn,empty )> 2 .
+( 21 ) define the following random variables , closely related to ( 10 ) and ( 11 ) of proposition 1 : rn *:=< r ( sn,fn )>/ f ( n )= deltan.r n - - > pdeltan.cn.d ( vn ) ( 22 ) mn *:=< m ( sn,fn )>/ f ( n )= deltan2.r n2 / d ( vn ) - - > pdeltan2.cn2.d ( vn ) ( 23 ) from our assumptions on the convergence of deltan2.cn2.d ( vn ) , we see that as n tends to infinity deltan.cn.rn *= deltan2.cn2.d ( vn ) - - > ptheta2 ( 24 ) mn * - - > ptheta2 ( 25 ) considering ( 24 ) and ( 25 ) as preconditions of slutsky 's theorem [ 76 ] , we conclude : n2 ( sn ) f ( n )= 1f ( n ). deltan.cnf ( n ). rn * mn * - - > dplimn - - > infinitydeltan.cn.rn * plimn - - > infinitymn *= theta2theta2 = 1 .
+4 evaluating the n1 and n2 estimators to evaluate the proposed estimators n1 ( 8 ) and n2 ( 15 ) , we conducted simulation experiments on samples drawn from synthetic networks using uniform and respondent - driven sampling , respectively .
+underlying networks were selected by configuration sampling techniques [ 80 - 82 ] relative to lognormal , poisson , and exponential distributions .
+we also considered barabasi - albert graphs [ 83 ] , and erdos - renyi graphs [ 78 ] .
+4.1 synthetic networks the tendency of rds to over - recruit high degree nodes is well known , and readily evidenced in experiments on idealized topologies .
+attempts to model peer - referral or " snowball " recruitment processes point to the fact that the degree distribution of nodes can influence the performance of mean estimators [ 84 ] , suggesting bayesian approaches which make use of degree distribution data in the derivation of population size estimates [ 35 , 85 ] .
+to validate the n1 and n2 estimators against a wide range of possible topologies , five idealized families of random graphs were used to perform initial experiments .
+in later sections , we take up the issue of clustering ( section 4.5 ) , anonymity ( section 5 ) , non - uniformity in the seed selection ( section 6 ) , and performance on a real - world network ( section 7 ) .
+in what follows , configuration graphs were sampled ( relative to a specified degree distribution ) by first attaching the prescribed number of free half - edges to each node .
+pairs of free half - edges were then chosen uniformly at random and bound together to form an edge , repeatedly , until no free half - edges remain .
+note that this sampling process may yield graphs that have multiple parallel edges and self loops .
+definition 5 .
+given a set v with | v | = n , for each lambdainr , lambda > 1 , let distributions dl ( lambda ) , dp ( lambda ) , dx ( lambda ) , and dr ( lambda ) : v - - > n be defined such that for each v in v : dl ( lambda,n )( v )= 1 + x where x is a lognormal random variable with mean lambda - 1 and standard deviation 1 .
+dp ( lambda,n )( v )= 1 + x where x is a poisson random variable with rate parameter lambda - 1 .
+dx ( lambda,n )( v )= 1 + x where x is an exponential random variable with mean lambda - 1 .
+corresponding to each of the three distributions above , let l ( lambda,n ) , p ( lambda,n ) , x ( lambda,n ) , r ( lambda,n ) be the sample spaces of configuration graphs g = ( v , e ) where | v | = n. note that a random graph drawn from these sample spaces will have expected mean vertex degree e [ d ( v )]= lambda .
+definition 6 .
+for each lambdainr , lambda > 1 , let b ( lambda,n ) be the sample space of n - vertex barabasi - albert graphs g = ( v , e ) .
+each such graph is the final output of a process which produces a sequence of graphs gi = ( vi , ei ) on vi := { v1 , ...
+vi } with lambda <= i <= n. the initial graph glambda = ( vlambda , elambda ) is taken to be the complete graph on lambda vertices , i.e. e = vlambda x vlambda .
+at each stage i > lambda of the process , node vi ( lambda < i <= n ) connects to a random number deltai :=| ei \ ei - 1 |={[ lambda / 2 ] withprobability1 +[ lambda ] - lambda1 +[ lambda / 2 ] otherwise. of pre - existing nodes { pi,1 ,... pi,deltai } subset / equalvi - 1 .
+this set is constructed by sequential sampling without replacement , i.e. as l = 1 , ... , deltai , each of the candidates w in ci , l := vi - 1 \{ vi,1 , ...
+vi,l - 1 } is chosen with a probability that reflects degree - biased preferential attachment prob ( pi,l = w )= 1 + d ( w ; gi - 1 ) sumw'inci,l1 + d ( w ' ; gi - 1 ) .
+here d ( w ; gi - 1 ) denotes the degree of vertex w in graph gi - 1 = ( vi - 1 , ei - 1 ) .
+the final member of the resulting sequence gn = ( vn , en ) is output as the sampled graph .
+note that if n >> lambda , the process above results in a graph g = ( v , e ) , sampled from b ( lambda,n ) , and having expected mean vertex degree e [ d ( v )]~ lambda .
+definition 7 .
+for each lambdainr , lambda > 0 , let e ( lambda,n ) be the sample space of n - vertex erdos - renyi graphs g = ( v , e ) , where e subset / equal v x v is a random subset constructed uniformly at random by taking : prob (( u,v ) ine )={ lambda /( n - 1 ) u != v0u = v for each ( u , v ) in v x v. note that a random graph g = ( v , e ) drawn from e ( lambda,n ) will have expected mean vertex degree e [ d ( v )]~ lambda .
+4.2 experimental framework for each of the 5 families l ( lambda,n ) , p ( lambda,n ) , x ( lambda,n ) , b ( lambda,n ) , and e ( lambda,n ) defined in section 4.1 , we varied lambda = 3 , 5 , 10 ; from each of these 15 concrete sample spaces , we used configuration graph sampling to select 30 random graphs of sizes n = 5000 , 10k , 20k and 40k .
+in each of these 5 x 3 x 4 x 30 = 1,800 graphs , we generated 30 uniform and 30 rds samples of size r = 250 , 500 and 750 .
+in this manner , a total of 1 , 800 x 30 x 3 x 2 = 324 , 000 simulations were conducted .
+section 4.3 reports on simulation experiments in which n1 was applied to uniform random samples ; experiments in which n2 was applied to respondent driven samples are presented in section 4.4 .
+4.3 evaluating n1 on synthetic networks the experiments here follow the framework described in section 4.2 and use uniform random samples .
+the 12 graphs in fig 1 present the performance of the n1 estimator as the true population size n is varied from 5 . 103 to 40 . 103 ( vertical axis of the grid ) and the size of the uniform sample is varied from 250 to 750 ( horizontal axis of the grid ) .
+in each of the 12 graphs , the x - axis varies the average degree lambda from 3 to 10 .
+for each choice of lambda , the medians and quartile ranges of n1 are given for each of the 5 graph families .
+each of these is determined by 900 simulations ( 30 graphs times 30 uniformly drawn samples in each graph ) .
+10.1371 / journal.pone.0195959.g001 fig 1 estimator n1 on uniform samples in populations of size n = 5 . 103 to 40 . 103. in each box , the thick line indicates the sample median ; the top of the box is the median of the upper half of the estimated values ( 75 % quartile ) ; the bottom of the box indicates the median of the lower half of the estimated values ( 25 % quartile ) ; and the whiskers indicate the full range of estimated values .
+no ( finite ) outliers were removed .
+fig 1 shows that as sample size increases , the medians of n1 converge to the true population size .
+for example , when n = 5 . 103 and r = 250 , exponential degree distribution graphs with lambda = 3 have a median n1 value of 5663 ( a 13.3 % offset from the true value of n = 5 . 103 ) .
+in comparison , when r = 750 , the median for this family of graphs is 5204 ( just 4.1 % offset from the true value ) .
+as the sample size increases from r = 250 to r = 750 , the error in the median estimate decreases by 9.2 % .
+the benefit of increasing sample size diminishes as networks grow larger , however .
+for example , for a network of size n = 40 . 103 , increasing the sample size from r = 250 to r = 750 causes the error in the median n1 estimate to undergo only a 2 % change .
+in addition , fig 1 shows that as sample size increases , the interquartile range ( iqr ) of the estimates decreases .
+for example , when n = 5 . 103 and r = 250 , lognormal degree distribution graphs with lambda = 10 experience an interquartile range of 1950 in their n1 estimates ( 35.9 % of the median ) .
+in comparison , when r = 750 , the interquartile range for this family of graphs decreases to 1425 ( a 26.9 % reduction ) .
+the magnitude of this effect increases as networks grow larger .
+for example , for a network of size n = 40 . 103 , increasing the sample size from r = 250 to r = 750 causes the interquartile range of the n1 estimate to undergo a 48.6 % decrease .
+4.4 evaluating n2 on synthetic networks the experiments in this and all subsequent sections use respondent - driven samples .
+the precise values of the rds parameters | d | , c , r and implementation parameters deltar , lambdaw are given below .
+assumption 2 .
+in all our experiments where rds is used to generate samples , we take | d | = 7 random seeds drawn uniformly at random from v. each subject was given c = 3 coupons .
+depending on the experiment , the sample size r was either 250 , 500 , or 750 .
+reflecting our experiences in the field [ 86 ] , we took the recruiting success distribution deltar such that each subject had a 90 % chance of recruiting 2 subjects randomly from their ego network , and a 10 % chance of recruiting just 1 .
+[ individuals with an ego network of size 1 were assumed to recruit that one individual with 100 % probability , while individuals with an ego network of size 0 recruited no one ] .
+the delay between recruiter and recruited subjects' interview times were assumed to be exponentially distributed with rate lambdaw = 1 .
+the 12 graphs in fig 2 present the performance of the n2 estimator as the true population size n is varied from 5 . 103 to 40 . 103 ( vertical axis of the grid ) and the size of the rds sample is varied from 250 to 750 ( horizontal axis of the grid ) .
+in each of the 12 graphs , the x - axis varies the average degree lambda from 3 to 10 .
+for each choice of lambda , the medians and quartile ranges of n2 are given for each of the 5 graph families .
+each of these is determined by 900 simulations ( 30 graphs times 30 uniformly drawn samples in each graph ) .
+10.1371 / journal.pone.0195959.g002 fig 2 estimator n2 on rds samples in populations of size n = 5 . 103 to 40 . 103. in each box , the thick line indicates the sample median ; the top of the box is the median of the upper half of the estimated values ( 75 % quartile ) ; the bottom of the box indicates the median of the lower half of the estimated values ( 25 % quartile ) ; and the whiskers indicate the full range of estimated values .
+no ( finite ) outliers were removed .
+fig 2 shows that the median of n2 converges to the true population size across a range of topologies , rds sample sizes , and overall populations .
+in addition , fig 2 shows that as sample size increases , the interquartile difference decreases .
+for example , when n = 5 . 103 and r = 250 , poisson degree distribution graphs with lambda = 3 experience an interquartile range of 1676 in their n2 estimates ( 33.8 % of the median ) .
+in comparison , when r = 750 , the interquartile range for this family of graphs decreases to 524 ( a 68.7 % reduction ) .
+the magnitude of this effect decreases as networks grow larger , such that , for a network of size n = 40 . 103 , increasing the sample size from r = 250 to r = 750 causes the interquartile range of the n2 estimate to undergo a 60.8 % decrease .
+however , the total range of estimates as a proportion of the median decreases as sample size increases , indicating decreasing sample - based variance ( a key concern in rds sampling [ 28 ]) .
+4.5 population size estimation in the presence of clustering beyond the oversampling of high degree nodes , rds faces challenges when used in networks where network clustering is pronounced [ 49 , 87 ] .
+while methods are available to assess the presence of clustering [ 25 ] , and recent work has proposed new techniques to estimate and account for clustering from a single rds sample [ 88 ] , the effects of this phenomenon on population size estimation from rds samples is seldom discussed .
+the root of the problem lies in the fact that rds walks necessarily sample network neighborhoods .
+where neighbors show high levels of network transitivity , counts of common edges will produce high numbers of " matches " that appear in the denominator of both n1 and n2 .
+this will bias the estimates of overall population size derived from these estimators toward underestimation of the total network size .
+in the context of random walk techniques , one approach to this problem is to only consider collisions among nodes that are far away from each other in the sampling chain when inferring a population size estimate [ 75 ] .
+a similar approach is taken here by considering neighbor overlap among respondents whose path distances in the rds chains are above a specific threshold .
+for simplicity , here we take this threshold to be infinity , leaving the consideration of finite thresholds for consideration in future research .
+in short , we consider a modification of n2 that discounts matched free ends within a single rds sampling tree and , for purposes of estimation , only counts those matches that occur across distinct rds trees .
+the next definition introduces formalisms necessary to make this precise .
+definition 8 .
+let g = ( v , e ) , take s subset / equal v , and let h = ( s , f ) be a subgraph on s subset / equal v with edge set f subset / equal e intersection ( s x s ) obtained by respondent driven sampling from a set of seeds d subset / equal s where | d | > 1 .
+define the function gamma : s - - > d associating each u in s with the unique seed gamma ( u ) in d from which u was discovered through a sequence of referrals .
+for each u in s , the component of u is denoted cgamma ( u ):={ v | gamma ( v )= gamma ( u )} subset / equals ( 26 ) while its complement is written c ~ gamma ( u ):= s \ cgamma ( u ) .
+note that cgamma ( u ) intersectionc ~ gamma ( u )= empty .
+for each seed s in d , we define the cross - seed matches from the cgamma ( u ) component ( in g modulo h ) as the disjoint union ( multiset ) x ( s,f,gamma ):= coproductuincgamma ( s )( n ( u,f ) intersectionc ~ gamma ( s )) subset / equalv ( 27 ) whose cardinality is denoted < x ( s,f,gamma )>:= sumuincgamma ( s )| n ( u,f ) intersectionc ~ gamma ( s )| .
+the next estimator n3 , provides a revised estimate | v | from a respondent driven sample s subset / equal v , discounting matches that occur within the same rds component .
+definition 9 .
+given a graph g = ( v , e ) , a set s subset / equal v , and h = ( s , f ) a subgraph on s subset / equal v with edge set f subset / equal e intersection ( s x s ) .
+take d subset / equal s satisfying | d | > 1 and s1 != s2 => cgamma ( s1 ) intersectioncgamma ( s2 )= empty .
+define n3 ( s,f,d,gamma ):= sumsindd ( c ~ gamma ( s )) - 1d ~( s ).| c ~ gamma ( s )|.< r ( cgamma ( s ) , f )> sumsind < x ( s,f,gamma )> .
+( 28 ) the next proposition gives sufficient conditions under which respondent - driven samples s subset / equal v produce consistent estimates n3 ( t ) ~ | v | when | v | is large .
+proposition 3 .
+for n = 1 , 2 , ... , let gn = ( vn , en ) be a graph on | vn | = f ( n ) vertices obtained by configuration graph sampling via degree distribution dn , where f ( n ) grows unboundedly .
+let cn in ( 0 , 1 ] , and take sn subset / equal vn to be a subset of size | sn | = [ cn . f ( n )] selected using rds sampling in gn from | dn | > 1 seeds .
+define the random variable deltan := d ( sn ) - 1d ~( sn ) .
+accepting assumption 1 , if cn . f ( n )/ dn diverges as n goes to infinity , while deltan2.cn2.d ( vn ).| dn | - 1 | dn |=( d ( sn ) - 1 ) 2.cn2d ~( sn ).| dn | - 1 | dn | - - > ptheta3 ( 29 ) for some finite constant theta3 > 0 , then n3 ( sn,fn,dn,gamma ) f ( n ) necessarily converges to 1. proof .
+since each seed s in dn is chosen uniformly at random , and rds recruits from all seeds concurrently , and | sn | = [ cn . f ( n )] diverges , for random s in dn , we know that | cgamma ( s )| - - > p1 | dn |.| sn |= cn.f ( n )| dn | ( 30 ) | c ~ gamma ( s )| - - > p | dn | - 1 | dn |.| sn |=| dn | - 1 | dn |. cn.f ( n ) ( 31 ) d ( cgamma ( s )) , d ( c ~ gamma ( s )) - - > pd ( sn ) .
+( 32 ) combining ( 30 ) and ( 32 ) , we conclude < r ( cgamma ( s ) , fn )> - - > p < r ( sn,fn )>| dn | .
+( 33 ) sufficient reasoning about the configuration graph construction process tells us < x ( s,fn,gamma )> - - > p1 | dn |.< m ( sn,fn )>.| dn | - 1 | dn | .
+( 34 ) define the following random variables , closely related to ( 22 ) and ( 23 ) of proposition 2 : rno := sumsindnd ( c ~ gamma ( s )) - 1d ~( s ).| c ~ gamma ( s )|.< r ( cgamma ( s ) , fn )>/ f ( n ) mno := sumsindn < x ( s,fn,gamma )>/ f ( n ) .
+as n tends to infinity rno - - > pd ( sn ) - 1d ~( s )(| dn | - 1 | dn |. cn.f ( n )). rn *( sn,fn ) mno - - > p | dn | - 1 | dn |. mn *( sn,fn ) .
+where rn *( sn,fn ) - - > pdeltan.cn.d ( vn ) as noted in ( 22 ) , while mn *( sn,fn ) - - > pdeltan2.cn2.d ( vn ) as noted in ( 23 ) .
+thus rno - - > pdeltan2.cn2.d ( vn ).| dn | - 1 | dn |. f ( n )= theta3.f ( n ) mno - - > pdeltan2.cn2.d ( vn ).| dn | - 1 | dn |= theta3. by slutsky 's theorem [ 76 ] , it follows that n3 ( sn,fn,dn,gamma ) f ( n )= 1f ( n ). rnomno - - > dplimn - - > infinity1f ( n ). rnoplimn - - > infinitymno = theta3theta3 = 1 .
+( 35 ) 4.6 evaluating n3 on synthetic networks prior to examining the performance of n3 on empirical networks , we first look at its performance on the synthetic networks used to evaluate n1 and n2 .
+the experiments shown in fig 3 follow the framework described in section 4.2 and use respondent driven samples , each obtained via an rds process operating as specified in assumption 2 .
+10.1371 / journal.pone.0195959.g003 fig 3 estimator n3 on rds samples in populations of size n = 5 . 103 to 40 . 103. in each box , the thick line indicates the sample median ; the top of the box is the median of the upper half of the estimated values ( 75 % quartile ) ; the bottom of the box indicates the median of the lower half of the estimated values ( 25 % quartile ) ; and the whiskers indicate the full range of estimated values .
+no ( finite ) outliers were removed .
+the 12 graphs in fig 3 present the performance of the n3 estimator as the true population size n is varied from 5 . 103 to 40 . 103 ( vertical axis of the grid ) and the size of the rds sample is varied from 250 to 750 ( horizontal axis of the grid ) .
+in each of the 12 graphs , the x - axis varies the average degree lambda from 3 to 10 .
+for each choice of lambda , the medians and quartile ranges of n3 are given for each of the 5 graph families .
+each of these is determined by 900 simulations ( 30 graphs times 30 uniformly drawn samples in each graph ) .
+fig 3 shows that the median of n3 converge to the true population size , much like the performance of the n2 estimator .
+in all the networks , the medians of n3 estimates are all very close to the their true network populations , regardless the sample size , population size , and type of network topology .
+in addition , fig 3 shows that as sample size increases , the interquartile range of the estimates decreases .
+for example , when n = 5 . 103 and r = 250 , lognormal degree distribution graphs with lambda = 3 experience a interquartile range of 1915 in their n3 estimates ( 39.1 % of the median ) .
+in comparison , when r = 750 , the interquartile range for this family of graphs decreases to 604 ( a 68.5 % reduction ) .
+the magnitude of this effect decreases as networks grow larger .
+for example , in a network of size n = 40 . 103 , increasing the sample size from r = 250 to r = 750 causes the interquartile range of the n3 estimate to undergo a ( still sizable ) 55.0 % decrease .
+5 subject privacy through hashing significant obstacles arise in the direct application of estimators n1 , n2 , n3 ( see ( 8 ) , ( 15 ) , and ( 28 ) , respectively ) .
+in many circumstances where rds is used , researchers are often required to measure the sizes of stigmatized networked populations ( e.g. people who inject drugs , sex workers , individuals engaged in specific types of illegal activity , etc. ) and within social communities that naturally seek to remain " unidentified " .
+in these circumstances , the membership of sets s and r ( s , f ) is often not explicitly knowable because individuals are reluctant to unambiguously identify themselves or their social network peers .
+to formalize and accommodate notions of privacy required under such circumstances within the estimation procedures described above , we assume that each individual in v = { v1 , v2 , ... , v | v |} has a unique id ; for simplicity we take the id of vi in v to be the integer i ( for i = 1 , ... , | v |) .
+towards ensuring anonymity , we imagine a hashing [ 89 ] function psi : v - - > omega that assigns each individual 's id to a code in omega .
+we thus follow the general framework of privatized network sampling ( pns ) design [ 53 ] , mimicking the hash functions of telefunken - type [ 50 ]. by taking psi to be a random ( not necessarily 1 - to - 1 ) function that is difficult to invert , subjects are convinced that disclosing the hash code of an individual does not unambiguously identify the individual themselves , and so preserves their privacy .
+assumption 3 .
+suppose v is a set of individuals obtained via rds referral tree f. while each vi in v is unwilling to disclose their own id i , and is secretive about the ids of their peers { j | vj in n ( vi , empty )} , they are readily willing to reveal ( a ) the own hash code psi ( vi ) ; ( b ) the ( multiset of ) hash codes of their peers ( outside the referral tree f ) : nupsi ( s,f ):= coproduct ( u,v ) not - infvinn ( u ){ psi ( v )} subset / equalomega ( 36 ) and ( c ) their own network size d ( vi )=< nupsi ( s,f )> , excluding the referral tree f. assumption 4 .
+to simplify our analysis , throughout what follows , we will assume psi is a function chosen uniformly at random from the space of all functions from v - - > omega .
+we will refer to such a psi as a " random hash function " from v to omega .
+the action of psi on the v is illustrated in fig 4 .
+in section 6.3 , we describe ways to translate the results of this paper to settings where psi is not a uniformly random hashing function .
+10.1371 / journal.pone.0195959.g004 fig 4 the action of psi on v. in practice , psi ( v ) might be an obtained by amalgamating a well - defined tuple of characteristics of v which are known to v 's friends ( e.g. v 's gender , phone number , hair color , approximate age , racial category , etc. ) and then encoding this using a cryptographic function .
+a related coding technique was used in our earlier work on estimating the size of the methamphetamine using population in new york city , where it was referred to as the telefunken code [ 50 ] .
+5.1 revised estimators incorporating hashing we begin by " lifting " the terms introduced in the earlier definition 1 , to the hashing or pns framework [ 53 ] .
+definition 10 .
+let g = ( v , e ) be a graph , and psi : v - - > omega a random hash function .
+let h = ( s , f ) be a subgraph on s subset / equal v with edge set f subset / equal e intersection ( s x s ) .
+the ( multiset of ) hash codes of the subjects is spsi :={ psi ( v )| vins } subset / equalomega .
+( 37 ) the psi - free ends of s ( in g modulo h ) are taken to be the disjoint union ( multiset ) rpsi ( s,f ):= coproductuinsnpsi ( u,f ) subset / equalomega ( 38 ) and the psi - matches of ( in g modulo h ) are taken to be the disjoint union ( multiset ) mpsi ( s,f ):= coproductuins ( npsi ( u,f ) intersectionspsi ) subset / equalomega .
+( 39 ) we denote their respective multiset cardinalities as < rpsi ( s,f )>:= sumuins | npsi ( u,f )|< mpsi ( s,f )>:= sumuins | npsi ( u,f ) intersectionspsi | .
+the reader may wish to compare expressions ( 36 ) , ( 38 ) , and ( 39 ) with the non - hashed analogues in definition 1 's expressions ( 5 ) , ( 6 ) , and ( 7 ) .
+the next lemma is foundational and justifies the proposed revised estimates n1psi , n2psi , and n3psi , which will be presented subsequently .
+lemma 2 .
+let g = ( v , e ) a graph with | v | = n ' , sampled from the space of all n ' - vertex graphs by configuration sampling with respect to degree distribution d. let s subset / equal v be an rds sample collected as a subgraph h = ( s , f ) be with edge set f subset / equal e intersection ( s x s ) .
+let c := | s |/| v | , where c << 1 .
+accepting assumption 1 , take psi : v - - > omega to be a random hash function .
+suppose u in s reports its own code x := psi ( u ) , the code y := psi ( v ) of one of its neighbors v in nu ( s , f ) .
+if w in psi - 1 ( y ) intersection s is selected uniformly at random , and w has degree d ( w ) , then prob ( w = v )= 1n ' - 1 | omega | d ~( s )( d ( w ) - 1 )+ 1 .
+for each code y in omega , over the space of all random hash functions , e [< mpsi ( s,f )>]= m ^( y,n ') where m ^( y,n '):= sumwinpsi - 1 ( y ) intersections1n ' - 1 | omega | d ~( s )( d ( w ) - 1 )+ 1m ^( n '):= sumyinmpsi ( s,f ) m ^( y,n '). proof .
+( 1 ) because psi is a random function , for any z in omega e [| psi - 1 ( z )|]= n '| omega | .
+the expected total number of free ends incident to some vertex in the set psi - 1 ( y )\{ w } is ( n ' - 1 )( 1 - c )| omega |. d ~( s )+( n ' - 1 ) c | omega |.( d ~( s ) - 1 ) and since w in s , the expected number of free ends incident to w is d ( w ) - 1 .
+so prob ( w = v )= d ( w ) - 1 ( n ' - 1 )( 1 - c )| omega |. d ~( s )+( n ' - 1 ) c | omega |.( d ~( s ) - 1 )+( d ( w ) - 1 ) .
+dividing through by d ( w ) - 1 , and considering c ~ 0 , the lemma is proved .
+assertion ( 2 ) follows from ( 1 ) by linearity of expectation .
+definition 11 .
+if f : r - - > r is a real - valued function defined on the reals , then we denote rootof +[ f ( x ) = 0 , x ] to be ( any one of the positive " roots ") x * inr that satisfies the condition f ( x *) = 0 , and x * > 0 .
+definition 12 .
+given a graph g = ( v , e ) , and psi : v - - > omega a random hash function .
+fix s subset / equal v , and h = ( s , f ) a subgraph on s subset / equal v with edge set f subset / equal e intersection ( s x s ) .
+we define n2psi ( s,f ):= rootof +[ f2psi ( n ' , s,f ) - n '= 0,n '] ( 40 ) where f2psi ( n ' , s,f ):= d ( s ) - 1d ~( s ).< spsi >.< rpsi ( s,f )> m ^( n ') and rootof + is the root operation described in definition 11 .
+definition 13 .
+given a graph g = ( v , e ) , a set s subset / equal v , and h = ( s , f ) a subgraph on s subset / equal v with edge set f subset / equal e intersection ( s x s ) .
+let d subset / equal s satisfying | d | > 1 and s1 != s2 => cgamma ( s1 ) intersectioncgamma ( s2 )= empty .
+take gamma : s - - > d as described in definition 8 .
+the ( multiset of ) hash codes of vertices in the component of u are denoted cgammapsi ( u ):={ psi ( v )| vincgamma ( u )} subset / equalspsi ( 41 ) while the codes of the complement set ( inside s ) are written as c ~ gammapsi ( u ):={ psi ( v )| vinc ~ gamma ( u )} subset / equalspsi .
+note that cgammapsi ( u ) intersectionc ~ gammapsi ( u ) may be non - empty .
+for each seed s in d , we define the cross - seed psi - matches from cgammapsi ( s ) in g modulo h as the disjoint union ( multiset ) xpsi ( s,f,gamma ):= coproductuincgamma ( s )( npsi ( u,f ) intersectionc ~ gammapsi ( s )) subset / equalomega .
+( 42 ) the reader may wish to compare expressions ( 41 ) and ( 42 ) with the non - hashed analogues in definition 8 's expressions ( 26 ) and ( 27 ) .
+we also define x ~( y,s,gamma,n '):= sumwinpsi - 1 ( y ) intersectionc ~ gamma ( s ) 1n ' - 1 | omega | d ~( s )( d ( w ) - 1 )+ 1x ^( s,f,gamma,n '):= sumyinxpsi ( s,f,gamma ) x ~( y,s,gamma,n ') .
+definition 14 .
+given a graph g = ( v , e ) , a set s subset / equal v , and h = ( s , f ) a subgraph on s subset / equal v with edge set f subset / equal e intersection ( s x s ) .
+we define n3psi ( s,f ):= rootof +[ f3psi ( n ' , s,f,d,gamma ) - n '= 0,n '] ( 43 ) where f3psi ( n ' , s,f,d,gamma ):= sumsindd ( c ~ gamma ( s )) - 1d ~( s ).< c ~ gammapsi ( s )>.< rpsi ( cgamma ( s ) , f )> sumsindx ^( s,f,gamma,n ') and rootof + is the root operation described in definition 11 .
+5.2 evaluating n2psi on synthetic networks the experiments discussed here follow the framework used in prior experiments described above .
+samples are derived using the rds process operating as specified in assumption 2 .
+the hash space size used for the encoding of each agent 's identity was varied from | omega | = 2 . 103 to 256 . 103. the 12 graphs in fig 5 present the performance of the n2psi estimator as the true population size n is varied from 5 . 103 to 40 . 103 ( vertical axis of the grid ) , the sample size is fixed to r = 500 and the hash space size was varied from | omega | = 2 . 103 to 256 . 103 ( horizontal axis of the grid ) .
+in each of the 12 graphs , the x - axis varies the average degree lambda from 3 to 10 .
+for each choice of lambda , the medians and quartile ranges of n2psi are given for each of the 5 graph families .
+each of these is determined by 900 simulations ( 30 graphs times 30 uniformly drawn samples in each graph ) .
+10.1371 / journal.pone.0195959.g005 fig 5 estimator n2psi on rds samples of size r = 500 with | omega | = 2 . 103 to 256 . 103. in each box , the thick line indicates the sample median ; the top of the box is the median of the upper half of the estimated values ( 75 % quartile ) ; the bottom of the box indicates the median of the lower half of the estimated values ( 25 % quartile ) ; and the whiskers indicate the full range of estimated values .
+no ( finite ) outliers were removed .
+fig 5 shows that as hash space size increases , the medians of n2psi converge to the true population size .
+for example , when n = 5 . 103 and | omega | = 2 . 103 , lognormal degree distribution graphs with lambda = 3 have a median n2psi value of 4705 ( a 5.9 % offset from the true value of n = 5 . 103 ) .
+in comparison , when | omega | = 256 . 103 , the median value for this family of graphs is 4901 ( just 2.0 % offset from the true value ) .
+as the hash space size increases from | omega | = 2 . 103 to | omega | = 256 . 103 , the error in the median estimate decreases by 3.9 % .
+the magnitude of this phenomenon increases as networks grow larger .
+for example for a network of size n = 40 . 103 , increasing the hash space size from | omega | = 2 . 103 to | omega | = 256 . 103 causes the error in the median n2psi estimate to undergo a 33.9 % change .
+in addition , fig 5 shows that as hash space size increases , the interquartile range of the estimates decreases .
+for example , when n = 5 . 103 and | omega | = 2 . 103 , poisson degree distribution graphs with lambda = 3 experience a interquartile range of 1522 in their n2psi estimates ( 32.0 % of the median ) .
+in comparison , when | omega | = 256 . 103 , the interquartile range for this family of graphs decreases to 793 ( a 47.9 % reduction ) .
+the magnitude of this effect increases as networks grow larger .
+for example for a network of size n = 40 . 103 , increasing the hash space size from | omega | = 2 . 103 to | omega | = 256 . 103 causes the interquartile range of the n2psi estimate to undergo a 42.1 % decrease .
+5.3 evaluating n3psi on synthetic networks a second set of experiments shows the performance of the n3psi performance under identical hashing conditions used to test n2psi .
+these experiments also follow the framework described in section 4.2 and use samples derived from an rds process operating as specified in assumption 2 .
+the hash space size was varied from | omega | = 2 . 103 to 256 . 103. the 12 graphs in fig 6 present the performance of the n3psi estimator as the true population size n is varied from 5 . 103 to 40 . 103 ( vertical axis of the grid ) , the sample size is fixed to r = 500 and the hash space size was varied from | omega | = 2 . 103 to 256 . 103 ( horizontal axis of the grid ) .
+in each of the 12 graphs , the x - axis varies the average degree lambda from 3 to 10 .
+for each choice of lambda , the medians and quartile ranges of n3psi are given for each of the 5 graph families .
+each of these is determined by 900 simulations ( 30 graphs times 30 uniformly drawn samples in each graph ) .
+10.1371 / journal.pone.0195959.g006 fig 6 estimator n3psi on rds samples of size r = 500 with | omega | = 2 . 103 to 256 . 103. in each box , the thick line indicates the sample median ; the top of the box is the median of the upper half of the estimated values ( 75 % quartile ) ; the bottom of the box indicates the median of the lower half of the estimated values ( 25 % quartile ) ; and the whiskers indicate the full range of estimated values .
+no ( finite ) outliers were removed .
+fig 6 shows that as hash space size increases , the medians of n3psi converge to the true population size .
+for example , when n = 5 . 103 and | omega | = 2 . 103 , lognormal degree distribution graphs with lambda = 3 have a median n3psi value of 4667 ( a 6.7 % offset from the true value of n = 5 . 103 ) .
+in comparison , when | omega | = 256 . 103 , the median for this family of graphs is 4865 ( just 2.7 % offset from the true value ) .
+as the hash space size increases from | omega | = 2 . 103 to | omega | = 256 . 103 , the error in the median estimate decreases by 4.0 % .
+the magnitude of this phenomenon increases as networks grow larger .
+for example for a network of size n = 40 . 103 , increasing the hash space size from | omega | = 2 . 103 to | omega | = 256 . 103 causes the error in the median n3psi estimate to undergo a 38.4 % change .
+in addition , fig 6 shows that as hash space size increases , the interquartile range of the estimates decreases .
+for example , when n = 5 . 103 and | omega | = 2 . 103 , exponential degree distribution graphs with lambda = 3 experience a interquartile range of 1491 in their n3psi estimates ( 31.0 % of the median ) .
+in comparison , when | omega | = 256 . 103 , the interquartile range for this family of graphs decreases to 905 ( a 39.3 % reduction ) .
+the magnitude of this effect increases as networks grow larger .
+for example for a network of size n = 40 . 103 , increasing the hash space size from | omega | = 2 . 103 to | omega | = 256 . 103 causes the interquartile range of the n3psi estimate to undergo a 43.0 % decrease .
+6 impacts of non - uniformity the experiments described in previous sections of this paper assumed an rds process that begins with a set of seeds d subset / equal v sampled uniformly at random without replacement .
+more precisely , d = x | d | is the last entry in sequence x0 , x1 , ... x | d | , where x0 = empty and xi = xi - 1 union { ui } with pr ( ui = u )={ 1 | v | - | xi - 1 | uinv \ xi - 10otherwise ( 44 ) for each u in v. while the uniform model allowed formal analysis of the estimators' properties to be tractable , many researchers have noted that practical deployments of rds often exhibit bias in seed selection [ 90 - 92 ] .
+this bias originates in local features of the network topology ( e.g. variation in node degrees ) as well as global properties ( e.g. the presence of community structures ) .
+6.1 degree - biased selection of rds seeds we begin by describing experimental findings on the differential impacts of degree - based bias in initial seed selection on the performance of the n3psi estimator .
+towards this , we define a new model of seed selection in which a real - valued parameter rhoinr controls degree - based bias .
+in particular , expression ( 44 ) is generalized to pr ( ui = u )={ erho.d ( u ) sumvinv \ xi - 1erho.d ( v ) uinv \ xi - 10otherwise ( 45 ) for each u in v. note that when rho = 0 expression ( 45 ) reduces to the uniform random selection of seeds prescribed in ( 44 ) .
+when rho > 0 , seed selection is biased towards the network 's high degree vertices ; when rho < 0 , low degree vertices are favored .
+the first segment of table 1 shows that as rho is varied between - 1 and + 1 , non - uniform seed selection has no discernable negative differential impact on the performance of rds estimator n3psi .
+while the data in the first segment of table 1 are based on 30 rds samples ( r = 500 ) on each of 30 graphs from l ( lambda = 5,n = 104 ) , i.e. graphs with 10k nodes and a lognormal degree distribution as described in section 4.1 , the conclusion for the other 5 graph families is similar .
+10.1371 / journal.pone.0195959.t001 table 1 varying seed selection bias ( n = 10k , r = 500 , | omega | = 256 . 103 , d ( v )= 5 ) .
+k rho mu n3psimedian n3psii.q.r. rho : seed selection bias 1 - 1 n.a .
+9966.3 2253.0 - 0.5 10104.7 2374.9 - 0.4 10057.2 2313.4 - 0.3 9956.4 2267.2 - 0.2 9981.6 2231.6 - 0.1 9868.0 2254.3 0 9909.0 2170.4 0.1 9903.2 2155.1 0.2 9963.4 2271.6 0.3 9766.7 2277.9 0.4 9921.4 2170.2 0.5 9942.7 2307.1 1 9793.4 2165.6 k : number of components 1 0 0.5 10070.9 2325.5 2 9977.7 2220.8 4 9797.8 2136.7 8 9312.6 2216.2 16 8373.9 1900.0 mu : cross component probability 8 0 0.1 3088.4 1102.6 0.2 5526.1 1864.7 0.3 7595.0 1961.6 0.4 8639.9 2010.4 0.5 9345.6 2033.6 6.2 community structures next we consider the impact of community structures which can potentially create bottlenecks for rds and restrict the reach of subject 's self - reported ego networks [ 91 , 92 ] .
+we quantify the impacts of such structures on the n3psi estimator through simulation experiments , and towards this , extend each of the 5 families defined in section 4.1 to support the controlled presence of community effects .
+two new parameters are introduced : the number of communities k , and the cross - community connection probability mu. the space l ( lambda,n ) , for example , is thus extended to a space l ( lambda,n,k,mu ) consisting of graphs of size k . [ n / k ] , i.e. approximately n , which is sampled from as follows : sample k graphs g1 = ( v1 , e1 ) , ... gk = ( vk , ek ) from l ( lambda,n ) as defined in section 4.1 .
+define vinfinityi = 1kvi to be the vertex set of our sampled graph .
+take e = infinityi = 1kei to be our initial approximation of the edge set of our sampled graph , to be updated according to the rewiring process below .
+for each i in { 1 , 2 , ... , k } , and each u in vi , with probability mu : choose j in { 1 , 2 , ... , k }\{ i } uniformly at random , and then choose v in vj uniformly at random .
+choose u ' in n ( u ) intersection vi uniformly at random .
+choose v ' in n ( v ) intersection vj uniformly at random .
+modify e by removing ( u , u ') and ( v , v ') from e. modify e by adding ( u , v ) and ( u ' , v ') to e. completion of step ( 2 ) yields the sampled graph ( v , e ) on k . [ n / k ] vertices , having k communities each coming from family l ( lambda,n ) and wired together so that roughly mu fraction of each community 's members has a connection to some member of a different community ( and the degree distribution of the graph as a whole is consistent with the bias of family l ) .
+the families p ( lambda,n,k,mu ) , x ( lambda,n,k,mu ) , b ( lambda,n,k,mu ) , and e ( lambda,n,k,mu ) , are defined analogously .
+when mu ~ 1 or k ~ 1 , community effects are insignificant .
+as mu - - > 0 + or k >> 1 , the population consists of many effectively isolated communities .
+whenever a set of seeds are to be selected from the network ( e.g. to obtain a respondent driven sample ) , all seeds are chosen ( uniformly at random ) from community 1 .
+the second segment of table 1 shows that as k is increased from 1 to 16 ( while mu is held fixed at 0.5 ) , increasing the number of communities causes n3psi to slightly underestimate population size .
+for example , when the network consists of k = 8 communities , a median estimate falls short of the true value by 7 % ; for k = 16 communities the deficit becomes 16 % .
+the third and final segment of table 1 shows that as mu is decreased from 0.5 to 0.1 ( while k is held fixed at 8 ) , increasing community isolation causes n3psi to significantly underestimate population size .
+for example , when the inter - community connection probability mu = 0.4 the deficit is 14 % , but when mu = 0.2 the estimate produced is roughly 45 % of the true value .
+while the data in the second and third segments of table 1 are based on 30 trials on each of 30 graphs from l ( lambda,n ) , i.e. graphs with lognormal degree distribution as described in section 4.1 , the results for the other 5 graph families are quite similar .
+6.3 non - uniform hash functions the experiments and analyses so far have considered a uniform random hashing function psi , and have shown that the size of the hash space | omega | has a significant impact on estimator variance .
+the uniform hashing assumption is reasonable when each individual 's anonymity - preserving code is based on attributes that have been uniformly randomly assigned across the population .
+for example , it is reasonable to expect that a telephone company will assign numbers to customers randomly , and thus a code that is built from the parity and scale of the final 4 digits of each individual 's phone number would constitute a uniform random hash function .
+in this section , we describe how to translate the conclusions of previous experiments and analyses to settings where the hashing function is not uniformly random .
+this would likely be the case if psi were built from each individual 's demographic characteristics ( e.g. age , height , hair color , and race ) that are known to vary non - uniformly across the population .
+for example , if subjects and reports were encoded using 4 categories for age , 3 categories for height , 3 for hair color , and 5 categories for race , one could only say that the hash space size was 4 x 3 x 3 x 5 = 180 if all combinations of these attributes were equally likely to appear .
+researchers employing such non - uniform hashing functions may want to know the equivalent uniform hash space size | omega | , so as to correctly translate the results of previous sections into reasonable expectations for the non - uniform situation at hand .
+the following lemma will assist in defining this translation : lemma 3 .
+let a , b be finite sets , and psi : a - - > b be a uniformly random function .
+then e | psi ( a )|=| b |.[ 1 - ( 1 - 1 | b |)| a |]. proof .
+we seek the expected number of distinct items obtained in sampling | a | elements from b with replacement .
+consider x in b , then pr ({ xinpsi ( a )})= 1 - pr ({ xnot - inpsi ( a )})= 1 - ( 1 - 1 | b |)| a | .
+the result then follows by linearity of expectation .
+proposition 4 .
+let a , b be finite sets , and psi : a - - > b a uniformly random function .
+suppose | a | = x and | psi ( a )| = y , where x , y >> 0 , then the maximum likelihood estimator of | b | is given by | b |= xyy.w ( - xy ( e - xy ))+ x ( 46 ) where lambert 's w function is the inverse function of f ( w ) = wew. proof .
+applying lemma 3 , the maximum likelihood estimator is obtained by solving y =| b |.( 1 - ( 1 - 1 | b |) x ) ( 47 ) for | b | .
+since | b | >= y >> 0 , we may approximate log (| b | - 1 | b |)=~ - 1 | b | when | b | is large .
+then we have 1 - ( 1 - 1 | b |) x = 1 - exp ( xlog (| b | - 1 | b |))=~ 1 - exp ( - x | b |) .
+eq ( 47 ) now becomes y =| b |.( 1 - exp ( - x | b |)) , which when solved for | b | yields expression ( 46 ) above .
+proposition 4 tells us that the image of a set of size x is expected to have size y , provided the function is a uniform random map into a set whose size is given by expression ( 46 ) .
+such a combinatorial result can be used to compute the equivalent uniform hash space size in settings where the hash function is non - uniform .
+in particular , if we have x = | a | subjects , who provide us with exactly y = | psi ( a )| distinct codes ( y <= x ) , then the equivalent uniform hash space size | omega | is given by expression ( 46 ) above .
+7 evaluating estimators on real networks while a range of degree distributions and randomly occurring clusterings can be expected in idealized topologies , the performance of rds - based estimators n2psi and n3psi on organically arising , natural human networks may vary .
+to test this possibility , we perform a number of random - start , rds - based estimation experiments on the brightkite data set .
+brightkite was once a location - based social networking service provider where users shared their locations by checking - in. the friendship network was collected using their public api , and consists of | v | = 58,228 nodes and | e | = 214,078 edges [ 93 ] .
+though originally a directed graph , we symmetrized the edges for the purposes of these experiments .
+since not all users made a public check - in during the data collection period , the population we used here consists of 51,406 people .
+the average clustering coefficient in the network was 0.1723 , while the fraction of closed triangles is 0.03979 .
+the diameter ( longest - shortest path in the symmetrized network ) is 16 , though the 90 - percentile effective diameter is 6 .
+for purposes of the experiment we generated 900 respondent - driven samples of size r = 250 , 500 , 750 and hash space size from | omega | = 2 . 103 to | omega | = 256 . 103 within the brightkite network , each obtained via an rds process operating as specified in assumption 2 .
+the boxplot graphs in fig 7 ( a ) - 7 ( c ) show that estimator n2psi - - where no accommodation is made for the tendency of rds to oversample tightly clustered network neighborhoods - - underestimates the true population size of 51,406 in every case .
+given the high clustering coefficient of the network ( 17.2 %) , it seems likely that , for a given sampling tree , the peer - discovery process necessarily walks across close pairs of nodes that shared one or more common vertices. of note is that increasing the sample size and hash space size does little to correct for these effects .
+10.1371 / journal.pone.0195959.g007 fig 7 estimator n2psi ( above ) and n3psi ( below ) on brightkite network ; | omega | = 2 . 103 to 256 . 103 , with sample size r = 250 , 500 , 750 .
+in each box , the thick line indicates the sample median ; the top of the box is the median of the upper half of the estimated values ( 75 % quartile ) ; the bottom of the box indicates the median of the lower half of the estimated values ( 25 % quartile ) ; and the whiskers indicate the full range of estimated values .
+data points that exceeded the third quartile boundary by over 1.5 times the interquartile range ( iqr ) were treated as outliers and removed .
+graphs ( d - f ) in fig 7 present the boxplots of brightkite population estimates using estimator n3psi .
+as above , we generated 900 respondent - driven samples of size r = 250 , 500 , 750 and hash space size from | omega | = 2 . 103 to | omega | = 256 . 103 within the brightkite network .
+we see that the three different hash space sizes show similar results , while increasing the sample size r from 250 to 500 and 750 improves the accuracy of the median estimate .
+unlike the case in fig 7 ( a ) - 7 ( c ) , we do n't see a consistent pattern of underestimation , indicating that the cross - seed estimator n3psi was successful in compensating for the clustering found in the network .
+as above , the overall size of the hash space has minimal effect on the accuracy of the median estimate , but we note that an increase in the rds sample size improves the accuracy of the median estimate and produces smaller interquartile ranges .
+8 discussion the results shown here indicate that size estimates for hidden and hard - to - reach populations can be derived from rds samples across a range of topologies , and in the presence of significant network clustering .
+as important , this is accomplished under conditions of anonymity by way of identity hashing , e.g. using telefunken codes [ 50 ] or a privatized network sampling ( pns ) design [ 53 ] .
+the n3psi estimator joins other successful , rds - based population estimation procedures , such as those by handcock and gile [ 85 ] , and crawford , wu , and heimer [ 35 ] .
+like crawford et al , we make use of half - edge counts .
+however , our estimator invokes a different strategy - - beginning with the original capture - recapture concept - - and is shown to be robust across a wide range of topologies and assumptions .
+a notable feature of the n3psi estimator is that a lower level of variance can be expected at conventional rds sample sizes .
+for r = 500 to 750 , interquartile ranges were low relative to both the median estimate and true population size ( see segments 1 and 2 of table 2 which summarize a slice of the data in fig 6 ) .
+10.1371 / journal.pone.0195959.t002 table 2 a cross - section of the experimental findings in this paper .
+n r | omega | d ( v ) n3psimedian n3psii.q.r. n : population size 5,000 750 256 . 103 10 4934.3 342.1 10,000 9927.2 1068.6 20,000 20018.7 2731.1 40,000 39964.7 9621.1 r : sample size 5,000 250 256 . 103 10 4972.7 1080.8 500 4957.0 501.6 750 4934.3 342.1 | omega | : hash space size 5,000 750 2 . 103 10 4875.8 945.1 32 . 103 4938.4 363.1 256 . 103 4934.3 342.1 d ( v ) : average degree 5,000 750 256 . 103 3 4797.5 848.5 5 4867.7 565.5 10 4934.3 342.1 additionally , when hashing was employed towards ensuring subject anonymity , sufficiently large hash spaces ( 32 . 103 or larger ) and samples sizes ( 500 or above ) produced a narrow range of estimates ( see segment 3 of table 2 which summarizes a slice of the data in fig 6 ) .
+given concerns about rds sample variance generally [ 28 ] , these results indicate robustness against the faults of a single sample .
+another consistent feature observed in these experiments is the performance of the n3psi estimator as graph density increases ( see segment 4 of table 2 which summarizes a slice of the data in fig 6 ) .
+in terms of the interquartile ranges , the estimator exhibits worse performance in sparse ( i.e. d ( v )= 3 ) as opposed to dense networks ( i.e. d ( v )= 10 ) .
+given the edge - sampling focus of our approach , this is not surprising .
+fewer total edges suggest fewer total " matches " to discover , leading to greater variability depending on stochastic factors likely associated with the selection of rds seeds and the random walk features of the rds sampling process .
+these results suggest limits on the implementation of n3psi estimator in sparse graphs .
+as researchers increasingly turn to rds methods for sampling hard - to - reach populations , these results should be of considerable interest to those concerned with what is often referred to as " the denominator problem " .
+where agencies and government administrations seek to understand both the scope of public health challenges and to measure the effectiveness of their intervention and promotion efforts , the ability to estimate population size ( and with this , population prevalence ) is widely needed .
+the results presented here indicate that " one step " methods are capable of providing such estimates .
+along with the methods mentioned above , this work has the potential to provide public health officials and planners with means to more effectively promote the health of hidden populations - - and thus the health of the larger populations in which they are embedded .
+8.1 limitations in using uniform random samples to estimate population size , it is possible for the proposed n1 estimator to " fail " if one finds that < m ( t , empty )> = 0 in definition 3 .
+this happens with greater frequency as the sample size r << n the population size .
+fig 8 ( a ) shows the mean failure rate ( the fraction of the 13,500 trials where n1 failed to produce a population estimate ) , for each choice of population size n ( ranging from 5 . 103 to 40 . 103 ) , and uniform sample size r ( chosen to be 250 , 500 or 750 ) .
+we see from fig 8 ( a ) that the failure rate is non - linear in both r and n. for small uniform samples r = 250 , the failure rate of n1 is ~ 0 when n = 10 . 103 , but undergoes an inflection at n = 20 . 103 , and rises to 3.9 % when the population size again doubles to n = 40 . 103. note that we considered each of 5 families l ( lambda,n ) , p ( lambda,n ) , x ( lambda,n ) , b ( lambda,n ) , and e ( lambda,n ) defined in section 4.1 , and each lambda = 3 , 5 , 10 ; from each of these 15 concrete sample spaces , we used configuration graph sampling to select 30 random graphs of size n. in each of these 5 x 3 x 30 = 450 graphs , we generated 30 uniform samples ( for n1 ) .
+in this manner , a total of 450 x 30 = 13,500 simulations were conducted .
+10.1371 / journal.pone.0195959.g008 fig 8 mean failure rate analysis of the proposed estimators .
+similarly , in using respondent - driven sampling to estimate population size , it is possible for the proposed n2 ( resp .
+n3 ) estimators to " fail " if one finds that < m ( s , f )> = 0 in definition 4 ( resp. sumsind < x ( s , f , gamma )> = 0 in definition 9 ) .
+fig 8 ( b ) shows the mean failure rate ( the fraction of the 13,500 trials where n2 failed to produce a population estimate ) , for each choice of population size n ( ranging from 5 . 103 to 40 . 103 ) , and rds sample size r ( chosen to be 250 , 500 or 750 ) .
+rds samples of size r = 250 exhibit an n2 failure rate of ~ 0 when n = 5 . 103 , but undergo an inflection at n = 10 . 103 ; the mean failure rate rises to 6 % when the population size again doubles to n = 40 . 103. in examining the n3 estimator , fig 8 ( c ) shows us that when it is used with rds samples of size r = 250 , it exhibits a failure rate of ~ 0 when n = 5 . 103 , but the failure rate undergoes an inflection at n = 10 . 103 , rising to 8.8 % when the population size again doubles to n = 40 . 103. for sample sizes that are 2x and 3x as large ( i.e. r = 500 and r = 750 ) the inflection point is not yet reached at n = 40 . 103 and mean failure rates remain below 0.1 % .
+this indicates that our estimators based on rds are more robust against failure than the n1 uniform sampling estimator , and at typical rds sample sizes ( 500 <= r <= 750 ) , they are robust enough to be used in settings where the population size is expected to be on the order of n ~ 40 . 103. fig 8 ( d ) - 8 ( e ) explore the impact of hash space size on the mean failure rate .
+here we consider a fixed sample size r = 500 and vary the size of hash space | omega | between 2 . 103 and 256 . 103. we observe that the mean failure rates of n2psi and n3psi ( again taken across 13,500 experiments ) grow linearly as n increases , but that the rate of growth depends on | omega | .
+in particular , when | omega | is too small ( in this case 2 . 103 or smaller ) , the mean failure rate is seen to grow steeply , even for small networks .
+the two graphs ( d - e ) make evident the tradeoff between subject anonymity / privacy and the failure rates of the estimator .
+when the hash space size is sufficiently large ( 32 . 103 - 256 . 103 ) , failure rates remain low , but smaller hash spaces ( which provide for greater anonymity ) may produce greater instability in the estimators .
+finally , the three heatmaps in fig 8 ( f ) show how the failure rate of n3psi rises whenever the hash space size or sample size decreases .
+although 32 . 103 - 256 . 103 may appear to be a very large hash space size , we note 104 <= 32.103 <= 105 <= 256.103 <= 106 .
+thus , asking research subjects for the last 5 or 6 digits of their own telephone number and those digits of their friends' phone numbers would be sufficient to provide an accurate estimate ( assuming that numerical digits are randomly assigned by phone service providers ) .
+in the event that research subjects remain reluctant to reveal precise digits of their own or their alter 's phone numbers , a telefunken code could be constructed [ 50 ] or a privatized network sampling ( pns ) design [ 53 ] employed .
+research reported in this publication was supported by the national institutes for health , national institute on drug abuse under award number r01 da037117 and national institute for general medicine r01 gm118427 , as well as nsf grants mms - 0851555 and ses - 1357619 .
+the authors would like to thank meredith dank , ric curtis , and travis wendel for feedback and discussions .
+we are grateful to the organizers and attendees of the pse consultation at cdc , where these results were presented in january 2017 .
+we are indebted to the reviewers for their recommendations which greatly strengthened the exposition of these results .
+all java software developed and used for this research is publicly available at https :// github.com / grouptheory / telefunken - support / tree / master / java .
+all r software developed and used is available at https :// github.com / grouptheory / telefunken - support / tree / master / r - v1 .
+all data inputs and outputs are available at https :// github.com / grouptheory / telefunken - support / tree / master / figures _ and _ data .
+references 1 magnani r , sabin k , saidel t , heckathorn d . review of sampling hard - to - reach and hidden populations for hiv surveillance . aids .
+2005 ; 19 : s67 doi : 10.1097 / 01.aids.0000172879.20628.e1 15930843 2 dombrowski k . topological and historical considerations for infectious disease transmission among injecting drug users in bushwick , brooklyn ( usa ) . world journal of aids .
+2013 ; 03 ( 01 ) : 1 - 9 . doi : 10.4236 / wja.2013.31001 3 reluga t , meza r , walton db , galvani ap . reservoir interactions and disease emergence . theoretical population biology .
+2007 ; 72 ( 3 ) : 400 - 408 . doi : 10.1016 / j.tpb.2007.07.001 17719617 4 bonin jp , fournier l , blais r . a typology of mentally disordered users of resources for homeless people : towards better planning of mental health services . administration and policy in mental health and mental health services research .
+2009 ; 36 ( 4 ) : 223 - 235 . doi : 10.1007 / s10488 - 009 - 0206 - 2 19214733 5 burt mr . critical factors in counting the homeless . american journal of orthopsychiatry .
+1995 ; 65 ( 3 ) : 334 - 339 . doi : 10.1037 / h0085059 7485418 6 ivanich j , welch - lazoritz m , dombrowski k . the relationship between survival sex and borderline personality disorder symptoms in a high risk female population . international journal of environmental research and public health .
+2017 ; 14 ( 9 ) : 1031 doi : 10.3390 / ijerph14091031 7 potterat jj , woodhouse de , rothenberg rb , muth sq , darrow ww , muth jb , et al aids in colorado springs : is there an epidemic ?
+aids ( london , england ) .
+1993 ; 7 ( 11 ) : 1517 - 1521 . doi : 10.1097 / 00002030 - 199311000 - 00017 8 abdul - quader as , baughman al , hladik w . estimating the size of key populations : current status and future possibilities . current opinion in hiv and aids .
+2014 ; 9 ( 2 ) : 107 - 114 . doi : 10.1097 / coh.0000000000000041 24393694 9 law dcg , serre ml , christakos g , leone pa , miller wc . spatial analysis and mapping of sexually transmitted diseases to optimise intervention and prevention strategies . sexually transmitted infections .
+2004 ; 80 ( 4 ) : 294 - 299 . doi : 10.1136 / sti.2003.006700 15295129 10 zohrabyan l , johnston lg , scutelniciuc o , iovita a , todirascu l , costin t , et al determinants of hiv infection among female sex workers in two cities in the republic of moldova : the role of injection drug use and sexual risk . aids and behavior .
+2013 ; doi : 10.1007 / s10461 - 013 - 0460 - x 23539186 11 darke s . self - report among injecting drug users : a review . drug and alcohol dependence .
+1998 ; 51 ( 3 ) : 253 - 263 . doi : 10.1016 / s0376 - 8716 ( 98 ) 00028 - 3 9787998 12 harwood em , horvath kj , courtenay - quirk c , fisher h , kachur r , mcfarlane m , et al sampling hidden populations : lessons learned from a telephone - based study of persons recently diagnosed with hiv ( prdh ) . international journal of social research methodology .
+2012 ; 15 ( 1 ) : 31 - 40 . doi : 10.1080 / 02650533.2011.573302 13 larson a , stevens a , wardlaw g . indirect estimates of ' hidden ' populations : capture - recapture methods to estimate the numbers of heroin users in the australian capital territory . social science & medicine .
+1994 ; 39 ( 6 ) : 823 - 831 . doi : 10.1016 / 0277 - 9536 ( 94 ) 90044 - 2 7973878 14 vuylsteke b , vandenhoudt h , langat l , semde g , menten j , odongo f , et al capture - - recapture for estimating the size of the female sex worker population in three cities in cote d'ivoire and in kisumu , western kenya . tropical medicine & international health .
+2010 ; 15 ( 12 ) : 1537 - 1543 . doi : 10.1111 / j.1365 - 3156.2010.02654.x 21054693 15 biernacki p , waldorf d . snowball sampling : problems and techniques of chain referral sampling . sociological methods & research .
+1981 ; 10 ( 2 ) : 141 - 163 . doi : 10.1177 / 004912418101000205 16 platt l , wall m , rhodes t , judd a , hickman m , johnston lg , et al methods to recruit hard - to - reach groups : comparing two chain referral sampling methods of recruiting injecting drug users across nine studies in russia and estonia . journal of urban health : bulletin of the new york academy of medicine .
+2006 ; 83 ( 6 suppl ) : i39 - 53 . doi : 10.1007 / s11524 - 006 - 9101 - 2 17096189 17 haley df , golin c , el - sadr w , hughes jp , wang j , roman isler m , et al venue - based recruitment of women at elevated risk for hiv : an hiv prevention trials network study . journal of women 's health .
+2014 ; 23 ( 6 ) : 541 - 551 . doi : 10.1089 / jwh.2013.4654 24742266 18 muhib fb , lin ls , stueve a , miller rl , ford wl , johnson wd , et al a venue - based method for sampling hard - to - reach populations . public health reports .
+2001 ; 116 ( suppl 1 ) : 216 doi : 10.1093 / phr / 116.s1.216 11889287 19 burnham g , lafta r , doocy s , roberts l . mortality after the 2003 invasion of iraq : a cross - sectional cluster sample survey . the lancet .
+2006 ; 368 ( 9545 ) : 1421 - 1428 . doi : 10.1016 / s0140 - 6736 ( 06 ) 69491 - 9 20 heckathorn dd . extensions of respondent - driven sampling : analyzing continuous variables and controlling for differential recruitment . sociological methodology .
+2007 ; 37 ( 1 ) : 151 - 207 . doi : 10.1111 / j.1467 - 9531.2007.00188.x 21 heckathorn dd . respondent - driven sampling ii : deriving valid population estimates from chain - referral samples of hidden populations . social problems .
+2002 ; .
+doi : 10.1525 / sp.2002.49.1.11 22 salganik mj , heckathorn dd . sampling and estimation in hidden populations using respondent - driven sampling . sociological methodology .
+2004 ; 34 ( 1 ) : 193 - 239 . doi : 10.1111 / j.0081 - 1750.2004.00152.x 23 johnston lg , hakim aj , dittrich s , burnett j , kim e , white rg . a systematic review of published respondent - driven sampling surveys collecting behavioral and biologic data . aids and behavior .
+2016 ; 20 ( 8 ) : 1754 - 1776 . doi : 10.1007 / s10461 - 016 - 1346 - 5 26992395 24 gile kj , handcock ms . respondent - driven sampling : an assessment of current methodology . sociological methodology .
+2010 ; 40 ( 1 ) : 285 - 327 . doi : 10.1111 / j.1467 - 9531.2010.01223.x 22969167 25 gile kj , johnston lg , salganik mj . diagnostics for respondent - driven sampling . journal of the royal statistical society : series a ( statistics in society ) .
+2015 ; 178 ( 1 ) : 241 - 269 . doi : 10.1111 / rssa.12059 26 mouw t , verdery am . network sampling with memory a proposal for more efficient sampling from social networks . sociological methodology .
+2012 ; 42 ( 1 ) : 206 - 256 . doi : 10.1177 / 0081175012461248 24159246 27 shi y , cameron cj , heckathorn dd . model - based and design - based inference : reducing bias due to differential recruitment in respondent - driven sampling . sociological methods & research .
+2016 ; p .
+0049124116672682. doi : 10.1177 / 0049124116672682 28 verdery am , mouw t , bauldry s , mucha pj . network structure and biased variance estimation in respondent driven sampling . plos one .
+2015 ; 10 ( 12 ) : e0145296 doi : 10.1371 / journal.pone.0145296 26679927 29 wejnert c . an empirical test of respondent - driven sampling : point estimates , variance , degree measures , and out - of - equilibrium data . sociological methodology .
+2009 ; 39 ( 1 ) : 73 - 116 . doi : 10.1111 / j.1467 - 9531.2009.01216.x 20161130 30 heckathorn dd , cameron cj . network sampling . annual review of sociology .
+2017 ; 43 ( 1 ) .
+doi : 10.1146 / annurev - soc - 060116 - 053556 31 abdul - quader as , heckathorn dd , sabin k , saidel t . implementation and analysis of respondent driven sampling : lessons learned from the field . journal of urban health .
+2006 ; 83 ( 1 ) : 1 - 5 . doi : 10.1007 / s11524 - 006 - 9108 - 8 16736349 32 johnston lg , malekinejad m , kendall c , iuppa im , rutherford gw . implementation challenges to using respondent - driven sampling methodology for hiv biological and behavioral surveillance : field experiences in international settings . aids and behavior .
+2008 ; 12 ( 1 ) : 131 - 141 . doi : 10.1007 / s10461 - 008 - 9413 - 1 33 goel s , salganik mj . assessing respondent - driven sampling . proceedings of the national academy of sciences .
+2010 ; 107 ( 15 ) : 6743 - 6747 . doi : 10.1073 / pnas.1000261107 34 sulaberidze l , mirzazadeh a , chikovani i , shengelia n , tsereteli n , gotsadze g . population size estimation of men who have sex with men in tbilisi , georgia ; multiple methods and triangulation of findings . plos one .
+2016 ; 11 ( 2 ) : e0147413 doi : 10.1371 / journal.pone.0147413 26828366 35 crawford fw , wu j , heimer r . hidden population size estimation from respondent - driven sampling : a network approach . journal of the american statistical association .
+2017 ; 0 ( ja ) : 0 - 0 .
+doi : 10.1080 / 01621459.2017.1285775 36 berchenko y , frost sd . capture - recapture methods and respondent - driven sampling : their potential and limitations ; 2011 . 37 berchenko y , white rg , wejnert c , frost sd. analysis of a capture - recapture estimator for the size of populations with heterogenous catchability , and its evaluation on rds data from rural uganda .
+arxiv preprint arxiv : 11111714 .
+2011 ; .
+38 paz - bailey g , jacobson j , guardado m , hernandez f , nieto a , estrada m , et al how many men who have sex with men and female sex workers live in el salvador ?
+using respondent - driven sampling and capture - - recapture to estimate population sizes . sexually transmitted infections .
+2011 ; p. sti - 2010 . 39 domingo - salvany a , hartnoll rl , maguire a , brugal mt , albertin pa , cayla ja , et al analytical considerations in the use of capture - recapture to estimate prevalence : case studies of the estimation of opiate use in the metropolitan area of barcelona , spain . american journal of epidemiology .
+1998 ; 148 ( 8 ) : 732 - 740 . doi : 10.1093 / oxfordjournals.aje.a009694 9786228 40 kruse n , frieda mtb , vaovola g , burkhardt g , barivelo t , amida x , et al participatory mapping of sex trade and enumeration of sex workers using capture - recapture methodology in diego - suarez , madagascar . sexually transmitted diseases .
+2003 ; 30 ( 8 ) : 664 - 670 12897692 41 bernard hr , hallett t , iovita a , johnsen ec , lyerla r , mccarty c , et al counting hard - to - count populations : the network scale - up method for public health . sexually transmitted infections .
+2010 ; 86 ( suppl 2 ) : ii11 - ii15 . doi : 10.1136 / sti.2010.044446 21106509 42 hay g , mckeganey n . estimating the prevalence of drug misuse in dundee , scotland : an application of capture - recapture methods . journal of epidemiology and community health .
+1996 ; 50 ( 4 ) : 469 - 472 . doi : 10.1136 / jech.50.4.469 8882234 43 jones he , hickman m , welton nj , de angelis d , harris rj , ades ae . recapture or precapture ?
+fallibility of standard capture - recapture methods in the presence of referrals between sources . american journal of epidemiology .
+2014 ; p .
+kwu056 . 44 wolitski rj , pals sl , kidder dp , courtenay - quirk c , holtgrave dr . the effects of hiv stigma on health , disclosure of hiv status , and risk behavior of homeless and unstably housed persons living with hiv . aids and behavior .
+2009 ; 13 ( 6 ) : 1222 - 1232 . doi : 10.1007 / s10461 - 008 - 9455 - 4 18770023 45 ezoe s , morooka t , noda t , sabin ml , koike s . population size estimation of men who have sex with men through the network scale - up method in japan . plos one .
+2012 ; 7 ( 1 ) : e31184 doi : 10.1371 / journal.pone.0031184 22563366 46 guo w , bao s , lin w , wu g , zhang w , hladik w , et al estimating the size of hiv key affected populations in chongqing , china , using the network scale - up method . plos one .
+2013 ; 8 ( 8 ) : e71796 doi : 10.1371 / journal.pone.0071796 23967246 47 habecker p , dombrowski k , khan b . improving the network scale - up estimator : incorporating means of sums , recursive back estimation , and sampling weights . plos one .
+2015 ; 10 ( 12 ) .
+doi : 10.1371 / journal.pone.0143406 26630261 48 killworth pd , mccarty c , johnsen ec , bernard hr , shelley ga . investigating the variation of personal network size under unknown error conditions . sociological methods & research .
+2006 ; 35 ( 1 ) : 84 - 112 . doi : 10.1177 / 0049124106289160 49 salganik mj , fazito d , bertoni n , abdo ah , mello mb , bastos fi . assessing network scale - up estimates for groups most at risk of hiv / aids : evidence from a multiple - method study of heavy drug users in curitiba , brazil . american journal of epidemiology .
+2011 ; 174 ( 10 ) : 1190 - 1196 . doi : 10.1093 / aje / kwr246 22003188 50 dombrowski k , khan b , wendel t , mclean k , misshula e , curtis r . estimating the size of the methamphetamine - using population in new york city using network sampling techniques . advances in applied sociology .
+2012 ; 2 ( 4 ) : 1 - 20 . doi : 10.4236 / aasoci.2012.24032 51 curtis r , terry k , dank m , dombrowski k , khan b. the commercial sexual exploitation of children in new york city , volume 1 : the csec population in new york city : size , characteristics , and needs ( ncj publication no. 225083 ) .
+bureau of justice statistics , washington , dc. final report submitted to the national institute of justice new york , ny : center for court innovation and john jay college of criminal justice retrieved january .
+2008 ; 12:2012 .
+52 wendel t , khan b , dombrowski k , curtis r , mclean k , misshula e , et al. dynamics of methamphetamine markets in new york city : final technical report to the national institute of justice ; a report to the national institute of justice ( award # 2007 - ij - cx - 0110. vol. nij document 236122 ; 2011 .
+53 fellows i. exponential family random network models. ucla .
+statistics 0891 ; 2012 .
+54 merli mg , verdery a , mouw t , li j . sampling migrants from their social networks : the demography and social organization of chinese migrants in dar es salaam , tanzania . migration studies .
+2016 ; 4 ( 2 ) : 182 - 214 . doi : 10.1093 / migration / mnw004 27746912 55 heckathorn dd , cameron cj . network sampling : from snowball and multiplicity to respondent - driven sampling . annual review of sociology .
+2017 ;( 0 ) .
+doi : 10.1146 / annurev - soc - 060116 - 053556 56 leskovec j , faloutsos c. sampling from large graphs .
+in : proceedings of the 12th acm sigkdd international conference on knowledge discovery and data mining .
+acm ; 2006. p. 631 - 636 .
+57 wang p , lui j , ribeiro b , towsley d , zhao j , guan x . efficiently estimating motif statistics of large networks . acm transactions on knowledge discovery from data ( tkdd ) .
+2014 ; 9 ( 2 ) : 8 doi : 10.1145 / 2629564 58 bawa m , garcia - molina h , gionis a , motwani r . estimating aggregates on a peer - to - peer network .
+stanford infolab ; 2003 . 59 massoulie l , le merrer e , kermarrec am , ganesh a. peer counting and sampling in overlay networks : random walk methods .
+in : proceedings of the twenty - fifth annual acm symposium on principles of distributed computing .
+acm ; 2006. p. 123 - 132 .
+60 finkelstein m , tucker hg , veeh ja . confidence intervals for the number of unseen types . statistics & probability letters .
+1998 ; 37 ( 4 ) : 423 - 430 . doi : 10.1016 / s0167 - 7152 ( 97 ) 00146 - 6 61 sekar cc , deming we . on a method of estimating birth and death rates and the extent of registration . journal of the american statistical association .
+1949 ; 44 ( 245 ) : 101 - 115 . doi : 10.1080 / 01621459.1949.10483294 62 lincoln fc . calculating waterfowl abundance on the basis of banding returns . united states department of agriculture circular .
+1930 ; 118 : 1 - 4 . 63 petersen cp . the yearly immigration of young plaice into the limfjord from the german sea . report of the danish biological station .
+1896 ; 6 : 5 - 84 . 64 dasgupta a , kumar r , sivakumar d. social sampling .
+in : proceedings of the 18th acm sigkdd international conference on knowledge discovery and data mining .
+acm ; 2012. p. 235 - 243 .
+65 katzir l , liberty e , somekh o. estimating sizes of social networks via biased sampling .
+in : proceedings of the 20th international conference on world wide web .
+acm ; 2011. p. 597 - 606 .
+66 krishnamurthy v , faloutsos m , chrobak m , lao l , cui jh , percus ag . reducing large internet topologies for faster simulations in : networking. vol. 5 springer ; 2005 p .
+328 - 341 . 67 kurant m , butts ct , markopoulou a. graph size estimation .
+arxiv preprint arxiv : 12100460 .
+2012 ; .
+68 dasgupta a , kumar r , sarlos t. on estimating the average degree .
+in : proceedings of the 23rd international conference on world wide web .
+acm ; 2014. p. 795 - 806 .
+69 gile kj . improved inference for respondent - driven sampling data with application to hiv prevalence estimation . journal of the american statistical association .
+2011 ; 106 ( 493 ) : 135 - 146 . doi : 10.1198 / jasa.2011.ap09475 70 barash vd , cameron cj , spiller mw , heckathorn dd . respondent - driven sampling - - testing assumptions : sampling with replacement ; 2016 . 71 mislove a , marcon m , gummadi kp , druschel p , bhattacharjee b. measurement and analysis of online social networks .
+in : proceedings of the 7th acm sigcomm conference on internet measurement .
+acm ; 2007. p. 29 - 42 .
+72 ahn yy , han s , kwak h , moon s , jeong h. analysis of topological characteristics of huge online social networking services .
+in : proceedings of the 16th international conference on world wide web .
+acm ; 2007. p. 835 - 844 .
+73 gjoka m , kurant m , butts ct , markopoulou a. walking in facebook : a case study of unbiased sampling of osns .
+in : infocom , 2010 proceedings ieee .
+ieee ; 2010. p. 1 - 9 .
+74 kurant m , gjoka m , butts ct , markopoulou a. walking on a graph with a magnifying glass : stratified sampling via weighted random walks .
+in : proceedings of the acm sigmetrics joint international conference on measurement and modeling of computer systems .
+acm ; 2011. p. 281 - 292 .
+75 hardiman sj , katzir l. estimating clustering coefficients and size of social networks via random walk .
+in : proceedings of the 22nd international conference on world wide web .
+acm ; 2013. p. 539 - 550 .
+76 slutsky e . uber stochastische asymptoten und grenzwerte . metron .
+1925 ; 5 ( 3 ) : 3 - 89 . 77 dombrowski k , khan b , wendel t , mclean k , misshula e , curtis r . estimating the size of the methamphetamine - using population in new york city using network sampling techniques . advances in applied sociology .
+2012 ; 2 ( 4 ) : 245 - 252 . doi : 10.4236 / aasoci.2012.24032 24672746 78 erdos p , renyi a . on random graphs , i . publicationes mathematicae ( debrecen ) .
+1959 ; 6 : 290 - 297 . 79 bollobas b . modern graph theory .
+springer ; 1998 . 80 bender ea , canfield er . the asymptotic number of labeled graphs with given degree sequences . journal of combinatorial theory , series a .
+1978 ; 24 ( 3 ) : 296 - 307 . http :// dx.doi.org / 10.1016 / 0097 - 3165 ( 78 ) 90059 - 6 .
+81 bollobas b . a probabilistic proof of an asymptotic formula for the number of labelled regular graphs . european journal of combinatorics .
+1980 ; 1 ( 4 ) : 311 - 316 . http :// dx.doi.org / 10.1016 / s0195 - 6698 ( 80 ) 80030 - 8 .
+82 newman mej , strogatz sh , watts dj . random graphs with arbitrary degree distributions and their applications . phys rev e .
+2001 ; 64 : 026118 doi : 10.1103 / physreve.64.026118 83 albert r , barabasi al . statistical mechanics of complex networks . rev mod phys .
+2002 ; 74 : 47 - 97 . doi : 10.1103 / revmodphys.74.47 84 illenberger j , flotterod g . estimating network properties from snowball sampled data . social networks .
+2012 ; 34 ( 4 ) : 701 - 711 . doi : 10.1016 / j.socnet.2012.09.001 85 handcock ms , gile kj , mar cm . estimating hidden population size using respondent - driven sampling data . electronic journal of statistics .
+2014 ; 8 ( 1 ) : 1491 doi : 10.1214 / 14 - ejs923 26180577 86 coronado - garcia m , thrash cr , welch - lazoritz m , gauthier r , reyes jc , khan b , et al using network sampling and recruitment data to understand social structures related to community health in a population of people who inject drugs in rural puerto rico . puerto rico health sciences journal .
+2017 ; 36 ( 2 ) : 77 - 83 . 28622403 87 verdery am , fisher jc , siripong n , abdesselam k , bauldry s . new survey questions and estimators for network clustering with respondent - driven sampling data . sociological methodology .
+2017 ; p .
+0081175017716489. doi : 10.1177 / 0081175017716489 88 verdery am , siripong n , pence bw . social network clustering and the spread of hiv / aids among persons who inject drugs in 2 cities in the philippines . jaids journal of acquired immune deficiency syndromes .
+2017 ; 76 ( 1 ) : 26 - 32 . doi : 10.1097 / qai.0000000000001485 28650399 89 carter jl , wegman mn . universal classes of hash functions . journal of computer and system sciences .
+1979 ; 18 ( 2 ) : 143 - 154 . http :// dx.doi.org / 10.1016 / 0022 - 0000 ( 79 ) 90044 - 8 .
+90 mccreesh n , johnston lg , copas a , sonnenberg p , seeley j , hayes rj , et al evaluation of the role of location and distance in recruitment in respondent - driven sampling . international journal of health geographics .
+2011 ; 10 ( 1 ) : 56 doi : 10.1186 / 1476 - 072x - 10 - 56 22008416 91 rocha le , thorson ae , lambiotte r , liljeros f . respondent - driven sampling bias induced by community structure and response rates in social networks . journal of the royal statistical society : series a ( statistics in society ) .
+2017 ; 180 ( 1 ) : 99 - 118 . doi : 10.1111 / rssa.12180 92 sperandei s , bastos ls , ribeiro - alves m , bastos fi . assessing respondent - driven sampling : a simulation study across different networks . social networks .
+2017 ; .
+93 cho e , myers sa , leskovec j. friendship and mobility : user movement in location - based social networks .
+in : proceedings of the 17th acm sigkdd international conference on knowledge discovery and data mining .
+kdd'11 .
+new york , ny , usa : acm ; 2011. p. 1082 - 1090 .
+available from : http :// doi.acm.org / 10.1145 / 2020408.2020579 .

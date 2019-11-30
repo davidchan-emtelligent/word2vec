@@ -1,0 +1,549 @@
+front plant sci front plant sci front .
+plant sci. frontiers in plant science 1664 - 462x frontiers research foundation 23056003 3457010 10.3389 / fpls.2012.00220 plant sciencereview article rna - seq assembly - are we there yet ?
+schliesky simon 1 gowik udo 2 weber andreas p. m. 1 brautigam andrea 1 * 1center of excellence on plant sciences ( ceplas ) , institute for plant biochemistry , heinrich heine universitydusseldorf , germany 2center of excellence on plant sciences ( ceplas ) , institute for plant developmental and molecular biology , heinrich heine universitydusseldorf , germany edited by : bjoern usadel , rheinisch - westfaelische technische hochschule aachen university , germany reviewed by : jose m. jimenez - gomez , max planck institute for plant breeding , germany ; marc lohse , max planck institute of molecular plant physiology , germany * correspondence : andrea brautigam , institute for plant biochemistry , 26.03.01.room 32 , heinrich heine university dusseldorf , 40225 dusseldorf , germany .
+e - mail : andrea.braeutigam @ uni - duesseldorf.de this article was submitted to frontiers in plant systems biology , a specialty of frontiers in plant science .
+25 9 2012 2012 3 220 06 8 2012 05 9 2012 copyright ( c ) 2012 schliesky , gowik , weber and brautigam .
+2012 this is an open - access article distributed under the terms of the creative commons attribution license , which permits use , distribution and reproduction in other forums , provided the original authors and source are credited and subject to any copyright notices concerning any third - party graphics etc .
+transcriptomic sequence resources represent invaluable assets for research , in particular for non - model species without a sequenced genome .
+to date , the next generation sequencing technologies 454 / roche and illumina have been used to generate transcriptome sequence databases by mrna - seq for more than fifty different plant species .
+while some of the databases were successfully used for downstream applications , such as proteomics , the assembly parameters indicate that the assemblies do not yet accurately reflect the actual plant transcriptomes .
+two different assembly strategies have been used , overlap consensus based assemblers for long reads and eulerian path / de bruijn graph assembler for short reads .
+in this review , we discuss the challenges and solutions to the transcriptome assembly problem .
+a list of quality control parameters and the necessary scripts to produce them are provided .
+rna - seq assembly plant ngs next generation sequencing transcriptome introduction access to a sequence database for a plant species of interest tremendously advances that plant species' potential use in research , as is evidenced by the success story of the small weed arabidopsis thaliana .
+however , the complexities of many plants' genomes and prohibitive costs have precluded the sequencing of their genomes .
+instead of the genome , the transcriptomes of tissues of interest for many important crop plants were sequenced1 .
+the majority of those sequencing efforts were carried out with substantial funding and frequently in consortia .
+the advent of next generation sequencing ( ngs ) technologies has however marked a new era of transcriptomics ( metzker , 2010 ) .
+single laboratories are now enabled to produce a sequence resource for their species of choice , be it for commercial , medicinal , ecological , or any other reason .
+since the initial proof of concept through the sequencing of the transcriptome of arabidopsis seedlings ( weber et al. , 2007 ) , at least 60 additional plant transcriptomes have been sequenced de novo .
+currently , the 1kp project aims for transcriptomic sequencing of 1,000 plant species2 .
+the quest for a $ 1,000 human genome has driven the sequencing industries to formidable innovations .
+the gold rush started with the 454 platform ( later acquired by roche ) and the 100 bases long reads that could be obtained on the initial gs20 instrument .
+improvements to the platform lead to reads of 250 bases in length .
+the latest 454 / roche platform used for ( plant ) transcriptome sequencing is the gs flx titanium which allows read lengths of 400 bases ( glenn , 2011 ) 3 .
+while a typical 454 / roche sequencing run is finished within less than a day , it yields only 400 mb per run .
+illumina ( formerly solexa ) employs a different technology platform .
+initially reads were as short as 36 bases but improvements to the technology have led to increased read length of 100 bases ( and if paired reads are used , 200 bases of the same transcript ) .
+in contrast to the 454 / roche platform , sequencing runs take from several days to more than 1 week but produce ~ 600 gb per run ( glenn , 2011 ) 4. with respect to cost per base sequenced , illumina will beat roche / 454 by a factor of more than 100 .
+both the 454 / roche and the illumina platform have been used for transcriptome sequencing and assembly ( table 1 ) .
+to our knowledge , the two other established ngs technologies , solid and ion torrent , have not been used for published plant transcriptome projects ( using the search words of rna - seq , plant and transcriptome , plant and ngs at isi web of knowledge ) .
+table 1 plant transcriptome sequencing projects until today ( complete table available as table s1 in supplementary material ) .
+reference plant type of reads weber et al .
+( 2007 ) arabidopsis thaliana 454 novaes et al .
+( 2008 ) eucalyptus grandis 454 barakat et al .
+( 2009 ) castanea dentata , c. mollissima 454 alagna et al .
+( 2009 ) olea europaea 454 dassanayake et al .
+( 2009 ) heritiera littoralis , rhizophora mangle 454 wang et al .
+( 2009 ) artemisia annua 454 swarbreck et al .
+( 2011 ) avena barbata 454 guo et al .
+( 2010 ) cucumis sativus 454 riggins et al .
+( 2010 ) amaranthus uberculatus 454 king et al .
+( 2011 ) jatropha curcas 454 hiremath et al .
+( 2011 ) cicer arietinum 454 troncoso - ponce et al .
+( 2011 ) ricinus communis , brassica napus , eunonymus alatus , tropaeolum majus 454 brautigam et al .
+( 2011a ) cleome gynandra , c. spinosa 454 cantu et al .
+( 2011 ) triticum aestivum 454 dai et al .
+( 2011 ) cucumis melo ( sweet melon ) 454 sun et al .
+( 2011 ) pinus sylvestris 454 der et al .
+( 2011 ) pteridium aquilinium 454 franssen et al .
+( 2011 ) pisum sativum 454 ibarra - laclette et al .
+( 2011 ) utricularia gibba 454 su et al .
+( 2011 ) phalaenopsis aphrodite 454 pont et al .
+( 2011 ) triticum aestivum 454 bleeker et al .
+( 2011 ) solanum lycopersicum , s. habrochaites 454 blavet et al .
+( 2011 ) eight silene sp. and dianthus 454 villar et al .
+( 2011 ) eucalyptus 454 kaur et al .
+( 2011 ) lens culinaris 454 kalavacharla et al .
+( 2011 ) phaseolus vulgaris 454 lu et al .
+( 2012 ) capsicum annuum 454 meyer et al .
+( 2012 ) panicum hallii var .
+filipes 454 edwards et al .
+( 2012 ) ziziphus celata 454 desgagne - penix et al .
+( 2012 ) papaver somniferum 454 angeloni et al .
+( 2011 ) scabiosa columbaria 454 and illumina garg et al .
+( 2011 ) cicer arietinum 454 and illumina krishnan et al .
+( 2011 ) azadirachta indica illumina mutasa - gottgens et al .
+( 2012 ) beta vulgaris illumina gruenheit et al .
+( 2012 ) pachycladon fastigiatum , p. cheesemanii illumina and illumina paired end mizrachi et al .
+( 2010 ) eucalyptusgrandis x e. urophylla illumina paired barrero et al .
+( 2011 ) euphorbia fischeriana illumina paired xia et al .
+( 2011 ) hevea brasiliensis illumina paired chibalina and filatov ( 2011 ) silene latifolia illumina paired hao et al .
+( 2011 ) taxus marei illumina paired tang et al .
+( 2011 ) siraitia grosvenorii illumina paired wong et al .
+( 2011 ) acacia auriculiformis , a. mangium illumina paired shi et al .
+( 2011 ) camellia sinensis illumina paired hyun et al .
+( 2012 ) momordica cochinchensis illumina paired hao et al .
+( 2012 ) polygonum cuspidatum illumina paired huang et al .
+( 2012 ) millettia pinnata , illumina paired gahlan et al .
+( 2012 ) picrorhiza kurrooa illumina paired zhang et al .
+( 2012 ) arachis hypogaea illumina paired mckain et al .
+( 2012 ) different agavoideae illumina paired transcriptome sequencing and its applications the initial de novo plant transcriptome sequencing by mrna - seq was conducted on arabidopsis thaliana ( weber et al. , 2007 ) .
+only half a million reads of close to 100 bases in length were sequenced in this proof of concept approach .
+it was recognized already at this early stage that remapping the reads to the arabidopsis genome tagged many more transcripts than could be assembled with newbler , phrap , or cap3 ( emrich et al. , 2007 ; weber et al. , 2007 ) .
+indeed , assembly was recognized as a future challenge .
+virtually all of the 454 / roche transcriptome sequencing projects following this initial work did have the generation of a transcriptome resource as one of their major objectives ( table 1 ) .
+many ngs experiments provide a resource of markers for molecular breeding , for example for eucalyptus , melon , and different legumes ( novaes et al. , 2008 ; guo et al. , 2010 ; blavet et al. , 2011 ; hiremath et al. , 2011 ; kaur et al. , 2011 ) .
+other major targets are primary ( dai et al. , 2011 ; franssen et al. , 2011 ; king et al. , 2011 ; troncoso - ponce et al. , 2011 ) and secondary ( alagna et al. , 2009 ; wang et al. , 2009 ; bleeker et al. , 2011 ; desgagne - penix et al. , 2012 ) metabolism .
+plants such as poppy for opium and other alkaloids , tomato for beneficial terpenoids , and artemisia for artemisinin have been targeted by transcriptome sequencing ( table 1 ) .
+adaptations to biotic ( barakat et al. , 2009 ; sun et al. , 2011 ) and abiotic stress ( dassanayake et al. , 2009 ; villar et al. , 2011 ) were studied in plants .
+finally , transcriptomes of plants carrying a trait of interest such as c4 photosynthesis ( brautigam et al. , 2011a ; gowik et al. , 2011 ) , weedy habitus ( riggins et al. , 2010 ) , being an orchid ( su et al. , 2011 ) , a carnivorous plant ( ibarra - laclette et al. , 2011 ) , an ecological model ( blavet et al. , 2011 ) , a traditional biochemical model ( franssen et al. , 2011 ) , or an endangered species ( edwards et al. , 2012 ) , were analyzed .
+since 454 / roche pyrosequencing was used , the number of sequenced reads is comparatively low , between 0.08 and 3.3 million reads ( table 1 ) .
+the majority of the assemblies were realized with overlap consensus based assemblers such as cap3 ( huang and madan , 1999 ; four instances ) or its implementation in the clustering pipeline tgicl ( pertea et al. , 2003 ; five instances ) , which prefaces cap3 with a megablast to reduce the number of sequences fed to cap3 and hence ram requirement .
+mira ( chevreux et al. , 2004 ; one instance ) and one of the multiple newbler versions5 ( seven instances ) were also frequently used .
+in four projects a combination of two assemblers was used .
+clc6 , leads ( dai et al. , 2011 ) , paracelsus transcript assembler ( novaes et al. , 2008 ) and seqman ngen ( edwards et al. , 2012 ) were each used in a single published assembly ( table 1 ) .
+the different assemblies were quality controlled - if they were controlled at all - by different parameters .
+hence it is difficult to compare the different assembly methods .
+all assemblies report the number of unigenes ( the sum of assembled contigs and unassembled singletons ) and either the n50 or the average length of the contigs .
+these two parameters can be compared with reference sequence numbers , average sizes and n50 from predicted transcriptomes of species with sequenced genomes .
+the parameters show that the assemblies are far from perfect and that none of the assemblers achieves a satisfactory reconstruction of an actual transcriptome .
+while the representation of the transcriptome was the expressed goal of these studies , none of them fully succeeded .
+most of the assemblies were carried out either with roche 's newbler or with a decades - old tool , cap3 .
+no marked improvements could be detected in the assembly parameters unigene number and average length over time ( table s1 in supplementary material ) .
+although one may be tempted to dismiss such error prone , incomplete assemblies , the majority of them have already proven themselves useful for downstream applications such as proteomics ( brautigam et al. , 2008 ; franssen et al. , 2011 ) or pathway reconstruction ( wang et al. , 2009 ; brautigam et al. , 2011a ; dai et al. , 2011 ; troncoso - ponce et al. , 2011 ; desgagne - penix et al. , 2012 ) .
+the databases were developed to provide a sequence resource for future experiments .
+the analysis of single genes involved in the c4 photosynthetic pathway based on hypotheses derived from rna - seq experiments has already been successful ( furumoto et al. , 2011 ; sommer et al. , 2012 ) .
+hence even imperfect assemblies succeed in enabling future research .
+downstream approaches that require perfect or near perfect unigenes such as the evolutionary analysis of gene family expansions will likely suffer more from the current shortcomings of these assemblies .
+rna - seq by illumina sequencing was initially used for transcriptome sequencing in species with sequenced genomes ( e.g. , vega - arreguin et al. , 2009 ; li et al. , 2011 ) .
+it has been successfully applied to produce transcriptomes de novo ( table s1 in supplementary material ) .
+the technology appeals to researchers despite its comparatively short reads because it produces much larger coverage at the same or a lower price .
+however , it presents a new set of challenges for the assembly .
+similar to 454 / roche based sequencing projects , virtually all illumina based rna - seq experiments on non - model species have been conducted to produce a transcriptome database .
+rna - seq using the illumina technology was undertaken to analyze transcriptomes for plants of nutritional or medical value ( barrero et al. , 2011 ; hao et al. , 2011 , 2012 ; krishnan et al. , 2011 ; tang et al. , 2011 ; gahlan et al. , 2012 ; hyun et al. , 2012 ) or of commercial value ( mizrachi et al. , 2010 ; shi et al. , 2011 ; xia et al. , 2011 ; mutasa - gottgens et al. , 2012 ; zhang et al. , 2012 ) .
+two experiments addressed ecological and evolutionary questions , the evolution of sex chromosomes ( bergero and charlesworth , 2011 ) and the phylogenetic positioning of species ( mckain et al. , 2012 ) .
+the majority of sequences were produced with paired end technology .
+in this case , sequences from both ends of fragments of defined size are sequenced .
+the use of paired ends allows scaffolding : sequence reads are used to produce contigs .
+the information which reads belong together and their specific distance orders disconnected contigs on scaffolds .
+the unknown nucleotides in the gaps of scaffolds are caused by knowing the size of the gap but not the identity of the nucleotides and hence the nucleotides in the gap are denoted as ns. one assembler that was originally developed for genome assemblies , soapdevono7 , has been used to assemble the majority of plant transcriptomes .
+additional assemblers used include clc , velvet ( zerbino and birney , 2008 ) 8 , abyss ( simpson et al. , 2009 ) , and trinity ( grabherr et al. , 2011 ) .
+in one of the projects a custom resolution algorithm for velvet was developed and used ( mizrachi et al. , 2010 ; table 1 ) .
+this customized velvet version has produced the best assembly in terms of contig number and average contig length .
+despite its success , the method has not been used for any of the other projects .
+finally , rna - seq experiments have combined both 454 / roche and illumina sequencing .
+transcriptomes of chickpea and pincushion flower were produced using both technologies and hybrid assemblies ( angeloni et al. , 2011 ; garg et al. , 2011 ) .
+although promising in prospect of complementary error correction , to date , true hybrid assembly approaches are limited to an assembly of one library ( often 454 ) as a base transcriptome and subsequent correction of the consensus sequence by mapping the other read library ( illumina or solid ) .
+quality improvements of transcriptome hybrid assemblies have not yet been assessed in a comparative study .
+however , in the context of genome assembly it was shown that a stepwise ( as explained above ) hybrid assembly had a higher quality ( according to the authors : comparable to sanger - sequencing ) than single library approaches ( aury et al. , 2008 ) .
+the use as well as the strategy of hybrid assemblies is currently vigorously discussed in the online community 9,10 .
+overall , similar to the assemblies from 454 / roche rna - seq experiments , those from illumina technology suffer from limitations .
+it will be crucial to continue developing assemblers with enhanced capability while establishing standard quality controls to make assemblies from different species , technologies , and assembly strategies comparable .
+assemblers two principally different types of assemblers are available for rna - seq data : overlap - layout - consensus ( olc ) assemblers and eulerian path assemblers which are based on de bruijn graphs ( summarized in flicek and birney , 2009 ) .
+overlap - layout - consensus assemblers were developed for sanger sequences .
+in principle , the assembler starts with a sequence read , looks at its sequence , and searches the read space for another read that contains an overlapping sequence .
+the overlap is specified by its length and the number or percentage of matching bases .
+the memory requirement for this operation depends on the number of reads to be searched .
+thus , more reads require more computer power .
+already during times of sanger - sequencing , this method became inefficient with the available computers and a prefacing clustering step was added .
+this clustering step groups sequences deemed similar , for example by a megablast search ( pertea et al. , 2003 ) .
+the assembler then only searches the sequences in each cluster .
+the three most prominent examples for these olc based assemblers are newbler ( roche / 454 life sciences , branford , ct , usa ) , mira ( chevreux et al. , 2004 ) , and cap3 ( huang and madan , 1999 ; or tgicl which uses megablast and cap3 ) .
+while these assemblers are suitable for 454 / roche sequences , the number of reads generated with illumina are simply too large to be processed .
+in an assessment of different assemblers with both simulated and real data , tgicl was superior to mira and cap3 in its results ( brautigam et al. , 2011b ) .
+no new assemblers have been developed and used except for newbler developed by the company 454 / roche itself .
+to tackle illumina - generated sequence reads , a new type of assembler was created .
+it is based on finding the eulerian path through a de bruijn graph ( pevzner et al. , 2001 ) .
+essentially , this type of assembler breaks the whole sequence space in pieces of defined length , which are called k - mers .
+it then moves along the k - mers and creates a graph in the process .
+identical overlaps of k - mers are merged and counted .
+if the assembler encounters differences , the graph will branch , if it subsequently encounters identity again , the graph will join the ends. that means that single nucleotide differences ( snds ) will produce bubbles ( figure 1 ; 2 ) .
+such snds can either represent a sequencing error or genetic variation in form of a single nucleotide polymorphism ( snp ) .
+large bubbles and open ended branches can be caused by alternative splicing and alternative transcriptional starts and stops ( figure 1 ; 1 ) .
+the presence of genomic dna in the sample , improperly trimmed and filtered reads , sequencing errors , alternative splicing , and background transcription will lead to many more deviations from the one transcript , which ideally should look like a straight line .
+in reality the graph has no straight lines but is full of bubbles and frayed ends ( figure 1 ) .
+when such a graph is resolved , the researcher wants all " real differences " such as alternative splicing events , transcripts resulting from recently duplicated but still very similar genes , and genetic variation , for example from different alleles of a particular genetic locus , represented .
+however , all differences caused by technical errors should be removed .
+the only information available for the algorithm to resolve the graph is the number of instances observed for each k - mer .
+if such a graph is used for genome sequencing of organisms without complex genomes ( i.e. , not plants ) , the application for which it was developed , the graph can be resolved using the degree of coverage for each k - mer .
+in theory , the number of reads that cover each base in the graph should be equal for the whole graph .
+while this does not hold true for repetitive sequence elements , it can be used to resolve the remainder .
+given 100 - fold coverage in a genome homozygous at all loci , you would require that each k - mer is covered at least , say , 80 times to be called real .
+if the coverage is lower , it is likely a sequencing error .
+figure 1 schematic de bruijn graph of a single transcript ; 1 alternative transcription start site or hybrid joining or dna contamination ; 2 snd caused by a sequencing error or a snp or mutation after gene duplication ; 3 alternative transcription start site or dna contamination ; 4 alternative exon use ; 5 alternative exon use or mutations after recent gene duplication .
+the resolution of transcriptome graphs is very different from the resolution of genome graphs .
+the dynamic range of a leaf transcriptome spans at least five orders of magnitude ( brautigam et al. , 2011a ; gowik et al. , 2011 ) .
+hence the coverage of a transcriptome is the polar opposite of even .
+snps and indels present in natural populations cause uneven coverage .
+transcripts with higher diversity in the population exhibit more changes ( as represented by bubbles in figure 1 ) than transcripts with lower diversity in the population .
+alternative splicing and start and stop sites will cause differential coverage .
+if an exon is only used 10 % of the time , it may not make it past the resolution cut - off .
+to solve the problem of uneven coverage , the assemblers that were originally designed to produce genomic assemblies , such as abyss , soapdenovo , or velvet , have been extended with add - ons for the assembly of transcriptomes , such as trans - abyss , soapdenovo - trans , or velvet / oases .
+even given this amendment , assemblers do not succeed in assembly as evidenced by contig numbers that are much higher than the expected transcript number and average contig sizes much lower than that of an average transcriptome ( table s1 in supplementary material ) .
+assemblers for short reads remain limited and both the development of new assemblers as well as post - assembly processing and parameter optimization is ongoing .
+the detection of genetic variation and transcript variants will likely require post - assembly read mapping and evaluation through the researcher .
+considerations for ngs transcriptome assembly the key differences between ngs and sanger sequence reads are the number of reads and the length of the reads .
+even using the long - read technology 454 / roche , the reads are only half to a third as long as compared to sanger sequences. with a single ngs run , half a gigabase to several gigabases of sequence data is generated .
+in consequence , the challenge has shifted from efficiently generating sequence reads to efficiently assembling them .
+given an error rate of ~ 1 % and 40,000 reads of 400 bases length for a gene of 1 kb , 160,000 incorrect base calls are expected .
+if these are randomly distributed , on average , each single base will be called incorrectly about 160 times .
+even assuming error rates of only 0.1 % , each base will still be called incorrectly 16 times .
+for this reason , there is a correlation between the number of contigs resulting from a transcript and the expression strength of the corresponding gene ( franssen et al. , 2011 ) .
+the large number of sequencing reads calls for intense sequence pruning .
+there are several software packages that include pruning pipelines , such as the fastx - toolkit11 , the fastqc software12 , and the robina package ( lohse et al. , 2012 ) .
+those are used to determine average quality per base in addition to other quality control parameters .
+reads can be trimmed ( pruned at the ends if bases are below a quality threshold ) , filtered ( if internal bases are below a threshold ) , and purged from duplicates ( merging multiple , identical reads into a single sequence ) .
+unfortunately , the majority of assembly publications do not report their pruning pipeline and threshold values ; they restrict themselves to stating the number of high quality bases that were fed into the assembly pipeline .
+in theory , the error problem was solved if one were to assemble only reads with a high coverage cut - off during the graph resolution .
+in that case , sequencing errors were ignored because their k - mer numbers are too low .
+however , due to the large dynamic range of the transcriptome , low abundance genes , such as transcription factors and regulatory kinases , are underrepresented ( czechowski et al. , 2004 ) .
+these genes are discriminated against if the assembly is processed with high coverage cut - offs during resolution ( schliesky and brautigam , unpublished observations ) .
+they simply disappear .
+similarly , rare transcript isoforms will also be discarded during the resolution step if high coverage is required .
+library normalization at least partially addresses the challenge of a high dynamic range .
+normalization by digestion reduces the dynamic range by one order of magnitude ( christodoulou et al. , 2001 ) but normalized libraries clearly retain some dynamic range ( franssen et al. , 2011 ) .
+while normalization likely improves the assembly , it comes at a cost : sequence information and quantitative information are no longer collected at the same time .
+if quantitative information is not required , normalization is highly recommended .
+at least low coverage transcripts could be recovered if one knew before assembling how many reads are produced from each transcript and adjust the resolution algorithm accordingly for each piece of the graph .
+possibly , a dynamic approach - assembly , read mapping on the preliminary assembly , re - assembly with sliding scale of resolution coverage cut - off - might be able to solve the problem .
+while none of the current transcriptome assemblers has implemented this strategy , its application for one illumina plant transcriptome assembly may serve as the proof of concept for the approach ( mizrachi et al. , 2010 ) .
+the key challenge in assembly is weeding out all variation caused by sequencing errors , library preparation , and other technical artifacts while keeping all variation caused by biological phenomena such as genetic variation , alternative splicing , and others .
+assessing the assembly in principle , assessing an assembly is easy - it should accurately reflect the transcriptome of the sequenced tissue and species .
+in practice , the accurate transcriptome is unknown and not available for comparison .
+two different approaches to overcome this problem can be envisioned .
+( i ) establishing assembly parameters with simulated reads from a reference species and transferring those to de novo sequencing and ( ii ) assembling de novo transcriptome and estimating reference parameters .
+while the first possibility has immediate appeal , there are a number of obstacles .
+the dynamic range of transcriptomes is different in different tissues and between species ( fluhr et al. , 1986 ) .
+a method optimized for a root transcriptome might not necessarily work well with a leaf transcriptome and vice versa .
+different read length , paired end or single end sequencing , or different sequencing depth dictated by the available instrumentation and funding will likely change the parameters for the best possible assembly .
+carrying out the optimization with a non - target dataset will also cause substantial time investment with little return in the beginning since not even a working assembly of the target transcriptome is created .
+for all these and possibly additional reasons , many researches will immediately start to work on the target transcriptome .
+if a common set of assessment parameters were developed , all possible transcriptomes could be measured against these parameters and thus compared with each other .
+number of unigenes the number of unigenes expected from an assembly can be calculated with a fermi estimate .
+the gene number for the majority of sequenced plant genomes is between 20,000 and 40,000 .
+using microarray data from arabidopsis , one can estimate that about one half of the genes are expressed in leaves .
+using these two numbers as approximations , the fermi estimate for loci expected from a leaf transcriptome is about 15,000 .
+while species with a very recently duplicated genome may have close to twice as many , none will have an order of magnitude more transcripts ( compare to table s1 in supplementary material ) .
+however , the number of unigenes can be easily manipulated while not gaining a better assembly .
+one strategy crops the unigenes by a minimal - length cut - off .
+while it facilitates subsequent read mappings it severely discriminates against " real ," short transcripts .
+another example , raising the coverage cut - off during graph resolution will reduce the number of unigenes .
+this strategy indeed removes unigenes constructed because of sequencing errors but it will also discriminate against low abundance transcripts as discussed above .
+it is thus important to combine these measures with the number of reference transcripts matching the unigenes .
+number of reference transcripts matching the unigenes once the assembly is complete , it needs to be compared to the most closely related reference species .
+the unigenes are matched to the reference sequence by blast or blat ( kent , 2002 ) .
+while it is unknown how many reference transcripts should be tagged by the assembled unigenes , a higher number of tagged references indicate a more inclusive and thus better assembly .
+genes that are not expressed will never be tagged but as long as the number of tagged genes increases during assembly optimization , the assembly is getting better in terms of inclusiveness .
+number of reference transcripts hit by reads compared to number of reference transcripts hit by unigenes it is possible to estimate the number of unigenes produced by the assembly .
+if the reads are at least 75 bases long after trimming and filtering , they can be mapped to a reference transcriptome provided that the reference species is reasonably closely related .
+however , in reality " reasonably close " will not be sufficient to produce a perfect mapping .
+therefore ( i ) a traditional mapping program that allows for multiple mismatches ( i.e. , blast or blat ) and ( ii ) mapping in protein - space ( i.e. , translated query against translated database ; blatx or tblastx ) improves the mapping success with respect to evolutionary distance .
+in theory , reference transcripts tagged by reads are expected to be tagged by unigenes .
+this assumption is only true if a loss - less assembler such as olc assemblers are used .
+reads that do not overlap with other reads are reported as singlets or singletons when using these assemblers .
+the resolution cut - off applied in graph - based assemblies will overlook unigenes if they are not covered by at least the coverage cut - off .
+mapping reads to a reference results in estimated read numbers per locus. with these read numbers one can check how many reads are actually needed to produce a contig or a full length contig based on different assembly parameters such as k - mer size and coverage cut - off .
+surprisingly , the assembly will also produce unigenes for which no read tagging was recorded .
+in that case , the setting of either blat or blast was too stringent too match the reads but the longer unigene produces a match .
+this quality control measure will overlook lineage specific transcripts that have no match in the reference transcriptome .
+while every genome sequencing approach does reveal lineage specific genes , the number of genes present in multiple plant lineages is vastly higher .
+the ratio between reference sequences tagged by reads and those tagged by unigenes should ideally approach 1:1 .
+n50 , average length , median length these three parameters are always reported with genome assemblies .
+the n50 can be envisioned as follows : if you order the unigenes by their length and then start counting nucleotides at the largest unigene , the n50 will report the unigene length at which you have counted through half of the bases .
+while this is a sensible measure for genomes , it makes less sense for transcriptomes .
+after all , with genomes you expect as many contigs as you have chromosomes .
+in transcriptomes , you may have different n50s for different tissues of the same plant since different groups of genes are expressed .
+the same caveat is true for the average length and the median length .
+while different ( whole ) transcriptomes indeed have slightly different parameters with regard to n50 , average length and median length , the values are similar enough to yield an estimate for the expected values for an unknown transcriptome ( compare to tables 1 and 2 ) .
+table 2 quality assessment parameters drawn from transcripts of publicly available genome databases .
+species genome size ( mbases ) number of transcripts including isoforms n50 gc % arabidopsis thaliana 120 41671 1912 42.27 brassica rapa 485 41019 1482 46.28 populus trichocarpa 481 45033 1845 42.29 solanum lycopersicum 950 35802 1461 41.61 oryza sativa 420 66338 2295 51.30 setaria italica 515 40599 1811 52.75 zea mays 2066 136770 1612 51.14 length of the longest unigene the length of the longest unigene might not represent a sensible measure .
+if the sequencing library was contaminated by genomic dna , a large fraction of this dna will come from the plastid genome .
+the plastome dna is known to be at - rich and thus survives the poly - a enrichment step during the illumina mrna enrichment protocol well ( schliesky , mullick and brautigam et al. , unpublished observations ) .
+its presence leads to remarkably long contigs in the assembly albeit not quite to an assembly accurately representing the transcriptome .
+a second consequence of dna contamination is the presence of many contigs matching transposon - like sequences which are also at - rich .
+the complete or near complete presence of a unigene matching the longest nuclear transcript of a reference also only shows that the assembly parameters were ideal for that transcript but not for all transcripts in the sequenced library .
+number of estimated full length unigenes while the length of the longest unigene may not be an ideal measure , the estimated number of full length unigenes reflects on the success of the assembly .
+the unigenes are matched to a transcriptome reference from a closely related species .
+while during evolution , genes will have extended or contracted , on average , their length will remain comparable .
+more unigenes that reach the length of the reference transcripts indicate a better assembly .
+if no reference seems suitably close enough , it is still possible to compare the length distributions qualitatively .
+comparing multiple publicly available plant transcriptome databases with respect to their length distributions demonstrates an overall pattern on what a transcriptome should possibly look like ( e.g. , ~ 90 % of the sequences between 200 and 3500 nt length ) .
+in practice that is not achieved because assembly software often produces a huge fraction of truncated transcripts between 0 and 200 nt length .
+number of hybrid / read - through unigenes while full length unigenes are the goal of an assembly , no hybrid unigenes should be produced .
+these result from the joining of two target transcripts matching two different reference transcripts into one unigene .
+two different kinds of hybrid unigenes can be produced .
+illumina resequencing of arabidopsis leaf transcriptomes identified unigenes that were assembled from adjacent transcripts ( schliesky , unpublished ) .
+read mapping to the genome revealed that these hybrid unigenes resulted from read - through transcription .
+they thus likely reflect the true transcriptome .
+the second class of hybrid unigenes is undesirable .
+in this case , the similarity of sequences , sequencing errors , or incomplete read trimming and filtering cause the merging of two target transcripts into one reference unigene .
+a read mapping in this case identifies no evidence for this feature .
+different assembly parameters favor or do not favor the creation of this second class of hybrids ( schliesky , unpublished ) and thus hybrid detection should be included in the quality control .
+one strategy for hybrid detection by alignment to arabidopsis could be designed as follows .
+based on the outcome of an alignment , all unigenes that map to multiple genes get tagged as hybrid ( also known as chimera or fusion genes ) , if the match takes place in distinct , i.e. , non - repetitive , sections of the unigene sequence .
+subsequently the chromosomal position is used to classify the type of hybrid to either read - through ( matching neighboring genes ) or second class hybrids ( matching non - neighboring genes ) .
+a high proportion of second class hybrids points to a bad assembly algorithm , to bad assembly parameters ( e.g. , k - mer too large ) or to a contamination of some sort ( e.g. , genomic dna or low quality reads ) .
+if no closely related reference is available , the hybrid detection strategy probably needs to be amended. with increasing evolutionary diversity mapping accuracy will decrease .
+therefore mapping errors may lead to incorrectly detected hybrids. that may be solved by increasing the required matching length during mapping ( increasing accuracy ) at the cost of not mapping some unigenes at all ( decreasing sensitivity ) .
+alternatively , hybrid unigenes may be detected by mapping the reads back to the unigenes .
+at the position of error , read coverage is likely lower than in the adjacent regions .
+detecting and cropping those bridging regions reliably will reduce the number of hybrid transcripts .
+this approach is based on same idea as an assembly algorithm with a sliding resolution window for per base coverage .
+if the quality assessment was completely independent of a reference sequence , lineage specific genes which have no match in reference database would also be included in the quality assessment .
+example workflow as a step toward comparable transcriptome assessments a collection of perl and unix scripts , which are automating parts of the assessment , is provided in this review .
+it resembles an example workflow ( figure 2 , supplementary presentation 1 ) for assembling and assessing reads of arabidopsis mrna .
+this out - of - the - box pipeline consists of five blocks ; ( i ) vigorous read pruning , ( ii ) assembling , ( iii ) mapping to a reference , ( iv ) collecting quality parameters , and ( v ) polishing the assembly for publication .
+figure 2 workflow scheme for a transcriptome assembly and quality assessment : ( i ) preprocessing of the raw reads , ( ii ) assembly of processed reads , ( iii ) mappings for annotation and for subsequent quality assessment , ( iv ) collecting quality information from assembly and mappings , ( v ) final polishing to create an easy to use , thus easy to share file from the assembly .
+carrying out transcriptome assembly in a standardized way has not been publicly pursued prior to this review .
+in order to keep the workflow repeatable and comparable we provide a step by step instruction set on how to use the supplemental scripts to assemble a sequencing run and conduct quality assessment on the assembly .
+please be aware that the workflow including all scripts was designed with arabidopsis as the target reference .
+scripts might or might not be adaptable to other species .
+the workflow was established and tested on a linux machine running 64 bit ubuntu 10.04 and having installed bioperl , biopython , the fastx - toolkit , blat , and blast .
+first , all scripts need to be extracted and copied into a folder ( supplemental scripts 02 - 12 ) , together with the raw reads ( fastq.gz files ) and the reference .
+start a terminal and change to the directory containing the scripts .
+all commands needed are in supplemental script 1 .
+lines proceeded by a # - symbol present comment lines and are used for explanation .
+illumina reads obtained from a sequencing facility are supplied as *. fastq.gz files .
+to unzip and concatenate them , the zcat command is used ( supplemental script 1 line 4 ) .
+read cleaning ( supplemental script 1 lines 6 - 11 ) while reads coming off the sequencer are not dirty in the traditional sense , they may contain low quality reads , adaptor sequences , and low quality bases .
+reads are cleaned to remove as much non - biological variation as possible .
+as discussed previously read cleaning is crucial for a good assembly .
+the workflow starts by removing reads flagged as inappropriate by the sequencer ( line 7 ) .
+for quality trimming knowledge of the average overall base quality is needed .
+this is evaluated using the fastx - toolkit ( line 8 ) .
+visual aids ( e.g. , fastq _ quality _ boxplot _ graph.sh ) may ease interpretation of the results .
+the stats file provides one line per base ( i.e. , in illumina 101 bp reads 101 lines ) and for each base a median quality score is calculated .
+frequently , read quality will be low toward the end of the read .
+if at any point , say from base 86 to base 87 , the median quality drops dramatically , the ideal quality cut - off will be in between this range .
+for sequencing runs with good library preparation and no problems during the sequencing we recommend a cut - off of 30 .
+the actual cleaning is conducted in three steps ; ( i ) trimming ( line 9 ) , which prunes the ends off of the reads if they are below the defined quality cut - off and subsequently discards all reads that are shorter than a defined length cut - off ( we suggest half the read length , i.e. , 50 ) after trimming .
+( ii ) filtering ( line 10 ) , which discards all reads that do not meet the required quality cut - off with at least a defined length ( in percent of the total read ) .
+for the majority of sequencing runs , the values suggested above are a good starting point .
+trimming and filtering does not discard more than 15 % of the reads if library preparation and sequencing went well .
+in other cases , values might have to be adjusted and trimming and filtering values might have to be relaxed .
+( iii ) collapsing ( line 11 ) , since memory requirements are lower if fewer reads are assembled .
+assembly ( supplemental script 1 lines 13 - 27 ) lines 13 - 27 contain an out - of - the - box pipeline from cleaned reads to assembled best transcript isoforms using velvet / oases .
+the pipeline can be adapted for other assemblers .
+velvet / oases is called in three steps .
+in the first one , output directory , k - mer size and input files are declared ( line 15 ) .
+in the subsequent steps a de bruijn graph is built ( line 16 ) and resolved with an algorithm optimized for transcriptomes , i.e. , oases ( line 17 ) .
+oases outputs a huge amount of transcripts , which is due to the fact that oases resolves bubbles and branches in the graph into all possible transcript isoforms of a locus .
+the number of transcripts is , compared to the number of unique loci detected by oases , frequently two ( or more ) times higher .
+picking the best transcript for each locus is a challenge as there is no standard to what " best " means .
+the longest transcript is often the least supported ( i.e. , covered by k - mers ) , whereas the most supported often is the shortest one .
+to solve this problem a script ( line 22 , supplemental script 02 ) has recently been published on google code13 ( by adrian reich 2012 ) that essentially chooses the most supported transcript ( i.e. , highest k - mer coverage ) that has at least xx % length of the longest transcript in this locus .
+in our hands a length cut - off of 20 % showed the best results in subsequent quality assessment .
+many assembly papers include a length cut - off to reduce the number of transcripts .
+although this curation is , in essence , cheating with the number of unigenes , the pipeline includes a perl script for cropping the database ( line 27 , supplemental script 03 ) .
+mapping ( supplemental script 1 lines 29 - 46 ) a major bottleneck - conceptually as well as computationally - if working with non - model species is the read mapping .
+when working on non - model species there is no sequenced genome available to use as a reference .
+mapping to a close relative works if precautions are taken to account for the evolutionary distance .
+modern mapping algorithms are designed for speed and allow only one mismatch .
+these algorithms will fail to map to a related reference .
+therefore in cross - species mapping the use of traditional mapping algorithms like blast and blat in protein - space is recommended .
+while mapping unigenes to the reference ( line 31 ) finishes in the order of minutes , mapping reads to the reference will take much longer ( depending on the library size in the order of weeks ) .
+this limitation can be bypassed by parallelizing blat with a script ( line 34 - 36 , supplemental script 04 ) on the number of cpus available .
+the script splits the read file , starts parallel single blat runs and merges the results .
+the number of cpus can be changed within supplemental script 04 in line 3 ( default is 2 ) .
+alternatively blast , which natively supports multiple cpus , can be used for the mapping ( line 39 , 40 ) .
+multiple mappings can be resolved to only one single best hit per query ( i.e. , per read ) by using the best hit scripts for either blast ( line 42 , supplemental script 05 ) or blat ( line 46 , supplemental script 06 ) .
+quality assessment ( supplemental script 1 lines 48 - 87 ) as discussed above the most frequently used measures to evaluate the quality of an assembly are number of unigenes and n50 .
+a perl script to calculate the read length histogram of a fasta file ( line 50 , supplemental script 07 ) was developed by joseph fass ( modified from a script by brad sickler ) .
+the script produces a histogram that can be easily visualized , and calculates the number of unigenes , n25 , n50 , and n75 .
+the percentage of unigenes that match a reference are calculated using the total number of references and the number of matching unigenes .
+the total number of references is counted ( line 54 ) .
+the number of unigenes which map to a reference is produced by extracting the query identifiers from the mapping table and by counting unique occurrence ( line 56 ) .
+the mapping efficiency ( ratio of mappable unigenes by total references ) can be interpreted as a measure of completeness with the caveat that single tissue transcriptomes are not expected to represent a complete transcriptome .
+hybrid unigenes can be detected with the help of mapping .
+in hybrid unigenes , different sections of the unigene map to different loci in arabidopsis .
+these hybrid unigenes can either be read - throughs of two adjacent genes or misassemblies .
+while it is desirable to have no hybrid unigenes that represent transcripts fused by the assembler , it might add to the understanding of cellular mechanisms to identify read - throughs .
+therefore we provide two perl scripts , which ( i ) detect any hybrid unigenes ( line 60 , supplemental script 08 ) and ( ii ) subsequently classify those as read - throughs or not ( lines 63 - 67 , supplemental script 09 ) .
+while hybrid unigenes are undesirable in an assembly , they can be tolerated for single gene analysis .
+a read mapping provides visible cues whether coverage is even or whether parts of the unigene are only supported by few reads .
+only with more and more transcriptomes being assembled and large scale comparisons enabled , hybrid unigenes will become an issue in comparison .
+the quality of an assembly can also be measured by comparing the number of reference genes hit by unigenes with the number of reference genes hit by reads .
+this is based on the assumption that genes , which are expressed ( i.e. , hit by a read ) will generate a transcript ( i.e. , unigene ) during the assembly which maps to the same reference .
+comparing the numbers of genes hit by reads ( lines 70 , 71 ) and by unigenes ( lines 74 , 75 ) provides a quick assessment whether those values are in the same range .
+subsequently , it is assessed whether the reference genes hit by reads are also hit by unigenes .
+this question is answered using standard unix commands and set theory .
+given two files " genes hit by unigenes " and " genes hit by reads " with a unique set of identifiers in each , adding ( i.e. , concatenating ) one file and twice the other file yields a new set which has each identifier either occurring once , twice , or three times .
+extracting lines by count yields three groups , ( i ) genes only present in the file used once ( line 84 ) , ( ii ) genes only present in the file used twice ( line 85 ) and ( iii ) genes that are present in both files and therefore commonly hit by unigenes and reads ( line 86 ) .
+a large percentage of the latter group indicates that the assembled transcripts reflect the expressed genes .
+an alternative way to determine the intersect between two files is based on the unix " join " command ( lines 90 - 92 ) .
+final polish of the assembly ( supplemental scripts 1 lines 89 - 99 ) prior to publication , an annotated fasta database of the assembly needs to be generated .
+the scripts provided incorporate an annotation to the sequence headers , e.g. , best hit in arabidopsis ( lines 96 , 97 , supplemental script 10 ) and number the identifiers of unigenes sequentially to get rid of awkward assembler headers ( line 100 , supplemental script 11 ) .
+if only a subset of sequences are needed a perl script ( line 104 , supplemental script 12 ) can extract it if given a one - per - line list of identifiers .
+applying the workflow ( quick and dirty ) the complete workflow discussed in this review is attached as a script ( supplemental presentation 1 ) and could be run unsupervised .
+this requires the fastq.gz files to be in the same folder as all the supplemental scripts along with an arabidopsis reference that is named " tair10 _ cdna.fasta " .
+additionally perl , python , bioperl , biopython , blast , blat , velvet , oases , and the fastx - toolkit have to be installed on the system .
+the hardware requirements of the assembly in terms of memory are rather high .
+assembly was limited to 50 m reads with 96 gb ram available .
+due to these strict requirements , we strongly recommend reading and adjusting the workflow to your specific needs .
+all scripts have either a help output ( if ran with - - help or - ? as parameter ) or a perldoc documentation ( opened by running " perldoc script _ name ") or both .
+conclusion next generation sequencing and transcriptome assembly have already proven beneficial for research .
+however , current assemblies are still far away from an accurate representation of a transcriptome .
+detailed description of the assembly method including read treatment prior to assembly , assembly parameters , and stringent quality control will make different assemblies more comparable and will make it easier to reproduce successful assemblies .
+this first attempt to bring the quality assessment in line helps to make transcriptomic resources much more comparable and reusable for the community .
+at the very least , each assembly publication should include a fasta file with all unigenes .
+until full length single molecule sequencing for transcriptome sequences becomes technically feasible , transcriptome assembly will remain the major bottle neck during transcriptome sequencing .
+we are not there yet !
+conflict of interest statement the authors declare that the research was conducted in the absence of any commercial or financial relationships that could be construed as a potential conflict of interest .
+supplementary material the supplementary material for this article can be found online at http :// www.frontiersin.org / plant _ systems _ biology / 10.3389 / fpls.2012.00220 / abstract .
+1http :// compbio.dfci.harvard.edu / tgi / plant.html 2http :// www.onekp.com 3http :// www.molecularecologist.com / next - gen - fieldguide / 4http :// www.molecularecologist.com / next - gen - fieldguide / 5http :// 454.com / products / analysis - software / index.asp 6http :// www.clcbio.com / 7http :// soap.genomics.org.cn / soapdenovo.html 8http :// www.ebi.ac.uk /~ zerbino / oases / 9http :// www.seqanswers.com 10http :// www.biostars.org 11http :// hannonlab.cshl.edu / fastx _ toolkit / index.html 12http :// www.bioinformatics.babraham.ac.uk / projects / fastqc / 13http :// code.google.com / p / oases - to - csv / references alagna f. d'agostino n. torchia l. servili m. rao r. pietrella m. giuliano g. chiusano m. l. baldoni l. perrotta g .
+( 2009 ) .
+comparative 454 pyrosequencing of transcripts from two olive genotypes during fruit development . bmc genomics 10 , 399 10.1186 / 1471 - 2164 - 10 - 399 19709400 angeloni f. wagemaker c. a. m. jetten m. s. m. den camp h. janssen - megens e. m. francoijs k. j. stunnenberg h. g. ouborg n. j. ( 2011 ) .
+de novo transcriptome characterization and development of genomic tools for scabiosa columbaria l. using next - generation sequencing techniques . mol. ecol. resour .
+11 , 662 - 674 10.1111 / j.1755 - 0998.2011.02990.x 21676196 aury j .
+- m. cruaud c. barbe v. rogier o. mangenot s. samson g. poulain j. anthouard v. scarpelli c. artiguenave f. wincker p .
+( 2008 ) .
+high quality draft sequences for prokaryotic genomes using a mix of new sequencing technologies . bmc genomics 9 , 603 10.1186 / 1471 - 2164 - 9 - 603 19087275 barakat a. diloreto d. s. zhang y. smith c. baier k. powell w. a. wheeler n. sederoff r. carlson j. e. ( 2009 ) .
+comparison of the transcriptomes of american chestnut ( castanea dentata ) and chinese chestnut ( castanea mollissima ) in response to the chestnut blight infection . bmc plant biol .
+9 , 51 10.1186 / 1471 - 2229 - 9 - 51 19426529 barrero r. a. chapman b. yang y. f. moolhuijzen p. keeble - gagnere g. zhang n. tang q. bellgard m. i. qiu d. y. ( 2011 ) .
+de novo assembly of euphorbia fischeriana root transcriptome identifies prostratin pathway related genes . bmc genomics 12 , 600 10.1186 / 1471 - 2164 - 12 - 600 22151917 bergero r. charlesworth d .
+( 2011 ) .
+preservation of the y transcriptome in a 10 - million - year - old plant sex chromosome system . curr. biol .
+21 , 1470 - 1474 10.1016 / j.cub.2011.07.032 21889891 blavet n. charif d. oger - desfeux c. marais g. a. b. widmer a .
+( 2011 ) .
+comparative high - throughput transcriptome sequencing and development of siesta , the silene est annotation database . bmc genomics 12 , 376 10.1186 / 1471 - 2164 - 12 - 376 21791039 bleeker p. m. spyropoulou e. a. diergaarde p. j. volpin h. de both m. t. j. zerbe p. bohlmann j. falara v. matsuba y. pichersky e. haring m. a. schuurink r. c. ( 2011 ) .
+rna - seq discovery , functional characterization , and comparison of sesquiterpene synthases from solanum lycopersicum and solanum habrochaites trichomes . plant mol. biol .
+77 , 323 - 336 10.1007 / s11103 - 011 - 9813 - x 21818683 brautigam a. kajala k. wullenweber j. sommer m. gagneul d. weber k. l. carr k. m. gowik u. mass j. lercher m. j. westhoff p. hibberd j. m. weber a. p. m. ( 2011a ) .
+an mrna blueprint for c4 photosynthesis derived from comparative transcriptomics of closely related c3 and c4 species . plant physiol .
+155 , 142 - 156 10.1104 / pp.110.159442 brautigam a. mullick t. schliesky s. weber a. p. m. ( 2011b ) .
+critical assessment of assembly strategies for non - model species mrna - seq data and application of next - generation sequencing to the comparison of c3 and c4 species . j. exp. bot .
+62 , 3093 - 3102 10.1093 / jxb / err029 brautigam a. shrestha r. p. whitten d. wilkerson c. g. carr k. m. froehlich j. e. weber a. p. m. ( 2008 ) .
+comparison of the use of a species - specific database generated by pyrosequencing with databases from related species for proteome analysis of pea chloroplast envelopes . j. biotechnol .
+136 , 44 - 53 10.1016 / j.jbiotec.2008.07.090 18394738 cantu d. pearce s. distelfeld a. christiansen m. uauy c. akhunov e. fahima t. dubcovsky j .
+( 2011 ) .
+effect of the down - regulation of the high grain protein content ( gpc ) genes on the wheat transcriptome during monocarpic senescence . bmc genomics 12 , 492 10.1186 / 1471 - 2164 - 12 - 492 21981858 chevreux b. pfisterer t. drescher b. driesel a. j. muller w. e. g. wetter t. suhai s .
+( 2004 ) .
+using the miraest assembler for reliable and automated mrna transcript assembly and snp detection in sequenced ests . genome res .
+14 , 1147 - 1159 10.1101 / gr.1917404 15140833 chibalina m. v. filatov d. a. ( 2011 ) .
+plant y chromosome degeneration is retarded by haploid purifying selection . curr. biol .
+21 , 1475 - 1479 10.1016 / j.cub.2011.07.045 21889890 christodoulou d. c. gorham j. m. herman d. s. seidman j. g. ( 2001 ) .
+construction of normalized rna - seq libraries for next - generation sequencing using the crab duplex - specific nuclease . curr. protoc. mol. biol .
+94 , 4 12.1 - 4.12.11 .
+czechowski t. bari r. p. stitt m. scheible w. r. udvardi m. k. ( 2004 ) .
+real - time rt - pcr profiling of over 1400 arabidopsis transcription factors : unprecedented sensitivity reveals novel root - and shoot - specific genes . plant j .
+38 , 366 - 379 10.1111 / j.1365 - 313x.2004.02051.x 15078338 dai n. cohen s. portnoy v. tzuri g. harel - beja r. pompan - lotan m. carmi n. zhang g. f. diber a. pollock s. karchi h. yeselson y. petreikov m. shen s. sahar u. hovav r. lewinsohn e. tadmor y. granot d. ophir r. sherman a. fei z. j. giovannoni j. burger y. katzir n. schaffer a. a. ( 2011 ) .
+metabolism of soluble sugars in developing melon fruit : a global transcriptional view of the metabolic transition to sucrose accumulation . plant mol. biol .
+76 , 1 - 18 10.1007 / s11103 - 011 - 9757 - 1 21387125 dassanayake m. haas j. s. bohnert h. j. cheeseman j. m. ( 2009 ) .
+shedding light on an extremophile lifestyle through transcriptomics . new phytol .
+183 , 764 - 775 10.1111 / j.1469 - 8137.2009.02913.x 19549131 der j. barker m. wickett n. depamphilis c. wolf p .
+( 2011 ) .
+de novo characterization of the gametophyte transcriptome in bracken fern , pteridium aquilinum . bmc genomics 12 , 99 10.1186 / 1471 - 2164 - 12 - 99 21303537 desgagne - penix i. farrow s. c. cram d. nowak j. facchini p. j. ( 2012 ) .
+integration of deep transcript and targeted metabolite profiles for eight cultivars of opium poppy . plant mol. biol .
+79 , 295 - 313 10.1007 / s11103 - 012 - 9913 - 2 22527754 edwards c. e. parchman t. l. weekley c. w. ( 2012 ) .
+assembly , gene annotation and marker development using 454 floral transcriptome sequences in ziziphus celata ( rhamnaceae ) , a highly endangered , florida endemic plant . dna res .
+19 , 1 - 9 10.1093 / dnares / dsr037 22039173 emrich s. j. barbazuk w. b. li l. schnable p. s. ( 2007 ) .
+gene discovery and annotation using lcm - 454 transcriptome sequencing . genome res .
+17 , 69 - 73 10.1101 / gr.5145806 17095711 flicek p. birney e .
+( 2009 ) .
+sense from sequence reads : methods for alignment and assembly . nat. methods 6 , s6 - s12 10.1038 / nmeth.1376 19844229 fluhr r. moses p. morelli g. coruzzi g. chua n. h. ( 1986 ) .
+expression dynamics of the pea rbcs multigene family and organ distribution of the transcripts . embo j .
+5 , 2063 - 2071 16453702 franssen s.u. shrestha r.p. brautigam a. bornberg - bauer e. weber a.p.m .
+( 2011 ) .
+comprehensive transcriptome analysis of the highly complex pisum sativum genome using next generation sequencing . bmc genomics 12 , 227 10.1186 / 1471 - 2164 - 12 - 227 21569327 furumoto t. yamaguchi t. ohshima - ichie y. nakamura m. tsuchida - iwata y. shimamura m. ohnishi j. hata s. gowik u. westhoff p. brautigam a. weber a. p. m. izui k .
+( 2011 ) .
+a plastidial sodium - dependent pyruvate transporter . nature 476 , 472 - 475 10.1038 / nature10250 21866161 gahlan p. singh h. r. shankar r. sharma n. kumari a. chawla v. ahuja p. s. kumar s .
+( 2012 ) .
+de novo sequencing and characterization of picrorhiza kurrooa transcriptome at two temperatures showed major transcriptome adjustments . bmc genomics 13 , 126 10.1186 / 1471 - 2164 - 13 - 126 22462805 garg r. patel r. k. jhanwar s. priya p. bhattacharjee a. yadav g. bhatia s. chattopadhyay d. tyagi a. k. jain m .
+( 2011 ) .
+gene discovery and tissue - specific transcriptome analysis in chickpea with massively parallel pyrosequencing and web resource development . plant physiol .
+156 , 1661 - 1678 10.1104 / pp.111.178616 21653784 glenn t. c. ( 2011 ) .
+field guide to next - generation dna sequencers . mol. ecol. resour .
+11 , 759 - 769 10.1111 / j.1755 - 0998.2011.03024.x 21592312 gowik u. brautigam a. weber k. l. weber a. p. m. westhoff p .
+( 2011 ) .
+evolution of c4 photosynthesis in the genus flaveria : how many and which genes does it take to make c4 ?
+plant cell 23 , 2087 - 2105 10.1105 / tpc.111.086264 21705644 grabherr m. g. haas b. j. yassour m. levin j. z. thompson d. a. amit i. adiconis x. fan l. raychowdhury r. zeng q. d. chen z. h. mauceli e. hacohen n. gnirke a. rhind n. di palma f. birren b. w. nusbaum c. lindblad - toh k. friedman n. regev a .
+( 2011 ) .
+full - length transcriptome assembly from rna - seq data without a reference genome . nat. biotechnol .
+29 , 644 - 652 10.1038 / nbt.1883 21572440 gruenheit n. deusch o. esser c. becker m. voelckel c. lockhart p .
+( 2012 ) .
+cutoffs and k - mers : implications from a transcriptome study in allopolyploid plants . bmc genomics 13 , 92 10.1186 / 1471 - 2164 - 13 - 92 22417298 guo s. g. zheng y. joung j. g. liu s. q. zhang z. h. crasta o. r. sobral b. w. xu y. huang s. w. fei z. j. ( 2010 ) .
+transcriptome sequencing and comparative analysis of cucumber flowers with different sex types . bmc genomics 11 , 384 10.1186 / 1471 - 2164 - 11 - 384 20565788 hao d. c. ge g. b. xiao p. g. zhang y. y. yang l .
+( 2011 ) .
+the first insight into the tissue specific taxus transcriptome via illumina second generation sequencing . plos one 6 , e21220 10.1371 / journal.pone.0021220 21731678 hao d. c. ma p. mu j. chen s. l. xiao p. g. peng y. huo l. xu l. j. sun c .
+( 2012 ) .
+de novo characterization of the root transcriptome of a traditional chinese medicinal plant polygonum cuspidatum . sci. china life sci. 55 , 452 - 466 10.1007 / s11427 - 012 - 4319 - 6 22645089 hiremath p. j. farmer a. cannon s. b. woodward j. kudapa h. tuteja r. kumar a. bhanuprakash a. mulaosmanovic b. gujaria n. krishnamurthy l. gaur p. m. kavikishor p. b. shah t. srinivasan r. lohse m. xiao y. l. town c. d. cook d. r. may g. d. varshney r. k. ( 2011 ) .
+large - scale transcriptome analysis in chickpea ( cicer arietinum l. ) , an orphan legume crop of the semi - arid tropics of asia and africa . plant biotechnol. j. 9 , 922 - 931 10.1111 / j.1467 - 7652.2011.00625.x 21615673 huang j. lu x. yan h. chen s. zhang w. huang r. zheng y .
+( 2012 ) .
+transcriptome characterization and sequencing - based identification of salt - responsive genes in millettia pinnata , a semi - mangrove plant . dna res .
+19 , 195 - 207 10.1093 / dnares / dss004 22351699 huang x. q. madan a .
+( 1999 ) .
+cap3 : a dna sequence assembly program . genome res .
+9 , 868 - 877 10.1101 / gr.9.9.868 10508846 hyun t. k. rim y. jang h. j. kim c. h. park j. kumar r. lee s. kim b. c. bhak j. binh q. kim s. w. lee s. y. kim j. y. ( 2012 ) .
+de novo transcriptome sequencing of momordica cochinchinensis to identify genes involved in the carotenoid biosynthesis . plant mol. biol .
+79 , 413 - 427 10.1007 / s11103 - 012 - 9919 - 9 22580955 ibarra - laclette e. albert v. a. perez - torres c. a. zamudio - hernandez f. ortega - estrada m. d. herrera - estrella a. herrera - estrella l .
+( 2011 ) .
+transcriptomics and molecular evolutionary rate analysis of the bladderwort ( utricularia ) , a carnivorous plant with a minimal genome . bmc plant biol .
+11 , 101 10.1186 / 1471 - 2229 - 11 - 101 21639913 kalavacharla v. liu z. meyers b. thimmapuram j. melmaiee k .
+( 2011 ) .
+identification and analysis of common bean ( phaseolus vulgaris l. ) transcriptomes by massively parallel pyrosequencing . bmc plant biol .
+11 , 135 10.1186 / 1471 - 2229 - 11 - 135 21985325 kaur s. cogan n. o. i. pembleton l. w. shinozuka m. savin k. w. materne m. forster j. w. ( 2011 ) .
+transcriptome sequencing of lentil based on second - generation technology permits large - scale unigene assembly and ssr marker discovery . bmc genomics 12 , 265 10.1186 / 1471 - 2164 - 12 - 265 21609489 kent w. j. ( 2002 ) .
+blat - the blast - like alignment tool . genome res .
+12 , 656 - 664 10.1101 / gr.229102 .
+article published online before print in may 2002 11932250 king a. j. li y. graham i. a. ( 2011 ) .
+profiling the developing jatropha curcas l. seed transcriptome by pyrosequencing . bioenergy res .
+4 , 211 - 221 10.1007 / s12155 - 011 - 9114 - x krishnan n. m. pattnaik s. deepak s. a. hariharan a. k. gaur p. chaudhary r. jain p. vaidyanathan s. krishna p. g. b. panda b .
+( 2011 ) .
+de novo sequencing and assembly of azadirachta indica fruit transcriptome . curr. sci. 101 , 1553 - 1561 li p. h. ponnala l. gandotra n. wang l. si y. q. tausta s. l. kebrom t. h. provart n. patel r. myers c. r. reidel e. j. turgeon r. liu p. sun q. nelson t. brutnell t. p. ( 2011 ) .
+the developmental dynamics of the maize leaf transcriptome . nat. genet .
+42 , 1060 - 1067 10.1038 / ng.703 21037569 lohse m. bolger a. m. nagel a. fernie a. r. lunn j. e. stitt m. usadel b .
+( 2012 ) .
+robina : a user - friendly , integrated software solution for rna - seq - based transcriptomics . nucleic acids res .
+40 , w622 - w627 10.1093 / nar / gks540 22684630 lu f .
+- h. cho m .
+- c. park y .
+- j .
+( 2012 ) .
+transcriptome profiling and molecular marker discovery in red pepper , capsicum annuum l. tf68 . mol. biol. rep .
+39 , 3327 - 3335 10.1007 / s11033 - 012 - 1483 - 5 21706160 mckain m. r. wickett n. zhang y. ayyampalayam s. mccombie w. r. chase m. w. pires j. c. depamphilis c. w. leebens - mack j .
+( 2012 ) .
+phylogenomic analysis of transcriptome data elucidates co - occurrence of a paleopolyploid event and the origin of bimodal karyotypes in agavoideae ( asparagaceae ) . am. j. bot .
+99 , 397 - 406 10.3732 / ajb.1100537 22301890 metzker m. l. ( 2010 ) .
+applications of next - generation sequencing sequencing technologies - the next generation . nat. rev. genet .
+11 , 31 - 46 10.1038 / nrg2626 19997069 meyer e. logan t. l. juenger t. e. ( 2012 ) .
+transcriptome analysis and gene expression atlas for panicum hallii var .
+filipes , a diploid model for biofuel research . plant j .
+70 , 879 - 890 10.1111 / j.1365 - 313x.2012.04938.x 22324449 mizrachi e. hefer c. a. ranik m. joubert f. myburg a. a. ( 2010 ) .
+de novo assembled expressed gene catalog of a fast - growing eucalyptus tree produced by illumina mrna - seq . bmc genomics 11 , 681 10.1186 / 1471 - 2164 - 11 - 681 21122097 mutasa - gottgens e. s. joshi a. holmes h. f. hedden p. gottgens b .
+( 2012 ) .
+a new rnaseq - based reference transcriptome for sugar beet and its application in transcriptome - scale analysis of vernalization and gibberellin responses . bmc genomics 13 , 99 10.1186 / 1471 - 2164 - 13 - 99 22429863 novaes e. drost d. r. farmerie w. g. pappas g. j. grattapaglia d. sederoff r. r. kirst m .
+( 2008 ) .
+high - throughput gene and snp discovery in eucalyptus grandis , an uncharacterized genome . bmc genomics 9 , 312 10.1186 / 1471 - 2164 - 9 - 312 18590545 pertea g. huang x. liang f. antonescu v. sultana r. karamycheva s. lee y. h. white j. cheung f. parvizi b. tsai j. quackenbush j .
+( 2003 ) .
+tigr gene indices clustering tools ( tgicl ) : a software system for fast clustering of large est datasets . bioinformatics 19 , 651 - 652 10.1093 / bioinformatics / btg034 12651724 pevzner p. a. tang h. x. waterman m. s. ( 2001 ) .
+an eulerian path approach to dna fragment assembly . proc. natl. acad. sci. u.s.a .
+98 , 9748 - 9753 10.1073 / pnas.171285098 11504945 pont c. murat f. confolent c. balzergue s. salse j .
+( 2011 ) .
+rna - seq in grain unveils fate of neo - and paleopolyploidization events in bread wheat ( triticum aestivum l . )
+.
+genome biol .
+12 , r119 10.1186 / gb - 2011 - 12 - 6 - 119 22136458 riggins c. w. peng y. h. stewart c. n. tranel p. j. ( 2010 ) .
+characterization of de novo transcriptome for waterhemp ( amaranthus tuberculatus ) using gs - flx 454 pyrosequencing and its application for studies of herbicide target - site genes . pest manag. sci. 66 , 1042 - 1052 10.1002 / ps.2006 20680963 shi c. y. yang h. wei c. l. yu o. zhang z. z. jiang c. j. sun j. li y. y. chen q. xia t. wan x. c. ( 2011 ) .
+deep sequencing of the camellia sinensis transcriptome revealed candidate genes for major metabolic pathways of tea - specific compounds . bmc genomics 12 , 131 10.1186 / 1471 - 2164 - 12 - 131 21356090 simpson j. t. wong k. jackman s. d. schein j. e. jones s. j. m. birol i .
+( 2009 ) .
+abyss : a parallel assembler for short read sequence data . genome res .
+19 , 1117 - 1123 10.1101 / gr.089532.108 19251739 sommer m. brautigam a. weber a. p. m. ( 2012 ) .
+the dicotyledonous nad malic enzyme c4 plant cleome gynandra displays age - dependent plasticity of c4 decarboxylation biochemistry . plant biol .
+14 , 621 - 629 10.1111 / j.1438 - 8677.2011.00539.x 22289126 su c. l. chao y. t. chang y. c. a. chen w. c. chen c. y. lee a. y. hwa k. t. shih m. c. ( 2011 ) .
+de novo assembly of expressed transcripts and global analysis of the phalaenopsis aphrodite transcriptome . plant cell physiol .
+52 , 1501 - 1514 10.1093 / pcp / pcr097 21771864 sun h. paulin l. alatalo e. asiegbu f. o. ( 2011 ) .
+response of living tissues of pinus sylvestris to the saprotrophic biocontrol fungus phlebiopsis gigantea . tree physiol .
+31 , 438 - 451 10.1093 / treephys / tpr027 21551358 swarbreck s. m. sudderth e. a. st. clair s. b. salve r. castanha c. torn m. s. ackerly d. d. andersen g. l. ( 2011 ) .
+linking leaf transcript levels to whole plant analyses provides mechanistic insights to the impact of warming and altered water availability in an annual grass . glob .
+change biol .
+17 , 1577 - 1594 10.1111 / j.1365 - 2486.2010.02359.x tang q. ma x. j. mo c. m. wilson i. w. song c. zhao h. yang y. f. fu w. qiu d. y. ( 2011 ) .
+an efficient approach to finding siraitia grosvenorii triterpene biosynthetic genes by rna - seq and digital gene expression analysis . bmc genomics 12 , 343 10.1186 / 1471 - 2164 - 12 - 343 21729270 troncoso - ponce m. a. kilaru a. cao x. durrett t. p. fan j. l. jensen j. k. thrower n. a. pauly m. wilkerson c. ohlrogge j. b. ( 2011 ) .
+comparative deep transcriptional profiling of four developing oilseeds . plant j .
+68 , 1014 - 1027 10.1111 / j.1365 - 313x.2011.04751.x 21851431 vega - arreguin j. c. ibarra - laclette e. jimenez - moraila b. martinez o. vielle - calzada j. p. herrera - estrella l. herrera - estrella a .
+( 2009 ) .
+deep sampling of the palomero maize transcriptome by a high throughput strategy of pyrosequencing . bmc genomics 10 , 299 10.1186 / 1471 - 2164 - 10 - 299 19580677 villar e. klopp c. noirot c. novaes e. kirst m. plomion c. gion j. m. ( 2011 ) .
+rna - seq reveals genotype - specific molecular responses to water deficit in eucalyptus . bmc genomics 12 , 538 10.1186 / 1471 - 2164 - 12 - 538 22047139 wang w. wang y. j. zhang q. qi y. guo d. j. ( 2009 ) .
+global characterization of artemisia annua glandular trichome transcriptome using 454 pyrosequencing . bmc genomics 10 , 465 10.1186 / 1471 - 2164 - 10 - 465 19818120 weber a. p. m. weber k. l. carr k. wilkerson c. ohlrogge j. b. ( 2007 ) .
+sampling the arabidopsis transcriptome with massively parallel pyrosequencing . plant physiol .
+144 , 32 - 42 10.1104 / pp.107.096677 17351049 wong m. cannon c. wickneswari r .
+( 2011 ) .
+identification of lignin genes and regulatory sequences involved in secondary cell wall formation in acacia auriculiformis and acacia mangium via de novo transcriptome sequencing . bmc genomics 12 , 342 10.1186 / 1471 - 2164 - 12 - 342 21729267 xia z. h. xu h. m. zhai j. l. li d. j. luo h. l. he c. z. huang x .
+( 2011 ) .
+rna - seq analysis and de novo transcriptome assembly of hevea brasiliensis . plant mol. biol .
+77 , 299 - 308 10.1007 / s11103 - 011 - 9811 - z 21811850 zerbino d. r. birney e .
+( 2008 ) .
+velvet : algorithms for de novo short read assembly using de bruijn graphs . genome res .
+18 , 821 - 829 10.1101 / gr.074492.107 18349386 zhang j. a. liang s. duan j. l. wang j. chen s. l. cheng z. s. zhang q. liang x. q. li y. r. ( 2012 ) .
+de novo assembly and characterisation of the transcriptome during seed development , and generation of genic - ssr markers in peanut ( arachis hypogaea l . )
+.
+bmc genomics 13 , 90 10.1186 / 1471 - 2164 - 13 - 90 22409576

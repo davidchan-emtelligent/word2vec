@@ -1,0 +1,344 @@
+plos one plos one plos plosone plos one 1932 - 6203 public library of science san francisco , ca usa 26484863 4617380 10.1371 / journal.pone.0140359 pone - d - 15 - 07117 research article enhancements to the rosetta energy function enable improved identification of small molecules that inhibit protein - protein interactions identifying inhibitors of protein - protein interactions using rosetta bazzoli andrea 1 kelow simon p .
+1 karanicolas john 1 2 * 1 center for computational biology , university of kansas , 2030 becker dr. , lawrence , kansas , 66045 - 7534 , united states of america 2 department of molecular biosciences , university of kansas , 2030 becker dr. , lawrence , kansas , 66045 - 7534 , united states of america zhang yang editor university of michigan , united states competing interests : the authors have declared that no competing interests exist .
+conceived and designed the experiments : ab spk jk. performed the experiments : ab spk .
+analyzed the data : ab spk jk. wrote the paper : ab spk jk .
+* e - mail : johnk @ ku.edu 20 10 2015 2015 10 10 e0140359 18 2 2015 24 9 2015 ( c ) 2015 bazzoli et al 2015 bazzoli et althis is an open - access article distributed under the terms of the creative commons attribution license , which permits unrestricted use , distribution , and reproduction in any medium , provided the original author and source are properly credited .
+protein - protein interactions are among today 's most exciting and promising targets for therapeutic intervention .
+to date , identifying small - molecules that selectively disrupt these interactions has proven particularly challenging for virtual screening tools , since these have typically been optimized to perform well on more " traditional " drug discovery targets .
+here , we test the performance of the rosetta energy function for identifying compounds that inhibit protein interactions , when these active compounds have been hidden amongst pools of " decoys. " through this virtual screening benchmark , we gauge the effect of two recent enhancements to the functional form of the rosetta energy function : the new " talaris " update and the " pwsho " solvation model .
+finally , we conclude by developing and validating a new weight set that maximizes rosetta 's ability to pick out the active compounds in this test set .
+looking collectively over the course of these enhancements , we find a marked improvement in rosetta 's ability to identify small - molecule inhibitors of protein - protein interactions .
+this work was supported by a grant from the national institute of general medical sciences of the national institutes of health ( r01gm099959 ) , and by the national science foundation through xsede allocation mcb130049 .
+simon kelow was supported by a post baccalaureate research education grant ( 2r25gm078441 ) from the national institutes of general medical sciences of the national institutes of health .
+the funders had no role in study design , data collection and analysis , decision to publish , or preparation of the manuscript.data availabilityall relevant data are within the paper and its supporting information files .
+data availability all relevant data are within the paper and its supporting information files .
+introduction virtual screening has become an important tool in modern drug discovery , complementing high - throughput biochemical and phenotypic screening to provide small molecules that engage target proteins important in human disease [ 1 ] .
+already contributions from computer - aided design have helped advance a number of drugs into the clinic [ 2 , 3 ] .
+structure - based ( receptor - driven ) virtual screening , or " docking ," is comprised of two interrelated tasks : pose generation and ranking .
+the former involves searching various locations and orientations of each compound in a library , to produce structural models of each potential protein - ligand complex .
+this search is carried out by optimization of some scoring function , and can include the internal degrees of freedom for the protein and / or for the ligand .
+once models have been built for each member of the compound library , these are then ranked to identify those compounds most likely to exhibit the desired biological activity .
+ranking may either be carried out using the same scoring function used in pose generation , or by using a more detailed ( computationally demanding ) approach. by prioritizing a small number of compounds drawn from a much larger library , structure - based screening offers the potential to dramatically reduce the number of compounds that must be tested in the early stages of a drug discovery campaign .
+both tasks are equally critical to successfully selecting active compounds .
+if an active compound is inappropriately positioned relative to the protein (" mis - docked ") , then it is unlikely to achieve a favorable ranking .
+at the same time , accurately identifying the most promising compounds in the set - - without an abundance of false positives - - is also essential for harnessing the utility of virtual screening .
+in this study we focus on the latter step , and ask how recent enhancements to the rosetta energy function affect its ability to successfully identify active compounds from among large numbers of docked " decoy " compounds .
+the rosetta macromolecular modeling software suite [ 4 ] was originally developed as a protein - only tool for structure prediction [ 5 , 6 ] and design [ 7 ] , but then grew to allow simulations that can include dna [ 8 , 9 ] , rna [ 10 ] , small molecules [ 11 , 12 ] , non - canonical " peptoid " backbones [ 13 ] , and even mineral surfaces [ 14 ] .
+rosetta is supported by a broad community of users studying highly diverse systems , and the underlying energy function is a key contributor to the success of these applications .
+the rosetta energy function is typically validated for new applications through two classes of benchmark experiments .
+the first class focuses on design applications , and includes tests for recapitulation of native sequences [ 15 , 16 ] and predicting changes in stability / function associated with point mutations [ 17 , 18 ] .
+the second class focuses on structure prediction applications , and includes large - scale tests to examine distributions of specific structural features [ 19 ] in addition to traditional recapitulation of native rotamers , loops , or complete protein structures [ 20 ] .
+protocols that introduce new functionality into rosetta , such as the ability to model and design protein - ligand complexes , are typically evaluated using one or both classes of benchmark [ 11 , 21 ] .
+here , we directly evaluate the performance of the rosetta energy function in a different type of benchmark : distinguishing known small - molecule inhibitors of protein - protein interactions from large sets of " decoy " compounds .
+whereas " traditional " targets for therapeutic intervention include g protein - coupled receptors , ion channels , and various enzymes [ 22 , 23 ] , the role of protein - protein interactions in all aspects of cell growth and development has recently brought extreme attention to this emerging target class [ 24 , 25 ] .
+despite innovative new approaches including fragment - screening [ 26 ] and mimetics of protein secondary structural elements [ 27 , 28 ] , biochemical and biophysical methods to identify inhibitors of protein - protein interactions remain more challenging to implement than in campaigns against traditional targets .
+in principle , the difficulties of " wetlab " approaches in this target space might provide an important opportunity for contributions from virtual screening .
+in practice , however , computational tools built for screening against traditional targets perform less well when they are deployed at protein interaction sites [ 29 ] .
+to isolate the rosetta energy function and examine its performance free from any complications of conformational sampling , our benchmark focuses only on the " ranking " step of virtual screening .
+for each of 18 non - redundant protein targets with crystal / nmr structures that have been solved in complex with a small - molecule inhibitor ( table 1 ) , we have generated docked models for 2500 diverse " decoy " compounds. by evaluating how rosetta ranks the active compound for each protein target relative to the decoys ( fig 1 ) , we are able to track changes in performance stemming from updates to the energy function .
+we will highlight the effects of two very recent additions to rosetta - - talaris [ 19 , 20 , 30 ] and pwsho [ 31 ] - as well as introduce a new set of weights for the terms in the energy function , to optimize the performance of rosetta for identifying small - molecule inhibitors of protein - protein interactions .
+10.1371 / journal.pone.0140359.t001 table 1 protein targets used in this study .
+these targets correspond to non - redundant protein - protein interaction sites for which a crystal structure or an nmr structure has been solved in complex with a small - molecule inhibitor .
+for this study , three protein targets have been removed from our previously reported set [ 29 ] ( see methods ) .
+protein target pdb id of ligand - bound structure resolution ( a ) r - free il - 2 1pw6 2.60 0.292 hpv e2 1r6n 2.40 0.266 xiap - bir3 1tft nmr nmr zipa 1y2f 2.00 0.228 bcl - xl 1ysi nmr nmr tnfalpha 2az5 2.10 0.278 hiv - gp41 2kp8 nmr nmr brd4 2yel 1.65 0.211 s100b 3gk1 2.10 0.257 grb2 - sh2 3in7 2.00 0.250 shank pdz 3o5n 1.83 0.283 wdr5 3ur4 1.80 0.213 pcna 3vkx 2.10 0.249 vhl 3zrc 2.90 0.350 hiv integrase 4e1n 2.00 0.265 mdm2 4erf 2.00 0.250 clathrin 4g55 1.69 0.215 menin 4gq4 1.27 0.182 10.1371 / journal.pone.0140359.g001 fig 1 overview of the virtual screening benchmark .
+a target protein is provided in complex with a known small - molecule inhibitor acting at this protein interaction site .
+a collection of 2500 diverse " decoy " ligands have also been docked to this site .
+the benchmark entails scoring each of the 2501 complexes , and determining the rank of the native ligand relative to the decoy compounds .
+this experiment carried out for each of 18 non - redundant protein targets ( table 1 ) .
+methods protein target set previously , we described a set of 21 complexes drawn from the 2p2i [ 32 ] and timbal [ 33 ] databases and supplemented from our own curation of the literature [ 29 ] .
+in cases where a given protein has been separately solved in complex with more than one different ligand , we retained only the structure with the most potent of these ligands .
+no two proteins in this set are homologs of one another .
+for the present study , we removed three structures from this set : 1ctr ( steric clashes in the crystal structure ) , 2vc2 ( a very large protein ) , and 1alw ( the geometry of the active site led to poorly docked decoys ) .
+the results presented here were obtained using the other 18 complexes ( table 1 ) .
+three of these complexes were solved by nmr , and the other fifteen by x - ray crystallography .
+the resolution of the crystal structures ranged from 1.27 to 2.90 a , and the r - free from 0.182 to 0.350 .
+among the complexes for which electron density was available , we visually examined the electron density to ensure that the ligand atomic coordinates were appropriately defined by the density .
+preparing decoy complexes the underlying intention is that decoy compounds are expected not to be active against the protein target .
+to enhance the likelihood that this assumption holds true , we prepared a separate custom set of 2500 " presumed inactive " compounds for each protein target .
+drawing from the zinc database [ 34 , 35 ] , we started by randomly selecting 10,000 compounds with molecular weight between 350 and 550 da , and hydrophobicity ( xlogp ) matched to that of the known inhibitor .
+for each protein target , we then removed from this initial set any compound that was similar in chemical structure to the known inhibitor ( 2d fingerprint tanimoto score [ 36 ] >= 0.5 ) .
+to ensure diversity ( non - redundancy ) of the decoy set , we next removed any compound with similar chemical structure to another compound already included in the set ( 2d fingerprint tanimoto score >= 0.8 ). from the compounds that remained after this filtering , we randomly drew 2500 to form the final decoy set .
+to prepare for docking , we used omega [ 37 - 39 ] to generate up to 300 conformers of each decoy compound ( using default parameters ) [ 37 - 39 ] , and defined the binding site for each of the 18 proteins using the bound ligand in the experimentally - determined structure ( using the oedocking " receptor _ setup " utility ) .
+we then docked each decoy compound to the corresponding protein structure using fred ( with default parameters ) [ 40 , 41 ] , and selected the top structure for each compound based on the fred 's chemgauss4 score ; the resulting structure for each protein - ligand pair was used as a " decoy complex. " by using fred ( rather than rosetta ) to carry out this docking step , we ensured that any artifacts of the rosetta energy function would not be inadvertently incorporated into the set of decoy complexes .
+as part of the benchmark experiments described below , however , each complex ( decoy and native ) was subjected to an equivalent energy minimization with the particular rosetta energy function to be used for the subsequent ranking of compounds : in part , this ensures that our evaluation of a given rosetta energy function is not simply a reflection of how well that rosetta energy function detects potential artifacts of fred docking ( and uses these to distinguish the native complexes ) .
+preparing native complexes the ranking step in rosetta ( described below ) does not currently consider alternate tautomeric states or protonation states of the ligand .
+the state in the complex may , however , differ from the most likely state existing in solution .
+since performance will be evaluated using the correctly - docked pose , it is critical to ensure that the rosetta calculations are carried out using an appropriate description of the bound ligand .
+an alternate form of the active ligand would not be expected to have activity ; thus , these ( non - native ) forms of the ligand are not suitable for evaluating how well a given method identifies active compounds .
+for this reason , we used the protoss program [ 42 ] to obtain the most likely tautomeric state / protonation state for each native ligand , in the context of the protein - ligand complex. by contrast , the most likely tautomeric state / protonation state for the decoy ligands was determined using the quacpac toolkit [ 43 ] , in the absence of the protein .
+we note that for a real virtual screening application , the native ligand 's tautomeric state / protonation state in the protein environment would not be known a priori ; those particular active ligands with a configuration that differs in solution versus in the protein environment would simply be missed if the ligand configuration is not adjusted in response to the protein during screening ( i.e. false negatives ) .
+we note that this experimental design does disadvantage the decoy ligands relative to the native ligands ; we therefore use this benchmark to track differences in performance - - and not absolute performance - - of various scoring functions .
+availability of the benchmark set the entire benchmark set is available as ( s1 benchmark ) .
+for each target protein , this includes the protein itself , the native ligand ( in the experimentally - determined pose and in the fred - docked pose ) , and the decoy ligands ( in the fred - docked pose ) .
+the native ligand is provided with both the protoss and the quacpac tautomeric state / protonation state .
+ranking complexes using rosetta prior to scoring each complex , we used the " molfile - to - params " application [ 12 ] to assign atomic chemical properties and generate parameter definitions for each ligand .
+we then performed gradient - based energy minimization of the complex , using the same rosetta energy function that would later be used to score and rank each complex .
+all internal dihedral angles of the ligand and of the protein ( backbone and sidechains ) were included as degrees of freedom in this step , along with the ligand 's position and orientation relative to the protein .
+after minimization , the protein - ligand interaction energy was evaluated using the desired energy function .
+the rank of the active compound 's interaction energy was determined relative to those of the decoy compounds , as shown in fig 1 , from 1 ( best ) to 2501 ( worst ) .
+we have made available the ranking of the active compound for each protein target under each energy function in this study ( s1 dataset ) ; these data comprise the results described below .
+statistical analysis to compare the performance of two different energy functions , we considered - - for each of the 18 proteins in our test set - - which energy function positioned the native compound at a more favorable rank relative to the decoys , and assigned that energy function a " win " for the protein target ; we then counted the total number of " wins " from each of the two energy functions .
+to avoid noise from very small differences in ranking , we excluded from the comparison any protein target for which both rankings were within 10 % of one another .
+to determine the statistical significance of performance differences exhibited by two different energy functions , we started from the null hypothesis that both energy functions performed equally well .
+our comparisons are between two sets of paired samples ( i.e. the protein targets ) , and the rankings may not be normally distributed ; for these comparisons we therefore applied the ( non - parametric ) wilcoxon signed - rank test .
+all comparisons were applied to the logarithms ( base10 ) of the rankings .
+we used the implementation of this test in the r statistical computing environment [ 44 ] , invoked as follows : wilcox.test ( mydata $ scorefxn _ a , mydata $ scorefxn _ b , paired = true , alternative = " greater ") because this test uses the rank values in the two energy - function sets , it has the advantage of taking into account the magnitude by which an energy function " wins " a given protein target ; this would not be the case if we were to simply compare the number of " wins " by each energy function .
+in light of the chronological order by which the improvements to the energy function occurred , we had a prior expectation of which version would outperform the other ; for this reason , throughout this study we conducted our analyses using one - tailed tests .
+results performance of the 2008 - 2013 rosetta energy function as a starting point for further comparisons , we began with the default rosetta energy function from early 2013 , " score12 " .
+prior to recent improvements , this version of the energy function had remained essentially unchanged over a period of ten years [ 6 ] .
+for each of the 18 protein targets , we used this energy function to score the 2501 complexes and evaluate the rank of the native inhibitor ( fig 1 ) .
+as an objective point of comparison , we also carried out the same task using the most recent scoring function provided with fred , chemgauss4 [ 40 , 41 ] .
+in fig 2a we compare the performance of the rosetta score12 energy function to that of fred 's chemgauss4 .
+we find that chemgauss4 outperforms score12 in 10 of the 18 testcases ( points below the diagonal ) .
+nonetheless , it is important to note that in many of the cases for which score12 " wins " , neither method performs particularly well - - in 5 of these 7 cases the active compound is ranked outside the top 100 by both methods .
+in contrast , many of chemgauss4 's " wins " correspond to very good rankings of the active compound : in five cases , the active compound is ranked by chemgauss4 in the top 25 ( corresponding to the top 1 % of the set ) , and in three cases the active compound is ranked first overall - - ahead of every decoy complex .
+both scoring functions have the same ( optimal ) performance on target 3zrc , the only one ranked first overall by score12 .
+10.1371 / journal.pone.0140359.g002 fig 2 baseline performance of the rosetta energy function prior to recent enhancements .
+each plot compares the performance of two different scoring functions for identifying the active compounds in our virtual screening benchmark .
+each of the 18 protein targets corresponds to a single point ( green dots ) ; the rank of the active compound ( relative to 2500 diverse " decoy " compounds ) by each scoring function is indicated .
+the orange dotted line indicates a ranking of 25 , corresponding to the top 1 % of the decoy set .
+( a ) fred 's chemgauss4 energy function outperforms rosetta 's original energy function intended for protein - only systems , score12 , but not at a statistically significant threshold ( p = 0.085 ) .
+( b ) the variant of the score12 energy function that was developed specifically for modeling protein - ligand interactions , score12 _ ligand , offers improved performance over score12 ( p = 0.001 ) .
+( c ) fred 's chemgauss4 energy function performs at a similar level as score12 _ ligand ( p = 0.239 ) .
+all p - values are calculated by applying the wilcoxon signed - rank test to the logs of the ranks ( see methods ) .
+it is clearly important to consider the magnitude of the differences in the rankings when comparing two scoring functions , and not just the number of protein targets at which each method " wins " .
+to do so , we compared these scoring functions using the wilcoxon signed - rank test , applied to the difference in the logs of the rankings ( see methods ) .
+based on this test , we cannot quite conclude statistical significance for the observation that fred 's chemgauss4 is more effective at ranking the known inhibitors ( p = 0.085 ) .
+here , the relatively small number of available testcases limits the statistical significance of the comparison ; this is an unfortunate consequence of the overall dearth of small - molecule inhibitors of protein - protein interactions reported in the literature to date ( and correspondingly , the lack of available crystal structures ) .
+even when the p - value indicates that the difference in performance between the two scoring functions is not statistically significant ( p >= 0.05 ) , however , it can still provide a useful way to quantify the performance differences .
+this first experiment made use of score12 , a " standard " rosetta energy function intended to be used in protein - only simulations .
+for studies involving small molecules , an alternative energy function is typically preferred [ 11 ] : this one shares most energy terms with score12 , but combines them in a different linear combination ( the so - called " ligand " weight set ) .
+unsurprisingly , we find that this " score12 _ ligand " energy function outperforms score12 in identifying the native ligands in our benchmark ( fig 2b ) : performance is improved for 13 protein targets , and worse for only 1 target ( for the remaining 4 targets , the rankings from the two energy functions are within 10 % of one another and are thus considered " ties ") .
+this improvement is further reflected in the fact that the active compound is now ranked in the top 1 % in two cases .
+applying the wilcoxon signed - rank test , we conclude that the improvement in ranking associated with score12 _ ligand is indeed statistically significant ( p = 0.001 ) .
+the improvement from score12 to score12 _ ligand is also evident when score12 _ ligand is compared to fred 's chemgauss4 ( fig 2c ) .
+fred 's chemgauss4 " wins " only 2 targets more than score12 _ ligand ( 9 vs. 7 ) , and the similar performance of these two scoring functions is also reflected in the wilcoxon signed - rank test ( p = 0.239 ) .
+talaris and pwsho talaris , the updated energy function mentioned above , became available to the rosetta community in june 2013 .
+this major update contained multiple improvements throughout the energy function [ 19 , 20 , 30 ] , most notably including : an updated functional form for the hydrogen bond term , an explicit coulombic electrostatic term (" fa _ elec ") to replace the previous low - resolution , knowledge - based term (" fa _ pair ") , adjusted parameters in the lennard - jones and solvation terms , and new bicubic interpolation and rotamer library for the knowledge - based terms .
+we anticipated that the improvements in the hydrogen bond term and the electrostatic term , in particular , would prove particularly important in this virtual screening benchmark .
+ligand - specific weights have not yet been developed for talaris ; accordingly , we compared the performance of the default talaris to that of the default score12 , since both energy functions are intended primarily for simulations of proteins alone .
+we find that the use of talaris improves performance for 13 protein targets relative to score12 , with decreased performance in only 4 cases ( performance was unchanged for one target ) ( fig 3a ) .
+this difference was associated with marked improvement in the overall rankings as well , as determined from the wilcoxon signed - rank test ( p = 0.013 ) .
+10.1371 / journal.pone.0140359.g003 fig 3 recent enhancements to the functional form of the rosetta energy function enable improved performance .
+( a ) rosetta 's " talaris " energy function [ 19 , 20 , 30 ] includes updates to the functional form of the hydrogen bond term and of the electrostatic term .
+these changes lead to improved performance relative to score12 , at a statistically significant level ( p = 0.013 ) .
+( b ) replacing rosetta 's default model of polar solvation , eef1 , with a newly developed model , pwsho [ 31 ] , leads to further improvement at a statistically significant level ( p = 0.0004 ) .
+an ancillary utility of this benchmark is that the detailed energetic contributions for individual complexes can help rationalize why a given energy function outperforms another .
+in particular , this insight can be gained from complexes - - either native or decoy - - that are ranked favorably by one energy function , and less favorably by the other .
+to do so we compared score12 and talaris using the same ( non - minimized ) structures of the decoy and native complexes .
+this choice allowed us to directly link differences in ranking to differences in the evaluation of energy components - - a connection much more difficult to draw in the case of minimized decoys , since the conformation changes slightly in response to the energy function .
+two examples are provided by the decoy complexes shown in s1 fig : their very favorable ranking by score12 but not by talaris can be explained in terms of score12 's less - refined treatment of solvation , electrostatics , and hydrogen bonding .
+burial of polar groups is penalized by rosetta 's solvation model ; by default this has been eef1 [ 45 ] .
+in the context of this benchmark we examined the effect of replacing this model of polar solvation with a newly developed model , pwsho [ 31 ] , that was introduced to the rosetta community in july 2014 .
+whereas eef1 determines the desolvation penalty by simply integrating the occluded volume around a polar group , pwsho additionally considers the energetic " value " of the water that has been displaced from this volume .
+for example , displacing water that would otherwise make a strong hydrogen bond to the polar group of interest is penalized more strongly than displacing water that would not .
+in its current implementation pwsho is on the same energy scale as eef1 , such that it can be used to replace eef1 without any further re - weighting of the energy function .
+since pwsho describes only the polar part of desolvation , the non - polar part of eef1 ( energetics of burying hydrophobic groups ) is retained when using pwsho .
+in separate simulations using pwsho in place of eef1 , we observe fewer output structures containing buried " unsatisfied " polar groups ( i.e. , polar atoms sequestered away from the solvent but not participating in compensatory intramolecular / intermolecular hydrogen bonds ) .
+given the importance of solvation for inhibitors of protein - protein interaction ( due to their characteristic shallow binding pockets ) , we anticipated that pwsho would also assist in identifying the active compounds in this experiment .
+upon replacing eef1 with pwsho in the rosetta energy function , we find improved performance for 12 of the 13 protein targets exhibiting differences in rankings ( fig 3b ) , with notable differences in the ranking of the active compounds by the wilcoxon signed - rank test ( p = 0.0004 ) .
+thus , modeling protein - water interactions through pwsho leads to accumulation of higher energetic penalties on decoy atoms for their unfavorable desolvation ( s2 fig ) , which in turn proves beneficial to the discrimination of known inhibitors from decoy ligands .
+collectively , these results suggest that the enhancements to the rosetta energy function from talaris and pwsho together provide improved performance relative to score12 .
+however , it must still be recalled that the performance of score12 _ ligand was far superior to that of score12 , since the former was parameterized specifically for protein - ligand interactions .
+optimal weights for identifying small - molecule inhibitors of protein - protein interactions in a previous benchmark experiment , we found that virtual screening by fred was exceptionally effective for traditional drug targets ( proteins naturally evolved to bind small molecules ) , but much less so for identifying inhibitors of protein - protein interactions [ 29 ] .
+much like fred 's chemgauss4 scoring function , rosetta 's score12 _ ligand weights [ 11 ] were optimized for performance on a broad variety of protein - ligand interactions rather than for a particular class of interaction .
+further , others have reported that performance can be enhanced by using weights optimized for a particular class of protein - ligand interaction [ 46 ] .
+accordingly , to investigate the extent that performance might be improved under the current functional form of the rosetta energy function ( with talaris and pwsho ) , we next built a set of weights tailored to small - molecule inhibitors of protein interactions .
+there are seven component energy terms in rosetta that contribute to the total intermolecular energy of a protein - ligand complex : fa _ atr ( attractive portion of the lennard - jones potential ) fa _ rep ( repulsive portion of the lennard - jones potential ) lk _ nonpolar ( the hydrophobic part of eef1 ) fa _ elec ( electrostatics with a distance dependent dielectric ) hb _ bb _ sc ( hydrogen bonds between the ligand and the protein backbone ) hb _ sc ( hydrogen bonds between the ligand and the protein sidechains ) occ _ sol _ fitted ( pwsho ) these terms are combined in the energy function as follows : einterface = c1 * efa _ atr + c2 * efa _ rep + c3 * elk _ nonpolar + c4 * efa _ elec + c5 * ehb _ bb _ sc + c6 * ehb _ sc + c7 * eocc _ sol _ fitted we fixed the weight of " fa _ atr " ( c1 ) at 0.8 , its value in the talaris 2013 energy function .
+we also fixed the weight of " lk _ nonpolar " ( c3 ) at 0 , after preliminary runs of the optimization procedure ( described in the next paragraph ) converged to negative c3 values ; this term favors close packing of hydrophobic groups , and is thus somewhat redundant with " fa _ atr " .
+developing a new weight set , then , required determining the optimal values for c2 / c4 / c5 / c6 / c7 .
+for this purpose , we first extracted the component energies for each native and decoy complex in our benchmark .
+we then used nelder - mead simplex optimization , as implemented in the c ++ gsl multidimensional minimization library ( http :// www.gnu.org / s / gsl /) , to optimize the values of c2 / c4 / c5 / c6 / c7 ; the objective function was defined to be the sum of the logs of the ranks of the native complexes relative to the corresponding decoys .
+thus , each step of this simplex optimization entailed updating 45,018 energies ( 18 protein targets x 2501 complexes for each ) using a new set of weights .
+because we had pre - computed the component energies for each of these 45,018 complexes , however , updating the total energy for each complex and re - evaluating the rank of the native ligand for each protein target was trivial ( and did not require calling rosetta ) ; thus , the optimization could be completed in seconds .
+given the stochastic nature of the nelder - mead simplex algorithm , we ran 5 independent optimizations , then selected the set of weights that yielded the minimum value for the objective function .
+the resulting weight set , trained on all 18 protein targets , is now available in rosetta distributions alongside the other standard weight sets , with the name " ppi _ discrimination.wts " .
+examination of these weights ( s2 dataset ) reveals that the " hb _ bb _ sc " energy term is strongly upweighted ( by a factor of 3.5 ) , suggesting that favorable hydrogen bonding with the protein backbone is a distinctive feature that helps identification of small - molecule inhibitors of protein - protein interactions .
+the electrostatic term (" fa _ elec ") and the pwsho term (" occ _ sol _ fitted ") are also upweighted ( by a factor of 2.35 and 1.55 , respectively ) .
+the weights for the " hb _ sc " term and the " fa _ rep " term are decreased ( each by a factor of 0.8 ) , though this may arise from high variability of these two weights across training sets ( s2 dataset ) .
+taken together , the optimized weights highlight the importance of polar contacts in complexes of small molecules that employ shallow binding modes , such as those acting at protein interaction sites .
+it is important to note that these new weights are intended to be used in virtual screening tasks that entail scoring and ranking of ( minimized ) static structures ; these weights are not intended to be used in simulations ( including energy minimization ) that alter the structure of the protein - ligand complex .
+to fairly evaluate the performance of this new energy function relative to the others we have considered so far , we used leave - one - out cross validation .
+for a given protein target , we first developed a unique weight set by training on the other 17 protein targets ; we then applied this " custom " weight set to determine the rank of the native complex for the protein target of interest .
+we repeated this procedure for each of the 18 protein targets , and used the rankings obtained in this manner for the comparisons below .
+first , we compared the performance of these new weights to that of the talaris + pwsho function with standard weights ( fig 4a ) .
+we observe that the new weight set " wins " 10 targets , whereas standard talaris + pwsho " wins " only 5 .
+while this improvement in performance is not statistically significant ( p = 0.078 ) , we find that in 4 cases the active ligand is now included in the top 1 % of the compound library , and in 7 cases it is ranked among the top 100 compounds .
+comparison to fred 's chemgauss4 ( fig 4b ) shows that this new rosetta weight set performs comparably ( p = 0.221 ) .
+finally , we find that this new weight set also slightly outperforms score12 _ ligand ( fig 4c ) , albeit not by a statistically significant margin ( p = 0.123 ) .
+we anticipate that the improvements of this new energy function derive from a combination of talaris , pwsho , and weights that were developed specifically for identifying inhibitors of protein - protein interactions .
+10.1371 / journal.pone.0140359.g004 fig 4 new weights for identifying small - molecule inhibitors of protein - protein interactions .
+using the talaris + pwsho functional form of the energy function , we identified new weights to optimize rosetta 's ability to distinguish true inhibitors from decoy compounds .
+the results presented here were obtained by leave - one - out cross validation of the weights over the benchmark set of 18 non - redundant protein targets .
+( a ) reweighting of the talaris + pwsho energy function leads to improved performance , though not at a statistically significant level ( p = 0.078 ) .
+( b ) this new reweighted energy function provides comparable performance as fred 's chemgauss4 energy function ( p = 0.221 ) .
+( c ) the new reweighted energy function slightly outperforms score12 _ ligand , though again not to a degree attaining statistical significance ( p = 0.123 ) .
+discussion in this study we evaluated the performance of the rosetta energy function for an important and timely virtual screening application : selecting active compounds that will inhibit protein interaction sites , from among large libraries .
+as we noted earlier , this is a particularly challenging task compared to virtual screening against " traditional " drug targets [ 29 ] .
+this class of protein - ligand interactions is mediated by shallower binding modes than those observed in " traditional " complexes , and accordingly sterics provide less information to guide identification of active compounds .
+instead , polar contacts are of increased importance , and long - standing challenges in accurately describing the energetics of polar interactions may thus underlie difficulties in computationally screening against protein interaction sites .
+further , sub - optimal performance may also result from the use of tools parameterized for " traditional " targets .
+in the course of the studies presented here , we have developed a new set of weights for the rosetta energy function that is specifically designed for identifying candidate inhibitors to disrupt protein interaction sites .
+critically , this weight set is not intended for carrying out simulations that alter the structure of protein - ligand complexes , but rather is focused solely on the final " re - ranking " step that determines which compounds will be advanced for testing in biochemical or cell - based assays .
+virtual screening can be split - - both conceptually and pragmatically - into two separate tasks : docking each member of a compound library , and then re - ranking the docked complexes .
+here , we focus exclusively on the latter task and have developed a benchmark experiment specifically designed to evaluate performance for this task .
+in doing so , however , we note that our benchmark does differ in certain key aspects from the scenario of a " true " virtual screen .
+first , our benchmark makes use of fred - docked decoy complexes , but experimentally - derived native complexes ( with subsequent minimization of both ) .
+in a real virtual screening scenario , of course , all of the complexes come from docking .
+indeed , we find that using fred - docked native complexes , instead of the experimentally - derived complexes , leads to diminished performance in this benchmark ( s3 fig ) .
+while this is a more realistic experiment , it does not clearly decouple the performance of the docking task from the re - ranking task .
+an incorrectly docked pose should not score favorably , even if the compound happens to be a true inhibitor .
+failure to identify the correct pose is a deficiency of the docking step , and thus should not influence the results of a benchmark for the re - ranking task .
+our benchmark also makes use of the tautomeric state / protonation state for the known ligand that best fits the protein environment in the correctly - docked pose , as identified by protoss .
+again this assumes knowledge that would not be available in a true virtual screening scenario , and again failure to provide this knowledge ( in this case , relying on quacpac to provide the configuration , without insight from the protein environment ) leads to diminished performance ( s4 fig ) .
+in this case too though , a docked pose in which the ligand configuration is not matched to the protein environment should not score favorably ; thus , it is most helpful to utilize a high - resolution benchmark that stresses identification of the known inhibitor only when this compound can be selected " for the right reason. " finally , we note that each of the complexes in our benchmark are minimized using the same scoring function that is used to ranking the complexes .
+carrying out this calculation for each compound in a very large library is often impractical , and thus minimization is typically only used for the top - scoring compounds after docking ( if at all ) .
+in this case the minimization step does not provide extra knowledge that would not be available in a realistic scenario , however , but rather the opposite : fred - docked decoys contain more steric clashes than the corresponding experimentally - derived complexes , and as a result it becomes nearly trivial to pick out the ( non - docked ) active complex ( s5 fig ) .
+though minimization of a complete library may not be practical for a large - scale virtual screen , it was a necessary component of this benchmark in order to ensure that the decoy compounds were not unfairly disadvantaged .
+using the benchmark we describe here , the performance of rosetta for this task can be directly tracked across several recent enhancements to the energy function ; all the comparisons described in the course of this study are summarized in table 2 .
+we note that this is still an exceedingly challenging benchmark , as highlighted by the relatively poor performance of score12 at the outset of our study .
+hence , any substantial improvement in rank may indicate that the underlying modification to the energy function is worth pursuing further , even if the absolute rank is still unimpressive .
+however , given that the number of compounds advanced to experimental validation rarely exceeds a few dozen , improvements at low rank ( i.e. among the most favorably scored compounds ) should be valued more than improvements at high rank .
+together , these two considerations motivate our decision to apply the wilcoxon signed - rank test to the complete set of compounds ( 1 - 2501 ) , and also to compare ranks in terms of their logarithms .
+it is thus exciting and encouraging that rosetta 's ability to identify the active compounds in this benchmark was improved to the extent observed in this study - - ultimately bringing it to a level of performance similar to that of fred 's chemgauss4 scoring function .
+10.1371 / journal.pone.0140359.t002 table 2 summary of the comparisons made in this study .
+among the 18 protein targets used as testcases , those for which the rankings by both scoring functions were within 10 % of one another were considered to be " ties " .
+the reported p - values were calculated by applying the wilcoxon signed - rank test to the difference in the log of the rankings , over all testcases .
+this ( non - parametric ) statistical test has the advantage that the degree to which a given method " wins " each testcase - - and not just the number of " wins " - - is taken into account .
+comparison fraction of targets with improved performance p - value ( wilcoxon signed - rank test ) fred chemgauss4 outperforms score12 10 / 17 0.085 score12 _ ligand outperforms score12 13 / 14 0.001 fred chemgauss4 outperforms score12 _ ligand 9 / 16 0.239 talaris outperforms score12 13 / 17 0.013 talaris + pwsho outperforms talaris + eef1 12 / 13 0.0004 reweighted talaris + pwsho outperforms original talaris + pwsho 10 / 15 0.078 reweighted talaris + pwsho outperforms fred chemgauss4 11 / 18 0.221 reweighted talaris + pwsho outperforms score12 _ ligand 9 / 17 0.123 nonetheless , even with these enhancements both fred 's chemgauss4 and rosetta fail to rank the known inhibitor in the top 1 % of compounds for most targets , confirming that identifying small - molecule inhibitors of protein - protein interactions remains a challenging task .
+given the complexity of this task , it also remains difficult to ascertain precisely why current methods fall short .
+it is noteworthy , though , that considerable orthogonality remains between chemgauss4 and rosetta .
+if both methods represented slight variations of the same underlying approach , one would expect them struggle / excel on the same targets as one another .
+clearly , however , this is not the case : among the five targets for which chemgauss4 ranked the known inhibitor in the top 1 % , rosetta performed comparably in only two cases , and in one case rosetta failed even to rank the known inhibitor in the top 50 % ; conversely , rosetta had more " wins " in the same experiment ( fig 4b ) .
+these differences imply that chemgauss4 recognizes important energetic features of the native interaction that are missed by rosetta , and vice versa ; we are therefore optimistic that detailed examination of complexes for which the two cannot agree ( s6 fig ) will reveal further avenues for improving the both energy functions .
+supporting information s1 benchmark all files needed to run this benchmark are provided .
+for each target protein , this includes the protein itself , the native ligand ( in the experimentally - determined pose and in the fred - docked pose ) , and the decoy ligands ( in the fred - docked pose ) .
+the native ligand is provided with both the protoss and the quacpac tautomeric state / protonation state .
+( gz ) click here for additional data file .
+s1 dataset complete ranking data .
+ranking of the active compound relative to the decoys is provided for each protein target , under each of the energy functions tested in this study ; these data were used in generating the figures presented in this study .
+( xlsx ) click here for additional data file .
+s2 dataset standard weights and optimized weights for the talaris + pwsho energy function .
+the weights optimized on the entire benchmark set are those deposited in " ppi _ discrimination.wts " .
+the mean and standard deviation of the weights optimized during leave - one - out ( over the 18 rounds of the procedure , where each round optimized on a different subset of 17 targets ) are also reported .
+( xlsx ) click here for additional data file .
+s1 fig rationalization of decoys that rank favorably with score12 , but less so with talaris .
+to appropriately compare between the two energy functions , the same conformation was scored using both energy functions ( i.e. without minimization ) .
+both images were produced using pymol [ 47 ] , with the protein represented in spheres and the ligand represented in sticks .
+( a ) the protein pdb id is 4gq4 , the ligand zinc id is zinc01019586 .
+this decoy complex is ranked 10th by score12 and 34th by talaris , with protein - ligand interface energies of - 10.522 and - 8.913 rosetta energy units ( reus ) , respectively .
+seventy - three percent of the difference in interface energy is due to the solvation component of the interface energy , which is + 8.397 under score12 and + 9.564 under talaris .
+the change reflects the increase from 0.65 in score12 to 0.75 in talaris in the weight that solvation energy has in the computation of total energy ; the unweighted solvation components are indeed very similar : + 12.918 for score12 and + 12.752 for talaris .
+the electrostatic component contributes 20 % of the difference in interface energy , because the score12 " fa _ pair " component is 0 reus , whereas the talaris " fa _ elec " component is + 0.315 reus .
+b : the protein pdb id is 3in7 , the ligand zinc id is zinc00792906 .
+this decoy complex is ranked 3rd by score12 and 16th by talaris , with interface energies of - 8.706 and - 7.288 reus , respectively .
+here the solvation component accounts for 72 % of the difference in interface energy , its value being + 10.147 reus under score12 and + 11.172 reus under talaris .
+another 26 % of the difference in interface energy is contributed by the hydrogen - bond component ; in particular , the hydrogen bonds between the ligand and the protein ( yellow broken lines ) have a total energy of - 0.925 reus under score12 and - 0.558 reus under talaris .
+( tiff ) click here for additional data file .
+s2 fig rationalization of a decoy that ranks favorably with eef1 's polar solvation , but less so with pwsho 's polar solvation .
+the protein pdb id is 4g55 and the ligand zinc id is zinc00624571 .
+to appropriately compare between the two energy functions , the same conformation was scored using both energy functions ( i.e. without minimization ) .
+this decoy complex is ranked 10th by talaris + eef1 and 32nd by talaris + pwsho , with protein - ligand interface energies of - 6.611 and - 6.369 reus , respectively .
+the entire difference in interface energy is contributed by the polar solvation component , whose eef1 value is + 8.721 reus and whose pwsho value is + 8.964 reus .
+to help understand why pwsho penalizes this complex more than eef1 , we present the interaction between the protein backbone carbonyl atom o ( 65 ) and atom s1 of the ligand .
+the energetic cost for desolvating o ( 65 ) with s1 is + 0.05 reus under eef1 , whereas it is + 0.10 reus under pwsho .
+the same applies for the interaction of the protein sidechain arginine atom neta2 ( 64 ) with atom c23 in the ligand .
+the energetic cost for desolvating neta2 ( 64 ) with c23 is + 0.12 reus under eef1 , versus + 0.22 reus under pwsho .
+in both of these cases , the pwsho energy more strongly penalizes the fact that ligand binding reduces this ability of these protein atoms to hydrogen bond with nearby water .
+this image was produced using pymol [ 47 ] , with the protein represented in spheres and the ligand represented in sticks .
+( tiff ) click here for additional data file .
+s3 fig identification of the known inhibitor using a fred - docked model of the complex .
+scoring in this experiment was carried out using the talaris + pwsho energy function .
+( a ) performance for this task is diminished significantly ( p = 0.019 ) if the known inhibitor is docked , rather than provided in the experimentally - determined pose : with 3 versus 11 " wins " , respectively .
+( b ) the fold - decrease in performance observed upon using the docked structure of the known inhibitor , as opposed to the experimentally determined structure , appears uncorrelated to the rmsd between the two structures .
+performance decreases even in some of the cases for which the rmsd of the fred - docked structure is less than 2 a from the native pose , suggesting that even this accuracy may be insufficient for the known inhibitor to be selected by the downstream scoring function .
+( eps ) click here for additional data file .
+s4 fig identification of the known inhibitor using its " default " tautomeric state and protonation state .
+performance for this task is diminished significantly ( p = 0.0008 ) if the tautomeric state and protonation state of the known inhibitor are computed with quacpac ( i.e. without knowledge of the protein environment ) rather than with protoss ( i.e. using the experimentally - derived structure of the native complex ) .
+there are zero " wins " using the quacpac ligand configuration , versus ten " wins " using the protoss ligand configuration .
+scoring in this experiment was carried out using the talaris + pwsho energy function .
+( eps ) click here for additional data file .
+s5 fig identification of the known inhibitor using non - minimized complexes .
+scoring in this experiment was carried out using the talaris + pwsho energy function .
+( a ) performance for this task becomes a much easier if performed on non - minimized rather than minimized complexes , due to the presence of steric clashes in non - minimized decoy complexes .
+the increase in performance is dramatic ( p = 0.000004 ) , with the known inhibitor being ranked 10 times as first overall , and 15 times in the top 1 % of the compound library .
+( b ) the fold - increase in performance upon using non - minimized complexes , as opposed to minimized complexes , appears uncorrelated with the rmsd between minimized and non - minimized structures of the known inhibitor .
+this is consistent with the expectation that minimization makes the decoy complexes more competitive , and thus the change in performance is unrelated to how minimization affects the active complex .
+rmsd was computed over the inhibitor 's heavy atoms , after superposition of the protein residues within 10 a of the inhibitor .
+( eps ) click here for additional data file .
+s6 fig rationalization of cases where fred chemgauss4 and talaris + pwsho rank the known inhibitor discordantly .
+to appropriately compare between the two energy functions , the same conformation was scored using both energy functions ( i.e. without minimization ) .
+both images were produced using pymol [ 47 ] , with the protein represented in spheres and the ligand represented in sticks .
+a : the pdb id of this active complex is 4gq4 .
+the known inhibitor is ranked 3rd by fred chemgauss4 , but 23rd by talaris + pwsho .
+both scoring functions agree that the inhibitor has moderately favorable hydrogen - bonding and polar - solvation energies .
+a prominent difference between the two scoring functions is in the evaluation of non - polar solvation : while chemgauss4 has no explicit term to model non - polar solvation , talaris + pwsho ranks the inhibitor 's " lk _ nonpolar " energy term very unfavorably ( 2461st out of 2501 ) .
+b : the pdb id of this active complex is 2yel .
+the known inhibitor is ranked 1st by talaris + pwsho , but 371st by chemgauss4 .
+under chemgauss4 the inhibitor has unfavorable shape complementarity ( ranking 682nd by combined " cg3 : steric " and " cg3 : clash " scores ) and unfavorable intermolecular hydrogen bonding ( 434th by " cg4 : hb " score ). by contrast , under talaris + pwsho the inhibitor has excellent shape complementarity ( 3rd by combined " fa _ atr " and " fa _ rep " energies ) , and favorable hydrogen bonding ( 42nd by combined " hb _ bb _ sc " and " hb _ sc " energies ) .
+( tiff ) click here for additional data file .
+we thank ragul gowthaman for preparing the decoy complexes .
+we thank the large number of developers contributing to the improvements of the rosetta energy function , particularly andrew leaver - fay and matt o'meara .
+we are grateful to openeye scientific software ( sante fe , nm ) for providing an academic license for the use of fred , quacpac , and omega .
+references 1 lill m . virtual screening in drug design . methods mol biol .
+2013 ; 993 : 1 - 12 . doi : 10.1007 / 978 - 1 - 62703 - 342 - 8 _ 1 23568460 2 talele tt , khedkar sa , rigby ac . successful applications of computer aided drug discovery : moving drugs from concept to the clinic . curr top med chem .
+2010 ; 10 ( 1 ) : 127 - 41 . 19929824 3 sliwoski g , kothiwale s , meiler j , lowe ew jr. computational methods in drug discovery . pharmacol rev .
+2014 ; 66 ( 1 ) : 334 - 95 . doi : 10.1124 / pr.112.007336 24381236 4 leaver - fay a , tyka m , lewis sm , lange of , thompson j , jacak r , et al rosetta3 : an object - oriented software suite for the simulation and design of macromolecules . methods enzymol .
+2011 ; 487 : 545 - 74 . epub 2010 / 12 / 29 .
+doi : 10.1016 / b978 - 0 - 12 - 381270 - 4.00019 - 6 21187238 5 simons kt , bonneau r , ruczinski i , baker d . ab initio protein structure prediction of casp iii targets using rosetta . proteins .
+1999 ; suppl 3 : 171 - 6 . 10526365 6 rohl ca , strauss ce , misura km , baker d . protein structure prediction using rosetta . methods enzymol .
+2004 ; 383 : 66 - 93 . epub 2004 / 04 / 06 .
+doi : 10.1016 / s0076 - 6879 ( 04 ) 83004 - 0 s0076687904830040 [ pii ] .
+15063647 7 kuhlman b , dantas g , ireton gc , varani g , stoddard bl , baker d . design of a novel globular protein fold with atomic - level accuracy . science .
+2003 ; 302 ( 5649 ) : 1364 - 8 . doi : 10.1126 / science.1089427 14631033 8 havranek jj , duarte cm , baker d . a simple physical model for the prediction and design of protein - dna interactions . j mol biol .
+2004 ; 344 ( 1 ) : 59 - 70 . 15504402 9 morozov av , havranek jj , baker d , siggia ed . protein - dna binding specificity predictions with structural models . nucleic acids res .
+2005 ; 33 ( 18 ) : 5781 - 98 . 16246914 10 das r , karanicolas j , baker d . atomic accuracy in predicting and designing noncanonical rna structure . nat methods .
+2010 ; 7 ( 4 ) : 291 - 4 . doi : 10.1038 / nmeth.1433 20190761 11 meiler j , baker d . rosettaligand : protein - small molecule docking with full side - chain flexibility . proteins .
+2006 ; 65 ( 3 ) : 538 - 48 . 16972285 12 davis iw , baker d . rosettaligand docking with full ligand and receptor flexibility . j mol biol .
+2009 ; 385 ( 2 ) : 381 - 92 . epub 2008 / 12 / 02 .
+doi : 10.1016 / j.jmb.2008.11.010 19041878 13 drew k , renfrew pd , craven tw , butterfoss gl , chou fc , lyskov s , et al adding diverse noncanonical backbones to rosetta : enabling peptidomimetic design . plos one .
+2013 ; 8 ( 7 ) : e67051 doi : 10.1371 / journal.pone.0067051 23869206 14 pacella ms , koo da ce , thottungal ra , gray jj . using the rosettasurface algorithm to predict protein structure at mineral surfaces . methods enzymol .
+2013 ; 532 : 343 - 66 . doi : 10.1016 / b978 - 0 - 12 - 416617 - 2.00016 - 3 24188775 15 kuhlman b , baker d . native protein sequences are close to optimal for their structures . proc natl acad sci u s a .
+2000 ; 97 ( 19 ) : 10383 - 8 . 10984534 16 smith ca , kortemme t . predicting the tolerated sequences for proteins and protein interfaces using rosettabackrub flexible backbone design . plos one .
+2011 ; 6 ( 7 ) : e20451 doi : 10.1371 / journal.pone.0020451 21789164 17 kellogg eh , leaver - fay a , baker d . role of conformational sampling in computing mutation - induced changes in protein structure and stability . proteins .
+2011 ; 79 ( 3 ) : 830 - 8 . doi : 10.1002 / prot.22921 21287615 18 fowler dm , araya cl , fleishman sj , kellogg eh , stephany jj , baker d , et al high - resolution mapping of protein sequence - function relationships . nat methods .
+2010 ; 7 ( 9 ) : 741 - 6 . doi : 10.1038 / nmeth.1492 20711194 19 song y , tyka m , leaver - fay a , thompson j , baker d . structure - guided forcefield optimization . proteins .
+2011 ; 79 ( 6 ) : 1898 - 909 . doi : 10.1002 / prot.23013 21488100 20 leaver - fay a , o'meara mj , tyka m , jacak r , song y , kellogg eh , et al scientific benchmarks for guiding macromolecular energy function improvement . methods enzymol .
+2013 ; 523 : 109 - 43 . doi : 10.1016 / b978 - 0 - 12 - 394292 - 0.00006 - 0 23422428 21 zanghellini a , jiang l , wollacott am , cheng g , meiler j , althoff ea , et al new algorithms and an in silico benchmark for computational enzyme design . protein sci. 2006 ; 15 ( 12 ) : 2785 - 94 . doi : 10.1110 / ps.062353106 17132862 22 hopkins al , groom cr . the druggable genome . nat rev drug discov .
+2002 ; 1 ( 9 ) : 727 - 30 . 12209152 23 griffith m , griffith ol , coffman ac , weible jv , mcmichael jf , spies nc , et al dgidb : mining the druggable genome . nat methods .
+2013 ; 10 ( 12 ) : 1209 - 10 . doi : 10.1038 / nmeth.2689 24122041 24 arkin mr , tang y , wells ja . small - molecule inhibitors of protein - protein interactions : progressing toward the reality . chem biol .
+2014 ; 21 ( 9 ) : 1102 - 14 . doi : 10.1016 / j.chembiol.2014.09.001 25237857 25 cierpicki t , grembecka j . targeting protein - protein interactions in hematologic malignancies : still a challenge or a great opportunity for future therapies ?
+immunol rev .
+2015 ; 263 ( 1 ) : 279 - 301 . doi : 10.1111 / imr.12244 25510283 26 murray cw , rees dc . the rise of fragment - based drug discovery . nat chem .
+2009 ; 1 ( 3 ) : 187 - 92 . doi : 10.1038 / nchem.217 21378847 27 cummings cg , hamilton ad . disrupting protein - protein interactions with non - peptidic , small molecule alpha - helix mimetics . curr opin chem biol .
+2010 ; 14 ( 3 ) : 341 - 6 . doi : 10.1016 / j.cbpa.2010.04.001 20430687 28 whitby lr , boger dl . comprehensive peptidomimetic libraries targeting protein - protein interactions . acc chem res .
+2012 ; 45 ( 10 ) : 1698 - 709 . doi : 10.1021 / ar300025n 22799570 29 gowthaman r , deeds ej , karanicolas j . structural properties of non - traditional drug targets present new challenges for virtual screening . j chem inf model .
+2013 ; 53 ( 8 ) : 2073 - 81 . doi : 10.1021 / ci4002316 23879197 30 shapovalov mv , dunbrack rl jr. a smoothed backbone - dependent rotamer library for proteins derived from adaptive kernel density estimates and regressions . structure .
+2011 ; 19 ( 6 ) : 844 - 58 . doi : 10.1016 / j.str.2011.03.019 21645855 31 bazzoli a , karanicolas j. a fast pairwise model to capture anisotropic hydrogen bonding to water .
+manuscript in preparation .
+32 bourgeas r , basse mj , morelli x , roche p . atomic analysis of protein - protein interfaces with known inhibitors : the 2p2i database . plos one .
+2010 ; 5 ( 3 ) : e9598 doi : 10.1371 / journal.pone.0009598 20231898 33 higueruelo ap , schreyer a , bickerton gr , pitt wr , groom cr , blundell tl . atomic interactions and profile of small molecules disrupting protein - protein interfaces : the timbal database . chem biol drug des .
+2009 ; 74 ( 5 ) : 457 - 67 . epub 2009 / 10 / 09 .
+doi : jpp889 [ pii ] doi : 10.1111 / j.1747 - 0285.2009.00889.x 19811506 34 irwin jj , shoichet bk . zinc - - a free database of commercially available compounds for virtual screening . j chem inf model .
+2005 ; 45 ( 1 ) : 177 - 82 . 15667143 35 irwin jj , sterling t , mysinger mm , bolstad es , coleman rg . zinc : a free tool to discover chemistry for biology . j chem inf model .
+2012 ; 52 ( 7 ) : 1757 - 68 . doi : 10.1021 / ci3001277 22587354 36 willett p . similarity - based approaches to virtual screening . biochem soc trans .
+2003 ; 31 ( pt 3 ) : 603 - 6 . epub 2003 / 05 / 30 .
+12773164 37 hawkins pc , skillman ag , warren gl , ellingson ba , stahl mt . conformer generation with omega : algorithm and validation using high quality structures from the protein databank and cambridge structural database . j chem inf model .
+2010 ; 50 ( 4 ) : 572 - 84 . epub 2010 / 03 / 20 .
+doi : 10.1021 / ci100031x 20235588 38 hawkins pc , nicholls a . conformer generation with omega : learning from the data set and the analysis of failures . j chem inf model .
+2012 ; 52 ( 11 ) : 2919 - 36 . doi : 10.1021 / ci300314k 23082786 39 omega version 2.4.3 .
+openeye scientific software sf , nm. http :// www.eyesopen.com .
+40 mcgann m . fred pose prediction and virtual screening accuracy . j chem inf model .
+2011 ; 51 ( 3 ) : 578 - 96 . epub 2011 / 02 / 18 .
+doi : 10.1021 / ci100436p 21323318 41 fred version 3.0.0 .
+openeye scientific software sf , nm. http :// www.eyesopen.com .
+42 bietz s , urbaczek s , schulz b , rarey m . protoss : a holistic approach to predict tautomers and protonation states in protein - ligand complexes . j cheminform .
+2014 ; 6 : 12 doi : 10.1186 / 1758 - 2946 - 6 - 12 24694216 43 quacpac version 1.5.0 .
+openeye scientific software sf , nm. http :// www.eyesopen.com .
+44 r : a language and environment for statistical computing .
+vienna , austria : r foundation for statistical computing ; 2010 . 45 lazaridis t , karplus m . effective energy function for proteins in solution . proteins .
+1999 ; 35 ( 2 ) : 133 - 52 . epub 1999 / 05 / 01 .
+doi : 10.1002 /( sici ) 1097 - 0134 ( 19990501 ) 35:2 < 133 : : aid - prot1 > 3.0.co ; 2 - n [ pii ] .
+10223287 46 lemmon g , meiler j . rosetta ligand docking with flexible xml protocols . methods mol biol .
+2012 ; 819 : 143 - 55 . doi : 10.1007 / 978 - 1 - 61779 - 465 - 0 _ 10 22183535 47 niesen fh , berglund h , vedadi m . the use of differential scanning fluorimetry to detect ligand interactions that promote protein stability . nat protoc .
+2007 ; 2 ( 9 ) : 2212 - 21 . doi : 10.1038 / nprot.2007.321 17853878

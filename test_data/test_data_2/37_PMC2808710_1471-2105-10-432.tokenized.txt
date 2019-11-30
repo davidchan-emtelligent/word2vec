@@ -1,0 +1,201 @@
+bmc bioinformatics bmc bioinformatics bmc bioinformatics 1471 - 2105 biomed central 20021665 2808710 1471 - 2105 - 10 - 432 10.1186 / 1471 - 2105 - 10 - 432 research article algorithms for locating extremely conserved elements in multiple sequence alignments tseng huei - hun e 1 lachesis @ cs.washington.edu tompa martin 12 tompa @ cs.washington.edu 1 department of computer science and engineering , university of washington , box 352350 , seattle , wa , 98195 - 2350 , usa 2 department of genome sciences , university of washington , seattle , wa , 98195 - 5065 , usa 2009 18 12 2009 10 432 432 29 7 2009 18 12 2009 copyright ( c ) 2009 tseng and tompa ; licensee biomed central ltd .
+2009 tseng and tompa ; licensee biomed central ltd.this is an open access article distributed under the terms of the creative commons attribution license ( http :// creativecommons.org / licenses / by / 2.0 ) , which permits unrestricted use , distribution , and reproduction in any medium , provided the original work is properly cited .
+background in 2004 , bejerano et al. announced the startling discovery of hundreds of " ultraconserved elements " , long genomic sequences perfectly conserved across human , mouse , and rat .
+their announcement stimulated a flurry of subsequent research .
+results we generalize the notion of ultraconserved element in a natural way from extraordinary human - rodent conservation to extraordinary conservation over an arbitrary set of species .
+we call these " extremely conserved elements " .
+there is a linear time algorithm to find all such extremely conserved elements in any multiple sequence alignment , provided that the conservation is required to be across all the aligned species .
+for the general case of conservation across an arbitrary subset of the aligned species , we show that the question of whether there exists an extremely conserved element is np - complete .
+we illustrate the linear time algorithm by cataloguing all 177 extremely conserved elements in the currently available 44 - vertebrate whole - genome alignment , and point out some of the characteristics of these elements .
+conclusions the np - completeness in the case of conservation across an arbitrary subset of the aligned species implies that it is unlikely an efficient algorithm exists for this general case .
+despite this fact , for the interesting case of conservation across all or most of the aligned species , our algorithm is efficient enough to be practical .
+the 177 extremely conserved elements that we catalog demonstrate many of the characteristics of the original ultraconserved elements of bejerano et al. background in 2004 , bejerano et al .
+[ 1 ] made the startling discovery that there are hundreds of long genomic sequences extraordinarily conserved across human , mouse , and rat , most of them in noncoding regions and some of them very distant from the nearest human gene .
+they defined an " ultraconserved element " to be at least 200 consecutive alignment columns , 100 % of these columns perfectly conserved in human , mouse , and rat .
+they reported 481 such elements across the human genome , exclusive of rrna genes .
+they also reported incidentally that some fraction ( 99 % , 97 % , and 67 % , respectively ) of these ultraconserved elements are also well conserved in dog , in chicken , and in fugu , though with fewer than 100 % of the columns perfectly conserved in these other species even in this fraction of elements .
+their introduction of ultraconserved elements stimulated a flurry of subsequent research .
+derti et al .
+[ 2 ] compiled lists of similarly perfectly conserved elements in human - mouse - dog and in human - chicken , and observed a surprisingly small overlap in these three sets of ultraconserved elements .
+sakuraba et al .
+[ 3 ] compiled a list of elements each more than 500 bp long and each more than 95 % identical between human and mouse , and observed that only 9 - 14 % of these have conserved matches in fishes .
+visel et al .
+[ 4 ] showed that the noncoding ultraconserved elements of bejerano et al .
+[ 1 ] were only a subset of elements under similar constraint and with similar regulatory function .
+they generated this larger set of elements using gumby scores [ 5 ] , and showed that this larger set of noncoding ultraconserved elements is highly enriched in mouse enhancer activity .
+rather than using percent of perfectly conserved columns , siepel et al .
+[ 6 ] incorporated the phylogeny into the measure of conservation by using a phylogenetic hidden markov model , and defined highly conserved elements to be those with the highest log - odds scores , measuring how much more likely they are to be generated in the conserved than the nonconserved state of the model .
+most of these works defined their conserved elements in terms of conservation across just 2 or 3 species , siepel et al .
+[ 6 ] being an exception .
+in this paper we extend the notion of ultraconserved elements in a very natural way to an arbitrarily large collection of species .
+suppose that you are given a whole - genome multiple sequence alignment , such as the current 44 - vertebrate whole - genome alignment available through the ucsc genome browser [ 7 ] .
+you are interested in finding long regions of this alignment that are extraordinarily well conserved across all or most of the 44 species , in the spirit of generalizing the notion of ultraconserved elements of bejerano et al .
+[ 1 ] .
+for concreteness in this introduction , let us say that you want to identify all regions of at least 100 consecutive alignment columns such that , for some subset s of at least 40 of the 44 species , at least 80 % of the columns in this region are perfectly conserved ( i.e. , contain the same nucleotide ) across all the species in s. because the 44 - vertebrate whole - genome alignment occupies approximately 250 gigabytes of memory , algorithmic efficiency is a concern .
+in the next section , we consider the generalization of this problem instance to arbitrary alignments , any number of columns , any minimum cardinality | s | , and any percentage of conserved columns .
+we call such well conserved regions " extremely conserved elements " .
+we present a linear time algorithm for finding all such elements , provided the subset s is the entire set of aligned species .
+for an arbitrary subset s , we demonstrate that the problem is np - complete [ 8 ] and hence it is unlikely that there is an efficient algorithm for finding extremely conserved elements in this general case .
+as an illustration of the linear time algorithm , we present results for the concrete instantiation of the problem given above .
+in the current 44 - vertebrate whole - genome alignment , there are 177 elements , each with at least 100 alignment columns and each perfectly conserved across the same 40 or more vertebrates in at least 80 % of its columns .
+the longest such element is 355 columns long and occurs 60 kbp from the nearest gene on human chromosome 19 , perfectly conserved in 80 % of its columns across 41 of the species , missing only gorilla , shrew , and lamprey .
+there is also a region 70 bp long , 7 kbp upstream of the foxb2 gene on human chromosome 9 , with 90 % of its columns perfectly conserved across all 44 vertebrates .
+results and discussion problem statement and algorithms we begin with a precise formulation of the extremely conserved element problem : inputs : m x n alignment matrix m with entries from { a , c , g , t , - } , integer s <= m , integer t <= n , and real number 0 < c <= 1 .
+problem : determine if m has a subset s of rows , a subset t of consecutive columns ( ignoring columns that contain the gap character " - " in every row of s ) , and a subset u of t , with | s | >= s , | t | >= t , and | u | >= c | t | such that , in the matrix m restricted to s x u , every column is perfectly conserved ( that is , all the elements in that column are equal ) .
+note that neither s nor u need be consecutive .
+for example , the illustrative problem in the introduction is the version of the extremely conserved element problem with m = 44 , n =~ 3.8 x 109 , s = 40 , t = 100 , and c = 0.8 .
+the condition that every column in s x u be perfectly conserved is overly simplistic .
+more realistically , the conservation measure should depend on the phylogeny relating the species , as does , for example , the measure used by phastcons [ 6 ] .
+suppose that f is any conservation scoring function ( that may depend on the phylogeny ) .
+the algorithm of theorem 1 is easily generalized to the problem in which every column in s x u must have f exceeding some threshold tau .
+theorem 1 : if s = m , the extremely conserved element problem can be solved in time o ( mn ) .
+in fact , the maximum value of t can be determined in this time .
+proof : assume without loss of generality that no column contains the gap character " - " in every row .
+for 1 <= i <= n , let qi = 1 if column i is perfectly conserved , and qi = 0 otherwise .
+the result then follows from theorem 2 .
+* theorem 2 : given q in { 0,1 } n and 0 < c <= 1 , there is an o ( n ) time algorithm that maximizes j - i subject to the condition that qi + 1 ...
+qj contains at least c ( j - i ) 1's. proof : a variety of linear time algorithms for this problem have appeared in the literature [ 9 - 11 ] , although this is the first time it has been applied to multiple sequence alignments on a gigabyte scale .
+we give here a new and simpler algorithm due to eddie grove and benno schwikowski ( personal communication ) .
+for 0 <= i <= n , let let x be the number of 1 's in qi + 1 ... qj. then thus , rj >= ri if and only if qi + 1 ...
+qj has at least c ( j - i ) 1 's , so the objective is to maximize j - i subject to rj >= ri. for 0 <= i <= n , let xi = min ( r0 , r1 , ... , ri ) and yi = max ( ri , ri + 1 , ... , rn ) .
+x and y are each nonincreasing sequences .
+we claim that the objective above is equivalent to maximizing j - i subject to yj >= xi : if rj >= ri , then yj = max ( rj , rj + 1 , ... , rn ) >= rj >= ri >= min ( r0 , r1 , ... , ri ) = xi. if yj >= xi and xi < xi - 1 and yj > yj + 1 , then ri = xi and rj = yj , so rj >= ri. in particular , ( i , j ) maximizes j - i subject to rj >= ri if and only if ( i , j ) maximizes j - i subject to yj >= xi. since x and y are sorted , the latter can be found in linear time : merge x and y , breaking ties by taking elements from y first .
+then identify the maximum j - i such that yj and xi are adjacent ( in this order ) in the sorted list .
+* in fact , in the proof of theorem 2 , any pair ( i , j ) such that yj and xi are adjacent ( in this order ) in the sorted list corresponds to a maximal interval qi + 1 ...
+qj that contains at least c ( j - i ) 1's. thus , all such maximal intervals can be found in linear time .
+the dual of theorem 2 , maximizing c subject to a lower bound on j - i , also can be accomplished in linear time [ 12,13 ] .
+this implies that , for s = m , the maximum value of c in the extremely conserved element problem can also be determined in time o ( mn ) .
+for arbitrary s , the following theorem provides another special case in which the problem can be solved efficiently .
+theorem 3 : if c = 1 , the extremely conserved element problem can be solved in polynomial time .
+in fact , the maximum value of s can be determined in this time .
+proof : for every choice t of at least t consecutive columns , sort the rows of t lexicographically and look for s identical rows , with at least t nongap characters each , in this sorted list .
+* however , for the general case , the following theorem shows that it is unlikely that there is an efficient algorithm [ 8 ] .
+theorem 4 : the general extremely conserved element problem is np - complete , even if t = n and m 's entries are all either a or t. proof : the reduction used is very similar to the reduction from clique to balanced complete bipartite subgraph [ 14 ] .
+let ( g , k ) be an instance of the clique problem , where g = ( v , e ) is an undirected graph and k is an integer .
+assume without loss of generality that k < | v | - 2 .
+consider the bipartite graph b = (( x , y ) , f ) , where x = v , y = e , and f = {( v , e ) | v not - in e } .
+let m be the | x | x | y | adjacency matrix of b , where mij = a if ( xi , yj ) in f and mij = t otherwise .
+let s = | v | - k , t = | e | , and c = /| e | .
+we will show that g has a k - clique if and only if m has the appropriate extremely conserved element .
+suppose that c subset / equal v is a k - clique of g. choose s = v - c and u = {{ u , v } | u in c and v in c } .
+| s | = | v | - k and | u | = and , in b , every vertex in s is adjacent to every vertex in u. hence , the submatrix of m restricted to s x u contains only the character a. conversely , suppose that m has a (| v | - k ) x submatrix m ' each of whose columns is perfectly conserved .
+since each vertex v in y is not adjacent to exactly 2 vertices in x , it is impossible for v 's column of m ' to consist only of the character t when | v | - k > 2 , as is the case .
+hence , m ' contains only the character a. that is , there are subsets s of x and u of y that form a complete bipartite subgraph of b , with | s | = | v | - k and | u | = . every vertex { u , v } in u must satisfy u in v - s and v in v - s since , in b , { u , v } is adjacent to every vertex in s. but | v - s | = k , so the vertices in u correspond to the edges of a k - clique v - s in g .
+* catalog of extremely conserved elements as an illustration of theorem 1 , we present results for the concrete instantiation of the problem given in the introduction .
+in the current 44 - vertebrate whole - genome multiz alignment ( human genome assembly ucsc hg18 , march 2006 ) available through the ucsc genome browser [ 7 ] , we identify all extremely conserved elements with at least 100 consecutive alignment columns such that , for some subset s of at least 40 species including human , at least 80 % of the columns in this region are perfectly conserved across all the species in s .
+( if some column contains the gap character " - " in all species of s , that column is ignored , contributing neither to the count of 100 columns nor to the percent perfectly conserved. ) we refer to such elements as ec ( 40 , 100 , 0.8 ) elements .
+despite the np - completeness demonstrated in theorem 4 , the algorithm of theorem 1 still allows a feasible solution to this particular instantiation of the general extremely conserved element problem .
+the simple reason is that = 149,986 is not an impossibly large number of combinations on which to run the linear time algorithm .
+had we asked for conservation across only 22 rather than 40 species , the computation would have been prohibitive , because > 2 x 1012 .
+in addition , there are two novel filters described in methods that make the application to whole - genome alignments feasible .
+in the current 44 - vertebrate whole - genome alignment , our algorithm produces 177 ec ( 40 , 100 , 0.8 ) elements .
+a complete listing of these elements is given in additional files .
+additional file 1 is a spreadsheet that shows each ec ( 40 , 100 , 0.8 ) element 's human genome coordinates , its length , percent identity , names of missing species , name of the human gene in which it resides ( if appropriate ) , names of and distances to the two nearest neighboring genes , and overlap with previously identified conserved elements [ 1,4,6 ] .
+additional file 2 shows the exact alignment for each ec ( 40 , 100 , 0.8 ) element .
+additional file 3 shows the single longest extremely conserved element that has at least 90 % of its columns perfectly conserved across all 44 vertebrate species .
+it is 70 bp long .
+( in additional files 1 and 2 , the lengths of some of the elements are shown as slightly less than 100 columns .
+the reason is that we have removed from every element those columns at each end that are not perfectly conserved .
+any of these elements can be padded on either end to 100 columns while still maintaining at least 80 % identical columns. ) for the 240 human genes either containing an ec ( 40 , 100 , 0.8 ) element , or immediately upstream or downstream from that element if it is between genes , we investigated enrichment for biological process go terms , using webgestalt [ 15 ] .
+the results are shown in table 1 .
+these enrichments are in accord with previous human - rodent studies [ 1,4 ] , which reported significant functional enrichment for genes involved in regulation of transcription , dna binding , development , and nervous system development .
+table 1 enrichment for biological process go terms of the 240 human genes containing or neighboring ec ( 40 , 100 , 0.8 ) elements .
+go category observed genes expected number p - value regulation of transcription 70 25.68 3.30 x 10 - 17 development 43 22.36 1.04 x 10 - 5 organ development 18 6.74 1.34 x 10 - 4 nervous system development 16 5.62 1.56 x 10 - 4 for the genes containing the 25 ec ( 40 , 100 , 0.8 ) elements that overlap human coding exons , there is functional enrichment for rna processing ( p - value = 2.20 x 10 - 4 ) .
+this is consistent with the reported findings for genes containing ultraconserved elements that overlap coding exons , which show significant functional enrichment for rna binding and regulation of splicing [ 1 ] .
+figure 1 shows the distribution of the 177 ec ( 40 , 100 , 0.8 ) elements by human chromosome and location with respect to human genes .
+if an element overlaps a human coding exon ( in some splice form ) , it is called " partially coding " .
+if not and it is entirely contained within an intron between two coding exons ( in some splice form ) , it is called " intronic " .
+if it is between the annotated transcription start and stop sites of a gene but is neither partially coding nor intronic , it is called " utr " .
+( most of these elements are actually contained in a utr intron rather than overlapping the mature utr. ) if it is entirely contained between two genes ( in all splice forms ) , it is called " intergenic " .
+in total there are 25 partially coding , 14 utr , 61 intronic , and 77 intergenic ec ( 40 , 100 , 0.8 ) elements ; these account for 14 % , 8 % , 34 % , and 44 % , respectively , of all 177 elements .
+none of the elements overlap annotated rrna , trna , or other annotated noncoding rna genes. of the 77 intergenic elements , 65 ( 37 % of all 177 elements ) are more than 10 kbp from the nearest human gene and 42 ( 24 % of all 177 elements ) are more than 100 kbp from the nearest gene .
+these percentages are somewhat greater than the corresponding percentages ( 29 % over 10 kbp and 18 % over 100 kbp ) for intergenic ultraconserved elements [ 1 ] .
+figure 1 distribution of 177 ec ( 40 , 100 , 0.8 ) elements by human chromosome and location with respect to human genes .
+see text for the explanation of location labels .
+as was observed for ultraconserved elements [ 1 ] , it is quite common to see three to eight ec ( 40 , 100 , 0.8 ) elements clustered within the same gene or within the same intergenic region ( see additional file 1 ) .
+as one extreme example , eight occur within the introns and another two upstream of the human gene zfpm2 on chromosome 8 .
+zfpm2 is a zinc finger transcription factor that modulates the activity of gata family proteins , which are important regulators of cardiogenesis .
+none of these ten zfpm2 ec ( 40 , 100 , 0.8 ) elements overlap ultraconserved elements of bejerano et al .
+[ 1 ] , and three of them do not even overlap the larger set of constrained human - rodent elements of visel et al .
+[ 4 ] , so are novel .
+the longest ec ( 40 , 100 , 0.8 ) element found is 355 columns long and is perfectly conserved in 80 % of its columns across 41 of the species , missing only gorilla , shrew , and lamprey .
+it occurs 60 kbp downstream of the nearest gene on human chromosome 19 .
+but interestingly it is 297 kbp upstream of its other neighboring gene znf536 , which has two other upstream and three intronic ec ( 40 , 100 , 0.8 ) elements .
+znf536 is a zinc finger protein , expressed in the developing central nervous system , that negatively regulates neuron differentiation [ 16 ] .
+only two of these six ec ( 40 , 100 , 0.8 ) elements overlap ultraconserved elements of bejerano et al .
+[ 1 ] .
+note , though , that the distribution of the lengths of ec ( 40 , 100 , 0.8 ) elements is not significant since , as pointed out in methods , our algorithm sacrifices length in preference for number of species in the element .
+as one extreme example , there are abutting elements at human hg18 coordinates chrx : 24826152 - 24826332 and chrx : 24826333 - 24826597 of lengths 188 and 276 , respectively .
+the first is missing alpaca , sloth , medaka , and lamprey , while the second is missing only alpaca , medaka , and lamprey .
+had the algorithm not prioritized number of species over length , it would have produced a single ec ( 40 , 100 , 0.8 ) element of length 464 , which would have been longer than the current longest element .
+these two current elements are two out of three ec ( 40 , 100 , 0.8 ) elements that occur in an intron of pola1 , which encodes the dna polymerase alpha catalytic subunit .
+lamprey , the species most distant from the mammals and also a low - coverage genome assembly , is missing from 170 of the 177 ec ( 40 , 100 , 0.8 ) elements .
+the species with the next highest numbers are gorilla ( missing from 41 ) , cat ( missing from 35 ) , and zebrafish ( missing from 30 ) .
+like lamprey , gorilla and cat are low - coverage genome assemblies .
+on the other hand , fugu is missing from only 4 of the 177 ec ( 40 , 100 , 0.8 ) elements , zebra finch is missing from only 3 , chicken is missing from only 2 , and lizard is missing from only 1 .
+these figures suggest that depth of sequencing is a greater determinant of inclusion in extremely conserved elements than is evolutionary distance , and also suggest that additional extremely conserved elements will emerge as the quality of genome sequences increases .
+47 ( 27 %) of the 177 ec ( 40 , 100 , 0.8 ) elements overlap an ultraconserved element of bejerano et al .
+[ 1 ] .
+117 ( 66 %) overlap the larger set of constrained human - rodent elements of visel et al .
+[ 4 ] .
+these overlaps confirm the fact that we have identified significant conserved elements that cannot be found by applying a more stringent conservation criterion to a smaller collection of species such as human and rodents .
+all 177 ec ( 40 , 100 , 0.8 ) elements overlap phastcons highly conserved elements [ 6 ] ( as computed in the ucsc 44 - vertebrate alignment ) with phastcons log - odds scores each exceeding 1300 .
+details of all these overlaps are shown in additional file 1 .
+the phastcons highly conserved elements have the realistic advantage of taking the phylogeny and branch lengths into account , which our extremely conserved elements do not .
+however , because their log - odds scores favor longer alignments , phastcons highly conserved elements tend to be much longer than ec ( 40 , 100 , 0.8 ) elements , with less intense concentration of extremely conserved columns .
+there are 12,749 phastcons highly conserved elements with log - odds score at least 1300 , of which only a certain 177 contain within them ec ( 40 , 100 , 0.8 ) elements .
+the average length of these 12,749 elements is 500 bp , with many of them several kilobasepairs long , whereas the average ec ( 40 , 100 , 0.8 ) element is less than 133 bp long .
+there is no obvious way of querying phastcons highly conserved elements so as to identify those with such intense concentration of extremely conserved columns .
+for instance , if you restrict attention to those highly conserved elements with log - odds score at least 1300 and length at most 400 bp , this long list would contain only 43 of the 177 ec ( 40 , 100 , 0.8 ) elements ; the remaining 134 , though as extremely conserved , occur within longer highly conserved elements. of the genes containing ec ( 40 , 100 , 0.8 ) elements that do not contain nor are adjacent to either ultraconserved elements of bejerano et al .
+[ 1 ] nor the larger set of constrained human - rodent elements of visel et al .
+[ 4 ] , three are particularly notable because their functions are closely related to the go term enrichments discussed near the beginning of this section .
+nlgn1 on human chromosome 3 contains an intronic ec ( 40 , 100 , 0.8 ) element and is involved in nervous system development .
+in particular , this gene encodes a member of a family of neuronal cell surface proteins that may be involved in the formation and remodeling of central nervous system synapses .
+whsc1l1 on human chromosome 8 contains a partially coding ec ( 40 , 100 , 0.8 ) element and is involved both in regulation of transcription and in cell differentiation .
+more specifically , this gene encodes a histone methyltransferase that preferentially methylates k4 and k27 of histone h3 , which are epigenetic tags for transcriptional regulation .
+rbm5 on human chromosome 3 contains a partially coding ec ( 40 , 100 , 0.8 ) element and , like many other genes with such coding elements , is involved in rna processing .
+in particular , this gene encodes a component of the spliceosome a complex and regulates alternative splicing of a number of mrnas , including fas and casp2 / caspase - 2 in the apoptosis process .
+in the case of fas , it promotes exclusion of exon 6 , producing a soluble form of fas that inhibits apoptosis .
+in the case of casp2 / caspase - 2 , it promotes exclusion of exon 9 , producing a catalytically active form of casp2 / caspase - 2 that induces apoptosis .
+these three genes , nlgn1 , whsc1l1 , and rbm5 , are just some of the genes containing extremely conserved elements that were not uncovered in previous studies of ultraconservation .
+conclusions the notion of ultraconserved element was introduced by bejerano et al .
+[ 1 ] to point out that there are certain long genomic sequences with extreme conservation between humans and rodents .
+we generalized their definition in a natural way that allows one to look for such extreme conservation over a much larger collection of species .
+we presented a linear time algorithm ( theorem 1 ) to find all such maximal length extremely conserved elements , provided that one insists on conservation across all the aligned species .
+in contrast , we showed that , for the general case of conservation across an arbitrary subset of the species , the question of whether there is an extremely conserved element is np - complete ( theorem 4 ) , so it is unlikely an efficient algorithm exists for this general case [ 8 ] .
+this is true even in the special case of a gapless multiple sequence alignment .
+finally , we illustrated the linear time algorithm by identifying all extremely conserved elements with s = 40 , t = 100 , and c = 0.8 in the currently available 44 - vertebrate whole - genome alignment .
+the resulting 177 ec ( 40 , 100 , 0.8 ) elements demonstrate many of the characteristics of the original ultraconserved elements [ 1 ] .
+methods in this section we describe two novel filters that make the application of theorem 1 to whole - genome alignments feasible .
+whole - genome multiz alignments are divided into " alignment blocks " ( blanchette et al .
+[ 17 ]) , where each block contains some subset of the species aligned to some region of the reference genome ( human , in our case ) .
+a common reason for a boundary between alignment blocks is that some species enters or leaves the alignment at that boundary point .
+our first filter simply reads through all the alignment blocks , retaining only those containing at least 40 species .
+in theory it is possible that an ec ( 40 , 100 , 0.8 ) element could span an arbitrary alignment block b consisting of b columns that was discarded by filter 1 , if there were enough perfectly conserved columns among 40 species before and after b to make up for b unconserved columns .
+however , if b >= 50 , this would mean that there is also an ec ( 40 , 100 , 0.8 ) element on one side of b or the other .
+therefore , we next merge alignment blocks as long as the separation between those blocks on the human genome is less than 50 bp ; a separation greater than this signals the end of the current merged block and the beginning of a new one .
+more specifically , if a is the current merged block , c is the next alignment block following a that was retained after filter 1 , and a and c are separated by human sequence b with | b | < 50 , we append bc to the end of a and insert the gap character " - " in row s of any alignment column of b or c that was missing species s. we are now in a position to describe filter 2 , which is run on each merged block independently .
+for the i - th alignment column of the current merged block , let qi = 1 if column i has 40 or more equal characters ( including " - ") , and qi = 0 otherwise .
+run the algorithm of theorem 2 on the resulting string q and c = 0.8 to identify the maximum length substring d of q that contains at least 80 % 1's. such a substring may not correspond to an ec ( 40 , 100 , 0.8 ) element , because there is no assurance that the set of 40 species is the same for each column , but any ec ( 40 , 100 , 0.8 ) element must be contained in such a substring of length at least 100 .
+filter 2 , therefore , discards any merged block for which | d | < 100 .
+on each merged block remaining after filter 2 , we now exhaustively try all combinations of at least 40 species and run the algorithm of theorem 1 on each combination .
+in order to maximize the number of species in each ec ( 40 , 100 , 0.8 ) element , we enumerate the combinations in decreasing order from 44 species down to 40 species .
+whenever we find an ec ( 40 , 100 , 0.8 ) element , we remove the longest such element for the current combination of species , and then run filter 2 again on each of the two remaining pieces of the merged block , discarding either such piece if it fails to pass filter 2 .
+note that this may sacrifice a longer ec ( 40 , 100 , 0.8 ) element in preference for one with a greater number of species if these elements overlap .
+table 2 shows the effectiveness of the two filters and the total running time of each of the three phases of the algorithm .
+filter 1 removed all but 0.25 % of its alignment columns and , of the remaining columns , filter 2 removed all but 2.3 % .
+since the full exhaustive algorithm on these remaining 220,646 alignment columns still required 47 hours of computing time , it is clear that the two filters are imperative .
+table 2 effectiveness of the algorithmic filters in reducing the number of alignment columns to process .
+filter 1 filter 2 exhaustive algorithm columns to process 3,843,856,747 9,606,738 220,646 time ( in hours ) 2.6 0.1 47.3 the running time of each phase of the algorithm ( run on an intel xeon quad core x7350 2.93 ghz with 132 gb ram ) is also shown .
+the source code was written in python and is available from the authors .
+authors' contributions both authors contributed equally and read and approved the final manuscript .
+supplementary material additional file 1 ec40 _ 100 _ 80 .
+a spreadsheet showing each ec ( 40 , 100 , 0.8 ) element 's human genome coordinates , its length , percent identity , number of conserved species , names of missing species , name of the human gene in which it resides ( if appropriate ) , names of and distances to the two nearest neighboring genes , and overlap with previously identified conserved elements [ 1,4,6 ] .
+click here for file additional file 2 ec40 _ 100 _ 80 .
+an alignment file showing the exact alignment for each ec ( 40 , 100 , 0.8 ) element .
+click here for file additional file 3 ec44 _ 70 _ 90 .
+an alignment file showing the single longest extremely conserved element that has at least 90 % of its columns perfectly conserved across all 44 vertebrate species .
+click here for file acknowledgements we thank benno schwikowski , eddie grove , phil green , allan borodin , and the students of cse 427 for contributions and helpful discussions .
+we thank the anonymous reviewers for careful reading and suggestions that greatly improved the paper .
+bejerano g pheasant m makunin o stephen s kent wj mattick js haussler d ultraconserved elements in the human genome science 2004 304 1321 1325 10.1126 / science.1098119 15131266 derti a roth fp church gm wu c - t mammalian ultraconserved elements are strongly depleted among segmental duplications and copy number variants nature genetics 2006 38 1216 1220 10.1038 / ng1888 16998490 sakuraba y kimura t masuya h noguchi h sezutsu h takahasi kr toyoda a fukumura r murata t sakaki y yamamura m wakana s noda t shiroishi t gondo y identification and characterization of new long conserved noncoding sequences in vertebrates mammalian genome 2008 19 703 712 10.1007 / s00335 - 008 - 9152 - 7 19015917 visel a prabhakar s akiyama ja shoukry m lewis kd holt a plajzer - frick i afzal v rubin em pennacchio la ultraconservation identifies a small subset of extremely constrained developmental enhancers nature genetics 2008 40 158 160 10.1038 / ng.2007.55 18176564 prabhakar s poulin f shoukry m afzal v rubin em couronne o pennacchio la close sequence comparisons are sufficient to identify human cis - regulatory elements genome research 2006 16 855 863 10.1101 / gr.4717506 16769978 siepel a bejerano g pedersen js hinrichs as hou m rosenbloom k clawson h spieth j hillier lw richards s weinstock gm wilson rk gibbs ra kent wj miller w haussler d evolutionarily conserved elements in vertebrate , insect , worm , and yeast genomes genome research 2005 15 1034 1050 10.1101 / gr.3715005 16024819 kent wj sugnet cw furey ts roskin km pringle th zahler am haussler d the human genome browser at ucsc genome research 2002 12 996 1006 12045153 garey m johnson d computers and intractability .
+a guide to the theory of np - completeness 1979 san francisco : freemann allison l longest biased interval and longest non - negative sum interval bioinformatics 2003 19 1294 1295 10.1093 / bioinformatics / btg135 12835276 chen ky chao km optimal algorithms for locating the longest and shortest segments satisfying a sum or an average constraint information processing letters 2005 96 197 201 10.1016 / j.ipl.2005.08.006 wang l xu y segid : identifying interesting segments in ( multiple ) sequence alignments bioinformatics 2003 19 297 298 10.1093 / bioinformatics / 19.2.297 12538258 chung km lu hi an optimal algorithm for the maximum - density segment problem siam j computing 2005 34 373 387 10.1137 / s0097539704440430 goldwasser mh kao my lu hi linear - time algorithms for computing maximum - density sequence segments with bioinformatics applications j computer and system sciences 2005 70 128 144 10.1016 / j.jcss.2004.08.001 johnson d the np - completeness column : an ongoing guide j algorithms 1987 8 438 448 10.1016 / 0196 - 6774 ( 87 ) 90021 - 6 zhang b kirov s snoddy j webgestalt : an integrated system for exploring gene sets in various biological contexts nucleic acids research 2005 33 w741 748 10.1093 / nar / gki475 15980575 qin z ren f xu x ren y li h wang y zhai y chang z znf536 , a novel zinc finger protein specifically expressed in the brain , negatively regulates neuron differentiation by repressing retinoic acid - induced gene transcription molecular and cellular biology 2009 29 3633 3643 10.1128 / mcb.00362 - 09 19398580 blanchette m kent wj riemer c elnitski l smit af roskin km baertsch r rosenbloom k clawson h green ed haussler d miller w aligning multiple genomic sequences with the threaded blockset aligner genome research 2004 14 708 715 10.1101 / gr.1933104 15060014

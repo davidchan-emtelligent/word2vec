@@ -1,0 +1,299 @@
+sci rep sci rep scientific reports 2045 - 2322 nature publishing group uk london 28842700 5573435 9947 10.1038 / s41598 - 017 - 09947 - y article ensvmb : metagenomics fragments classification using ensemble svm and blast jiang yuan 1 http :// orcid.org / 0000 - 0002 - 5890 - 0365 wang jun 1 xia dawen 23 http :// orcid.org / 0000 - 0002 - 1667 - 6705 yu guoxian gxyu @ swu.edu.cn 1 1 grid.263906.8college of computer and information science , southwest university , chongqing , china 2 grid.443389.1college of data science and information engineering , guizhou minzu university , guiyang , china 3 grid.443389.1college of national culture and cognitive science , guizhou minzu university , guiyang , china 25 8 2017 25 8 2017 2017 7 9440 7 4 2017 1 8 2017 ( c ) the author ( s ) 2017 open access this article is licensed under a creative commons attribution 4.0 international license , which permits use , sharing , adaptation , distribution and reproduction in any medium or format , as long as you give appropriate credit to the original author ( s ) and the source , provide a link to the creative commons license , and indicate if changes were made .
+the images or other third party material in this article are included in the article 's creative commons license , unless indicated otherwise in a credit line to the material .
+if material is not included in the article 's creative commons license and your intended use is not permitted by statutory regulation or exceeds the permitted use , you will need to obtain permission directly from the copyright holder .
+to view a copy of this license , visit http :// creativecommons.org / licenses / by / 4.0 / .
+metagenomics brings in new discoveries and insights into the uncultured microbial world .
+one fundamental task in metagenomics analysis is to determine the taxonomy of raw sequence fragments .
+modern sequencing technologies produce relatively short fragments and greatly increase the number of fragments , and thus make the taxonomic classification considerably more difficult than before .
+therefore , fast and accurate techniques are called to classify large - scale fragments .
+we propose ensvm ( ensemble support vector machine ) and its advanced method called ensvmb ( ensvm with blast ) to accurately classify fragments .
+ensvm divides fragments into a large confident ( or small diffident ) set , based on whether the fragments get consistent ( or inconsistent ) predictions from linear svms trained with different k - mers .
+empirical study shows that sensitivity and specificity of ensvm on confident set are higher than 90 % and 97 % , but on diffident set are lower than 60 % and 75 % .
+to further improve the performance on diffident set , ensvmb takes advantage of best hits of blast to reclassify fragments in that set .
+experimental results show ensvm can efficiently and effectively divide fragments into confident and diffident sets , and ensvmb achieves higher accuracy , sensitivity and more true positives than related state - of - the - art methods and holds comparable specificity with the best of them .
+issue - copyright - statement ( c ) the author ( s ) 2017 introduction metagenomics , directly collected from natural environments , can be used to characterize genome sequences in microbial communities .
+metagenomics provides a new approach to explore the microbial bio - diversity and the microbial communities , which are not available in human - cultured environments1 .
+on the other hand , metagenomics brings in new computational challenges , i.e. , the need for assembly and gene - finding programs to handle highly diverse sequence collections of species and tools to accurately classify large scale sequence fragments .
+metagenomics fragments classification is to assign a fragment to a corresponding species ( or taxonomy ) .
+many computational methods have been proposed to automatically determine the taxonomy of fragments .
+these methods can be roughly divided into two categories : alignment - based and composition - based .
+alignment - based methods use alignment tools ( i.e. , blast2 ) to align fragments to known reference sequences and assign fragments to a species based on the best match3 , 4 .
+for example , megan5 classifies fragments based on multiple high - scoring blast hits , it assigns fragments to the lowest common ancestor of those blast matches that over a bit - score threshold .
+bwa6 is another popular alignment package that aligns fragments against a large amount of reference sequences , such as human genome and other microbial genomes .
+composition - based methods usually assign fragments based on their k - mer signatures .
+two basic ideas are widely adopted in compositional approaches .
+( i ) compositional methods utilize k - mer index schemes to construct a reference k - mer database and assign fragments by referring to the most similar k - mer sets .
+kraken is a representative method of k - mer index scheme7 .
+( ii ) compositional approaches based on machine learning models use k - mer profiles as input , such as interpolated markov models ( imms ) 8 , 9 , k - nearest neighbors ( knn ) classifier10 , naive bayesian classifier ( nbc ) 11 - 13 , support vector machine ( svm ) 14 - 16 and so on. phymm utilizes imms to characterize variable - length k - mers of a phylogenetic group and then handles the general phylogenetic classification problem8 .
+phymmbl8 , 9 , a hybrid method based on phymm and blast , combines the results of blast with scores produced by imms to improve the accuracy of using blast alone .
+traditional knn is faced with the curse of dimensionality problem when the dimensionality of k - mer profiles is high10 .
+to solve this problem , tacoa10 introduces a gaussian kernel to extend the traditional knn and applies knn for fragments classification .
+phylopythia14 takes the oligonucleotide composition of variable - length genome fragments as input data for svm .
+to adapt svm for multi - class classification , it applies the ' all - versus - all ' technique and trains c ( c - 1 ))/ 2 ( c is the number of species ) binary svms , one for each pairwise combination of two species , then it assigns a fragment to a species based on the votes aggregated from these svms .
+different from phylopythia that uses binary svms , phylopythias15 , a successor of phylopythia , adopts a structural svm to classify fragments .
+dna of different species are not the same , but there are some similar dna fragments from different species , especially for short fragments sequenced by modern sequencing techniques17 , 18 .
+short fragments increase the risk that fragments from different species have similar dna segments , which are hard - to - be classified by most compositional methods .
+therefore , the accuracy of these methods is significantly impacted .
+in this study , we introduce an accurate and efficient metagenomics fragments classification method called ensvm ( ensemble svm ) and its advanced method called ensvmb ( ensvm with blast ) .
+most composition - based methods8 , 10 , 13 - 16 , 19 only use one fixed k - mer for classification , which results in information loss with such single k. furthermore , choosing an applicable and effective k for these k - mer based methods is troublesome .
+different from these methods8 , 10 , 13 - 16 , 19 , ensvm trains several linear svms with different k - mers and combines these svms into an ensemble classifier .
+to differentiate short fragments that are easy - to - be ( or hard - to - be ) classified , ensvm divides a fragment into the confident ( or diffident ) set based on whether the fragment obtains consistent ( or inconsistent ) predictions from these svms .
+empirical study shows that the sensitivity and specificity of ensvm on fragments in the confident set are higher than 90 % and 97 % , and those on the diffident set are lower than 60 % and 75 % .
+to improve the performance and retrieve more true positive fragments from the diffident set , ensvmb , an advanced method of ensvm , resorts to blast ( blastn ) 20 to further classify fragments in the diffident set .
+for a query fragment , if blast cannot retrieve a relevant sequence with best hit and confident e - value from the reference set , ensvmb tags this fragment as unknown .
+empirical study on a small metagenomics dataset shows that ensvmb improves the accuracy of ensvm on the diffident set from 54.95 % to 88.85 % , sensitivity from 60.37 % to 87.55 % and specificity from 50.23 % to 98.12 % .
+further study on a medium one , a large one and a simulated dataset with noise demonstrates that ensvmb obtains higher accuracy , sensitivity and more true positives than related state - of - the - art methods , and ensvmb holds comparable specificity with bwa and blast .
+results on a real gut metagenome also corroborate these advantages of ensvmb .
+results preliminary investigation on a small metagenomics dataset in this section , we investigate the rationality of ensvm and ensvmb and study the effect of different k - mers .
+for this purpose , we use a small dataset ( details are described in section material ) , which includes about 257,000 short fragments in the reference set , and 82,876 fragments in the validation set .
+at the beginning , we make use of seven linear svms to study the effect of different k - mers with k fixed as one value among { 5 , 6 , 7 , 8 , 9 , 10 , 11 } .
+we use the default parameters of liblinear21 to train these svms on the reference set and then test these svms on the validation set .
+as table 1 shown , the accuracy , sensitivity , specificity and the number of true positives are rising as the increase of k , but when k is larger than 8 , they gradually decrease .
+this fact suggests a large k - mer does not necessarily result in better performance , although a large k - mer significantly increases the amount of k - mer profiles .
+we can find that accuracy , sensitivity and specificity of linear svms with \ documentclass [ 12pt ]{ minimal } \ usepackage { amsmath } \ usepackage { wasysym } \ usepackage { amsfonts } \ usepackage { amssymb } \ usepackage { amsbsy } \ usepackage { mathrsfs } \ usepackage { upgreek } \ setlength {\ oddsidemargin }{ - 69pt } \ begin { document }$$ k \ in \{ 6,7,8,9,10 \}$$\ end { document } kin { 6,7,8,9,10 } are higher than those of \ documentclass [ 12pt ]{ minimal } \ usepackage { amsmath } \ usepackage { wasysym } \ usepackage { amsfonts } \ usepackage { amssymb } \ usepackage { amsbsy } \ usepackage { mathrsfs } \ usepackage { upgreek } \ setlength {\ oddsidemargin }{ - 69pt } \ begin { document }$$ k \ in \ mathrm {\{ 5 },\ mathrm { 11 \}}$$\ end { document } kin { 5,11 } and closed to each other .
+therefore , ensvm chooses to aggregate the predictions of linear svms with \ documentclass [ 12pt ]{ minimal } \ usepackage { amsmath } \ usepackage { wasysym } \ usepackage { amsfonts } \ usepackage { amssymb } \ usepackage { amsbsy } \ usepackage { mathrsfs } \ usepackage { upgreek } \ setlength {\ oddsidemargin }{ - 69pt } \ begin { document }$$ k \ in \{ 6,7,8,9,10 \}$$\ end { document } kin { 6,7,8,9,10 } .
+in practice , the accuracy ( 90.67 %) , sensitivity ( 90.81 %) , specificity ( 89.79 %) and the number of true positives ( 75144 ) of ensvm on the validation set are larger than that of any linear svm .
+table 1 results of linear svm on validation set with different k - mers .
+methods accuracy sensitivity specificity true positives svm ( k = 5 ) 86.95 % 85.62 % 86.77 % 72086 svm ( k = 6 ) 86.34 % 88.17 % 89.21 % 74041 svm ( k = 7 ) 90.39 % 90.37 % 89.37 % 74912 svm ( k = 8 ) 90.46 % 90.58 % 89.57 % 74970 svm ( k = 9 ) 88.96 % 89.21 % 88.43 % 73726 svm ( k = 10 ) 89.49 % 89.85 % 89.17 % 74166 svm ( k = 11 ) 83.95 % 84.23 % 85.54 % 69574 accuracy is computed as the ratio between the number of true positives and the number of fragments in the validation set8 .
+ensvm firstly divides fragments in the validation set into the confident or diffident sets by voting mechanism .
+particularly , fragments in the confident set ge consistent votes (\ documentclass [ 12pt ]{ minimal } \ usepackage { amsmath } \ usepackage { wasysym } \ usepackage { amsfonts } \ usepackage { amssymb } \ usepackage { amsbsy } \ usepackage { mathrsfs } \ usepackage { upgreek } \ setlength {\ oddsidemargin }{ - 69pt } \ begin { document }$$ vote = 5 $$\ end { document } vote = 5 ) , whereas fragments in the diffident set get inconsistent votes from these linear svms .
+as table 2 shown , the accuracy , sensitivity and specificity of ensvm on confident set ( 71496 fragments ) are 95.12 % , 95.47 % and 97.10 % , whereas those on diffident set ( 11380 fragments ) are only 54.95 % , 60.37 % and 50.23 % .
+the large accuracy , sensitivity and specificity margin on the confident set and diffident set indicates that ensvm can pick out the hard - to - be classified fragments by aggregating predictions from five linear svms. by dividing the fragments into confident and diffident sets , we can separately treat these two sets and pay more attention to the diffident set .
+here , we use an advanced method of ensvm called ensvmb to further classify fragments in the diffident set .
+particularly , ensvmb uses blast ( with default e - value ) to reclassify fragments in the diffident set .
+for a fragment in the diffident set , if blast cannot find a sequence with best blast hit and confident e - value from the reference set , ensvmb tags this fragment as unknown .
+table 2 shows the results and runtime of ensvm and ensvmb in different stages .
+ensvmb improves the accuracy , specificity and number of true positives of ensvm on diffident set .
+the accuracy on the diffident set is 88.85 % , sensitivity is 87.55 % , specificity is 98.12 % and number of true positives of ensvmb is 8272 , whereas those of ensvm are 54.95 % , 60.37 % , 50.23 % and 6253 .
+ensvmb only resorts to blast on diffident set , which accounts for a small portion of fragments in the validation set , so it does not bring in significantly increased runtime by additionally running blast .
+in fact , ensvmb on the validation set only takes 11 min 54 s ( 5 min 21 s for ensvm on the validation set and 6 min 33 s for blast on the diffident set ) .
+in contrast , blast ( parallel on 6 cpu cores ) on the validation set asks for 45 min 3 s , and its accuracy , sensitivity , specificity and number of true positives are 85.21 % , 89.01 % , 98.15 % and 70624 respectively .
+table 2 accuracy , sensitivity , specificity , number of true positives and runtime of ensvm and ensvmb on different stages .
+experiment platform configuration : centos 6.5 , intel xeon e5 - 2678v3 and 256gb ram .
+stage accuracy sensitivity specificity true positives runtime ensvm ( confident set 71496 fragments ) 95.12 % 95.47 % 97.10 % 68886 5 min 21 s ensvm ( diffident set 11380 fragments ) 54.95 % 60.37 % 50.23 % 6253 5 min 21 s ensvmb ( diffident set 11380 fragments ) 88.85 % 87.55 % 98.12 % 8272 6 min 33 s ensvmb ( validation set 82876 fragments ) 95.32 % 94.06 % 97.76 % 77158 11 min 54 s 1st row are the results of ensvm on the confident set ( 71496 fragments ) .
+2nd row are the results of ensvm on the diffident set ( 11380 fragments ) .
+3rd row are results of ensvmb on the diffident set and blast parallel runs on 6 cpu cores .
+4th row is the prediction results of ensvmb on the validation set .
+results on a medium dataset in this section , we explore the performance of ensvm and ensvmb on a medium dataset .
+furthermore , we also evaluate the performance of ensvmb with different parameters .
+medium dataset includes two sets : reference set and validation set ( details are described in section material ) .
+both reference set and validation set are represented by five k - mer profiles (\ documentclass [ 12pt ]{ minimal } \ usepackage { amsmath } \ usepackage { wasysym } \ usepackage { amsfonts } \ usepackage { amssymb } \ usepackage { amsbsy } \ usepackage { mathrsfs } \ usepackage { upgreek } \ setlength {\ oddsidemargin }{ - 69pt } \ begin { document }$$ k \ in \{ 6,7,8,9,10 \}$$\ end { document } kin { 6,7,8,9,10 }) , and there are about 106 fragments in the reference set and about 2.7 x 105 fragments in the validation set .
+to comparatively and quantitatively study the performance of ensvm and ensvmb , we consider three compositional methods kraken7 , vw ( vowpal wabbit ) 19 and nbc ( naive bayes classifier ) 13 , two alignment - based methods bwa ( burrows - wheeler alignment tool ) 6 , blast ( blastn ) 20 as comparing methods .
+we also record the actual runtime cost of these methods .
+in fact , we had tried non - linear svm , but non - linear svm did not complete in 7 days , so the results of non - linear svm are not reported here .
+for linear svms , the constraints violation loss parameter \ documentclass [ 12pt ]{ minimal } \ usepackage { amsmath } \ usepackage { wasysym } \ usepackage { amsfonts } \ usepackage { amssymb } \ usepackage { amsbsy } \ usepackage { mathrsfs } \ usepackage { upgreek } \ setlength {\ oddsidemargin }{ - 69pt } \ begin { document }$$\ omega $$\ end { document } omega is set as 32 by 5 - fold cross - validation on the reference set .
+parameter k for vw and nbc are set as 10 and other parameters are fixed as the default values as the author suggested or provided in the codes .
+voting threshold of ensvm is set to 5 .
+table 3 reports the results of different methods with respect to accuracy , sensitivity , specificity and the number of true positives .
+we first note that vw and nbc are outperformed by ensvm and ensvmb on almost all metrics .
+the possible reason is that nbc and vw are two compositional methods and only use a fixed k - mer size .
+some fragments from different species may have the similar ( or the same ) k - mer profiles under a particular k - mer size .
+on the other hand , these fragments may have different k - mer profiles under other k - mers .
+ensvm and ensvmb consider five different k - mers and employ more profiles than vw and nbc .
+five linear svms trained with different k - mers form a committee that helps to more accurately classify fragments than using any of them alone .
+in addition , ensvmb further deals with the fragments in the diffident set to increase the number of true positives fragments .
+it is worth noting that the specificity of bwa and blast is slightly higher than ensvmb .
+the cause is that bwa and blast utilize sequence alignment to exhaustively search all fragments in the reference set .
+this exhaustive search enables them to correctly classify fragments that have similar fragments in the reference set .
+nevertheless , the accuracy , sensitivity and number of true positives of bwa and blast are much lower than those of ensvmb. that is principally because alignment - based methods sometimes cannot find out similar sequences from the reference set , and the query fragment may be mutated or with sequence error .
+for these reasons , the accuracy , sensitivity and number of true positives of alignment - based methods drags down .
+kraken , a widely used k - mer index method , is also outperformed by ensvm and ensvmb .
+the reason is that kraken heavily depends on the adopted k - mer sets to represent a lineage , which are chosen by professionals .
+however , choosing accurate and representative k - mer sets is a non - trivial job and asks for a lot of time .
+these observations again corroborate the advantage of ensvm and ensvmb for fragments taxonomy classification .
+we also list the results of ensvm on the diffident set , and its accuracy ( 64.09 %) , sensitivity ( 67.13 %) and specificity ( 75.29 %) are much lower than those on confident set ( 97.83 % , 94.14 % and 97.12 %) .
+the performance margin on confident and diffident sets shows that ensvm can accurately classify fragments in the confident set and pick out hard - to - be classified fragments .
+apart from specificity , ensvm gets higher accuracy , sensitivity and more true positives than other comparing methods ( except ensvmb ) on the validation set .
+this observation indicates that ensemble classifier can be a competitive alternative tool for taxonomy classification of fragments .
+table 3 results on a medium metagenomics dataset in species level .
+methods accuracy sensitivity specificity true positives training time prediction time vw 85.24 % 84.63 % 90.11 % 201146 401 min 09 s 22 min 45 s nbc 75.45 % 76.52 % 83.54 % 203405 1 min 52 s 20 s kraken 84.33 % 80.03 % 95.60 % 227344 - - 1 min32 s blast ( blastn ) 83.71 % 82.81 % 98.17 % 225673 - - 1773 min 36 s bwa 81.57 % 78.80 % 99.75 % 213204 - - 38 min 14 s ensvm on confident set ( 175985 ) 97.83 % 94.14 % 97.12 % 175985 51 min 3 s 10 min 20 s ensvm on diffident set ( 93604 ) 64.09 % 67.31 % 75.29 % 59991 51 min 3 s 10 min 20 s ensvm 86.12 % 84.44 % 90.52 % 232170 51 min 3 s 10 min 20 s ensvmb 88.04 % 86.48 % 98.12 % 237346 51 min 3 s 35 min 14 s although vw only uses a single k - mer , it still takes longer training time than ensvm and ensvmb .
+the reason is that vw needs to iteratively optimize the model .
+nbc assumes the attributes of k - mer profiles are independent from each other , and kraken uses pre - indexed k - mer sets .
+therefore , they run faster than other comparing methods .
+the total runtime of bwa is a little smaller than ensvm and ensvmb .
+the reason is that bwa applies a fast backward search with burrows wheeler transform22 and supports multiple sequences alignment , but its runtime in the prediction stage is longer than ensvm and ensvmb .
+since blast query each fragment in the validation set , it runs much slower than all the other comparing methods .
+we also evaluate these methods in phylum level ( results are reported in table 4 ) .
+we can find that ensvmb has the highest accuracy and sensitivity , largest number of true positives .
+blast , bwa and ensvmb have comparable specificity and their specificities are higher than other methods .
+it is obvious that almost all methods in phylum level outperform themselves in species level. that is because classification in phylum level is easier than in the species level .
+the results in table 4 and other tables demonstrate that ensvm and ensvmb can not only work well in species level , but also can in other levels .
+table 4 results on a medium metagenomics dataset in phylum level .
+methods accuracy sensitivity specificity true positives vw 85.12 % 86.11 % 92.42 % 229474 nbc 79.32 % 76.64 % 84.65 % 213838 blast ( blastn ) 85.44 % 86.65 % 99.96 % 230337 bwa 84.23 % 82.36 % 99.23 % 227074 kraken 86.71 % 89.36 % 98.63 % 233760 ensvm 87.78 % 85.54 % 90.04 % 236645 ensvmb 92.10 % 90.42 % 99.02 % 248291 the typical length of short reads is between 75 to 400 bp. to study the performance of ensvmb in this range , we increase the length of short reads from 100 to 400 with stepsize of 100 and report the results in fig. 1. in addition , we also investigate the performance of ensvmb under different voting thresholds ( 3 , 4 and 5 ) .
+figure 1 the performance of six methods under different lengths of fragments .
+particularly , ensvmb ( vote = 3 ) , ensvmb ( vote = 4 ) and ensvmb ( vote = 5 ) means that the voting threshold of ensvmb is set as 3 , 4 and 5 , respectively. from these results , we can see that the performance of all methods increases as the length increasing .
+the possible reason is that compared with long fragments , short fragments usually contain less information and are more difficult to be classified .
+we can also find that ensvmb performs better than vw , nbc , bwa , kraken and blast on accuracy and sensitivity under different voting thresholds .
+however , an interesting observation is that ensvmb with voting threshold 4 is better than the counterpart with voting threshold 5 when the length of fragments in the range 100 - 200 bp. this is principally because the confident set under voting threshold 4 includes about 70 % fragments , whereas the corresponding confident set under voting threshold 5 includes no more than 50 % fragments .
+if we set the voting threshold too strict , a large portion of fragments with high confident are assigned to the diffident set and they maybe misclassified by alignment based tools .
+but this observation does not mean the smaller the voting threshold , the better the performance of ensvmb is. if we set the voting threshold lower than 4 , more fragments are assigned to the confident set but a number of fragments are wrongly assigned to this set , so the specificity of ensvmb is significantly declined. from these observations , we suggest that when the length of short reads is small , a moderate threshold should be adopted ; in other cases , a large threshold is better .
+kraken , nbc and vw are three k - mer composition - based methods , all of them are significantly outperformed by bwa , blast and ensvmb .
+kraken heavily depends on the adopted k - mer sets , so it cannot work well if there are not enough k - mer sets .
+nbc and vw only use a fixed k - mer size and utilize less information than ensvmb .
+these results show that ensvmb can achieve higher accuracy , sensitivity than related state - of - the - art methods in the typical length of short reads , and ensvmb can hold comparable specificity with the best of them .
+results on a large dataset in this section , we further evaluate the performance of vw , nbc , blast , bwa , kraken and ensvmb on a large dataset , which contains 1702 complete genome sequences from 331 species ( details are described in section material ) .
+the corresponding validation set includes 184 complete genome sequences not present in the reference set but originated from these 331 species .
+figure 2 shows the results of six methods on this large dataset with respect to accuracy , sensitivity and specificity. by referring to the results on the medium dataset , the accuracy of vw decreases from 85.24 % to 84.29 % , nbc from 75.45 % to 71.95 % , kraken from 84.33 % to 79.45 % , bwa from 81.57 % to 78.20 % , blast from 83.71 % to 83.60 % , and ensvmb from 88.04 % to 87.36 % .
+this decrease pattern is because it is more difficult to accurately classify as the number of species increasing .
+as fig. 2 shown , ensvmb obtains highest accuracy , with about 9 % and 3 % higher than bwa and blast , respectively .
+as well as that , ensvmb has the highest sensitivity and holds comparable specificity with bwa and blast ( 96.92 % vs. 96.89 % vs. 96.96 %) .
+results on large dataset are consistent with the results of these methods on the medium dataset. from these results , we can conclude that ensvmb can achieve competitive performance on large - scale dataset .
+figure 2 the performance of six methods on large - scale dataset .
+results on a simulated dataset in the previous subsections , we evaluate ensvm and ensvmb on dna fragments obtained from ncbi reference genomes without errors .
+in real cases , sequencing errors may alter reads and make the classification problem more difficult .
+to evaluate the robustness of ensvm and ensvmb , we generate a simulated dataset with sequencing errors and mutations .
+we use grinder read simulation software23 to generate simulated validation set with median error rate of 2 % .
+the simulated validation set is generated based on the validation set used in subsection results on a medium dataset , and the reference set keeps the same as the reference set used in subsection results on a medium dataset .
+table 5 reveals the results of these comparing methods on the simulated dataset .
+comparing with the results in table 3 , we can see the performance of bwa decreases about 0.5 % on the simulated dataset under all metrics , nbc and ensvm downgrade less than 0.3 % .
+blast , ensvmb and kraken are the most robust methods , since they decrease less than 0.1 % .
+these results suggest ensvmb is robust to query fragments with mutations or errors .
+table 5 results on a simulated metagenomics dataset .
+methods accuracy sensitivity specificity true positives vw 84.23 % 83.79 % 89.16 % 198763 nbc 75.17 % 76.29 % 83.25 % 202650 blast ( blastn ) 83.65 % 82.73 % 98.27 % 225511 bwa 81.03 % 78.34 % 99.23 % 218448 kraken 84.25 % 79.98 % 95.52 % 227129 ensvm 85.82 % 84.06 % 90.21 % 231361 ensvmb 88.01 % 89.61 % 98.01 % 237265 results on a real gut metagenome we finally evaluate ensvmb on a real gut metagenome downloaded from ebi metagenomics ( https :// www.ebi.ac.uk / metagenomics /) .
+project id of this metagenome is erp014712 , sample id is ers1102103 , run id is err1347146 and sequence data name is ' processed nucleotide reads set ' .
+we delete fragments whose length is less than 75 bp , since these fragments are too short to be classified .
+this metagenome has no certainty about knowledge of each individual read .
+for this reason , we list abundance profiles ( with high abundance percentages in species level ) provided by providers of this metagenome in fig. 3. we also list the abundance profiles obtained by bwa , blast , ensvmb and nbc in fig. 3. here , the reference set collected from ncbi refseq24 includes 80 species ( details are listed in supplementary table s3 ) .
+the voting threshold of ensvmb is set as 4 , the e - value of blast is set as 10 - 5 and identify percentage of blast is fixed as 97.5 % .
+figure 3 abundance profiles identified by bwa , blast , ensvmb and nbc .
+' providers' means that the abundance profiles are taken from ebi ( https :// www.ebi.ac.uk / metagenomics /). from fig. 3 , we can see most fragments in this metagenome are tagged as unknown .
+ensvmb tags 49.12 % fragments as unknown , and blast and bwa tag much more fragments as unknown than ensvmb .
+the reason is blast and bwa are two alignment based tools , they identify fragments by searching all sequences in the reference set .
+if the query fragment is mutated or with sequence errors , these tools may not be able to accurately identify related fragments .
+we also note that nbc does not tag any fragment as unknown and it obtains more abundance profiles than other methods. that is because that nbc mandatorily assigns each fragment to its most similar species .
+prevotella copri in ensvmb has very high abundance ( 16.11 %) , and it is highly comparable with the classification by the providers ( 16 %) .
+in contrast , prevotella copri in bwa ( 14.11 %) and blast ( 14.98 %) are fewer than ensvmb and the classification by the providers .
+both faecalibacterium prausnitzii ( 2.74 % vs. 3.26 % vs. 3.37 % vs. 3 %) and prevotella stercorea ( 2.69 % vs. 2.95 % vs. 2.97 % vs. 3 %) in bwa , blast , ensvmb and providers are highly comparable .
+it is worth noting that ruminococcus gnavus and corynebacterium diphtheriae are only displayed in bwa , blast , ensvmb and nbc .
+the reason is that providers may not identify fragments in these species , abundance profiles of these fragments are not provided in species level and tagged as unknown. from these results , we can conclude that ensvmb can accurately identify fragments in species level .
+discussion in this paper , we propose a new paradigm to accurately and efficiently classify metagenomics fragments .
+our preliminary study shows that some fragments can be easily classified , but others are rather difficult to be correctly classified. that is principally because modern sequencing technologies produce a huge number of short fragments ( or reads ) .
+although these short fragments are from different species , they are too short to provide discriminative patterns25 .
+current efforts toward accurate short fragments classification resorts to various techniques8 , 10 , 13 - 16 , 19 , but most of them equally treat each fragment , and they do not discriminative the easy - to - be classified fragments from hard - to - be classified ones .
+inspired by these observations , we suggest two approaches called ensvm and ensvmb to accurately and efficiently classify short fragments .
+ensvm and ensvmb are motivated by the issue of choosing effective parameters for k - mer based classifiers in taxonomic classification of fragments and the advantage of ensemble learning , which often produces better performance on complex data than using a single classifier alone .
+ensvm first trains five linear svms based on five different k - mer profiles , and then it accurately divides the easy - to - be ( or hard - to - be ) classified fragments into confident ( or diffident ) sets based on the aggregated predictions from these svms .
+our study shows that the accuracy , specificity and sensitivity of ensvm on the confident set are much higher than that on the diffident set .
+in fact , ensvm can provide the option to construct two or even more sets with different voting thresholds , and enable further analysis of fragments in any of these sets to explore interesting patterns from them .
+the number of fragments in the confident set is much larger than that of diffident set .
+thus , other alternative tools can be used to only reclassify these hard - to - be classified fragments , instead of all the fragments , and thus save much time .
+ensvmb integrates ensvm with blast to put more emphasize on fragments in the diffident set and achieves significantly improved performance on these fragments .
+ensvmb applies blast only on the diffident set .
+ensvmb obtains higher accuracy , sensitivity and more true positive predictions than other comparing methods , and it has comparable specificity with blast and bwa .
+in addition , ensvmb runs much faster than blast and vw , and it slightly slower than bwa .
+in this investigative study , we only study the combination of k - mers in a fixed range , other combinations of k - mers may bring in even more accurate prediction and are worth for future investigation .
+exploring other ways to divide fragments into different sets and then apply different techniques on different sets are interesting future pursues .
+material we evaluated ensvm and ensvmb in species level on three datasets .
+each dataset comprises a set of reference genomes for training and a set of validation genomes for testing .
+we downloaded more than 5000 complete bacterial and archeal genomes from ncbi refseq24 database in september 2016 .
+next , we retain complete genomes of a species represented by at least three genomes , and then remove short sequences ( genomes less than 106 nucleotides ) .
+this preprocess follows the suggestions by parks et al.13 and vervier et al.19 .
+after the filter process , 770 species are remained .
+then , we generate three datasets ( a small one , a medium one and a large one ) from these species .
+the small dataset is adopted for preliminary investigation of ensvm and ensvmb .
+the reference set used for training includes 47 complete genome sequences from 8 species .
+these 8 species are randomly chosen from 770 species .
+we also choose 18 complete genome sequences not present in the training database but originated from these 8 species as the validation set .
+the detail of this small set is listed in table 6 .
+table 6 details of the small dataset .
+species number of genome sequences in the reference set corynebacterium diphtheriae 12 brucella abortus 6 methylobacterium extorquens 7 lactobacillus rhamnosus 5 erwinia amylovora 3 shigella boydii 6 desulfovibrio vulgaris 5 bacteroides fragilis 3 as to the medium dataset , we randomly choose 69 species from 770 species as the reference set .
+192 complete genome sequences from 69 species ( details are listed in supplementary table s1 ) are collected as the reference set , and 64 complete genome sequences not present in the reference set but originated from these 69 species are used to validate the performance of ensvmb and that of other comparing methods .
+as to the large dataset , we randomly choose 331 species from 770 species as the reference set ( details are listed in supplementary table s2 ) , which includes 1702 complete genome sequences .
+the corresponding validation set includes 184 complete genome sequences not present in the reference set but originated from these 331 species .
+next - generation sequencing techniques improve the speed and reduce the cost on sequencing a genome .
+these techniques parallelize the sequencing process , produce thousands or millions of short fragments concurrently17 , 18 .
+comparing with the old sequencing techniques , modern techniques produce relatively short fragments ( 75 - 400 base pairs ) 8 .
+to adapt to modern techniques , each genome sequence is divided into short fragments of length 400 for experiments .
+method ensvm most composition - based classification methods use k - mer profiles to represent a fragment .
+the term k - mer typically refers to all the possible words of length k that are contained in a fragment .
+k - mer profiles are composed with numeric vectors , each entry of which counts the number of occurrences of a specific combination with a , t , c and g with length k in a sequence .
+because there are 4 types of nucleotides in a fragment , each k - mer profile is a numeric vector with length 4k .
+obviously , the length of this numeric vector increases exponentially as the increase of k. note , for a fragment with length l , there are at most l - k + 1 non - zero entries in its k - mer profile vector .
+almost all k - mer based methods8 , 10 , 13 - 16 , 19 only utilize an applicable k - mer to balance the accuracy and efficiency in classifying fragments .
+they usually have to do a series of exploratory experiments to search an optimal k - mer , and they ignore complementary information encoded by sub - optimal k - mers .
+different from these methods8 , 10 , 13 - 16 , 19 , ensvm uses several linear svms to classify fragments represented by different k - mers , one k - mer size for one svm .
+then , ensvm uses majority vote , a simply and widely used aggregation technique , to integrate the predictions of these svms and to divide fragments into the confident set and diffident set .
+fragments in the confident set are considered as consistent predictions since they get more than voting threshold same predictions with respect to their species by these linear svms , whereas fragments in the diffident set are considered as inconsistent predictions , since they get fewer than voting threshold same predictions .
+in fact , researchers can use a user - specified threshold value to produce these two sets .
+if the value is set as 3 and a fragment obtains at least 3 consistent predictions from these svms , this fragment is put into the confident set ; otherwise , it is placed into the diffident set by ensvm .
+figure 4a shows the flowchart of ensvm .
+figure 4 five linear svms are integrated into an ensemble classifier ( ensvm ) .
+ensvm then divides fragments in the validation set into the confident and diffident sets based on the aggregated predictions from these svms .
+the voting threshold ( labeled as vote ) is adjustable .
+ensvmb further applies blast to reclassify fragments in the diffident set and tags fragments can not be retrieved from the reference set with confident e - value as unknown .
+ensvmb fragments in the confident set can be accurately classified by ensvm , but not so for fragments in the diffident set .
+to improve the true positives and specificity on the diffident set , ensvmb further resorts to blast to reclassify fragments in the diffident set .
+each fragment in the diffident set is used as a query sequence for blast and the reference database of blast is the same as the training set of ensvm .
+however , for a fragment in the diffident set , blast sometimes cannot find out a reference sequence with the best hit and confident e - value .
+ensvmb tags this fragment as unknown .
+in the end , ensvmb combines predictions on the diffident set and those on the confident set , and reports overall performance on all fragments in the validation set , except the ones tagged with unknown .
+figure 4b shows the flowchart of ensvmb .
+we want to remark that , although these five adopted svms are linear classifiers , ensvm and ensvmb are nonlinear classifiers26 , 27 , so they share the advantage of non - linear svm28 .
+these five linear svms are independent and trained in parallel .
+the number of fragments in the diffident set is much smaller than that in the confident set , blast on the diffident set is much faster than on the confident set .
+given that , ensvmb can hold the advantage of ensemble classifier and keep the similar runtime cost as a linear svm .
+linear svm we adopt linear svm as the base classifier for ensvm and ensvmb .
+we use multicore liblinear21 , 29 , 30 package for parallel training svm and one - vs - rest strategy31 to solve multi - class problem .
+suppose \ documentclass [ 12pt ]{ minimal } \ usepackage { amsmath } \ usepackage { wasysym } \ usepackage { amsfonts } \ usepackage { amssymb } \ usepackage { amsbsy } \ usepackage { mathrsfs } \ usepackage { upgreek } \ setlength {\ oddsidemargin }{ - 69pt } \ begin { document }$${ x }_{ j }\ in {{\ mathbb { r }}}^{ d }$$\ end { document } xjinrd (\ documentclass [ 12pt ]{ minimal } \ usepackage { amsmath } \ usepackage { wasysym } \ usepackage { amsfonts } \ usepackage { amssymb } \ usepackage { amsbsy } \ usepackage { mathrsfs } \ usepackage { upgreek } \ setlength {\ oddsidemargin }{ - 69pt } \ begin { document }$$ d ={ 4 }^{ k }$$\ end { document } d = 4k ) is the input data , \ documentclass [ 12pt ]{ minimal } \ usepackage { amsmath } \ usepackage { wasysym } \ usepackage { amsfonts } \ usepackage { amssymb } \ usepackage { amsbsy } \ usepackage { mathrsfs } \ usepackage { upgreek } \ setlength {\ oddsidemargin }{ - 69pt } \ begin { document }$$ j \ in \ mathrm {\{ 1 ,}\ cdots , n \}$$\ end { document } jin { 1 ,... , n } and n is the number of fragments in the reference ( or training ) set .
+the objective functions of linear svm is : 1 \ documentclass [ 12pt ]{ minimal } \ usepackage { amsmath } \ usepackage { wasysym } \ usepackage { amsfonts } \ usepackage { amssymb } \ usepackage { amsbsy } \ usepackage { mathrsfs } \ usepackage { upgreek } \ setlength {\ oddsidemargin }{ - 69pt } \ begin { document }$$\ begin { array }{ c }\ mathop { min }\ limits _{ w ,{\ xi }_{ j }}\ frac { 1 }{ 2 }{ w }^{ t } w +\ omega \ sum _{ j = 1 }^{ n }{\ xi }_{ j }\\ s \ mathrm {.} t \ mathrm {.}\,{ w }^{ t }{ x }_{ j }{ c }_{ j }\ ge 1 - {\ xi }_{ j }\,\ forall j \\ \ quad \ quad \ quad \,{\ xi }_{ j }\ ge 0 \,\ forall j \ end { array }$$\ end { document } minw,xij12wtw + omegasumj = 1nxijs.t.wtxjcj >= 1 - xijfor - alljxij >= 0for - alljwhere \ documentclass [ 12pt ]{ minimal } \ usepackage { amsmath } \ usepackage { wasysym } \ usepackage { amsfonts } \ usepackage { amssymb } \ usepackage { amsbsy } \ usepackage { mathrsfs } \ usepackage { upgreek } \ setlength {\ oddsidemargin }{ - 69pt } \ begin { document }$${ c }_{ j }\ in \{ - \ mathrm { 1 ,}+ 1 \}$$\ end { document } cjin { - 1 ,+ 1 } is the species label for the j - th fragment .
+if the j - th fragment belongs to the c - th species , then \ documentclass [ 12pt ]{ minimal } \ usepackage { amsmath } \ usepackage { wasysym } \ usepackage { amsfonts } \ usepackage { amssymb } \ usepackage { amsbsy } \ usepackage { mathrsfs } \ usepackage { upgreek } \ setlength {\ oddsidemargin }{ - 69pt } \ begin { document }$${ c }_{ j }= 1 $$\ end { document } cj = 1 ; otherwise , \ documentclass [ 12pt ]{ minimal } \ usepackage { amsmath } \ usepackage { wasysym } \ usepackage { amsfonts } \ usepackage { amssymb } \ usepackage { amsbsy } \ usepackage { mathrsfs } \ usepackage { upgreek } \ setlength {\ oddsidemargin }{ - 69pt } \ begin { document }$${ c }_{ j }= - 1 $$\ end { document } cj = - 1 .
+\ documentclass [ 12pt ]{ minimal } \ usepackage { amsmath } \ usepackage { wasysym } \ usepackage { amsfonts } \ usepackage { amssymb } \ usepackage { amsbsy } \ usepackage { mathrsfs } \ usepackage { upgreek } \ setlength {\ oddsidemargin }{ - 69pt } \ begin { document }$$\ omega $$\ end { document } omega is a scalar parameter to control the loss of constraints violation and \ documentclass [ 12pt ]{ minimal } \ usepackage { amsmath } \ usepackage { wasysym } \ usepackage { amsfonts } \ usepackage { amssymb } \ usepackage { amsbsy } \ usepackage { mathrsfs } \ usepackage { upgreek } \ setlength {\ oddsidemargin }{ - 69pt } \ begin { document }$${\ xi }_{ j }$$\ end { document } xij is a slack variable to penalize the j - th fragment if it violates the margin requirement .
+liblinear supports l2 - loss and l1 - loss linear svm .
+in this paper , we use an l2 - loss svm as follows : 2 \ documentclass [ 12pt ]{ minimal } \ usepackage { amsmath } \ usepackage { wasysym } \ usepackage { amsfonts } \ usepackage { amssymb } \ usepackage { amsbsy } \ usepackage { mathrsfs } \ usepackage { upgreek } \ setlength {\ oddsidemargin }{ - 69pt } \ begin { document }$$\ mathop { min }\ limits _{ w }\ frac { 1 }{ 2 }{ w }^{ t } w +\ omega \ sum _{ j \ mathrm {= 1 }}^{ n } max {\ mathrm {( 1 } - { w }^{ t }{ x }_{ j }{ c }_{ j },\ mathrm { 0 )}}^{ 2 }$$\ end { document } minw12wtw + omegasumj = 1nmax ( 1 - wtxjcj,0 ) 2 blast although blast is an efficient local alignment based tool , it still asks for long runtime to process a large amount of fragments .
+since a small portion of fragments are divided into the diffident set by ensvm , ensvmb only uses blast ( blastn20 ) to deal with these fragments .
+to reduce the runtime of blast , ensvmb uses shell script to run blast in parallel and thus the runtime cost of integrating blast with ensvm can be further reduced .
+the reference database for blast is the same with the reference set , which is used to train svms .
+conclusion we proposed a new approach called ensvm and its advanced method ensvmb for classifying metagenomics fragments .
+ensvm firstly trains five linear svms with respect to different k - mers to explore and exploit the complementary information between these k - mers .
+then it divides fragments into a confident set and a diffident set based on the aggregated predictions from these svms .
+the accuracy , specificity and sensitivity of ensvm on confident set are much higher than those on diffident set .
+to improve the accuracy , specificity and sensitivity on diffident set , ensvmb applies blast to reclassify fragments in that set .
+experiments show that ensvm can effectively and accurately pick out hard - to - be classified fragments and ensvmb can more accurately classify fragments than other related methods .
+ensvmb does not significantly increase the runtime cost , but significantly improves the overall performance ( accuracy , sensitivity , specificity and number of true positives ) .
+ensvmb is an accurate and yet efficient approach for metagenomics fragments classification .
+electronic supplementary material supplementary file electronic supplementary material supplementary information accompanies this paper at doi : 10.1038 / s41598 - 017 - 09947 - y publisher 's note : springer nature remains neutral with regard to jurisdictional claims in published maps and institutional affiliations .
+acknowledgements the authors thank anonymous reviewers for their insightful comments on improving this paper and mr. liang jingyi for critical reading this paper .
+this work is supported by natural science foundation of china ( no .
+61402378 ) , natural science foundation of cq cstc ( cstc2014jcyja40031 and cstc2016jcyja0351 ) , fundamental research funds for the central universities of china ( 2362015xk07 and xdjk2016b009 ) , chongqing graduate student research innovation project ( no .
+cys16070 ) , science and technology development of jilin province of china ( 20150101051jc and 20160520099jh ) , science and technology foundation of guizhou ( qkhjc20161076 ) , and science and technology top - notch talents support project of colleges and universities in guizhou ( qjhky2016065 ) .
+author contributions y.j. implemented and conducted the experiments , j.w. and g.x.y. initialized and conceived the whole program , y.j. and g.x.y. analyzed the results and wrote the manuscript , j.w. and d.w.x. revised the manuscript .
+all the authors read and approved the final manuscript .
+competing interests the authors declare that they have no competing interests .
+references 1 .
+hugenholtz p exploring prokaryotic diversity in the genomic era genome biology 2002 3 10.1186 / gb - 2002 - 3 - 2 - reviews0003 2 .
+altschul sf gapped blast and psi - blast : a new generation of protein database search programs nucleic acids research 1997 25 3389 3402 10.1093 / nar / 25.17.3389 9254694 3 .
+tringe sg comparative metagenomics of microbial communities science 2005 308 554 557 10.1126 / science.1107851 15845853 4 .
+tito ry phylotyping and functional analysis of two ancient human microbiomes plos one 2008 3 10.1371 / journal.pone.0003703 19002248 5 .
+huson dh auch af qi j schuster sc megan analysis of metagenomic data genome research 2007 17 377 386 10.1101 / gr.5969107 17255551 6 .
+li h durbin r fast and accurate short read alignmentwith burrows - wheeler transform bioinformatics 2009 25 1754 1760 10.1093 / bioinformatics / btp324 19451168 7 .
+wood de salzberg sl kraken : ultrafast metagenomic sequence classification using exact alignments genome biology 2014 15 10.1186 / gb - 2014 - 15 - 3 - r46 8 .
+brady a salzberg sl phymm and phymmbl : metagenomic phylogenetic classification with interpolated markov models nature methods 2009 6 673 676 10.1038 / nmeth.1358 19648916 9 .
+brady a salzberg s phymmbl expanded : confidence scores , custom databases , parallelization and more nature methods 2011 8 10.1038 / nmeth0511 - 367 21527926 10 .
+diaz nn tacoa - taxonomic classification of environmental genomic fragments using a kernelized nearest neighbor approach bmc bioinformatics 2009 10 10.1186 / 1471 - 2105 - 10 - 56 19210774 11 .
+rosen gl reichenberger er rosenfeld am nbc : the naive bayes classification tool webserver for taxonomic classification of metagenomic reads bioinformatics 2011 27 127 129 10.1093 / bioinformatics / btq619 21062764 12 .
+sandberg r capturing whole - genome characteristics in short sequences using a naive bayesian classifier genome research 2001 11 1404 1409 10.1101 / gr.186401 11483581 13 .
+parks dh macdonald nj beiko rg classifying short genomic fragments from novel lineages using composition and homology bmc bioinformatics 2011 12 1 16 10.1186 / 1471 - 2105 - 12 - 328 21199577 14 .
+mchardy ac martin hg tsirigos a hugenholtz p rigoutsos i accurate phylogenetic classification of variable - length dna fragments nature methods 2007 4 63 72 10.1038 / nmeth976 17179938 15 .
+patil kr roune l mchardy ac the phylopythias web server for taxonomic assignment of metagenome sequences plos one 2012 7 10.1371 / journal.pone.0038581 22745671 16 .
+cui h zhang x alignment - free supervised classification of metagenomes by recursive svm bmc genomics 2013 14 10.1186 / 1471 - 2164 - 14 - 1 17 .
+mardis er the impact of next - generation sequencing technology on genetics trends in genetics 2008 24 133 141 10.1016 / j.tig.2007.12.007 18262675 18 .
+schuster sc next - generation sequencing transforms today !
+s biology nature 2008 200 16 18 19 .
+vervier k mah p tournoud m veyrieras jb vert jp large - scale machine learning for metagenomics sequence classification bioinformatics 2016 32 1023 1032 10.1093 / bioinformatics / btv683 26589281 20 .
+zhang z schwartz s wagner l miller w a greedy algorithm for aligning dna sequences journal of computational biology 2000 7 203 214 10.1089 / 10665270050081478 10890397 21 .
+fan re chang kw hsieh cj wang xr lin cj liblinear : a library for large linear classification journal of machine learning research 2008 9 1871 1874 22 .
+burrows , m .
+& wheeler , d. j. a block - sorting lossless data compression algorithm .
+technical report , digital equipment corporation ( 1995 ) .
+23. angly fe willner d rohwer f hugenholtz p tyson gw grinder : a versatile amplicon and shotgun sequence simulator nucleic acids research 2012 40 10.1093 / nar / gks251 22434876 24 .
+pruitt kd tatusova t brown gr maglott dr ncbi reference sequences ( refseq ) : current status , new features and genome annotation policy nucleic acids research 2012 40 130 135 10.1093 / nar / gkr1079 25 .
+liu x wu j gu f wang j he z discriminative pattern mining and its applications in bioinformatics briefings in bioinformatics 2014 16 10.1093 / bib / bbu042 25433466 26 .
+kuncheva li whitaker cj measures of diversity in classifier ensembles and their relationship with the ensemble accuracy machine learning 2003 51 181 207 10.1023 / a : 1022859003006 27 .
+yu g semi - supervised ensemble classification in subspaces applied soft computing 2012 12 1511 1522 10.1016 / j.asoc.2011.12.019 28 .
+chang cc lin cj libsvm : a library for support vector machines acm transactions on intelligent systems and technology 2011 2 10.1145 / 1961189.1961199 29 .
+boser , b. e. , guyon , i. m. & vapnik , v. n. a training algorithm for optimal margin classifiers .
+5th annual workshop on computational learning theory , 144 - 152 ( 1992 ) .
+30. lee , m. c. , chiang , w. l. & lin , c. j. fast matrix - vector multiplications for large - scale logistic regression on shared - memory systems .
+16th ieee international conference on data mining , 835 - 840 ( 2015 ) .
+31. keerthi , s. s. , sundararajan , s. , chang , k. w. , hsieh , c. j. & lin , c. j. a sequential dual method for large scale multi - class linear svms .
+14th acm sigkdd international conference on knowledge discovery and data mining. , 408 - 416 ( 2008 ) .

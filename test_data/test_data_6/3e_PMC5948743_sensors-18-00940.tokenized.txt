@@ -1,0 +1,427 @@
+sensors ( basel ) sensors ( basel ) sensors sensors ( basel , switzerland ) 1424 - 8220 mdpi 29565313 5948743 10.3390 / s18040940 sensors - 18 - 00940 article explicit content caching at mobile edge networks with cross - layer sensing chen lingyu 1 * su youxing 1 luo wenbin 1 hong xuemin 12 shi jianghong 12 1 school of information science and technology , xiamen university , xiamen 361005 , china ; 23320161153391 @ stu.xmu.edu.cn ( y.s. ) ; 23320151154076 @ stu.xmu.edu.cn ( w.l. ) ; xuemin.hong @ xmu.edu.cn ( x.h. ) ; shijh @ xmu.edu.cn ( j.s . )
+2 key lab of underwater acoustic communication and marine information technology , ministry of education , xiamen 361005 , china * correspondence : chenly @ xmu.edu.cn ; tel. : + 86 - 592 - 258 - 0150 22 3 2018 4 2018 18 4 940 16 2 2018 18 3 2018 ( c ) 2018 by the authors .
+2018 licensee mdpi , basel , switzerland .
+this article is an open access article distributed under the terms and conditions of the creative commons attribution ( cc by ) license ( http :// creativecommons.org / licenses / by / 4.0 /) .
+the deployment density and computational power of small base stations ( bss ) are expected to increase significantly in the next generation mobile communication networks .
+these bss form the mobile edge network , which is a pervasive and distributed infrastructure that can empower a variety of edge / fog computing applications .
+this paper proposes a novel edge - computing application called explicit caching , which stores selective contents at bss and exposes such contents to local users for interactive browsing and download .
+we formulate the explicit caching problem as a joint content recommendation , caching , and delivery problem , which aims to maximize the expected user quality - of - experience ( qoe ) with varying degrees of cross - layer sensing capability .
+optimal and effective heuristic algorithms are presented to solve the problem .
+the theoretical performance bounds of the explicit caching system are derived in simplified scenarios .
+the impacts of cache storage space , bs backhaul capacity , cross - layer information , and user mobility on the system performance are simulated and discussed in realistic scenarios .
+results suggest that , compared with conventional implicit caching schemes , explicit caching can better exploit the mobile edge network infrastructure for personalized content dissemination .
+edge computing caching content delivery content recommendation cross - layer design 1 .
+introduction the mobile internet is facing great challenges in coping with ever increasing traffic demand .
+according to a cisco white paper , the total amount of global mobile data traffic will reach 49 exabytes per month by 2021 [ 1 ] .
+to cope with the exploding traffic demand , short - range and low - cost small base stations ( bss ) will be densely deployed to scale up the capacity of the mobile communication network [ 2,3,4,5 ] .
+these bss form the mobile edge network , which is a pervasive and distributed infrastructure .
+it is further envisioned that the bss will be equipped with extra computing , sensing and caching resources [ 6 ] , thereby transforming the mobile edge network from a communications - specific infrastructure to a general - purpose edge computing infrastructure [ 7,8,9 ] .
+it is anticipated that such a transform can empower a new wave of location - based and time - sensitive applications [ 10 ] .
+traffic measurements revealed that the dominant application of the mobile communication network ( in terms of the percentage of consumed traffic ) has shifted from connection - oriented services , such as phone calls and text messages , to content retrieval services , such as web browsing and video streaming [ 11 ] .
+this fact has inspired the research field of content - centric mobile networks ( ccmns ) .
+ccmn recognized that content data / traffic has different characteristics compared with real - time communication data / traffic .
+for example , content data can be cached in multiple locations before user requests [ 12 ] , users' personal preferences for content can be predicted with fair accuracy [ 13 ] , and the content popularity follows a long - tail distribution [ 14 ]. by carefully leveraging these characteristics , various ccmn designs have been proposed to optimize the mobile network for massive content delivery [ 15 ] .
+among these designs , distributed caching at mobile bss has emerged as a promising solution that can exploit the pervasive bs infrastructure for effective delivery of massive content data .
+bs caching designs can be broadly categorized into two types : implicit caching and explicit caching .
+implicit caching means that the cached content is transparent to users , i.e. , users are unaware of what contents are cached at the bss [ 16 ] .
+in this case , users' requested content is unconstrained and can be any piece of data available on the internet .
+a request is answered locally if the target content is cached at the bs ( which is called a ' hit ') , otherwise the request is served by a remote server [ 17,18 ] .
+the aim of implicit caching is to cache a subset of contents to maximize the overall possibility of getting a ' hit ' .
+implicit caching is a matured technology in the wired internet [ 19 ] , but only recently did its application in mobile bss attract significant research interest. ref .
+[ 20 ] proposed a content updating method in cache helpers , taking into account the constraint of backhaul capacity and time - varying contents popularity. ref .
+[ 21 ] conducted a systematic study by exploiting the user mobility in cache - enabled content - centric wireless networks. ref .
+[ 22 ] investigated the distributed content placement and delivery schemes based on the manhattan mobility model. ref .
+[ 23,24 ] exploited the higher - layer knowledge of user mobility and data request preference to pro - actively cache data and provide seamless handover .
+in summary , most bs caching schemes proposed to date fall into the category of implicit caching .
+various aspects such as user demand prediction [ 25 ] , backhaul constraint [ 26 ] , and user mobility [ 27 ] have been studied in depth .
+the main advantage of implicit caching lies in decoupling content request and content delivery , therefore the cache facility becomes a communication infrastructure that can provide added value to a broad range of content providers .
+however , the effectiveness of implicit caching diminishes with a reducing number of users sharing the same cache [ 28 ] because the probability of getting a " hit " reduces .
+generally speaking , implicit caching would be more effective when deployed closer to the core network at networks that aggregate a large volume of traffic from many users .
+as cellular networks evolve toward dense deployment of small cells with fewer users per cell [ 29 ] , the deployment of implicit caching at the mobile edge network is not cost - effective .
+to overcome the drawback of implicit caching , we recently proposed the explicit caching scheme [ 30,31 ] as an alternative caching paradigm that can better exploit the increasingly dense small cell infrastructure .
+it relies on the edge computing capability to stored selective content at a bs and exposed the cached content to local users for interactive , localized browsing and download .
+in this case , users' requested content is constrained to what is already cached locally .
+unlike implicit caching , explicit caching is a different type of edge computing service , which offers joint content recommendation and delivery service to end users .
+the fundamental advantage of explicit caching is that its utility value ( i.e. , effectiveness ) scales linearly with bs density and cell capacity .
+in contrast , we note that the effectiveness of the conventional implicit caching scheme decreases at higher bs density .
+nevertheless , the explicit caching system also brings unique challenges .
+the first challenge is to ensure the relevance and attractiveness of cached content .
+the second challenge is to guarantee that the locally - generated traffic does not degrade the incumbent traffic coming to / from the core network .
+the third challenge is to guarantee the reliability and timeliness of local content delivery to sustain a satisfactory quality - of - experience ( qoe ) .
+these three challenges urge a holistic cross - layer design that can jointly optimize content recommendation and content delivery in the explicit caching system .
+to the best of our knowledge , research about explicit bs caching systems is still in its infancy .
+in a conference version of this work [ 31 ] , we made an initial attempt to propose a cross - layer design architecture and present some initial results .
+this article extends [ 31 ] to a systematic study .
+our main contributions are summarized below : first , a comprehensive and extended system model is presented , taking into account various aspects such as content property , user interest , user mobility , bs cache space , bs backhaul capacity , and cross - layer sensing capability .
+second , theoretical performance bounds are derived to estimate the utility of the explicit caching system in a simple yet representative scenario .
+third , optimal algorithms are given solving the explicit caching problem .
+low - complexity heuristic algorithms are also proposed and showed to yield marginal performance degradation compared with the optimal ones .
+the impacts of various parameters on the system performance are systematically evaluated and discussed via simulations .
+key design guidelines of the explicit caching system are summarized for future system developers .
+the remainder of this paper is organized as follows .
+section 2 introduces the system model .
+section 3 formulates the content placement problem with cross - layer considerations .
+section 4 presents the optimal and heuristic content caching algorithms .
+section 5 analyzes the theoretical performance bounds of the system with a simplified model , followed by simulation - based performance evaluation with realistic models in section 6 .
+finally , section 7 concludes the paper .
+2. system model 2.1 .
+cellular network model and description of the explicit caching service as illustrated in figure 1 , we consider a mobile edge network with multiple bss and users , where each user is associated with only one bs. each bs runs independently to select and retrieve content from a remote internet data center ( idc ) and stores the content at a local cache .
+the explicit caching service allows a user to browse the cached content of the associated bs and download / view the content according to their personal interest .
+essentially , the explicit caching service resembles an ftp service in a local network .
+the backhaul link connecting each bs and the idc can either be fixed or wireless connections , while each link is characterized by a limited capacity .
+time is slotted into periods of ts seconds .
+at the beginning of each slot , a bs makes a decision on how to update its cached content .
+the decision should simultaneously address multiple concerns including the content 's attractiveness to local users ( i.e. , the recommendation problem ) , the constraints of cache space and backhaul capacity ( i.e. , the caching problem ) , and the constraint of radio access capacity ( i.e. , the content delivery problem ) .
+it is assumed that the bss run distributed and independent algorithms of explicit caching , hence our study can focus on a single typical bs. from the mobile operators' perspective , it is very important for the explicit caching service to coexist peacefully with other existing cellular services .
+following the proposal in [ 30 ] , we assume that the explicit caching service is offered as a " secondary service " , which means that it has a lower priority to utilize the radio resource at the bs than conventional services ( which are primary services ) .
+after radio resource contention , we assume that only a portion of the system bandwidth is left for the explicit caching service .
+the available bandwidth is assumed to be stable for the time frame of interest and is denoted as w. apart from the radio bandwidth , other physical resource constraints include the cache storage space s ( bits ) and backhaul capacity delta ( bits ) .
+the backhaul capacity caps the maximum number of bits updated between two consecutive time slots .
+users in the cellular network are assumed to be mobile .
+let k denote the set of potential users that may be served by the bs over the long term .
+users are assumed to be mobile , which means that they move in and out of coverage from time to time .
+user mobility is captured by a two - state markov chain , whose transition probability matrix p0 is given by ( 1 ) p0 = 1 - papapb1 - pb , where pa and pb denote the probability for a user to move within and out of coverage , respectively .
+at a time instance , only a subset of users are connected to the bs. the set of connected users is denoted as u. the sizes of k and u are denoted as k and u , which represent the number of all users and the number of connected users in a cell , respectively .
+2.2 .
+content models it is assumed that a large content pool f with f pieces of files are stored at the remote idc .
+the length of the f - th ( f = 1 ,... , f ) file is denoted by lf. based on users' preference , a recommender system computes a numerical value ik,f to indicate the interest of the k - th ( k = 1,2 ,... , k ) user on the f - th file .
+the user interest model is captured by a kxf matrix i , whose entries are given by ik,f. for an arbitrary pair of k and f , we assume that ik,f follows independent and identical distributions ( i.i.d. ) .
+similarly , lf also follows i.i.d. distributions .
+different models can be used to describe the statistical properties of ik,f and lf. in our paper , we further distinguish two content models : a simple model and a realistic model .
+the former is used to facilitate theoretical analysis , while the latter is used for simulations : simple content model : the user interest parameter ik,f is assumed to be a binary random variable in { 0,1 } with mean epsilon .
+the file length lf follows a uniform distribution in [ lmin,lmax ] .
+realistic content model : according to reported measurements , we assume that ik,f is jointly characterized by two distributions .
+first , the average popularity of different files ( i.e. , sumk = 1kik,f / k ) follows a zipf distribution with parameter beta [ 14 ] ; second , the interests of different users on a particular file follow a gaussian distribution [ 32 ] .
+the file length lf follows a log - normal distribution [ 33 ] .
+2.3 .
+transmission model let dk,f denote the time required for the k - th user to download the f - th file .
+we have ( 2 ) dk,f = lf / ck , where lf is the file length and ck is the instantaneous downlink capacity of the k - th user .
+the file length lf is a random variable following a log - normal distribution [ 33 ] , while the capacity is given by ( 3 ) ck = wulog21 + ptdk - alphagmwsigma2 / u + ik , where pt is the transmit power per user , sigma2 is the constant noise power of each user , and ik denotes the accumulated interference perceived by the k - th user .
+in practice , ik is dominated by the accumulated inter - cell interference from other co - channel cells .
+according to the literature of interference modeling and capacity analysis in large scale cellular networks , the accumulated inter - cell interference can be approximately treated as gaussian noise when evaluating the link capacity [ 34 ] .
+this widely used approximation is also adopted in our paper for simplicity .
+dk is the distance between bs and the k - th user , alpha is the path - loss exponent , and gm is a fast fading coefficient following an exponential distribution of unit mean ( i.e. , rayleigh fading ) .
+it is assumed that the available bandwidth w is equally shared among users .
+let gammak denote the k - th user 's sinr ( signal to interference plus noise ratio ) averaged over small scale fading , we can then rewrite equation ( 3 ) as ( 4 ) ck = wulog21 + gammakgm .
+2.4 .
+user qoe model the ultimate goal of the explicit caching system is to maximize the users' qoe of content consumption .
+two factors are considered to have critical impacts on users' qoe .
+the first factor is the attractiveness of content , which is captured by the user interest parameter ik,f. the second factor is the time / delay dk,f for downloading a content file .
+each user is assumed to have the same delay tolerance , which is captured by a time threshold t0 .
+the qoe for the k - th user to download and view the f - th content is then defined as ( 5 ) qk,f = ik,fzk,f , where zk,f is defined as ( 6 ) zk,f = xi,dk,f <= t0,0,dk,f > t0 .
+in equation ( 6 ) , xi is a scaling constant with a positive real value .
+the above definition means that , if a requested file can be delivered in time , the qoe has a positive value proportional to the user ' interest on the file ; otherwise , the qoe is zero .
+finally , for the convenience of readers , table 1 summarizes the major parameters and their physical meanings in our system model .
+3. problem formulation with cross - layer consideration 3.1 .
+general problem formulation the aim of this paper is to find a content placement policy that can maximize the expected qoe of users over a long time .
+the update of content is subject to constraints on the cache space s and backhaul capacity delta .
+the cache space constraint is memoryless in a sense that it does not impose connections between two consecutive time slots .
+however , as illustrated in figure 2 , the backhaul capacity constraint introduce historical dependencies into the system and desires joint considerations over multiple time slots .
+as a result , our paper will address the general problem of content placement over multiple time slots , noting that the single - slot problem is a special case of the general problem .
+we further note that the multi - slot problem implies that the information of critical system status ( e.g. , user association ) is available for all the slots under consideration .
+in practice , this can be achieved by forward prediction ( assuming ideal prediction accuracy ) .
+let n denote the index of time slot .
+further define a binary variable xf ( n ) in { 0,1 } , which denotes whether the f - th file is cached ( taking value 1 ) or not ( taking value 0 ) during the n - th time slot .
+the required backhaul traffic for a transition from the ( n - 1 ) - th slot to the n - th slot can be evaluated as ( 7 ) sumf = 1flf { xf ( n ) - xf ( n - 1 )} xf ( n ) .
+let vf ( n ) denote the expected qoe per user for the f - th file during the n - th time slot .
+we have ( 8 ) vf ( n )= e1u ( n ) sumkinuqk,f ( n )= 1u ( n ) sumkinuik,fe { zk,f ( n )} , where e {.} means taking expectation .
+here , the expectation is taken over the fast channel fading coefficient .
+the users' interest profile is assumed to be consistent over multiple time slots .
+however , the number of users connected to the bs , as well as the user - bs distances , change from slot to slot .
+therefore , u ( n ) , ck ( n ) and zk,f ( n ) should all be treated as time - varying functions .
+according to equation ( 8 ) , the value of a file / content is measured by the sum qoe of all the active users of a bs. a user is active when he is currently associated with the bs and runs the explicit caching service .
+fairness among active users is embedded in such a qoe measure because each active user essentially " votes " to cache the most interested and deliverable contents .
+in practice , the set of active users changes dynamically and an inactive user may become active .
+in this case , our caching policy can dynamically update the cached content via backhaul to ensure user fairness among the new set of active users .
+the problem of joint content placement and delivery , which aims to maximize the expected user qoe over a time span of n slots , can then be formulated as ( 9 ) ( p1 ) maxxsumn = 1nsumf = 1fvf ( n ) xf ( n ) st.sumf = 1flfxf ( n )<= s,for - allnsumf = 1flf ( xf ( n ) - xf ( n - 1 )) xf ( n )<= delta,for - allnxf ( n ) in { 0,1 } .
+the optimization problem in ( p1 ) formulates the explicit caching problem as a joint content recommendation , caching , and delivery problem .
+the aspect of content recommendation is reflected by the fact that the optimization decision is to select a subset of content files that tends to maximize the total user interest ; the aspect of content caching is reflected by the constraints of storage space s and backhaul capacity delta ; the aspect of content delivery is reflected by modelling the utility function to be dependent on the content delivery delay , which is a major performance metric for content delivery systems .
+our problem formulation unifies all the key parameters that appear in the processes of content recommendation , caching , and delivery .
+two difficulties arise in solving this optimization problem .
+first , the expectation operation appeared within the utility function should be analytically evaluated for tractability ; second , the problem appears to be a nonlinear 0 - 1 integer programming problem , which is non - deterministic polynomial - time hard ( np - hard ) and difficult to solve directly .
+in what follows , we will first deal with the first difficulty by proposing an analytical approximation for the utility function .
+3.2 .
+analytical approximation of the utility function small cell users typically enjoy a high sinr .
+considering the high sinr regime , we can approximate equation ( 4 ) as ( 10 ) ck = wulg2lggammak + wulg2lggm .
+let q = - ck , we can show that q follows a generalized extreme value ( gev ) distribution with three parameters given by mu = - wlggammak / ulg2 , sigma = w / ulg2 , xi = 0 .
+the cdf of q is ( 11 ) fq ( x )= exp { - exp [ - uxlg2 / w - lggammak ]} .
+given equation ( 11 ) , the expectation of zk,f ( n ) defined in equation ( 6 ) can be evaluated as ( 12 ) e { zk,f ( n )}= xip ( lf / ck ( n )<= t0 )= xip ( lf / t0 <= ck ( n ))= xip ( - ck ( n )<= - lf / t0 )= xifq ( - lf / t0 )= xiexp - expu ( n ) lflg2 / t0w - lggammak ( n ) .
+substituting equation ( 12 ) into equation ( 8 ) , the utility function can be evaluated in closed - form .
+3.3 .
+problem variations with cross - layer consideration the original optimization problem ( p1 ) implies that the optimizer has full cross - layer information , which not only includes higher layer ( i.e. , application layer ) information such as the content popularity profile , content length profile , and user interest profile , but also includes lower layer information such as user association ( information at the medium access control ( mac ) layer ) and user channel path - loss ( information at the physical layer ) .
+it is worth noting that the cross - layer analytical framework proposed in this paper is different from the conventional frameworks of cross - layer analysis [ 35,36 ] .
+as shown in figure 1 , both ours and the conventional frameworks consider multiple protocol stacks from the top application layer to the bottom physical layer .
+however , conventional frameworks only address the data - level of the application layer , while our framework goes one step further to address the semantic - level of the application layer by bringing content recommendation into the design space .
+as a result , our problem formulation resembles a classic recommendation problem [ 37 ] , and differs from the network utility maximization problem usually appeared in conventional cross - layer literature [ 38 ] .
+unification of these two types of frameworks is also a promising area for future research .
+in reality , however , it is difficult or even impractical to obtain the exact lower layer information .
+depending on the capability of cross - layer sensing and the availability of lower layer information , we can further distinguish the following three cases .
+case 1 : in this case , both the user association ( i.e. , which users are currently served by the bs ) and user sinr are known .
+this is the ideal case with full cross - layer information .
+the utility function is then given by ( 13 ) vfc1 ( n )= 1unsumkinuik,fxiexp - expunlflg2 / t0w - lggammak ( n ) .
+case 2 : in this case , the user association is known , but the user sinr gammak is unknown .
+however , we assume that the average sinr gamma of all users is known .
+it follows that the gammak in equation ( 12 ) should be replaced by gamma . the utility function should be changed correspondingly into ( 14 ) vfc2 ( n )= 1unsumkinuik,fxiexp - expunlflg2 / t0w - lggamma . case 3 : in this case , both the user association and user sinr are unknown .
+however , the number of users and the average sinr is known .
+the utility function should now consider all users and is given by ( 15 ) vfc3 = 1ksumk = 1kik,fxiexp - expklflg2 / t0w - lggamma . we can see that case 1 has a ' true ' utility function and yields the global optimal performance .
+on the contrary , cases 2 and 3 have biased utility functions , and hence their solutions may be distorted .
+if all the three cases are evaluated according to the same ' true ' utility function , we can expect to see some performance gaps between case 1 and case 2 / case 3 .
+such performance gaps will indicate the usefulness of different sources of cross - layer information .
+the optimization problems of these three cases have the same structure as the original problem of ( p1 ) , which appears to be a difficult nonlinear combinatorial optimization problem .
+in the following section , we will introduce the algorithms to solve ( p1 ) .
+4. optimal and heuristic content placement algorithms 4.1 .
+problem linearization and optimal algorithm the nonlinearity of optimization problem in ( p1 ) comes from the second constraint , which is imposed by limited backhaul capacity .
+let us introduce a new variable yf ( n )= xf ( n - 1 ) xf ( n ) .
+based on this definition , we can write ( 16 ) sumf = 1flfxf ( n ) - sumf = 1flfyf ( n )<= delta .
+according to the very definition of yf ( n ) , we introduce two additional linear constraints as follows : ( 17 ) yf ( n )<= xf ( n - 1 ) , yf ( n )<= xf ( n ) .
+substituting equations ( 16 ) and ( 17 ) into ( p1 ) , the original multi - slot content placement problem can be transformed into a linear 0 - 1 integer programming problem given by ( 18 ) ( p2 ) maxxsumn = 1nsumf = 1fvf ( n ) xf ( n ) st.sumf = 1flfxf ( n )<= s,for - allnsumf = 1flfxf ( n ) - sumf = 1flfyf ( n )<= delta,for - allnyf ( n )<= xf ( n - 1 ) yf ( n )<= xf ( n ) xf ( n ) in { 0,1 } yf ( n ) in { 0,1 } .
+we note that in ( p2 ) , xf ( n ) and yf ( n ) are all treated as decision variables in the optimization problem .
+we will subsequently prove that ( p2 ) is equivalent to ( p1 ). proof .
+the key is to demonstrate that yf ( n ) = xf ( n - 1 ) xf ( n ) will always hold for the optimum solutions of ( p2 ) , so that the newly - introduced variable in ( p2 ) does not change the decision space of ( p1 ) .
+the proof starts by considering two complementary cases .
+in the first case , either xf ( n ) or xf ( n - 1 ) is zero .
+according to equation ( 17 ) , we have yf ( n )= 0 .
+in this case , yf ( n )= xf ( n - 1 ) xf ( n ) holds true , and hence ( p2 ) is equivalent to ( p1 ) .
+in the second case , both xf ( n - 1 ) and xf ( n ) are equal to 1 .
+we have yf = 1 in ( p1 ) , but yf ( n ) can be either 0 or 1 in ( p2 ) according to equation ( 18 ) .
+we can then write the second constraint in ( p2 ) as ( 19 ) sumf = 1flfxf ( n )<= delta + sumf = 1flfyf ( n ) .
+however , because yf ( n ) is an optimization variable in ( p2 ) , we can see that yf ( n )= 1 is always a better solution than yf ( n )= 0 in this case .
+consequently , the optimization process will ensure yf ( n )= 1 , which means yf ( n )= xf ( n - 1 ) xf ( n ) holds true for the optimal solution of ( p2 ) , and hence ( p2 ) is equivalent to ( p1 ) .
+[] because ( p2 ) is linear , the optimal algorithm to solve the problem is the classic branch and bound algorithm [ 39,40,41 ] .
+however , due to the combinatorial nature of the problem ( p2 ) , the complexity of the optimal algorithm scales exponentially with the problem size ( i.e. , the number of files ) .
+in the special case of n = 1 , the original multi - slot content placement problem is simplified to a single - slot content placement problem .
+it is easy to show that the single - slot problem is a classic two - dimensional 0 - 1 knapsack problem , which can be solved by dynamic programming with a pseudo - polynomial time complexity [ 42 ] .
+in practice , however , the pseudo - polynomial complexity can still become exponentially complex in the worse case .
+in the context of edge computing , it is desirable to have low - complexity algorithms with a strict polynomial time complexity .
+to this end , low - complexity heuristic algorithms will be introduced subsequently .
+4.2 .
+heuristic algorithms 4.2.1 .
+heuristic algorithm for the single time slot problem we first present a heuristic algorithm for the single time - slot problem ( i.e. , n = 1 ) .
+this algorithm will serve as the basis for the heuristic algorithm used for a multiple time slot problem .
+the proposed algorithm is based on a simple greedy heuristic : cache files with the largest file value per unit length until the cache space or the backhaul capacity exceed the constraints .
+the core of this algorithm is a sorting operation , hence the algorithm has a polynomial complexity given by o ( flogf ) .
+4.2.2 .
+heuristic algorithm for the multiple time slot problem a major drawback of the single time slot algorithm is that the " ping - pong " phenomenon may occur , which means that a file is cached in slot n , deleted in slot n + 1 , and cached again in slot n + 2 .
+this phenomenon will impose an unnecessary burden on the backhaul and reduce the overall caching performance .
+compared with the single time slot optimization , a major advantage of multi - slot optimization is to eliminate the ping - pong phenomenon .
+this inspires us to introduce a heuristic algorithm .
+the rationale is to first perform independent single slot optimization for three consecutive time slots .
+if the ping - pong phenomenon is observed ( i.e. , find a file whose decision variable is 1 - 0 - 1 for three consecutive slots ) , eliminate the phenomenon by enforcing the decision variable to 1 - 1 - 1 .
+our heuristic algorithm operates on three time slots because at least three time slots are required to detect the ping - pong phenomenon .
+the pseudo - code of this algorithm is shown in algorithm 1 .
+similar to the single - slot algorithm , algorithm 1 also has a polynomial complexity given by o ( flogf ) .
+algorithm 1 heuristic algorithm for the multi - slot problem input : x ' , x , v , w , sigma , n , i output : xop 1 : initialization : let x ' denotes decision variables of the last slot , x is the decision variables of the current slot , v represents the file value per unit length , w and sigma indicates the cache space and update threshold , n is the number of files , i indicates maximum iteration number and i indicates the iteration index 2 : step1 : obtain decision variables of three consecutive slots with the optimal algorithm in single - slot senario and the overall cache value v 3 : step2 : find a file set phi whose decision variable is 1 - 0 - 1 for three consecutive slots 4 : if phi = empty then 5 : go to step6 6 : step3 : 7 : if i < i then 8 : go to step6 9 : step4 : randomly choose a file finphi and change its decision variable to 1 - 1 - 1 , then use heuristic algorithm for the single time slot problem to recalculate the decision variables for the remaining files in the last two slots and overall value v ' 10 : step5 : 11 : if v <= v ' then 12 : update xop = x and v = v ' 13 : else 14 : change decision variables back to their original ones and return to step3 .
+15 : step6 : return optimal decision variables xop 5 .
+theoretical performance bounds with simplified model the value of an explicit caching system can be evaluated by the expected user qoe .
+so far , although algorithms to maximize the user qoe have been obtained , we still lack a clear analytical insight into how the user qoe is related to various system parameters .
+this section aims to derive some theoretical performance bounds of the explicit caching system .
+for analytical tractability , we will apply the simple content model introduced in section 2.2 .
+moreover , the following simplifying assumptions are further made in this section .
+the system performance is evaluated according to the utility function presented by equation ( 14 ) , which corresponds to case 2 .
+we recall that this case assumes that the user association and average user sinr is known .
+in this section , we will treat the number of users and the average sinr as fixed value parameters and denote them as u and gamma , respectively .
+although this section focuses on case 2 only , we will show the latter in section 6 that the performance of case 2 serves as a very good predictor ( almost identical ) to the ideal performance in case 1 .
+the cache space constraint s is replaced by a file number constraint m , which limits the maximum number of files that can be cached .
+this simplification is reasonable because the value of the cached content tends to concentrate on a subset of high - value files .
+in other words , a fixed number of high - value files will capture most of the value of the entire cached file set .
+this simplification implies that our analysis in this section should be interpreted as an approximation .
+the above assumptions yield a new optimization problem given by ( 20 ) ( p3 ) q = maxxsumn = 1nsumf = 1fvfc2 ( n ) xf ( n ) st.sumf = 1fxf ( n )= m,for - allnsumf = 1flfxf ( n ) - sumf = 1flfyf ( n )<= delta,for - allnyf ( n )<= xf ( n - 1 ) yf ( n )<= xf ( n ) xf ( n ) in { 0,1 } yf ( n ) in { 0,1 } .
+this new problem , which is analytically tractable , can serve as an approximation to the original problem .
+5.1 .
+cdf of the utility function the first step is to evaluate the cdf of the utility function vfc2 ( n ) , which can be written as the product of two independent random variables ( 21 ) vfc2 ( n )= xy , where ( 22 ) x = cexp [ - exp ( alf + b )] , y = sumkinuik,f. here , we have c = xi / un , a = unlg2 / t0w , and b = - lggamma . let us first focus on the cdf of the random variable x. given uniform file size distribution , the cdf of the random file length lf is given by ( 23 ) flf ( l )= 0,l < lmin,l - lminlmax - lmin,lmin <= l <= lmax,1,l > lmax .
+because x is a function of lf , it follows that cdf of x can be derived as ( 24 ) fx ( x )= p ( x <= x )= pexp [ - exp ( alf + b )]<= xc = pexp [ alf + b ]>= ln ( cx )= plf >= 1alnln ( cx ) - ba = 1 - plf <= 1alnln ( cx ) - ba = 1 - flf1alnln ( cx ) - ba = 0,x < xmin1 - lnln ( cx )+ almin + ba ( lmax - lmin ) , xmin <= x <= xmax1,x > xmax , where xmin = cexp [ - exp ( almax + b )] , xmax = cexp [ - exp ( almin + b )] .
+let us now consider the random variable y. for a total of u users linked to the bs , the probability for an arbitrary user to be interested in the f - th file ( i.e. , ik,f = 1 ) is ( 25 ) p = afu , where af is the aggregated user interest of the f - th file .
+because the user interest profiles are independent , random variable y obeys a binomial distribution given by y ~ bi ( u,p ) .
+the utility function z = v2c2 is a product of random variables x and y , hence its cdf can be derived as ( 26 ) fz ( z )= sumyi > 0pifxzyi + sumyi < 0pi1 - fxzyi + pyi = 0fxz0 .
+because random variable y is nonnegative , we can omit the situation when yi < 0 .
+it follows that equation ( 26 ) can be further refined as ( 27 ) fz ( z )= sumyi > 0pifxzyi + pyi = 0fxz0 = sumi = 1uuipi ( 1 - p ) u - ifxzi + u0p0 ( 1 - p ) u .
+5.2 .
+bounds of average user qoe performance once the cdf of the utility function is known , we can move on to analyze the outcome q ( i.e. , optimized average user qoe ) of the optimization problem defined ( p3 ) .
+we distinguish two extreme cases that correspond to the lower bound and upper bound of the optimized qoe performance .
+in case of the lower bound , the optimization problem ( p3 ) is solved by a random caching policy , which randomly choose m files from the content pool .
+such a random policy is optimal in two situations : during initialization or when the backhaul capacity is zero .
+this is because both situations should assume that all users are equally probable to be served by the bs over the long term , and hence each piece of content would have the same value over the long term .
+it follows that the expected outcome can be evaluated as ( 28 ) vlow = mv ~ , where v ~ represents the expected value of a randomly chosen file , which can be calculated as ( 29 ) v ~= integralzfz ( z ) dz , where fz ( z ) ( i.e. , pdf ) is the first - order differentiation of fz ( z ) .
+in case of the upper bound , the optimization problem is solved by a greedy policy , which always picks the most valuable m files .
+the policy is feasible when the backhaul capacity is unlimited ( or large enough to support any update ) .
+according to the results of order statistics [ 43,44,45 ] , given f i.i.d. , random variables with cdf denoted by f ( x ) , the cdf of the r - th largest random variable is given by ( 30 ) g ( r )( x )= sumi = rffifi ( x )[ 1 - f ( x )] f - i. the pdf of the r - th order statistics is ( 31 ) g ( r )( x )= dg ( r )( x ) dx. the expectation of the r - th order random variable is ( 32 ) e { xr }= integralxminxmaxxg ( r )( x ) dx , where g ( r )( x ) is the corresponding probability density function ( pdf ) of g ( r )( x ) .
+the expectation of the most valuable m files can be calculated as ( 33 ) vup = e { xf - m + 1 + xf - m + 2 +...+ xf }= e { xf - m + 1 }+ e { xf - m + 2 }+...+ e { xf }= integralxminxmaxx [ g ( f - m + 1 )( x )+ g ( f - m + 2 )( x )+...+ g ( f )( x )] dx .
+5.3 .
+validation of the theoretical bounds in this subsection , we carry out monte carlo simulations to validate the derived theoretical performance bounds of the explicit caching system .
+in our simulation , the total number of users is set to be 100 , while the average number of users served by the bs is set to be 10 .
+the available bandwidth w = 10 mhz and the maximum user delay tolerant is 1 s. the total number of files f is 1000 .
+the files size follows uniform distribution in [ 1 , 9 ] .
+numerical results are obtained based on direct calculations from the derived equations , while empirical results are obtained by solving 100 independent ( p3 ) optimization problems and taking numerical average over the 100 snapshots of optimal outcomes .
+figure 3 shows the upper and lower bounds of the expected qoe as functions of the number of cached files m. it can be observed that the lower bound increases almost linearly with increasing m , while the upper bound increases with diminishing returns when m gets large .
+moreover , the numerical ( i.e. , theoretical ) and empirical ( i.e. , simulation ) curves are shown to agree well .
+this serves as a validation to our theoretical derivations .
+figure 4 shows empirical results of the expected qoe as functions of the normalized backhaul capacity .
+numerical / theoretical results on the upper and lower bounds of the qoe are also presented .
+it can be observed that , when the backhaul capacity gradually increases from zero to a large value , the empirical performance changes from the theoretical lower bound to the theoretical upper bound .
+this confirms our previous statement that the derived lower and upper bounds correspond to the two extreme cases of zero backhaul capacity and unlimited backhaul capacity , respectively .
+6. simulation results and discussions with realistic model in this section , monte carlo simulations are performed to evaluate the performance of the explicit caching system with realistic modelling assumptions .
+the average number of users served by the bs is set to be 10 and the available bandwidth w is 10 mhz .
+the total number of users is set to be 100 and the maximum user delay tolerant is 1 s. we consider a mixed content library containing two heterogeneous types of files : texts and videos .
+different types of contents have different characteristics in terms of the file length distribution and user interest profile .
+our simulations consider a library consisting of 500 text files and 500 video files .
+the lengths of text files and video files follow two log - normal distributions with mean values of 1 mb and 10 mb , respectively .
+the popularity of files follows a zipf distribution with beta = 1 and zmax = 80 .
+the users' interest for a specific file follows a half - normal distribution with unit variance .
+we further assume that the qoe of video is 10 times that of texts , i.e. , xi = 1 for texts and xi = 10 for videos .
+the sinr of users is assumed to be exponentially distributed with a mean value of 10 db and truncated to have a minimum sinr of 3 db. given the above settings , our simulation runs 100 snapshots .
+in each snapshot , the user interest profile , user association , and user channel state information , etc. are generated independently and randomly .
+the simulation results are averaged over the 100 snapshots .
+6.1 .
+policies with cross - layer information this subsection aims to answer the following question : to what extent can cross - layer information contribute to improving the performance of explicit caching .
+without loss of generality , our discussion is constrained to the single - slot optimization problem ( i.e. , n = 1 ) .
+we consider six different caching policies categorized into two types .
+the first type is policies that exploit physical or mac layer information .
+we have three policies of this type , corresponding to the three cases discussed in section 3 .
+the second type is conventional caching policies that rely solely on upper layer information .
+three representative policies of the second type are considered : the most popular content ( mpc ) policy [ 46 ] , largest content diversity ( lcd ) policy [ 47 ] , and largest popularity per unit content ( ppu ) policy , which caches contents based on the criteria of having large popularity per unit length .
+we note that the first type policies use optimal algorithms with exponential complexity , while the second type policies are greedy algorithms with polynomial complexity .
+figure 5 shows the expected user qoe as a function of the storage space when different caching policies are applied .
+the storage space is normalized by the total size of the file library .
+the backhaul capacity limit is set to be 50 % of the storage space .
+figure 5 shows that increasing the storage space can improve the qoe performance but has diminishing returns .
+moreover , policies of the first type significantly outperform all policies of the second type .
+among the three policies of the first type , case 1 and case 2 policies yield almost identical performance , while case 3 gives a slightly worse performance .
+this suggests that the advantage of the first type policy mainly comes from exploiting the information of user association rather than the information of user sinr .
+6.2 .
+impacts of backhaul , mobility , and mobility prediction apart from cross - layer information , we are interested in the impacts of backhaul capacity , user mobility , and the number of jointly optimized time slots on the system performance .
+without loss of generality , we choose the ( near - optimal ) case 2 policy as our caching policy .
+figure 6 shows the expected qoe per user as a function of the backhaul capacity .
+the backhaul capacity is normalized by the maximum backhaul capacity , which is set to be 500 mb. we consider two cases with n = 1 ( single - slot ) and n = 5 ( multi - slot ) .
+moreover , we consider two scenarios with high user mobility ( pa = 0.8 ) and low user mobility ( pa = 0.2 ) .
+figure 6 reveals that high user mobility generally demands greater backhaul capacity , which is an intuitive result .
+however , it also shows that , when the backhaul capacity is very small or very large , the performances with high mobility and low mobility converge .
+this implies that mobility and backhaul capacity are relevant , but not limiting factors that will constrain the fundamental system performance .
+the system performance is fundamentally constrained by other factors such as bandwidth , content interest profile , and cache storage size , which can be easily seen from the utility function and storage constraint .
+moreover , figure 6 shows that the multi - slot algorithm outperforms the single - slot algorithm .
+we note that applying the multi - slot algorithm implies that users' mobility ( and hence user association ) in n = 5 time slots can be accurately predicted .
+the results of figure 6 suggest that mobility prediction can be traded for backhaul capacity , but has no impact on the fundamental performance limit .
+6.3 .
+impacts of user density and file popularity distribution figure 7 shows the expected qoe as a function of the normalized storage space with varying system parameters .
+first , figure 7 illustrates the impact of the average number of users per bs on the qoe performance .
+it can be seen that , as the number of users u increases , the qoe performance degrades .
+this is because , when u increases , the downlink capacity allocated to each user reduces , which ultimately results in a reduction in the expected qoe .
+in addition , figure 7 also shows how the qoe performance changes with different rmax ( rmax = zmax / k ) , which represents the concentration of file popularity .
+it can be seen that , with increasing rmax , the performance of the system also increases due to a higher concentration of user interest in a given number of cached files .
+6.4 .
+impacts of high sinr approximation in section 3.2 , the high sinr approximation has been introduced to to compute the utility function ( i.e. , expected capacity ) in closed - form .
+alternatively , the exact value of the utility function can be obtained by the monte carlo method , which is computationally inefficient .
+to reveal the possible drawbacks of using the high sinr approximation , figure 8 compares the system performance of two algorithms : the proposed algorithm that uses the high sinr approximation in its utility function , and the optimal algorithm that uses the monte carlo method ( i.e. , exact method ) in its utility function .
+results show that the high sinr approximation brings very small performance penalty even when the actual average sinr is small ( e.g. , 3 db ) .
+these results suggest that the proposed algorithm with the high sinr approximation is robust for practical ranges of sinr .
+6.5 .
+comparison between algorithms in this subsection , we want to evaluate the performance gaps between the optimal algorithms and the heuristic algorithms proposed in section 4 .
+figure 9 and figure 10 compare the performance in single - slot and multi - slot scenarios , respectively .
+it can be seen in figure 9 that , in the single - slot scenario , the proposed heuristic algorithm yield almost identical performance to the optimal algorithm .
+in the multi - slot scenario , figure 10 shows that the performance gaps between heuristic and optimal algorithms are small in general , and diminishes in the extreme cases when the backhaul capacity approaches zero or becomes very large .
+these results suggest that the proposed heuristic algorithms are effective algorithms to be used in practice .
+6.6 .
+discussions on future work finally , our work in this paper considers a simplified scenario of independent bs and independent backhaul .
+in practice , nearby bss may cooperate to achieve better performance , and the backhaul links may be shared among multiple bss .
+the cross - layer analytical framework established in this paper can be extended .
+moreover , the results obtained in this paper can be used as heuristic or initial inputs for the more complicated cases of interdependent bss .
+for example , in the shared backhaul scenario , we can formulate the problem of backhaul capacity allocation as a multi - level water - filling problem , using the qoe - backhaul relationship of each bs ( as showed in figure 9 and figure 10 in this paper ) as inputs to calculate the water levels .
+these promising extensions will be considered in our future work .
+7. conclusions this paper proposes a novel bs caching paradigm called explicit caching .
+optimal and near - optimal heuristic algorithms have been proposed to solve the content caching problem .
+using user qoe as the ultimate performance metric , we have systematically investigated the theoretical and simulated performances of the explicit caching system .
+it has been revealed that the performance of an explicit caching system is fundamentally limited by the cache storage space , user interest profile , and available radio bandwidth , while increasing backhaul capacity , exploiting cross - layer information , and having user mobility prediction can only contribute to better approaching the fundamental performance bounds .
+we conclude that the explicit caching system is a novel and promising edge computing application for personalized content dissemination over mobile edge networks .
+acknowledgments the authors would like to acknowledge the support from the national natural science foundation of china ( nsfc ) ( grant no. 61571378 ) .
+author contributions lingyu chen contributed to the original ideas and designed the simulations ; youxing su derived the formulas , carried out the simulations ; wenbin luo researched the literatures and revised the formulas ; xuemin hong contributed to the scheme design and drafted the manuscriptl ; jianghong shi revised the manuscript and analyzed the simulation results .
+conflicts of interest the authors declare no conflict of interest .
+references 1 .
+cisco visual networking index : global mobile data taffic forecast update , 2016 - 2021 available online : https :// www.cisco.com / c / en / us / solutions / collateral / service - provider / visual - networking - index - vni / mobile - white - paper - c11 - 520862.html ( accessed on 23 january 2018 ) 2 .
+shanmugam k. golrezaei n. dimakis a.g. molisch a.f. caire g. femto caching : wireless content delivery through distributed caching helpers ieee trans. inf .
+theory 2013 59 8402 8413 10.1109 / tit.2013.2281606 3 .
+zhang y. bao l. welling m. yang s.h. base station localization in search of empty spectrum spaces in cognitive radio networks proceedings of the international conference on mobile ad - hoc and sensor networksfujian , china14 - 16 december 2009 94 101 4 .
+han t. ansari n. network utility aware traffic load balancing in backhaul - constrained cache - enabled small cell networks with hybrid power supplies ieee trans .
+mobile comput .
+2017 16 2819 2832 10.1109 / tmc.2017.2652464 5 .
+biral a. centenaro m. zanella a. vangelista l. zorzi m. the challenges of m2m massive access in wireless cellular networks ieee digit. commun. netw .
+2015 1 1 19 10.1016 / j.dcan.2015.02.001 6 .
+ota k. dong m. gui j. liu a. quoin : incentive mechanisms for crowd sensing networks ieee net. mag .
+2018 99 1 6 10.1109 / mnet.2017.1500151 7 .
+jararweh y. doulat a. alqudah o. ahmed e. al - ayyoub m. benkhelifa e. the future of mobile cloud computing : integrating cloudlets and mobile edge computing proceedings of the 2016 23rd international conference on telecommunications ( ict ) thessaloniki , greece16 - 18 may 2016 1 5 8 .
+hu y.c. patel m. sabella d. sprecher n. young v. mobile edge computing - - a key technology towards 5g1st ed.etsi white ref. , no .
+11 european telecommunications standards institute ( etsi ) sophia antipolis , france 2015 9 .
+mao y. you c. zhang j. huang k. letaief k.b. a survey on mobile edge computing : the communication perspective ieee commun .
+surveys tutor .
+2017 19 2322 2358 10.1109 / comst.2017.2745201 10 .
+ma f. liu x. liu a. zhao m. huang c. wang t. a time and location correlation incentive scheme for deeply data gathering in crowdsourcing networks wirel. commun. mob. comput .
+2018 8 1 22 11 .
+ioannou a. weber s. a survey of caching policies and forwarding mechanisms in information - centric networking ieee commun. surv. tutor .
+2016 18 2847 2886 10.1109 / comst.2016.2565541 12 .
+su z. xu q. content distribution over content centric mobile social networks in 5g ieee commun. mag .
+2015 53 66 72 13 .
+dong l. caching at the wireless edge : design aspects , challenges , and future directions ieee commun. mag .
+2016 54 22 28 14 .
+cha m. kwak h. rodriguez p. ahn y.y. moon s. i tube , you tube , everybody tubes : analyzing the world 's largest user generated content video system proceedings of the acm sigcomm conference on internet measurementsan diego , ca , usa24 - 26 october 2007 1 14 15 .
+gregori m. gomez - vilardebo j. matamoros j. wireless content caching for small cell and d2d networks ieee j. sel .
+areas commun .
+2016 34 1222 1234 10.1109 / jsac.2016.2545413 16 .
+cheng j. jamin s. raz d. the cache location problem building scalable network services springer us new york , ny , usa 2004 67 98 17 .
+poularakis k. iosifidis g. tassiulas l. approximation algorithms for mobile data caching in small cell networks ieee trans. commmun .
+2014 62 3665 3677 10.1109 / tcomm.2014.2351796 18 .
+chen z. kountouris m .
+d2d caching vs. small cell caching : where to cache content in a wireless network proceedings of the international conference on wireless communications and signal processingedinburgh , uk3 - 6 july 2016 1 6 19 .
+krishnan p. raz d. shavitt y. the cache location problem ieee / acm trans. netw .
+2000 8 568 582 10.1109 / 90.879344 20 .
+golrezaei n. shanmugam k. dimakis a.g. femto caching : wireless video content delivery through distributed caching helpers proceedings of the international conference on computer communicationsturin , italy14 - 19 april 2013 1107 1115 21 .
+wang r. peng x. zhang j. mobility - aware caching for content - centric wireless networks : modeling and methodology ieee commun. mag .
+2016 54 77 83 10.1109 / mcom.2016.7537180 22 .
+pantisano f. bennis m. saad w. cache - aware user association in backhaul - constrained small cell networks proceedings of the international symposium on modeling and optimization in mobile , ad hoc , and wireless networkshammamet , tunisia12 - 14 may 2014 37 42 23 .
+siris v.a. vasilakos x. polyzos g.c. efficient proactive caching for supporting seamless mobility proceedings of the international symposium on a world of wireless , mobile and multimedia networkssydney , australia19 june 2014 1 6 24 .
+li h. hu d. mobility prediction based seamless ran - cache handover in hetnet proceedings of the wireless communications and networking conferencedoha , qatar3 - 6 april 2016 25 .
+park j. kim s.l. content - specific broadcast cellular networks based on user demand prediction : a revenue perspective proceedings of the wireless communications and networking conference ( wcnc ) istanbul , turkey6 - 9 april 2014 2271 2276 26 .
+pingyod a. somchit y. content updating method in femtocaching proceedings of the international joint conference on computer science and software engineeringban phatthaya , thailand14 - 16 may 2014 1 6 27 .
+zonoozi m.m. dassanayake p. user mobility modeling and characterization of mobility patterns ieee j. sel .
+areas commun .
+1997 15 1239 1252 10.1109 / 49.622908 28 .
+bastug e. bennis m. debbah m. living on the edge : the role of proactive caching in 5g wireless networks ieee commun. mag .
+2014 52 82 89 10.1109 / mcom.2014.6871674 29 .
+chandrasekhar v. andrews j.g. gatherer a. femtocell networks : a survey ieee commun. mag .
+2008 46 59 67 10.1109 / mcom.2008.4623708 30 .
+zhang y. lu h. wang h. hong x. cognitive cellular content delivery networks : cross - layer design and analysis proceedings of the vehicular technology conference ( vtc spring ) nanjing , china15 - 18 may 2016 1 6 31 .
+falah a. luo w. jiao j. tang b. hong x. shi j. explicit data caching at mobile edge networks : a cross - layer perspective proceedings of the ieee spawc 2017saporo , japan2 - 7 july 2017 1 6 32 .
+cai t. cai h.j. zhang y. huang k. xu z. polarized score distributions in music ratings and the emergence of popular artists proceedings of the science and information conferencelondon , uk7 - 9 october 2013 472 476 33 .
+barford p. crovella m. generating representative web workloads for network and server performance evaluation acm sigmetrics performance evaluation review acm new york , ny , usa 1998 volume 26 151 160 34 .
+andrews j.g. baccelli f. ganti r.k. a tractable approach to coverage and rate in cellular networks ieee trans. commun .
+2011 59 3122 3134 10.1109 / tcomm.2011.100411.100541 35 .
+srivastava v. motani m. cross - layer design : a survey and the road ahead ieee commun. mag .
+2005 43 112 119 10.1109 / mcom.2005.1561928 36 .
+kawadia v. kumar p.r. a cautionary perspective on cross - layer design ieee wirel. commun .
+2005 11 3 11 10.1109 / mwc.2005.1404568 37 .
+balabanovic m. shoham y. fab : content - based , collaborative recommendation commun .
+acm 1997 40 66 72 10.1145 / 245108.245124 38 .
+pham q.v. hwang w.j. network utility maximization based congestion control over wireless networks : a survey and potential directives ieee commun. surv. tutor .
+2017 19 1173 1200 10.1109 / comst.2016.2619485 39 .
+lawler e.l. wood d.e. branch - and - bound methods : a survey oper. res .
+1966 14 699 719 10.1287 / opre.14.4.699 40 .
+mitten l.g. branch - and - bound methods : general formulation and properties oper. res .
+1970 18 24 34 10.1287 / opre.18.1.24 41 .
+gupta o.k. ravindran a. branch and bound experiments in convex nonlinear integer programming manag. sci. 1985 31 1533 1546 10.1287 / mnsc.31.12.1533 42 .
+pisinger d. algorithms for knapsack problems n - h. math. stud .
+1995 132 213 257 43 .
+yang s.s. general distribution theory of the concomitants of order statistics ann. stat .
+1977 5 996 1002 10.1214 / aos / 1176343954 44 .
+kamps u. a concept of generalized order statistics j. stat. plan .
+inference 1995 48 1 23 10.1016 / 0378 - 3758 ( 94 ) 00147 - n 45 .
+moghadam s.a. pazira h. the relations among the order statistics of uniform distribution trends appl. sci. res .
+2011 6 719 723 10.3923 / tasr.2011.719.723 46 .
+zhang n. guan j. xu c. zhang h. a dynamic social content caching under user mobility pattern proceedings of the wireless communications and mobile computing conference ( iwcmc ) nicosia , cyprus4 - 8 august 2014 1136 1141 47 .
+peng x. shen j.c. zhang j. letaief k.b. backhaul - aware caching placement for wireless networks proceedings of the global communications conference ( globecom ) san diego , ca , usa6 - 10 december 2015 1 6 figure 1 illustration of the system model .
+figure 2 illustration of content update between two successive time slots , (# 6 ,# 7 ,# 8 ) represent the contents updated via the backhaul network .
+figure 3 the expected qoe as a function of the number of cached files m. figure 4 the expected qoe as a function of the normalized backhaul capacity ( m = 100 ) .
+figure 5 the expected qoe as a function of normalized storage space for different caching policies .
+figure 6 the expected qoe as a function of the normalized backhaul capacity , with varying user mobility and number of time slots .
+figure 7 the expected qoe as a function of the normalized storage space , with varying values of the average number of users per bs and different distributions of the file popularity .
+figure 8 the expected qoe as a function of the normalized storage space with approximated and exact utility functions .
+figure 9 the expected qoe as a function of the normalized backhaul capacity in the single time slot optimization problem ( s = 200 mb ) .
+figure 10 the expected qoe as a function of the normalized backhaul capacity in the multiple time slot optimization problem ( s = 200 mb , i = 500 ) .
+sensors - 18 - 00940 - t001 _ table 1 table 1 major system parameters and their physical meanings .
+system symbols physical meaning of symbols system symbols physical meaning of symbols k the set of users that may be served by the bs over a long term k the size of k u the set of connected users to the bs u the size of u f the large content pool f the size of f dk,f the time required for the k - th user to download the f - th file qk,f the qoe for the k - th user to download and view the f - th content ik,f the interest of the k - th user on the f - th file zk,f delivery evaluation for the k - th user to download the f - th content lf the file length ck instantaneous downlink capacity of the k - th user ts duration of one time slot t0 time threshold of effective distribution w radio bandwidth pt transmit power per user dk distance between bs and the k - th user alpha the path - loss exponent gm fast fading coefficient sigma2 the power spectrum density of sum noise and interference in the cell gammak the k - th user 's sinr averaged over small scale fading xi scaling constant representing the qoe of an effective distribution s cache storage space of the bs delta backhaul capacity of the bs

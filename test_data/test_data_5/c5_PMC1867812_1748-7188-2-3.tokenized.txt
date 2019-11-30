@@ -1,0 +1,397 @@
+algorithms mol biol algorithms for molecular biology 1748 - 7188 biomed central london 17407611 1867812 1748 - 7188 - 2 - 3 10.1186 / 1748 - 7188 - 2 - 3 research a spatio - temporal mining approach towards summarizing and analyzing protein folding trajectories yang hui 1 huiyang @ sfsu.edu parthasarathy srinivasan 2 srini @ cse.ohio - state.edu ucar duygu 2 ucar @ cse.ohio - state.edu 1 department of computer science , san francisco state university , 1600 holloway avenue , san francisco , california , usa 2 department of computer science and engineering , ohio state university , 2015 neil avenue , columbus , ohio , usa 2007 4 4 2007 2 3 3 4 8 2006 4 4 2007 copyright ( c ) 2007 yang et al ; licensee biomed central ltd .
+2007 yang et al ; licensee biomed central ltd .
+this is an open access article distributed under the terms of the creative commons attribution license () , which permits unrestricted use , distribution , and reproduction in any medium , provided the original work is properly cited .
+understanding the protein folding mechanism remains a grand challenge in structural biology .
+in the past several years , computational theories in molecular dynamics have been employed to shed light on the folding process .
+coupled with high computing power and large scale storage , researchers now can computationally simulate the protein folding process in atomistic details at femtosecond temporal resolution .
+such simulation often produces a large number of folding trajectories , each consisting of a series of 3d conformations of the protein under study .
+as a result , effectively managing and analyzing such trajectories is becoming increasingly important .
+in this article , we present a spatio - temporal mining approach to analyze protein folding trajectories .
+it exploits the simplicity of contact maps , while also integrating 3d structural information in the analysis .
+it characterizes the dynamic folding process by first identifying spatio - temporal association patterns in contact maps , then studying how such patterns evolve along a folding trajectory .
+we demonstrate that such patterns can be leveraged to summarize folding trajectories , and to facilitate the detection and ordering of important folding events along a folding path .
+we also show that such patterns can be used to identify a consensus partial folding pathway across multiple folding trajectories .
+furthermore , we argue that such patterns can capture both local and global structural topology in a 3d protein conformation , thereby facilitating effective structural comparison amongst conformations .
+we apply this approach to analyze the folding trajectories of two small synthetic proteins - bba5 and gsgs ( or beta3s ) .
+we show that this approach is promising towards addressing the above issues , namely , folding trajectory summarization , folding events detection and ordering , and consensus partial folding pathway identification across trajectories .
+1 background the three dimensional ( 3d ) native structures of proteins have important implications in proteomics .
+understanding such structures enables us to explore the function of a protein , explain substrate and ligand binding , perform realistic drug design and potentially cure diseases caused by protein misfolding .
+the protein folding problem is therefore one of the most fundamental yet unsolved problems in computational molecular biology .
+one major challenge in simulating the protein folding process is its complexity .
+snow et al. state that performing a molecular dynamics ( md ) simulation on a mini - protein for just 10 mus would require decades of computation time on a typical cpu [ 1 ] .
+researchers in the folding @ home project recently proposed a world wide web - based computing model to simulate the protein folding process [ 2 ] .
+as the volume of folding trajectories produced from high - throughput simulation tools increases drastically , there is an urgent need to compare , analyze , and manage such data .
+previously , researchers have examined several summary statistics ( e.g. radius of gyration , root mean square deviation ( rmsd )) to identify similar 3d conformations in folding trajectories .
+although summary statistics are commonly used for comparison , they can only capture biased and limited global properties of the conformation .
+recently , russel et al .
+[ 3 ] suggested using geometric spanners for mapping a simulation to a more discrete combinatorial representation .
+they apply geometric spanners to discover the proximity between different segments of a protein across a range of scales , and track the changes of such proximity over time .
+to overcome the difficulties in managing and analyzing the large amount of protein folding simulation data , berrar et al .
+[ 4 ] proposed using a data warehouse system .
+they embed the warehouse in a grid computing environment to enable data sharing .
+they also propose implementing a set of data mining algorithms to facilitate commonly needed data analysis tasks .
+in this article , we propose a spatio - temporal mining approach to analyze folding trajectories .
+we extend the spatio - temporal data mining framework that we have developed earlier to analyze and manage such data [ 5 ] .
+this framework is designed to analyze spatio - temporal data produced in several scientific domains .
+previously , we have applied this framework to analyze 8732 proteins taken from the protein data bank to identify structural fingerprints for different protein classes ( e.g. , alpha - proteins ) [ 6 ] .
+each protein is associated with a set of objects that are extracted from its contact map .
+we then realize the notion of spatial object association pattern ( soap ) to effectively capture spatial relationships among such objects , furthermore , by associating soaps with proteins in different protein classes , we have identified multiple types of soaps that can potentially function as the structural fingerprints for different protein classes .
+in this article , we extend such strategies to a new application domain : analyzing and characterizing the folding process of a protein .
+clearly , protein folding trajectories consist of both spatial and temporal components .
+each protein in a md simulation is composed of a number of residues spatially located in the 3d space that move over time .
+each frame ( or snapshot ) of the trajectory can be represented as a 2d contact map , which captures the pair - wise 3d distances between residues .
+we extract non - local bit - patterns from these contact maps .
+we then use an entropy - based clustering algorithm to cluster such bit - patterns into groups .
+these bit - patterns are further associated to form spatial object association patterns ( soaps ). by using soaps , we are able to effectively summarize and analyze folding trajectories produced by md simulations .
+a major advantage of this representation is its appropriateness for cross - comparison across different simulations , as discussed in later sections .
+compared to our previous work on protein structural analysis [ 6,7 ] , we have made the following contributions : * propose a contact map - based approach to analyze protein folding trajectories : our previous work focused on identifying structural signatures in native conformation of proteins in different classes or folds .
+thus , there is no temporal component involved .
+in contrast , a folding trajectory has both spatial and temporal components .
+in addition , bit - patterns in a folding trajectory will interact with each other and evolve over time .
+moreover , the proposed approach also effectively integrates 3d structural information in the overall analysis .
+this is critical in understanding the protein folding mechanism .
+* map 2d bit - patterns in contact maps with 3d structural motifs : to better understand and explain the biological meaning of the bit - patterns in contact maps , we have made an effort to establish a mapping between such bit - patterns and well - known structural motifs ( e.g. , alpha - helices and beta - turns ) in 3d conformations .
+currently , this task is carried out manually .
+we are in the process of automating this mapping .
+such a 2d - 3d mapping is essential to folding data analysis due to the following reasons : first , to gain insight into the folding process , it is critical to identify the formation of important local 3d motifs such as beta - turns .
+second , our previous studies show that by associating multiple bit - patterns in contact maps , one can construct effective structural signatures for different protein classes or folds [ 6 ] .
+this leads us to hypothesize that a mapping might exist between 2d bit - patterns in contact maps and 3d local motifs of a protein .
+in this work , we validate this hypothesis and report the mapping result later .
+finally , such a mapping not only enables one to take advantage of the simplicity of working in the 2d space of contact maps , but also allows one to relate to the 3d space of protein conformations .
+this is important in understanding the protein folding process .
+* indirectly capture interactions among structural motifs in 3d space : in our previous work , two bit - patterns are considered spatially proximate if they are located in the same vicinity within a 2d contact map .
+this is problematic in the context of protein folding , as two bit - patterns can be spatially proximate in a contact map even though their corresponding motifs are distant in the 3d conformation .
+( see section 3 for more details. ) we address this issue by considering the 3d distance between two bit - patterns .
+* propose novel strategies to analyze protein folding trajectories : we propose several novel strategies to analyze protein folding trajectories based on spatial and spatio - temporal association patterns .
+in summary , one can benefit from our mining approach in two main aspects : * effective , informative and scalable representation of folding simulations : we represent each frame by a set of soaps , where each soap in turn characterizes the spatial relationship ( or interactions in the folding case ) among multiple bit - patterns .
+soaps are not only easily obtainable but also , as we will show , able to capture folding events along a folding trajectory .
+* cross - analysis of trajectories to reveal a consensus partial folding pathway : by representing each frame as a set of soaps , one can carry out analysis across different trajectories .
+such analysis includes detecting critical events and identifying consensus partial folding pathways across trajectories .
+the remainder of the article is organized as follows .
+in section 2 , we describe the two proteins - bba5 and gsgs - and their trajectories produced from computational simulation .
+we also identify two main goals to analyze such trajectories .
+in section 3 , we present a step - by - step description of our analysis approach .
+we next report the empirical results on analyzing the trajectories of the two proteins in section 4 .
+we focus on the protein bba5 .
+finally we conclude and report several ongoing research directions in section 5 .
+2 analyzing protein folding trajectories 2.1 protein folding trajectories advances in high - performance computing technologies and molecular dynamics have led to successful simulations of folding dynamics for ( small ) proteins at the atomistic level [ 8 ] .
+such simulations result in a large number of folding trajectories , each of which consists of a series of 3d conformations of the protein under simulation .
+these conformations are usually sampled regularly ( e.g. , every 200fs ) during a simulation .
+in this article , we also refer to each conformation as a folding frame or simply a frame .
+furthermore , to represent a protein conformation , we adopt one of the commonly adopted representation schemes , where a conformation is represented as a sequence of alpha - carbons ( calpha ) located in 3d space .
+in this article , we focus on the folding trajectories of two mini proteins : bba5 ( protein data bank id ) [ 9 ] and gsgs ( orbeta3s ) [ 10,11 ] .
+such trajectories were produced by the folding @ home research group at stanford university [ 12 ] .
+bba5 is a 23 - residue protein that folds at microsecond timescale .
+the native structure ( or fold ) of bba5 shows a beta - hairpin involving residues 1 - 10 and centering about residues 4 - 5 .
+it also includes an alpha - helix involving the remaining residues 11 - 23. by convention , residues are numbered increasingly from the n - terminal to c - terminal of a protein .
+figure 1 ( a ) illustrates the native conformation of bba5 .
+the two folding trajectories , referred to as t23 and t24 respectively , are of different length .
+t23 consists of a series of 192 conformations ( or frames ) , while t24 has 150 frames .
+each conformation is described at atomistic level in pdb format adopted by the protein data bank programs .
+gsgs ( or beta3s ) is a 20 - residue peptide with an average folding rate of microseconds .
+its nmr conformation shows a three - stranded anti - parallel beta - sheet with turns at residues 6 - 7 and 14 - 15 .
+figure 2 ( a ) depicts this native conformation .
+there are a total of 5 gsgs folding trajectories : t1 , t2 , t3 , t4 , and t5 .
+the number of conformations in each trajectory is listed in table 1 .
+similar to bba5 , each conformation corresponds to one pdb file .
+pande et al. explained in detail on the simulation model and methods employed to produce such trajectories [ 8,9 ] .
+figure 1 different conformations of the small protein bba5 , where only the calpha atoms are shown .
+( a ) the native nmr structure of bba5 based on data from the scop website .
+( b ) the initial conformation of both folding trajectories .
+( c ) the last conformation in the first trajectory .
+( d ) the last conformation in the second trajectory .
+figure 2 different conformations of the gsgs peptide , where only the calpha atoms are shown .
+( a ) the native nmr conformation of gsgs .
+( b ) the initial conformation in all the five folding trajectories .
+( c ) the last conformation in the 1st trajectory .
+( d ) the last conformation in the 3rd trajectory .
+( e ) the last conformation in the 5th trajectory .
+table 1 a brief description of the gsgs folding trajectories .
+trajectory id total number of conformations t1 25,664 t2 30,075 t3 19,649 t4 25,263 t5 25,664 2.2 comparing conformations of bba5 and gsgs across trajectories although both trajectories of bba5 start from the same extended conformation as shown in figure 1 ( b ) , when we examine the visualized frames , they seem to identify two very different folding processes .
+figures 1 ( c ) and 1 ( d ) illustrate the last frame in the two trajectories t23 and t24 respectively .
+this also applies to the five gsgs folding trajectories , where each starts with the same conformation ( figure 2 ( b )) but ends at a different conformation ( figures 2 ( c ) , 2 ( d ) & 2 ( e )) .
+this seeming difference might be attributed to the stochastic nature of the folding simulation process [ 8,9 ] .
+however , it is also desirable to characterize the similarities ( or dissimilarities ) across multiple trajectories .
+to compare two trajectories , one must address the following key issue : how can we compare two protein conformations ?
+several measures have been commonly used towards such a purpose , including rmsd ( root mean squared distance ) [ 13 ] , contact order [ 14 ] , and native contacts [ 15 ] .
+however , all these measures are designed to quantify the global topology of a conformation .
+furthermore , based on our empirical analysis of these measures , we notice that they are generally too coarse and thus can often be misleading .
+even more importantly , such measures fail to identify similar local structures ( or motifs ) between conformations .
+this is especially crucial for small proteins like bba5 .
+as demonstrated in both experimental and theoretical studies , small proteins often fold hierarchically and begin locally [ 16 ] .
+for instance , it has been shown that bba5 tends to first form secondary structures such as beta - turns and alpha - helices , then conform to its global topology [ 9 ] .
+finally , as suggested by pande [ 8 ] , both sterics ( local motifs ) and global topology might play an important role in protein folding .
+therefore , to compare conformations of ( small ) proteins , a more reasonable comparison should consider both local and global structures .
+moreover , it should also take the native topology of the protein under study into account .
+to meet these requirements , we propose the following two - step approach to compare conformations of bba5 .
+first , we partition the 23 residues of bba5 into four fragments : ( i ) f1 : n - terminal 1 - 10 beta - hairpin ; ( ii ) f2 : c - terminal 11 - 23 alpha - helix fragment ; ( iii ) f3 : the first half of f1 and the second half of f2 ; and ( iv ) f4 : the second half of f1 and the first half of f2 , i.e. , the middle section in the primary sequence .
+this segmentation of is also summarized in table 2 .
+second , we recognize the secondary structure propensity in each fragment .
+two conformations are said to be similar if they demonstrate the same secondary structure propensity in the same fragment .
+for instance , the pair of conformations in figure 3 ( a ) are similar as residues in f1 , f2 and f4 from both conformations indicate a beta - turn like local motif .
+please note that the orientation of local motifs does not affect the comparison .
+for instance , in figure 3 ( d ) , we say the two conformations have a similar structure in f1 fragment , even though the beta - turn motifs have different orientations .
+table 2 partitions along the primary sequence of bba5 .
+partition amino acids remark f1 1 - 10 beta - hairpin f2 11 - 23 alpha - helix f3 1 - 6 , 16 - 23 the 1st half of f1 and the 2nd half of f2 f4 6 - 17 the 2nd half of f1 and the 1st half of f2 figure 3 selected conformation - pairs along the consensus partial folding pathway of bba5 .
+the figure illustrates four conformation - pairs , one from each trajectory , along the consensus partial folding pathway identified in the two bba5 trajectories .
+the same two - step approach is also applied to find similar gsgs conformations , except that a different segmentation strategy is adopted according to the native gsgs structure .
+a total of seven segments are being used to identify the relative location of a motif in gsgs .
+table 3 lists such segments .
+also listed are the residues involved in each segment and its biological meaning .
+table 3 partitions along the primary sequence of gsgs .
+partition id amino acids remark f1 1 - 15 the 1st beta - turn f2 1 - 7 the 1st beta - strand f3 3 - 10 critical region of the 1st beta - turn f4 6 - 15 the 2nd beta - strand f5 6 - 20 the 2nd beta - turn f6 10 - 18 critical region of the 2nd beta - turn f7 14 - 20 the 3rd beta - strand to realize the comparison of conformations , two more issues must still be addressed .
+first , how can one effectively capture and represent local motifs ?
+second , how can we represent the global topology of a conformation in terms of local motifs ?
+to address the first issue , we leverage the non - local patterns in protein contact maps .
+for the second , we characterize the spatial arrangement among non - local patterns .
+please see section 3 for more details .
+2.3 folding trajectory analysis : objectives there are two main goals we would like to achieve in analyzing the folding trajectories .
+first , we would like to address the following issues for individual trajectories : ( 1 ) to detect ( or predict ) significant folding events , including the formation of beta - turns , alpha - helices , and native - like conformations ; and ( 2 ) to recognize the temporal ordering of important folding events in the trajectory .
+for instance , between the two secondary structures alpha - helix and beta - hairpin in bba5 , which forms earlier ?
+what is ordering of the two events preceding a beta - hairpin formation : formation of two extended strands or formation of the turn ?
+in contrast to the first goal , our second goal concerns multiple trajectories .
+specifically , we would like to identify a sub - sequence of similar conformations across trajectories .
+this sub - sequence of conformations is referred to as the consensus partial folding pathway .
+this is analogous to the longest common sub - sequence ( lcs ) problem [ 17 ] , but much more challenging due to the following reasons .
+first , we are dealing with time series of 3d protein structures .
+second , we are looking for similar conformations across trajectories , and our work on mining spatio - temporal data [ 5 ] .
+3 algorithm in this section , we describe in detail the proposed approach for analyzing protein folding trajectories .
+as shown in figure 4 , such an approach consists of three main phases : ( i ) data preprocessing , ( ii ) spatio - temporal object association pattern mining , and ( iii ) trajectory analysis .
+we next discuss each phase in further details .
+figure 4 algorithm .
+main steps of summarizing and analyzing protein folding trajectories .
+3.1 data preprocessing same as in our previous studies on protein structural analysis [ 6,7 ] , we represent 3d protein conformations by contact maps .
+in order for this algorithm to be self - contained , we next briefly go over these preprocessing steps .
+we also explain the rationale of such steps in the context of protein folding .
+contact map generation when generating contact maps , we consider the euclidean distances between alpha - carbons ( calpha ) of each amino acid .
+two alpha - carbons are considered to be in contact if their distance is within 8.5 a. thus , for a protein of n residues , its contact map is an n x n binary matrix , where the cell at ( i , j ) is 1 if the ith and jth alpha - carbons are in contact , 0 otherwise .
+since contact maps are symmetric across the diagonal , we only consider the bits below the diagonal .
+furthermore , we also ignore the pairs of calpha atoms whose distance in the primary sequence is <= 2 , as they are sure to be in contact .
+this step transforms the two bba5 trajectories into two series of contact maps , with each contact map of size 23 x 23. by the same token , the 5 gsgs trajectories are transformed into 5 sequences of contact maps .
+identifying maximally connected bit - patterns every bit in a contact map has eight neighbor bits .
+for an edge position , we assume its out - of - boundary positions contain 0 .
+in a contact map , a connected bit - pattern is a collection of bit - 1 positions , where for each 1 , at least one of its neighbors is 1 .
+correspondingly , we define a maximally - connected bit - pattern ( also referred to as a bit - pattern in this article ) to be a connected pattern p where every neighbor bit not in p is 0 .
+we apply a simple region growth algorithm to identify all the maximally - connected patterns in each contact map within the two series of contact maps , corresponding to the two folding trajectories of bba5 .
+altogether , we identified 352 maximally - connected bit - patterns in such contact maps .
+for the gsgs folding data , a total of 50,572 unique bit - patterns are constructed .
+we then represent each identified bit - pattern as a 6 - tuple feature vector consisting of the following attributes : * height : the number of rows contained in the pattern 's minimum bounding rectangle ( mbr ) .
+* width : the number of columns in the pattern 's mbr .
+* numones : the number of 1s in the pattern .
+* slope : the general linear distribution trend of all the 1s in the pattern within its mbr .
+to compute the angle of a connected pattern we use the least - squares method to estimate the slope of a linear regression line .
+for a pattern containing n 1s , we denote the positions of the 1s as : ( x1 , y1 )...( xn , yn ) .
+the least - squares method then estimates the slope beta1 as : beta1 = sumi = 1n (( xi - x )*( yi - y ))/ sumi = 1n (( xi - x ) 2 ) * xstddev : the standard deviation of all the 1s' x - coordinates ( this quantifies how the 1s spread along the x dimension ) .
+* ystddev : the standard deviation of all the 1s' y - coordinates .
+note that this feature vector captures the main geometric properties of a bit - pattern .
+as discussed in the literature [ 18 - 21 ] , non - local patterns ( where bit - patterns are one type of non - local patterns ,) in contact maps can effectively capture the secondary structure of proteins .
+our previous work [ 6,7 ] demonstrated that by characterizing the spatial relationship among the above described bit - patterns , one can construct structural signatures for proteins of different classes or folds .
+in the context of protein folding , we have observed that the above - defined bit - patterns are also capable of capturing a wide range of local 3d structural motifs .
+they can even approximately measure the strength of secondary structure propensity in a conformation .
+for instance , we have identified bit - patterns that correspond to " premature " alpha - helices and native - like alpha - helices respectively .
+henceforth , we refer to the 3d structure formed by all the participating residues of a bit - pattern as the 3d motif of the bit - pattern .
+the relationship between bit - patterns and 3d motifs will be further discussed in the next section .
+clustering bit - patterns into approximately equivalent groups in this step , we partition the extracted bit - patterns into approximately equivalent groups , each of which consists of bit - patterns that exhibit similar geometric properties ( e.g. , shape and size ) .
+to construct such equivalent groups , we run the k - means based clustering algorithm [ 22 ] over the bit - patterns' corresponding feature vectors , where k is the number of clusters ( or equivalent groups ) that will be produced .
+to determine an optimal value of k , we take the following three steps .
+first , we run the clustering algorithm on different k values .
+this produces different clustering schemes for the same set of bit - patterns .
+second , for each clustering scheme , we compute its entropy .
+let c1 , ... , cl be the l clusters after clustering the set of n bit - patterns .
+furthermore , each cluster ci ( 1 <= i <= l ) has an individual entropy hi and contains ni elements , then the total entropy of this clustering is given by the following formula : h = sumi = 1khi *( ni / n ) the entropy of each individual cluster , i.e. , hi , is computed by summing up the entropy of each of the six bit - pattern attributes such as its height and width .
+for an attribute , we compute its entropy in a cluster according to the procedure explained by shannon [ 23 ] .
+in the third and final step , we plot the entropy against the number of clusters , i.e. , k , and choose a value k where the entropy plot begins to show a linear trend .
+for the bba5 folding data , this clustering step groups the 352 bit - patterns into 10 clusters ( or types ) .
+as for the gsgs data , 12 clusters are identified .
+intuitively , the 3d motifs of the bit - patterns in a cluster will also have similar 3d geometric properties .
+this is verified based on our manual analysis on the bba5 trajectories .
+figure 5 illustrates the representative 3d motifs.corresponding to the 9 of 10 types of bit - patterns identified in bba5 trajectories .
+we omit type 0 , as bit - patterns of this type , unlike the others , correspond to a wide variety of 3d motifs .
+figure 5 mapping between 2d bit - patterns and 3d sub - structures .
+the figure visualizes the representative 3d sub - structures corresponding to the 10 classes of bit - patterns identified in the contact maps along bba5 's two folding trajectories .
+the bit - patterns shown here are randomly selected from their respective group for illustration purpose .
+we also observed a similar scenario for the 12 types of bit - patterns identified in the gsgs trajectories .
+for instance , the typical 3d motifs of type 0 bit - patterns resemble the native conformation of gsgs ( see figure 2 ( a )) ; whereas those of type 6 identify with alpha - helices .
+upon a closer look at this 2d - 3d mapping illustrated in figure 5 , one can observe the following interesting aspects .
+first , multiple types of bit - patterns can be associated with a single type of 3d motif .
+for instance , there are 3 types of bit - patterns are mapped to an alpha - helical motif .
+second , contrary to a commonly accepted belief that beta - turns or beta - sheets cannot be captured by maximally connected bit - patterns as defined earlier , our analysis shows that this belief does not stand .
+to illustrate this point , we take two examples .
+the first example , illustrated in figure 6 , corresponds to the beta - turn structure .
+as shown in figure 6 ( b ) , the beta - turn formed by the first 10 calpha atoms of bba5 can be captured by the maximally connected bit - pattern shown in figure 6 ( a ) .
+the second example , shown in figure 7 , illustrates that a two turn beta - sheet ( figure 7 ( b )) can also be captured by a bit - pattern ( figure 7 ( a )) .
+finally , not every type of bit - patterns can be mapped to a typical 3d motif .
+this might be attributed to our entropy - based criteria for selecting an " optimal " value of the parameter k in the clustering task .
+figure 6 beta - turns vs. maximally connected bit - patterns : an example .
+( a ) a type 8 bit - pattern is identified in the 166th frame of the bba5 t23 trajectory .
+this bit - pattern corresponds to the the connected 1s in the table , where a ' 1 ' indicates two corresponding calpha atoms are in contact ,' - ' otherwise .
+this pattern consists of the first 10 calpha atoms .
+( b ) the 3d conformation of this frame , where the first 10 calpha atoms resembles a beta - turn .
+figure 7 beta - sheets vs. maximally connected bit - patterns : an example .
+( a ) a type 0 bit - pattern is identified in the 24201th frame of the gsgs t1 trajectory .
+this bit - pattern corresponds to the the connected ' x ' - es in the table , where an ' x ' indicates two corresponding calpha atoms are in contact ,' - ' otherwise .
+it consists of calpha atoms from 5 through 20 .
+( b ) the 3d conformation of this frame , where the 5 - 20 calpha atoms resembles a beta - sheet of two turns .
+this demonstrates , to a certain extent , the advantage of using 2d contact maps to analyze 3d protein conformations .
+undoubtedly , using contact maps greatly reduces the computational complexity , though at the cost of loss in structural information .
+however , some of this information loss is re - compensated by mapping bit - patterns to structural motifs in 3d conformations .
+more importantly , by exploiting different features in contact maps ( bit - patterns in this work ) , we are able to connect 2d features with features in 3d space .
+in the bba5 case , by identifying 10 types of bit - patterns in contact maps , we indirectly recognize 10 different 3d structural motifs in the folding conformations .
+re - labeling bit - patterns with the corresponding cluster label in this step , we re - label all the previously identified bit - patterns with their corresponding cluster label .
+let p be a labeled bit - pattern .
+it can be represented as follows : p = ( trajid , frameid , listcalpha , label ) .
+here , trajid identifies a folding trajectory , and frameid indicates the frame where p occurs , listcalpha consists of all participating alpha - carbons of p , identified by their position in the primary sequence .
+finally , label is the cluster label of p. for bba5 , label in { g0 , g1 , ... , g9 } , corresponding to the 10 approximately equivalent groups ( or types ) .
+3.2 mining spatio - temporal object association patterns the preprocessing steps transform a 3d protein conformation into a set of labeled 2d bit - patterns , that indirectly capture the local 3d structural characteristics of the conformation .
+for the two bba5 trajectories , each conformation contains an average of 6 bit - patterns .
+as for the five gsgs trajectories , the average number of bit - patterns in each conformation is 4 .
+as bba5 and gsgs fold , the dynamics among their residues is constantly changing until it reaches an equilibrium .
+this means that two residues previously in contact may become out of contact later .
+as a result , bit - patterns present in one conformation may be absent in the next .
+the evolving nature of contacting residues and in turn bit - patterns , is essentially the consequence of a variety of weak interactions among amino acids at different levels .
+such weak interactions include hydrogen bonds , electrostatic interactions , van der waal 's packing and hydrophobic interactions [ 24 ] .
+to capture these ( potential ) interactions , a simple yet effective method is to consider how close two amino acids are located from each other in 3d .
+we also adopt this method here .
+specifically , we consider interactions between local 3d motifs captured by labeled bit - patterns .
+we denote such interactions as " interactions among bit - patterns " .
+let pi and pj be two bit - patterns in a protein conformation , and pi.listcalpha and pj.listcalpha be the list of alpha - carbons involved in pi and pj , respectively .
+we define piand pj as interacting bit - patterns if at least one pair of alpha - carbons , each from pi.listcalpha and pj.listcalpha are located within a short distance delta .
+note that the value of delta should be greater than the distance that is being used to identify contacting alpha - carbons when generating contact maps .
+in our analysis , we set delta = 10 a. it is noteworthy that the above notion of interacting bit - patterns is new compared to our previous work , where two bit - patterns are associated if their distance in the 2d contact map space is below a certain threshold .
+this can be misleading in the context of protein folding analysis .
+as demonstrated in figure 8 , the two bit - patterns - bp # 1 and bp # 2 - are only 2 amino acids away in the 2d contact map .
+however , they can be relatively far apart in 3d .
+on the other hand , although the bit - patterns bp # 2 and bp # 3 are relatively far apart from each other in the 2d contact map , they are close to each other in 3d .
+therefore , measuring the distance between bit - patterns in the actual 3d conformation is more robust with respect to capturing potential interaction among local motifs .
+figure 8 discrepancy between distances in 2d and 3d spaces .
+bit - patterns that are close to each other in the 2d contact map space , for instance , bp # 1 and bp # 2 , can be distant from each other in 3d .
+similarly , bit - patterns that are distant in 2d space , for instance , bp # 1 and bp # 3 , can be close to each other in 3d .
+so far , we have discussed our approach of using bit - patterns in contact maps to characterize local 3d motifs and further represent a protein conformation during folding .
+we also define the notion of interacting bit - patterns in the folding context .
+we are now ready to present our method of summarizing folding trajectories to fulfill the two objectives described in section 2.3 .
+the main idea is that we can summarize a folding trajectory by characterizing the evolutionary behavior of interactions among different types of bit - patterns and in turn , the interactions among local 3d motifs .
+definition of ( minlink = 1 ) soap as proposed in our previous work [ 5,25 ] , such interactions can be modeled and captured by discovering different types of spatial object association patterns ( soaps ) .
+essentially , soaps characterize the specific way that objects , bit - patterns in this case , are interacting with each other at a given time .
+among the proposed soap types , after a careful evaluation , we empirically select ( minlink = 1 ) soaps to model the interacting bit - patterns in the folding process .
+let p = ( g1 , g2 , ... , gk ) be a ( minlink = 1 ) soap of size k , where gi is one of the 10 types of bit - patterns described above .
+in the context of folding trajectories , p prescribes that there exists k bit - patterns b1 , b2 , ... , bk in a conformation , where bi.label = gi ( 1 <= i <= k ) .
+furthermore , for each bi , it interacts with at least one of the remaining ( k - 1 ) bit - patterns .
+note that the k labels in p are not mutually exclusive .
+for instance , one can have soaps such as ( 7 9 9 ) , which involves one type 7 bit - pattern and two type 9 bit - patterns .
+we further restrict ourselves to soaps that occur frequently during the folding process ( frequent soaps ) .
+however , we are not ruling out rarely - occurring soaps in our future studies .
+a soap is said to be frequent if it appears in no fewer than minsupp frames in a trajectory .
+in our studies , we set minsupp = 5 for bba5 and 10 from gsgs .
+soap episodes the next step is to capture the evolutionary nature of the folding process .
+we do this by identifying the evolutionary nature of soaps .
+as mentioned earlier , small proteins like bba5 and gsgs often fold hierarchically and begin with local folded structures .
+as they fold , new soaps can be created and existing one can dissipate .
+to capture such evolutionary behavior , we proposed the concept of soap episodes , which provide an effective approach to model the evolution of interactions among spatial objects over time [ 5 ] .
+to reiterate , a soap episode e is defined as follows : e = ( p , fbeg , fend ) , where p is a soap composed of one or more bit - patterns , p was created in frame fbeg and persisted till frame fend .
+note that for a given p , it can be created more than once during protein folding , and thus can have more than one episode .
+to discover frequent ( minlink = 1 ) soaps and their episodes in the trajectories of bba5 and gsgs , we apply our soap mining algorithm as explained in our previous work [ 5 ] .
+in summary , this mining phase produces the following results : ( i ) a list of ( minlink = 1 ) soaps of bit - patterns that appeared in at least 5 conformations in each folding trajectories for the protein bba5 and 10 for gsgs ; and ( ii ) a list of episodes , ordered by beginning frame fbeg , associated with each of these soaps .
+3.3 folding trajectory analysis in this section , we describe our strategy on utilizing soaps to summarize a folding trajectory and address the two folding analysis issues described in section 2.3 .
+soap - based trajectory summarization the previous mining phase discovers a collection of frequent ( minlink = 1 ) soaps and the associated episodes in each trajectory .
+therefore , it identifies all the conformations in the trajectories that contain at least one frequent ( minlink = 1 ) soaps .
+for instance , the last conformation in trajectory t23 ( figure 1 ( c )) has two soaps of size 2 :( 5 8 ) ( i.e. , association of a type 5 and a type 8 bit - pattern ) and ( 7 8 ) , and three soaps of size 1 : ( 5 ) , ( 7 ) , and ( 8 ) , while the last conformation in trajectory t24 has three soaps : ( 7 8 ) , ( 7 ) and ( 8 ) .
+this leads to our soap - based approach for folding trajectory summarization .
+to summarize a folding trajectory , we perform the following three steps .
+first , for each conformation , we identify all the frequent soaps that appear in it and use these soaps to represent this conformation .
+note that not every conformation contains frequent soaps , especially when minsupp is set high .
+second , for each soap - representable conformation , we carry out two tasks on its associated soaps .
+we next use the folding trajectories of bba5 to explain how these two tasks are carried out .
+in the first task , for each soap , we mark the relative location of each involved bit - pattern in the primary sequence of bba5 .
+this is done by identifying the segment of bba5 where the majority of a bit - pattern 's alpha - carbons are located .
+the segment can be one of the following as described in section 2.2 : f1 , residues 1 - 10 ; f2 , residues 11 - 23 ; f3 , residues 6 - 17 ; and f4 : residues 1 - 5 and 18 - 23 .
+let us again take the last conformation in t24 as an example .
+it can be summarized by three soaps : ( 7 8 ) , ( 7 ) and ( 8 ) .
+when we look at the list of alpha - carbons involved in these bit - patterns , we find out that 7 is mainly located in f2 and 8 in f1 .
+therefore , we mark the three soaps as follows : ( 8.1 7.2 ) , ( 7.2 ) and ( 8.1 ) .
+we re - arrange the bit - patterns in a soap by their relative locations in bba5 .
+this super - imposes bba5 - specific spatial information to a soap .
+in the second task , we prune away redundant soaps after marking each bit - pattern with its relative location in bba5 .
+a soap is redundant if it is embedded in another soap .
+for instance , in the previous example , we can prune away ( 8.1 ) and ( 7.2 ) as both are embedded in ( 7.2 8.1 ) .
+after pruning , most conformations in such a small protein can often be represented by a single soap .
+we can even take this summarization a step further , where we replace a bit - pattern with its corresponding 3d motif , as illustrated in figure 5 .
+for instance , soap ( 7.2 8.1 ) will be transformed into ( beta.1 alpha.2 ) .
+we refer to such soaps as generalized soaps , and the corresponding trajectory as a generalized trajectory .
+note that in a generalized trajectory , multiple types of bit - patterns can be mapped into a single type of 3d motif .
+for instance , the alpha - motif corresponds to three types of bit - patterns 4 , 7 , and 9 ( figure 5 ) .
+figure 9 shows a segment in each summarized bba5 folding trajectory before and after being generalized with 3d motifs .
+figure 9 soap - based folding trajectory summarization .
+an sample segment in each of the two bba5 folding trajectories is presented , ( a ) after superimposing the relative location of each bit - pattern and pruning away redundant soaps .
+( b ) after further generalizing each bit - pattern by corresponding 3d motif .
+detecting folding events and recognizing ordering among events once each folding trajectory is summarized into generalized soaps , it is fairly straightforward to detect folding events such as the formation of alpha - helix or beta - turn like local structures .
+this can be done by simply locating the frames that contain the local motif ( s ) of interest .
+we can also easily identify native - like conformations , by finding those that contain the generalized soap ( beta.1 alpha.2 ) .
+finally , based on the summarization , one can quickly identify the ordering of folding events in a trajectory .
+for instance , to check which secondary structure forms more rapidly , alpha - helix or beta - hairpin , one can simply compare the first occurrence of these structures in the summarized trajectory ( figure 9 ( b )) .
+identifying the consensus partial folding pathway across trajectories to do this , we simply compute the longest common sub - sequence ( lcs ) [ 17 ] between two summarized trajectories .
+one can utilize the summarization either before the 3d motif generalization ( figure 9 ( a )) or after ( figure 9 ( b )) .
+we use the latter in our analysis .
+based on the lcs of generalized soaps , we construct the consensus folding pathway by identifying pairs of conformations , one from each trajectory , along the lcs of two summarized trajectories .
+in other words , the resulting consensus pathway consists of a sequence of conformation - pairs of similar 3d structures .
+notice here that the comparison between 3d protein conformations ( as described in section 2.2 ) is done by using bit - patterns to model local structural motifs , and associations of bit - patterns ( soaps ) to characterize the global structure .
+this forms a hierarchical comparison and is in accordance with the hierarchical folding process of small proteins .
+4 results in this section , we report results on analyzing the two trajectories of the small synthetic protein bba5 and the five trajectories of another small protein gsgs .
+however , we will focus on bba5 .
+in previous sections , we have described in detail the structure of bba5 of gsgs and their folding trajectories .
+such information is summarized and tabulated in table 4 and table 5 .
+table 4 a summary of the bba5 folding trajectories .
+protein pdb identifier : bba5 ; primary sequence : 23 residues ; designed protein ; native fold : n - terminal 1 - 10 beta hairpin , c - terminal 11 - 23 alpha - helix trajectory two trajectories : t23 and t24 ; t23 : 192 conformations ; t24 : 150 conformations contact map based on contacts between alpha - carbons.two alpha - carbons are in contact if their euclidian distance is <= 8.5 a bit - patterns a total of 352 unique maximally connected bit - patterns were identified from all conformations ; average number of bit - patterns per conformation is 6 ; bit - patterns are further classified into 10 approximately equivalent types interacting bit - patterns if at least one pair of alpha - carbons , one from each bit - pattern , is of euclidian distance <= 10 a frequent soaps a soap is frequent if it appears in >= 5 conformations ; a total of 444 frequent soaps identified in trajectory t23 , and 258 in t24 consensus partial folding pathway we identified a consensus partial folding pathway across the two trajectories.it is composed of 71 pairs of similar conformations , one from each trajectory table 5 a summary of the gsgs folding trajectories .
+protein name : gsgs or beta3s ; primary sequence : 20 residues ; designed protein ; native fold : three stranded anti - parallel beta - sheets with turns at 6 - 7 and 14 - 15 trajectory five trajectories : t1 , t2 , t3 , t4 and t5 ; t1 : 25 , 664 conformations ; t2 : 30 , 075 conformations ; t3 : 19 , 649 conformations ; t4 : 25 , 263 conformations ; t5 : 25 , 664 conformations ; contact map based on contacts between alpha - carbons.two alpha - carbons are in contact if their euclidian distance is <= 8.5 a bit - patterns a total of 50 , 572 unique maximally connected bit - patterns were identified from all conformations ; average number of bit - patterns per conformation is 4 ; bit - patterns are further classified into 12 approximately equivalent types interacting bit - patterns if at least one pair of alpha - carbons , one from each bit - pattern , is of euclidian distance <= 10 a frequent soaps a soap is frequent if it appears in >= 10 conformations ; 4.1 detecting and ordering folding events we summarize both folding trajectories of bba5 into a sequence of soaps as illustrated in figure 9 .
+coincidently , both summarized trajectories consist of 64 conformations .
+based on these summarized trajectories , we can quickly identify all the conformations where the first alpha - helix - like or beta - turn - like local motifs were formed .
+for trajectory t23 , the first alpha - helix - like motif was identified in frame 26 , and the first beta - turn - like local motif was formed in frame 63 .
+for the other trajectory t24 , the frames were 29 and 38 .
+this is in accordance with experimental results that alpha - helices generally fold more rapidly than beta - turns .
+however , since we only consider frequent soaps , it is very possible that we might miss the actual first formation of such local motifs .
+to address this issue , we might need to consider rarely occurring soaps .
+we plan to investigate this in the future .
+for the two events related to beta - turn formation , formation of two extended strands and formation of the turn , we found that for both trajectories , the formation of extended strands preceded the formation of the turn .
+also , we identify two conformations in each trajectory that show native - like structure .
+we do this by locating the conformations associated with the generalized soap ( beta.1 alpha.2 ) .
+figure 10 presents the 3d structure of these native - like conformations along with the native conformation of bba5 .
+one can see that our soap - based comparison does well in identifying similar 3d conformations .
+figure 10 the native - like conformations identified in the two bba5 trajectories .
+according to the soap - based summarization of the two bba5 folding trajectories , two native - like conformations are identified in each trajectory .
+4.2 consensus partial folding pathway across trajectories based on the generalized trajectory summarization of bba5 , we identify a consensus partial folding pathway of length 71 .
+in other words , 71 pairs of conformations , one from each trajectory , are considered similar to each other .
+figure 3 displays four such pairs along this consensus folding pathway .
+for instance , the two conformations shown in figure 3 ( c ) , corresponding to the 182th frame in the t23 trajectory and the 116th frame in the t24 trajectory of bba5 respectively , are considered structurally similar , since both conformations exhibit an alpha - helix in the left half of the backbone , and a beta - turn in the right half .
+figure 11 illustrate 5 pairs of conformations along the consensus folding pathway of the 1st and 3rd trajectories of gsgs. and figure 12 illustrates 5 conformation - pairs along consensus pathway of the 1st and 5th trajectories of gsgs .
+we are currently in the process of identifying consensus pathways across more than 2 trajectories of gsgs .
+note that by using bit - patterns , we naturally realize a rotation - invariant comparison .
+to illustrate this , let us again examine the afore - discussed conformation pair of bba5 .
+one notices that although the beta - turn in the two conformations orients differently , the two conformations are still identified as being structurally similar by our approach .
+figure 11 selected conformation - pairs along the consensus partial folding pathway across the 1st and 3rd trajectories of the gsgs peptide .
+the figure illustrates five pairs of conformations , one from each trajectory , along the consensus partial folding pathway identified in the 1st and 3rd trajectories .
+figure 12 selected conformation - pairs along the consensus partial folding pathway across the 1st and 5th trajectories of the gsgs peptide .
+the figure illustrates five pairs of conformations , one from each trajectory , along the consensus partial folding pathway identified in the 1st and 5th trajectories .
+currently , we rely on visual tools to justify these consensus pathways .
+we did attempt to use several measurements that have been used previously to quantify the similarity between 3d protein conformations , but to no avail .
+these measurements include rmsd , contact order , and native contacts .
+if we identify the pathway based on the best match given by any of the above measurements , we often ended up with a very short consensus pathway ( as short as 10 frames ) .
+two conformations are said to be a best match if they have the lowest rmsd or have the smallest difference in contact order or native contacts .
+moreover , different best - matched measurements rendered very different consensus pathways .
+finally , we notice that the best - matched conformations based on any of such measurements can often exhibit very different structural characteristics .
+we are investigating alternative methods for quantitative validation of our results .
+5 conclusions and ongoing work in this article , we present a novel approach to analyze protein folding trajectories and a case study on the small proteins bba5 and gsgs .
+we capture a variety of structural motifs in the 3d protein conformations by non - local bit - patterns identified in their 2d contact maps. by modeling the interactions or spatial relationships among bit - patterns as soaps and soap episodes , we effectively characterize the evolutionary nature of the folding process .
+we also describe two methods to summarize folding trajectories by super - imposing protein specific information and 3d motifs onto soaps .
+utilizing the summarized trajectories , we demonstrate that one can detect folding events and the temporal order among events .
+we also show that through comparing such summarized trajectories , one can identify a partial folding pathway common to multiple trajectories .
+we realize that it is a very hard and challenging task to understand the folding mechanism of proteins .
+based on our analysis results over a small protein , we are not in the position to make any general comments on the protein folding problem .
+however , the approach presented here is general and applicable to any folding trajectories .
+presently , we are in the process of addressing several other related issues .
+first , we are automating the mapping between 2d bit - patterns and 3d motifs .
+second , we are further analyzing the identified consensus folding pathways and validating them through other means .
+third , it is well - known that the side chains of a protein play a crucial role in the folding process .
+we are currently investigating different approaches to involve side chains in our analysis .
+finally , we are investigating whether bit - patterns can be used to index and manage protein folding simulation data .
+acknowledgements we thank dr. yusu wang at the ohio state university for providing the folding simulation data and sharing many constructive and insightful thoughts with us. snow cd nguyen h pande vs gruebele m absolute comparison of simulated and experimental protein - folding dynamics nature 2002 420 102 106 12422224 shirts m pande vs screen savers of the world unite science 2000 290 1903 1904 russel d guibas l exploring protein folding trajectories using geometric spanners pacific symposium on biocomputing pacific symposium on biocomputing 2005 40 51 15759612 berrar d stahl f silva c rodrigues j brito r dubitzky w towards data warehousing and mining of protein unfolding simulation data journal of clinical monitoring and computing 2005 19 307 17 16328945 yang h parthasarathy s mehta s generalized framework for mining spatio - temporal patterns in scientific data kdd ' 05 : proceeding of the eleventh acm sigkdd international conference on knowledge discovery in data mining 2005 new york , ny , usa : acm press 716 721 yang h mehta s parthasarathy s mining spatial object patterns in scientific data proceedings of the 19th internationl joint conference of artificial intelligence ( ijcai ) 2005 902 907 yang h marsolo k parthasarathy s mehta s discovering spatial relationships between approximately equivalent patterns the fourth workshop on data mining and bioinformatics , acm sigkdd ( biokdd ) 2004 62 71 pande vs meeting halfway on the bridge between protein folding theory and experiment proceedings of national academy of sciences 2003 100 3555 3556 snow cd nguyen h pandel vs gruebele m absolute comparison of simulated and experimental protein - folding dynamics nature 2002 420 102 106 12422224 ferrara p caflisch a folding simulations of a three - stranded antiparallel beta - sheet peptide proc natl acad sci 2000 97 10780 10785 10984515 ferrara p caflisch a native topology or specific interactions : what is more important for protein folding ?
+j mol biol 2001 306 837 850 11243792 folding @ home zagrovic b snow cd khaliq s shirts mr pande vs native - like mean structure in the unfolded ensemble of small proteins j mol biol 2002 323 153 164 12368107 kw p kt s d b contact order , transition state placement and the refolding rates of single domain proteins j mol biol 1998 277 985 994 9545386 de m ca k kw p h m how the folding rate constant of simple , single - domain proteins depends on the number of ative contacts proc nad acad sci usa 2002 99 3535 39 baldwin rl rose gd is protein folding hierarchic ?
+i. local structure and peptide folding trends in biochemical sciences 1999 24 26 33 10087919 garey mr johnson ds computers and intractability : a guide to the theory of np - completeness 1979 a421 wh freeman sr10 isbn 0716710455 hu j shen x shao y bystroff c zaki m mining non - local structural motifs in proteins biokdd 2002 2002 edmonton , canada hu j shen x shao y bystroff c zaki mj mining protein contact maps lancia g carr r walenz b istrail s 101 optimal pdb structure alignments : a branch - and - cut algorithm for the maximum contact map overlap problem proceedings of the fifth annual international conference on computational biology 2001 acm press 193 202 vendruscolo m domany e efficient dynamics in the space of contact maps folding & design 1998 3 329 336 9806935 macqueen j cam ll , neyman j some methods for classification and analysis of multivariate observation proceedings of the fifth berkeley symposium on mathematical statistics and probability 1967 1 berkeley : university of california press 281 297 shannon ce a mathematical theory of communication sigmobile mob comput commun rev 2001 5 3 55 griffiths - jones sr peptide models for protein beta - sheets phd thesis 2000 university of nottingham yang h parthasarathy s mehta s towards association based spatio - temporal reasoning proceedings of the 19th ijcai workshop on spatio - temporal reasoning 2005

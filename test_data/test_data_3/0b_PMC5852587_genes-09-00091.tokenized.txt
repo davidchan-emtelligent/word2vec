@@ -1,0 +1,290 @@
+genes ( basel ) genes ( basel ) genes genes 2073 - 4425 mdpi 29443925 5852587 10.3390 / genes9020091 genes - 09 - 00091 article pclass : protein quaternary structure classification by using bootstrapping strategy as model selection huang chi - chou 12 chang chi - chang 34 chen chi - wei 56 ho shao - yu 5 chang hsung - pin 6 https :// orcid.org / 0000 - 0002 - 5525 - 4011 chu yen - wei 57 * 1 school of medicine , chung shan medical university , taichung 40201 , taiwan ; hcjy341 @ ms1.hinet.net 2 division of colon & rectal surgery , department of surgery , chung shan medical university hospital , taichung 40201 , taiwan 3 school of medical informatics , chung - shan medical university , taichung 40201 , taiwan ; threec @ csmu.edu.tw 4 it office , chung shan medical university hospital , taichung 40201 , taiwan 5 institute of genomics and bioinformatics , national chung hsing university , kuo kuang rd. , taichung 402 , taiwan ; d103056006 @ mail.nchu.edu.tw ( c. - w.c. ) ; jjkoko916 @ hotmail.com ( s. - y.h . )
+6 department of computer science and engineering , national chung - hsing university , kuo kuang rd. , taichung 402 , taiwan ; hpchang @ cs.nchu.edu.tw 7 biotechnology center , agricultural biotechnology center , institute of molecular biology , graduate institute of biotechnology , national chung hsing university , kuo kuang rd. , taichung 402 , taiwan * correspondence : ywchu @ nchu.edu.tw ; tel. : + 886 - 4 - 2284 - 0338 ( ext .
+7041 ) 14 2 2018 2 2018 9 2 91 21 12 2017 08 2 2018 ( c ) 2018 by the authors .
+2018 licensee mdpi , basel , switzerland .
+this article is an open access article distributed under the terms and conditions of the creative commons attribution ( cc by ) license ( http :// creativecommons.org / licenses / by / 4.0 /) .
+protein quaternary structure complex is also known as a multimer , which plays an important role in a cell .
+the dimer structure of transcription factors is involved in gene regulation , but the trimer structure of virus - infection - associated glycoproteins is related to the human immunodeficiency virus .
+the classification of the protein quaternary structure complex for the post - genome era of proteomics research will be of great help .
+classification systems among protein quaternary structures have not been widely developed .
+therefore , we designed the architecture of a two - layer machine learning technique in this study , and developed the classification system pclass .
+the protein quaternary structure of the complex is divided into five categories , namely , monomer , dimer , trimer , tetramer , and other subunit classes .
+in the framework of the bootstrap method with a support vector machine , we propose a new model selection method .
+each type of complex is classified based on sequences , entropy , and accessible surface area , thereby generating a plurality of feature modules .
+subsequently , the optimal model of effectiveness is selected as each kind of complex feature module .
+in this stage , the optimal performance can reach as high as 70 % of matthews correlation coefficient ( mcc ) .
+the second layer of construction combines the first - layer module to integrate mechanisms and the use of six machine learning methods to improve the prediction performance .
+this system can be improved over 10 % in mcc .
+finally , we analyzed the performance of our classification system using transcription factors in dimer structure and virus - infection - associated glycoprotein in trimer structure .
+pclass is available via a web interface at http :// predictor.nchu.edu.tw / pclass / .
+protein quaternary structure bootstrap strategy model selection classification 1 .
+introduction the most important intracellular signaling process requires polymerization into a multimer structure by the protein monomer structure to complete cell regulation and active function .
+however , many proteins can function as a monomer structure , such as enzymes , which can bind with a substrate to enhance the combination of other subunits and accelerate their reaction [ 1 ] .
+protein complexes are usually described by the number of subunits .
+a complex with two subunits is called a dimer , which includes transcription factors [ 2 ] , cell receptors [ 3 ] , and cytoskeleton proteins [ 4 ] .
+the trimer structure contains three subunits , such as collagen [ 5 ] , virus - infection - associated glycoproteins [ 6 ] , and hemagglutinin [ 7 ] .
+a tetramer contains four subunits , such as immunoglobulin protein [ 8 ] , hemoglobin [ 9 ] , and avidin [ 10 ] .
+a hexamer contains six subunits , such as the dnab helicase [ 11 ] , serum protein [ 12 ] , and insulin [ 13,14 ] .
+an octamer contains eight subunits , such as earthworm 's serum albumin ( hemerythrin ) [ 15 ] and nucleosome [ 16 ] .
+under normal circumstances , the protein complexes in cells are rarely more than an octamer , but some exceptions include the proteasome , spliceosome , and exosome .
+therefore , monomers and multimers play an important role in biological cells - - and also they may lead to cancer and the development of new drugs [ 17,18,19,20,21 ] .
+to comprehend how a polymer is formed , polyacrylamide gel electrophoresis [ 22 ] , mass spectrometry [ 23 ] , high performance liquid chromatography ( hplc ) - gel filtration chromatography [ 24 ] , analytical ultracentrifugation [ 25 ] , and multi - angle laser light scattering [ 26 ] analyses are usually conducted to determine the size and distribution of the polymer .
+however , such experimental methods may be time consuming , laborious , and costly .
+the development of an in silico method for protein quaternary structure complexes may assist biological experiments .
+however , only two studies presented the use of machine learning to determine the protein quaternary structure complex .
+multicoil [ 27 ] utilizes the covariance matrix of a multivariate gaussian distribution to predict whether a coiled coil sequence belongs to a dimeric coiled coil , trimeric coiled coil , or noncoiled coil structure .
+each residue is given a predicted score .
+multicoil2 combines multicoil with multinomial logistic regression to obtain two predictors of dimer and trimer propensity .
+these predictors are used to generate potentials for a markov random field .
+scorer [ 28 ] uses the log - odds - based scoring system to differentiate between a parallel dimeric coiled coil or parallel trimeric coiled coil .
+scorer 2.0 [ 29 ] improves the log - odds - based scoring system , makes good use of position - specific scoring matrix and multicoil , and predicts parallel coiled coil sequence of hepetad repeat location and gives it a score .
+high scores represent high accuracy in predicting dimer or trimer structures .
+few studies have focused on the dimer and trimer structures , and complete protein quaternary structure complex bioinformatics tools are lacking .
+this study established a protein quaternary structure complex prediction system by designing a two - layer machine learning framework , and optimal classification and prediction system pclass .
+the first layer , using the bootstrap method , proposed a new model selection with amino acid sequence composition , entropy , and accessible surface area ( asa ) as feature coding .
+support vector machine ( svm ) was used to select the best performance learning module to build a feature module , wherein the prediction performance was able to be as high as 70 % of a matthews correlation coefficient ( mcc ) .
+subsequently , we selected the best feature model to establish a second - layer prediction model , which was integrated by the first layer through machine learning for model selection and prediction of protein quaternary structure complex .
+the mcc ranged from 70 % to 80 % .
+to further investigate the accuracy of the protein quaternary structure complex prediction system , we used dimer - structured transcription factors , and virus - infection - associated glycoproteins in which have a trimer structure as a classification system to verify the protein quaternary structure complex .
+finally , the prediction accuracy of the classification system was determined to reach 66 % of accuracy ( acc ) .
+2. materials and methods 2.1 .
+dataset as mentioned above , to examine the complete protein quaternary structure complex , this study integrated two different databases , namely , the coiled - coil sequence location database and protein complex structure database , to create and verify the prediction system .
+one of the datasets was cc + database [ 30 ] , which testa et al. proposed after adjusting the coiled - coil structure and polymer data .
+in scorer 2.0 web server , they also utilized the cc + database but only the parallel dimer and trimer coiled - coil data .
+in the present study , we used the dataset of all polymers in the cc + database and classified the polymers into four categories ( dimer , trimer , tetramer , and other subunits ) .
+another dataset of the 3d complex was used [ 31 ] , which was proposed as a protein complex structure database .
+the 3d complex provides a protein domain structure , cell expression system , accessible surface area of the complex , subunit type , and homologous and heterologous polymers .
+in this study , we analysed the database of homologous or heterologous monomers and polymers , classified the data into five categories ( monomer , dimer , trimer , tetramer , and other subunits ) , and integrated the data with the cc + database for the study dataset .
+we used data from 2007 and 2006 to verify the established system , whereas data from the years before 2006 were the basis for the establishment of the monomer and polymer system module ( table 1 ) .
+the study dataset was divided into five categories , and monomers were classified as positive .
+the remaining non - monomer data were categorized as negative information .
+the other polymers are shown in table 2 .
+2.2 .
+feature encoding 2.2.1 .
+amino acid composition amino acid composition ( aac ) describes the basic unit of a protein , which has specific molecular structure patterns , such as charge , size , polarity , and solubility ( hydrophilic and hydrophobic ) .
+proteins have biochemical activity .
+therefore , we used 20 kinds of amino acids in the composition and the other remaining amino acid as a class , resulting in 21 kinds of amino acid compositions .
+we calculated the sequence of amino acid composition as follows : aac ( xa )= number of amino acid xalength of protein sequence where xa represents the 21 different amino acids .
+2.2.2 .
+shannon entropy in 1948 , claude e. shannon proposed thermodynamic entropy in information theory to measure the expectations of a random variable for solving the quantization problem [ 32 ] .
+when a system is ordered , its entropy is low. by contrast , if a system is complex , its entropy is high .
+the shannon entropy formula can be used to calculate the change rate in the data sets for each protein sequence in the amino acid residue position sequence [ 33 ] .
+p ( xi ) is the frequency of each amino acid sequence .
+the logarithm of p ( xi ) multiplied by p ( xi ) is determined to obtain the entropy as the feature coding .
+h ( x )= - sumi = 1ip ( xi ) log2 ( p ( xi )) 2.2.3 .
+accessible surface area in protein folding , amino acid residues contain hydrophilic and hydrophobic charges .
+these residues are then folded into a 3d structure through their interactions .
+the hydrophobicity of residues is crucial to stabilize the protein structure .
+when proteins are in an aqueous solution , the hydrophobic amino acid side chains are embedded in the internal proteins to form a hydrophobic core and stable protein .
+the protein 's accessible surface area proposed by lee and richards [ 34 ] is used to study the hydrophobicity of protein molecules .
+the accessible surface area ( asa ) indicates the contact area between the protein and solvent , which is divided into two states ( i.e. , exposure or embedded ) .
+the sas web server [ 35 ] was used to obtain a sequence asa to differentiate between monomer and multimer feature coding .
+2.3 .
+model in the study , we proposed a major component element known as the integration of classification to effectively use each feature and process the data classification problem .
+in most cases , the number of negative data ( majority class ) was higher than that of positive data ( minority class ) , and the ratio of sizes between them usually exceeded three .
+thus , for unbalanced data , we used r software in the bootstrap method for repeated sampling and then generated different subset data .
+according to the unbalance training data in the protein interaction problem processed by deng et al .
+[ 36 ] .
+the majority class of information was subjected to random sampling , so that the majority class data number was equal or similar to the minority class data number in a certain subset .
+this step also ensured that the entire minority class data were retained in the overall dataset .
+furthermore , deng , et al. used voting strategy to integrate these submodels [ 36 ] .
+however , that strategy ca n't be adopted when the submodels are an even number .
+therefore , pclass selected the best learning model for each feature , which might come from different subset. by integrating classification and bootstrap method , multimer negative information of training set was partitioned into the same or similar groups of positive data .
+thus , each group with complex negative data were divided into m set , and each group positive data were integrated with the new classification of negative data to yield a new training data set .
+the complex of each group was based on the classification of the new training data set for individual use of amino acid composition , entropy , and asa for feature encoding .
+in addition , each group contains a m classification set and a support vector machine ( svm ) classifier is a process for the classification .
+in order to assess the robustness of the svm classifier , the tenfold cross validation method is used throughout the work .
+in figure 1 , the integration mechanism consists of two parts which the three best performing feature codings are performed to the feature modules of each group and the feature module is selected as a second layer to establish the integrating functions .
+additionally , it was also used in conjunction with other machine learning methods to enhance the performance of each prediction system .
+the monomers and dimers will not use the bootstrap method when the rates of positive are less than three .
+in this situation , the machine learning method will be used as an alternative .
+in contrast , trimers , tetramers , and other class subunits will be analyzed using the bootstrap method. that is , trimer data were divided into 20 negative and positive sets of data , and each group comprised three feature encodings .
+tetramer data were divided into eight negative and positive sets of data integration , and each group included three feature encodings .
+further , divided into 15 negative sets and a positive set of data integration in the other subunit types of information , there will be 15 of the group , each group having three feature encodings .
+to enhance the performance of each complex set classification system , the best mcc was selected as feature model through svm confidence scores as the input of the second layer of integration mechanisms .
+six kinds of machine learning methods ( bayesnet , reptree , ladtree , kstar , multilayerperceptron , and randomforest ) were then used to choose the best machine learning with the best performance [ 37 ] .
+furthermore , this study constructed a hierarchical testing by the best complex models from high to low individual performance when the unknown protein sequence was requested ; a possible flowchart is shown in supplementary figure s1 .
+when the predict results for this multimer class and practical is also this multimer class , called as true positive ( tp ) .
+if the predicted results are for this multimer class but the actual result is not this multimer class , then the data are false positive ( fp ) .
+if the predicted results are a nonpolymer class but actually a multimer class , then they are false negative ( fn ) .
+predictions for the nonmultimer class and actual nonmultimer class are called true negative ( tn ). through the rules defined , the method accuracy and performance are assessed .
+mcc is used to test the positive and negative correlation , and its value is between [ - 1,1 ] .
+if the value of 1 represents an entirely correct forecast , then the weak value of - 1 indicates that the forecast is opposite .
+the mcc can be calculated using the following formula : mcc =( tpxtn ) - ( fnxfp )( tp + fn ) x ( tn + fp ) x ( tp + fp ) x ( tn + fn ) accuracy ( acc ) , which is used to assess the overall predictive ability of forecasting accuracy , is calculated as follows : acc = tp + tntp + fp + tn + fn 3 .
+results and discussion 3.1 .
+training of feature encoding in first layer to understand the accuracy of the feature encoding prediction system , we used the svm training data with tenfold cross - validation ( supplementary figures s2 - s6 ) .
+different features were used for the encoding of the results .
+the trimer structure handle with imbalanced data on bootstrap method , through classifier evaluation can formation of twenty models , each model via svm to select the best parameters .
+among amino acid composition encoding , the model3 can reach a maximum mcc of 0.698 .
+for the entropy encoding , the model3 can achieve , at its best , an mcc of 0.693 .
+for asa encoding , the model6 can reach an mcc of 0.363 .
+in conclusion , we selected the best performance using the svm confidence scores of amino acid composition and entropy as the feature models ( supplementary figure s2 ) .
+the tetramer structure handle with imbalanced data on the bootstrap method , through classifier evaluation , can form eight models .
+each model ( via svm ) selected the best parameters among the amino acid composition encodings , with model1 reaching a maximum mcc of 0.742 .
+for entropy encoding , model2 could attain the optimal mcc of 0.783 .
+for asa encoding , model5 reached the optimal mcc of 0.425 .
+ultimately , we chose the best model through svm confidence scores of amino acid composition and entropy as the feature models ( supplementary figure s3 ) .
+other subunit classes were chosen to deal with unbalanced data on the bootstrap method. through classifier evaluation , fifteen models were formed .
+each model ( via svm ) selected the best parameters among the amino acid composition encodings , with model15 reaching the best mcc of 0.757 .
+for entropy encoding , model15 could reach the best mcc of 0.756 .
+for asa encoding , model14 could achieve the best mcc of 0.466 .
+finally , we selected the best model using svm confidence scores of amino acid composition and entropy as the feature model ( supplementary figure s4 ) .
+in the classification of trimers , tetramers , and other subunits , asa feature coding did not achieve enhanced prediction accuracy .
+thus , in the classification of monomers and dimers , we did not adopt asa feature coding .
+for monomer data , feature encoding and machine learning methods with tenfold cross - validation were directly used to select the best machine learning method as a module .
+machine learning methods include bayesnet , reptree , ladtree , kstar , multilayerperceptron , and randomforest .
+consequently , we selected the best machine learning method and performance , which were kstar and mcc = 0.721 , respectively .
+the best machine learning method for entropy encoding was kstar , and the mcc was 0.724 ( supplementary figure s5 ) .
+for the dimers to the amino acid composition and entropy encoding , the best machine learning method was kstar , and the mcc was 0.665 ( supplementary figure s6 ) .
+3.2 .
+training of integrate method in two layer to increase the classification efficiency and accuracy of the prediction system , the best performance model was selected in the first layer and integrated with the characteristics of other techniques ( supplementary figures s7 - s9 ) .
+given that asa feature coding did not achieve enhanced prediction accuracy , we did not adopt asa feature coding to establish the second layer .
+we explored various machine learning methods to select the best method with the findings from the first layer .
+then , the second layer used bayesnet , reptree , ladtree , kstar , multilayerperceptron , and randomforest [ 38,39,40,41,42 ] .
+the trimeric class used machine learning methods , and the best machine learning method was selected ( supplementary figure s7 ) .
+the trimer data used multilayerperceptron to achieve the best performance of mcc = 0.808 , whereas other machine learning techniques reached an mcc above 0.7 .
+compared with the first layer of the amino acid composition and entropy , mcc was 0.654 and 0.610 ( supplementary figure s10 ) .
+thus , the performance increased from 13 % to 19 % .
+for the tetramer class , we used machine learning methods to pick the best learning algorithms .
+show in supplementary figure s8 .
+it can be seen that for the tetramer data we used kstar to achieve the best performance of mcc 0.764 .
+other machine learning performance can reach an mcc above 0.72 .
+compared with the first layer of the amino acid composition and entropy , mcc was 0.63 and 0.61 ( supplementary figure s11 ) ; thus , the performance increased from 11 % to 15 % .
+other subunits were subjected to different machine learning methods , whereas other subunit information used reptree to achieve the best performance of mcc = 0.773 ( supplementary figure s9 ) .
+other machine learning techniques reached an mcc above 0.73 .
+compared with the first layer of the amino acid composition and entropy , mcc was 0.52 and 0.57 ( supplementary figure s12 ) ; thus , the performance increased from 22 % to 25 % .
+therefore , we utilized different machine learning methods and chose the best one , integrating feature as a combination .
+for trimer , tetramer , and the other subunit class can enhance the prediction of the system performance and accuracy .
+divided into five categories in the study , monomer , dimer , trimer , tetramer , and other subunits of class , each class establish a module , and selection of the best performance through machine learning .
+finally , we selected the overall module , as shown in figure 2 .
+hence , the model order was the trimer with mcc = 0.808 , followed by the other subunits with mcc = 0.773 , tetramer with mcc = 0.764 , monomer with mcc = 0.721 , and dimer with mcc = 0.665 .
+3.3 .
+bootstrap method compare with other method the trimer , tetramer , and other class subunits must be data processed .
+due to negative information and positive information ratio greater than three , the bootstrap method was used to deal with unbalanced data to achieve the best performance classification system .
+in this study , we randomly selected negative data 10 times for making positive data and negative data quantity of the same number , called the random method , and to verify that the bootstrap method can make the prediction system for optimal performance .
+as shown in table 3 , the average performance was 0.696 using trimer data by the bootstrap method for imbalanced data and first - layer feature models .
+trimer data using random method exhibited an average performance of only 0.676 .
+thus , the trimer structure data obtained by the bootstrap method could improve the prediction ability of the system .
+tetramer data via the bootstrap method for imbalanced data through first - layer feature models demonstrated an average performance of 0.741 .
+tetramer data via the random method yielded an average performance of 0.727 .
+for this reason , tetramer structure data from the bootstrap method could improve the prediction ability of the system .
+other subunits for imbalanced data by the bootstrap method through first - layer feature models revealed an average performance of 0.757 , whereas those using the random method indicated an average performance of 0.738 .
+as a result , the other subunits via the bootstrap method improved the prediction ability of the system .
+3.4 .
+case study using the transcription factor sequence data , we selected nine transcription factor sequences to predict the dimer structure .
+using the viral infection - associated glycoprotein data , we selected nine virus - infection - associated glycoprotein sequence data to predict the trimer structure .
+all protein database ( pdb ) ids of selected proteins were shown in supplementary dataset .
+in this study , we accurately predicted three virus - infection - associated glycoproteins belonging with a trimer sequence .
+the three trimer sequences belonged to human immunodeficiency virus ( hiv ) type i - associated glycoprotein gp41 .
+the remaining six trimer sequence data belonged to the trimeric hiv information , but they may be related to glycoprotein gp120 virus or other membrane fusion proteins .
+thus , the classification system of trimers could accurately predict the virus - infection - associated glycoprotein gp41 sequence .
+in the prediction of the dimeric transcription factor sequence , the proposed system could accurately predict the sequences belonging to the dimeric transcription factor .
+4. conclusions this study aimed to conduct feature encoding and integration mechanisms for classifying quaternary structures .
+for this purpose , we designed the architecture of a two - layer machine learning technique .
+two objective layers namely the bootstrap method to classify unbalanced data and selected the optimum parameters of the svm feature module are introduced to be used along with other machine learning methods to enhance the prediction performance .
+the first layer used a variety of feature encoding via svm machine learning to find the best parameters for each set as a model .
+in addition , each model has a m - predicted performance for selecting the best forecasting performance .
+the trimer , tetramer , and other subunits were selected as feature encoding of amino acid composition and entropy for an overall prediction performance above 0.7 and asa of 0.3 .
+thus , in the first layer of feature coding , we selected the amino acid composition and entropy to integrate the prediction performance as the feature module .
+in particular , the second layer used machine learning methods , and the selection of the optimum parameters of the svm feature module in the first layer .
+effectiveness of proposed machine learning methods is shown by comparing it with first layer. that is , the second layer of construction combines the first - layer module to integrate mechanisms and the best machine learning method was selected to improve the prediction performance .
+indeed , this system can be improved over 10 % in mcc .
+in this work , we analyzed the performance of our classification system using transcription factors with a dimer structure and virus - infection - associated glycoprotein with a trimer structure .
+there was a superiority of two - layer machine learning to predict and classify protein quaternary structures in dimers , trimers , tetramers , and other subunits .
+in addition to predicting the protein quaternary structure on the polymer structure , the interactions between the coiled - coil position and structure , homologous polymer and heterologous polymer structure , and parallel and antiparallel polymer structures may be investigated to establish a human polymer molecular database .
+finally , we provided an advanced web tool to users for the complete single - chain sequence of the protein quaternary structure .
+results showed a sequence of quaternary structure belonging to the protein monomer , protein dimer , trimer proteins , tetramer protein , or other subunits .
+acknowledgements this work is supported by the chung shan medical university hospital : csh - 2017 - c - 030 and ministry of science and technology , taiwan , r.o.c. under grant number 106 - 2221 - e - 005 - 077 - my2 .
+supplementary materials the following are available online at http :// www.mdpi.com / 2073 - 4425 / 9 / 2 / 91 / s1 , file f1 : pclass _ sd.zip , supplementary figures s1 - s12 ; dataset : ds.txt .
+click here for additional data file .
+author contributions s .
+- y.h. compiled the data set , wrote the experimental programs , website and drafted the manuscript ; c .
+- c.h. , c .
+- c.c. and c .
+- w.c. participated in the experimental design. h. - p.c. and y .
+- w.c. conceived the study ; c .
+- c.h. and y .
+- w.c. edited the manuscript .
+conflicts of interest the authors declare no conflicts of interest .
+references 1 .
+dmitriev o.y. jones p.c. fillingame r.h. structure of the subunit c oligomer in the f1fo atp synthase : model derived from solution structure of the monomer and cross - linking in the native enzyme proc. natl. acad. sci. usa 1999 96 7785 7790 10.1073 / pnas.96.14.7785 10393899 2 .
+toledo - ortiz g. huq e. quail p.h. the arabidopsis basic / helix - loop - helix transcription factor family plant cell online 2003 15 1749 1770 10.1105 / tpc.013839 3 .
+spivak - kroizman t. lemmon m. dikic i. ladbury j. pinchasi d. huang j. jaye m. crumley g. schlessinger j. lax i. heparin - induced oligomerization of fgf molecules is responsible for fgf receptor dimerization , activation , and cell proliferation cell 1994 79 1015 1024 10.1016 / 0092 - 8674 ( 94 ) 90032 - 9 7528103 4 .
+mege r.m. gavard j. lambert m. regulation of cell - cell junctions by the cytoskeleton curr. opin .
+cell boil .
+2006 18 541 548 10.1016 / j.ceb.2006.08.004 16905303 5 .
+bulleid n.j. dalley j.a. lees j.f. the c - propeptide domain of procollagen can be replaced with a transmembrane domain without affecting trimer formation or collagen triple helix folding during biosynthesis embo j .
+1997 16 6694 6701 10.1093 / emboj / 16.22.6694 9362484 6 .
+gustchina e. li m. louis j.m. anderson d.e. lloyd j. frisch c. bewley c.a. gustchina a. wlodawer a. clore g.m. structural basis of hiv - 1 neutralization by affinity matured fabs directed against the internal trimeric coiled - coil of gp41 plos pathog .
+2010 6 e1001182 10.1371 / journal.ppat.1001182 21085615 7 .
+skehel j.j. wiley d.c. receptor binding and membrane fusion in virus entry : the influenza hemagglutinin annu. rev. biochem .
+2000 69 531 569 10.1146 / annurev.biochem.69.1.531 10966468 8 .
+gascoigne n. goodnow c.c. dudzik k.i. oi v.t. davis m.m. secretion of a chimeric t - cell receptor - immunoglobulin protein proc. natl. acad. sci. usa 1987 84 2936 2940 10.1073 / pnas.84.9.2936 3472243 9 .
+ackers g.k. smith f.r. the hemoglobin tetramer : a three - state molecular switch for control of ligand affinity annu. rev. biophys. biophys. chem .
+1987 16 583 609 10.1146 / annurev.bb.16.060187.003055 3593506 10 .
+marttila a.t. airenne k.j. laitinen o.h. kulik t. bayer e.a. wilchek m. kulomaa m.s. engineering of chicken avidin : a progressive series of reduced charge mutants febs lett .
+1998 441 313 317 10.1016 / s0014 - 5793 ( 98 ) 01570 - 1 9883906 11 .
+bailey s. eliason w.k. steitz t.a. structure of hexameric dnab helicase and its complex with a domain of dnag primase science 2007 318 459 463 10.1126 / science.1147353 17947583 12 .
+tsao t.s. tomas e. murrey h.e. hug c. lee d.h. ruderman n.b. heuser j.e. lodish h.f. role of disulfide bonds in acrp30 / adiponectin structure and signaling specificity j. biol. chem .
+2003 278 50810 50817 10.1074 / jbc.m309469200 14522956 13 .
+ciszak e. smith g.d. crystallographic evidence for dual coordination around zinc in the t3r3 human insulin hexamer biochemistry 1994 33 1512 1517 10.1021 / bi00172a030 8312271 14 .
+liang w.g. ren m. zhao f. tang w .
+- j. structures of human ccl18 , ccl3 , and ccl4 reveal molecular determinants for quaternary structures and sensitivity to insulin - degrading enzyme j. mol. biol .
+2015 427 1345 1358 10.1016 / j.jmb.2015.01.012 25636406 15 .
+stenkamp r.e. dioxygen and hemerythrin chem. rev .
+1994 94 715 726 10.1021 / cr00027a008 16 .
+camahort r. shivaraju m. mattingly m. li b. nakanishi s. zhu d. shilatifard a. workman j.l. gerton j.l .
+cse4 is part of an octameric nucleosome in budding yeast mol .
+cell 2009 35 794 805 10.1016 / j.molcel.2009.07.022 19782029 17 .
+darnell j.e. transcription factors as targets for cancer therapy nat. rev .
+cancer 2002 2 740 749 10.1038 / nrc906 12360277 18 .
+dowiercial a. wilk p. rypniewski w. rode w. jarmula a. crystal structure of mouse thymidylate synthase in tertiary complex with dump and raltitrexed reveals n - terminus architecture and two different active site conformations biomed res. int .
+2014 2014 945803 10.1155 / 2014 / 945803 24995339 19 .
+wibmer c.k. gorman j. ozorowski g. bhiman j.n. sheward d.j. elliott d.h. rouelle j. smira a. joyce m.g. ndabambi n. structure and recognition of a novel hiv - 1 gp120 - gp41 interface antibody that caused mper exposure through viral escape plos pathog .
+2017 13 e1006074 10.1371 / journal.ppat.1006074 28076415 20 .
+kovacs j.m. nkolola j.p. peng h. cheung a. perry j. miller c.a. seaman m.s. barouch d.h. chen b. hiv - 1 envelope trimer elicits more potent neutralizing antibody responses than monomeric gp120 proc. natl. acad. sci. usa 2012 109 12111 12116 10.1073 / pnas.1204533109 22773820 21 .
+katen s.p. tan z. chirapu s.r. finn m. zlotnick a. assembly - directed antivirals differentially bind quasiequivalent pockets to modify hepatitis b virus capsid tertiary and quaternary structure structure 2013 21 1406 1416 10.1016 / j.str.2013.06.013 23871485 22 .
+ogura t. tong k.i. mio k. maruyama y. kurokawa h. sato c. yamamoto m .
+keap1 is a forked - stem dimer structure with two large spheres enclosing the intervening , double glycine repeat , and c - terminal domains proc. natl. acad. sci. usa 2010 107 2842 2847 10.1073 / pnas.0914036107 20133743 23 .
+junninen h. ehn m. petaja t. luosujarvi l. kotiaho t. kostiainen r. rohner u. gonin m. fuhrer k. kulmala m. a high - resolution mass spectrometer to measure atmospheric ion composition atmos. meas. tech .
+2010 3 1039 1053 10.5194 / amt - 3 - 1039 - 2010 24 .
+assink h.a. blijenberg b.g. boerma g.j. leijnse b. the introduction of bromocresol purple for the determination of serum albumin on smac and aca , and the standardization procedure j. clin. chem. clin. biochem .
+1984 22 685 692 10.1515 / cclm.1984.22.10.685 6512498 25 .
+chou c.y. lin y.l. huang y.c. sheu s.y. lin t.h. tsay h.j. chang g.g. shiao m.s. structural variation in human apolipoprotein e3 and e4 : secondary structure , tertiary structure , and size distribution biophys. j. 2005 88 455 466 10.1529 / biophysj.104.046813 15475580 26 .
+oxford j.t. descala j. morris n. gregory k. medeck r. irwin k. oxford r. brown r. mercer l. cusack s. interaction between amino propeptides of type xi procollagen alpha1 chains j. biol. chem .
+2004 279 10939 10945 10.1074 / jbc.m310291200 14699108 27 .
+wolf e. kim p.s. berger b. multicoil : a program for predicting two - and three - stranded coiled coils protein sci. 1997 6 1179 1189 10.1002 / pro.5560060606 9194178 28 .
+woolfson d.n. alber t. predicting oligomerization states of coiled coils protein sci. 1995 4 1596 1607 10.1002 / pro.5560040818 8520486 29 .
+armstrong c.t. vincent t.l. green p.j. woolfson d.n. scorer 2.0 : an algorithm for distinguishing parallel dimeric and trimeric coiled - coil sequences bioinformatics 2011 27 1908 1914 10.1093 / bioinformatics / btr299 21576179 30 .
+testa o.d. moutevelis e. woolfson d.n. cc + : a relational database of coiled - coil structures nucleic acids res .
+2009 37 d315 d322 10.1093 / nar / gkn675 18842638 31 .
+levy e.d. pereira - leal j.b. chothia c. teichmann s.a .
+3d complex : a structural classification of protein complexes plos comput. biol .
+2006 2 e155 10.1371 / journal.pcbi.0020155 17112313 32 .
+riera - fernandez p. munteanu c.r. escobar m. prado - prado f. martin - romalde r. pereira d. villalba k. duardo - sanchez a. gonzalez - diaz h. new markov - shannon entropy models to assess connectivity quality in complex networks : from molecular to cellular pathway , parasite - host , neural , industry , and legal - social networks j. theor. biol .
+2012 293 174 188 10.1016 / j.jtbi.2011.10.016 22037044 33 .
+peek a.s. improving model predictions for rna interference activities that use support vector machine regression by combining and filtering features bmc bioinform .
+2007 8 182 10.1186 / 1471 - 2105 - 8 - 182 17553157 34 .
+lee b. richards f.m. the interpretation of protein structures : estimation of static accessibility j. mol. biol .
+1971 55 379 400 10.1016 / 0022 - 2836 ( 71 ) 90324 - x 5551392 35 .
+lin y .
+- s. hsu w .
+- l. hwang j .
+- k. li w .
+- h. proportion of solvent - exposed amino acids in a protein and rate of protein evolution mol. biol. evol .
+2007 24 1005 1011 10.1093 / molbev / msm019 17264066 36 .
+deng l. guan j. dong q. zhou s. prediction of protein - protein interaction sites using an ensemble method bmc bioinform .
+2009 10 426 10.1186 / 1471 - 2105 - 10 - 426 20015386 37 .
+frank e. hall m. trigg l. holmes g. witten i.h. data mining in bioinformatics using weka bioinformatics 2004 20 2479 2481 10.1093 / bioinformatics / bth261 15073010 38 .
+manavalan b. lee j. lee j. random forest - based protein model quality assessment ( rfmqa ) using structural features and potential energy terms plos one 2014 9 e106542 10.1371 / journal.pone.0106542 25222008 39 .
+cao r. adhikari b. bhattacharya d. sun m. hou j. cheng j. qacon : single model quality assessment using protein structural and contact information with machine learning techniques bioinformatics 2017 33 586 588 10.1093 / bioinformatics / btw694 28035027 40 .
+manavalan b. lee j. svmqa : support - vector - machine - based protein single - model quality assessment bioinformatics 2017 33 2496 2503 10.1093 / bioinformatics / btx222 28419290 41 .
+manavalan b. basith s. shin t.h. choi s. kim m.o. lee g. mlacp : machine - learning - based prediction of anticancer peptides oncotarget 2017 8 77121 77136 10.18632 / oncotarget.20365 29100375 42 .
+wu c. yao s. li x. chen c. hu x. genome - wide prediction of dna methylation using dna composition and sequence complexity in human int. j. mol. sci. 2017 18 420 10.3390 / ijms18020420 28212312 figure 1 the flowchart of classifier evaluation .
+svm : support vector machine .
+figure 2 different complexes and their best performance integrated module .
+mcc : matthews correlation coefficient .
+genes - 09 - 00091 - t001 _ table 1 table 1 training set and independent test set basis on the year to do classification .
+training set independent test set monomer 11,638 1513 dimer 8570 1005 trimer 1231 119 tetramer 2764 282 other 1527 176 genes - 09 - 00091 - t002 _ table 2 table 2 positive and negative data of training set and independent test .
+training set independent test set positive negative positive negative monomer 11,638 14,092 1535 1582 dimer 8570 17,160 1005 2112 trimer 1231 24,499 119 2998 tetramer 2764 22,966 282 2835 other 1527 24,203 176 2941 genes - 09 - 00091 - t003 _ table 3 table 3 bootstrap method compared with random method .
+trimer tetramer other bootstrap 0.696 0.741 0.757 random 0.676 0.727 0.738
