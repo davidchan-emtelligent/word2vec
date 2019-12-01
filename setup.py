@@ -9,7 +9,7 @@ setup(
 	package_dir={'': 'src'},
 
 	install_requires=[
-		'segtok',
+		'segtok-spans',
 		'gensim==3.5.0'
 	],
 	entry_points={
@@ -18,3 +18,4 @@ setup(
 		],
 	},
 )
+#pip install git+ssh://git@github.com/emtelligent/segtok-spans.git
