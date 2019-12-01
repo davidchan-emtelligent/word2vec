@@ -26,6 +26,7 @@ from multiprocessing import Pool, Value
 from itertools import tee, chain
 import time
 import logging
+from segtok_spans.segmenter import split_multi
 from segtok_spans.tokenizer import med_tokenizer
 
 current_path = os.path.dirname(os.path.realpath(__file__))
@@ -54,13 +55,14 @@ def split_hyphen_segtok(doc):
 
     (output_dir, f_name, text) = doc    
     def run(text):
-        text = text.replace("-", " - ").replace("  ", " ")
-        for sentence in split_multi(text.lower()):
-            yield "<s>"
-            tokens, _ = zip(*med_tokenizer(sentence))
-            for token in tokens:
-                yield token
-            yield "<e>"
+        #text = text.replace("-", " - ").replace("  ", " ")
+        for sentence, _ in split_multi(text.lower()):
+            if re.findall(r"[A-Za-z]+", sentence):
+                yield "<s>"
+                tokens, _ = zip(*med_tokenizer(sentence))
+                for token in tokens:
+                    yield token
+                yield "<e>"
 
     if counter.value % 10 == 0:
         print ("\rpreprocessing files: %3d"%(counter.value), end='    ')
@@ -103,9 +105,9 @@ def init(args):
     counter = args
 
 
-def read_and_preprocess(input_path, preprocessing_func, output_dir="", \
+def read_and_preprocess(input_path, tokenizer, output_dir="", \
     input_span=(0, 10000000), verbose=False):
-
+    global counter
     counter = Value('i', 0)
 
     with open(input_path, 'r') as fr:
@@ -124,7 +126,13 @@ def read_and_preprocess(input_path, preprocessing_func, output_dir="", \
         with open(f, 'r') as fr:
             doc = fr.read().lower()
             b += len(doc)
-            docs += [(output_dir, f.split('/')[-1], doc)]
+            if tokenizer == "dbtext":
+                for text in doc.split('\n'):
+                    if text.strip():
+                        text = text.replace('<new_line>', '\n').replace('\t', '\n').replace('. ', '.\n')
+                        docs += [(output_dir, f.split('/')[-1], text)]
+            else:
+                docs += [(output_dir, f.split('/')[-1], doc)]
 
     if verbose:
         logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
@@ -133,6 +141,10 @@ def read_and_preprocess(input_path, preprocessing_func, output_dir="", \
     logging.info("read files     : %d\n%s"%(len(txt_files), str(txt_files[:2])))
     logging.info('total bytes    : %d'%(b))
     logging.info('read files time: %.2f'%(time.time() - t0))
+
+    preprocessing_func = split_hyphen_segtok
+    if tokenizer == "":
+        preprocessing_func = simply_split
 
     t0=time.time()    
     document_lst = None
@@ -148,7 +160,8 @@ def read_and_preprocess(input_path, preprocessing_func, output_dir="", \
                 document_lst += [tokens]
         else:
             pool = Pool(initializer=init, initargs=(counter,) )
-            document_lst = pool.map_async(preprocessing_func, docs).get()
+            #document_lst = pool.map_async(preprocessing_func, docs).get()
+            document_lst = [preprocessing_func(doc) for doc in docs]
             pool.close()
             pool.join()        
 
@@ -157,31 +170,6 @@ def read_and_preprocess(input_path, preprocessing_func, output_dir="", \
     return {"documents":document_lst, "n_docs":len(txt_files), \
         "input_files_and_span": (input_path, s, e), "bytes": b}
 
-
-def read_and_preprocess_dbtxt(input_path, span):
-    def run(text):
-        for sentence in text.replace('<new_line>', '\n').replace('\t', '\n').replace('. ', '.\n').split('\n'):
-            sentence = sentence.strip()
-            if re.findall(r"[A-Za-z]+", sentence):
-                yield "<s>"
-                tokens, _ = zip(*med_tokenizer(sentence))
-                for token in tokens:
-                    yield token
-                yield "<e>"
-
-    document_lst = []
-    b = 0
-    with open(input_path, 'r') as fr:
-        txt_files = [line.strip() for line in fr if line.strip()]
-    for path in txt_files:
-        with open(path, 'r') as fr:
-            text = fr.read()
-            b += len(text)
-            for report_text in text.split('\n'):
-                document_lst += [list(run(report_text))]
-
-    return {"documents":document_lst, "n_docs":len(txt_files), \
-        "input_files_and_span": (input_path, span[0], span[1]), "bytes": b}
 
 
 def train(documents, old_ckpt=None, new_ckpt=None, \
@@ -197,7 +185,7 @@ def train(documents, old_ckpt=None, new_ckpt=None, \
         logging.disable(logging.INFO)
 
     #create input data stream
-    docs = documents["documents"];print(len(documents["documents"][0]));print(documents["documents"][0],documents.keys());sys.exit(0)
+    docs = documents["documents"]
     n_docs = documents["n_docs"]
     docs, docs_vocab = tee(docs)
     docs_train = list(docs)
@@ -338,14 +326,7 @@ def main():
 
     old_ckpt, new_ckpt = get_check_pt(checkpoint_dir, chunk_size)
 
-    if tokenizer == "dbtext":
-        docs = read_and_preprocess_dbtxt(input_path, input_span)
-    else:
-        preprocessing_func = split_hyphen_segtok
-        if args.tokenizer == "":
-            preprocessing_func = simply_split
-        docs = read_and_preprocess(input_path, preprocessing_func, args.output_dir, input_span=input_span, verbose=verbose)
-
+    docs = read_and_preprocess(input_path, tokenizer, args.output_dir, input_span=input_span, verbose=verbose)
     if docs["n_docs"] == 0:
         print ("ERROR: Empty dataset! input_span:", str(input_span))
         sys.exit(0)
