@@ -3,11 +3,8 @@
 """
 w2v.py
 
-#using document text data set
-python w2v.py -m checkpoint -i txt_exist.paths 
-
-#using tokenized sentences data set
-python w2v.py -m models -i preprocessed_sentences.paths 
+#using document text data set 
+python w2v.py -m checkpoint -i txt.paths -m model_path
 
 #testing similary
 python src/word2vec/w2v.py -m ../models/ckpt-200.model -c ../config.json -t "he questions about the subjects' self-reported oral health status,"
@@ -30,12 +27,13 @@ from segtok_spans.segmenter import split_multi
 from segtok_spans.tokenizer import med_tokenizer
 
 current_path = os.path.dirname(os.path.realpath(__file__))
-test_path = os.path.join(os.path.dirname(os.path.dirname(current_path)),"test_data")
-sys.path.append(current_path)
-from get_files_multi import get_files
+sys.path.append(os.path.dirname(current_path))
+#from word2vec import getsize
 
 
 def get_check_pt(checkpoint_dir, chunk_size):
+    if checkpoint_dir.endswith(".model"):
+        checkpoint_dir = "/".join(checkpoint_dir.split("/")[:1])
     if not os.path.isdir(checkpoint_dir):
         os.system("mkdir -p %s"%checkpoint_dir)
     checkpt_file = os.path.join(checkpoint_dir, "checkpoint")
@@ -49,40 +47,23 @@ def get_check_pt(checkpoint_dir, chunk_size):
         ckpt_idx = int(old_name.split('-')[-1]) + chunk_size
         return old_ckpt, os.path.join(checkpoint_dir, '%s.model'%("ckpt-"+str(ckpt_idx)))
 
+
 counter = None
-def split_hyphen_segtok(doc):
+def to_tokens(doc):
     global counter
 
-    (output_dir, f_name, text) = doc    
-    def run(text):
+    f_name, text, tokenized_save_dir = doc    
+    def run_tokenizer(text):
         #text = text.replace("-", " - ").replace("  ", " ")
         for sentence, _ in split_multi(text.lower()):
             if re.findall(r"[A-Za-z]+", sentence):
                 yield "<s>"
+                sentence = sentence.replace(".", " . ").replace("  ", " ")
                 tokens, _ = zip(*med_tokenizer(sentence))
                 for token in tokens:
                     yield token
                 yield "<e>"
 
-    if counter.value % 10 == 0:
-        print ("\rpreprocessing files: %3d"%(counter.value), end='    ')
-        sys.stdout.flush()
-
-    with counter.get_lock():
-        counter.value += 1
-
-    tokens = list(run(text))
-    if output_dir != "":
-        sentences = " ".join(tokens).replace(' <e> <s> ', '\n').replace('<s> ', '').replace(' <e>', '')
-        with open(os.path.join(output_dir, f_name[:-9] + ".tokenized.txt"), "w") as fd:
-            fd.write(sentences)
-    return tokens
-
-
-def simply_split(doc):
-    global counter
-
-    (output_dir, f_name, text) = doc    
     def run(text):
         for sentence in text.split('\n'):
             yield "<s>"
@@ -97,7 +78,16 @@ def simply_split(doc):
     with counter.get_lock():
         counter.value += 1
 
-    return list(run(text))
+    if f_name.endswith(".tokenized.txt"):
+        tokens = list(run(text))
+    else:
+        tokens = list(run_tokenizer(text))
+        if tokenized_save_dir != "":
+            sentences = " ".join(tokens).replace(' <e> <s> ', '\n').replace('<s> ', '').replace(' <e>', '')
+            with open(os.path.join(tokenized_save_dir, ".".join(f_name.split(".")[:-1]) + ".tokenized.txt"), "w") as fd:
+                fd.write(sentences)
+
+    return tokens
 
 
 def init(args):
@@ -105,13 +95,15 @@ def init(args):
     counter = args
 
 
-def read_and_preprocess(input_path, tokenizer, output_dir="", \
-    input_span=(0, 10000000), verbose=False):
+def read_and_preprocess(input_path, tokenized_save_dir="", input_span=(0, 10000000), verbose=False):
     global counter
     counter = Value('i', 0)
-
-    with open(input_path, 'r') as fr:
-        txt_files = [line.strip() for line in fr if line.strip()]
+    
+    if input_path.endswith(".paths"):
+        with open(input_path, 'r') as fr:
+            txt_files = [line.strip() for line in fr if line.strip()]
+    elif os.path.isdir(input_path):
+        txt_files = [os.path.join(input_path, f) for f in os.listdir(input_path) if f.endswith(".txt")]
 
     (s, e) = input_span
     print ("total docs: %d\nspan      : %d:%d"%(len(txt_files),s, e))
@@ -126,14 +118,10 @@ def read_and_preprocess(input_path, tokenizer, output_dir="", \
         with open(f, 'r') as fr:
             doc = fr.read().lower()
             b += len(doc)
-            if tokenizer == "dbtext":
-                for text in doc.split('\n'):
-                    if text.strip():
-                        text = text.replace('<new_line>', '\n').replace('\t', '\n').replace('. ', '.\n')
-                        docs += [(output_dir, f.split('/')[-1], text)]
-            else:
-                docs += [(output_dir, f.split('/')[-1], doc)]
-
+            #clean from dbtext
+            if doc.strip():
+                doc = doc.replace('<new_line>', '\n').replace('\t', '\n').replace('. ', '.\n').strip()
+                docs += [(f.split('/')[-1], doc, tokenized_save_dir)]
     if verbose:
         logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
     else:
@@ -142,34 +130,23 @@ def read_and_preprocess(input_path, tokenizer, output_dir="", \
     logging.info('total bytes    : %d'%(b))
     logging.info('read files time: %.2f'%(time.time() - t0))
 
-    preprocessing_func = split_hyphen_segtok
-    if tokenizer == "":
-        preprocessing_func = simply_split
-
     t0=time.time()    
     document_lst = None
     if docs != []:
-        tokenized = docs[0][1].split(".")[-2]
-        if tokenized == "tokenized":
-            print ("Using tokenized docs!")
-            document_lst = []
-            for (output_dir, f, doc) in docs:
-                tokens = []
-                for sent in doc.split('\n'):
-                    tokens += ['<s>'] + sent.split() + ['<e>']
-                document_lst += [tokens]
-        else:
-            pool = Pool(initializer=init, initargs=(counter,) )
-            #document_lst = pool.map_async(preprocessing_func, docs).get()
-            document_lst = [preprocessing_func(doc) for doc in docs]
-            pool.close()
-            pool.join()        
+        pool = Pool(initializer=init, initargs=(counter,) )
+        document_lst = pool.map_async(to_tokens, docs).get()
+        #document_lst = [to_tokens(doc) for doc in docs]
+        pool.close()
+        pool.join()        
+    if tokenized_save_dir:
+        f_names = [os.path.join(tokenized_save_dir, ".".join(x[0].split(".")[:-1]) + ".tokenized.txt")  for x in docs if not x[0].endswith(".tokenized.txt")]
+        with open(os.path.join(tokenized_save_dir, "tokenized.paths"), "w") as fd:
+            fd.write("\n".join(f_names))
+        print("save to :", os.path.join(tokenized_save_dir, "tokenized.paths"))
 
     logging.info('preprocess time: %.2f'%(time.time() - t0))
     
-    return {"documents":document_lst, "n_docs":len(txt_files), \
-        "input_files_and_span": (input_path, s, e), "bytes": b}
-
+    return {"documents":document_lst, "n_docs":len(txt_files), "input_files_and_span": (input_path, s, e), "bytes": b}
 
 
 def train(documents, old_ckpt=None, new_ckpt=None, \
@@ -233,69 +210,19 @@ def train(documents, old_ckpt=None, new_ckpt=None, \
 
     return model
 
-    
-from numbers import Number
-from collections import Set, Mapping, deque
-
-try: # Python 2
-    zero_depth_bases = (basestring, Number, xrange, bytearray)
-    iteritems = 'iteritems'
-except NameError: # Python 3
-    zero_depth_bases = (str, bytes, Number, range, bytearray)
-    iteritems = 'items'
-
-def getsize(obj_0):
-    """Recursively iterate to sum size of object & members."""
-    def inner(obj, _seen_ids = set()):
-        obj_id = id(obj)
-        if obj_id in _seen_ids:
-            return 0
-        _seen_ids.add(obj_id)
-        size = sys.getsizeof(obj)
-        if isinstance(obj, zero_depth_bases):
-            pass # bypass remaining control flow and return
-        elif isinstance(obj, (tuple, list, Set, deque)):
-            size += sum(inner(i) for i in obj)
-        elif isinstance(obj, Mapping) or hasattr(obj, iteritems):
-            size += sum(inner(k) + inner(v) for k, v in getattr(obj, iteritems)())
-        # Check for custom object instances - may subclass above too
-        if hasattr(obj, '__dict__'):
-            size += inner(vars(obj))
-        if hasattr(obj, '__slots__'): # can have __slots__ with __dict__
-            size += sum(inner(getattr(obj, s)) for s in obj.__slots__ if hasattr(obj, s))
-        return size
-    return inner(obj_0)
-
-
-def get_similar(text, model_str): #gensim.utils.simple_preprocess):
-    tokens = word_tokenizer(text.lower())
-    if model_str.endswith(".model"):
-        model_path = model_str
-    else:
-        print("ERROR: invalid model path (w2v.model)", model_str)
-    model = gensim.models.Word2Vec.load(model_path)
-
-    ret_str = ''
-    for tok in tokens:
-        ret_str += "%15s :"%(tok)
-        similars = [w for (w, v) in model.wv.most_similar(positive=tok,topn=5)]
-        ret_str += ','.join([" %s"%(tok) for tok in similars]) + '\n'
-    
-    return ret_str
-
 
 def main():
     import argparse
+    sys.path.append(current_path)
+    from helper import getsize
 
     argparser = argparse.ArgumentParser()
-    argparser.add_argument("-o", "--output_dir", dest="output_dir", type=str, default="", help="save tokenized text path (default={})".format(""))
-    argparser.add_argument("-i", "--input_path", dest="input_path", type=str, default=os.path.join(test_path, "tokenized_text.paths"),  help="input_path (default={})".format(None))
-    argparser.add_argument("-m", "--checkpoint_dir", dest="checkpoint_dir", type=str, default="", help="save checkpoint (default={})".format(None))
-    argparser.add_argument("-s", "--span", dest="input_span", type=str, default="", help="span of files list (default={})".format(""))
-    argparser.add_argument("--tokenizer", dest="tokenizer", type=str, default="", help="tokenizer segtok/simple (default={})".format(""))
-    argparser.add_argument("-c", "--config", dest="config_path", default=os.path.join(test_path, "config.json"), help="config.json (default={})".format("config.json"))
+    argparser.add_argument("-o", "--output_tokenized_dir", dest="output_tokenized_dir", type=str, default="", help="save tokenized text path")
+    argparser.add_argument("-i", "--input_path", dest="input_path", type=str, default="",  help="input paths file")
+    argparser.add_argument("-m", "--checkpoint_dir", dest="checkpoint_dir", type=str, default="", help="save checkpoints")
+    argparser.add_argument("-l", "--limit", dest="limit", type=str, default="", help="span of files, eg. 10:1000")
+    argparser.add_argument("-c", "--config", dest="config_path", default=os.path.join(current_path, "resources/config.json"), help="config.json (default={})".format("config.json"))
     argparser.add_argument("-v", "--verbose", dest="verbose", default=False, action='store_true', help="verbose")
-    argparser.add_argument("-t", "--text", dest="text_str", type=str, default="", help="similar 5 words (default={})".format("abc efg"))
     args = argparser.parse_args()
 
     with open(args.config_path) as fj:
@@ -303,37 +230,37 @@ def main():
 
     verbose = args.verbose
 
-    input_path, checkpoint_dir, chunk_size, epochs, size, min_count, tokenizer, verbose = \
+    input_path, checkpoint_dir, chunk_size, epochs, size, min_count, output_tokenized_dir, verbose = \
         config['input_path'], config['checkpoint_dir'], config['chunk_size'], \
-        config['epochs'], config['size'], config['min_count'], config['tokenizer'], config['verbose']
+        config['epochs'], config['size'], config['min_count'], config['output_tokenized_dir'], config['verbose']
 
     if args.input_path != "":
         input_path = args.input_path
     if args.checkpoint_dir != "":
         checkpoint_dir = args.checkpoint_dir
-    if args.tokenizer != "":
-        tokenizer = args.tokenizer
-    if args.text_str != "":
-        print ("checkpoint_dir", checkpoint_dir, file=sys.stdout)
-        print (get_similar(args.text_str, checkpoint_dir), file=sys.stdout)
-        sys.exit(0)
+    if args.output_tokenized_dir:
+        output_tokenized_dir = args.output_tokenized_dir
+    if output_tokenized_dir:
+        if not os.path.isdir(output_tokenized_dir):
+            os.system("mkdir %s"%output_tokenized_dir)
     
-    input_span = (0, chunk_size)
-    if args.input_span != "":
-        (s, e) = tuple(args.input_span.split(":"))
-        input_span = (int(s), int(e))
-    chunk_size = input_span[1] - input_span[0]
-
+    limit = (0, chunk_size)
+    if args.limit:
+        lst = args.limit.split(":")
+        if len(lst) == 2:
+            s, e = tuple(lst)
+        else:
+            s, e = 0, lst[0]
+        limit = (int(s), int(e))
+    chunk_size = limit[1] - limit[0]
     old_ckpt, new_ckpt = get_check_pt(checkpoint_dir, chunk_size)
 
-    docs = read_and_preprocess(input_path, tokenizer, args.output_dir, input_span=input_span, verbose=verbose)
+    docs = read_and_preprocess(input_path, output_tokenized_dir, input_span=limit, verbose=verbose)
     if docs["n_docs"] == 0:
-        print ("ERROR: Empty dataset! input_span:", str(input_span))
+        print ("ERROR: Empty dataset! limit:", str(limit))
         sys.exit(0)
-
-
     #print (type(docs["documents"]), docs["n_docs"], docs["input_files_and_span"], docs["bytes"])
-    print (old_ckpt, new_ckpt, input_span, chunk_size, verbose)
+    print (old_ckpt, new_ckpt, limit, chunk_size, verbose)
 
     model = train(docs, size=size, min_count=min_count, \
         old_ckpt=old_ckpt, \
@@ -342,6 +269,7 @@ def main():
 
     print (model)
     print ("model size:", getsize(model))
+
 
 if __name__ == '__main__':
     main()
